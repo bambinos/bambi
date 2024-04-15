@@ -101,9 +101,10 @@ def test_auto_scale(diabetes_data):
     # By default, should scale everything except custom bmb.Prior() objects
     priors = {"BP": bmb.Prior("Cauchy", alpha=1, beta=17.5)}
     model = bmb.Model("BMI ~ S1 + S2 + BP", diabetes_data, priors=priors)
-    p1 = model.response_component.terms["S1"].prior
-    p2 = model.response_component.terms["S2"].prior
-    p3 = model.response_component.terms["BP"].prior
+    parent_component = model.components[model.family.likelihood.parent]
+    p1 = parent_component.terms["S1"].prior
+    p2 = parent_component.terms["S2"].prior
+    p3 = parent_component.terms["BP"].prior
     assert p1.name == p2.name == "Normal"
     assert 0 < p1.args["sigma"] < 1
     assert p2.args["sigma"] > p1.args["sigma"]
@@ -113,8 +114,9 @@ def test_auto_scale(diabetes_data):
     # With auto_scale off, custom priors are considered.
     priors = {"BP": bmb.Prior("Cauchy", alpha=1, beta=17.5)}
     model = bmb.Model("BMI ~ S1 + S2 + BP", diabetes_data, priors=priors, auto_scale=False)
-    p2_off = model.response_component.terms["S2"].prior
-    p3_off = model.response_component.terms["BP"].prior
+    parent_component = model.components[model.family.likelihood.parent]
+    p2_off = parent_component.terms["S2"].prior
+    p3_off = parent_component.terms["BP"].prior
     assert p2_off.name == "Flat"
     assert "sigma" not in p2_off.args
     assert p3_off.name == "Cauchy"
@@ -199,23 +201,24 @@ def test_set_priors():
 
     # Common
     model.set_priors(common=prior)
-    assert model.response_component.terms["x"].prior == prior
+    assert model.components[model.family.likelihood.parent].terms["x"].prior == prior
 
     # Group-specific
     with pytest.raises(ValueError, match="must have hyperpriors"):
         model.set_priors(group_specific=prior)
 
     model.set_priors(group_specific=gp_prior)
-    assert model.response_component.terms["1|g"].prior == gp_prior
+    assert model.components[model.family.likelihood.parent].terms["1|g"].prior == gp_prior
 
     # By name
     model = bmb.Model("y ~ x + (1|g)", data)
     model.set_priors(priors={"Intercept": prior})
     model.set_priors(priors={"x": prior})
     model.set_priors(priors={"1|g": gp_prior})
-    assert model.response_component.terms["Intercept"].prior == prior
-    assert model.response_component.terms["x"].prior == prior
-    assert model.response_component.terms["1|g"].prior == gp_prior
+    parent_component = model.components[model.family.likelihood.parent]
+    assert parent_component.terms["Intercept"].prior == prior
+    assert parent_component.terms["x"].prior == prior
+    assert parent_component.terms["1|g"].prior == gp_prior
 
 
 def test_set_prior_unexisting_term():
@@ -295,27 +298,31 @@ def test_prior_shape():
     )
 
     model = bmb.Model("score ~ 0 + q", data)
-    assert model.response_component.terms["q"].prior.args["mu"].shape == (5,)
-    assert model.response_component.terms["q"].prior.args["sigma"].shape == (5,)
+    parent_component = model.components[model.family.likelihood.parent]
+    assert parent_component.terms["q"].prior.args["mu"].shape == (5,)
+    assert parent_component.terms["q"].prior.args["sigma"].shape == (5,)
 
     model = bmb.Model("score ~ q", data)
-    assert model.response_component.terms["q"].prior.args["mu"].shape == (4,)
-    assert model.response_component.terms["q"].prior.args["sigma"].shape == (4,)
+    parent_component = model.components[model.family.likelihood.parent]
+    assert parent_component.terms["q"].prior.args["mu"].shape == (4,)
+    assert parent_component.terms["q"].prior.args["sigma"].shape == (4,)
 
     model = bmb.Model("score ~ 0 + q:s", data)
-    assert model.response_component.terms["q:s"].prior.args["mu"].shape == (15,)
-    assert model.response_component.terms["q:s"].prior.args["sigma"].shape == (15,)
+    parent_component = model.components[model.family.likelihood.parent]
+    assert parent_component.terms["q:s"].prior.args["mu"].shape == (15,)
+    assert parent_component.terms["q:s"].prior.args["sigma"].shape == (15,)
 
     # "s" is automatically added to ensure full rank matrix
     model = bmb.Model("score ~ q:s", data)
-    assert model.response_component.terms["Intercept"].prior.args["mu"].shape == ()
-    assert model.response_component.terms["Intercept"].prior.args["sigma"].shape == ()
+    parent_component = model.components[model.family.likelihood.parent]
+    assert parent_component.terms["Intercept"].prior.args["mu"].shape == ()
+    assert parent_component.terms["Intercept"].prior.args["sigma"].shape == ()
 
-    assert model.response_component.terms["s"].prior.args["mu"].shape == (2,)
-    assert model.response_component.terms["s"].prior.args["sigma"].shape == (2,)
+    assert parent_component.terms["s"].prior.args["mu"].shape == (2,)
+    assert parent_component.terms["s"].prior.args["sigma"].shape == (2,)
 
-    assert model.response_component.terms["q:s"].prior.args["mu"].shape == (12,)
-    assert model.response_component.terms["q:s"].prior.args["sigma"].shape == (12,)
+    assert parent_component.terms["q:s"].prior.args["mu"].shape == (12,)
+    assert parent_component.terms["q:s"].prior.args["sigma"].shape == (12,)
 
 
 def test_set_priors_but_intercept():

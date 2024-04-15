@@ -203,6 +203,8 @@ class PyMCModel:
                 if is_likelihood_param and is_deterministic:
                     vars_to_sample.remove(name)
 
+            print(vars_to_sample)
+            
             with self.model:
                 try:
                     idata = pm.sample(

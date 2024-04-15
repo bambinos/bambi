@@ -187,8 +187,7 @@ class InterceptTerm:
             dist = dist(label, dims=dims, **self.term.prior.args)[np.newaxis, :]
         else:
             dist = dist(label, **self.term.prior.args)
-            # TODO: check if this brings the desired result
-            # Multiply it by vector of ones so it then has the proper length
+            # Multiply it by a vector of ones so it then has the proper length
             dist = dist * np.ones((spec.response_component.term.data.shape[0],))
         return dist
 
@@ -245,6 +244,10 @@ class ResponseTerm:
             bmb_component = bmb_model.components[name]
             aliased_name = bmb_component.alias if bmb_component.alias else bmb_component.name
             linkinv = get_linkinv(self.family.link[name], pymc_backend.INVLINKS)
+            print(name)
+            print(self.family.link[name])
+            print(component)
+            print(component.output)
             kwargs[name] = pm.Deterministic(aliased_name, linkinv(component.output), dims=dims)
 
         # Add observed and dims
