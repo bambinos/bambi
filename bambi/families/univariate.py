@@ -4,7 +4,7 @@ import scipy.special as sp
 import xarray as xr
 
 from bambi.families.family import Family
-from bambi.utils import get_aliased_name
+from bambi.utils import get_aliased_name, response_evaluate_new_data
 
 
 class UnivariateFamily(Family):
@@ -21,6 +21,20 @@ class BinomialBaseFamily(UnivariateFamily):
         # Prepend 'draw' and 'chain' dimensions
         trials = trials[np.newaxis, np.newaxis, :]
         return super().posterior_predictive(model, posterior, n=trials)
+
+    def log_likelihood(self, model, posterior, data, **kwargs):
+        if data is None:
+            y = model.response_component.response_term.data[:, 0]
+            trials = model.response_component.response_term.data[:, 1]
+        else:
+            output = response_evaluate_new_data(model, data).astype(int)
+            y = output[:, 0]
+            trials = output[:, 1]
+
+        # Prepend 'draw' and 'chain' dimensions
+        y = y[np.newaxis, np.newaxis, :]
+        trials = trials[np.newaxis, np.newaxis, :]
+        return super().log_likelihood(model, posterior, data=None, y=y, n=trials, **kwargs)
 
     @staticmethod
     def transform_backend_kwargs(kwargs):
@@ -389,7 +403,7 @@ class StoppingRatio(UnivariateFamily):
     def transform_backend_kwargs(kwargs):
         # P(Y = k) = F(threshold_k - eta) * \prod_{j=1}^{k-1}{1 - F(threshold_j - eta)}
         p = kwargs.pop("p")
-        n_columns = p.type.shape[-1]
+        n_columns = p.shape.eval()[-1]
         p = pt.concatenate(
             [
                 pt.shape_padright(p[..., 0]),

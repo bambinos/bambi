@@ -267,7 +267,7 @@ class Model:
             Finally, ``"laplace"``, in which case a Laplace approximation is used and is not
             recommended other than for pedagogical use.
             To get a list of JAX based inference methods, call
-            ``model.backend.inference_methods['bayeux']``. This will return a dictionary of the
+            ``bmb.inference_methods.names['bayeux']``. This will return a dictionary of the
             available methods such as ``blackjax_nuts``, ``numpyro_nuts``, among others.
         init : str
             Initialization method. Defaults to ``"auto"``. The available methods are:
@@ -307,7 +307,7 @@ class Model:
         -------
         An ArviZ ``InferenceData`` instance if inference_method is  ``"mcmc"`` (default),
         "laplace", or one of the MCMC methods in
-        ``model.backend.inference_methods['bayeux']['mcmc]``.
+        ``bmb.inference_methods.names['bayeux']['mcmc]``.
         An ``Approximation`` object if  ``"vi"``.
         """
         method = kwargs.pop("method", None)
@@ -816,13 +816,108 @@ class Model:
         if not inplace:
             idata = deepcopy(idata)
 
+        # Populate the posterior in the InferenceData object with the likelihood parameters
+        idata = self._compute_likelihood_params(
+            idata, data, include_group_specific, sample_new_groups
+        )
+
+        # Only if requested predict the predictive distribution
+        if kind == "pps":
+            response_aliased_name = get_aliased_name(self.response_component.response_term)
+            required_kwargs = {"model": self, "posterior": idata.posterior}
+            optional_kwargs = {"data": data}
+
+            pps = self.family.posterior_predictive(**required_kwargs, **optional_kwargs)
+            pps = pps.to_dataset(name=response_aliased_name)
+
+            if "posterior_predictive" in idata:
+                del idata.posterior_predictive
+            idata.add_groups({"posterior_predictive": pps})
+            idata.posterior_predictive = idata.posterior_predictive.assign_attrs(
+                modeling_interface="bambi", modeling_interface_version=__version__
+            )
+
+        if inplace:
+            return None
+        else:
+            return idata
+
+    def compute_log_likelihood(self, idata, data=None, inplace=True):
+        """Compute the model's log-likelihood
+
+        NOTE: This is a new feature and it may not work in all cases.
+
+        Parameters
+        ----------
+        idata : InferenceData
+            The `InferenceData` instance returned by `.fit()`.
+        data : pandas.DataFrame or None
+            An optional data frame with values for the predictors and the response on which
+            the model's log-likelihood function is evaluated.
+            If omitted, the original dataset is used.
+        inplace : bool
+            If True` it will modify `idata` in-place. Otherwise, it will return a copy of
+            `idata` with the `log_likelihood` group added.
+
+        Returns
+        -------
+        InferenceData or None
+        """
+
+        # These are not formal parameters because it does not make sense to...
+        #   1. compute the log-likelihood omitting the group-specific components of the model.
+        #   2. compute the log-likelihood on unseen groups.
+        include_group_specific = True
+        sample_new_groups = False
+
+        # Get the aliased response name
         response_aliased_name = get_aliased_name(self.response_component.response_term)
 
-        # ALWAYS predict the mean response
+        if not inplace:
+            idata = deepcopy(idata)
+
+        # Populate the posterior in the InferenceData object with the likelihood parameters
+        idata = self._compute_likelihood_params(
+            idata, data, include_group_specific, sample_new_groups
+        )
+
+        required_kwargs = {"model": self, "posterior": idata.posterior, "data": data}
+        log_likelihood = self.family.log_likelihood(**required_kwargs)
+        log_likelihood = log_likelihood.to_dataset(name=response_aliased_name)
+
+        if "log_likelihood" in idata:
+            del idata.log_likelihood
+
+        idata.add_groups({"log_likelihood": log_likelihood})
+        idata.log_likelihood = idata.log_likelihood.assign_attrs(
+            modeling_interface="bambi", modeling_interface_version=__version__
+        )
+
+        if inplace:
+            return None
+        else:
+            return idata
+
+    def _compute_likelihood_params(
+        self,
+        idata,
+        data=None,
+        include_group_specific=True,
+        sample_new_groups=False,
+    ):
+        """Computes the parameters of the likelihood (response distribution)
+
+        This is a utility function that populates the posterior group in the InferenceData object
+        with variables required by the model likelihood. This is useful for both posterior
+        predictive sampling and the computation of the log-likelihood function.
+
+        It returns the updated InferenceData object.
+        """
+        response_aliased_name = get_aliased_name(self.response_component.response_term)
         means_dict = {}
-        # To store the HSGP contributions that are also added to the posterior dataset
-        hsgp_dict = {}
+        hsgp_dict = {}  # To store the HSGP contributions (they are added to the posterior dataset)
         response_dim = response_aliased_name + "_obs"
+
         for name, component in self.distributional_components.items():
             if name == self.response_name:
                 var_name = response_aliased_name + "_mean"
@@ -861,25 +956,7 @@ class Model:
                     "chain", "draw", ...
                 )
 
-        # Only if requested predict the predictive distribution
-        if kind == "pps":
-            required_kwargs = {"model": self, "posterior": idata.posterior}
-            optional_kwargs = {"data": data}
-
-            pps = self.family.posterior_predictive(**required_kwargs, **optional_kwargs)
-            pps = pps.to_dataset(name=response_aliased_name)
-
-            if "posterior_predictive" in idata:
-                del idata.posterior_predictive
-            idata.add_groups({"posterior_predictive": pps})
-            idata.posterior_predictive = idata.posterior_predictive.assign_attrs(
-                modeling_interface="bambi", modeling_interface_version=__version__
-            )
-
-        if inplace:
-            return None
-        else:
-            return idata
+        return idata
 
     def graph(self, formatting="plain", name=None, figsize=None, dpi=300, fmt="png"):
         """Produce a graphviz Digraph from a built Bambi model.

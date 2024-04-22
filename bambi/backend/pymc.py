@@ -1,5 +1,4 @@
 import functools
-import importlib
 import logging
 import operator
 import traceback
@@ -14,6 +13,7 @@ import pymc as pm
 import pytensor.tensor as pt
 from pytensor.tensor.special import softmax
 
+from bambi.backend.inference_methods import inference_methods
 from bambi.backend.links import cloglog, identity, inverse_squared, logit, probit, arctan_2
 from bambi.backend.model_components import ConstantComponent, DistributionalComponent
 from bambi.utils import get_aliased_name
@@ -47,8 +47,8 @@ class PyMCModel:
         self.model = None
         self.spec = None
         self.components = {}
-        self.bayeux_methods = _get_bayeux_methods()
-        self.pymc_methods = {"mcmc": ["mcmc"], "vi": ["vi"]}
+        self.bayeux_methods = inference_methods.names["bayeux"]
+        self.pymc_methods = inference_methods.names["pymc"]
 
     def build(self, spec):
         """Compile the PyMC model from an abstract model specification.
@@ -253,8 +253,13 @@ class PyMCModel:
         return idata
 
     def _clean_results(self, idata, omit_offsets, include_mean, idata_from):
-        for group in idata.groups():
+        # Before doing anything, make sure we compute deterministics.
+        if idata_from == "bayeux":
+            idata.posterior = pm.compute_deterministics(
+                idata.posterior, model=self.model, merge_dataset=True, progressbar=False
+            )
 
+        for group in idata.groups():
             getattr(idata, group).attrs["modeling_interface"] = "bambi"
             getattr(idata, group).attrs["modeling_interface_version"] = __version__
 
@@ -262,36 +267,41 @@ class PyMCModel:
             offset_vars = [var for var in idata.posterior.data_vars if var.endswith("_offset")]
             idata.posterior = idata.posterior.drop_vars(offset_vars)
 
-        # Drop variables and dimensions associated with LKJ prior
-        vars_to_drop = [var for var in idata.posterior.data_vars if var.startswith("_LKJ")]
-        dims_to_drop = [dim for dim in idata.posterior.dims if dim.startswith("_LKJ")]
+        # NOTE:
+        # This has not had an effect for a while since we haven't been supporting LKJ prior lately.
 
-        idata.posterior = idata.posterior.drop_vars(vars_to_drop)
-        idata.posterior = idata.posterior.drop_dims(dims_to_drop)
+        # Drop variables and dimensions associated with LKJ prior
+        # vars_to_drop = [var for var in idata.posterior.data_vars if var.startswith("_LKJ")]
+        # dims_to_drop = [dim for dim in idata.posterior.dims if dim.startswith("_LKJ")]
+        # idata.posterior = idata.posterior.drop_vars(vars_to_drop)
+        # idata.posterior = idata.posterior.drop_dims(dims_to_drop)
 
         dims_original = list(self.model.coords)
 
         # Identify bayeux idata and rename dims and coordinates to match PyMC model
         if idata_from == "bayeux":
-            pymc_model_dims = [dim for dim in dims_original if "_obs" not in dim]
-            bayeux_dims = [
-                dim for dim in idata.posterior.dims if not dim.startswith(("chain", "draw"))
-            ]
-            cleaned_dims = dict(zip(bayeux_dims, pymc_model_dims))
+            cleaned_dims = {
+                f"{dim}_0": dim
+                for dim in dims_original
+                if not dim.endswith("_obs") and f"{dim}_0" in idata.posterior.dims
+            }
             idata = idata.rename(cleaned_dims)
 
-        # Discard dims that are in the model but unused in the posterior
+        # Don't select dims that are in the model but unused in the posterior
         dims_original = [dim for dim in dims_original if dim in idata.posterior.dims]
 
         # This does not add any new coordinate, it just changes the order so the ones
         # ending in "__factor_dim" are placed after the others.
-        dims_group = [c for c in dims_original if c.endswith("__factor_dim")]
+        dims_group = [dim for dim in dims_original if dim.endswith("__factor_dim")]
 
         # Keep the original order in dims_original
         dims_original_set = set(dims_original) - set(dims_group)
-        dims_original = [c for c in dims_original if c in dims_original_set]
+        dims_original = [dim for dim in dims_original if dim in dims_original_set]
         dims_new = ["chain", "draw"] + dims_original + dims_group
-        idata.posterior = idata.posterior.transpose(*dims_new)
+
+        # Drop unused dimensions before transposing
+        dims_to_drop = [dim for dim in idata.posterior.dims if dim not in dims_new]
+        idata.posterior = idata.posterior.drop_dims(dims_to_drop).transpose(*dims_new)
 
         # Compute the actual intercept in all distributional components that have an intercept
         for pymc_component in self.distributional_components.values():
@@ -338,8 +348,7 @@ class PyMCModel:
 
         Mainly for pedagogical use, provides reasonable results for approximately
         Gaussian posteriors. The approximation can be very poor for some models
-        like hierarchical ones. Use ``mcmc``, ``vi``, or JAX based MCMC methods
-        for better approximations.
+        like hierarchical ones. Use MCMC or VI methods for better approximations.
 
         Parameters
         ----------
@@ -388,10 +397,6 @@ class PyMCModel:
     def distributional_components(self):
         return {k: v for k, v in self.components.items() if isinstance(v, DistributionalComponent)}
 
-    @property
-    def inference_methods(self):
-        return {"pymc": self.pymc_methods, "bayeux": self.bayeux_methods}
-
 
 def _posterior_samples_to_idata(samples, model):
     """Create InferenceData from samples.
@@ -431,22 +436,3 @@ def _posterior_samples_to_idata(samples, model):
 
     idata = pm.to_inference_data(pm.backends.base.MultiTrace([strace]), model=model)
     return idata
-
-
-def _get_bayeux_methods():
-    """Gets a dictionary of usable bayeux methods if the bayeux package is installed
-    within the user's environment.
-
-    Returns
-    -------
-    dict
-        A dict where the keys are the module names and the values are the methods
-        available in that module.
-    """
-    if importlib.util.find_spec("bayeux") is None:
-        return {"mcmc": []}
-
-    import bayeux as bx  # pylint: disable=import-outside-toplevel
-
-    # Dummy log density to get access to all methods
-    return bx.Model(lambda x: -(x**2), 0.0).methods

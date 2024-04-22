@@ -258,6 +258,9 @@ def get_model_covariates(model: Model) -> np.ndarray:
 
     flatten_covariates = [item for sublist in covariates for item in sublist]
 
+    # Don't include non-covariate names (#797)
+    flatten_covariates = [name for name in flatten_covariates if name in model.data]
+
     return np.unique(flatten_covariates)
 
 
