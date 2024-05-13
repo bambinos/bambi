@@ -44,8 +44,8 @@ class CommonTerm:
         # Dims of the response variable
         response_dims = []
         if isinstance(spec.family, (MultivariateFamily, Categorical)):
-            response_dims = list(spec.response_component.response_term.coords)
-            response_dims_n = len(spec.response_component.response_term.coords[response_dims[0]])
+            response_dims = list(spec.response_component.term.coords)
+            response_dims_n = len(spec.response_component.term.coords[response_dims[0]])
             # Arguments may be of shape (a,) but we need them to be of shape (a, b)
             # a: length of predictor coordinates
             # b: length of response coordinates
@@ -106,7 +106,7 @@ class GroupSpecificTerm:
         # Dims of the response variable (e.g. categorical)
         response_dims = []
         if isinstance(spec.family, (MultivariateFamily, Categorical)):
-            response_dims = list(spec.response_component.response_term.coords)
+            response_dims = list(spec.response_component.term.coords)
 
         dims = list(self.coords) + response_dims
         coef = self.build_distribution(self.term.prior, label, dims=dims, **kwargs)
@@ -183,7 +183,7 @@ class InterceptTerm:
         label = self.name
         # Prepends one dimension if response is multivariate
         if isinstance(spec.family, (MultivariateFamily, Categorical)):
-            dims = list(spec.response_component.response_term.coords)
+            dims = list(spec.response_component.term.coords)
             dist = dist(label, dims=dims, **self.term.prior.args)[np.newaxis, :]
         else:
             dist = dist(label, **self.term.prior.args)
@@ -231,34 +231,36 @@ class ResponseTerm:
         data = np.squeeze(self.term.data)
         parent_name = self.family.likelihood.parent
 
-        # Auxiliary parameters
-        kwargs = {}
+        # Auxiliary parameters and data
+        kwargs = {"observed": data, "dims": ("__obs__",)}
+
+        if isinstance(self.family, (MultivariateFamily, Categorical)):
+            # FIX ME: Is this the correct thing?
+            response_term = bmb_model.response_component.term
+            response_name = response_term.alias or response_term.name
+            dim_name = response_name + "_dim"
+            pymc_backend.model.add_coords({dim_name: response_term.levels})
+            dims = ("__obs__", dim_name)
+        else:
+            dims = ("__obs__",)
 
         # Constant parameters. No link function is used.
         for name, component in pymc_backend.constant_components.items():
             kwargs[name] = component.output
 
-        # Distributional parameters. A link funciton is used.
-        dims = ("__obs__",)
+        # Distributional parameters. A link function is used.
         for name, component in pymc_backend.distributional_components.items():
             bmb_component = bmb_model.components[name]
-            aliased_name = bmb_component.alias if bmb_component.alias else bmb_component.name
+            aliased_name = bmb_component.alias or bmb_component.name
             linkinv = get_linkinv(self.family.link[name], pymc_backend.INVLINKS)
-            print(name)
-            print(self.family.link[name])
-            print(component)
-            print(component.output)
-            kwargs[name] = pm.Deterministic(aliased_name, linkinv(component.output), dims=dims)
 
-        # Add observed and dims
-        kwargs["observed"] = data
-        kwargs["dims"] = dims
+            # Transform the linear predictor of the parent parameter (usually the mean)
+            if name == parent_name and hasattr(self.family, "transform_backend_eta"):
+                output = self.family.transform_backend_eta(component.output, kwargs)
+            else:
+                output = component.output
 
-        # TODO: This can go into 'transform_backend_kwargs'
-        # The linear predictor for the parent parameter (usually the mean)
-        eta = pymc_backend.distributional_components[parent_name].output
-        if hasattr(self.family, "transform_backend_eta"):
-            kwargs[parent_name] = self.family.transform_backend_eta(eta, kwargs)
+            kwargs[name] = pm.Deterministic(aliased_name, linkinv(output), dims=dims)
 
         # Build the response distribution
         dist = self.build_response_distribution(kwargs, pymc_backend)
@@ -369,7 +371,8 @@ class ResponseTerm:
             dist_rv = weighted_dist(self.name, weights, **kwargs, observed=observed, dims=dims)
         # All of the other response kinds are "not special" and thus are handled the same way
         else:
-            dist_rv = distribution(self.name, **kwargs)
+            # dist_rv = distribution(self.name, **kwargs)
+            dist_rv = None
 
         return dist_rv
 

@@ -62,8 +62,7 @@ class PyMCModel:
         Parameters
         ----------
         spec : bambi.Model
-            A Bambi `Model` instance containing the abstract specification of the model
-            to compile.
+            A Bambi `Model` instance containing the abstract specification of the model to compile.
         """
         self.model = pm.Model()
         self.components = {}
@@ -203,8 +202,6 @@ class PyMCModel:
                 if is_likelihood_param and is_deterministic:
                     vars_to_sample.remove(name)
 
-            print(vars_to_sample)
-            
             with self.model:
                 try:
                     idata = pm.sample(
@@ -407,9 +404,6 @@ class PyMCModel:
 
         cov = np.linalg.inv(hessian)
         modes = np.concatenate([np.atleast_1d(v) for v in n_maps.values()])
-
-        print(cov.shape)
-        print(modes.shape)
 
         samples = np.random.multivariate_normal(modes, cov, size=draws)
 

@@ -280,9 +280,6 @@ class PredictiveDifferences:
         if self.variable.values.ndim == 1:
             self.variable.values = np.array(self.variable.values).reshape(-1, 1)
 
-        print("name_target", self.response.name_target)
-        print("name_obs", self.response.name_obs)
-
         draws = {}
         variable_data = {}
         for idx, _ in enumerate(self.variable.values):
@@ -692,7 +689,6 @@ def comparisons(
     transforms = transforms if transforms is not None else {}
     response_name = get_aliased_name(model.response_component.term)
 
-    # FIXME: changed target="mean" for target=model.family.likelihood.parent, check it
     response = ResponseInfo(
         name=response_name,
         target=model.family.likelihood.parent,

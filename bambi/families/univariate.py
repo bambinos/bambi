@@ -184,11 +184,10 @@ class Cumulative(UnivariateFamily):
     ) -> xr.DataArray:
         """Computes threshold_k - eta"""
         threshold_component = model.components["threshold"]
-        response_name = get_aliased_name(model.response_component.term)
         if threshold_component.alias:
             threshold_name = threshold_component.alias
         else:
-            threshold_name = f"{response_name}_threshold"
+            threshold_name = "threshold"
         threshold = posterior[threshold_name]
         return threshold - linear_predictor
 
@@ -200,7 +199,7 @@ class Cumulative(UnivariateFamily):
         if threshold_component.alias:
             threshold_name = threshold_component.alias
         else:
-            threshold_name = response_name + "_threshold"
+            threshold_name = "threshold"
         threshold_dim = threshold_name + "_dim"
         response_dim = response_name + "_dim"
         mean = xr.concat(
@@ -349,11 +348,10 @@ class StoppingRatio(UnivariateFamily):
     ) -> xr.DataArray:
         """Computes threshold_k - eta"""
         threshold_component = model.components["threshold"]
-        response_name = get_aliased_name(model.response_component.term)
         if threshold_component.alias:
             threshold_name = threshold_component.alias
         else:
-            threshold_name = f"{response_name}_threshold"
+            threshold_name = "threshold"
         threshold = posterior[threshold_name]
         return threshold - linear_predictor
 
@@ -365,7 +363,7 @@ class StoppingRatio(UnivariateFamily):
         if threshold_component.alias:
             threshold_name = threshold_component.alias
         else:
-            threshold_name = response_name + "_threshold"
+            threshold_name = "threshold"
         threshold_dim = threshold_name + "_dim"
         response_dim = response_name + "_dim"
         threshold_n = len(mean[threshold_dim])
