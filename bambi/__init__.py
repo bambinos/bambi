@@ -4,7 +4,7 @@ from importlib.metadata import version
 
 from pymc import math
 
-from .backend import PyMCModel
+from .backend import inference_methods, PyMCModel
 from .config import config
 from .data import clear_data_home, load_data
 from .families import Family, Likelihood, Link
@@ -25,6 +25,7 @@ __all__ = [
     "Formula",
     "clear_data_home",
     "config",
+    "inference_methods",
     "load_data",
     "math",
 ]
