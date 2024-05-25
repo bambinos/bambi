@@ -371,8 +371,7 @@ class ResponseTerm:
             dist_rv = weighted_dist(self.name, weights, **kwargs, observed=observed, dims=dims)
         # All of the other response kinds are "not special" and thus are handled the same way
         else:
-            # dist_rv = distribution(self.name, **kwargs)
-            dist_rv = None
+            dist_rv = distribution(self.name, **kwargs)
 
         return dist_rv
 
