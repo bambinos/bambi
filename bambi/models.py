@@ -679,7 +679,6 @@ class Model:
         -------
         axes: matplotlib axes
         """
-        # FIXME: Plot priors is showing more plots than what's desired because it includes deterministics
         self._check_built()
 
         unobserved_rvs_names = []
@@ -689,7 +688,7 @@ class Model:
             if "Flat" in str(unobserved):
                 flat_rvs.append(unobserved.name)
             else:
-                # Don't include deterministics that go into the likelihood (e.g. 'mu')
+                # Don't include deterministics that go into the likelihood (e.g. 'mu' normal model)
                 is_likelihood_param = unobserved.name in self.family.likelihood.params
                 is_deterministic = unobserved in self.backend.model.deterministics
                 if is_likelihood_param and is_deterministic:
