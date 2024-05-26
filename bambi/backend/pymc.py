@@ -271,6 +271,29 @@ class PyMCModel:
         # Before doing anything, make sure we compute deterministics.
         # But, don't include those determinisics for parameters of the likelihood.
         if idata_from == "bayeux":
+            # This needs to happen _before_ the computation of deterministics
+
+            # TODO: It is _such a pain_!!!! to rename things in xarray once they're already there.
+
+            # # Keys are var names, values are tuples with dim names
+            # vars_to_dims = self.model.named_vars_to_dims
+            # cleaned_dims = {}
+            # for var_name, dim_names in vars_to_dims.items():
+            #     if dim_names == ("__obs__", ):
+            #         continue
+            #     # dims without 'chain' and 'draw'
+            #     if var_name in idata.posterior:
+            #         broken_dim_names = idata.posterior[var_name].dims[2:]
+            #         cleaned_dims.update({
+            #             old: new
+            #             for old, new in zip(broken_dim_names, dim_names)
+            #             if old != new
+            #         })
+            #         print(var_name)
+            #         print(cleaned_dims)
+
+            # idata.posterior = idata.posterior.rename_dims(cleaned_dims)
+
             var_names = [
                 v.name
                 for v in self.model.deterministics
@@ -295,6 +318,7 @@ class PyMCModel:
         dims_original = list(self.model.coords)
 
         # Identify bayeux idata and rename dims and coordinates to match PyMC model
+        # FIXME: This does not rename _everything_.
         if idata_from == "bayeux":
             cleaned_dims = {
                 f"{dim}_0": dim
@@ -316,8 +340,10 @@ class PyMCModel:
         dims_new = ["chain", "draw"] + dims_original + dims_group
 
         # Drop unused dimensions before transposing
-        dims_to_drop = [dim for dim in idata.posterior.dims if dim not in dims_new]
-        idata.posterior = idata.posterior.drop_dims(dims_to_drop).transpose(*dims_new)
+        # dims_to_drop = [dim for dim in idata.posterior.dims if dim not in dims_new]
+        # idata.posterior = idata.posterior.drop_dims(dims_to_drop).transpose(*dims_new)
+        # FIXME: I'm not dropping things anymore (just sending dims back)
+        idata.posterior = idata.posterior.transpose(*dims_new, ...)
 
         # Compute the actual intercept in all distributional components that have an intercept
         for pymc_component in self.distributional_components.values():

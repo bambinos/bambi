@@ -233,7 +233,7 @@ class Model:
         tune=1000,
         discard_tuned_samples=True,
         omit_offsets=True,
-        include_mean=False,  # TODO, what do we do with this argument?
+        include_mean=False,  # TODO, what do we do with this argument? rename to: include_params
         inference_method="mcmc",
         init="auto",
         n_init=50000,
@@ -679,15 +679,23 @@ class Model:
         -------
         axes: matplotlib axes
         """
+        # FIXME: Plot priors is showing more plots than what's desired because it includes deterministics
         self._check_built()
 
         unobserved_rvs_names = []
         flat_rvs = []
+
         for unobserved in self.backend.model.unobserved_RVs:
             if "Flat" in str(unobserved):
                 flat_rvs.append(unobserved.name)
             else:
+                # Don't include deterministics that go into the likelihood (e.g. 'mu')
+                is_likelihood_param = unobserved.name in self.family.likelihood.params
+                is_deterministic = unobserved in self.backend.model.deterministics
+                if is_likelihood_param and is_deterministic:
+                    continue
                 unobserved_rvs_names.append(unobserved.name)
+
         if var_names is None:
             var_names = pm.util.get_default_varnames(
                 unobserved_rvs_names, include_transformed=False
