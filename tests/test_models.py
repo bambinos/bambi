@@ -513,8 +513,7 @@ class TestGaussian(FitPredictParent):
     def test_fit_include_mean(self, crossed_data):
         draws = 100
         model = bmb.Model("Y ~ continuous * threecats", crossed_data)
-        # FIXME: what do we do with 'include_mean'? Maybe deprecate it?
-        idata = model.fit(tune=draws, draws=draws, include_mean=True)
+        idata = model.fit(tune=draws, draws=draws, include_params=True)
         assert idata.posterior["mu"].shape[1:] == (draws, 120)
 
         # Compare with the mean obtained with `model.predict()`

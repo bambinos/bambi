@@ -235,7 +235,6 @@ class ResponseTerm:
         kwargs = {"observed": data, "dims": ("__obs__",)}
 
         if isinstance(self.family, (MultivariateFamily, Categorical)):
-            # FIX ME: Is this the correct thing?
             response_term = bmb_model.response_component.term
             response_name = response_term.alias or response_term.name
             dim_name = response_name + "_dim"

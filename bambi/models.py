@@ -176,7 +176,6 @@ class Model:
                 "Please specify an outcome variable using the formula interface."
             )
 
-        # TODO: update examples
         if self.family.likelihood.parent in priors:
             parent_priors = priors[self.family.likelihood.parent]
         else:
@@ -233,7 +232,8 @@ class Model:
         tune=1000,
         discard_tuned_samples=True,
         omit_offsets=True,
-        include_mean=False,  # TODO, what do we do with this argument? rename to: include_params
+        include_mean=None,
+        include_params=False,
         inference_method="mcmc",
         init="auto",
         n_init=50000,
@@ -251,33 +251,36 @@ class Model:
         tune : int
             Number of iterations to tune. Defaults to 1000. Samplers adjust the step sizes,
             scalings or similar during tuning. These tuning samples are be drawn in addition to the
-            number specified in the ``draws`` argument, and will be discarded unless
-            ``discard_tuned_samples`` is set to ``False``.
+            number specified in the `draws` argument, and will be discarded unless
+            `discard_tuned_samples` is set to `False`.
         discard_tuned_samples : bool
-            Whether to discard posterior samples of the tune interval. Defaults to ``True``.
+            Whether to discard posterior samples of the tune interval. Defaults to `True`.
         omit_offsets : bool
-            Omits offset terms in the ``InferenceData`` object returned when the model includes
-            group specific effects. Defaults to ``True``.
+            Omits offset terms in the `InferenceData` object returned when the model includes
+            group specific effects. Defaults to `True`.
         include_mean : bool
-            Compute the posterior of the mean response. Defaults to ``False``.
+            Deprecated. Use `include_params`.
+        include_params : bool
+            Include parameters of the response distribution in the output. These usually take more
+            space than other parameters as there's one of them per observation. Defaults to `False`.
         inference_method : str
-            The method to use for fitting the model. By default, ``"mcmc"``. This automatically
+            The method to use for fitting the model. By default, `"mcmc"`. This automatically
             assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
-            variables and Metropolis for non-binary discrete ones. Alternatively, ``"vi"``, in
+            variables and Metropolis for non-binary discrete ones. Alternatively, `"vi"`, in
             which case the model will be fitted using variational inference as implemented in PyMC
-            using the ``fit`` function.
-            Finally, ``"laplace"``, in which case a Laplace approximation is used and is not
+            using the `fit` function.
+            Finally, `"laplace"`, in which case a Laplace approximation is used and is not
             recommended other than for pedagogical use.
             To get a list of JAX based inference methods, call
-            ``bmb.inference_methods.names['bayeux']``. This will return a dictionary of the
-            available methods such as ``blackjax_nuts``, ``numpyro_nuts``, among others.
+            `bmb.inference_methods.names['bayeux']`. This will return a dictionary of the
+            available methods such as `blackjax_nuts`, `numpyro_nuts`, among others.
         init : str
-            Initialization method. Defaults to ``"auto"``. The available methods are:
-            * auto: Use ``"jitter+adapt_diag"`` and if this method fails it uses ``"adapt_diag"``.
+            Initialization method. Defaults to `"auto"`. The available methods are:
+            * auto: Use `"jitter+adapt_diag"` and if this method fails it uses `"adapt_diag"`.
             * adapt_diag: Start with a identity mass matrix and then adapt a diagonal based on the
             variance of the tuning samples. All chains use the test value (usually the prior mean)
             as starting point.
-            * jitter+adapt_diag: Same as ``"adapt_diag"``, but use test value plus a uniform jitter
+            * jitter+adapt_diag: Same as `"adapt_diag"`, but use test value plus a uniform jitter
             in [-1, 1] as starting point in each chain.
             * advi+adapt_diag: Run ADVI and then adapt the resulting diagonal mass matrix based on
             the sample variance of the tuning samples.
@@ -289,28 +292,28 @@ class Model:
             * map: Use the MAP as starting point. This is strongly discouraged.
             * adapt_full: Adapt a dense mass matrix using the sample covariances. All chains use the
             test value (usually the prior mean) as starting point.
-            * jitter+adapt_full: Same as ``"adapt_full"``, but use test value plus a uniform jitter
+            * jitter+adapt_full: Same as `"adapt_full"`, but use test value plus a uniform jitter
             in [-1, 1] as starting point in each chain.
         n_init : int
-            Number of initialization iterations. Only works for ``"advi"`` init methods.
+            Number of initialization iterations. Only works for `"advi"` init methods.
         chains : int
             The number of chains to sample. Running independent chains is important for some
-            convergence statistics and can also reveal multiple modes in the posterior. If ``None``,
-            then set to either ``cores`` or 2, whichever is larger.
+            convergence statistics and can also reveal multiple modes in the posterior. If `None`,
+            then set to either `cores` or 2, whichever is larger.
         cores : int
-            The number of chains to run in parallel. If ``None``, it is equal to the number of CPUs
+            The number of chains to run in parallel. If `None`, it is equal to the number of CPUs
             in the system unless there are more than 4 CPUs, in which case it is set to 4.
         random_seed : int or list of ints
             A list is accepted if cores is greater than one.
         **kwargs :
-            For other kwargs see the documentation for ``PyMC.sample()``.
+            For other kwargs see the documentation for `PyMC.sample()`.
 
         Returns
         -------
-        An ArviZ ``InferenceData`` instance if inference_method is  ``"mcmc"`` (default),
+        An ArviZ `InferenceData` instance if inference_method is  `"mcmc"` (default),
         "laplace", or one of the MCMC methods in
-        ``bmb.inference_methods.names['bayeux']['mcmc]``.
-        An ``Approximation`` object if  ``"vi"``.
+        `bmb.inference_methods.names['bayeux']['mcmc]`.
+        An `Approximation` object if  `"vi"`.
         """
         method = kwargs.pop("method", None)
         if method is not None:
@@ -334,12 +337,20 @@ class Model:
                 str(self.response_component.term.success),
             )
 
+        if include_mean is not None:
+            warnings.warn(
+                "'include_mean' has been replaced by 'include_params' and is not going to work in "
+                "the future",
+                FutureWarning,
+            )
+            include_params = include_mean
+
         return self.backend.run(
             draws=draws,
             tune=tune,
             discard_tuned_samples=discard_tuned_samples,
             omit_offsets=omit_offsets,
-            include_mean=include_mean,
+            include_params=include_params,
             inference_method=inference_method,
             init=init,
             n_init=n_init,
