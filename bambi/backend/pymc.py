@@ -10,6 +10,7 @@ from importlib.metadata import version
 import numpy as np
 import pymc as pm
 import pytensor.tensor as pt
+import xarray as xr
 
 from pymc.util import get_default_varnames
 from pytensor.tensor.special import softmax
@@ -97,7 +98,7 @@ class PyMCModel:
         tune=1000,
         discard_tuned_samples=True,
         omit_offsets=True,
-        include_mean=False,
+        include_params=False,
         inference_method="mcmc",
         init="auto",
         n_init=50000,
@@ -131,7 +132,7 @@ class PyMCModel:
                 tune,
                 discard_tuned_samples,
                 omit_offsets,
-                include_mean,
+                include_params,
                 init,
                 n_init,
                 chains,
@@ -143,7 +144,7 @@ class PyMCModel:
         elif inference_method in self.pymc_methods["vi"]:
             result = self._run_vi(**kwargs)
         elif inference_method == "laplace":
-            result = self._run_laplace(draws, omit_offsets, include_mean)
+            result = self._run_laplace(draws, omit_offsets, include_params)
         else:
             raise NotImplementedError(f"'{inference_method}' method has not been implemented")
 
@@ -179,7 +180,7 @@ class PyMCModel:
         tune=1000,
         discard_tuned_samples=True,
         omit_offsets=True,
-        include_mean=False,
+        include_params=False,
         init="auto",
         n_init=50000,
         chains=None,
@@ -264,41 +265,23 @@ class PyMCModel:
                 f" {self.pymc_methods['mcmc'] + self.bayeux_methods['mcmc']}"
             )
 
-        idata = self._clean_results(idata, omit_offsets, include_mean, idata_from)
+        idata = self._clean_results(idata, omit_offsets, include_params, idata_from)
         return idata
 
-    def _clean_results(self, idata, omit_offsets, include_mean, idata_from):
+    def _clean_results(self, idata, omit_offsets, include_params, idata_from):
         # Before doing anything, make sure we compute deterministics.
         # But, don't include those determinisics for parameters of the likelihood.
         if idata_from == "bayeux":
-            # This needs to happen _before_ the computation of deterministics
-
-            # TODO: It is _such a pain_!!!! to rename things in xarray once they're already there.
-
-            # # Keys are var names, values are tuples with dim names
-            # vars_to_dims = self.model.named_vars_to_dims
-            # cleaned_dims = {}
-            # for var_name, dim_names in vars_to_dims.items():
-            #     if dim_names == ("__obs__", ):
-            #         continue
-            #     # dims without 'chain' and 'draw'
-            #     if var_name in idata.posterior:
-            #         broken_dim_names = idata.posterior[var_name].dims[2:]
-            #         cleaned_dims.update({
-            #             old: new
-            #             for old, new in zip(broken_dim_names, dim_names)
-            #             if old != new
-            #         })
-            #         print(var_name)
-            #         print(cleaned_dims)
-
-            # idata.posterior = idata.posterior.rename_dims(cleaned_dims)
+            # Create the dataset from scratch to guarantee dim names, coord names, and values
+            # are the ones we expect and we don't create any issues downstream.
+            idata.posterior = create_posterior_bayeux(idata.posterior, self.model)
 
             var_names = [
                 v.name
                 for v in self.model.deterministics
                 if v.name not in self.spec.family.likelihood.params
             ]
+
             idata.posterior = pm.compute_deterministics(
                 idata.posterior,
                 var_names=var_names,
@@ -317,16 +300,6 @@ class PyMCModel:
 
         dims_original = list(self.model.coords)
 
-        # Identify bayeux idata and rename dims and coordinates to match PyMC model
-        # FIXME: This does not rename _everything_.
-        if idata_from == "bayeux":
-            cleaned_dims = {
-                f"{dim}_0": dim
-                for dim in dims_original
-                if dim != "__obs__" and f"{dim}_0" in idata.posterior.dims
-            }
-            idata = idata.rename(cleaned_dims)
-
         # Don't select dims that are in the model but unused in the posterior
         dims_original = [dim for dim in dims_original if dim in idata.posterior.dims]
 
@@ -340,10 +313,8 @@ class PyMCModel:
         dims_new = ["chain", "draw"] + dims_original + dims_group
 
         # Drop unused dimensions before transposing
-        # dims_to_drop = [dim for dim in idata.posterior.dims if dim not in dims_new]
-        # idata.posterior = idata.posterior.drop_dims(dims_to_drop).transpose(*dims_new)
-        # FIXME: I'm not dropping things anymore (just sending dims back)
-        idata.posterior = idata.posterior.transpose(*dims_new, ...)
+        dims_to_drop = [dim for dim in idata.posterior.dims if dim not in dims_new]
+        idata.posterior = idata.posterior.drop_dims(dims_to_drop).transpose(*dims_new)
 
         # Compute the actual intercept in all distributional components that have an intercept
         for pymc_component in self.distributional_components.values():
@@ -375,8 +346,7 @@ class PyMCModel:
                 center_factor = np.dot(X.mean(0), coefs).reshape(shape)
                 idata.posterior[name] = idata.posterior[name] - center_factor
 
-        # TODO: decide how we update this
-        if include_mean:
+        if include_params:
             self.spec.predict(idata)
 
         return idata
@@ -386,7 +356,7 @@ class PyMCModel:
             self.vi_approx = pm.fit(**kwargs)
         return self.vi_approx
 
-    def _run_laplace(self, draws, omit_offsets, include_mean):
+    def _run_laplace(self, draws, omit_offsets, include_params):
         """Fit a model using a Laplace approximation.
 
         Mainly for pedagogical use, provides reasonable results for approximately
@@ -401,7 +371,7 @@ class PyMCModel:
         omit_offsets : bool
             Omits offset terms in the `InferenceData` object returned when the model includes
             group specific effects.
-        include_mean : bool
+        include_params : bool
             Compute the posterior of the mean response.
 
         Returns
@@ -434,7 +404,7 @@ class PyMCModel:
         samples = np.random.multivariate_normal(modes, cov, size=draws)
 
         idata = _posterior_samples_to_idata(samples, self.model)
-        idata = self._clean_results(idata, omit_offsets, include_mean, idata_from="pymc")
+        idata = self._clean_results(idata, omit_offsets, include_params, idata_from="pymc")
         return idata
 
     @property
@@ -484,3 +454,45 @@ def _posterior_samples_to_idata(samples, model):
 
     idata = pm.to_inference_data(pm.backends.base.MultiTrace([strace]), model=model)
     return idata
+
+
+def create_posterior_bayeux(posterior, pm_model):
+    # This function is used to create a xr.Dataset that holds the posterior draws when doing
+    # inference via bayeux.
+    # bayeux does not keep any information about coords and dims, but Bambi may rely on that in
+    # the future, so we need them.
+    # It's not only painful to modify dims and coords of an existing xarray object, but it's also
+    # impossible sometimes. For that reason, it's simply better to create a Dataset from scratch.
+
+    # Query the mapping between variables and dims from the PyMC model
+    vars_to_dims = pm_model.named_vars_to_dims
+
+    # Get the variable names in the posterior Dataset
+    data_vars_names = list(posterior.data_vars)
+
+    # Query the coords as passed to the PyMC model
+    coords = pm_model.coords.copy()
+
+    # Add 'chain' and 'draw'
+    coords["chain"] = np.array(posterior["chain"])
+    coords["draw"] = np.array(posterior["draw"])
+
+    # Get the dims for each data var
+    data_vars_dims = {}
+    for data_var_name in data_vars_names:
+        if data_var_name in vars_to_dims:
+            data_vars_dims[data_var_name] = ["chain", "draw"] + list(vars_to_dims[data_var_name])
+        else:
+            data_vars_dims[data_var_name] = ["chain", "draw"]
+
+    # Create dictionary with data var dims and values (as required by xr.Dataset)
+    # https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html
+    data_vars_values = {}
+    for data_var_name, data_var_dims in data_vars_dims.items():
+        data_vars_values[data_var_name] = (data_var_dims, posterior[data_var_name].to_numpy())
+
+    # Get coords
+    dims_in_use = set(dim for dims in data_vars_dims.values() for dim in dims)
+    coords_in_use = {coord_name: np.array(coords[coord_name]) for coord_name in dims_in_use}
+
+    return xr.Dataset(data_vars=data_vars_values, coords=coords_in_use, attrs=posterior.attrs)
