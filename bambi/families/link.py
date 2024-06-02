@@ -122,7 +122,7 @@ class Link:
     of the link function, that maps values of the linear predictor to the response scale.
 
     The great majority of users will never interact with this class unless they want to create
-    a custom ``Family`` with a custom ``Link``. This is automatically handled for all the built-in
+    a custom `Family` with a custom `Link`. This is automatically handled for all the built-in
     families.
 
     Parameters
@@ -130,16 +130,16 @@ class Link:
     name : str
         The name of the link function. If it is a known name, it's not necessary to pass any
         other arguments because functions are already defined internally. If not known, all of
-        ``link``, ``linkinv`` and ``linkinv_backend`` must be specified.
+        `link`, `linkinv` and `linkinv_backend` must be specified.
     link : function
         A function that maps the response to the linear predictor. Known as the :math:`g` function
-        in GLM jargon. Does not need to be specified when ``name`` is a known name.
+        in GLM jargon. Does not need to be specified when `name` is a known name.
     linkinv : function
         A function that maps the linear predictor to the response. Known as the :math:`g^{-1}`
-        function in GLM jargon. Does not need to be specified when ``name`` is a known name.
+        function in GLM jargon. Does not need to be specified when `name` is a known name.
     linkinv_backend : function
-        Same than ``linkinv`` but must be something that works with PyMC backend (i.e. it must
-        work with PyTensor tensors). Does not need to be specified when ``name`` is a known
+        Same than `linkinv` but must be something that works with PyMC backend (i.e. it must
+        work with PyTensor tensors). Does not need to be specified when `name` is a known
         name.
     """
 

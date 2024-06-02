@@ -5,6 +5,7 @@ import pandas as pd
 
 import pytest
 
+#pytestmark = pytest.mark.skip("JAX DEPS ARE BROKEN!")
 
 MCMC_METHODS = [getattr(bx.mcmc, k).name for k in bx.mcmc.__all__]
 MCMC_METHODS_FILTERED = [
@@ -39,7 +40,7 @@ def test_inference_method_names_and_kwargs():
     assert "mcmc" in names["pymc"].keys()
     assert "vi" in names["pymc"].keys()
 
-    # Check bayeu inference method family. Currently, only MCMC methods are supported
+    # Check bayeux inference method family. Currently, only MCMC methods are supported
     assert "mcmc" in names["bayeux"].keys()
 
     # Ensure get_kwargs method raises an error if a non-supported method name is passed

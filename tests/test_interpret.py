@@ -182,7 +182,7 @@ def test_select_draws_no_effect(request, mtcars, condition):
     grid = data_grid(model, conditional)
 
     idata = model.predict(idata, data=grid, inplace=False)
-    draws = select_draws(idata, grid, condition=condition, data_var="mpg_mean")
+    draws = select_draws(idata, grid, condition=condition, data_var="mu")
 
     # (CHAINS, DRAWS, n) where n is the number of observations that satisfy the condition
     id = request.node.name

@@ -35,6 +35,8 @@ class ResponseInfo:
     computing uncertainty intervals, and creating the summary dataframe in
     'PredictiveDifferences'.
 
+    FIXME: is the documentation outdated?
+
     Parameters
     ----------
     model : Model
@@ -65,9 +67,9 @@ class ResponseInfo:
         if self.target is None:
             self.name_target = self.name
         else:
-            self.name_target = f"{self.name}_{self.target}"
+            self.name_target = self.target
 
-        self.name_obs = f"{self.name}_obs"
+        self.name_obs = "__obs__"
         self.lower_bound_name = f"lower_{self.lower_bound * 100}%"
         self.upper_bound_name = f"upper_{self.upper_bound * 100}%"
 
@@ -515,11 +517,16 @@ def predictions(
             target = None
         else:
             # use the default response "y" and append target
-            response_name = get_aliased_name(model.response_component.response_term)
+            response_name = get_aliased_name(model.response_component.term)
     else:
-        response_name = get_aliased_name(model.response_component.response_term)
+        response_name = get_aliased_name(model.response_component.term)
 
-    response = ResponseInfo(response_name, target)
+    if target == "mean":
+        target_ = model.family.likelihood.parent
+    else:
+        target_ = target
+
+    response = ResponseInfo(name=response_name, target=target_)
     response_transform = transforms.get(response_name, identity)
 
     if pps:
@@ -680,9 +687,13 @@ def comparisons(
     conditional_info = ConditionalInfo(model, conditional)
 
     transforms = transforms if transforms is not None else {}
-    response_name = get_aliased_name(model.response_component.response_term)
+    response_name = get_aliased_name(model.response_component.term)
+
     response = ResponseInfo(
-        response_name, target="mean", lower_bound=lower_bound, upper_bound=upper_bound
+        name=response_name,
+        target=model.family.likelihood.parent,
+        lower_bound=lower_bound,
+        upper_bound=upper_bound,
     )
     response_transform = transforms.get(response_name, identity)
 
@@ -844,8 +855,13 @@ def slopes(
     upper_bound = 1 - lower_bound
 
     transforms = transforms if transforms is not None else {}
-    response_name = get_aliased_name(model.response_component.response_term)
-    response = ResponseInfo(response_name, "mean", lower_bound, upper_bound)
+    response_name = get_aliased_name(model.response_component.term)
+    response = ResponseInfo(
+        name=response_name,
+        target=model.family.likelihood.parent,
+        lower_bound=lower_bound,
+        upper_bound=upper_bound,
+    )
     response_transform = transforms.get(response_name, identity)
 
     slopes_data = create_differences_data(conditional_info, wrt_info, effect_type)
