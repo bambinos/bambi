@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>FAQ</title>
+<title>Contact</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -92,7 +92,7 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./faq.html" aria-current="page">
+    <a class="nav-link" href="./faq.html">
  <span class="menu-text">FAQ</span></a>
   </li>  
   <li class="nav-item">
@@ -100,7 +100,7 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">Changelog</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./contact.html">
+    <a class="nav-link active" href="./contact.html" aria-current="page">
  <span class="menu-text">Contact</span></a>
   </li>  
   <li class="nav-item compact">
@@ -124,7 +124,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Frequently Asked Questions</h1>
+<h1 class="title">Contact</h1>
 </div>
 
 
@@ -139,44 +139,36 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<section id="general-questions" class="level2">
-<h2 class="anchored" data-anchor-id="general-questions">General Questions</h2>
-<section id="what-is-the-difference-between-bambi-and-pymc" class="level3">
-<h3 class="anchored" data-anchor-id="what-is-the-difference-between-bambi-and-pymc">What is the difference between Bambi and PyMC?</h3>
+<p>Bambi is dedicated to providing a harassment-free community for everyone, regardless of gender, sexual orientation, gender identity, and expression, disability, physical appearance, body size, race, or religion. We do not tolerate harassment of community members in any form.</p>
+<p>However, it is not uncommon to suffer or witness abusive behaviors online. If you have experienced or witnessed any behaviour that violates our <a href="https://github.com/bambinos/bambi/blob/main/CODE_OF_CONDUCT.md">Code of Conduct</a>, we encourage you to report it through the form below.</p>
+<p>When reporting an incident, please provide as much detail as possible, including:</p>
 <ul>
-<li>Bambi is a regression library built on top of PyMC. It provides a simple interface for specifying Bayesian models, and allows for easy inference using MCMC or variational inference.</li>
-<li>PyMC is a library for Bayesian modelling, and is the backend used by Bambi. It is a very powerful library, but can be challenging to use for beginners. Bambi provides a simple interface for specifying models, and allows for easy inference via MCMC or variational inference using PyMC.</li>
+<li>The approximate date, time and location of the incident (please be as specific as possible).</li>
+<li>Any identifying information of the individual whose behavior is being reported (e.g.&nbsp;name, nickname, screen name, physical description).</li>
+<li>A description of the behavior, your account of what happened, and any available supporting records (e.g.&nbsp;email, GitHub issue url, screenshots, etc.).</li>
+<li>If reporting harassing language, please be specific about the words used.</li>
+<li>A description of the circumstances/context surrounding the incident.</li>
+<li>Is the incident ongoing, and/or is this part of an ongoing pattern of behavior by this individual?</li>
+<li>Did anyone else observe the incident? If possible, please provide names and contact info of anyone else who witnessed or was involved in this incident.</li>
+<li>Any other information you believe we should have about what happened or that you’d like us to know.</li>
 </ul>
-</section>
-</section>
-<section id="inference-questions" class="level2">
-<h2 class="anchored" data-anchor-id="inference-questions">Inference Questions</h2>
-<section id="what-sampling-methods-are-available" class="level3">
-<h3 class="anchored" data-anchor-id="what-sampling-methods-are-available">What sampling methods are available?</h3>
-<p>The sampler used is automatically selected given the type of variables used in the model. For inference, Bambi supports both MCMC and variational inference. MCMC is the default, but you can specify variational inference by passing <code>inference_method='vi'</code> to <code>Model.fit()</code>. Bambi also supports multiple backends for MCMC, including NumPyro, and BlackJax (see API for “fit” method for more details <a href="https://bambinos.github.io/bambi/api_reference.html">here</a>.</p>
-</section>
-<section id="can-inference-in-bambi-be-sped-up-using-gpustpus" class="level3">
-<h3 class="anchored" data-anchor-id="can-inference-in-bambi-be-sped-up-using-gpustpus">Can inference in Bambi be sped up using GPUs/TPUs?</h3>
-<p>Yes, Bambi supports inference on GPUs and TPUs using the numpyro and blackjax backends. See the API for “fit” method for more details <a href="https://bambinos.github.io/bambi/api_reference.html">here</a>.</p>
-</section>
-</section>
-<section id="model-specification-questions" class="level2">
-<h2 class="anchored" data-anchor-id="model-specification-questions">Model Specification Questions</h2>
-<section id="my-data-has-a-non-normal-distributions-can-i-still-use-bambi" class="level3">
-<h3 class="anchored" data-anchor-id="my-data-has-a-non-normal-distributions-can-i-still-use-bambi">My data has a non-normal distributions, can I still use Bambi?</h3>
-<p>Yes, Bambi supports a wide range of distributions which can be specified using the “family” argument to the “Model”. You can find examples of how to specify these distributions in the <a href="https://bambinos.github.io/bambi/examples.html">Bambi examples</a>.</p>
-</section>
-<section id="how-do-i-find-out-what-priors-are-available" class="level3">
-<h3 class="anchored" data-anchor-id="how-do-i-find-out-what-priors-are-available">How do I find out what priors are available?</h3>
-<p>You can use any valid PyMC distribution as a prior. You can find a list of all the distributions available in PyMC <a href="https://www.pymc.io/projects/docs/en/stable/api/distributions.html">here</a>. You can also find examples of how to specify priors in the <a href="https://bambinos.github.io/bambi/examples.html">Bambi examples</a>, and in the <a href="https://bambinos.github.io/bambi/notebooks/getting_started.html#Specifying-priors">Getting Started Guide</a>.</p>
-</section>
-<section id="does-bambi-come-with-pre-specified-regression-models" class="level3">
-<h3 class="anchored" data-anchor-id="does-bambi-come-with-pre-specified-regression-models">Does bambi come with pre-specified regression models?</h3>
-<p>To allow building of bespoke models, Bambi does not come with pre-specified regression models. However, you can find examples of how to specify models in the <a href="https://bambinos.github.io/bambi/examples.html">Bambi examples</a>.</p>
+<p><strong>All the information be kept confidential</strong>. If you wish to remain anonymous, your information will not be shared beyond the person receiving the initial report.</p>
+<p>We take every report of Code of Conduct violations very seriously and will handle each one with care and confidentiality. If you’re unsure whether certain behavior is a violation, or if you need help with the reporting process, don’t hesitate to reach out to us. We are here to help and support you.</p>
+<form action="https://public.herotofu.com/v1/3f06ee10-1515-11ef-a449-3b7e66789316" method="post" accept-charset="UTF-8" class="bambi-form">
+    <input name="name" id="name" type="text" class="feedback-input" placeholder="Name" required="">
+    <input name="email" id="email" type="email" class="feedback-input" placeholder="E-mail" required="">
+    <textarea name="text" class="feedback-input" placeholder="Your message" required=""></textarea>
+  <div>
+    <input type="submit" value="SUBMIT" class="form-submit">
+    <div style="text-indent:-99999px; white-space:nowrap; overflow:hidden; position:absolute;" aria-hidden="true">
+      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off">
+    </div>
+  </div>
+</form>
+<p><br></p>
+<p>Form adapted from the <a href="https://jaxgaussianprocesses.com/contact/">JAXGP Contact Form</a> and the <a href="https://numfocus.typeform.com/to/ynjGdT">NumFOCUS Reporting Form</a>.</p>
 
 
-</section>
-</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
