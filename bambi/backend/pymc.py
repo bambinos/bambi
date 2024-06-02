@@ -12,6 +12,7 @@ import pymc as pm
 import pytensor.tensor as pt
 import xarray as xr
 
+from pymc.backends.arviz import coords_and_dims_for_inferencedata, find_observations
 from pymc.util import get_default_varnames
 from pytensor.tensor.special import softmax
 
@@ -276,6 +277,10 @@ class PyMCModel:
             # are the ones we expect and we don't create any issues downstream.
             idata.posterior = create_posterior_bayeux(idata.posterior, self.model)
 
+            # Create the dataset for the "observed_data" group because it does not come with bayeux
+            idata.add_groups({"observed_data": create_observed_data_bayeux(self.model)})
+            idata.observed_data.attrs = idata.posterior.attrs
+
             var_names = [
                 v.name
                 for v in self.model.deterministics
@@ -496,3 +501,30 @@ def create_posterior_bayeux(posterior, pm_model):
     coords_in_use = {coord_name: np.array(coords[coord_name]) for coord_name in dims_in_use}
 
     return xr.Dataset(data_vars=data_vars_values, coords=coords_in_use, attrs=posterior.attrs)
+
+
+def create_observed_data_bayeux(pm_model):
+    # Query observation dict from PyMC
+    observations = find_observations(pm_model)
+
+    # Query coords and dims from PyMC
+    coords, dims = coords_and_dims_for_inferencedata(pm_model)
+
+    # Out of all dims, keep those associated with observations
+    dims = {name: dims[name] for name in observations}
+
+    # Create a flat list of dim names
+    dim_names = []
+    for dim_name in dims.values():
+        dim_names.extend(dim_name)
+
+    # Out of all coords, keep those associated with observations
+    coords = {name: coords[name] for name in dim_names}
+
+    # Create dictionary with data var dims and values (as required by xr.Dataset)
+    # https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html
+    data_vars_values = {}
+    for name, values in observations.items():
+        data_vars_values[name] = (dims[name], values)
+
+    return xr.Dataset(data_vars=data_vars_values, coords=coords)
