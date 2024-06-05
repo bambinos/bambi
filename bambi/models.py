@@ -1,6 +1,7 @@
 # pylint: disable=no-name-in-module
 # pylint: disable=too-many-lines
 import logging
+from typing import Callable, Literal, Optional, Union, overload
 import warnings
 
 from copy import deepcopy
@@ -11,6 +12,7 @@ import pymc as pm
 import pandas as pd
 
 from arviz.plots import plot_posterior
+from arviz import InferenceData
 
 from bambi.backend import PyMCModel
 from bambi.defaults import get_builtin_family
@@ -102,18 +104,18 @@ class Model:
     # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
-        formula,
-        data,
-        family="gaussian",
-        priors=None,
-        link=None,
-        categorical=None,
-        potentials=None,
-        dropna=False,
-        auto_scale=True,
-        noncentered=True,
-        center_predictors=True,
-        extra_namespace=None,
+        formula: Union[str, Formula],
+        data: pd.DataFrame,
+        family: Union[str, Family] = "gaussian",
+        priors: Optional[dict[str, Prior]] = None,
+        link: Optional[Union[str, dict[str, str]]] = None,
+        categorical: Optional[Union[str, list[str]]] = None,
+        potentials: Optional[list[tuple[str, Callable]]] = None,
+        dropna: bool = False,
+        auto_scale: bool = True,
+        noncentered: bool = True,
+        center_predictors: bool = True,
+        extra_namespace: Optional[dict] = None,
     ):
         # attributes that are set later
         self.components = {}  # Constant and Distributional components
@@ -225,21 +227,57 @@ class Model:
         # Build priors
         self._build_priors()
 
+    @overload
     def fit(
         self,
-        draws=1000,
-        tune=1000,
-        discard_tuned_samples=True,
-        omit_offsets=True,
-        include_mean=False,
-        inference_method="mcmc",
-        init="auto",
-        n_init=50000,
-        chains=None,
-        cores=None,
-        random_seed=None,
+        draws: int = 1000,
+        tune: int = 1000,
+        discard_tuned_samples: bool = True,
+        omit_offsets: bool = True,
+        include_mean: bool = False,
+        inference_method: Literal["mcmc", "blackjax_nuts", "numpyro_nuts", "laplace"] = "mcmc",
+        init: str = "auto",
+        n_init: int = 50000,
+        chains: Optional[int] = None,
+        cores: Optional[int] = None,
+        random_seed: Optional[int] = None,
         **kwargs,
-    ):
+    ) -> InferenceData: ...
+
+    @overload
+    def fit(
+        self,
+        draws: int = 1000,
+        tune: int = 1000,
+        discard_tuned_samples: bool = True,
+        omit_offsets: bool = True,
+        include_mean: bool = False,
+        inference_method: Literal["vi"] = ...,
+        init: str = "auto",
+        n_init: int = 50000,
+        chains: Optional[int] = None,
+        cores: Optional[int] = None,
+        random_seed: Optional[int] = None,
+        **kwargs,
+    ) -> pm.MeanField: ...
+
+    def fit(
+        self,
+        draws: int = 1000,
+        tune: int = 1000,
+        discard_tuned_samples: bool = True,
+        omit_offsets: bool = True,
+        include_mean: bool = False,
+        inference_method: Literal[
+            "mcmc", "blackjax_nuts", "numpyro_nuts", "vi", "laplace"
+        ] = "mcmc",
+        init: str = "auto",
+        n_init: int = 50000,
+        chains: Optional[int] = None,
+        cores: Optional[int] = None,
+        random_seed: Optional[int] = None,
+        **kwargs,
+    ) -> InferenceData | pm.MeanField:
         """Fit the model using PyMC.
 
         Parameters
@@ -722,7 +760,13 @@ class Model:
             )
         return axes
 
-    def prior_predictive(self, draws=500, var_names=None, omit_offsets=True, random_seed=None):
+    def prior_predictive(
+        self,
+        draws: int = 500,
+        var_names: Optional[Union[str, list[str]]] = None,
+        omit_offsets: bool = True,
+        random_seed: Optional[int] = None,
+    ) -> InferenceData:
         """Generate samples from the prior predictive distribution.
 
         Parameters
@@ -763,15 +807,37 @@ class Model:
 
         return idata
 
+    @overload
     def predict(
         self,
-        idata,
-        kind="mean",
-        data=None,
-        inplace=True,
-        include_group_specific=True,
-        sample_new_groups=False,
-    ):
+        idata: InferenceData,
+        kind: Literal["mean", "pps"] = "mean",
+        data: Optional[pd.DataFrame] = None,
+        inplace: Literal[True] = True,
+        include_group_specific: bool = True,
+        sample_new_groups: bool = False,
+    ) -> None: ...
+
+    @overload
+    def predict(
+        self,
+        idata: InferenceData,
+        kind: Literal["mean", "pps"] = "mean",
+        data: Optional[pd.DataFrame] = None,
+        inplace: Literal[False] = False,
+        include_group_specific: bool = True,
+        sample_new_groups: bool = False,
+    ) -> InferenceData: ...
+
+    def predict(
+        self,
+        idata: InferenceData,
+        kind: Literal["mean", "pps"] = "mean",
+        data: Optional[pd.DataFrame] = None,
+        inplace: bool = True,
+        include_group_specific: bool = True,
+        sample_new_groups: bool = False,
+    ) -> Optional[InferenceData]:
         """Predict method for Bambi models
 
         Obtains in-sample and out-of-sample predictions from a fitted Bambi model.
