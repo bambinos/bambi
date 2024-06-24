@@ -1,6 +1,7 @@
 # Bambi Community Code of Conduct
 
-Bambi adopts the NumFOCUS Code of Conduct directly. In other words, we expect our community to treat others with kindness and understanding.
+Bambi adopts the NumFOCUS Code of Conduct directly. 
+In other words, we expect our community to treat others with kindness and understanding.
 
 # The short version  
 
@@ -34,14 +35,7 @@ If you have experienced or witnessed behavior that violates this
 Code of Conduct, please complete the form below to
 make a report.
 
-**REPORTING FORM:** https://numfocus.typeform.com/to/ynjGdT
-
-Reports are sent to the NumFOCUS Code of Conduct Enforcement Team
-(see below).
-
-You can view the Privacy Policy and Terms of Service for TypeForm here.
-The NumFOCUS Privacy Policy is here:
-https://www.numfocus.org/privacy-policy
+**REPORTING FORM:** https://bambinos.github.io/bambi/contact.html
 
 # Full Code of Conduct
 
