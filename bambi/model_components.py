@@ -27,10 +27,10 @@ class ConstantComponent:
     """
 
     def __init__(self, name, prior, spec):
+        self.alias = None
         self.name = name
         self.prior = prior
         self.spec = spec
-        self.alias = None
 
     def update_priors(self, value):
         self.prior = value
@@ -41,31 +41,26 @@ class DistributionalComponent:
 
     Parameters
     ----------
+    name: str
+        The name of the component
     design : formulae.DesignMatrices
         The object with all the required design matrices and information about the model terms.
     priors : dict
         A dictionary where keys are term names and values are their priors.
-    response_name : str
-        The name of the response or target. If ``response_kind`` is ``"data"``, it's the name of
-        the response variable. If ``response_kind`` is ``"param"`` it's the name of the parameter.
-        An example of the first could be "Reaction" and an example of the latter could be "sigma"
-        or "kappa".
-    response_kind : str
-        Specifies whether the distributional component models the response (``"data"``) or an
-        auxiliary parameter (``"param"``). When ``"data"`` this is actually modeling the "parent"
-        parameter of the family.
     spec : bambi.Model
         The Bambi model
+    is_parent : bool
+        Whether it's the parent parameter or not
     """
 
-    def __init__(self, design, priors, response_name, response_kind, spec):
+    def __init__(self, name, design, priors, spec, is_parent):
         self.terms = {}
         self.alias = None
+        self.name = name
         self.design = design
-        self.response_name = response_name
-        self.response_kind = response_kind
         self.spec = spec
-        self.prefix = "" if response_kind == "data" else response_name
+        self.is_parent = is_parent
+        self.prefix = "" if is_parent else self.name
 
         if self.design.common:
             self.add_common_terms(priors)
@@ -73,9 +68,6 @@ class DistributionalComponent:
 
         if self.design.group:
             self.add_group_specific_terms(priors)
-
-        if self.design.response:
-            self.add_response_term()
 
     def add_common_terms(self, priors):
         for name, term in self.design.common.terms.items():
@@ -105,28 +97,6 @@ class DistributionalComponent:
             if is_hsgp_term(term):
                 prior = priors.pop(name, None)
                 self.terms[name] = HSGPTerm(term, prior, self.prefix)
-
-    def add_response_term(self):
-        """Add a response (or outcome/dependent) variable to the model."""
-        response = self.design.response
-
-        if hasattr(response.term.term.components[0], "reference"):
-            reference = response.term.term.components[0].reference
-        else:
-            reference = None
-
-        # NOTE: This is a historical feature.
-        # I'm not sure how many family specific checks we should add in this type of places now
-        if reference is not None and not isinstance(self.spec.family, univariate.Bernoulli):
-            raise ValueError("Index notation for response is only available for 'bernoulli' family")
-
-        if isinstance(self.spec.family, univariate.Bernoulli):
-            if response.kind == "categoric" and response.levels is None and reference is None:
-                raise ValueError("Categoric response must be binary for 'bernoulli' family.")
-            if response.kind == "numeric" and not all(np.isin(response.design_matrix, [0, 1])):
-                raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
-
-        self.terms[response.name] = ResponseTerm(response, self.spec.family)
 
     def build_priors(self):
         for term in self.terms.values():
@@ -161,11 +131,10 @@ class DistributionalComponent:
         linear_predictor = 0
         posterior = idata.posterior
         in_sample = data is None
-        family = self.spec.family
 
         # Prepare dims objects
-        response_name = get_aliased_name(self.spec.response_component.response_term)
-        response_dim = response_name + "_obs"
+        response_name = get_aliased_name(self.spec.response_component.term)
+        response_dim = "__obs__"
         linear_predictor_dims = ("chain", "draw", response_dim)
         to_stack_dims = ("chain", "draw")
         design_matrix_dims = (response_dim, "__variables__")
@@ -175,7 +144,8 @@ class DistributionalComponent:
             response_levels_dim = response_name + "_reduced_dim"
             to_stack_dims = to_stack_dims + (response_levels_dim,)
             linear_predictor_dims = linear_predictor_dims + (response_levels_dim,)
-        # These families DON'T drop any level in the response
+
+        # These families don't drop any level in the response
         elif isinstance(self.spec.family, multivariate.MultivariateFamily):
             response_levels_dim = response_name + "_dim"
             to_stack_dims = to_stack_dims + (response_levels_dim,)
@@ -199,24 +169,20 @@ class DistributionalComponent:
         linear_predictor = linear_predictor.assign_coords({response_dim: list(range(obs_n))})
 
         # Handle more special cases
-        if hasattr(family, "transform_linear_predictor"):
-            linear_predictor = family.transform_linear_predictor(
+        if hasattr(self.spec.family, "transform_linear_predictor"):
+            linear_predictor = self.spec.family.transform_linear_predictor(
                 self.spec, linear_predictor, posterior
             )
 
-        if self.response_kind == "data":
-            linkinv = family.link[family.likelihood.parent].linkinv
-        else:
-            linkinv = family.link[self.response_name].linkinv
+        invlink = self.spec.family.link[self.name].linkinv
+        invlink_kwargs = getattr(self.spec.family, "INVLINK_KWARGS", {})
+        response = xr.apply_ufunc(invlink, linear_predictor, kwargs=invlink_kwargs)
 
-        invlink_kwargs = getattr(family, "INVLINK_KWARGS", {})
-        response = xr.apply_ufunc(linkinv, linear_predictor, kwargs=invlink_kwargs)
+        if hasattr(self.spec.family, "transform_coords"):
+            response = self.spec.family.transform_coords(self.spec, response)
 
-        if hasattr(family, "transform_coords"):
-            response = family.transform_coords(self.spec, response)
-
-        if hasattr(family, "transform_mean"):
-            response = family.transform_mean(self.spec, response)
+        if hasattr(self.spec.family, "transform_mean"):
+            response = self.spec.family.transform_mean(self.spec, response)
 
         return response
 
@@ -505,14 +471,6 @@ class DistributionalComponent:
         return None
 
     @property
-    def response_term(self):
-        """Returns the response term in the model component"""
-        for term in self.terms.values():
-            if isinstance(term, ResponseTerm):
-                return term
-        return None
-
-    @property
     def common_terms(self):
         """Return dict of all common effects in the model component."""
         return {
@@ -535,6 +493,35 @@ class DistributionalComponent:
     def hsgp_terms(self):
         """Return dict of all HSGP terms in model."""
         return {k: v for (k, v) in self.terms.items() if isinstance(v, HSGPTerm)}
+
+
+class ResponseComponent:
+    def __init__(self, response, spec):
+        self.term = None
+        self.response = response
+        self.spec = spec
+        self._init_response()
+
+    def _init_response(self):
+        response = self.response
+
+        if hasattr(response.term.term.components[0], "reference"):
+            reference = response.term.term.components[0].reference
+        else:
+            reference = None
+
+        # This is a historical feature.
+        # It's not clear how many family specific checks should be added here
+        if reference is not None and not isinstance(self.spec.family, univariate.Bernoulli):
+            raise ValueError("Index notation for response is only available for 'bernoulli' family")
+
+        if isinstance(self.spec.family, univariate.Bernoulli):
+            if response.kind == "categoric" and response.levels is None and reference is None:
+                raise ValueError("Categoric response must be binary for 'bernoulli' family.")
+            if response.kind == "numeric" and not all(np.isin(response.design_matrix, (0, 1))):
+                raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
+
+        self.term = ResponseTerm(response, self.spec.family)
 
 
 def prepare_prior(prior, kind, auto_scale):

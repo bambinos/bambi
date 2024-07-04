@@ -9,13 +9,20 @@ from importlib.metadata import version
 
 import numpy as np
 import pymc as pm
-
 import pytensor.tensor as pt
+import xarray as xr
+
+from pymc.backends.arviz import coords_and_dims_for_inferencedata, find_observations
+from pymc.util import get_default_varnames
 from pytensor.tensor.special import softmax
 
 from bambi.backend.inference_methods import inference_methods
 from bambi.backend.links import cloglog, identity, inverse_squared, logit, probit, arctan_2
-from bambi.backend.model_components import ConstantComponent, DistributionalComponent
+from bambi.backend.model_components import (
+    ConstantComponent,
+    DistributionalComponent,
+    ResponseComponent,
+)
 from bambi.utils import get_aliased_name
 
 _log = logging.getLogger("bambi")
@@ -47,6 +54,7 @@ class PyMCModel:
         self.model = None
         self.spec = None
         self.components = {}
+        self.response_component = None
         self.bayeux_methods = inference_methods.names["bayeux"]
         self.pymc_methods = inference_methods.names["pymc"]
 
@@ -55,27 +63,32 @@ class PyMCModel:
 
         Parameters
         ----------
-        spec: bambi.Model
-            A Bambi ``Model`` instance containing the abstract specification of the model
-            to compile.
+        spec : bambi.Model
+            A Bambi `Model` instance containing the abstract specification of the model to compile.
         """
         self.model = pm.Model()
         self.components = {}
 
-        for name, values in spec.response_component.response_term.coords.items():
+        for name, values in spec.response_component.term.coords.items():
             if name not in self.model.coords:
                 self.model.add_coords({name: values})
 
         with self.model:
+            # Add constant components
             for name, component in spec.constant_components.items():
                 self.components[name] = ConstantComponent(component)
                 self.components[name].build(self, spec)
 
+            # Add distributional components
             for name, component in spec.distributional_components.items():
                 self.components[name] = DistributionalComponent(component)
                 self.components[name].build(self, spec)
 
-            self.build_response(spec)
+            # Add response
+            self.response_component = ResponseComponent(spec.response_component)
+            self.response_component.build(self, spec)
+
+            # Add potentials
             self.build_potentials(spec)
 
         self.spec = spec
@@ -86,7 +99,7 @@ class PyMCModel:
         tune=1000,
         discard_tuned_samples=True,
         omit_offsets=True,
-        include_mean=False,
+        include_response_params=False,
         inference_method="mcmc",
         init="auto",
         n_init=50000,
@@ -120,7 +133,7 @@ class PyMCModel:
                 tune,
                 discard_tuned_samples,
                 omit_offsets,
-                include_mean,
+                include_response_params,
                 init,
                 n_init,
                 chains,
@@ -132,23 +145,12 @@ class PyMCModel:
         elif inference_method in self.pymc_methods["vi"]:
             result = self._run_vi(**kwargs)
         elif inference_method == "laplace":
-            result = self._run_laplace(draws, omit_offsets, include_mean)
+            result = self._run_laplace(draws, omit_offsets, include_response_params)
         else:
             raise NotImplementedError(f"'{inference_method}' method has not been implemented")
 
         self.fit = True
         return result
-
-    def build_response(self, spec):
-        """Add response term to the PyMC model
-
-        Parameters
-        ----------
-        spec : bambi.Modelf
-            The model.
-        """
-        response_component = self.components[spec.response_name]
-        response_component.build_response(self, spec)
 
     def build_potentials(self, spec):
         """Add potentials to the PyMC model.
@@ -179,7 +181,7 @@ class PyMCModel:
         tune=1000,
         discard_tuned_samples=True,
         omit_offsets=True,
-        include_mean=False,
+        include_response_params=False,
         init="auto",
         n_init=50000,
         chains=None,
@@ -189,6 +191,19 @@ class PyMCModel:
         **kwargs,
     ):
         if sampler_backend in self.pymc_methods["mcmc"]:
+            # Don't include the parameters of the likelihood, which are deterministics.
+            # They can take lot of space in the trace and increase RAM requirements.
+            vars_to_sample = get_default_varnames(
+                self.model.unobserved_value_vars, include_transformed=False
+            )
+            vars_to_sample = [variable.name for variable in vars_to_sample]
+
+            for name, variable in self.model.named_vars.items():
+                is_likelihood_param = name in self.spec.family.likelihood.params
+                is_deterministic = variable in self.model.deterministics
+                if is_likelihood_param and is_deterministic:
+                    vars_to_sample.remove(name)
+
             with self.model:
                 try:
                     idata = pm.sample(
@@ -200,6 +215,7 @@ class PyMCModel:
                         chains=chains,
                         cores=cores,
                         random_seed=random_seed,
+                        var_names=vars_to_sample,
                         **kwargs,
                     )
                 except (RuntimeError, ValueError):
@@ -220,6 +236,7 @@ class PyMCModel:
                             chains=chains,
                             cores=cores,
                             random_seed=random_seed,
+                            var_names=vars_to_sample,
                             **kwargs,
                         )
                     else:
@@ -249,14 +266,33 @@ class PyMCModel:
                 f" {self.pymc_methods['mcmc'] + self.bayeux_methods['mcmc']}"
             )
 
-        idata = self._clean_results(idata, omit_offsets, include_mean, idata_from)
+        idata = self._clean_results(idata, omit_offsets, include_response_params, idata_from)
         return idata
 
-    def _clean_results(self, idata, omit_offsets, include_mean, idata_from):
+    def _clean_results(self, idata, omit_offsets, include_response_params, idata_from):
         # Before doing anything, make sure we compute deterministics.
+        # But, don't include those determinisics for parameters of the likelihood.
         if idata_from == "bayeux":
+            # Create the dataset from scratch to guarantee dim names, coord names, and values
+            # are the ones we expect and we don't create any issues downstream.
+            idata.posterior = create_posterior_bayeux(idata.posterior, self.model)
+
+            # Create the dataset for the "observed_data" group because it does not come with bayeux
+            idata.add_groups({"observed_data": create_observed_data_bayeux(self.model)})
+            idata.observed_data.attrs = idata.posterior.attrs
+
+            var_names = [
+                v.name
+                for v in self.model.deterministics
+                if v.name not in self.spec.family.likelihood.params
+            ]
+
             idata.posterior = pm.compute_deterministics(
-                idata.posterior, model=self.model, merge_dataset=True, progressbar=False
+                idata.posterior,
+                var_names=var_names,
+                model=self.model,
+                merge_dataset=True,
+                progressbar=False,
             )
 
         for group in idata.groups():
@@ -267,25 +303,7 @@ class PyMCModel:
             offset_vars = [var for var in idata.posterior.data_vars if var.endswith("_offset")]
             idata.posterior = idata.posterior.drop_vars(offset_vars)
 
-        # NOTE:
-        # This has not had an effect for a while since we haven't been supporting LKJ prior lately.
-
-        # Drop variables and dimensions associated with LKJ prior
-        # vars_to_drop = [var for var in idata.posterior.data_vars if var.startswith("_LKJ")]
-        # dims_to_drop = [dim for dim in idata.posterior.dims if dim.startswith("_LKJ")]
-        # idata.posterior = idata.posterior.drop_vars(vars_to_drop)
-        # idata.posterior = idata.posterior.drop_dims(dims_to_drop)
-
         dims_original = list(self.model.coords)
-
-        # Identify bayeux idata and rename dims and coordinates to match PyMC model
-        if idata_from == "bayeux":
-            cleaned_dims = {
-                f"{dim}_0": dim
-                for dim in dims_original
-                if not dim.endswith("_obs") and f"{dim}_0" in idata.posterior.dims
-            }
-            idata = idata.rename(cleaned_dims)
 
         # Don't select dims that are in the model but unused in the posterior
         dims_original = [dim for dim in dims_original if dim in idata.posterior.dims]
@@ -320,7 +338,7 @@ class PyMCModel:
                 for term in bambi_component.common_terms.values():
                     common_terms.append(get_aliased_name(term))
 
-                response_coords = self.spec.response_component.response_term.coords
+                response_coords = self.spec.response_component.term.coords
                 if response_coords:
                     # Grab the first object in a dictionary
                     levels = list(response_coords.values())[0]
@@ -333,7 +351,7 @@ class PyMCModel:
                 center_factor = np.dot(X.mean(0), coefs).reshape(shape)
                 idata.posterior[name] = idata.posterior[name] - center_factor
 
-        if include_mean:
+        if include_response_params:
             self.spec.predict(idata)
 
         return idata
@@ -343,21 +361,22 @@ class PyMCModel:
             self.vi_approx = pm.fit(**kwargs)
         return self.vi_approx
 
-    def _run_laplace(self, draws, omit_offsets, include_mean):
+    def _run_laplace(self, draws, omit_offsets, include_response_params):
         """Fit a model using a Laplace approximation.
 
         Mainly for pedagogical use, provides reasonable results for approximately
         Gaussian posteriors. The approximation can be very poor for some models
-        like hierarchical ones. Use MCMC or VI methods for better approximations.
+        like hierarchical ones. Use `mcmc`, `vi`, or JAX based MCMC methods
+        for better approximations.
 
         Parameters
         ----------
-        draws: int
+        draws : int
             The number of samples to draw from the posterior distribution.
-        omit_offsets: bool
-            Omits offset terms in the ``InferenceData`` object returned when the model includes
+        omit_offsets : bool
+            Omits offset terms in the `InferenceData` object returned when the model includes
             group specific effects.
-        include_mean: bool
+        include_response_params : bool
             Compute the posterior of the mean response.
 
         Returns
@@ -367,6 +386,14 @@ class PyMCModel:
         with self.model:
             maps = pm.find_MAP()
             n_maps = deepcopy(maps)
+
+            # Remove deterministics for parent parameters
+            n_maps = {
+                key: value
+                for key, value in n_maps.items()
+                if key not in self.spec.family.likelihood.params
+            }
+
             for m in maps:
                 if pm.util.is_transformed_name(m):
                     n_maps.pop(pm.util.get_untransformed_name(m))
@@ -382,12 +409,8 @@ class PyMCModel:
         samples = np.random.multivariate_normal(modes, cov, size=draws)
 
         idata = _posterior_samples_to_idata(samples, self.model)
-        idata = self._clean_results(idata, omit_offsets, include_mean, idata_from="pymc")
+        idata = self._clean_results(idata, omit_offsets, include_response_params, idata_from="pymc")
         return idata
-
-    @property
-    def response_component(self):
-        return self.components[self.spec.response_name]
 
     @property
     def constant_components(self):
@@ -403,9 +426,9 @@ def _posterior_samples_to_idata(samples, model):
 
     Parameters
     ----------
-    samples: array
+    samples : array
         Posterior samples
-    model: PyMC model
+    model : PyMC model
 
     Returns
     -------
@@ -436,3 +459,72 @@ def _posterior_samples_to_idata(samples, model):
 
     idata = pm.to_inference_data(pm.backends.base.MultiTrace([strace]), model=model)
     return idata
+
+
+def create_posterior_bayeux(posterior, pm_model):
+    # This function is used to create a xr.Dataset that holds the posterior draws when doing
+    # inference via bayeux.
+    # bayeux does not keep any information about coords and dims, but Bambi may rely on that in
+    # the future, so we need them.
+    # It's not only painful to modify dims and coords of an existing xarray object, but it's also
+    # impossible sometimes. For that reason, it's simply better to create a Dataset from scratch.
+
+    # Query the mapping between variables and dims from the PyMC model
+    vars_to_dims = pm_model.named_vars_to_dims
+
+    # Get the variable names in the posterior Dataset
+    data_vars_names = list(posterior.data_vars)
+
+    # Query the coords as passed to the PyMC model
+    coords = pm_model.coords.copy()
+
+    # Add 'chain' and 'draw'
+    coords["chain"] = np.array(posterior["chain"])
+    coords["draw"] = np.array(posterior["draw"])
+
+    # Get the dims for each data var
+    data_vars_dims = {}
+    for data_var_name in data_vars_names:
+        if data_var_name in vars_to_dims:
+            data_vars_dims[data_var_name] = ["chain", "draw"] + list(vars_to_dims[data_var_name])
+        else:
+            data_vars_dims[data_var_name] = ["chain", "draw"]
+
+    # Create dictionary with data var dims and values (as required by xr.Dataset)
+    # https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html
+    data_vars_values = {}
+    for data_var_name, data_var_dims in data_vars_dims.items():
+        data_vars_values[data_var_name] = (data_var_dims, posterior[data_var_name].to_numpy())
+
+    # Get coords
+    dims_in_use = set(dim for dims in data_vars_dims.values() for dim in dims)
+    coords_in_use = {coord_name: np.array(coords[coord_name]) for coord_name in dims_in_use}
+
+    return xr.Dataset(data_vars=data_vars_values, coords=coords_in_use, attrs=posterior.attrs)
+
+
+def create_observed_data_bayeux(pm_model):
+    # Query observation dict from PyMC
+    observations = find_observations(pm_model)
+
+    # Query coords and dims from PyMC
+    coords, dims = coords_and_dims_for_inferencedata(pm_model)
+
+    # Out of all dims, keep those associated with observations
+    dims = {name: dims[name] for name in observations}
+
+    # Create a flat list of dim names
+    dim_names = []
+    for dim_name in dims.values():
+        dim_names.extend(dim_name)
+
+    # Out of all coords, keep those associated with observations
+    coords = {name: coords[name] for name in dim_names}
+
+    # Create dictionary with data var dims and values (as required by xr.Dataset)
+    # https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html
+    data_vars_values = {}
+    for name, values in observations.items():
+        data_vars_values[name] = (dims[name], values)
+
+    return xr.Dataset(data_vars=data_vars_values, coords=coords)
