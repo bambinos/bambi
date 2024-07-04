@@ -17,6 +17,9 @@ class InferenceMethods:
         self.pymc_methods = self._pymc_methods()
 
     def _get_bayeux_methods(self, model):
+        # If bayeux is not installed, return an empty MCMC list.
+        if model is None:
+            return {"mcmc": []}
         # Bambi only supports bayeux MCMC methods
         mcmc_methods = model.methods.get("mcmc")
         return {"mcmc": mcmc_methods}
@@ -85,7 +88,7 @@ def bayeux_model():
         A dummy model with a simple quadratic likelihood function.
     """
     if importlib.util.find_spec("bayeux") is None:
-        return {"mcmc": []}
+        return None
 
     import bayeux as bx  # pylint: disable=import-outside-toplevel
 
