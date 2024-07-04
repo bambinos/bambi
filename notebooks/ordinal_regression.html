@@ -126,6 +126,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
@@ -467,9 +468,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">"ignore"</span>, category<span class="op">=</span><span class="pp">FutureWarning</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>WARNING (pytensor.tensor.blas): Using NumPy C-API based implementation for BLAS functions.</code></pre>
-</div>
 </div>
 <section id="ordinal-regression" class="level1">
 <h1>Ordinal Regression</h1>
@@ -508,17 +506,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><code>intention</code>: a factor with levels 0 and 1 where 1 indicates that the story contained “harm intended as the means to a goal is morally worse than equivalent harm foreseen as the side effect of a goal”.</li>
 <li><code>contact</code>: a factor with levels 0 and 1 where 1 indicates that the story contained “using physical contact to cause harm to a victim is morally worse than causing equivalent harm to a victim without using physical contact”.</li>
 </ul>
-<div class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>trolly <span class="op">=</span> pd.read_csv(<span class="st">"https://raw.githubusercontent.com/rmcelreath/rethinking/master/data/Trolley.csv"</span>, sep<span class="op">=</span><span class="st">";"</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>trolly <span class="op">=</span> trolly[[<span class="st">"response"</span>, <span class="st">"action"</span>, <span class="st">"intention"</span>, <span class="st">"contact"</span>]]</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>trolly[<span class="st">"action"</span>] <span class="op">=</span> pd.Categorical(trolly[<span class="st">"action"</span>], ordered<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>trolly[<span class="st">"intention"</span>] <span class="op">=</span> pd.Categorical(trolly[<span class="st">"intention"</span>], ordered<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>trolly[<span class="st">"contact"</span>] <span class="op">=</span> pd.Categorical(trolly[<span class="st">"contact"</span>], ordered<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>trolly[<span class="st">"response"</span>] <span class="op">=</span> pd.Categorical(trolly[<span class="st">"response"</span>], ordered<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>trolly <span class="op">=</span> pd.read_csv(<span class="st">"https://raw.githubusercontent.com/rmcelreath/rethinking/master/data/Trolley.csv"</span>, sep<span class="op">=</span><span class="st">";"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>trolly <span class="op">=</span> trolly[[<span class="st">"response"</span>, <span class="st">"action"</span>, <span class="st">"intention"</span>, <span class="st">"contact"</span>]]</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>trolly[<span class="st">"action"</span>] <span class="op">=</span> pd.Categorical(trolly[<span class="st">"action"</span>], ordered<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>trolly[<span class="st">"intention"</span>] <span class="op">=</span> pd.Categorical(trolly[<span class="st">"intention"</span>], ordered<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>trolly[<span class="st">"contact"</span>] <span class="op">=</span> pd.Categorical(trolly[<span class="st">"contact"</span>], ordered<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>trolly[<span class="st">"response"</span>] <span class="op">=</span> pd.Categorical(trolly[<span class="st">"response"</span>], ordered<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 7 ordered categories from 1-7</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>trolly.response.unique()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 7 ordered categories from 1-7</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>trolly.response.unique()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
 <pre><code>[4, 3, 5, 2, 1, 7, 6]
 Categories (7, int64): [1 &lt; 2 &lt; 3 &lt; 4 &lt; 5 &lt; 6 &lt; 7]</code></pre>
@@ -528,51 +526,71 @@ Categories (7, int64): [1 &lt; 2 &lt; 3 &lt; 4 &lt; 5 &lt; 6 &lt; 7]</code></pre
 <section id="intercept-only-model" class="level3">
 <h3 class="anchored" data-anchor-id="intercept-only-model">Intercept only model</h3>
 <p>Before we fit a model with predictors, let’s attempt to recover the parameters of an ordinal model using only the thresholds to get a feel for the cumulative family. Traditionally, in Bambi if we wanted to recover the parameters of the likelihood, we would use an intercept only model and write the formula as <code>response ~ 1</code> where <code>1</code> indicates to include the intercept. However, in the case of ordinal regression, the thresholds “take the place” of the intercept. Thus, we can write the formula as <code>response ~ 0</code> to indicate that we do not want to include an intercept. To fit a cumulative ordinal model, we pass <code>family="cumulative"</code>. To compare the thresholds only model, we compute the empirical log-cumulative-odds of the categories directly from the data below and generate a bar plot of the response probabilities.</p>
-<div class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>pr_k <span class="op">=</span> trolly.response.value_counts().sort_index().values <span class="op">/</span> trolly.shape[<span class="dv">0</span>]</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>cum_pr_k <span class="op">=</span> np.cumsum(pr_k)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>logit_func <span class="op">=</span> <span class="kw">lambda</span> x: np.log(x <span class="op">/</span> (<span class="dv">1</span> <span class="op">-</span> x))</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>cum_logit <span class="op">=</span> logit_func(cum_pr_k)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>cum_logit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>pr_k <span class="op">=</span> trolly.response.value_counts().sort_index().values <span class="op">/</span> trolly.shape[<span class="dv">0</span>]</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>cum_pr_k <span class="op">=</span> np.cumsum(pr_k)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>logit_func <span class="op">=</span> <span class="kw">lambda</span> x: np.log(x <span class="op">/</span> (<span class="dv">1</span> <span class="op">-</span> x))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>cum_logit <span class="op">=</span> logit_func(cum_pr_k)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>cum_logit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/var/folders/rl/y69t95y51g90tvd6gjzzs59h0000gn/T/ipykernel_22293/1548491577.py:3: RuntimeWarning: invalid value encountered in log
+<pre><code>/tmp/ipykernel_117147/1548491577.py:3: RuntimeWarning: invalid value encountered in log
   logit_func = lambda x: np.log(x / (1 - x))</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="15">
+<div class="cell-output cell-output-display" data-execution_count="4">
 <pre><code>array([-1.91609116, -1.26660559, -0.718634  ,  0.24778573,  0.88986365,
         1.76938091,         nan])</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="22">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>plt.bar(np.arange(<span class="dv">1</span>, <span class="dv">8</span>), pr_k)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Probability"</span>)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Response"</span>)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Empirical probability of each response category"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>plt.bar(np.arange(<span class="dv">1</span>, <span class="dv">8</span>), pr_k)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Probability"</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Response"</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Empirical probability of each response category"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="ordinal_regression_files/figure-html/cell-6-output-1.png" class="img-fluid"></p>
 </div>
 </div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"response ~ 0"</span>, data<span class="op">=</span>trolly, family<span class="op">=</span><span class="st">"cumulative"</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"response ~ 0"</span>, data<span class="op">=</span>trolly, family<span class="op">=</span><span class="st">"cumulative"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [threshold]</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"b541e7837edd4e128fe3428198840106","version_major":2,"version_minor":0}
+</script>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/home/tomas/anaconda3/envs/bambi-dev/lib/python3.11/site-packages/pytensor/compile/function/types.py:970: RuntimeWarning: invalid value encountered in add
+  self.vm()</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 8 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+</div>
 </div>
 <p>Below, the components of the model are outputed. Notice how the thresholds are a grid of six values ranging from -2 to 2.</p>
-<div class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="12">
-<pre><code>       Formula: response ~ 0 + action + intention + contact + action:intention + contact:intention
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>       Formula: response ~ 0
         Family: cumulative
           Link: p = logit
   Observations: 9930
         Priors: 
     target = p
-        Common-level effects
-            action ~ Normal(mu: 0.0, sigma: 5.045)
-            intention ~ Normal(mu: 0.0, sigma: 5.0111)
-            contact ~ Normal(mu: 0.0, sigma: 6.25)
-            action:intention ~ Normal(mu: 0.0, sigma: 6.7082)
-            contact:intention ~ Normal(mu: 0.0, sigma: 8.3333)
+        
         
         Auxiliary parameters
             threshold ~ Normal(mu: [-2.  -1.2 -0.4  0.4  1.2  2. ], sigma: 1.0, transform: ordered)
@@ -581,9 +599,9 @@ Categories (7, int64): [1 &lt; 2 &lt; 3 &lt; 4 &lt; 5 &lt; 6 &lt; 7]</code></pre
 * To see a summary or plot of the posterior pass the object returned by .fit() to az.summary() or az.plot_trace()</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>az.summary(idata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="7">
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>az.summary(idata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
 
 <div>
 
@@ -604,75 +622,75 @@ Categories (7, int64): [1 &lt; 2 &lt; 3 &lt; 4 &lt; 5 &lt; 6 &lt; 7]</code></pre
   </thead>
   <tbody>
     <tr>
-      <th>response_threshold[0]</th>
+      <th>threshold[0]</th>
       <td>-1.917</td>
       <td>0.030</td>
-      <td>-1.974</td>
-      <td>-1.863</td>
+      <td>-1.969</td>
+      <td>-1.859</td>
+      <td>0.001</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>4097.0</td>
-      <td>3163.0</td>
+      <td>2293.0</td>
+      <td>1520.0</td>
       <td>1.0</td>
     </tr>
     <tr>
-      <th>response_threshold[1]</th>
+      <th>threshold[1]</th>
       <td>-1.267</td>
       <td>0.024</td>
-      <td>-1.312</td>
-      <td>-1.220</td>
+      <td>-1.314</td>
+      <td>-1.223</td>
+      <td>0.000</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>5391.0</td>
-      <td>3302.0</td>
+      <td>2826.0</td>
+      <td>1286.0</td>
       <td>1.0</td>
     </tr>
     <tr>
-      <th>response_threshold[2]</th>
-      <td>-0.719</td>
+      <th>threshold[2]</th>
+      <td>-0.718</td>
       <td>0.021</td>
-      <td>-0.760</td>
-      <td>-0.681</td>
+      <td>-0.759</td>
+      <td>-0.679</td>
+      <td>0.000</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>5439.0</td>
-      <td>3698.0</td>
+      <td>2621.0</td>
+      <td>2089.0</td>
       <td>1.0</td>
     </tr>
     <tr>
-      <th>response_threshold[3]</th>
+      <th>threshold[3]</th>
       <td>0.248</td>
       <td>0.020</td>
       <td>0.211</td>
-      <td>0.287</td>
+      <td>0.286</td>
+      <td>0.000</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>5416.0</td>
-      <td>3644.0</td>
+      <td>2491.0</td>
+      <td>1849.0</td>
       <td>1.0</td>
     </tr>
     <tr>
-      <th>response_threshold[4]</th>
-      <td>0.890</td>
+      <th>threshold[4]</th>
+      <td>0.891</td>
       <td>0.022</td>
-      <td>0.847</td>
-      <td>0.930</td>
+      <td>0.850</td>
+      <td>0.931</td>
+      <td>0.000</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>4966.0</td>
-      <td>3439.0</td>
+      <td>2334.0</td>
+      <td>1882.0</td>
       <td>1.0</td>
     </tr>
     <tr>
-      <th>response_threshold[5]</th>
-      <td>1.770</td>
-      <td>0.027</td>
-      <td>1.721</td>
-      <td>1.823</td>
+      <th>threshold[5]</th>
+      <td>1.771</td>
+      <td>0.028</td>
+      <td>1.719</td>
+      <td>1.822</td>
+      <td>0.001</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>4785.0</td>
-      <td>3368.0</td>
+      <td>2352.0</td>
+      <td>1795.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -682,44 +700,44 @@ Categories (7, int64): [1 &lt; 2 &lt; 3 &lt; 4 &lt; 5 &lt; 6 &lt; 7]</code></pre
 </div>
 <p>Viewing the summary dataframe, we see a total of six <code>response_threshold</code> coefficients. Why six? Remember, we get the last parameter for free. Since there are seven categories, we only need six cutpoints. The index (using zero based indexing) of the <code>response_threshold</code> indicates the category that the threshold is associated with. Comparing to the empirical log-cumulative-odds computation above, the mean of the posterior distribution for each category is close to the empirical value.</p>
 <p>As the the log cumulative link is used, we need to apply the inverse of the logit function to transform back to cumulative probabilities. Below, we plot the cumulative probabilities for each category.</p>
-<div class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>expit_func <span class="op">=</span> <span class="kw">lambda</span> x: <span class="dv">1</span> <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> np.exp(<span class="op">-</span>x))</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>cumprobs <span class="op">=</span> expit_func(idata.posterior.response_threshold).mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>))</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>cumprobs <span class="op">=</span> np.append(cumprobs, <span class="dv">1</span>)</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">sorted</span>(trolly.response.unique()), cumprobs, marker<span class="op">=</span><span class="st">'o'</span>)</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Cumulative probability"</span>)</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Response category"</span>)</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Cumulative probabilities of response categories"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>expit_func <span class="op">=</span> <span class="kw">lambda</span> x: <span class="dv">1</span> <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> np.exp(<span class="op">-</span>x))</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>cumprobs <span class="op">=</span> expit_func(idata.posterior.threshold).mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>))</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>cumprobs <span class="op">=</span> np.append(cumprobs, <span class="dv">1</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">sorted</span>(trolly.response.unique()), cumprobs, marker<span class="op">=</span><span class="st">'o'</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Cumulative probability"</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Response category"</span>)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Cumulative probabilities of response categories"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="ordinal_regression_files/figure-html/cell-10-output-1.png" class="img-fluid"></p>
 </div>
 </div>
-<div class="cell" data-execution_count="96">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">6</span>):</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    outcome <span class="op">=</span> expit_func(idata.posterior.response_threshold).sel(response_threshold_dim<span class="op">=</span>i).to_numpy().flatten()</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    ax.hist(outcome, bins<span class="op">=</span><span class="dv">15</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="ss">f"Category: </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Probability"</span>)</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Count"</span>)</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Cumulative Probability by Category"</span>)</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>ax.legend(bbox_to_anchor<span class="op">=</span>(<span class="fl">1.04</span>, <span class="dv">1</span>), loc<span class="op">=</span><span class="st">"upper left"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">6</span>):</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    outcome <span class="op">=</span> expit_func(idata.posterior.threshold).sel(threshold_dim<span class="op">=</span>i).to_numpy().flatten()</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    ax.hist(outcome, bins<span class="op">=</span><span class="dv">15</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="ss">f"Category: </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Probability"</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Count"</span>)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Cumulative Probability by Category"</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>ax.legend(bbox_to_anchor<span class="op">=</span>(<span class="fl">1.04</span>, <span class="dv">1</span>), loc<span class="op">=</span><span class="st">"upper left"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="ordinal_regression_files/figure-html/cell-11-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>We can take the derivative of the cumulative probabilities to get the posterior probabilities for each category. Notice how the posterior probabilities in the barplot below are close to the empirical probabilities in barplot above.</p>
-<div class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># derivative</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>ddx <span class="op">=</span> np.diff(cumprobs)</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>probs <span class="op">=</span> np.insert(ddx, <span class="dv">0</span>, cumprobs[<span class="dv">0</span>])</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>plt.bar(<span class="bu">sorted</span>(trolly.response.unique()), probs)</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Probability"</span>)</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Response category"</span>)</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Posterior Probability of each response category"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># derivative</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>ddx <span class="op">=</span> np.diff(cumprobs)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>probs <span class="op">=</span> np.insert(ddx, <span class="dv">0</span>, cumprobs[<span class="dv">0</span>])</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>plt.bar(<span class="bu">sorted</span>(trolly.response.unique()), probs)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Probability"</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Response category"</span>)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Posterior Probability of each response category"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="ordinal_regression_files/figure-html/cell-12-output-1.png" class="img-fluid"></p>
 </div>
@@ -736,23 +754,47 @@ Categories (7, int64): [1 &lt; 2 &lt; 3 &lt; 4 &lt; 5 &lt; 6 &lt; 7]</code></pre
 <p><span class="math display">\[Pr(Y = k | \eta) = F(\tau_k - \eta) - F(\tau_{k-1} - \eta)\]</span></p>
 <p>The same predictor term <span class="math inline">\(\eta\)</span> is subtracted from each threshold because if we decrease the log-cumulative-odds of every outcome value <span class="math inline">\(k\)</span> below the maximum, this shifts probability mass upwards towards higher outcome values. Thus, positive <span class="math inline">\(\beta\)</span> values correspond to increasing <span class="math inline">\(x\)</span>, which is associated with an increase in the mean response <span class="math inline">\(Y\)</span>. The parameters to be estimated from the model are the thresholds <span class="math inline">\(\tau\)</span> and the predictor terms <span class="math inline">\(\eta\)</span> coefficients.</p>
 <p>To add predictors for ordinal models in Bambi, we continue to use the formula interface.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"response ~ 0 + action + intention + contact + action:intention + contact:intention"</span>, </span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>trolly, </span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">"cumulative"</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"response ~ 0 + action + intention + contact + action:intention + contact:intention"</span>, </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>trolly, </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">"cumulative"</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [threshold, action, intention, contact, action:intention, contact:intention]</code></pre>
 </div>
-<p>In the summary dataframe below, we only select the predictor variables as the thresholds are not of interest at the moment.</p>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"e9770346ce3e4ae19876e74050953637","version_major":2,"version_minor":0}
+</script>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/home/tomas/anaconda3/envs/bambi-dev/lib/python3.11/site-packages/pytensor/compile/function/types.py:970: RuntimeWarning: invalid value encountered in accumulate
+  self.vm()</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 93 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+</div>
+</div>
 <p>In the summary dataframe below, we only select the predictor variables as the cutpoints are not of interest at the moment.</p>
-<div class="cell" data-execution_count="33">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>az.summary(</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"action"</span>, <span class="st">"intention"</span>, <span class="st">"contact"</span>, </span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>               <span class="st">"action:intention"</span>, <span class="st">"contact:intention"</span>]</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="33">
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>az.summary(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"action"</span>, <span class="st">"intention"</span>, <span class="st">"contact"</span>, </span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>               <span class="st">"action:intention"</span>, <span class="st">"contact:intention"</span>]</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="13">
 
 <div>
 
@@ -774,63 +816,63 @@ Categories (7, int64): [1 &lt; 2 &lt; 3 &lt; 4 &lt; 5 &lt; 6 &lt; 7]</code></pre
   <tbody>
     <tr>
       <th>action[1]</th>
-      <td>-0.466</td>
-      <td>0.055</td>
-      <td>-0.563</td>
-      <td>-0.363</td>
-      <td>0.003</td>
-      <td>0.002</td>
-      <td>412.0</td>
-      <td>645.0</td>
-      <td>1.00</td>
+      <td>-0.463</td>
+      <td>0.054</td>
+      <td>-0.564</td>
+      <td>-0.360</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>1418.0</td>
+      <td>1691.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>intention[1]</th>
-      <td>-0.278</td>
-      <td>0.060</td>
-      <td>-0.390</td>
-      <td>-0.167</td>
-      <td>0.003</td>
+      <td>-0.274</td>
+      <td>0.058</td>
+      <td>-0.380</td>
+      <td>-0.161</td>
       <td>0.002</td>
-      <td>379.0</td>
-      <td>500.0</td>
-      <td>1.01</td>
+      <td>0.001</td>
+      <td>1264.0</td>
+      <td>1446.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>contact[1]</th>
-      <td>-0.327</td>
-      <td>0.072</td>
-      <td>-0.460</td>
-      <td>-0.204</td>
-      <td>0.003</td>
+      <td>-0.325</td>
+      <td>0.068</td>
+      <td>-0.445</td>
+      <td>-0.189</td>
       <td>0.002</td>
-      <td>525.0</td>
-      <td>688.0</td>
-      <td>1.00</td>
+      <td>0.001</td>
+      <td>1203.0</td>
+      <td>1310.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>action:intention[1, 1]</th>
-      <td>-0.450</td>
-      <td>0.080</td>
-      <td>-0.609</td>
-      <td>-0.300</td>
-      <td>0.004</td>
-      <td>0.003</td>
-      <td>396.0</td>
-      <td>479.0</td>
-      <td>1.00</td>
+      <td>-0.455</td>
+      <td>0.081</td>
+      <td>-0.607</td>
+      <td>-0.303</td>
+      <td>0.002</td>
+      <td>0.001</td>
+      <td>1505.0</td>
+      <td>1625.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>contact:intention[1, 1]</th>
-      <td>-1.278</td>
-      <td>0.097</td>
-      <td>-1.459</td>
-      <td>-1.098</td>
-      <td>0.004</td>
+      <td>-1.279</td>
+      <td>0.099</td>
+      <td>-1.473</td>
+      <td>-1.109</td>
       <td>0.003</td>
-      <td>557.0</td>
-      <td>567.0</td>
-      <td>1.00</td>
+      <td>0.002</td>
+      <td>1326.0</td>
+      <td>1456.0</td>
+      <td>1.0</td>
     </tr>
   </tbody>
 </table>
@@ -838,29 +880,29 @@ Categories (7, int64): [1 &lt; 2 &lt; 3 &lt; 4 &lt; 5 &lt; 6 &lt; 7]</code></pre
 </div>
 </div>
 <p>The posterior distribution of the slopes are all negative indicating that each of these story features reduces the rating—the acceptability of the story. Below, a forest plot is used to make this insight more clear.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>az.plot_forest(</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    idata,</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    combined<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"action"</span>, <span class="st">"intention"</span>, <span class="st">"contact"</span>, </span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>               <span class="st">"action:intention"</span>, <span class="st">"contact:intention"</span>],</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>),</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    textsize<span class="op">=</span><span class="dv">11</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>az.plot_forest(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    idata,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    combined<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"action"</span>, <span class="st">"intention"</span>, <span class="st">"contact"</span>, </span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>               <span class="st">"action:intention"</span>, <span class="st">"contact:intention"</span>],</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>),</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    textsize<span class="op">=</span><span class="dv">11</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="ordinal_regression_files/figure-html/cell-15-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>Again, we can plot the cumulative probability of each category. Compared to the same plot above, notice how most of the category probabilities have been shifted to the left. Additionally, there is more uncertainty for category 3, 4, and 5.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">6</span>):</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    outcome <span class="op">=</span> expit_func(idata.posterior.response_threshold).sel(response_threshold_dim<span class="op">=</span>i).to_numpy().flatten()</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    ax.hist(outcome, bins<span class="op">=</span><span class="dv">15</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="ss">f"Category: </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Probability"</span>)</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Count"</span>)</span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Cumulative Probability by Category"</span>)</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>ax.legend(bbox_to_anchor<span class="op">=</span>(<span class="fl">1.04</span>, <span class="dv">1</span>), loc<span class="op">=</span><span class="st">"upper left"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">6</span>):</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    outcome <span class="op">=</span> expit_func(idata.posterior.threshold).sel(threshold_dim<span class="op">=</span>i).to_numpy().flatten()</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    ax.hist(outcome, bins<span class="op">=</span><span class="dv">15</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="ss">f"Category: </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Probability"</span>)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Count"</span>)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Cumulative Probability by Category"</span>)</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>ax.legend(bbox_to_anchor<span class="op">=</span>(<span class="fl">1.04</span>, <span class="dv">1</span>), loc<span class="op">=</span><span class="st">"upper left"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="ordinal_regression_files/figure-html/cell-16-output-1.png" class="img-fluid"></p>
 </div>
@@ -869,65 +911,65 @@ Categories (7, int64): [1 &lt; 2 &lt; 3 &lt; 4 &lt; 5 &lt; 6 &lt; 7]</code></pre
 <section id="posterior-predictive-distribution" class="level3">
 <h3 class="anchored" data-anchor-id="posterior-predictive-distribution">Posterior predictive distribution</h3>
 <p>To get a sense of how well the ordinal model fits the data, we can plot samples from the posterior predictive distribution. To plot the samples, a utility function is defined below to assist in the plotting of discrete values.</p>
-<div class="cell" data-execution_count="24">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> adjust_lightness(color, amount<span class="op">=</span><span class="fl">0.5</span>):</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> matplotlib.colors <span class="im">as</span> mc</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> colorsys</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>        c <span class="op">=</span> mc.cnames[color]</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span>:</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>        c <span class="op">=</span> color</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    c <span class="op">=</span> colorsys.rgb_to_hls(<span class="op">*</span>mc.to_rgb(c))</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> colorsys.hls_to_rgb(c[<span class="dv">0</span>], c[<span class="dv">1</span>] <span class="op">*</span> amount, c[<span class="dv">2</span>])</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_ppc_discrete(idata, bins, ax):</span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> add_discrete_bands(x, lower, upper, ax, <span class="op">**</span>kwargs):</span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i, (l, u) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(lower, upper)):</span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>            s <span class="op">=</span> <span class="bu">slice</span>(i, i <span class="op">+</span> <span class="dv">2</span>)</span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>            ax.fill_between(x[s], [l, l], [u, u], <span class="op">**</span>kwargs)</span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    var_name <span class="op">=</span> <span class="bu">list</span>(idata.observed_data.data_vars)[<span class="dv">0</span>]</span>
-<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>    y_obs <span class="op">=</span> idata.observed_data[var_name].to_numpy()</span>
-<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>    counts_list <span class="op">=</span> []</span>
-<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> draw_values <span class="kw">in</span> az.extract(idata, <span class="st">"posterior_predictive"</span>)[var_name].to_numpy().T:</span>
-<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>        counts, _ <span class="op">=</span> np.histogram(draw_values, bins<span class="op">=</span>bins)</span>
-<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>        counts_list.append(counts)</span>
-<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>    counts_arr <span class="op">=</span> np.stack(counts_list)</span>
-<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>    qts_90 <span class="op">=</span> np.quantile(counts_arr, (<span class="fl">0.05</span>, <span class="fl">0.95</span>), axis<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>    qts_70 <span class="op">=</span> np.quantile(counts_arr, (<span class="fl">0.15</span>, <span class="fl">0.85</span>), axis<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>    qts_50 <span class="op">=</span> np.quantile(counts_arr, (<span class="fl">0.25</span>, <span class="fl">0.75</span>), axis<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>    qts_30 <span class="op">=</span> np.quantile(counts_arr, (<span class="fl">0.35</span>, <span class="fl">0.65</span>), axis<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>    median <span class="op">=</span> np.quantile(counts_arr, <span class="fl">0.5</span>, axis<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>    colors <span class="op">=</span> [adjust_lightness(<span class="st">"C0"</span>, x) <span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.8</span>, <span class="fl">1.6</span>, <span class="fl">1.4</span>, <span class="fl">1.2</span>, <span class="fl">0.9</span>]]</span>
-<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>    add_discrete_bands(bins, qts_90[<span class="dv">0</span>], qts_90[<span class="dv">1</span>], ax<span class="op">=</span>ax, color<span class="op">=</span>colors[<span class="dv">0</span>])</span>
-<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>    add_discrete_bands(bins, qts_70[<span class="dv">0</span>], qts_70[<span class="dv">1</span>], ax<span class="op">=</span>ax, color<span class="op">=</span>colors[<span class="dv">1</span>])</span>
-<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>    add_discrete_bands(bins, qts_50[<span class="dv">0</span>], qts_50[<span class="dv">1</span>], ax<span class="op">=</span>ax, color<span class="op">=</span>colors[<span class="dv">2</span>])</span>
-<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>    add_discrete_bands(bins, qts_30[<span class="dv">0</span>], qts_30[<span class="dv">1</span>], ax<span class="op">=</span>ax, color<span class="op">=</span>colors[<span class="dv">3</span>])</span>
-<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a>    ax.step(bins[:<span class="op">-</span><span class="dv">1</span>], median, color<span class="op">=</span>colors[<span class="dv">4</span>], lw<span class="op">=</span><span class="dv">2</span>, where<span class="op">=</span><span class="st">"post"</span>)</span>
-<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a>    ax.hist(y_obs, bins<span class="op">=</span>bins, histtype<span class="op">=</span><span class="st">"step"</span>, lw<span class="op">=</span><span class="dv">2</span>, color<span class="op">=</span><span class="st">"black"</span>, align<span class="op">=</span><span class="st">"mid"</span>)</span>
-<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a>    handles <span class="op">=</span> [</span>
-<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a>        Line2D([], [], label<span class="op">=</span><span class="st">"Observed data"</span>, color<span class="op">=</span><span class="st">"black"</span>, lw<span class="op">=</span><span class="dv">2</span>),</span>
-<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a>        Line2D([], [], label<span class="op">=</span><span class="st">"Posterior predictive median"</span>, color<span class="op">=</span>colors[<span class="dv">4</span>], lw<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a>    ]</span>
-<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a>    ax.legend(handles<span class="op">=</span>handles)</span>
-<span id="cb21-48"><a href="#cb21-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ax</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> adjust_lightness(color, amount<span class="op">=</span><span class="fl">0.5</span>):</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> matplotlib.colors <span class="im">as</span> mc</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> colorsys</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>        c <span class="op">=</span> mc.cnames[color]</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span>:</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>        c <span class="op">=</span> color</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    c <span class="op">=</span> colorsys.rgb_to_hls(<span class="op">*</span>mc.to_rgb(c))</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> colorsys.hls_to_rgb(c[<span class="dv">0</span>], c[<span class="dv">1</span>] <span class="op">*</span> amount, c[<span class="dv">2</span>])</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_ppc_discrete(idata, bins, ax):</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> add_discrete_bands(x, lower, upper, ax, <span class="op">**</span>kwargs):</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i, (l, u) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(lower, upper)):</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>            s <span class="op">=</span> <span class="bu">slice</span>(i, i <span class="op">+</span> <span class="dv">2</span>)</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>            ax.fill_between(x[s], [l, l], [u, u], <span class="op">**</span>kwargs)</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>    var_name <span class="op">=</span> <span class="bu">list</span>(idata.observed_data.data_vars)[<span class="dv">0</span>]</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>    y_obs <span class="op">=</span> idata.observed_data[var_name].to_numpy()</span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>    counts_list <span class="op">=</span> []</span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> draw_values <span class="kw">in</span> az.extract(idata, <span class="st">"posterior_predictive"</span>)[var_name].to_numpy().T:</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>        counts, _ <span class="op">=</span> np.histogram(draw_values, bins<span class="op">=</span>bins)</span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>        counts_list.append(counts)</span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>    counts_arr <span class="op">=</span> np.stack(counts_list)</span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>    qts_90 <span class="op">=</span> np.quantile(counts_arr, (<span class="fl">0.05</span>, <span class="fl">0.95</span>), axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>    qts_70 <span class="op">=</span> np.quantile(counts_arr, (<span class="fl">0.15</span>, <span class="fl">0.85</span>), axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>    qts_50 <span class="op">=</span> np.quantile(counts_arr, (<span class="fl">0.25</span>, <span class="fl">0.75</span>), axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>    qts_30 <span class="op">=</span> np.quantile(counts_arr, (<span class="fl">0.35</span>, <span class="fl">0.65</span>), axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>    median <span class="op">=</span> np.quantile(counts_arr, <span class="fl">0.5</span>, axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a>    colors <span class="op">=</span> [adjust_lightness(<span class="st">"C0"</span>, x) <span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.8</span>, <span class="fl">1.6</span>, <span class="fl">1.4</span>, <span class="fl">1.2</span>, <span class="fl">0.9</span>]]</span>
+<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a>    add_discrete_bands(bins, qts_90[<span class="dv">0</span>], qts_90[<span class="dv">1</span>], ax<span class="op">=</span>ax, color<span class="op">=</span>colors[<span class="dv">0</span>])</span>
+<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a>    add_discrete_bands(bins, qts_70[<span class="dv">0</span>], qts_70[<span class="dv">1</span>], ax<span class="op">=</span>ax, color<span class="op">=</span>colors[<span class="dv">1</span>])</span>
+<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a>    add_discrete_bands(bins, qts_50[<span class="dv">0</span>], qts_50[<span class="dv">1</span>], ax<span class="op">=</span>ax, color<span class="op">=</span>colors[<span class="dv">2</span>])</span>
+<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a>    add_discrete_bands(bins, qts_30[<span class="dv">0</span>], qts_30[<span class="dv">1</span>], ax<span class="op">=</span>ax, color<span class="op">=</span>colors[<span class="dv">3</span>])</span>
+<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a>    ax.step(bins[:<span class="op">-</span><span class="dv">1</span>], median, color<span class="op">=</span>colors[<span class="dv">4</span>], lw<span class="op">=</span><span class="dv">2</span>, where<span class="op">=</span><span class="st">"post"</span>)</span>
+<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a>    ax.hist(y_obs, bins<span class="op">=</span>bins, histtype<span class="op">=</span><span class="st">"step"</span>, lw<span class="op">=</span><span class="dv">2</span>, color<span class="op">=</span><span class="st">"black"</span>, align<span class="op">=</span><span class="st">"mid"</span>)</span>
+<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a>    handles <span class="op">=</span> [</span>
+<span id="cb26-44"><a href="#cb26-44" aria-hidden="true" tabindex="-1"></a>        Line2D([], [], label<span class="op">=</span><span class="st">"Observed data"</span>, color<span class="op">=</span><span class="st">"black"</span>, lw<span class="op">=</span><span class="dv">2</span>),</span>
+<span id="cb26-45"><a href="#cb26-45" aria-hidden="true" tabindex="-1"></a>        Line2D([], [], label<span class="op">=</span><span class="st">"Posterior predictive median"</span>, color<span class="op">=</span>colors[<span class="dv">4</span>], lw<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb26-46"><a href="#cb26-46" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb26-47"><a href="#cb26-47" aria-hidden="true" tabindex="-1"></a>    ax.legend(handles<span class="op">=</span>handles)</span>
+<span id="cb26-48"><a href="#cb26-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ax</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="29">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>idata_pps <span class="op">=</span> model.predict(idata<span class="op">=</span>idata, kind<span class="op">=</span><span class="st">"pps"</span>, inplace<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>bins <span class="op">=</span> np.arange(<span class="dv">7</span>)</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> plot_ppc_discrete(idata_pps, bins, ax)</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Response category"</span>)</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Count"</span>)</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Cumulative model - Posterior Predictive Distribution"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>idata_pps <span class="op">=</span> model.predict(idata<span class="op">=</span>idata, kind<span class="op">=</span><span class="st">"response"</span>, inplace<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>bins <span class="op">=</span> np.arange(<span class="dv">7</span>)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> plot_ppc_discrete(idata_pps, bins, ax)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Response category"</span>)</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Count"</span>)</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Cumulative model - Posterior Predictive Distribution"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="ordinal_regression_files/figure-html/cell-18-output-1.png" class="img-fluid"></p>
 </div>
@@ -948,12 +990,12 @@ Categories (7, int64): [1 &lt; 2 &lt; 3 &lt; 4 &lt; 5 &lt; 6 &lt; 7]</code></pre
 <section id="human-resources-attrition-dataset" class="level3">
 <h3 class="anchored" data-anchor-id="human-resources-attrition-dataset">Human resources attrition dataset</h3>
 <p>To illustrate an sequential model with a stopping ratio link function, we will use data from the IBM human resources employee attrition and performance <a href="https://www.kaggle.com/datasets/pavansubhasht/ibm-hr-analytics-attrition-dataset">dataset</a>. The original dataset contains 1470 rows and 35 columns. However, our goal is to model the total working years of employees using age as a predictor. This data lends itself to a sequential model as the response, total working years, is a sequential process. In order to have 10 years of working experience, it is necessarily true that the employee had 9 years of working experience. Additionally, age is choosen as a predictor as it is positively correlated with total working years.</p>
-<div class="cell" data-execution_count="32">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>attrition <span class="op">=</span> pd.read_csv(<span class="st">"data/hr_employee_attrition.tsv.txt"</span>, sep<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>)</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>attrition <span class="op">=</span> attrition[attrition[<span class="st">"Attrition"</span>] <span class="op">==</span> <span class="st">"No"</span>]</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>attrition[<span class="st">"YearsAtCompany"</span>] <span class="op">=</span> pd.Categorical(attrition[<span class="st">"YearsAtCompany"</span>], ordered<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>attrition[[<span class="st">"YearsAtCompany"</span>, <span class="st">"Age"</span>]].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="32">
+<div class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>attrition <span class="op">=</span> pd.read_csv(<span class="st">"data/hr_employee_attrition.tsv.txt"</span>, sep<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>attrition <span class="op">=</span> attrition[attrition[<span class="st">"Attrition"</span>] <span class="op">==</span> <span class="st">"No"</span>]</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>attrition[<span class="st">"YearsAtCompany"</span>] <span class="op">=</span> pd.Categorical(attrition[<span class="st">"YearsAtCompany"</span>], ordered<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>attrition[[<span class="st">"YearsAtCompany"</span>, <span class="st">"Age"</span>]].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="18">
 
 <div>
 
@@ -997,14 +1039,14 @@ Categories (7, int64): [1 &lt; 2 &lt; 3 &lt; 4 &lt; 5 &lt; 6 &lt; 7]</code></pre
 </div>
 </div>
 <p>Below, the empirical probabilities of the response categories are computed. Employees are most likely to stay at the company between 1 and 10 years.</p>
-<div class="cell" data-execution_count="37">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>pr_k <span class="op">=</span> attrition.YearsAtCompany.value_counts().sort_index().values <span class="op">/</span> attrition.shape[<span class="dv">0</span>]</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>plt.bar(np.arange(<span class="dv">0</span>, <span class="dv">36</span>), pr_k)</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Response category"</span>)</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Probability"</span>)</span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Empirical probability of each response category"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>pr_k <span class="op">=</span> attrition.YearsAtCompany.value_counts().sort_index().values <span class="op">/</span> attrition.shape[<span class="dv">0</span>]</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>plt.bar(np.arange(<span class="dv">0</span>, <span class="dv">36</span>), pr_k)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Response category"</span>)</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Probability"</span>)</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Empirical probability of each response category"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="ordinal_regression_files/figure-html/cell-20-output-1.png" class="img-fluid"></p>
 </div>
@@ -1014,54 +1056,38 @@ Categories (7, int64): [1 &lt; 2 &lt; 3 &lt; 4 &lt; 5 &lt; 6 &lt; 7]</code></pre
 <h3 class="anchored" data-anchor-id="default-prior-of-thresholds">Default prior of thresholds</h3>
 <p>Before we fit the sequential model, it’s worth mentioning that the default priors for the thresholds in a sequential model are different than the cumulative model. In the cumulative model, the default prior for the thresholds is a Normal distribution with a grid of evenly spaced <span class="math inline">\(\mu\)</span> where an ordered transformation is applied to ensure the ordering of the values. However, in the sequential model, the ordering of the thresholds does not matter. Thus, the default prior for the thresholds is a Normal distribution with a zero <span class="math inline">\(\mu\)</span> vector of length <span class="math inline">\(k - 1\)</span> where <span class="math inline">\(k\)</span> is the number of response levels. Refer to the <a href="https://bambinos.github.io/bambi/notebooks/getting_started.html#specifying-priors">getting started</a> docs if you need a refresher on priors in Bambi.</p>
 <p>Subsequently, fitting a sequential model is similar to fitting a cumulative model. The only difference is that we pass <code>family="sratio"</code> to the <code>bambi.Model</code> constructor.</p>
-<div class="cell" data-execution_count="25">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>sequence_model <span class="op">=</span> bmb.Model(</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"YearsAtCompany ~ 0 + TotalWorkingYears"</span>, </span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>attrition, </span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">"sratio"</span></span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>sequence_idata <span class="op">=</span> sequence_model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>sequence_model <span class="op">=</span> bmb.Model(</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"YearsAtCompany ~ 0 + TotalWorkingYears"</span>, </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>attrition, </span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">"sratio"</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>sequence_idata <span class="op">=</span> sequence_model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Only 250 samples in chain.
-Auto-assigning NUTS sampler...
+<pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [YearsAtCompany_threshold, TotalWorkingYears]</code></pre>
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [threshold, TotalWorkingYears]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"4f54440683794514b86bd0ef57029e8c","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="2000" class="" max="2000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [2000/2000 02:28&lt;00:00 Sampling 4 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 250 tune and 250 draw iterations (1_000 + 1_000 draws total) took 148 seconds.
-The rhat statistic is larger than 1.01 for some parameters. This indicates problems during sampling. See https://arxiv.org/abs/1903.08008 for details</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 370 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>sequence_model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="6">
+<div class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>sequence_model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="21">
 <pre><code>       Formula: YearsAtCompany ~ 0 + TotalWorkingYears
         Family: sratio
           Link: p = logit
@@ -1073,12 +1099,15 @@ The rhat statistic is larger than 1.01 for some parameters. This indicates probl
         
         Auxiliary parameters
             threshold ~ Normal(mu: [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.
-             0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.], sigma: 1.0)</code></pre>
+             0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.], sigma: 1.0)
+------
+* To see a plot of the priors call the .plot_priors() method.
+* To see a summary or plot of the posterior pass the object returned by .fit() to az.summary() or az.plot_trace()</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="26">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>az.summary(sequence_idata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="26">
+<div class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>az.summary(sequence_idata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="22">
 
 <div>
 
@@ -1099,436 +1128,436 @@ The rhat statistic is larger than 1.01 for some parameters. This indicates probl
   </thead>
   <tbody>
     <tr>
-      <th>YearsAtCompany_threshold[0]</th>
-      <td>-2.525</td>
-      <td>0.193</td>
-      <td>-2.896</td>
-      <td>-2.191</td>
-      <td>0.004</td>
-      <td>0.003</td>
-      <td>2027.0</td>
-      <td>812.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[1]</th>
-      <td>-1.057</td>
-      <td>0.110</td>
-      <td>-1.265</td>
-      <td>-0.850</td>
-      <td>0.003</td>
-      <td>0.002</td>
-      <td>1137.0</td>
-      <td>601.0</td>
-      <td>1.01</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[2]</th>
-      <td>-1.017</td>
-      <td>0.119</td>
-      <td>-1.238</td>
-      <td>-0.792</td>
-      <td>0.004</td>
-      <td>0.003</td>
-      <td>1009.0</td>
-      <td>705.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[3]</th>
-      <td>-0.760</td>
-      <td>0.117</td>
-      <td>-0.984</td>
-      <td>-0.553</td>
-      <td>0.003</td>
-      <td>0.002</td>
-      <td>1210.0</td>
-      <td>833.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[4]</th>
-      <td>-0.754</td>
-      <td>0.126</td>
-      <td>-0.969</td>
-      <td>-0.493</td>
-      <td>0.003</td>
-      <td>0.002</td>
-      <td>1327.0</td>
-      <td>780.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[5]</th>
-      <td>0.251</td>
-      <td>0.111</td>
-      <td>0.053</td>
-      <td>0.466</td>
-      <td>0.003</td>
-      <td>0.002</td>
-      <td>1207.0</td>
-      <td>808.0</td>
-      <td>1.01</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[6]</th>
-      <td>-0.500</td>
-      <td>0.145</td>
-      <td>-0.769</td>
-      <td>-0.230</td>
-      <td>0.004</td>
-      <td>0.003</td>
-      <td>1394.0</td>
-      <td>526.0</td>
-      <td>1.01</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[7]</th>
-      <td>-0.085</td>
-      <td>0.137</td>
-      <td>-0.355</td>
-      <td>0.155</td>
-      <td>0.004</td>
-      <td>0.003</td>
-      <td>1115.0</td>
-      <td>835.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[8]</th>
-      <td>0.025</td>
-      <td>0.141</td>
-      <td>-0.213</td>
-      <td>0.310</td>
-      <td>0.004</td>
-      <td>0.004</td>
-      <td>1081.0</td>
-      <td>750.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[9]</th>
-      <td>0.389</td>
-      <td>0.146</td>
-      <td>0.128</td>
-      <td>0.673</td>
-      <td>0.004</td>
-      <td>0.003</td>
-      <td>1134.0</td>
-      <td>865.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[10]</th>
-      <td>1.267</td>
-      <td>0.154</td>
-      <td>0.970</td>
-      <td>1.540</td>
-      <td>0.005</td>
-      <td>0.004</td>
-      <td>923.0</td>
-      <td>737.0</td>
-      <td>1.01</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[11]</th>
-      <td>0.436</td>
-      <td>0.213</td>
-      <td>0.055</td>
-      <td>0.826</td>
-      <td>0.006</td>
-      <td>0.004</td>
-      <td>1376.0</td>
-      <td>662.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[12]</th>
-      <td>-0.116</td>
-      <td>0.307</td>
-      <td>-0.662</td>
-      <td>0.457</td>
-      <td>0.008</td>
-      <td>0.010</td>
-      <td>1568.0</td>
-      <td>693.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[13]</th>
-      <td>0.513</td>
-      <td>0.250</td>
-      <td>0.024</td>
-      <td>0.943</td>
-      <td>0.006</td>
-      <td>0.005</td>
-      <td>1537.0</td>
-      <td>738.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[14]</th>
-      <td>0.392</td>
-      <td>0.293</td>
-      <td>-0.126</td>
-      <td>0.958</td>
-      <td>0.008</td>
-      <td>0.006</td>
-      <td>1328.0</td>
-      <td>696.0</td>
-      <td>1.01</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[15]</th>
-      <td>0.791</td>
-      <td>0.277</td>
-      <td>0.310</td>
-      <td>1.348</td>
-      <td>0.008</td>
-      <td>0.005</td>
-      <td>1405.0</td>
-      <td>619.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[16]</th>
-      <td>0.433</td>
-      <td>0.329</td>
-      <td>-0.196</td>
-      <td>1.017</td>
-      <td>0.009</td>
-      <td>0.006</td>
-      <td>1516.0</td>
-      <td>691.0</td>
-      <td>1.01</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[17]</th>
-      <td>0.252</td>
-      <td>0.365</td>
-      <td>-0.397</td>
-      <td>0.916</td>
-      <td>0.009</td>
-      <td>0.009</td>
-      <td>1468.0</td>
-      <td>841.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[18]</th>
-      <td>0.791</td>
-      <td>0.330</td>
-      <td>0.160</td>
-      <td>1.394</td>
-      <td>0.009</td>
-      <td>0.007</td>
-      <td>1274.0</td>
-      <td>856.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[19]</th>
-      <td>0.788</td>
-      <td>0.347</td>
-      <td>0.148</td>
-      <td>1.445</td>
-      <td>0.010</td>
-      <td>0.007</td>
-      <td>1306.0</td>
-      <td>612.0</td>
-      <td>1.01</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[20]</th>
-      <td>2.191</td>
-      <td>0.268</td>
-      <td>1.684</td>
-      <td>2.680</td>
-      <td>0.008</td>
-      <td>0.006</td>
-      <td>1076.0</td>
-      <td>720.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[21]</th>
-      <td>1.842</td>
-      <td>0.331</td>
-      <td>1.323</td>
-      <td>2.516</td>
-      <td>0.009</td>
-      <td>0.006</td>
-      <td>1447.0</td>
-      <td>825.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[22]</th>
-      <td>2.431</td>
-      <td>0.369</td>
-      <td>1.746</td>
-      <td>3.078</td>
-      <td>0.011</td>
-      <td>0.008</td>
-      <td>1230.0</td>
-      <td>616.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[23]</th>
-      <td>0.017</td>
-      <td>0.743</td>
-      <td>-1.389</td>
-      <td>1.340</td>
-      <td>0.016</td>
-      <td>0.027</td>
-      <td>2194.0</td>
-      <td>712.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[24]</th>
-      <td>1.581</td>
-      <td>0.571</td>
-      <td>0.489</td>
-      <td>2.582</td>
-      <td>0.015</td>
-      <td>0.010</td>
-      <td>1671.0</td>
-      <td>636.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[25]</th>
-      <td>1.530</td>
-      <td>0.579</td>
-      <td>0.491</td>
-      <td>2.646</td>
-      <td>0.013</td>
-      <td>0.010</td>
-      <td>2056.0</td>
-      <td>616.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[26]</th>
-      <td>1.727</td>
-      <td>0.607</td>
-      <td>0.605</td>
-      <td>2.844</td>
-      <td>0.014</td>
-      <td>0.010</td>
-      <td>1982.0</td>
-      <td>709.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[27]</th>
-      <td>1.096</td>
-      <td>0.732</td>
-      <td>-0.351</td>
-      <td>2.412</td>
-      <td>0.017</td>
-      <td>0.016</td>
-      <td>1855.0</td>
-      <td>791.0</td>
-      <td>1.02</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[28]</th>
-      <td>1.156</td>
-      <td>0.722</td>
-      <td>-0.288</td>
-      <td>2.399</td>
-      <td>0.016</td>
-      <td>0.013</td>
-      <td>2073.0</td>
-      <td>852.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[29]</th>
-      <td>0.541</td>
-      <td>0.868</td>
-      <td>-1.149</td>
-      <td>2.239</td>
-      <td>0.019</td>
-      <td>0.027</td>
-      <td>2055.0</td>
-      <td>669.0</td>
-      <td>1.01</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[30]</th>
-      <td>1.247</td>
-      <td>0.808</td>
-      <td>-0.275</td>
-      <td>2.744</td>
-      <td>0.019</td>
-      <td>0.015</td>
-      <td>1821.0</td>
-      <td>653.0</td>
-      <td>1.01</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[31]</th>
-      <td>1.385</td>
-      <td>0.813</td>
-      <td>0.013</td>
-      <td>3.021</td>
-      <td>0.019</td>
-      <td>0.015</td>
-      <td>1875.0</td>
-      <td>599.0</td>
-      <td>1.01</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[32]</th>
-      <td>2.683</td>
-      <td>0.710</td>
-      <td>1.318</td>
-      <td>3.936</td>
-      <td>0.017</td>
-      <td>0.012</td>
-      <td>1698.0</td>
-      <td>815.0</td>
-      <td>1.01</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[33]</th>
-      <td>0.868</td>
-      <td>1.018</td>
-      <td>-0.974</td>
-      <td>2.944</td>
-      <td>0.026</td>
-      <td>0.024</td>
-      <td>1573.0</td>
-      <td>781.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>YearsAtCompany_threshold[34]</th>
-      <td>1.756</td>
-      <td>0.853</td>
-      <td>0.348</td>
-      <td>3.500</td>
-      <td>0.021</td>
-      <td>0.017</td>
-      <td>1640.0</td>
-      <td>876.0</td>
-      <td>1.01</td>
-    </tr>
-    <tr>
       <th>TotalWorkingYears</th>
       <td>0.127</td>
-      <td>0.005</td>
-      <td>0.118</td>
+      <td>0.006</td>
+      <td>0.117</td>
       <td>0.138</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>482.0</td>
-      <td>514.0</td>
+      <td>458.0</td>
+      <td>719.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[0]</th>
+      <td>-2.518</td>
+      <td>0.188</td>
+      <td>-2.849</td>
+      <td>-2.154</td>
+      <td>0.004</td>
+      <td>0.003</td>
+      <td>2139.0</td>
+      <td>893.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[1]</th>
+      <td>-1.051</td>
+      <td>0.106</td>
+      <td>-1.253</td>
+      <td>-0.861</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>1668.0</td>
+      <td>1416.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[2]</th>
+      <td>-1.014</td>
+      <td>0.117</td>
+      <td>-1.237</td>
+      <td>-0.806</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>1480.0</td>
+      <td>1458.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[3]</th>
+      <td>-0.757</td>
+      <td>0.113</td>
+      <td>-0.973</td>
+      <td>-0.554</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>1200.0</td>
+      <td>1390.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[4]</th>
+      <td>-0.759</td>
+      <td>0.122</td>
+      <td>-0.978</td>
+      <td>-0.521</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>1394.0</td>
+      <td>1346.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[5]</th>
+      <td>0.250</td>
+      <td>0.108</td>
+      <td>0.060</td>
+      <td>0.458</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>1069.0</td>
+      <td>1283.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[6]</th>
+      <td>-0.505</td>
+      <td>0.148</td>
+      <td>-0.790</td>
+      <td>-0.228</td>
+      <td>0.004</td>
+      <td>0.003</td>
+      <td>1436.0</td>
+      <td>1496.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[7]</th>
+      <td>-0.085</td>
+      <td>0.138</td>
+      <td>-0.338</td>
+      <td>0.171</td>
+      <td>0.004</td>
+      <td>0.003</td>
+      <td>1373.0</td>
+      <td>1364.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[8]</th>
+      <td>0.028</td>
+      <td>0.143</td>
+      <td>-0.228</td>
+      <td>0.305</td>
+      <td>0.005</td>
+      <td>0.003</td>
+      <td>980.0</td>
+      <td>1503.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[9]</th>
+      <td>0.388</td>
+      <td>0.151</td>
+      <td>0.101</td>
+      <td>0.662</td>
+      <td>0.004</td>
+      <td>0.003</td>
+      <td>1306.0</td>
+      <td>1373.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[10]</th>
+      <td>1.269</td>
+      <td>0.153</td>
+      <td>0.948</td>
+      <td>1.523</td>
+      <td>0.005</td>
+      <td>0.004</td>
+      <td>801.0</td>
+      <td>1164.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[11]</th>
+      <td>0.440</td>
+      <td>0.218</td>
+      <td>0.061</td>
+      <td>0.871</td>
+      <td>0.006</td>
+      <td>0.004</td>
+      <td>1224.0</td>
+      <td>1354.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[12]</th>
+      <td>-0.105</td>
+      <td>0.297</td>
+      <td>-0.643</td>
+      <td>0.454</td>
+      <td>0.007</td>
+      <td>0.006</td>
+      <td>1733.0</td>
+      <td>1697.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[13]</th>
+      <td>0.517</td>
+      <td>0.242</td>
+      <td>0.084</td>
+      <td>0.992</td>
+      <td>0.007</td>
+      <td>0.005</td>
+      <td>1361.0</td>
+      <td>1272.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[14]</th>
+      <td>0.390</td>
+      <td>0.280</td>
+      <td>-0.151</td>
+      <td>0.910</td>
+      <td>0.007</td>
+      <td>0.005</td>
+      <td>1730.0</td>
+      <td>1358.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[15]</th>
+      <td>0.797</td>
+      <td>0.264</td>
+      <td>0.289</td>
+      <td>1.273</td>
+      <td>0.007</td>
+      <td>0.005</td>
+      <td>1632.0</td>
+      <td>1534.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[16]</th>
+      <td>0.426</td>
+      <td>0.335</td>
+      <td>-0.193</td>
+      <td>1.066</td>
+      <td>0.008</td>
+      <td>0.006</td>
+      <td>1787.0</td>
+      <td>1330.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[17]</th>
+      <td>0.249</td>
+      <td>0.372</td>
+      <td>-0.444</td>
+      <td>0.944</td>
+      <td>0.010</td>
+      <td>0.007</td>
+      <td>1390.0</td>
+      <td>1357.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[18]</th>
+      <td>0.794</td>
+      <td>0.335</td>
+      <td>0.180</td>
+      <td>1.423</td>
+      <td>0.008</td>
+      <td>0.006</td>
+      <td>1591.0</td>
+      <td>1638.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[19]</th>
+      <td>0.793</td>
+      <td>0.370</td>
+      <td>0.110</td>
+      <td>1.499</td>
+      <td>0.009</td>
+      <td>0.007</td>
+      <td>1689.0</td>
+      <td>1201.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[20]</th>
+      <td>2.201</td>
+      <td>0.272</td>
+      <td>1.723</td>
+      <td>2.725</td>
+      <td>0.008</td>
+      <td>0.006</td>
+      <td>1133.0</td>
+      <td>1333.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[21]</th>
+      <td>1.842</td>
+      <td>0.349</td>
+      <td>1.177</td>
+      <td>2.449</td>
+      <td>0.009</td>
+      <td>0.007</td>
+      <td>1388.0</td>
+      <td>1316.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[22]</th>
+      <td>2.444</td>
+      <td>0.342</td>
+      <td>1.762</td>
+      <td>3.046</td>
+      <td>0.009</td>
+      <td>0.006</td>
+      <td>1544.0</td>
+      <td>1429.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[23]</th>
+      <td>0.030</td>
+      <td>0.724</td>
+      <td>-1.373</td>
+      <td>1.291</td>
+      <td>0.013</td>
+      <td>0.016</td>
+      <td>3182.0</td>
+      <td>1571.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[24]</th>
+      <td>1.587</td>
+      <td>0.538</td>
+      <td>0.516</td>
+      <td>2.535</td>
+      <td>0.013</td>
+      <td>0.009</td>
+      <td>1902.0</td>
+      <td>1429.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[25]</th>
+      <td>1.507</td>
+      <td>0.597</td>
+      <td>0.292</td>
+      <td>2.507</td>
+      <td>0.011</td>
+      <td>0.008</td>
+      <td>2841.0</td>
+      <td>1557.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[26]</th>
+      <td>1.735</td>
+      <td>0.632</td>
+      <td>0.582</td>
+      <td>2.871</td>
+      <td>0.012</td>
+      <td>0.008</td>
+      <td>3066.0</td>
+      <td>1220.0</td>
       <td>1.01</td>
+    </tr>
+    <tr>
+      <th>threshold[27]</th>
+      <td>1.047</td>
+      <td>0.749</td>
+      <td>-0.325</td>
+      <td>2.439</td>
+      <td>0.014</td>
+      <td>0.010</td>
+      <td>2780.0</td>
+      <td>1363.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[28]</th>
+      <td>1.156</td>
+      <td>0.755</td>
+      <td>-0.300</td>
+      <td>2.467</td>
+      <td>0.014</td>
+      <td>0.010</td>
+      <td>2965.0</td>
+      <td>1382.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[29]</th>
+      <td>0.543</td>
+      <td>0.850</td>
+      <td>-1.078</td>
+      <td>2.144</td>
+      <td>0.016</td>
+      <td>0.016</td>
+      <td>2806.0</td>
+      <td>1360.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[30]</th>
+      <td>1.268</td>
+      <td>0.788</td>
+      <td>-0.124</td>
+      <td>2.844</td>
+      <td>0.014</td>
+      <td>0.012</td>
+      <td>3180.0</td>
+      <td>1638.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[31]</th>
+      <td>1.373</td>
+      <td>0.781</td>
+      <td>-0.118</td>
+      <td>2.799</td>
+      <td>0.014</td>
+      <td>0.011</td>
+      <td>2961.0</td>
+      <td>1629.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[32]</th>
+      <td>2.653</td>
+      <td>0.732</td>
+      <td>1.315</td>
+      <td>4.084</td>
+      <td>0.015</td>
+      <td>0.011</td>
+      <td>2384.0</td>
+      <td>1292.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[33]</th>
+      <td>0.861</td>
+      <td>0.942</td>
+      <td>-0.994</td>
+      <td>2.554</td>
+      <td>0.014</td>
+      <td>0.016</td>
+      <td>4345.0</td>
+      <td>1567.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>threshold[34]</th>
+      <td>1.757</td>
+      <td>0.892</td>
+      <td>0.128</td>
+      <td>3.399</td>
+      <td>0.018</td>
+      <td>0.013</td>
+      <td>2441.0</td>
+      <td>1202.0</td>
+      <td>1.00</td>
     </tr>
   </tbody>
 </table>
@@ -1536,14 +1565,14 @@ The rhat statistic is larger than 1.01 for some parameters. This indicates probl
 </div>
 </div>
 <p>The coefficients are still on the logits scale, so we need to apply the inverse of the logit function to transform back to probabilities. Below, we plot the probabilities for each category.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>probs <span class="op">=</span> expit_func(sequence_idata.posterior.YearsAtCompany_threshold).mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>))</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>probs <span class="op">=</span> np.append(probs, <span class="dv">1</span>)</span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">sorted</span>(attrition.YearsAtCompany.unique()), probs, marker<span class="op">=</span><span class="st">'o'</span>)</span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Probability"</span>)</span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Response category"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>probs <span class="op">=</span> expit_func(sequence_idata.posterior.threshold).mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>))</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>probs <span class="op">=</span> np.append(probs, <span class="dv">1</span>)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">sorted</span>(attrition.YearsAtCompany.unique()), probs, marker<span class="op">=</span><span class="st">'o'</span>)</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Probability"</span>)</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Response category"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="ordinal_regression_files/figure-html/cell-24-output-1.png" class="img-fluid"></p>
 </div>
@@ -1553,15 +1582,15 @@ The rhat statistic is larger than 1.01 for some parameters. This indicates probl
 <section id="posterior-predictive-samples" class="level3">
 <h3 class="anchored" data-anchor-id="posterior-predictive-samples">Posterior predictive samples</h3>
 <p>Again, using the posterior predictive samples, we can visualize the model fit against the observed data. In the case of the sequential model, the model does an alright job of capturing the observed frequencies of the categories. For pedagogical purposes, this fit is sufficient.</p>
-<div class="cell" data-execution_count="31">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>idata_pps <span class="op">=</span> model.predict(idata<span class="op">=</span>idata, kind<span class="op">=</span><span class="st">"pps"</span>, inplace<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>bins <span class="op">=</span> np.arange(<span class="dv">35</span>)</span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> plot_ppc_discrete(idata_pps, bins, ax)</span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Response category"</span>)</span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Count"</span>)</span>
-<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Sequential model - Posterior Predictive Distribution"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>idata_pps <span class="op">=</span> model.predict(idata<span class="op">=</span>idata, kind<span class="op">=</span><span class="st">"response"</span>, inplace<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>bins <span class="op">=</span> np.arange(<span class="dv">35</span>)</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> plot_ppc_discrete(idata_pps, bins, ax)</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Response category"</span>)</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Count"</span>)</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Sequential model - Posterior Predictive Distribution"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="ordinal_regression_files/figure-html/cell-25-output-1.png" class="img-fluid"></p>
 </div>
@@ -1572,23 +1601,23 @@ The rhat statistic is larger than 1.01 for some parameters. This indicates probl
 <h2 class="anchored" data-anchor-id="summary">Summary</h2>
 <p>This notebook demonstrated how to fit cumulative and sequential ordinal regression models using Bambi. Cumulative models focus on modeling the cumulative probabilities of an ordinal outcome variable taking on values up to and including a certain category, whereas a sequential model focuses on modeling the probability that an ordinal outcome variable stops at a particular category, rather than continuing to higher categories. To achieve this, both models assume that the reponse variable originates from a categorization of a latent continuous variable <span class="math inline">\(Z\)</span>. However, the cumulative model assumes that there are <span class="math inline">\(K\)</span> thresholds <span class="math inline">\(\tau_k\)</span> that partition <span class="math inline">\(Z\)</span> into <span class="math inline">\(K+1\)</span> observable, ordered categories of <span class="math inline">\(Y\)</span>. The sequential model assumes that for every category <span class="math inline">\(k\)</span> there is a latent continuous variable <span class="math inline">\(Z\)</span> that determines the transition between categories <span class="math inline">\(k\)</span> and <span class="math inline">\(k+1\)</span>; thus, a threshold <span class="math inline">\(\tau\)</span> belongs to each latent process.</p>
 <p>Cumulative models can be used in situations where the outcome variable is on the Likert scale, and you are interested in understanding the impact of predictors on the probability of reaching or exceeding specific categories. Sequential models are particularly useful when you are interested in understanding the predictors that influence the decision to stop at a specific response level. It’s well-suited for analyzing data where categories represent stages, and the focus is on the transitions between these stages.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Fri Sep 15 2023
+<pre><code>Last updated: Sat May 25 2024
 
 Python implementation: CPython
-Python version       : 3.11.0
-IPython version      : 8.13.2
+Python version       : 3.11.9
+IPython version      : 8.24.0
 
-bambi     : 0.13.0.dev0
-arviz     : 0.15.1
-numpy     : 1.24.2
-pandas    : 2.0.1
-matplotlib: 3.7.1
+bambi     : 0.13.1.dev37+g2a54df76.d20240525
+arviz     : 0.18.0
+numpy     : 1.26.4
+matplotlib: 3.8.4
+pandas    : 2.2.2
 
-Watermark: 2.3.1
+Watermark: 2.4.3
 </code></pre>
 </div>
 </div>

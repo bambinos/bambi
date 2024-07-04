@@ -126,6 +126,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
@@ -470,26 +471,22 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.lines <span class="im">import</span> Line2D</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Patch</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>WARNING (pytensor.tensor.blas): Using NumPy C-API based implementation for BLAS functions.</code></pre>
-</div>
 </div>
 <div class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-darkgrid"</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>random_seed <span class="op">=</span> <span class="dv">1234</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>random_seed <span class="op">=</span> <span class="dv">1234</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We first need some measurements of batting data. Today we’re going to use data from the <a href="https://github.com/chadwickbureau/baseballdatabank">Baseball Databank</a>. It is a compilation of historical baseball data in a convenient, tidy format, distributed under Open Data terms.</p>
 <p>This repository contains several datasets in the form of <code>.csv</code> files. This example is going to use the <code>Batting.csv</code> file, which can be loaded directly with Bambi in a convenient way.</p>
 <div class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> bmb.load_data(<span class="st">"batting"</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Then clean some of the data</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"AB"</span>] <span class="op">=</span> df[<span class="st">"AB"</span>].replace(<span class="dv">0</span>, np.nan)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.dropna()</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"batting_avg"</span>] <span class="op">=</span> df[<span class="st">"H"</span>] <span class="op">/</span> df[<span class="st">"AB"</span>]</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[df[<span class="st">"yearID"</span>] <span class="op">&gt;=</span> <span class="dv">2016</span>]</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.iloc[<span class="dv">0</span>:<span class="dv">15</span>] </span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>df.head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> bmb.load_data(<span class="st">"batting"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Then clean some of the data</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"AB"</span>] <span class="op">=</span> df[<span class="st">"AB"</span>].replace(<span class="dv">0</span>, np.nan)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.dropna()</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"batting_avg"</span>] <span class="op">=</span> df[<span class="st">"H"</span>] <span class="op">/</span> df[<span class="st">"AB"</span>]</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[df[<span class="st">"yearID"</span>] <span class="op">&gt;=</span> <span class="dv">2016</span>]</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.iloc[<span class="dv">0</span>:<span class="dv">15</span>] </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>df.head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
 
 <div>
@@ -661,62 +658,62 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>It’s always good to explore the data before starting to write down our models. This is very useful to gain a good understanding of the distribution of the variables and their relationships, and even anticipate some problems that may occur during the sampling process.</p>
 <p>The following graph summarizes the percentage of hits, as well as the number of times the players were up for batting and the number of times they hit the ball.</p>
 <div class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>BLUE <span class="op">=</span> <span class="st">"#2a5674"</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>RED <span class="op">=</span> <span class="st">"#b13f64"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>BLUE <span class="op">=</span> <span class="st">"#2a5674"</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>RED <span class="op">=</span> <span class="st">"#b13f64"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>_, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Customize x limits. </span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># This adds space on the left side to indicate percentage of hits.</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span><span class="dv">120</span>, <span class="dv">320</span>)</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Add dots for the the number of hits and the times at bat</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>ax.scatter(df[<span class="st">"H"</span>], <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">15</span>)), s<span class="op">=</span><span class="dv">140</span>, color<span class="op">=</span>RED, zorder<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>ax.scatter(df[<span class="st">"AB"</span>], <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">15</span>)), s<span class="op">=</span><span class="dv">140</span>, color<span class="op">=</span>BLUE, zorder<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Also a line connecting them</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>ax.hlines(<span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">15</span>)), df[<span class="st">"H"</span>], df[<span class="st">"AB"</span>], color<span class="op">=</span><span class="st">"#b3b3b3"</span>, lw<span class="op">=</span><span class="dv">4</span>)</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>ax.axvline(ls<span class="op">=</span><span class="st">"--"</span>, lw<span class="op">=</span><span class="fl">1.4</span>, color<span class="op">=</span><span class="st">"#a3a3a3"</span>)</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>ax.hlines(<span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">15</span>)), <span class="op">-</span><span class="dv">110</span>, <span class="op">-</span><span class="dv">50</span>, lw<span class="op">=</span><span class="dv">6</span>, color<span class="op">=</span><span class="st">"#b3b3b3"</span>, capstyle<span class="op">=</span><span class="st">"round"</span>)</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>ax.scatter(<span class="dv">60</span> <span class="op">*</span> df[<span class="st">"batting_avg"</span>] <span class="op">-</span> <span class="dv">110</span>, <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">15</span>)), s<span class="op">=</span><span class="dv">28</span>, color<span class="op">=</span>RED, zorder<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the percentage of hits</span></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">15</span>): </span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span><span class="bu">round</span>(df[<span class="st">'batting_avg'</span>].iloc[j] <span class="op">*</span> <span class="dv">100</span>)<span class="sc">}</span><span class="ss">%"</span></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="op">-</span><span class="dv">12</span>, j, text, ha<span class="op">=</span><span class="st">"right"</span>, va<span class="op">=</span><span class="st">"center"</span>, fontsize<span class="op">=</span><span class="dv">14</span>, color<span class="op">=</span><span class="st">"#333"</span>)</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Customize tick positions and labels</span></span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>ax.yaxis.set_ticks(<span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">15</span>)))</span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>ax.yaxis.set_ticklabels(df[<span class="st">"playerID"</span>])</span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>ax.xaxis.set_ticks(<span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">400</span>, <span class="dv">100</span>))</span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Create handles for the legend (just dots and labels)</span></span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>handles <span class="op">=</span> [</span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    Line2D(</span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>        [<span class="dv">0</span>], [<span class="dv">0</span>], label<span class="op">=</span><span class="st">"Hits"</span>, marker<span class="op">=</span><span class="st">"o"</span>, color<span class="op">=</span><span class="st">"None"</span>, markeredgewidth<span class="op">=</span><span class="dv">0</span>, </span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>        markerfacecolor<span class="op">=</span>RED, markersize<span class="op">=</span><span class="dv">13</span></span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    Line2D(</span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>        [<span class="dv">0</span>], [<span class="dv">0</span>], label<span class="op">=</span><span class="st">"At Bat"</span>, marker<span class="op">=</span><span class="st">"o"</span>, color<span class="op">=</span><span class="st">"None"</span>, markeredgewidth<span class="op">=</span><span class="dv">0</span>,</span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>        markerfacecolor<span class="op">=</span>BLUE, markersize<span class="op">=</span><span class="dv">12</span></span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Add legend on top-right corner</span></span>
-<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>legend <span class="op">=</span> ax.legend(</span>
-<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>    handles<span class="op">=</span>handles, </span>
-<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>    loc<span class="op">=</span><span class="dv">1</span>, </span>
-<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>    fontsize<span class="op">=</span><span class="dv">14</span>, </span>
-<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>    handletextpad<span class="op">=</span><span class="fl">0.4</span>,</span>
-<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>    frameon<span class="op">=</span><span class="va">True</span></span>
-<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a><span class="co"># Finally add labels and a title</span></span>
-<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Count"</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Player"</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"How often do batters hit the ball?"</span>, fontsize<span class="op">=</span><span class="dv">20</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>_, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Customize x limits. </span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># This adds space on the left side to indicate percentage of hits.</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span><span class="dv">120</span>, <span class="dv">320</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Add dots for the the number of hits and the times at bat</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>ax.scatter(df[<span class="st">"H"</span>], <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">15</span>)), s<span class="op">=</span><span class="dv">140</span>, color<span class="op">=</span>RED, zorder<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>ax.scatter(df[<span class="st">"AB"</span>], <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">15</span>)), s<span class="op">=</span><span class="dv">140</span>, color<span class="op">=</span>BLUE, zorder<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Also a line connecting them</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>ax.hlines(<span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">15</span>)), df[<span class="st">"H"</span>], df[<span class="st">"AB"</span>], color<span class="op">=</span><span class="st">"#b3b3b3"</span>, lw<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>ax.axvline(ls<span class="op">=</span><span class="st">"--"</span>, lw<span class="op">=</span><span class="fl">1.4</span>, color<span class="op">=</span><span class="st">"#a3a3a3"</span>)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>ax.hlines(<span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">15</span>)), <span class="op">-</span><span class="dv">110</span>, <span class="op">-</span><span class="dv">50</span>, lw<span class="op">=</span><span class="dv">6</span>, color<span class="op">=</span><span class="st">"#b3b3b3"</span>, capstyle<span class="op">=</span><span class="st">"round"</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>ax.scatter(<span class="dv">60</span> <span class="op">*</span> df[<span class="st">"batting_avg"</span>] <span class="op">-</span> <span class="dv">110</span>, <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">15</span>)), s<span class="op">=</span><span class="dv">28</span>, color<span class="op">=</span>RED, zorder<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the percentage of hits</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">15</span>): </span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span><span class="bu">round</span>(df[<span class="st">'batting_avg'</span>].iloc[j] <span class="op">*</span> <span class="dv">100</span>)<span class="sc">}</span><span class="ss">%"</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="op">-</span><span class="dv">12</span>, j, text, ha<span class="op">=</span><span class="st">"right"</span>, va<span class="op">=</span><span class="st">"center"</span>, fontsize<span class="op">=</span><span class="dv">14</span>, color<span class="op">=</span><span class="st">"#333"</span>)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Customize tick positions and labels</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>ax.yaxis.set_ticks(<span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">15</span>)))</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>ax.yaxis.set_ticklabels(df[<span class="st">"playerID"</span>])</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>ax.xaxis.set_ticks(<span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">400</span>, <span class="dv">100</span>))</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Create handles for the legend (just dots and labels)</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>handles <span class="op">=</span> [</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>    Line2D(</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>        [<span class="dv">0</span>], [<span class="dv">0</span>], label<span class="op">=</span><span class="st">"Hits"</span>, marker<span class="op">=</span><span class="st">"o"</span>, color<span class="op">=</span><span class="st">"None"</span>, markeredgewidth<span class="op">=</span><span class="dv">0</span>, </span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>        markerfacecolor<span class="op">=</span>RED, markersize<span class="op">=</span><span class="dv">13</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    Line2D(</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>        [<span class="dv">0</span>], [<span class="dv">0</span>], label<span class="op">=</span><span class="st">"At Bat"</span>, marker<span class="op">=</span><span class="st">"o"</span>, color<span class="op">=</span><span class="st">"None"</span>, markeredgewidth<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>        markerfacecolor<span class="op">=</span>BLUE, markersize<span class="op">=</span><span class="dv">12</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Add legend on top-right corner</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>legend <span class="op">=</span> ax.legend(</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>    handles<span class="op">=</span>handles, </span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>    loc<span class="op">=</span><span class="dv">1</span>, </span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>    fontsize<span class="op">=</span><span class="dv">14</span>, </span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>    handletextpad<span class="op">=</span><span class="fl">0.4</span>,</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>    frameon<span class="op">=</span><span class="va">True</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a><span class="co"># Finally add labels and a title</span></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Count"</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Player"</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"How often do batters hit the ball?"</span>, fontsize<span class="op">=</span><span class="dv">20</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="hierarchical_binomial_bambi_files/figure-html/cell-6-output-1.png" class="img-fluid"></p>
 </div>
@@ -743,8 +740,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>The right-hand side of the formula is <code>"0 + playerID"</code>. This means the model includes a coefficient for each player ID, but does not include a global intercept.</p>
 <p>Finally, using the Binomial family is as easy as passing <code>family="binomial"</code>. By default, the link function for this family is <code>link="logit"</code>, so there’s nothing to change there.</p>
 <div class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>model_non_hierarchical <span class="op">=</span> bmb.Model(<span class="st">"p(H, AB) ~ 0 + playerID"</span>, df, family<span class="op">=</span><span class="st">"binomial"</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>model_non_hierarchical</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>model_non_hierarchical <span class="op">=</span> bmb.Model(<span class="st">"p(H, AB) ~ 0 + playerID"</span>, df, family<span class="op">=</span><span class="st">"binomial"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>model_non_hierarchical</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="6">
 <pre><code>       Formula: p(H, AB) ~ 0 + playerID
         Family: binomial
@@ -759,7 +756,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <div class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>idata_non_hierarchical <span class="op">=</span> model_non_hierarchical.fit(random_seed<span class="op">=</span>random_seed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>idata_non_hierarchical <span class="op">=</span> model_non_hierarchical.fit(random_seed<span class="op">=</span>random_seed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
@@ -767,38 +764,24 @@ Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [playerID]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"26e1d0c6d3644cc6b563d06d8cb4fe9d","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:04&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 5 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 4 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 <p>Next we observe the posterior of the coefficient for each player. The <code>compact=False</code> argument means we want separated panels for each player.</p>
 <div class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(idata_non_hierarchical, compact<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(idata_non_hierarchical, compact<span class="op">=</span><span class="va">False</span>, backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>})<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="hierarchical_binomial_bambi_files/figure-html/cell-9-output-1.png" class="img-fluid"></p>
 </div>
@@ -824,8 +807,8 @@ NUTS: [playerID]</code></pre>
 \]</span></p>
 <p>The group-specific terms are indicated with the <code>|</code> operator in the formula. In this case, since there is an intercept for each player, we write <code>1|playerID</code>.</p>
 <div class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>model_hierarchical <span class="op">=</span> bmb.Model(<span class="st">"p(H, AB) ~ 1 + (1|playerID)"</span>, df, family<span class="op">=</span><span class="st">"binomial"</span>)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>model_hierarchical</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>model_hierarchical <span class="op">=</span> bmb.Model(<span class="st">"p(H, AB) ~ 1 + (1|playerID)"</span>, df, family<span class="op">=</span><span class="st">"binomial"</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>model_hierarchical</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="9">
 <pre><code>       Formula: p(H, AB) ~ 1 + (1|playerID)
         Family: binomial
@@ -834,14 +817,14 @@ NUTS: [playerID]</code></pre>
         Priors: 
     target = p
         Common-level effects
-            Intercept ~ Normal(mu: 0, sigma: 2.5)
+            Intercept ~ Normal(mu: 0.0, sigma: 2.5)
         
         Group-level effects
-            1|playerID ~ Normal(mu: 0, sigma: HalfNormal(sigma: 2.5))</code></pre>
+            1|playerID ~ Normal(mu: 0.0, sigma: HalfNormal(sigma: 2.5))</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>idata_hierarchical <span class="op">=</span> model_hierarchical.fit(random_seed<span class="op">=</span>random_seed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>idata_hierarchical <span class="op">=</span> model_hierarchical.fit(random_seed<span class="op">=</span>random_seed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
@@ -849,98 +832,82 @@ Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"93015e3a2dd5472ea39a65a8ea792d8b","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:07&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 7 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 5 seconds.
+There were 5 divergences after tuning. Increase `target_accept` or reparameterize.
+We recommend running at least 4 chains for robust computation of convergence diagnostics
+The rhat statistic is larger than 1.01 for some parameters. This indicates problems during sampling. See https://arxiv.org/abs/1903.08008 for details</code></pre>
 </div>
 </div>
 <p>Sometimes, there can be several <a href="https://www.pymc.io/projects/docs/en/v3.11.4/pymc-examples/examples/diagnostics_and_criticism/Diagnosing_biased_Inference_with_Divergences.html">divergences</a> when fitting a hierarchical model. What can we do in that case?</p>
 <p>One thing we could try is increasing <code>target_accept</code>. But if there are many divergences, that suggests a problem with the underlying model. Let’s take a look at the prior predictive distribution to see whether our priors are too informative or too wide.</p>
 <p>The <code>Model</code> instance has a method called <code>prior_predictive()</code> that generates samples from the prior predictive distribution. It returns an <code>InferenceData</code> object that contains the values of the prior predictive distribution.</p>
 <div class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>idata_prior <span class="op">=</span> model_hierarchical.prior_predictive()</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>prior <span class="op">=</span> az.extract_dataset(idata_prior, group<span class="op">=</span><span class="st">"prior_predictive"</span>)[<span class="st">"p(H, AB)"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>idata_prior <span class="op">=</span> model_hierarchical.prior_predictive()</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>prior <span class="op">=</span> az.extract_dataset(idata_prior, group<span class="op">=</span><span class="st">"prior_predictive"</span>)[<span class="st">"p(H, AB)"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Sampling: [1|playerID_offset, 1|playerID_sigma, Intercept, p(H, AB)]
-/tmp/ipykernel_23363/2686921361.py:2: FutureWarning: extract_dataset has been deprecated, please use extract
+/tmp/ipykernel_95801/2686921361.py:2: FutureWarning: extract_dataset has been deprecated, please use extract
   prior = az.extract_dataset(idata_prior, group="prior_predictive")["p(H, AB)"]</code></pre>
 </div>
 </div>
-<p>If we inspect the DataArray, we see there are 500 draws (<code>sample</code>) for each of the 15 players (<code>p(H, AB)_dim_0</code>)</p>
+<p>If we inspect the DataArray, we see there are 500 draws (<code>sample</code>) for each of the 15 players (<code>__obs__</code>)</p>
 <p>Let’s plot these distributions together with the observed proportion of hits for every player here.</p>
 <div class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We define this function because this plot is going to be repeated below.</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_prior_predictive(df, prior):</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    AB <span class="op">=</span> df[<span class="st">"AB"</span>].values</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    H <span class="op">=</span> df[<span class="st">"H"</span>].values</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    fig, axes <span class="op">=</span> plt.subplots(<span class="dv">5</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>), sharex<span class="op">=</span><span class="st">"col"</span>)</span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> idx, ax <span class="kw">in</span> <span class="bu">enumerate</span>(axes.ravel()):</span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>        pps <span class="op">=</span> prior.sel({<span class="st">"p(H, AB)_obs"</span>:idx})</span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>        ab <span class="op">=</span> AB[idx]</span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>        h <span class="op">=</span> H[idx]</span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>        hist <span class="op">=</span> ax.hist(pps <span class="op">/</span> ab, bins<span class="op">=</span><span class="dv">25</span>, color<span class="op">=</span><span class="st">"#a3a3a3"</span>)</span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>        ax.axvline(h <span class="op">/</span> ab, color<span class="op">=</span>RED, lw<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>        ax.set_yticks([])</span>
-<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>        ax.tick_params(labelsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    fig.subplots_adjust(left<span class="op">=</span><span class="fl">0.025</span>, right<span class="op">=</span><span class="fl">0.975</span>, hspace<span class="op">=</span><span class="fl">0.05</span>, wspace<span class="op">=</span><span class="fl">0.05</span>, bottom<span class="op">=</span><span class="fl">0.125</span>)</span>
-<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>    fig.legend(</span>
-<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>        handles<span class="op">=</span>[Line2D([<span class="dv">0</span>], [<span class="dv">0</span>], label<span class="op">=</span><span class="st">"Observed proportion"</span>, color<span class="op">=</span>RED, linewidth<span class="op">=</span><span class="dv">2</span>)],</span>
-<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>        handlelength<span class="op">=</span><span class="fl">1.5</span>,</span>
-<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>        handletextpad<span class="op">=</span><span class="fl">0.8</span>,</span>
-<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>        borderaxespad<span class="op">=</span><span class="dv">0</span>,</span>
-<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>        frameon<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>        fontsize<span class="op">=</span><span class="dv">11</span>, </span>
-<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>        bbox_to_anchor<span class="op">=</span>(<span class="fl">0.975</span>, <span class="fl">0.92</span>),</span>
-<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>        loc<span class="op">=</span><span class="st">"right"</span></span>
-<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>    fig.text(<span class="fl">0.5</span>, <span class="fl">0.025</span>, <span class="st">"Prior probability of hitting"</span>, fontsize<span class="op">=</span><span class="dv">15</span>, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"baseline"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We define this function because this plot is going to be repeated below.</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_prior_predictive(df, prior):</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    AB <span class="op">=</span> df[<span class="st">"AB"</span>].values</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    H <span class="op">=</span> df[<span class="st">"H"</span>].values</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    fig, axes <span class="op">=</span> plt.subplots(<span class="dv">5</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>), sharex<span class="op">=</span><span class="st">"col"</span>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> idx, ax <span class="kw">in</span> <span class="bu">enumerate</span>(axes.ravel()):</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>        pps <span class="op">=</span> prior.sel({<span class="st">"__obs__"</span>:idx})</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>        ab <span class="op">=</span> AB[idx]</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>        h <span class="op">=</span> H[idx]</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>        hist <span class="op">=</span> ax.hist(pps <span class="op">/</span> ab, bins<span class="op">=</span><span class="dv">25</span>, color<span class="op">=</span><span class="st">"#a3a3a3"</span>)</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>        ax.axvline(h <span class="op">/</span> ab, color<span class="op">=</span>RED, lw<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>        ax.set_yticks([])</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>        ax.tick_params(labelsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    fig.subplots_adjust(left<span class="op">=</span><span class="fl">0.025</span>, right<span class="op">=</span><span class="fl">0.975</span>, hspace<span class="op">=</span><span class="fl">0.05</span>, wspace<span class="op">=</span><span class="fl">0.05</span>, bottom<span class="op">=</span><span class="fl">0.125</span>)</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    fig.legend(</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>        handles<span class="op">=</span>[Line2D([<span class="dv">0</span>], [<span class="dv">0</span>], label<span class="op">=</span><span class="st">"Observed proportion"</span>, color<span class="op">=</span>RED, linewidth<span class="op">=</span><span class="dv">2</span>)],</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>        handlelength<span class="op">=</span><span class="fl">1.5</span>,</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>        handletextpad<span class="op">=</span><span class="fl">0.8</span>,</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>        borderaxespad<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>        frameon<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>        fontsize<span class="op">=</span><span class="dv">11</span>, </span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>        bbox_to_anchor<span class="op">=</span>(<span class="fl">0.975</span>, <span class="fl">0.92</span>),</span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>        loc<span class="op">=</span><span class="st">"right"</span></span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>    fig.text(<span class="fl">0.5</span>, <span class="fl">0.05</span>, <span class="st">"Prior probability of hitting"</span>, fontsize<span class="op">=</span><span class="dv">15</span>, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"baseline"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>plot_prior_predictive(df, prior)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>/tmp/ipykernel_23363/3299358313.py:17: UserWarning: This figure was using a layout engine that is incompatible with subplots_adjust and/or tight_layout; not calling subplots_adjust.
-  fig.subplots_adjust(left=0.025, right=0.975, hspace=0.05, wspace=0.05, bottom=0.125)</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>plot_prior_predictive(df, prior)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="hierarchical_binomial_bambi_files/figure-html/cell-14-output-2.png" class="img-fluid"></p>
+<p><img src="hierarchical_binomial_bambi_files/figure-html/cell-14-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>Indeed, priors are too wide! Let’s use tighter priors and see what’s the result</p>
 <div class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Intercept"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">1</span>),</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"1|playerID"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span>bmb.Prior(<span class="st">"HalfNormal"</span>, sigma<span class="op">=</span><span class="dv">1</span>))</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>model_hierarchical <span class="op">=</span> bmb.Model(<span class="st">"p(H, AB) ~ 1 + (1|playerID)"</span>, df, family<span class="op">=</span><span class="st">"binomial"</span>, priors<span class="op">=</span>priors)</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>model_hierarchical</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Intercept"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">1</span>),</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"1|playerID"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span>bmb.Prior(<span class="st">"HalfNormal"</span>, sigma<span class="op">=</span><span class="dv">1</span>))</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>model_hierarchical <span class="op">=</span> bmb.Model(<span class="st">"p(H, AB) ~ 1 + (1|playerID)"</span>, df, family<span class="op">=</span><span class="st">"binomial"</span>, priors<span class="op">=</span>priors)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>model_hierarchical</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="14">
 <pre><code>       Formula: p(H, AB) ~ 1 + (1|playerID)
         Family: binomial
@@ -949,24 +916,22 @@ NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]</code></pre>
         Priors: 
     target = p
         Common-level effects
-            Intercept ~ Normal(mu: 0, sigma: 1)
+            Intercept ~ Normal(mu: 0.0, sigma: 1.0)
         
         Group-level effects
-            1|playerID ~ Normal(mu: 0, sigma: HalfNormal(sigma: 1))</code></pre>
+            1|playerID ~ Normal(mu: 0.0, sigma: HalfNormal(sigma: 1.0))</code></pre>
 </div>
 </div>
 <p>Now let’s check the prior predictive distribution for these new priors.</p>
 <div class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>model_hierarchical.build()</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>idata_prior <span class="op">=</span> model_hierarchical.prior_predictive()</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>prior <span class="op">=</span> az.extract_dataset(idata_prior, group<span class="op">=</span><span class="st">"prior_predictive"</span>)[<span class="st">"p(H, AB)"</span>]</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>plot_prior_predictive(df, prior)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>model_hierarchical.build()</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>idata_prior <span class="op">=</span> model_hierarchical.prior_predictive()</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>prior <span class="op">=</span> az.extract_dataset(idata_prior, group<span class="op">=</span><span class="st">"prior_predictive"</span>)[<span class="st">"p(H, AB)"</span>]</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>plot_prior_predictive(df, prior)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Sampling: [1|playerID_offset, 1|playerID_sigma, Intercept, p(H, AB)]
-/tmp/ipykernel_23363/1302716284.py:3: FutureWarning: extract_dataset has been deprecated, please use extract
-  prior = az.extract_dataset(idata_prior, group="prior_predictive")["p(H, AB)"]
-/tmp/ipykernel_23363/3299358313.py:17: UserWarning: This figure was using a layout engine that is incompatible with subplots_adjust and/or tight_layout; not calling subplots_adjust.
-  fig.subplots_adjust(left=0.025, right=0.975, hspace=0.05, wspace=0.05, bottom=0.125)</code></pre>
+/tmp/ipykernel_95801/1302716284.py:3: FutureWarning: extract_dataset has been deprecated, please use extract
+  prior = az.extract_dataset(idata_prior, group="prior_predictive")["p(H, AB)"]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <p><img src="hierarchical_binomial_bambi_files/figure-html/cell-16-output-2.png" class="img-fluid"></p>
@@ -974,7 +939,7 @@ NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]</code></pre>
 </div>
 <p>Definetely it looks much better. Now the priors tend to have a symmetric shape with a mode at 0.5, with substantial probability on the whole domain.</p>
 <div class="cell" data-execution_count="16">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>idata_hierarchical <span class="op">=</span> model_hierarchical.fit(random_seed<span class="op">=</span>random_seed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>idata_hierarchical <span class="op">=</span> model_hierarchical.fit(random_seed<span class="op">=</span>random_seed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
@@ -982,38 +947,25 @@ Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"3761c2c02160469485935ef185eab15a","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:06&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 7 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 6 seconds.
+There were 1 divergences after tuning. Increase `target_accept` or reparameterize.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 <p>Let’s try with increasing <code>target_accept</code> and the number of <code>tune</code> samples.</p>
 <div class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>idata_hierarchical <span class="op">=</span> model_hierarchical.fit(tune<span class="op">=</span><span class="dv">2000</span>, draws<span class="op">=</span><span class="dv">2000</span>, target_accept<span class="op">=</span><span class="fl">0.95</span>, random_seed<span class="op">=</span>random_seed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>idata_hierarchical <span class="op">=</span> model_hierarchical.fit(tune<span class="op">=</span><span class="dv">2000</span>, draws<span class="op">=</span><span class="dv">2000</span>, target_accept<span class="op">=</span><span class="fl">0.95</span>, random_seed<span class="op">=</span>random_seed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
@@ -1021,38 +973,25 @@ Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"6cf8db0e1af347e8aa76e8965661e3d6","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="8000" class="" max="8000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [8000/8000 00:17&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws total) took 18 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws total) took 13 seconds.
+There were 3 divergences after tuning. Increase `target_accept` or reparameterize.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="18">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>var_names <span class="op">=</span> [<span class="st">"Intercept"</span>, <span class="st">"1|playerID"</span>, <span class="st">"1|playerID_sigma"</span>]</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>az.plot_trace(idata_hierarchical, var_names<span class="op">=</span>var_names, compact<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>var_names <span class="op">=</span> [<span class="st">"Intercept"</span>, <span class="st">"1|playerID"</span>, <span class="st">"1|playerID_sigma"</span>]</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>az.plot_trace(idata_hierarchical, var_names<span class="op">=</span>var_names, compact<span class="op">=</span><span class="va">False</span>, backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>})<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="hierarchical_binomial_bambi_files/figure-html/cell-19-output-1.png" class="img-fluid"></p>
 </div>
@@ -1063,44 +1002,44 @@ NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]</code></pre>
 <h2 class="anchored" data-anchor-id="compare-predictions">Compare predictions</h2>
 <p>Now we’re going to plot the distribution of the probability of hit for each player, using both models.</p>
 <p>But before doing that, we need to obtain the posterior in that scale. We could manually take the posterior of the coefficients, compute the linear predictor, and transform that to the probability scale. But that’s a lot of work!</p>
-<p>Fortunately, Bambi models have a method called <code>.predict()</code> that we can use to predict in the probability scale. By default, it modifies in-place the <code>InferenceData</code> object we pass to it. Then, the posterior samples can be found in the variable <code>p(H, AB)_mean</code>.</p>
+<p>Fortunately, Bambi models have a method called <code>.predict()</code> that we can use to predict in the probability scale. By default, it modifies in-place the <code>InferenceData</code> object we pass to it. Then, the posterior samples can be found in the variable <code>p</code>.</p>
 <div class="cell" data-execution_count="19">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>model_non_hierarchical.predict(idata_non_hierarchical)</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>model_hierarchical.predict(idata_hierarchical)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>model_non_hierarchical.predict(idata_non_hierarchical)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>model_hierarchical.predict(idata_hierarchical)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Let’s create a forestplot using the posteriors obtained with both models so we can compare them very easily .</p>
 <div class="cell" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>_, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">8</span>, <span class="dv">8</span>))</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Add vertical line for the global probability of hitting</span></span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>ax.axvline(x<span class="op">=</span>(df[<span class="st">"H"</span>] <span class="op">/</span> df[<span class="st">"AB"</span>]).mean(), ls<span class="op">=</span><span class="st">"--"</span>, color<span class="op">=</span><span class="st">"black"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Create forestplot with ArviZ, only for the mean.</span></span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>az.plot_forest(</span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>    [idata_non_hierarchical, idata_hierarchical], </span>
-<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span><span class="st">"p(H, AB)_mean"</span>, </span>
-<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>    combined<span class="op">=</span><span class="va">True</span>, </span>
-<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>    colors<span class="op">=</span>[<span class="st">"#666666"</span>, RED], </span>
-<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>    linewidth<span class="op">=</span><span class="fl">2.6</span>, </span>
-<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>    markersize<span class="op">=</span><span class="dv">8</span>,</span>
-<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>    ax<span class="op">=</span>ax</span>
-<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Create custom y axis tick labels</span></span>
-<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>ylabels <span class="op">=</span> [<span class="ss">f"H: </span><span class="sc">{</span><span class="bu">round</span>(h)<span class="sc">}</span><span class="ss">, AB: </span><span class="sc">{</span><span class="bu">round</span>(ab)<span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> h, ab <span class="kw">in</span> <span class="bu">zip</span>(df[<span class="st">"H"</span>].values, df[<span class="st">"AB"</span>].values)]</span>
-<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>ylabels <span class="op">=</span> <span class="bu">list</span>(<span class="bu">reversed</span>(ylabels))</span>
-<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Put the labels for the y axis in the mid of the original location of the tick marks.</span></span>
-<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a>ax.set_yticklabels(ylabels, ha<span class="op">=</span><span class="st">"right"</span>)</span>
-<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Create legend</span></span>
-<span id="cb35-25"><a href="#cb35-25" aria-hidden="true" tabindex="-1"></a>handles <span class="op">=</span> [</span>
-<span id="cb35-26"><a href="#cb35-26" aria-hidden="true" tabindex="-1"></a>    Patch(label<span class="op">=</span><span class="st">"Non-hierarchical"</span>, facecolor<span class="op">=</span><span class="st">"#666666"</span>),</span>
-<span id="cb35-27"><a href="#cb35-27" aria-hidden="true" tabindex="-1"></a>    Patch(label<span class="op">=</span><span class="st">"Hierarchical"</span>, facecolor<span class="op">=</span>RED),</span>
-<span id="cb35-28"><a href="#cb35-28" aria-hidden="true" tabindex="-1"></a>    Line2D([<span class="dv">0</span>], [<span class="dv">0</span>], label<span class="op">=</span><span class="st">"Mean probability"</span>, ls<span class="op">=</span><span class="st">"--"</span>, color<span class="op">=</span><span class="st">"black"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
-<span id="cb35-29"><a href="#cb35-29" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb35-30"><a href="#cb35-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-31"><a href="#cb35-31" aria-hidden="true" tabindex="-1"></a>legend <span class="op">=</span> ax.legend(handles<span class="op">=</span>handles, loc<span class="op">=</span><span class="dv">4</span>, fontsize<span class="op">=</span><span class="dv">14</span>, frameon<span class="op">=</span><span class="va">True</span>, framealpha<span class="op">=</span><span class="fl">0.8</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>_, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="dv">8</span>, <span class="dv">8</span>))</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Add vertical line for the global probability of hitting</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>ax.axvline(x<span class="op">=</span>(df[<span class="st">"H"</span>] <span class="op">/</span> df[<span class="st">"AB"</span>]).mean(), ls<span class="op">=</span><span class="st">"--"</span>, color<span class="op">=</span><span class="st">"black"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Create forestplot with ArviZ, only for the mean.</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>az.plot_forest(</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>    [idata_non_hierarchical, idata_hierarchical], </span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span><span class="st">"p"</span>, </span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>    combined<span class="op">=</span><span class="va">True</span>, </span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>    colors<span class="op">=</span>[<span class="st">"#666666"</span>, RED], </span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>    linewidth<span class="op">=</span><span class="fl">2.6</span>, </span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>    markersize<span class="op">=</span><span class="dv">8</span>,</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>    ax<span class="op">=</span>ax</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Create custom y axis tick labels</span></span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>ylabels <span class="op">=</span> [<span class="ss">f"H: </span><span class="sc">{</span><span class="bu">round</span>(h)<span class="sc">}</span><span class="ss">, AB: </span><span class="sc">{</span><span class="bu">round</span>(ab)<span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> h, ab <span class="kw">in</span> <span class="bu">zip</span>(df[<span class="st">"H"</span>].values, df[<span class="st">"AB"</span>].values)]</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>ylabels <span class="op">=</span> <span class="bu">list</span>(<span class="bu">reversed</span>(ylabels))</span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Put the labels for the y axis in the mid of the original location of the tick marks.</span></span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>ax.set_yticklabels(ylabels, ha<span class="op">=</span><span class="st">"right"</span>)</span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Create legend</span></span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>handles <span class="op">=</span> [</span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>    Patch(label<span class="op">=</span><span class="st">"Non-hierarchical"</span>, facecolor<span class="op">=</span><span class="st">"#666666"</span>),</span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>    Patch(label<span class="op">=</span><span class="st">"Hierarchical"</span>, facecolor<span class="op">=</span>RED),</span>
+<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a>    Line2D([<span class="dv">0</span>], [<span class="dv">0</span>], label<span class="op">=</span><span class="st">"Mean probability"</span>, ls<span class="op">=</span><span class="st">"--"</span>, color<span class="op">=</span><span class="st">"black"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb33-29"><a href="#cb33-29" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb33-30"><a href="#cb33-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-31"><a href="#cb33-31" aria-hidden="true" tabindex="-1"></a>legend <span class="op">=</span> ax.legend(handles<span class="op">=</span>handles, loc<span class="op">=</span><span class="dv">4</span>, fontsize<span class="op">=</span><span class="dv">14</span>, frameon<span class="op">=</span><span class="va">True</span>, framealpha<span class="op">=</span><span class="fl">0.8</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="hierarchical_binomial_bambi_files/figure-html/cell-21-output-1.png" class="img-fluid"></p>
 </div>
@@ -1109,22 +1048,21 @@ NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]</code></pre>
 <p>Players who have extreme empirical proportions have similar extreme posteriors under the non-hierarchical model. However, under the hierarchical model, these distributions are now <strong>shrunk towards the global mean</strong>. Extreme values are very unlikely under the hierarchical model.</p>
 <p>And finally, paraphrasing Eric, there’s nothing ineherently right or wrong about shrinkage and hierarchical models. Whether this is reasonable or not depends on our prior knowledge about the problem. And to me, after having seen the hit rates of the other players, it is much more reasonable to shrink extreme posteriors based on very few data points towards the global mean rather than just let them concentrate around 0 or 1.</p>
 <div class="cell" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Thu Jan 05 2023
+<pre><code>Last updated: Sat May 25 2024
 
 Python implementation: CPython
-Python version       : 3.10.4
-IPython version      : 8.5.0
+Python version       : 3.11.9
+IPython version      : 8.24.0
 
-sys       : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
-arviz     : 0.14.0
-matplotlib: 3.6.2
-bambi     : 0.9.3
-numpy     : 1.23.5
+matplotlib: 3.8.4
+bambi     : 0.13.1.dev37+g2a54df76.d20240525
+numpy     : 1.26.4
+arviz     : 0.18.0
 
-Watermark: 2.3.1
+Watermark: 2.4.3
 </code></pre>
 </div>
 </div>
@@ -1132,8 +1070,7 @@ Watermark: 2.3.1
 <section id="footnotes" class="level2">
 <h2 class="anchored" data-anchor-id="footnotes">Footnotes</h2>
 <ol type="1">
-<li><p><span id="fn1"> By default, the <code>.predict()</code> method obtains the posterior for the mean of the likelihood distribution. This mean would be <span class="math inline">\(np\)</span> for the Binomial family. However, since <span class="math inline">\(n\)</span> varies from observation to observation, it returns the value of <span class="math inline">\(p\)</span>, as if it was a Bernoulli family. </span></p></li>
-<li><p><span id="fn2"> <code>.predict()</code>just appends <code>_mean</code> to the name of the response to indicate it is the posterior of the mean.</span></p></li>
+<li><span id="fn1"> By default, the <code>.predict()</code> method obtains the posterior for the mean of the likelihood distribution. This mean would be <span class="math inline">\(np\)</span> for the Binomial family. However, since <span class="math inline">\(n\)</span> varies from observation to observation, it returns the value of <span class="math inline">\(p\)</span>, as if it was a Bernoulli family. </span></li>
 </ol>
 
 

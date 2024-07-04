@@ -6,11 +6,11 @@ A specification of model family.
 
 ## Parameters
 
-| Name         | Type                                          | Description                                                                                                                                                                                                                                                                         | Default    |
-|--------------|-----------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| `name`       | str                                           | The name of the family. It can be any string.                                                                                                                                                                                                                                       | _required_ |
-| `likelihood` | Likelihood                                    | A ``bambi.families.Likelihood`` instance specifying the model likelihood function.                                                                                                                                                                                                  | _required_ |
-| `link`       | Union\[str, Dict\[str, Union\[str, Link\]\]\] | The link function that's used for every parameter in the likelihood function. Keys are the names of the parameters and values are the link functions. These can be a ``str`` with a name or a ``bambi.families.Link`` instance. The link function transforms the linear predictors. | _required_ |
+| Name         | Type                                          | Description                                                                                                                                                                                                                                                                     | Default    |
+|--------------|-----------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| `name`       | str                                           | The name of the family. It can be any string.                                                                                                                                                                                                                                   | _required_ |
+| `likelihood` | Likelihood                                    | A `bambi.families.Likelihood` instance specifying the model likelihood function.                                                                                                                                                                                                | _required_ |
+| `link`       | Union\[str, Dict\[str, Union\[str, Link\]\]\] | The link function that's used for every parameter in the likelihood function. Keys are the names of the parameters and values are the link functions. These can be a `str` with a name or a `bambi.families.Link` instance. The link function transforms the linear predictors. | _required_ |
 
 ## Examples
 
@@ -34,6 +34,12 @@ Replicate the Bernoulli built-in family.
 >>> family = bmb.Family("bernoulli", likelihood, "logit")
 >>> bmb.Model("y ~ x", data, family=family)
 ```
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [auxiliary_parameters](#bambi.Family.auxiliary_parameters) | Get names of auxiliary parameters |
 
 ## Methods
 

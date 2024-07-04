@@ -126,6 +126,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
@@ -484,36 +485,22 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [probabilities_kappa, Intercept]</code></pre>
+NUTS: [kappa, Intercept]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"ae9f054eee11413f8acff3f95c1b4537","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:04&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 5 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 3 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="5">
@@ -546,26 +533,26 @@ NUTS: [probabilities_kappa, Intercept]</code></pre>
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>-0.000</td>
+      <td>-0.00</td>
       <td>0.000</td>
       <td>-0.001</td>
       <td>0.001</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2079.0</td>
-      <td>1465.0</td>
+      <td>2071.0</td>
+      <td>1229.0</td>
       <td>1.0</td>
     </tr>
     <tr>
-      <th>probabilities_kappa</th>
-      <td>2012.885</td>
-      <td>27.642</td>
-      <td>1960.994</td>
-      <td>2062.262</td>
-      <td>0.592</td>
-      <td>0.418</td>
-      <td>2185.0</td>
-      <td>1548.0</td>
+      <th>kappa</th>
+      <td>1986.48</td>
+      <td>28.041</td>
+      <td>1930.335</td>
+      <td>2035.428</td>
+      <td>0.588</td>
+      <td>0.416</td>
+      <td>2268.0</td>
+      <td>1656.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -595,40 +582,14 @@ NUTS: [probabilities_kappa, Intercept]</code></pre>
 <span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>alpha, alpha_hdi, beta, beta_hdi <span class="op">=</span> mukappa_to_alphabeta(</span>
 <span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    expit(fitted.posterior[<span class="st">"Intercept"</span>]),</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    fitted.posterior[<span class="st">"probabilities_kappa"</span>]</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    fitted.posterior[<span class="st">"kappa"</span>]</span>
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Alpha - mean: </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(alpha)<span class="sc">}</span><span class="ss">, 95% HDI: </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(alpha_hdi[<span class="dv">0</span>])<span class="sc">}</span><span class="ss"> - </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(alpha_hdi[<span class="dv">1</span>])<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Beta - mean: </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(beta)<span class="sc">}</span><span class="ss">, 95% HDI: </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(beta_hdi[<span class="dv">0</span>])<span class="sc">}</span><span class="ss"> - </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(beta_hdi[<span class="dv">1</span>])<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Alpha - mean: 1006.0, 95% HDI: 979.0 - 1033.0
-Beta - mean: 1006.0, 95% HDI: 978.0 - 1032.0</code></pre>
-</div>
-</div>
-<div class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mukappa_to_alphabeta(mu, kappa):</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate alpha and beta</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> mu <span class="op">*</span> kappa</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> mu) <span class="op">*</span> kappa</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get mean values and 95% HDIs </span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    alpha_mean <span class="op">=</span> alpha.mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)).item()</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    alpha_hdi <span class="op">=</span> az.hdi(alpha, hdi_prob<span class="op">=</span><span class="fl">.95</span>)[<span class="st">"x"</span>].values</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    beta_mean <span class="op">=</span> beta.mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)).item()</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    beta_hdi <span class="op">=</span> az.hdi(beta, hdi_prob<span class="op">=</span><span class="fl">.95</span>)[<span class="st">"x"</span>].values</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> alpha_mean, alpha_hdi, beta_mean, beta_hdi</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>alpha, alpha_hdi, beta, beta_hdi <span class="op">=</span> mukappa_to_alphabeta(</span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    expit(fitted.posterior[<span class="st">"Intercept"</span>]),</span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    fitted.posterior[<span class="st">"probabilities_kappa"</span>]</span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Alpha - mean: </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(alpha)<span class="sc">}</span><span class="ss">, 95% HDI: </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(alpha_hdi[<span class="dv">0</span>])<span class="sc">}</span><span class="ss"> - </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(alpha_hdi[<span class="dv">1</span>])<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Beta - mean: </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(beta)<span class="sc">}</span><span class="ss">, 95% HDI: </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(beta_hdi[<span class="dv">0</span>])<span class="sc">}</span><span class="ss"> - </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(beta_hdi[<span class="dv">1</span>])<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Alpha - mean: 1006.0, 95% HDI: 979.0 - 1033.0
-Beta - mean: 1006.0, 95% HDI: 978.0 - 1032.0</code></pre>
+<pre><code>Alpha - mean: 993.0, 95% HDI: 967.0 - 1022.0
+Beta - mean: 993.0, 95% HDI: 967.0 - 1022.0</code></pre>
 </div>
 </div>
 <p>We’ve managed to recover our parameters with an intercept-only model.</p>
@@ -637,48 +598,48 @@ Beta - mean: 1006.0, 95% HDI: 978.0 - 1032.0</code></pre>
 <h2 class="anchored" data-anchor-id="beta-regression-with-predictors">Beta Regression with Predictors</h2>
 <p>Perhaps we have a little more information on the coins in our pocket. We notice that the coins have accumulated dirt on either side, which would shift the probability of getting a tails or heads. In reality, we would not know how much the dirt affects the probability distribution, we would like to recover that parameter. We’ll construct this toy example by saying that each micron of dirt shifts the <span class="math inline">\(\alpha\)</span> parameter by 5.0. Further, the amount of dirt is distributed according to a Half Normal distribution with a standard deviation of 25 per side.</p>
 <p>We’ll start by looking at the difference in probability for a coin with a lot of dirt on either side.</p>
-<div class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>effect_per_micron <span class="op">=</span> <span class="fl">5.0</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Clean Coin</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> <span class="dv">1_000</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>beta <span class="op">=</span> <span class="dv">1_000</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> np.random.beta(alpha, beta, size<span class="op">=</span><span class="dv">10_000</span>)</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Add two std to tails side (heads more likely)</span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>p_heads <span class="op">=</span> np.random.beta(alpha <span class="op">+</span> <span class="dv">50</span> <span class="op">*</span> effect_per_micron, beta, size<span class="op">=</span><span class="dv">10_000</span>)</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Add two std to heads side (tails more likely)</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>p_tails <span class="op">=</span> np.random.beta(alpha <span class="op">-</span> <span class="dv">50</span> <span class="op">*</span> effect_per_micron, beta, size<span class="op">=</span><span class="dv">10_000</span>)</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>az.plot_kde(p, label<span class="op">=</span><span class="st">"Clean Coin"</span>)</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>az.plot_kde(p_heads, label<span class="op">=</span><span class="st">"Biased toward heads"</span>, plot_kwargs<span class="op">=</span>{<span class="st">"color"</span>:<span class="st">"C1"</span>})</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>az.plot_kde(p_tails, label<span class="op">=</span><span class="st">"Biased toward tails"</span>, plot_kwargs<span class="op">=</span>{<span class="st">"color"</span>:<span class="st">"C2"</span>})</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"$p$"</span>)</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>plt.ylim(top<span class="op">=</span>plt.ylim()[<span class="dv">1</span>]<span class="op">*</span><span class="fl">1.25</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>effect_per_micron <span class="op">=</span> <span class="fl">5.0</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Clean Coin</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> <span class="dv">1_000</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>beta <span class="op">=</span> <span class="dv">1_000</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> np.random.beta(alpha, beta, size<span class="op">=</span><span class="dv">10_000</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Add two std to tails side (heads more likely)</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>p_heads <span class="op">=</span> np.random.beta(alpha <span class="op">+</span> <span class="dv">50</span> <span class="op">*</span> effect_per_micron, beta, size<span class="op">=</span><span class="dv">10_000</span>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Add two std to heads side (tails more likely)</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>p_tails <span class="op">=</span> np.random.beta(alpha <span class="op">-</span> <span class="dv">50</span> <span class="op">*</span> effect_per_micron, beta, size<span class="op">=</span><span class="dv">10_000</span>)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>az.plot_kde(p, label<span class="op">=</span><span class="st">"Clean Coin"</span>)</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>az.plot_kde(p_heads, label<span class="op">=</span><span class="st">"Biased toward heads"</span>, plot_kwargs<span class="op">=</span>{<span class="st">"color"</span>:<span class="st">"C1"</span>})</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>az.plot_kde(p_tails, label<span class="op">=</span><span class="st">"Biased toward tails"</span>, plot_kwargs<span class="op">=</span>{<span class="st">"color"</span>:<span class="st">"C2"</span>})</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"$p$"</span>)</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>plt.ylim(top<span class="op">=</span>plt.ylim()[<span class="dv">1</span>]<span class="op">*</span><span class="fl">1.25</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="beta_regression_files/figure-html/cell-10-output-1.png" class="img-fluid"></p>
+<p><img src="beta_regression_files/figure-html/cell-9-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>Next, we’ll generate a toy dataset according to our specifications above. As an added foil, we will also assume that we’re limited in our measuring equipment, that we can only measure correctly to the nearest integer micron.</p>
-<div class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create amount of dirt on top and bottom</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>heads_bias_dirt <span class="op">=</span> stats.halfnorm(loc<span class="op">=</span><span class="dv">0</span>, scale<span class="op">=</span><span class="dv">25</span>).rvs(size<span class="op">=</span><span class="dv">1_000</span>)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>tails_bias_dirt <span class="op">=</span> stats.halfnorm(loc<span class="op">=</span><span class="dv">0</span>, scale<span class="op">=</span><span class="dv">25</span>).rvs(size<span class="op">=</span><span class="dv">1_000</span>)</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the probability per coin</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> np.repeat(<span class="dv">1_000</span>, <span class="dv">1_000</span>)</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> alpha <span class="op">+</span> effect_per_micron <span class="op">*</span> heads_bias_dirt <span class="op">-</span> effect_per_micron <span class="op">*</span> tails_bias_dirt</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>beta <span class="op">=</span> np.repeat(<span class="dv">1_000</span>, <span class="dv">1_000</span>)</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> np.random.beta(alpha, beta)</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"p"</span> : p,</span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"heads_bias_dirt"</span> : heads_bias_dirt.<span class="bu">round</span>(),</span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"tails_bias_dirt"</span> : tails_bias_dirt.<span class="bu">round</span>()</span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="10">
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create amount of dirt on top and bottom</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>heads_bias_dirt <span class="op">=</span> stats.halfnorm(loc<span class="op">=</span><span class="dv">0</span>, scale<span class="op">=</span><span class="dv">25</span>).rvs(size<span class="op">=</span><span class="dv">1_000</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>tails_bias_dirt <span class="op">=</span> stats.halfnorm(loc<span class="op">=</span><span class="dv">0</span>, scale<span class="op">=</span><span class="dv">25</span>).rvs(size<span class="op">=</span><span class="dv">1_000</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the probability per coin</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> np.repeat(<span class="dv">1_000</span>, <span class="dv">1_000</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> alpha <span class="op">+</span> effect_per_micron <span class="op">*</span> heads_bias_dirt <span class="op">-</span> effect_per_micron <span class="op">*</span> tails_bias_dirt</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>beta <span class="op">=</span> np.repeat(<span class="dv">1_000</span>, <span class="dv">1_000</span>)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> np.random.beta(alpha, beta)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"p"</span> : p,</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"heads_bias_dirt"</span> : heads_bias_dirt.<span class="bu">round</span>(),</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"tails_bias_dirt"</span> : tails_bias_dirt.<span class="bu">round</span>()</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
 
 <div>
 
@@ -694,33 +655,33 @@ Beta - mean: 1006.0, 95% HDI: 978.0 - 1032.0</code></pre>
   <tbody>
     <tr>
       <th>0</th>
-      <td>0.508915</td>
-      <td>30.0</td>
-      <td>15.0</td>
+      <td>0.500848</td>
+      <td>8.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>0.533541</td>
-      <td>24.0</td>
+      <td>0.492925</td>
       <td>4.0</td>
+      <td>14.0</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>0.482905</td>
-      <td>10.0</td>
-      <td>28.0</td>
+      <td>0.469713</td>
+      <td>14.0</td>
+      <td>44.0</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>0.555191</td>
-      <td>54.0</td>
-      <td>0.0</td>
+      <td>0.474854</td>
+      <td>9.0</td>
+      <td>32.0</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>0.526059</td>
-      <td>4.0</td>
-      <td>4.0</td>
+      <td>0.526697</td>
+      <td>23.0</td>
+      <td>1.0</td>
     </tr>
   </tbody>
 </table>
@@ -728,73 +689,64 @@ Beta - mean: 1006.0, 95% HDI: 978.0 - 1032.0</code></pre>
 </div>
 </div>
 <p>Taking a look at our new dataset:</p>
-<div class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>fig,ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>,<span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">16</span>,<span class="dv">5</span>))</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"p"</span>].plot.kde(ax<span class="op">=</span>ax[<span class="dv">0</span>])</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xlabel(<span class="st">"$p$"</span>)</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"heads_bias_dirt"</span>].plot.hist(ax<span class="op">=</span>ax[<span class="dv">1</span>], bins<span class="op">=</span>np.arange(<span class="dv">0</span>,df[<span class="st">"heads_bias_dirt"</span>].<span class="bu">max</span>()))</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlabel(<span class="st">"Measured Dirt Biasing Toward Heads ($\mu m$)"</span>)</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"tails_bias_dirt"</span>].plot.hist(ax<span class="op">=</span>ax[<span class="dv">2</span>], bins<span class="op">=</span>np.arange(<span class="dv">0</span>,df[<span class="st">"tails_bias_dirt"</span>].<span class="bu">max</span>()))</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_xlabel(<span class="st">"Measured Dirt Biasing Toward Tails ($\mu m$)"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fig,ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>,<span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">16</span>,<span class="dv">5</span>))</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"p"</span>].plot.kde(ax<span class="op">=</span>ax[<span class="dv">0</span>])</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xlabel(<span class="st">"$p$"</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"heads_bias_dirt"</span>].plot.hist(ax<span class="op">=</span>ax[<span class="dv">1</span>], bins<span class="op">=</span>np.arange(<span class="dv">0</span>,df[<span class="st">"heads_bias_dirt"</span>].<span class="bu">max</span>()))</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlabel(<span class="st">"Measured Dirt Biasing Toward Heads ($\mu m$)"</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"tails_bias_dirt"</span>].plot.hist(ax<span class="op">=</span>ax[<span class="dv">2</span>], bins<span class="op">=</span>np.arange(<span class="dv">0</span>,df[<span class="st">"tails_bias_dirt"</span>].<span class="bu">max</span>()))</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_xlabel(<span class="st">"Measured Dirt Biasing Toward Tails ($\mu m$)"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="beta_regression_files/figure-html/cell-12-output-1.png" class="img-fluid"></p>
+<p><img src="beta_regression_files/figure-html/cell-11-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>Next we want to make a model to recover the effect per micron of dirt per side. So far, we’ve considered the biasing toward one side or another independently. A linear model might look something like this:</p>
-<p>$ p (, )$</p>
-<p><span class="math inline">\(logit(\mu) = \text{ Normal}( \alpha + \beta_h d_h + \beta_t d_t)\)</span></p>
+<p><span class="math display">\[
+\begin{aligned}
+p &amp;\sim \text{Beta}(\mu, \sigma) \\
+\text{logit}(\mu) &amp;= \text{ Normal}( \alpha + \beta_h d_h + \beta_t d_t)
+\end{aligned}
+\]</span></p>
 <p>Where <span class="math inline">\(d_h\)</span> and <span class="math inline">\(d_t\)</span> are the measured dirt (in microns) biasing the probability toward heads and tails respectively, <span class="math inline">\(\beta_h\)</span> and <span class="math inline">\(\beta_t\)</span> are coefficients for how much a micron of dirt affects each independent side, and <span class="math inline">\(\alpha\)</span> is the intercept. Also note the logit link function used here, since our outcome is on the scale of 0-1, it makes sense that the link must also put our mean on that scale. Logit is the default link function, however Bambi supports the identity, probit, and cloglog links as well.</p>
 <p>In this toy example, we’ve constructed it such that dirt should not affect one side differently from another, so we can wrap those into one coefficient: <span class="math inline">\(\beta = \beta_h = -\beta_t\)</span>. This makes the last line of the model:</p>
-<p><span class="math inline">\(logit(\mu) = \text{ Normal}( \alpha + \beta \Delta d)\)</span></p>
-<p>where</p>
-<p><span class="math inline">\(\Delta d = d_h - d_t\)</span></p>
+<p><span class="math display">\[
+\text{logit}(\mu) = \text{ Normal}( \alpha + \beta \Delta d)
+\]</span></p>
+<p>where <span class="math inline">\(\Delta d = d_h - d_t\)</span>.</p>
 <p>Putting that into our dataset, then constructing this model in Bambi,</p>
-<div class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"delta_d"</span>] <span class="op">=</span> df[<span class="st">"heads_bias_dirt"</span>] <span class="op">-</span> df[<span class="st">"tails_bias_dirt"</span>]</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>dirt_model <span class="op">=</span> bmb.Model(<span class="st">"p ~ delta_d"</span>, df, family<span class="op">=</span><span class="st">"beta"</span>)</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>dirt_fitted <span class="op">=</span> dirt_model.fit()</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>dirt_model.predict(dirt_fitted, kind<span class="op">=</span><span class="st">"pps"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"delta_d"</span>] <span class="op">=</span> df[<span class="st">"heads_bias_dirt"</span>] <span class="op">-</span> df[<span class="st">"tails_bias_dirt"</span>]</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>dirt_model <span class="op">=</span> bmb.Model(<span class="st">"p ~ delta_d"</span>, df, family<span class="op">=</span><span class="st">"beta"</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>dirt_fitted <span class="op">=</span> dirt_model.fit()</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>dirt_model.predict(dirt_fitted, kind<span class="op">=</span><span class="st">"response"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [p_kappa, Intercept, delta_d]</code></pre>
+NUTS: [kappa, Intercept, delta_d]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"9ccc5851feed4669a92a5e9bae6ca5ae","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:06&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 7 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 4 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>az.summary(dirt_fitted)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="13">
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>az.summary(dirt_fitted)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
 
 <div>
 
@@ -817,14 +769,14 @@ NUTS: [p_kappa, Intercept, delta_d]</code></pre>
     <tr>
       <th>Intercept</th>
       <td>-0.006</td>
-      <td>0.001</td>
+      <td>0.002</td>
       <td>-0.009</td>
-      <td>-0.004</td>
+      <td>-0.003</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2903.0</td>
-      <td>1479.0</td>
-      <td>1.0</td>
+      <td>3212.0</td>
+      <td>1464.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
       <th>delta_d</th>
@@ -834,45 +786,45 @@ NUTS: [p_kappa, Intercept, delta_d]</code></pre>
       <td>0.005</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>3200.0</td>
-      <td>1597.0</td>
-      <td>1.0</td>
+      <td>2652.0</td>
+      <td>1269.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
-      <th>p_kappa</th>
-      <td>2018.759</td>
-      <td>91.080</td>
-      <td>1862.252</td>
-      <td>2198.655</td>
-      <td>1.719</td>
-      <td>1.216</td>
-      <td>2805.0</td>
-      <td>1399.0</td>
-      <td>1.0</td>
+      <th>kappa</th>
+      <td>1803.768</td>
+      <td>79.957</td>
+      <td>1644.702</td>
+      <td>1949.191</td>
+      <td>1.446</td>
+      <td>1.022</td>
+      <td>3094.0</td>
+      <td>1373.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
-      <th>p_mean[0]</th>
-      <td>0.517</td>
+      <th>mu[0]</th>
+      <td>0.508</td>
       <td>0.000</td>
-      <td>0.516</td>
-      <td>0.518</td>
+      <td>0.507</td>
+      <td>0.508</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>3477.0</td>
-      <td>1662.0</td>
-      <td>1.0</td>
+      <td>3137.0</td>
+      <td>1430.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
-      <th>p_mean[1]</th>
-      <td>0.523</td>
+      <th>mu[1]</th>
+      <td>0.486</td>
       <td>0.000</td>
-      <td>0.522</td>
-      <td>0.524</td>
+      <td>0.485</td>
+      <td>0.486</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>3564.0</td>
-      <td>1637.0</td>
-      <td>1.0</td>
+      <td>3172.0</td>
+      <td>1700.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>...</th>
@@ -887,64 +839,64 @@ NUTS: [p_kappa, Intercept, delta_d]</code></pre>
       <td>...</td>
     </tr>
     <tr>
-      <th>p_mean[995]</th>
-      <td>0.523</td>
+      <th>mu[995]</th>
+      <td>0.484</td>
       <td>0.000</td>
-      <td>0.522</td>
-      <td>0.524</td>
+      <td>0.483</td>
+      <td>0.485</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>3564.0</td>
-      <td>1637.0</td>
-      <td>1.0</td>
+      <td>3149.0</td>
+      <td>1728.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
-      <th>p_mean[996]</th>
-      <td>0.517</td>
+      <th>mu[996]</th>
+      <td>0.489</td>
       <td>0.000</td>
-      <td>0.516</td>
-      <td>0.518</td>
+      <td>0.489</td>
+      <td>0.490</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>3477.0</td>
-      <td>1662.0</td>
-      <td>1.0</td>
+      <td>3252.0</td>
+      <td>1624.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
-      <th>p_mean[997]</th>
-      <td>0.533</td>
+      <th>mu[997]</th>
+      <td>0.531</td>
       <td>0.001</td>
+      <td>0.530</td>
       <td>0.532</td>
-      <td>0.534</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>3570.0</td>
-      <td>1596.0</td>
-      <td>1.0</td>
+      <td>3007.0</td>
+      <td>1627.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
-      <th>p_mean[998]</th>
-      <td>0.467</td>
+      <th>mu[998]</th>
+      <td>0.546</td>
       <td>0.001</td>
-      <td>0.466</td>
-      <td>0.468</td>
+      <td>0.545</td>
+      <td>0.548</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2916.0</td>
-      <td>1657.0</td>
-      <td>1.0</td>
+      <td>2921.0</td>
+      <td>1584.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
-      <th>p_mean[999]</th>
-      <td>0.498</td>
+      <th>mu[999]</th>
+      <td>0.528</td>
+      <td>0.001</td>
+      <td>0.527</td>
+      <td>0.529</td>
       <td>0.000</td>
-      <td>0.498</td>
-      <td>0.499</td>
       <td>0.000</td>
-      <td>0.000</td>
-      <td>2903.0</td>
-      <td>1479.0</td>
-      <td>1.0</td>
+      <td>3033.0</td>
+      <td>1627.0</td>
+      <td>1.00</td>
     </tr>
   </tbody>
 </table>
@@ -952,23 +904,23 @@ NUTS: [p_kappa, Intercept, delta_d]</code></pre>
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>az.plot_ppc(dirt_fitted)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>az.plot_ppc(dirt_fitted)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="beta_regression_files/figure-html/cell-15-output-1.png" class="img-fluid"></p>
+<p><img src="beta_regression_files/figure-html/cell-14-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>Next, we’ll see if we can in fact recover the effect on <span class="math inline">\(\alpha\)</span>. Remember that in order to return to <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span> space, the linear equation passes through an inverse logit transformation, so we must apply this to the coefficient on <span class="math inline">\(\Delta d\)</span> to get the effect on <span class="math inline">\(\alpha\)</span>. The inverse logit is nicely defined in <code>scipy.special</code> as <code>expit</code>.</p>
-<div class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>mean_effect <span class="op">=</span> expit(dirt_fitted.posterior.delta_d.mean())</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>hdi <span class="op">=</span> az.hdi(dirt_fitted.posterior.delta_d, hdi_prob<span class="op">=</span><span class="fl">.95</span>)</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>lower <span class="op">=</span> expit(hdi.delta_d[<span class="dv">0</span>])</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>upper <span class="op">=</span> expit(hdi.delta_d[<span class="dv">1</span>])</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Mean effect: </span><span class="sc">{</span>mean_effect<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"95% interval </span><span class="sc">{</span>lower<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss"> - </span><span class="sc">{</span>upper<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>mean_effect <span class="op">=</span> expit(dirt_fitted.posterior.delta_d.mean())</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>hdi <span class="op">=</span> az.hdi(dirt_fitted.posterior.delta_d, hdi_prob<span class="op">=</span><span class="fl">.95</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>lower <span class="op">=</span> expit(hdi.delta_d[<span class="dv">0</span>])</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>upper <span class="op">=</span> expit(hdi.delta_d[<span class="dv">1</span>])</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Mean effect: </span><span class="sc">{</span>mean_effect<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"95% interval </span><span class="sc">{</span>lower<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss"> - </span><span class="sc">{</span>upper<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Mean effect: 0.5012
-95% interval 0.5012 - 0.5013</code></pre>
+<pre><code>Mean effect: 0.5013
+95% interval 0.5013 - 0.5013</code></pre>
 </div>
 </div>
 <p>The recovered effect is very close to the true effect of 0.5.</p>
@@ -977,65 +929,51 @@ NUTS: [p_kappa, Intercept, delta_d]</code></pre>
 <h2 class="anchored" data-anchor-id="example---revisiting-baseball-data">Example - Revisiting Baseball Data</h2>
 <p>In the <a href="https://bambinos.github.io/bambi/main/notebooks/hierarchical_binomial_bambi.html">Hierarchical Logistic regression with Binomial family</a> notebook, we modeled baseball batting averages (times a player reached first via a hit per times at bat) via a Hierarchical Logisitic regression model. If we’re interested in league-wide effects, we could look at a Beta regression. We work off the assumption that the league-wide batting average follows a Beta distribution, and that individual player’s batting averages are samples from that distribution.</p>
 <p>First, load the Batting dataset again, and re-calculate batting average as hits/at-bat. In order to make sure that we have a sufficient sample, we’ll require at least 100 at-bats in order consider a batter. Last, we’ll focus on 1990-2018.</p>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>batting <span class="op">=</span> bmb.load_data(<span class="st">"batting"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <div class="cell" data-execution_count="16">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>batting <span class="op">=</span> bmb.load_data(<span class="st">"batting"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>batting[<span class="st">"batting_avg"</span>] <span class="op">=</span> batting[<span class="st">"H"</span>] <span class="op">/</span> batting[<span class="st">"AB"</span>]</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>batting <span class="op">=</span> batting[batting[<span class="st">"AB"</span>] <span class="op">&gt;</span> <span class="dv">100</span>]</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> batting[ (batting[<span class="st">"yearID"</span>] <span class="op">&gt;</span> <span class="dv">1990</span>) <span class="op">&amp;</span> (batting[<span class="st">"yearID"</span>] <span class="op">&lt;</span> <span class="dv">2018</span>) ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>batting[<span class="st">"batting_avg"</span>] <span class="op">=</span> batting[<span class="st">"H"</span>] <span class="op">/</span> batting[<span class="st">"AB"</span>]</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>batting <span class="op">=</span> batting[batting[<span class="st">"AB"</span>] <span class="op">&gt;</span> <span class="dv">100</span>]</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> batting[ (batting[<span class="st">"yearID"</span>] <span class="op">&gt;</span> <span class="dv">1990</span>) <span class="op">&amp;</span> (batting[<span class="st">"yearID"</span>] <span class="op">&lt;</span> <span class="dv">2018</span>) ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell" data-execution_count="18">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>df.batting_avg.hist(bins<span class="op">=</span><span class="dv">30</span>)</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Batting Average"</span>)</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Count"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>df.batting_avg.hist(bins<span class="op">=</span><span class="dv">30</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Batting Average"</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Count"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="beta_regression_files/figure-html/cell-19-output-1.png" class="img-fluid"></p>
+<p><img src="beta_regression_files/figure-html/cell-18-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>If we’re interested in modeling the distribution of batting averages, we can start with an intercept-only model.</p>
-<div class="cell" data-execution_count="19">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>model_avg <span class="op">=</span> bmb.Model(<span class="st">"batting_avg ~ 1"</span>, df, family<span class="op">=</span><span class="st">"beta"</span>)</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>avg_fitted <span class="op">=</span> model_avg.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>model_avg <span class="op">=</span> bmb.Model(<span class="st">"batting_avg ~ 1"</span>, df, family<span class="op">=</span><span class="st">"beta"</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>avg_fitted <span class="op">=</span> model_avg.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [batting_avg_kappa, Intercept]</code></pre>
+NUTS: [kappa, Intercept]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"eda3aa8bd49c496bbfb271946772add0","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:03&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 4 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 3 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>az.summary(avg_fitted)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="20">
+<div class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>az.summary(avg_fitted)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="19">
 
 <div>
 
@@ -1063,20 +1001,20 @@ NUTS: [batting_avg_kappa, Intercept]</code></pre>
       <td>-1.035</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1835.0</td>
-      <td>1455.0</td>
+      <td>1903.0</td>
+      <td>1395.0</td>
       <td>1.0</td>
     </tr>
     <tr>
-      <th>batting_avg_kappa</th>
-      <td>152.538</td>
-      <td>1.950</td>
-      <td>149.098</td>
-      <td>156.262</td>
+      <th>kappa</th>
+      <td>152.503</td>
+      <td>2.062</td>
+      <td>148.731</td>
+      <td>156.325</td>
       <td>0.046</td>
       <td>0.033</td>
-      <td>1771.0</td>
-      <td>1294.0</td>
+      <td>2012.0</td>
+      <td>1219.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1085,28 +1023,28 @@ NUTS: [batting_avg_kappa, Intercept]</code></pre>
 </div>
 </div>
 <p>Looking at the posterior predictive,</p>
-<div class="cell" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>posterior_predictive <span class="op">=</span> model_avg.predict(avg_fitted, kind<span class="op">=</span><span class="st">"pps"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>posterior_predictive <span class="op">=</span> model_avg.predict(avg_fitted, kind<span class="op">=</span><span class="st">"response"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="22">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>az.plot_ppc(avg_fitted)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>az.plot_ppc(avg_fitted)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="beta_regression_files/figure-html/cell-23-output-1.png" class="img-fluid"></p>
+<p><img src="beta_regression_files/figure-html/cell-22-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>This appears to fit reasonably well. If, for example, we were interested in simulating players, we could sample from this distribution.</p>
 <p>However, we can take this further. Say we’re interested in understanding how this distribution shifts if we know a player’s batting average in a previous year. We can condition the model on a player’s n-1 year, and use Beta regrssion to model that. Let’s construct that variable, and for sake of ease, we will ignore players without previous seasons.</p>
-<div class="cell" data-execution_count="23">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the player's batting average in the n-1 year</span></span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>batting[<span class="st">"batting_avg_shift"</span>] <span class="op">=</span> np.where(</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    batting[<span class="st">"playerID"</span>] <span class="op">==</span> batting[<span class="st">"playerID"</span>].shift(),</span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    batting[<span class="st">"batting_avg"</span>].shift(),</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    np.nan</span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>df_shift <span class="op">=</span> batting[ (batting[<span class="st">"yearID"</span>] <span class="op">&gt;</span> <span class="dv">1990</span>) <span class="op">&amp;</span> (batting[<span class="st">"yearID"</span>] <span class="op">&lt;</span> <span class="dv">2018</span>) ]</span>
-<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>df_shift <span class="op">=</span> df_shift[<span class="op">~</span>df_shift[<span class="st">"batting_avg_shift"</span>].isna()]</span>
-<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>df_shift[[<span class="st">"batting_avg_shift"</span>,<span class="st">"batting_avg"</span>]].corr()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="23">
+<div class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the player's batting average in the n-1 year</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>batting[<span class="st">"batting_avg_shift"</span>] <span class="op">=</span> np.where(</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    batting[<span class="st">"playerID"</span>] <span class="op">==</span> batting[<span class="st">"playerID"</span>].shift(),</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    batting[<span class="st">"batting_avg"</span>].shift(),</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    np.nan</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>df_shift <span class="op">=</span> batting[ (batting[<span class="st">"yearID"</span>] <span class="op">&gt;</span> <span class="dv">1990</span>) <span class="op">&amp;</span> (batting[<span class="st">"yearID"</span>] <span class="op">&lt;</span> <span class="dv">2018</span>) ]</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>df_shift <span class="op">=</span> df_shift[<span class="op">~</span>df_shift[<span class="st">"batting_avg_shift"</span>].isna()]</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>df_shift[[<span class="st">"batting_avg_shift"</span>,<span class="st">"batting_avg"</span>]].corr()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="22">
 
 <div>
 
@@ -1136,84 +1074,56 @@ NUTS: [batting_avg_kappa, Intercept]</code></pre>
 </div>
 <p>There is a lot of variance in year-to-year batting averages, it’s not known to be incredibly predictive, and we see that here. A correlation coefficient of 0.23 is only lightly predictive. However, we can still use it in our model to get a better understanding. We’ll fit two models. First, we’ll refit the previous, intercept-only, model using this updated dataset so we have an apples-to-apples comparison. Then, we’ll fit a model using the previous year’s batting average as a predictor.</p>
 <p>Notice we need to explicitly ask for the inclusion of the log-likelihood values into the inference data object.</p>
-<div class="cell" data-execution_count="24">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>model_avg <span class="op">=</span> bmb.Model(<span class="st">"batting_avg ~ 1"</span>, df_shift, family<span class="op">=</span><span class="st">"beta"</span>)</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>avg_fitted <span class="op">=</span> model_avg.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>})</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>model_lag <span class="op">=</span> bmb.Model(<span class="st">"batting_avg ~ batting_avg_shift"</span>, df_shift, family<span class="op">=</span><span class="st">"beta"</span>)</span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>lag_fitted <span class="op">=</span> model_lag.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>model_avg <span class="op">=</span> bmb.Model(<span class="st">"batting_avg ~ 1"</span>, df_shift, family<span class="op">=</span><span class="st">"beta"</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>avg_fitted <span class="op">=</span> model_avg.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>})</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>model_lag <span class="op">=</span> bmb.Model(<span class="st">"batting_avg ~ batting_avg_shift"</span>, df_shift, family<span class="op">=</span><span class="st">"beta"</span>)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>lag_fitted <span class="op">=</span> model_lag.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [batting_avg_kappa, Intercept]</code></pre>
+NUTS: [kappa, Intercept]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"e9d7dbda16494d0e9cfccbc85e5d991d","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:02&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 3 seconds.
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 2 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [batting_avg_kappa, Intercept, batting_avg_shift]</code></pre>
+NUTS: [kappa, Intercept, batting_avg_shift]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"9823f8700e304531bd8680ae47e1e54f","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:04&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 4 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 3 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="25">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>az.summary(lag_fitted)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="25">
+<div class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>az.summary(lag_fitted)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="24">
 
 <div>
 
@@ -1235,38 +1145,38 @@ NUTS: [batting_avg_kappa, Intercept, batting_avg_shift]</code></pre>
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>-1.374</td>
-      <td>0.074</td>
-      <td>-1.517</td>
-      <td>-1.240</td>
+      <td>-1.377</td>
+      <td>0.073</td>
+      <td>-1.521</td>
+      <td>-1.250</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>3171.0</td>
-      <td>1435.0</td>
+      <td>2593.0</td>
+      <td>1287.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>batting_avg_shift</th>
-      <td>1.347</td>
-      <td>0.281</td>
-      <td>0.782</td>
-      <td>1.838</td>
+      <td>1.359</td>
+      <td>0.278</td>
+      <td>0.873</td>
+      <td>1.887</td>
       <td>0.005</td>
       <td>0.004</td>
-      <td>3091.0</td>
-      <td>1478.0</td>
+      <td>2592.0</td>
+      <td>1365.0</td>
       <td>1.0</td>
     </tr>
     <tr>
-      <th>batting_avg_kappa</th>
-      <td>136.149</td>
-      <td>9.414</td>
-      <td>116.879</td>
-      <td>152.420</td>
-      <td>0.184</td>
-      <td>0.132</td>
-      <td>2618.0</td>
-      <td>1463.0</td>
+      <th>kappa</th>
+      <td>135.954</td>
+      <td>8.722</td>
+      <td>119.751</td>
+      <td>151.394</td>
+      <td>0.169</td>
+      <td>0.121</td>
+      <td>2658.0</td>
+      <td>1685.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1274,12 +1184,12 @@ NUTS: [batting_avg_kappa, Intercept, batting_avg_shift]</code></pre>
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="27">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>az.compare({</span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"intercept-only"</span> : avg_fitted,</span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"lag-model"</span>: lag_fitted</span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="27">
+<div class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>az.compare({</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"intercept-only"</span> : avg_fitted,</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"lag-model"</span>: lag_fitted</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="25">
 
 <div>
 
@@ -1302,11 +1212,11 @@ NUTS: [batting_avg_kappa, Intercept, batting_avg_shift]</code></pre>
     <tr>
       <th>lag-model</th>
       <td>0</td>
-      <td>784.894117</td>
-      <td>3.146425</td>
+      <td>785.126819</td>
+      <td>2.909173</td>
       <td>0.000000</td>
-      <td>0.995619</td>
-      <td>14.582720</td>
+      <td>0.99836</td>
+      <td>14.540186</td>
       <td>0.000000</td>
       <td>False</td>
       <td>log</td>
@@ -1314,12 +1224,12 @@ NUTS: [batting_avg_kappa, Intercept, batting_avg_shift]</code></pre>
     <tr>
       <th>intercept-only</th>
       <td>1</td>
-      <td>774.193828</td>
-      <td>2.034573</td>
-      <td>10.700289</td>
-      <td>0.004381</td>
-      <td>15.320598</td>
-      <td>4.604911</td>
+      <td>774.161032</td>
+      <td>2.067113</td>
+      <td>10.965787</td>
+      <td>0.00164</td>
+      <td>15.314248</td>
+      <td>4.651392</td>
       <td>False</td>
       <td>log</td>
     </tr>
@@ -1329,60 +1239,59 @@ NUTS: [batting_avg_kappa, Intercept, batting_avg_shift]</code></pre>
 </div>
 </div>
 <p>Adding the predictor results in a higher loo than the intercept-only model.</p>
-<div class="cell" data-execution_count="28">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>ppc<span class="op">=</span> model_lag.predict(lag_fitted, kind<span class="op">=</span><span class="st">"pps"</span>)</span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>az.plot_ppc(lag_fitted)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>ppc<span class="op">=</span> model_lag.predict(lag_fitted, kind<span class="op">=</span><span class="st">"response"</span>)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>az.plot_ppc(lag_fitted)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="beta_regression_files/figure-html/cell-28-output-1.png" class="img-fluid"></p>
+<p><img src="beta_regression_files/figure-html/cell-27-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>The biggest question this helps us understand is, for each point of batting average in the previous year, how much better do we expect a player to be in the current year?</p>
-<div class="cell" data-execution_count="29">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>mean_effect <span class="op">=</span> lag_fitted.posterior.batting_avg_shift.mean().item()</span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>hdi <span class="op">=</span> az.hdi(lag_fitted.posterior.batting_avg_shift, hdi_prob<span class="op">=</span><span class="fl">.95</span>)</span>
+<div class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>mean_effect <span class="op">=</span> lag_fitted.posterior.batting_avg_shift.mean().item()</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>hdi <span class="op">=</span> az.hdi(lag_fitted.posterior.batting_avg_shift, hdi_prob<span class="op">=</span><span class="fl">.95</span>)</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>lower <span class="op">=</span> expit(hdi.batting_avg_shift[<span class="dv">0</span>]).item()</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>upper <span class="op">=</span> expit(hdi.batting_avg_shift[<span class="dv">1</span>]).item()</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Mean effect: </span><span class="sc">{</span>expit(mean_effect)<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"95% interval </span><span class="sc">{</span>lower<span class="sc">:.4f}</span><span class="ss"> - </span><span class="sc">{</span>upper<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean effect: 0.7956
+95% interval 0.6944 - 0.8679</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>az.plot_hdi(df_shift.batting_avg_shift, lag_fitted.posterior_predictive.batting_avg, hdi_prob<span class="op">=</span><span class="fl">0.95</span>, color<span class="op">=</span><span class="st">"goldenrod"</span>, fill_kwargs<span class="op">=</span>{<span class="st">"alpha"</span>:<span class="fl">0.8</span>})</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>az.plot_hdi(df_shift.batting_avg_shift, lag_fitted.posterior_predictive.batting_avg, hdi_prob<span class="op">=</span><span class="fl">.68</span>, color<span class="op">=</span><span class="st">"forestgreen"</span>, fill_kwargs<span class="op">=</span>{<span class="st">"alpha"</span>:<span class="fl">0.8</span>})</span>
 <span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>lower <span class="op">=</span> expit(hdi.batting_avg_shift[<span class="dv">0</span>]).item()</span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>upper <span class="op">=</span> expit(hdi.batting_avg_shift[<span class="dv">1</span>]).item()</span>
-<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Mean effect: </span><span class="sc">{</span>expit(mean_effect)<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
-<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"95% interval </span><span class="sc">{</span>lower<span class="sc">:.4f}</span><span class="ss"> - </span><span class="sc">{</span>upper<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Mean effect: 0.7936
-95% interval 0.6806 - 0.8650</code></pre>
-</div>
-</div>
-<div class="cell" data-execution_count="30">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>az.plot_hdi(df_shift.batting_avg_shift, lag_fitted.posterior_predictive.batting_avg, hdi_prob<span class="op">=</span><span class="fl">0.95</span>, color<span class="op">=</span><span class="st">"goldenrod"</span>, fill_kwargs<span class="op">=</span>{<span class="st">"alpha"</span>:<span class="fl">0.8</span>})</span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>az.plot_hdi(df_shift.batting_avg_shift, lag_fitted.posterior_predictive.batting_avg, hdi_prob<span class="op">=</span><span class="fl">.68</span>, color<span class="op">=</span><span class="st">"forestgreen"</span>, fill_kwargs<span class="op">=</span>{<span class="st">"alpha"</span>:<span class="fl">0.8</span>})</span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>intercept <span class="op">=</span> lag_fitted.posterior.Intercept.values.mean()</span>
-<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.linspace(df_shift.batting_avg_shift.<span class="bu">min</span>(), df_shift.batting_avg_shift.<span class="bu">max</span>(),<span class="dv">100</span>)</span>
-<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>linear <span class="op">=</span> mean_effect <span class="op">*</span> x <span class="op">+</span> intercept</span>
-<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>plt.plot(x, expit(linear), c<span class="op">=</span><span class="st">"black"</span>)</span>
-<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Previous Year's Batting Average"</span>)</span>
-<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Batting Average"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>intercept <span class="op">=</span> lag_fitted.posterior.Intercept.values.mean()</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.linspace(df_shift.batting_avg_shift.<span class="bu">min</span>(), df_shift.batting_avg_shift.<span class="bu">max</span>(),<span class="dv">100</span>)</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>linear <span class="op">=</span> mean_effect <span class="op">*</span> x <span class="op">+</span> intercept</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>plt.plot(x, expit(linear), c<span class="op">=</span><span class="st">"black"</span>)</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Previous Year's Batting Average"</span>)</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Batting Average"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="beta_regression_files/figure-html/cell-30-output-1.png" class="img-fluid"></p>
+<p><img src="beta_regression_files/figure-html/cell-29-output-1.png" class="img-fluid"></p>
 </div>
 </div>
-<div class="cell" data-execution_count="31">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Thu Jan 05 2023
+<pre><code>Last updated: Sat May 25 2024
 
 Python implementation: CPython
-Python version       : 3.10.4
-IPython version      : 8.5.0
+Python version       : 3.11.9
+IPython version      : 8.24.0
 
-arviz     : 0.14.0
-matplotlib: 3.6.2
-numpy     : 1.23.5
-pandas    : 1.5.2
-sys       : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
-scipy     : 1.9.3
-bambi     : 0.9.3
+pandas    : 2.2.2
+matplotlib: 3.8.4
+numpy     : 1.26.4
+scipy     : 1.13.1
+arviz     : 0.18.0
+bambi     : 0.13.1.dev37+g2a54df76.d20240525
 
-Watermark: 2.3.1
+Watermark: 2.4.3
 </code></pre>
 </div>
 </div>

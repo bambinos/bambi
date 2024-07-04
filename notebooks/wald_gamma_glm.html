@@ -126,6 +126,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
@@ -646,36 +647,22 @@ y_i \sim \text{Gamma}(\mu_i, \sigma_i), &amp; g(\mu_i) = \mathbf{x}_i^T\beta, &a
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [claimcst0_lam, Intercept, C(agecat), gender, area]</code></pre>
+NUTS: [lam, Intercept, C(agecat), gender, area]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"7f6467ab8f0341c1bfd0ed3418e2cff3","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="6000" class="" max="6000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [6000/6000 00:17&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws total) took 17 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws total) took 23 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="8">
@@ -707,160 +694,160 @@ NUTS: [claimcst0_lam, Intercept, C(agecat), gender, area]</code></pre>
   </thead>
   <tbody>
     <tr>
-      <th>Intercept</th>
-      <td>7.719</td>
-      <td>0.097</td>
-      <td>7.524</td>
-      <td>7.881</td>
-      <td>0.004</td>
-      <td>0.003</td>
-      <td>723.0</td>
-      <td>973.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
       <th>C(agecat)[2]</th>
       <td>-0.164</td>
-      <td>0.103</td>
-      <td>-0.362</td>
-      <td>0.014</td>
+      <td>0.102</td>
+      <td>-0.345</td>
+      <td>0.030</td>
       <td>0.004</td>
       <td>0.003</td>
-      <td>670.0</td>
-      <td>867.0</td>
-      <td>1.0</td>
+      <td>765.0</td>
+      <td>822.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
       <th>C(agecat)[3]</th>
-      <td>-0.259</td>
-      <td>0.098</td>
-      <td>-0.442</td>
-      <td>-0.075</td>
+      <td>-0.258</td>
+      <td>0.102</td>
+      <td>-0.446</td>
+      <td>-0.061</td>
       <td>0.004</td>
       <td>0.003</td>
-      <td>757.0</td>
-      <td>1077.0</td>
-      <td>1.0</td>
+      <td>775.0</td>
+      <td>838.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
       <th>C(agecat)[4]</th>
-      <td>-0.264</td>
-      <td>0.098</td>
-      <td>-0.441</td>
-      <td>-0.080</td>
+      <td>-0.263</td>
+      <td>0.101</td>
+      <td>-0.442</td>
+      <td>-0.063</td>
       <td>0.004</td>
       <td>0.003</td>
-      <td>729.0</td>
-      <td>1056.0</td>
-      <td>1.0</td>
+      <td>803.0</td>
+      <td>899.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
       <th>C(agecat)[5]</th>
       <td>-0.377</td>
-      <td>0.106</td>
-      <td>-0.582</td>
-      <td>-0.191</td>
+      <td>0.109</td>
+      <td>-0.575</td>
+      <td>-0.166</td>
       <td>0.004</td>
       <td>0.003</td>
-      <td>767.0</td>
-      <td>1142.0</td>
-      <td>1.0</td>
+      <td>797.0</td>
+      <td>776.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
       <th>C(agecat)[6]</th>
-      <td>-0.319</td>
-      <td>0.123</td>
+      <td>-0.320</td>
+      <td>0.122</td>
       <td>-0.550</td>
-      <td>-0.088</td>
+      <td>-0.086</td>
       <td>0.004</td>
       <td>0.003</td>
-      <td>897.0</td>
-      <td>1379.0</td>
-      <td>1.0</td>
+      <td>888.0</td>
+      <td>1005.0</td>
+      <td>1.01</td>
+    </tr>
+    <tr>
+      <th>Intercept</th>
+      <td>7.724</td>
+      <td>0.099</td>
+      <td>7.529</td>
+      <td>7.895</td>
+      <td>0.004</td>
+      <td>0.003</td>
+      <td>539.0</td>
+      <td>614.0</td>
+      <td>1.01</td>
+    </tr>
+    <tr>
+      <th>area[B]</th>
+      <td>-0.030</td>
+      <td>0.073</td>
+      <td>-0.170</td>
+      <td>0.103</td>
+      <td>0.002</td>
+      <td>0.002</td>
+      <td>1056.0</td>
+      <td>1032.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>area[C]</th>
+      <td>0.070</td>
+      <td>0.067</td>
+      <td>-0.052</td>
+      <td>0.194</td>
+      <td>0.002</td>
+      <td>0.001</td>
+      <td>1244.0</td>
+      <td>1324.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>area[D]</th>
+      <td>-0.022</td>
+      <td>0.089</td>
+      <td>-0.189</td>
+      <td>0.148</td>
+      <td>0.002</td>
+      <td>0.002</td>
+      <td>1305.0</td>
+      <td>1630.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>area[E]</th>
+      <td>0.147</td>
+      <td>0.103</td>
+      <td>-0.056</td>
+      <td>0.330</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>1347.0</td>
+      <td>1370.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>area[F]</th>
+      <td>0.368</td>
+      <td>0.137</td>
+      <td>0.124</td>
+      <td>0.641</td>
+      <td>0.003</td>
+      <td>0.003</td>
+      <td>1621.0</td>
+      <td>1347.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>gender[M]</th>
       <td>0.154</td>
-      <td>0.051</td>
-      <td>0.046</td>
-      <td>0.242</td>
+      <td>0.050</td>
+      <td>0.053</td>
+      <td>0.244</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>2325.0</td>
-      <td>1571.0</td>
-      <td>1.0</td>
+      <td>2273.0</td>
+      <td>1414.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
-      <th>area[B]</th>
-      <td>-0.028</td>
-      <td>0.071</td>
-      <td>-0.151</td>
-      <td>0.110</td>
-      <td>0.002</td>
-      <td>0.001</td>
-      <td>1582.0</td>
-      <td>1584.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>area[C]</th>
-      <td>0.075</td>
-      <td>0.067</td>
-      <td>-0.057</td>
-      <td>0.193</td>
-      <td>0.002</td>
-      <td>0.001</td>
-      <td>1652.0</td>
-      <td>1352.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>area[D]</th>
-      <td>-0.018</td>
-      <td>0.087</td>
-      <td>-0.176</td>
-      <td>0.153</td>
-      <td>0.002</td>
-      <td>0.002</td>
-      <td>1779.0</td>
-      <td>1684.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>area[E]</th>
-      <td>0.154</td>
-      <td>0.101</td>
-      <td>-0.028</td>
-      <td>0.351</td>
-      <td>0.003</td>
-      <td>0.002</td>
-      <td>1632.0</td>
-      <td>1394.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>area[F]</th>
-      <td>0.372</td>
-      <td>0.129</td>
-      <td>0.136</td>
-      <td>0.615</td>
-      <td>0.003</td>
-      <td>0.002</td>
-      <td>1878.0</td>
-      <td>1345.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>claimcst0_lam</th>
-      <td>723.159</td>
-      <td>15.695</td>
-      <td>693.002</td>
-      <td>751.738</td>
-      <td>0.306</td>
-      <td>0.217</td>
-      <td>2630.0</td>
-      <td>1577.0</td>
-      <td>1.0</td>
+      <th>lam</th>
+      <td>722.857</td>
+      <td>14.623</td>
+      <td>694.186</td>
+      <td>750.000</td>
+      <td>0.337</td>
+      <td>0.238</td>
+      <td>1890.0</td>
+      <td>1335.0</td>
+      <td>1.00</td>
     </tr>
   </tbody>
 </table>
@@ -886,36 +873,22 @@ NUTS: [claimcst0_lam, Intercept, C(agecat), gender, area]</code></pre>
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [claimcst0_alpha, Intercept, agecat, gender, area]</code></pre>
+NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"0d308c468455430a8c02fbceaea87777","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="6000" class="" max="6000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [6000/6000 00:24&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws total) took 25 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws total) took 29 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="11">
@@ -948,158 +921,158 @@ NUTS: [claimcst0_alpha, Intercept, agecat, gender, area]</code></pre>
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>7.717</td>
-      <td>0.063</td>
-      <td>7.591</td>
-      <td>7.825</td>
+      <td>7.718</td>
+      <td>0.062</td>
+      <td>7.588</td>
+      <td>7.823</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>891.0</td>
-      <td>1280.0</td>
+      <td>959.0</td>
+      <td>1220.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>agecat[2]</th>
-      <td>-0.181</td>
-      <td>0.064</td>
-      <td>-0.309</td>
-      <td>-0.064</td>
+      <td>-0.182</td>
+      <td>0.063</td>
+      <td>-0.299</td>
+      <td>-0.060</td>
       <td>0.002</td>
-      <td>0.001</td>
-      <td>949.0</td>
-      <td>1151.0</td>
+      <td>0.002</td>
+      <td>829.0</td>
+      <td>1106.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>agecat[3]</th>
-      <td>-0.275</td>
-      <td>0.063</td>
-      <td>-0.395</td>
-      <td>-0.164</td>
+      <td>-0.276</td>
+      <td>0.062</td>
+      <td>-0.389</td>
+      <td>-0.156</td>
       <td>0.002</td>
-      <td>0.001</td>
-      <td>966.0</td>
-      <td>1342.0</td>
+      <td>0.002</td>
+      <td>803.0</td>
+      <td>1207.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>agecat[4]</th>
-      <td>-0.269</td>
-      <td>0.063</td>
-      <td>-0.388</td>
-      <td>-0.155</td>
+      <td>-0.268</td>
+      <td>0.062</td>
+      <td>-0.385</td>
+      <td>-0.152</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>900.0</td>
-      <td>1406.0</td>
+      <td>874.0</td>
+      <td>1177.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>agecat[5]</th>
-      <td>-0.389</td>
-      <td>0.071</td>
-      <td>-0.522</td>
-      <td>-0.255</td>
+      <td>-0.388</td>
+      <td>0.070</td>
+      <td>-0.510</td>
+      <td>-0.245</td>
       <td>0.002</td>
       <td>0.002</td>
-      <td>1059.0</td>
-      <td>1358.0</td>
+      <td>999.0</td>
+      <td>1434.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>agecat[6]</th>
       <td>-0.314</td>
       <td>0.078</td>
-      <td>-0.459</td>
-      <td>-0.161</td>
+      <td>-0.461</td>
+      <td>-0.171</td>
+      <td>0.002</td>
+      <td>0.002</td>
+      <td>1125.0</td>
+      <td>1223.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>alpha</th>
+      <td>0.762</td>
+      <td>0.014</td>
+      <td>0.737</td>
+      <td>0.788</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>2389.0</td>
+      <td>1185.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>area[B]</th>
+      <td>-0.025</td>
+      <td>0.051</td>
+      <td>-0.120</td>
+      <td>0.069</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>1706.0</td>
+      <td>1278.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>area[C]</th>
+      <td>0.070</td>
+      <td>0.046</td>
+      <td>-0.022</td>
+      <td>0.152</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>1498.0</td>
+      <td>1300.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>area[D]</th>
+      <td>-0.017</td>
+      <td>0.062</td>
+      <td>-0.125</td>
+      <td>0.100</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>1367.0</td>
-      <td>1546.0</td>
+      <td>1358.0</td>
+      <td>1220.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>area[E]</th>
+      <td>0.150</td>
+      <td>0.068</td>
+      <td>0.031</td>
+      <td>0.286</td>
+      <td>0.002</td>
+      <td>0.001</td>
+      <td>2016.0</td>
+      <td>1432.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>area[F]</th>
+      <td>0.369</td>
+      <td>0.075</td>
+      <td>0.229</td>
+      <td>0.508</td>
+      <td>0.002</td>
+      <td>0.001</td>
+      <td>1984.0</td>
+      <td>1538.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>gender[M]</th>
       <td>0.166</td>
       <td>0.034</td>
-      <td>0.101</td>
-      <td>0.225</td>
+      <td>0.105</td>
+      <td>0.229</td>
       <td>0.001</td>
       <td>0.000</td>
-      <td>2965.0</td>
-      <td>1448.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>area[B]</th>
-      <td>-0.023</td>
-      <td>0.050</td>
-      <td>-0.123</td>
-      <td>0.062</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>1601.0</td>
-      <td>1709.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>area[C]</th>
-      <td>0.071</td>
-      <td>0.045</td>
-      <td>-0.013</td>
-      <td>0.156</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>1359.0</td>
-      <td>1514.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>area[D]</th>
-      <td>-0.017</td>
-      <td>0.063</td>
-      <td>-0.132</td>
-      <td>0.106</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>1838.0</td>
-      <td>1558.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>area[E]</th>
-      <td>0.152</td>
-      <td>0.067</td>
-      <td>0.026</td>
-      <td>0.273</td>
-      <td>0.002</td>
-      <td>0.001</td>
-      <td>1964.0</td>
-      <td>1596.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>area[F]</th>
-      <td>0.371</td>
-      <td>0.076</td>
-      <td>0.235</td>
-      <td>0.521</td>
-      <td>0.002</td>
-      <td>0.001</td>
-      <td>1885.0</td>
-      <td>1467.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>claimcst0_alpha</th>
-      <td>0.762</td>
-      <td>0.014</td>
-      <td>0.736</td>
-      <td>0.789</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>3212.0</td>
-      <td>1452.0</td>
+      <td>2309.0</td>
+      <td>1276.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1140,11 +1113,11 @@ NUTS: [claimcst0_alpha, Intercept, agecat, gender, area]</code></pre>
     <tr>
       <th>wald</th>
       <td>0</td>
-      <td>-38581.405635</td>
-      <td>12.882981</td>
-      <td>0.00000</td>
+      <td>-38581.390685</td>
+      <td>12.850506</td>
+      <td>0.000000</td>
       <td>1.0</td>
-      <td>106.105576</td>
+      <td>106.056885</td>
       <td>0.000000</td>
       <td>False</td>
       <td>log</td>
@@ -1152,12 +1125,12 @@ NUTS: [claimcst0_alpha, Intercept, agecat, gender, area]</code></pre>
     <tr>
       <th>gamma</th>
       <td>1</td>
-      <td>-39628.995425</td>
-      <td>26.607829</td>
-      <td>1047.58979</td>
+      <td>-39628.917221</td>
+      <td>26.536036</td>
+      <td>1047.526536</td>
       <td>0.0</td>
-      <td>104.988009</td>
-      <td>35.754616</td>
+      <td>104.988496</td>
+      <td>35.778307</td>
       <td>False</td>
       <td>log</td>
     </tr>
@@ -1177,19 +1150,18 @@ NUTS: [claimcst0_alpha, Intercept, agecat, gender, area]</code></pre>
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Thu Jan 05 2023
+<pre><code>Last updated: Sun May 26 2024
 
 Python implementation: CPython
-Python version       : 3.10.4
-IPython version      : 8.5.0
+Python version       : 3.11.9
+IPython version      : 8.24.0
 
-sys       : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
-matplotlib: 3.6.2
-arviz     : 0.14.0
-numpy     : 1.23.5
-bambi     : 0.9.3
+bambi     : 0.13.1.dev39+gb7d6a6cb
+matplotlib: 3.8.4
+numpy     : 1.26.4
+arviz     : 0.18.0
 
-Watermark: 2.3.1
+Watermark: 2.4.3
 </code></pre>
 </div>
 </div>

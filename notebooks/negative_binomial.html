@@ -126,6 +126,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
@@ -696,10 +697,11 @@ g(\mu_i) = \log\left(\frac{\mu_i}{k + \mu_i}\right) = \log\left(\frac{k}{\mu_i} 
 <div class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"prog"</span>].value_counts()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="11">
-<pre><code>Academic      167
+<pre><code>prog
+Academic      167
 Vocational    107
 General        40
-Name: prog, dtype: int64</code></pre>
+Name: count, dtype: int64</code></pre>
 </div>
 </div>
 <p>Let’s explore the distributions of math score and days of absence for each of the three programs listed above. The vertical lines indicate the mean values.</p>
@@ -803,36 +805,22 @@ Name: prog, dtype: int64</code></pre>
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [daysabs_alpha, prog, scale(math)]</code></pre>
+NUTS: [alpha, prog, scale(math)]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"da92930f19f1410eadcc61e357d9669b","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:03&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 4 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 3 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 </section>
@@ -846,36 +834,22 @@ NUTS: [daysabs_alpha, prog, scale(math)]</code></pre>
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [daysabs_alpha, prog, scale(math), prog:scale(math)]</code></pre>
+NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"94d81704090d476cadec4f42e8ceb1f0","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:06&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 7 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 3 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 </section>
@@ -906,64 +880,64 @@ NUTS: [daysabs_alpha, prog, scale(math), prog:scale(math)]</code></pre>
   </thead>
   <tbody>
     <tr>
-      <th>prog[Academic]</th>
-      <td>1.888</td>
-      <td>0.084</td>
-      <td>1.738</td>
-      <td>2.057</td>
+      <th>alpha</th>
+      <td>1.019</td>
+      <td>0.105</td>
+      <td>0.842</td>
+      <td>1.234</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>2430.0</td>
-      <td>1649.0</td>
-      <td>1.00</td>
+      <td>2575.0</td>
+      <td>1621.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>prog[Academic]</th>
+      <td>1.889</td>
+      <td>0.088</td>
+      <td>1.719</td>
+      <td>2.045</td>
+      <td>0.002</td>
+      <td>0.001</td>
+      <td>2702.0</td>
+      <td>1253.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>prog[General]</th>
-      <td>2.339</td>
-      <td>0.174</td>
-      <td>2.013</td>
-      <td>2.651</td>
+      <td>2.337</td>
+      <td>0.165</td>
+      <td>2.028</td>
+      <td>2.643</td>
       <td>0.003</td>
       <td>0.002</td>
-      <td>3364.0</td>
-      <td>1610.0</td>
-      <td>1.00</td>
+      <td>2429.0</td>
+      <td>1531.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>prog[Vocational]</th>
       <td>1.047</td>
-      <td>0.112</td>
-      <td>0.845</td>
-      <td>1.264</td>
+      <td>0.117</td>
+      <td>0.818</td>
+      <td>1.254</td>
       <td>0.002</td>
       <td>0.002</td>
-      <td>2062.0</td>
-      <td>1609.0</td>
-      <td>1.00</td>
+      <td>2346.0</td>
+      <td>1468.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>scale(math)</th>
-      <td>-0.150</td>
-      <td>0.063</td>
-      <td>-0.271</td>
-      <td>-0.036</td>
+      <td>-0.151</td>
+      <td>0.064</td>
+      <td>-0.270</td>
+      <td>-0.031</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>2115.0</td>
-      <td>1357.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>daysabs_alpha</th>
-      <td>1.020</td>
-      <td>0.109</td>
-      <td>0.835</td>
-      <td>1.236</td>
-      <td>0.002</td>
-      <td>0.002</td>
-      <td>2112.0</td>
-      <td>1339.0</td>
-      <td>1.01</td>
+      <td>2970.0</td>
+      <td>1670.0</td>
+      <td>1.0</td>
     </tr>
   </tbody>
 </table>
@@ -993,87 +967,87 @@ NUTS: [daysabs_alpha, prog, scale(math), prog:scale(math)]</code></pre>
   </thead>
   <tbody>
     <tr>
+      <th>alpha</th>
+      <td>1.016</td>
+      <td>0.104</td>
+      <td>0.812</td>
+      <td>1.205</td>
+      <td>0.002</td>
+      <td>0.002</td>
+      <td>2366.0</td>
+      <td>1715.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
       <th>prog[Academic]</th>
-      <td>1.876</td>
-      <td>0.083</td>
-      <td>1.721</td>
+      <td>1.875</td>
+      <td>0.085</td>
+      <td>1.713</td>
       <td>2.032</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>2149.0</td>
-      <td>1451.0</td>
+      <td>2641.0</td>
+      <td>1545.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>prog[General]</th>
       <td>2.341</td>
-      <td>0.175</td>
-      <td>2.007</td>
-      <td>2.647</td>
+      <td>0.172</td>
+      <td>2.021</td>
+      <td>2.654</td>
       <td>0.004</td>
       <td>0.003</td>
-      <td>2188.0</td>
-      <td>1572.0</td>
+      <td>2072.0</td>
+      <td>1124.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>prog[Vocational]</th>
-      <td>0.984</td>
-      <td>0.128</td>
-      <td>0.743</td>
-      <td>1.223</td>
+      <td>0.994</td>
+      <td>0.124</td>
+      <td>0.774</td>
+      <td>1.241</td>
       <td>0.003</td>
       <td>0.002</td>
-      <td>2290.0</td>
-      <td>1703.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>scale(math)</th>
-      <td>-0.194</td>
-      <td>0.081</td>
-      <td>-0.334</td>
-      <td>-0.030</td>
-      <td>0.002</td>
-      <td>0.001</td>
-      <td>2001.0</td>
-      <td>1625.0</td>
+      <td>1962.0</td>
+      <td>1661.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>prog:scale(math)[General]</th>
-      <td>0.014</td>
-      <td>0.164</td>
-      <td>-0.304</td>
-      <td>0.305</td>
+      <td>0.012</td>
+      <td>0.170</td>
+      <td>-0.322</td>
+      <td>0.312</td>
       <td>0.004</td>
       <td>0.003</td>
-      <td>2008.0</td>
-      <td>1738.0</td>
+      <td>1949.0</td>
+      <td>1664.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>prog:scale(math)[Vocational]</th>
-      <td>0.198</td>
-      <td>0.168</td>
-      <td>-0.129</td>
-      <td>0.512</td>
+      <td>0.193</td>
+      <td>0.164</td>
+      <td>-0.123</td>
+      <td>0.490</td>
       <td>0.004</td>
       <td>0.003</td>
-      <td>1813.0</td>
-      <td>1556.0</td>
+      <td>1830.0</td>
+      <td>1593.0</td>
       <td>1.0</td>
     </tr>
     <tr>
-      <th>daysabs_alpha</th>
-      <td>1.017</td>
-      <td>0.104</td>
-      <td>0.821</td>
-      <td>1.208</td>
+      <th>scale(math)</th>
+      <td>-0.195</td>
+      <td>0.081</td>
+      <td>-0.335</td>
+      <td>-0.036</td>
       <td>0.002</td>
-      <td>0.002</td>
-      <td>2135.0</td>
-      <td>1397.0</td>
+      <td>0.001</td>
+      <td>1737.0</td>
+      <td>1545.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1122,7 +1096,7 @@ NUTS: [daysabs_alpha, prog, scale(math), prog:scale(math)]</code></pre>
 <span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>            data<span class="op">=</span>new_data,</span>
 <span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>            inplace<span class="op">=</span><span class="va">False</span></span>
 <span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>        prediction <span class="op">=</span> new_idata.posterior[<span class="st">"daysabs_mean"</span>]</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>        prediction <span class="op">=</span> new_idata.posterior[<span class="st">"mu"</span>]</span>
 <span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>        predictions.append(prediction)</span>
 <span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> predictions</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1162,20 +1136,19 @@ NUTS: [daysabs_alpha, prog, scale(math), prog:scale(math)]</code></pre>
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Thu Jan 05 2023
+<pre><code>Last updated: Sat May 25 2024
 
 Python implementation: CPython
-Python version       : 3.10.4
-IPython version      : 8.5.0
+Python version       : 3.11.9
+IPython version      : 8.24.0
 
-arviz     : 0.14.0
-bambi     : 0.9.3
-pandas    : 1.5.2
-numpy     : 1.23.5
-matplotlib: 3.6.2
-sys       : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
+pandas    : 2.2.2
+numpy     : 1.26.4
+arviz     : 0.18.0
+matplotlib: 3.8.4
+bambi     : 0.13.1.dev37+g2a54df76.d20240525
 
-Watermark: 2.3.1
+Watermark: 2.4.3
 </code></pre>
 </div>
 </div>

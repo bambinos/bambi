@@ -126,7 +126,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
-<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
 
 <link rel="stylesheet" href="../styles.css">
@@ -459,7 +458,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1>Gaussian Processes in 2D</h1>
 <p>This article demonstrates how to use Bambi with Gaussian Processes with 2 dimensional predictors. Bambi supports Gaussian Processes through the low-rank approximation known as Hilbert Space Gaussian Processes. For references see <a href="https://arxiv.org/abs/1401.5508">Hilbert Space Methods for Reduced-Rank Gaussian Process Regression</a> and <a href="https://arxiv.org/abs/2004.11408">Practical Hilbert Space Approximate Bayesian Gaussian Processes for Probabilistic Programming</a>.</p>
 <p>If you prefer a video format, have a look at <a href="https://www.youtube.com/watch?v=ri5sJAdcYHk&amp;ab_channel=PyMCDevelopers">Introduction to Hilbert Space GPs in PyMC</a> given by Bill Engels.</p>
-<div class="cell" data-execution_count="9">
+<div class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -469,13 +468,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <p>The goal of this notebook is to showcase Bambi’s support for Gaussian Processes on two-dimensional data using the HSGP approximation.</p>
 <p>To achieve this, we begin by creating a matrix of coordinates that will serve as the locations where we measure the values of a continuous response variable.</p>
-<div class="cell" data-execution_count="10">
+<div class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>x1 <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">10</span>, <span class="dv">12</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>x2 <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">10</span>, <span class="dv">12</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>xx, yy <span class="op">=</span> np.meshgrid(x1, x2)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> np.column_stack([xx.flatten(), yy.flatten()])</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>X.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="10">
+<div class="cell-output cell-output-display" data-execution_count="2">
 <pre><code>(144, 2)</code></pre>
 </div>
 </div>
@@ -486,7 +485,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="a-single-group" class="level3">
 <h3 class="anchored" data-anchor-id="a-single-group">A single group</h3>
 <p>We create a covariance kernel using <code>ExpQuad</code> from the <code>gp</code> submodule in PyMC. Note that the lengthscale and amplitude for both dimensions are 2 and 1.2, respectively. Then, we simply use NumPy to get a random draw from the 144-dimensional multivariate normal distribution.</p>
-<div class="cell" data-execution_count="11">
+<div class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">1234</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>ell <span class="op">=</span> <span class="dv">2</span></span>
@@ -507,7 +506,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <p>Since Bambi works with long-format data frames, we need to reshape our data before creating the data frame.</p>
-<div class="cell" data-execution_count="12">
+<div class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.DataFrame(</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    {</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"x"</span>: np.tile(xx.flatten(), <span class="dv">1</span>),</span>
@@ -517,7 +516,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now, let’s construct the model. The only notable distinction from the one-dimensional case is that we provide two unnamed arguments to the <code>hsgp()</code> function, representing the predictors on each dimension.</p>
-<div class="cell" data-execution_count="13">
+<div class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>prior_hsgp <span class="op">=</span> {</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"Exponential"</span>, lam<span class="op">=</span><span class="dv">3</span>),</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ell"</span>: bmb.Prior(<span class="st">"InverseGamma"</span>, mu<span class="op">=</span><span class="dv">2</span>, sigma<span class="op">=</span><span class="fl">0.2</span>),</span>
@@ -529,7 +528,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"outcome ~ 0 + hsgp(x, y, c=1.5, m=10)"</span>, data, priors<span class="op">=</span>priors)</span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>model.set_alias({<span class="st">"hsgp(x, y, c=1.5, m=10)"</span>: <span class="st">"hsgp"</span>})</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="13">
+<div class="cell-output cell-output-display" data-execution_count="5">
 <pre><code>       Formula: outcome ~ 0 + hsgp(x, y, c=1.5, m=10)
         Family: gaussian
           Link: mu = identity
@@ -543,69 +542,35 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
                 ell ~ InverseGamma(mu: 2.0, sigma: 0.2)
         
         Auxiliary parameters
-            outcome_sigma ~ HalfNormal(sigma: 2.0)</code></pre>
+            sigma ~ HalfNormal(sigma: 2.0)</code></pre>
 </div>
 </div>
 <p>The parameters <code>c</code> and <code>m</code> of the HSGP aproximation are specific to each dimension, and can have different values for each. However, as we are passing scalars instead of sequences, Bambi will internally recycle them, causing the HSGP approximation to use the same values of <code>c</code> and <code>m</code> for both dimensions.</p>
 <p>Let’s build the internal PyMC model and create a graph to have a visual representation of the relationships between the model parameters.</p>
-<div class="cell" data-execution_count="14">
+<div class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>model.build()</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="14">
+<div class="cell-output cell-output-display" data-execution_count="6">
 <p><img src="hsgp_2d_files/figure-html/cell-7-output-1.svg" class="img-fluid"></p>
 </div>
 </div>
 <p>And finally, we quickly fit the model and show a traceplot to explore the posterior and spot any issues with the sampler.</p>
-<div class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(inference_method<span class="op">=</span><span class="st">"nuts_numpyro"</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>)</span>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(inference_method<span class="op">=</span><span class="st">"numpyro_nuts"</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>, num_chains<span class="op">=</span><span class="dv">4</span>)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(idata.sample_stats.diverging.<span class="bu">sum</span>().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/home/tomas/anaconda3/envs/bambi_hsgp/lib/python3.10/site-packages/pymc/sampling/jax.py:39: UserWarning: This module is experimental.
-  warnings.warn("This module is experimental.")</code></pre>
+<pre><code>sample: 100%|████████████████████████████████████████████████████████████████| 1500/1500 [01:43&lt;00:00, 14.53it/s]</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Compiling...</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>No GPU/TPU found, falling back to CPU. (Set TF_CPP_MIN_LOG_LEVEL=0 and rerun for more info.)</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Compilation time =  0:00:02.522713
-Sampling...</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"3ecb138133b54bef960976d040b2bbb7","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"41e1826b552f4c808609e3369b3b51d7","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"bdbf13466e4d41eeb8bb5ffdc647eee5","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"1d0a46e887fc4153bf1b1372ae6d035d","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Sampling time =  0:00:23.313351
-Transforming variables...
-Transformation time =  0:00:00.628279
-0</code></pre>
+<pre><code>0</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="16">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"hsgp_sigma"</span>, <span class="st">"hsgp_ell"</span>, <span class="st">"outcome_sigma"</span>], </span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>}</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"hsgp_sigma"</span>, <span class="st">"hsgp_ell"</span>, <span class="st">"sigma"</span>], </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>}</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="hsgp_2d_files/figure-html/cell-9-output-1.png" class="img-fluid"></p>
 </div>
@@ -623,50 +588,50 @@ Transformation time =  0:00:00.628279
 <section id="multiple-groups---same-covariance-function" class="level3">
 <h3 class="anchored" data-anchor-id="multiple-groups---same-covariance-function">Multiple groups - same covariance function</h3>
 <p>In this scenario we have multiple groups that share the same covariance function.</p>
-<div class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">123</span>)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>ell <span class="op">=</span> <span class="dv">2</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>cov <span class="op">=</span> <span class="fl">1.2</span> <span class="op">*</span> pm.gp.cov.ExpQuad(<span class="dv">2</span>, ls<span class="op">=</span>ell)</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>K <span class="op">=</span> cov(X).<span class="bu">eval</span>()</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>mu <span class="op">=</span> np.zeros(X.shape[<span class="dv">0</span>])</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> rng.multivariate_normal(mu, K, <span class="dv">3</span>)</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>))</span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, ax <span class="kw">in</span> <span class="bu">enumerate</span>(axes):</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    ax.scatter(xx, yy, c<span class="op">=</span>f[i], s<span class="op">=</span><span class="dv">320</span>, marker<span class="op">=</span><span class="st">"s"</span>)</span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    ax.grid(<span class="va">False</span>)</span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"Group </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">123</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>ell <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>cov <span class="op">=</span> <span class="fl">1.2</span> <span class="op">*</span> pm.gp.cov.ExpQuad(<span class="dv">2</span>, ls<span class="op">=</span>ell)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>K <span class="op">=</span> cov(X).<span class="bu">eval</span>()</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>mu <span class="op">=</span> np.zeros(X.shape[<span class="dv">0</span>])</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> rng.multivariate_normal(mu, K, <span class="dv">3</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>))</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, ax <span class="kw">in</span> <span class="bu">enumerate</span>(axes):</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    ax.scatter(xx, yy, c<span class="op">=</span>f[i], s<span class="op">=</span><span class="dv">320</span>, marker<span class="op">=</span><span class="st">"s"</span>)</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    ax.grid(<span class="va">False</span>)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"Group </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="hsgp_2d_files/figure-html/cell-10-output-1.png" class="img-fluid"></p>
 </div>
 </div>
-<div class="cell" data-execution_count="18">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.DataFrame(</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    {</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"x"</span>: np.tile(xx.flatten(), <span class="dv">3</span>),</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"y"</span>: np.tile(yy.flatten(), <span class="dv">3</span>),</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"group"</span>: np.repeat(<span class="bu">list</span>(<span class="st">"ABC"</span>), <span class="dv">12</span> <span class="op">*</span> <span class="dv">12</span>),</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"outcome"</span>: f.flatten()</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    {</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"x"</span>: np.tile(xx.flatten(), <span class="dv">3</span>),</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"y"</span>: np.tile(yy.flatten(), <span class="dv">3</span>),</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"group"</span>: np.repeat(<span class="bu">list</span>(<span class="st">"ABC"</span>), <span class="dv">12</span> <span class="op">*</span> <span class="dv">12</span>),</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"outcome"</span>: f.flatten()</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Notice we don’t modify anything substantial in the call to <code>hsgp()</code> for now.</p>
-<div class="cell" data-execution_count="19">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>prior_hsgp <span class="op">=</span> {</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"Exponential"</span>, lam<span class="op">=</span><span class="dv">3</span>),</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ell"</span>: bmb.Prior(<span class="st">"InverseGamma"</span>, mu<span class="op">=</span><span class="dv">2</span>, sigma<span class="op">=</span><span class="fl">0.2</span>),</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsgp(x, y, by=group, c=1.5, m=10)"</span>: prior_hsgp, </span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"HalfNormal"</span>, sigma<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"outcome ~ 0 + hsgp(x, y, by=group, c=1.5, m=10)"</span>, data, priors<span class="op">=</span>priors)</span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>model.set_alias({<span class="st">"hsgp(x, y, by=group, c=1.5, m=10)"</span>: <span class="st">"hsgp"</span>})</span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model)</span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>model.build()</span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>prior_hsgp <span class="op">=</span> {</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"Exponential"</span>, lam<span class="op">=</span><span class="dv">3</span>),</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ell"</span>: bmb.Prior(<span class="st">"InverseGamma"</span>, mu<span class="op">=</span><span class="dv">2</span>, sigma<span class="op">=</span><span class="fl">0.2</span>),</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsgp(x, y, by=group, c=1.5, m=10)"</span>: prior_hsgp, </span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"HalfNormal"</span>, sigma<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"outcome ~ 0 + hsgp(x, y, by=group, c=1.5, m=10)"</span>, data, priors<span class="op">=</span>priors)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>model.set_alias({<span class="st">"hsgp(x, y, by=group, c=1.5, m=10)"</span>: <span class="st">"hsgp"</span>})</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>model.build()</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       Formula: outcome ~ 0 + hsgp(x, y, by=group, c=1.5, m=10)
         Family: gaussian
@@ -681,53 +646,28 @@ Transformation time =  0:00:00.628279
                 ell ~ InverseGamma(mu: 2.0, sigma: 0.2)
         
         Auxiliary parameters
-            outcome_sigma ~ HalfNormal(sigma: 2.0)</code></pre>
+            sigma ~ HalfNormal(sigma: 2.0)</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="19">
+<div class="cell-output cell-output-display" data-execution_count="12">
 <p><img src="hsgp_2d_files/figure-html/cell-12-output-2.svg" class="img-fluid"></p>
 </div>
 </div>
-<div class="cell" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(inference_method<span class="op">=</span><span class="st">"nuts_numpyro"</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>)</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(idata.sample_stats.diverging.<span class="bu">sum</span>().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Compiling...
-Compilation time =  0:00:02.721842
-Sampling...</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"9bd1607605b649e59c423ab91229d350","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"a4796c70c8e547bca69eb34ad12e56d9","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"4d69c2d136764eb89ad809a631d2f2cb","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"0fa2a52d526e44928b939fccb95bb1a2","version_major":2,"version_minor":0}
-</script>
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(inference_method<span class="op">=</span><span class="st">"numpyro_nuts"</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>, num_chains<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(idata.sample_stats.diverging.<span class="bu">sum</span>().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>sample: 100%|████████████████████████████████████████████████████████████████| 1500/1500 [04:33&lt;00:00,  5.48it/s]</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Sampling time =  0:02:17.782596
-Transforming variables...
-Transformation time =  0:00:00.838094
-0</code></pre>
+<pre><code>0</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"hsgp_sigma"</span>, <span class="st">"hsgp_ell"</span>, <span class="st">"outcome_sigma"</span>], </span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>}</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"hsgp_sigma"</span>, <span class="st">"hsgp_ell"</span>, <span class="st">"sigma"</span>], </span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>}</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="hsgp_2d_files/figure-html/cell-14-output-1.png" class="img-fluid"></p>
 </div>
@@ -737,59 +677,59 @@ Transformation time =  0:00:00.838094
 <section id="multiple-groups---different-covariance-function" class="level3">
 <h3 class="anchored" data-anchor-id="multiple-groups---different-covariance-function">Multiple groups - different covariance function</h3>
 <p>Again we have multiple groups. But this time, each group has specific values for the amplitude and the lengthscale.</p>
-<div class="cell" data-execution_count="22">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">12</span>)</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>sigmas <span class="op">=</span> [<span class="fl">1.2</span>, <span class="fl">1.5</span>, <span class="fl">1.8</span>]</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>ells <span class="op">=</span> [<span class="fl">1.5</span>, <span class="dv">2</span>, <span class="dv">3</span>]</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>samples <span class="op">=</span> []</span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> sigma, ell <span class="kw">in</span> <span class="bu">zip</span>(sigmas, ells):</span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    cov <span class="op">=</span> sigma <span class="op">*</span> pm.gp.cov.ExpQuad(<span class="dv">2</span>, ls<span class="op">=</span>ell)</span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    K <span class="op">=</span> cov(X).<span class="bu">eval</span>()</span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> np.zeros(X.shape[<span class="dv">0</span>])</span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    samples.append(rng.multivariate_normal(mu, K))</span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> np.stack(samples)</span>
-<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>))</span>
-<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, ax <span class="kw">in</span> <span class="bu">enumerate</span>(axes):</span>
-<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>    ax.scatter(xx, yy, c<span class="op">=</span>f[i], s<span class="op">=</span><span class="dv">320</span>, marker<span class="op">=</span><span class="st">"s"</span>)</span>
-<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>    ax.grid(<span class="va">False</span>)</span>
-<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"Group </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">12</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>sigmas <span class="op">=</span> [<span class="fl">1.2</span>, <span class="fl">1.5</span>, <span class="fl">1.8</span>]</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>ells <span class="op">=</span> [<span class="fl">1.5</span>, <span class="dv">2</span>, <span class="dv">3</span>]</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>samples <span class="op">=</span> []</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> sigma, ell <span class="kw">in</span> <span class="bu">zip</span>(sigmas, ells):</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    cov <span class="op">=</span> sigma <span class="op">*</span> pm.gp.cov.ExpQuad(<span class="dv">2</span>, ls<span class="op">=</span>ell)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    K <span class="op">=</span> cov(X).<span class="bu">eval</span>()</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> np.zeros(X.shape[<span class="dv">0</span>])</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    samples.append(rng.multivariate_normal(mu, K))</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> np.stack(samples)</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>))</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, ax <span class="kw">in</span> <span class="bu">enumerate</span>(axes):</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>    ax.scatter(xx, yy, c<span class="op">=</span>f[i], s<span class="op">=</span><span class="dv">320</span>, marker<span class="op">=</span><span class="st">"s"</span>)</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>    ax.grid(<span class="va">False</span>)</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"Group </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="hsgp_2d_files/figure-html/cell-15-output-1.png" class="img-fluid"></p>
 </div>
 </div>
-<div class="cell" data-execution_count="23">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.DataFrame(</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    {</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"x"</span>: np.tile(xx.flatten(), <span class="dv">3</span>),</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"y"</span>: np.tile(yy.flatten(), <span class="dv">3</span>),</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"group"</span>: np.repeat(<span class="bu">list</span>(<span class="st">"ABC"</span>), <span class="dv">12</span> <span class="op">*</span> <span class="dv">12</span>),</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"outcome"</span>: f.flatten()</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    {</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"x"</span>: np.tile(xx.flatten(), <span class="dv">3</span>),</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"y"</span>: np.tile(yy.flatten(), <span class="dv">3</span>),</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"group"</span>: np.repeat(<span class="bu">list</span>(<span class="st">"ABC"</span>), <span class="dv">12</span> <span class="op">*</span> <span class="dv">12</span>),</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"outcome"</span>: f.flatten()</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>In situations like this, we can tell Bambi not to use the same covariance function for all the groups with <code>share_cov=False</code> and Bambi will create a separate instance for each group, resulting in group specific estimates of the amplitude and the lengthscale.</p>
 <p>Notice, however, we’re still using the same kind of covariance function, which in this case is <code>ExpQuad</code>.</p>
-<div class="cell" data-execution_count="24">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>prior_hsgp <span class="op">=</span> {</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"Exponential"</span>, lam<span class="op">=</span><span class="dv">3</span>),</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ell"</span>: bmb.Prior(<span class="st">"InverseGamma"</span>, mu<span class="op">=</span><span class="dv">2</span>, sigma<span class="op">=</span><span class="fl">0.2</span>),</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsgp(x, y, by=group, c=1.5, m=10, share_cov=False)"</span>: prior_hsgp, </span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"HalfNormal"</span>, sigma<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(</span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"outcome ~ 0 + hsgp(x, y, by=group, c=1.5, m=10, share_cov=False)"</span>, </span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    data, </span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    priors<span class="op">=</span>priors</span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>model.set_alias({<span class="st">"hsgp(x, y, by=group, c=1.5, m=10, share_cov=False)"</span>: <span class="st">"hsgp"</span>})</span>
-<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model)</span>
-<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>model.build()</span>
-<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>prior_hsgp <span class="op">=</span> {</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"Exponential"</span>, lam<span class="op">=</span><span class="dv">3</span>),</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ell"</span>: bmb.Prior(<span class="st">"InverseGamma"</span>, mu<span class="op">=</span><span class="dv">2</span>, sigma<span class="op">=</span><span class="fl">0.2</span>),</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsgp(x, y, by=group, c=1.5, m=10, share_cov=False)"</span>: prior_hsgp, </span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"HalfNormal"</span>, sigma<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"outcome ~ 0 + hsgp(x, y, by=group, c=1.5, m=10, share_cov=False)"</span>, </span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    data, </span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    priors<span class="op">=</span>priors</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>model.set_alias({<span class="st">"hsgp(x, y, by=group, c=1.5, m=10, share_cov=False)"</span>: <span class="st">"hsgp"</span>})</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model)</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>model.build()</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       Formula: outcome ~ 0 + hsgp(x, y, by=group, c=1.5, m=10, share_cov=False)
         Family: gaussian
@@ -804,54 +744,29 @@ Transformation time =  0:00:00.838094
                 ell ~ InverseGamma(mu: 2.0, sigma: 0.2)
         
         Auxiliary parameters
-            outcome_sigma ~ HalfNormal(sigma: 2.0)</code></pre>
+            sigma ~ HalfNormal(sigma: 2.0)</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="24">
+<div class="cell-output cell-output-display" data-execution_count="17">
 <p><img src="hsgp_2d_files/figure-html/cell-17-output-2.svg" class="img-fluid"></p>
 </div>
 </div>
 <p>See the all the HSGP related parameters gained the new dimension <code>hsgp_by</code>.</p>
-<div class="cell" data-execution_count="25">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(inference_method<span class="op">=</span><span class="st">"nuts_numpyro"</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>)</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(idata.sample_stats.diverging.<span class="bu">sum</span>().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Compiling...
-Compilation time =  0:00:04.491697
-Sampling...</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"9016523162194a94b27c71747a42dde3","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"ed4a4033fe1c4884bbe156678a88dcdc","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"5b59bccd4fee48d494f7d84920758ec7","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"e5e08b2f01a641a8ac8792652ca5499b","version_major":2,"version_minor":0}
-</script>
+<div class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(inference_method<span class="op">=</span><span class="st">"numpyro_nuts"</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>, num_chains<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(idata.sample_stats.diverging.<span class="bu">sum</span>().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>sample: 100%|████████████████████████████████████████████████████████████████| 1500/1500 [05:12&lt;00:00,  4.81it/s]</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Sampling time =  0:02:35.274256
-Transforming variables...
-Transformation time =  0:00:00.801181
-0</code></pre>
+<pre><code>0</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="26">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"hsgp_sigma"</span>, <span class="st">"hsgp_ell"</span>, <span class="st">"outcome_sigma"</span>], </span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>}</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"hsgp_sigma"</span>, <span class="st">"hsgp_ell"</span>, <span class="st">"sigma"</span>], </span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>}</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="hsgp_2d_files/figure-html/cell-19-output-1.png" class="img-fluid"></p>
 </div>
@@ -864,45 +779,45 @@ Transformation time =  0:00:00.801181
 <p>In this second part we repeat exactly the same that we did for the isotropic case. First, we start with a single group. Then, we continue with multiple groups that share the covariance function. And finally, multiple groups with different covariance functions. The main difference is that we use <code>iso=False</code>, which asks to use an anisotropic GP.</p>
 <section id="a-single-group-1" class="level3">
 <h3 class="anchored" data-anchor-id="a-single-group-1">A single group</h3>
-<div class="cell" data-execution_count="27">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">1234</span>)</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>ell <span class="op">=</span> [<span class="dv">2</span>, <span class="fl">0.9</span>]</span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>cov <span class="op">=</span> <span class="fl">1.2</span> <span class="op">*</span> pm.gp.cov.ExpQuad(<span class="dv">2</span>, ls<span class="op">=</span>ell)</span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>K <span class="op">=</span> cov(X).<span class="bu">eval</span>()</span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>mu <span class="op">=</span> np.zeros(X.shape[<span class="dv">0</span>])</span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> rng.multivariate_normal(mu, K)</span>
-<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="fl">4.5</span>, <span class="fl">4.5</span>))</span>
-<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>ax.scatter(xx, yy, c<span class="op">=</span>f, s<span class="op">=</span><span class="dv">900</span>, marker<span class="op">=</span><span class="st">"s"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">1234</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>ell <span class="op">=</span> [<span class="dv">2</span>, <span class="fl">0.9</span>]</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>cov <span class="op">=</span> <span class="fl">1.2</span> <span class="op">*</span> pm.gp.cov.ExpQuad(<span class="dv">2</span>, ls<span class="op">=</span>ell)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>K <span class="op">=</span> cov(X).<span class="bu">eval</span>()</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>mu <span class="op">=</span> np.zeros(X.shape[<span class="dv">0</span>])</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> rng.multivariate_normal(mu, K)</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (<span class="fl">4.5</span>, <span class="fl">4.5</span>))</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>ax.scatter(xx, yy, c<span class="op">=</span>f, s<span class="op">=</span><span class="dv">900</span>, marker<span class="op">=</span><span class="st">"s"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="hsgp_2d_files/figure-html/cell-20-output-1.png" class="img-fluid"></p>
 </div>
 </div>
-<div class="cell" data-execution_count="28">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.DataFrame(</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    {</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"x"</span>: np.tile(xx.flatten(), <span class="dv">1</span>),</span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"y"</span>: np.tile(yy.flatten(), <span class="dv">1</span>), </span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"outcome"</span>: f.flatten()</span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    {</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"x"</span>: np.tile(xx.flatten(), <span class="dv">1</span>),</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"y"</span>: np.tile(yy.flatten(), <span class="dv">1</span>), </span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"outcome"</span>: f.flatten()</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="29">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>prior_hsgp <span class="op">=</span> {</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"Exponential"</span>, lam<span class="op">=</span><span class="dv">3</span>),</span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ell"</span>: bmb.Prior(<span class="st">"InverseGamma"</span>, mu<span class="op">=</span><span class="dv">2</span>, sigma<span class="op">=</span><span class="fl">0.2</span>),</span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsgp(x, y, c=1.5, m=10, iso=False)"</span>: prior_hsgp, </span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"HalfNormal"</span>, sigma<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"outcome ~ 0 + hsgp(x, y, c=1.5, m=10, iso=False)"</span>, data, priors<span class="op">=</span>priors)</span>
-<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>model.set_alias({<span class="st">"hsgp(x, y, c=1.5, m=10, iso=False)"</span>: <span class="st">"hsgp"</span>})</span>
-<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model)</span>
-<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>model.build()</span>
-<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>prior_hsgp <span class="op">=</span> {</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"Exponential"</span>, lam<span class="op">=</span><span class="dv">3</span>),</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ell"</span>: bmb.Prior(<span class="st">"InverseGamma"</span>, mu<span class="op">=</span><span class="dv">2</span>, sigma<span class="op">=</span><span class="fl">0.2</span>),</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsgp(x, y, c=1.5, m=10, iso=False)"</span>: prior_hsgp, </span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"HalfNormal"</span>, sigma<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"outcome ~ 0 + hsgp(x, y, c=1.5, m=10, iso=False)"</span>, data, priors<span class="op">=</span>priors)</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>model.set_alias({<span class="st">"hsgp(x, y, c=1.5, m=10, iso=False)"</span>: <span class="st">"hsgp"</span>})</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model)</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>model.build()</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       Formula: outcome ~ 0 + hsgp(x, y, c=1.5, m=10, iso=False)
         Family: gaussian
@@ -917,54 +832,29 @@ Transformation time =  0:00:00.801181
                 ell ~ InverseGamma(mu: 2.0, sigma: 0.2)
         
         Auxiliary parameters
-            outcome_sigma ~ HalfNormal(sigma: 2.0)</code></pre>
+            sigma ~ HalfNormal(sigma: 2.0)</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="29">
+<div class="cell-output cell-output-display" data-execution_count="22">
 <p><img src="hsgp_2d_files/figure-html/cell-22-output-2.svg" class="img-fluid"></p>
 </div>
 </div>
 <p>Although there is only one group in this case, the graph includes a <code>hsgp_var</code> dimension. This dimension represents the variables in the HSGP component, indicating that there is one lengthscale parameter per variable.</p>
-<div class="cell" data-execution_count="30">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(inference_method<span class="op">=</span><span class="st">"nuts_numpyro"</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>)</span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(idata.sample_stats.diverging.<span class="bu">sum</span>().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Compiling...
-Compilation time =  0:00:02.320646
-Sampling...</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"d7ac7ce850464f67a042503bc084de93","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"a8474eab658d4358914886fa8f16675e","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"772f20720c204c9cb52d9d8e46fbf9dd","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"d24bf67c2b7d4fc4ae5a00c9447a360d","version_major":2,"version_minor":0}
-</script>
+<div class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(inference_method<span class="op">=</span><span class="st">"numpyro_nuts"</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>, num_chains<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(idata.sample_stats.diverging.<span class="bu">sum</span>().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>sample: 100%|████████████████████████████████████████████████████████████████| 1500/1500 [00:20&lt;00:00, 74.63it/s]</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Sampling time =  0:00:06.159032
-Transforming variables...
-Transformation time =  0:00:00.173091
-0</code></pre>
+<pre><code>0</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="31">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"hsgp_sigma"</span>, <span class="st">"hsgp_ell"</span>, <span class="st">"outcome_sigma"</span>], </span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>}</span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"hsgp_sigma"</span>, <span class="st">"hsgp_ell"</span>, <span class="st">"sigma"</span>], </span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>}</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="hsgp_2d_files/figure-html/cell-24-output-1.png" class="img-fluid"></p>
 </div>
@@ -972,49 +862,49 @@ Transformation time =  0:00:00.173091
 </section>
 <section id="multiple-groups---same-covariance-function-1" class="level3">
 <h3 class="anchored" data-anchor-id="multiple-groups---same-covariance-function-1">Multiple groups - same covariance function</h3>
-<div class="cell" data-execution_count="32">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">123</span>)</span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>ell <span class="op">=</span> [<span class="dv">2</span>, <span class="fl">0.9</span>]</span>
-<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>cov <span class="op">=</span> <span class="fl">1.2</span> <span class="op">*</span> pm.gp.cov.ExpQuad(<span class="dv">2</span>, ls<span class="op">=</span>ell)</span>
-<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>K <span class="op">=</span> cov(X).<span class="bu">eval</span>()</span>
-<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>mu <span class="op">=</span> np.zeros(X.shape[<span class="dv">0</span>])</span>
-<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> rng.multivariate_normal(mu, K, <span class="dv">3</span>)</span>
-<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>))</span>
-<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, ax <span class="kw">in</span> <span class="bu">enumerate</span>(axes):</span>
-<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>    ax.scatter(xx, yy, c<span class="op">=</span>f[i], s<span class="op">=</span><span class="dv">320</span>, marker<span class="op">=</span><span class="st">"s"</span>)</span>
-<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>    ax.grid(<span class="va">False</span>)</span>
-<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"Group </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">123</span>)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>ell <span class="op">=</span> [<span class="dv">2</span>, <span class="fl">0.9</span>]</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>cov <span class="op">=</span> <span class="fl">1.2</span> <span class="op">*</span> pm.gp.cov.ExpQuad(<span class="dv">2</span>, ls<span class="op">=</span>ell)</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>K <span class="op">=</span> cov(X).<span class="bu">eval</span>()</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>mu <span class="op">=</span> np.zeros(X.shape[<span class="dv">0</span>])</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> rng.multivariate_normal(mu, K, <span class="dv">3</span>)</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>))</span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, ax <span class="kw">in</span> <span class="bu">enumerate</span>(axes):</span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>    ax.scatter(xx, yy, c<span class="op">=</span>f[i], s<span class="op">=</span><span class="dv">320</span>, marker<span class="op">=</span><span class="st">"s"</span>)</span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>    ax.grid(<span class="va">False</span>)</span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"Group </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="hsgp_2d_files/figure-html/cell-25-output-1.png" class="img-fluid"></p>
 </div>
 </div>
-<div class="cell" data-execution_count="33">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.DataFrame(</span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>    {</span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"x"</span>: np.tile(xx.flatten(), <span class="dv">3</span>),</span>
-<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"y"</span>: np.tile(yy.flatten(), <span class="dv">3</span>),</span>
-<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"group"</span>: np.repeat(<span class="bu">list</span>(<span class="st">"ABC"</span>), <span class="dv">12</span> <span class="op">*</span> <span class="dv">12</span>),</span>
-<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"outcome"</span>: f.flatten()</span>
-<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    {</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"x"</span>: np.tile(xx.flatten(), <span class="dv">3</span>),</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"y"</span>: np.tile(yy.flatten(), <span class="dv">3</span>),</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"group"</span>: np.repeat(<span class="bu">list</span>(<span class="st">"ABC"</span>), <span class="dv">12</span> <span class="op">*</span> <span class="dv">12</span>),</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"outcome"</span>: f.flatten()</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="34">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>prior_hsgp <span class="op">=</span> {</span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"Exponential"</span>, lam<span class="op">=</span><span class="dv">3</span>),</span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ell"</span>: bmb.Prior(<span class="st">"InverseGamma"</span>, mu<span class="op">=</span><span class="dv">2</span>, sigma<span class="op">=</span><span class="fl">0.2</span>),</span>
-<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
-<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsgp(x, y, by=group, c=1.5, m=10, iso=False)"</span>: prior_hsgp, </span>
-<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"HalfNormal"</span>, sigma<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"outcome ~ 0 + hsgp(x, y, by=group, c=1.5, m=10, iso=False)"</span>, data, priors<span class="op">=</span>priors)</span>
-<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>model.set_alias({<span class="st">"hsgp(x, y, by=group, c=1.5, m=10, iso=False)"</span>: <span class="st">"hsgp"</span>})</span>
-<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model)</span>
-<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>model.build()</span>
-<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>prior_hsgp <span class="op">=</span> {</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"Exponential"</span>, lam<span class="op">=</span><span class="dv">3</span>),</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ell"</span>: bmb.Prior(<span class="st">"InverseGamma"</span>, mu<span class="op">=</span><span class="dv">2</span>, sigma<span class="op">=</span><span class="fl">0.2</span>),</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsgp(x, y, by=group, c=1.5, m=10, iso=False)"</span>: prior_hsgp, </span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"HalfNormal"</span>, sigma<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"outcome ~ 0 + hsgp(x, y, by=group, c=1.5, m=10, iso=False)"</span>, data, priors<span class="op">=</span>priors)</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>model.set_alias({<span class="st">"hsgp(x, y, by=group, c=1.5, m=10, iso=False)"</span>: <span class="st">"hsgp"</span>})</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model)</span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>model.build()</span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       Formula: outcome ~ 0 + hsgp(x, y, by=group, c=1.5, m=10, iso=False)
         Family: gaussian
@@ -1029,53 +919,28 @@ Transformation time =  0:00:00.173091
                 ell ~ InverseGamma(mu: 2.0, sigma: 0.2)
         
         Auxiliary parameters
-            outcome_sigma ~ HalfNormal(sigma: 2.0)</code></pre>
+            sigma ~ HalfNormal(sigma: 2.0)</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="34">
+<div class="cell-output cell-output-display" data-execution_count="27">
 <p><img src="hsgp_2d_files/figure-html/cell-27-output-2.svg" class="img-fluid"></p>
 </div>
 </div>
-<div class="cell" data-execution_count="35">
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(inference_method<span class="op">=</span><span class="st">"nuts_numpyro"</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>)</span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(idata.sample_stats.diverging.<span class="bu">sum</span>().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Compiling...
-Compilation time =  0:00:02.464203
-Sampling...</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"199c710be0e5416ea8719355a572e325","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"41c3f9639ac84b65a56fa34f6f0d8da1","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"faa514525524430fb6ab1369ec550435","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"7242ecbc6c2a482380a62f8399e09511","version_major":2,"version_minor":0}
-</script>
+<div class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(inference_method<span class="op">=</span><span class="st">"numpyro_nuts"</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>, num_chains<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(idata.sample_stats.diverging.<span class="bu">sum</span>().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>sample: 100%|████████████████████████████████████████████████████████████████| 1500/1500 [00:41&lt;00:00, 36.57it/s]</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Sampling time =  0:00:17.674547
-Transforming variables...
-Transformation time =  0:00:00.249682
-0</code></pre>
+<pre><code>0</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="36">
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"hsgp_sigma"</span>, <span class="st">"hsgp_ell"</span>, <span class="st">"outcome_sigma"</span>], </span>
-<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>    backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>}</span>
-<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"hsgp_sigma"</span>, <span class="st">"hsgp_ell"</span>, <span class="st">"sigma"</span>], </span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>    backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>}</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="hsgp_2d_files/figure-html/cell-29-output-1.png" class="img-fluid"></p>
 </div>
@@ -1083,57 +948,57 @@ Transformation time =  0:00:00.249682
 </section>
 <section id="multiple-groups---different-covariance-function-1" class="level3">
 <h3 class="anchored" data-anchor-id="multiple-groups---different-covariance-function-1">Multiple groups - different covariance function</h3>
-<div class="cell" data-execution_count="37">
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">12</span>)</span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>sigmas <span class="op">=</span> [<span class="fl">1.2</span>, <span class="fl">1.5</span>, <span class="fl">1.8</span>]</span>
-<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>ells <span class="op">=</span> [[<span class="fl">1.5</span>, <span class="fl">0.8</span>], [<span class="dv">2</span>, <span class="fl">1.5</span>], [<span class="dv">3</span>, <span class="dv">1</span>]]</span>
-<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>samples <span class="op">=</span> []</span>
-<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> sigma, ell <span class="kw">in</span> <span class="bu">zip</span>(sigmas, ells):</span>
-<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>    cov <span class="op">=</span> sigma <span class="op">*</span> pm.gp.cov.ExpQuad(<span class="dv">2</span>, ls<span class="op">=</span>ell)</span>
-<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>    K <span class="op">=</span> cov(X).<span class="bu">eval</span>()</span>
-<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> np.zeros(X.shape[<span class="dv">0</span>])</span>
-<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a>    samples.append(rng.multivariate_normal(mu, K))</span>
-<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> np.stack(samples)</span>
-<span id="cb49-14"><a href="#cb49-14" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>))</span>
-<span id="cb49-15"><a href="#cb49-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, ax <span class="kw">in</span> <span class="bu">enumerate</span>(axes):</span>
-<span id="cb49-16"><a href="#cb49-16" aria-hidden="true" tabindex="-1"></a>    ax.scatter(xx, yy, c<span class="op">=</span>f[i], s<span class="op">=</span><span class="dv">320</span>, marker<span class="op">=</span><span class="st">"s"</span>)</span>
-<span id="cb49-17"><a href="#cb49-17" aria-hidden="true" tabindex="-1"></a>    ax.grid(<span class="va">False</span>)</span>
-<span id="cb49-18"><a href="#cb49-18" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"Group </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">12</span>)</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>sigmas <span class="op">=</span> [<span class="fl">1.2</span>, <span class="fl">1.5</span>, <span class="fl">1.8</span>]</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>ells <span class="op">=</span> [[<span class="fl">1.5</span>, <span class="fl">0.8</span>], [<span class="dv">2</span>, <span class="fl">1.5</span>], [<span class="dv">3</span>, <span class="dv">1</span>]]</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>samples <span class="op">=</span> []</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> sigma, ell <span class="kw">in</span> <span class="bu">zip</span>(sigmas, ells):</span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>    cov <span class="op">=</span> sigma <span class="op">*</span> pm.gp.cov.ExpQuad(<span class="dv">2</span>, ls<span class="op">=</span>ell)</span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>    K <span class="op">=</span> cov(X).<span class="bu">eval</span>()</span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> np.zeros(X.shape[<span class="dv">0</span>])</span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>    samples.append(rng.multivariate_normal(mu, K))</span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> np.stack(samples)</span>
+<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>))</span>
+<span id="cb46-15"><a href="#cb46-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, ax <span class="kw">in</span> <span class="bu">enumerate</span>(axes):</span>
+<span id="cb46-16"><a href="#cb46-16" aria-hidden="true" tabindex="-1"></a>    ax.scatter(xx, yy, c<span class="op">=</span>f[i], s<span class="op">=</span><span class="dv">320</span>, marker<span class="op">=</span><span class="st">"s"</span>)</span>
+<span id="cb46-17"><a href="#cb46-17" aria-hidden="true" tabindex="-1"></a>    ax.grid(<span class="va">False</span>)</span>
+<span id="cb46-18"><a href="#cb46-18" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"Group </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="hsgp_2d_files/figure-html/cell-30-output-1.png" class="img-fluid"></p>
 </div>
 </div>
-<div class="cell" data-execution_count="38">
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.DataFrame(</span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>    {</span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"x"</span>: np.tile(xx.flatten(), <span class="dv">3</span>),</span>
-<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"y"</span>: np.tile(yy.flatten(), <span class="dv">3</span>),</span>
-<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"group"</span>: np.repeat(<span class="bu">list</span>(<span class="st">"ABC"</span>), <span class="dv">12</span> <span class="op">*</span> <span class="dv">12</span>),</span>
-<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"outcome"</span>: f.flatten()</span>
-<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>    {</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"x"</span>: np.tile(xx.flatten(), <span class="dv">3</span>),</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"y"</span>: np.tile(yy.flatten(), <span class="dv">3</span>),</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"group"</span>: np.repeat(<span class="bu">list</span>(<span class="st">"ABC"</span>), <span class="dv">12</span> <span class="op">*</span> <span class="dv">12</span>),</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"outcome"</span>: f.flatten()</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="39">
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>prior_hsgp <span class="op">=</span> {</span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"Exponential"</span>, lam<span class="op">=</span><span class="dv">3</span>),</span>
-<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ell"</span>: bmb.Prior(<span class="st">"InverseGamma"</span>, mu<span class="op">=</span><span class="dv">2</span>, sigma<span class="op">=</span><span class="fl">0.2</span>),</span>
-<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
-<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsgp(x, y, by=group, c=1.5, m=10, iso=False, share_cov=False)"</span>: prior_hsgp, </span>
-<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"HalfNormal"</span>, sigma<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(</span>
-<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"outcome ~ 0 + hsgp(x, y, by=group, c=1.5, m=10, iso=False, share_cov=False)"</span>, </span>
-<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a>    data, </span>
-<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a>    priors<span class="op">=</span>priors</span>
-<span id="cb51-13"><a href="#cb51-13" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb51-14"><a href="#cb51-14" aria-hidden="true" tabindex="-1"></a>model.set_alias({<span class="st">"hsgp(x, y, by=group, c=1.5, m=10, iso=False, share_cov=False)"</span>: <span class="st">"hsgp"</span>})</span>
-<span id="cb51-15"><a href="#cb51-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model)</span>
-<span id="cb51-16"><a href="#cb51-16" aria-hidden="true" tabindex="-1"></a>model.build()</span>
-<span id="cb51-17"><a href="#cb51-17" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>prior_hsgp <span class="op">=</span> {</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"Exponential"</span>, lam<span class="op">=</span><span class="dv">3</span>),</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ell"</span>: bmb.Prior(<span class="st">"InverseGamma"</span>, mu<span class="op">=</span><span class="dv">2</span>, sigma<span class="op">=</span><span class="fl">0.2</span>),</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsgp(x, y, by=group, c=1.5, m=10, iso=False, share_cov=False)"</span>: prior_hsgp, </span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"HalfNormal"</span>, sigma<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(</span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"outcome ~ 0 + hsgp(x, y, by=group, c=1.5, m=10, iso=False, share_cov=False)"</span>, </span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>    data, </span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a>    priors<span class="op">=</span>priors</span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a>model.set_alias({<span class="st">"hsgp(x, y, by=group, c=1.5, m=10, iso=False, share_cov=False)"</span>: <span class="st">"hsgp"</span>})</span>
+<span id="cb48-15"><a href="#cb48-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model)</span>
+<span id="cb48-16"><a href="#cb48-16" aria-hidden="true" tabindex="-1"></a>model.build()</span>
+<span id="cb48-17"><a href="#cb48-17" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       Formula: outcome ~ 0 + hsgp(x, y, by=group, c=1.5, m=10, iso=False, share_cov=False)
         Family: gaussian
@@ -1148,53 +1013,28 @@ Transformation time =  0:00:00.249682
                 ell ~ InverseGamma(mu: 2.0, sigma: 0.2)
         
         Auxiliary parameters
-            outcome_sigma ~ HalfNormal(sigma: 2.0)</code></pre>
+            sigma ~ HalfNormal(sigma: 2.0)</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="39">
+<div class="cell-output cell-output-display" data-execution_count="32">
 <p><img src="hsgp_2d_files/figure-html/cell-32-output-2.svg" class="img-fluid"></p>
 </div>
 </div>
-<div class="cell" data-execution_count="40">
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(inference_method<span class="op">=</span><span class="st">"nuts_numpyro"</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>)</span>
-<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(idata.sample_stats.diverging.<span class="bu">sum</span>().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Compiling...
-Compilation time =  0:00:03.955870
-Sampling...</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"2abb5e4c45c64ca5812c8ca1ca083b02","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"c8481fac367a4e29b1ff1e0bbd7786fd","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"49096ff3065e4ce2bae9b91b1169734f","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"b7b26a9371a64c459f6d3685761ae0ba","version_major":2,"version_minor":0}
-</script>
+<div class="cell" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(inference_method<span class="op">=</span><span class="st">"numpyro_nuts"</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>, num_chains<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(idata.sample_stats.diverging.<span class="bu">sum</span>().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>sample: 100%|████████████████████████████████████████████████████████████████| 1500/1500 [00:52&lt;00:00, 28.43it/s]</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Sampling time =  0:00:20.713181
-Transforming variables...
-Transformation time =  0:00:00.513813
-0</code></pre>
+<pre><code>0</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="41">
-<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
-<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
-<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"hsgp_sigma"</span>, <span class="st">"hsgp_ell"</span>, <span class="st">"outcome_sigma"</span>], </span>
-<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>    backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>}</span>
-<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="34">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"hsgp_sigma"</span>, <span class="st">"hsgp_ell"</span>, <span class="st">"sigma"</span>], </span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>    backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>}</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="hsgp_2d_files/figure-html/cell-34-output-1.png" class="img-fluid"></p>
 </div>
@@ -1204,15 +1044,15 @@ Transformation time =  0:00:00.513813
 <section id="a-more-complex-example-poisson-likelihood-with-group-specific-effects" class="level2">
 <h2 class="anchored" data-anchor-id="a-more-complex-example-poisson-likelihood-with-group-specific-effects">A more complex example: Poisson likelihood with group-specific effects</h2>
 <p>For this final demonstration we’re going to use a simulated dataset where the outcome is a count variable. For the predictors, we have the location in terms of the latitude and longitude, as well as other variables such as the year of the measurement, the site where the measure was made, and one continuous predictor.</p>
-<div class="cell" data-execution_count="42">
-<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">"data/poisson_data.csv"</span>)</span>
-<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"Year"</span>] <span class="op">=</span> pd.Categorical(data[<span class="st">"Year"</span>])</span>
-<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(data.shape)</span>
-<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="35">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">"data/poisson_data.csv"</span>)</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"Year"</span>] <span class="op">=</span> pd.Categorical(data[<span class="st">"Year"</span>])</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(data.shape)</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(100, 6)</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="42">
+<div class="cell-output cell-output-display" data-execution_count="35">
 
 <div>
 
@@ -1280,15 +1120,15 @@ Transformation time =  0:00:00.513813
 </div>
 </div>
 <p>We can visualize the outcome variable by location and year.</p>
-<div class="cell" data-execution_count="43">
-<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>))</span>
-<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, (ax, year) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(axes, [<span class="dv">2015</span>, <span class="dv">2016</span>])):</span>
-<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>    mask <span class="op">=</span> data[<span class="st">"Year"</span>] <span class="op">==</span> year</span>
-<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> data.loc[mask, <span class="st">"Lat"</span>]</span>
-<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> data.loc[mask, <span class="st">"Lon"</span>]</span>
-<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a>    count <span class="op">=</span> data.loc[mask, <span class="st">"Count"</span>]</span>
-<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a>    ax.scatter(x, y, c<span class="op">=</span>count, s<span class="op">=</span><span class="dv">30</span>, marker<span class="op">=</span><span class="st">"s"</span>)</span>
-<span id="cb59-8"><a href="#cb59-8" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"Year </span><span class="sc">{</span>year<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="36">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>))</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, (ax, year) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(axes, [<span class="dv">2015</span>, <span class="dv">2016</span>])):</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>    mask <span class="op">=</span> data[<span class="st">"Year"</span>] <span class="op">==</span> year</span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> data.loc[mask, <span class="st">"Lat"</span>]</span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> data.loc[mask, <span class="st">"Lon"</span>]</span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>    count <span class="op">=</span> data.loc[mask, <span class="st">"Count"</span>]</span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>    ax.scatter(x, y, c<span class="op">=</span>count, s<span class="op">=</span><span class="dv">30</span>, marker<span class="op">=</span><span class="st">"s"</span>)</span>
+<span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"Year </span><span class="sc">{</span>year<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="hsgp_2d_files/figure-html/cell-36-output-1.png" class="img-fluid"></p>
 </div>
@@ -1296,11 +1136,11 @@ Transformation time =  0:00:00.513813
 <p>There’s not much we can conclude from here but it’s not a problem. The most relevant part of the example is not the data itself, but how to use Bambi to include GP components in a complex model.</p>
 <p>It’s very easy to create a model that uses both regular common and group-specific predictors as well as a GP contribution term. We just add them to the model formula, treat <code>hsgp()</code> as any other call, and that’s it!</p>
 <p>Below we have common effects for the Year, the interaction between X1 and Year, and group-specific intercepts by Site. Finally, we add <code>hsgp()</code> as any other call.</p>
-<div class="cell" data-execution_count="44">
-<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>formula <span class="op">=</span> <span class="st">"Count ~ 0 + Year + X1:Year + (1|Site) + hsgp(Lon, Lat, by=Year, m=5, c=1.5)"</span></span>
-<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(formula, data, family<span class="op">=</span><span class="st">"poisson"</span>)</span>
-<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="44">
+<div class="cell" data-execution_count="37">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>formula <span class="op">=</span> <span class="st">"Count ~ 0 + Year + X1:Year + (1|Site) + hsgp(Lon, Lat, by=Year, m=5, c=1.5)"</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(formula, data, family<span class="op">=</span><span class="st">"poisson"</span>)</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="37">
 <pre><code>       Formula: Count ~ 0 + Year + X1:Year + (1|Site) + hsgp(Lon, Lat, by=Year, m=5, c=1.5)
         Family: poisson
           Link: mu = log
@@ -1322,77 +1162,52 @@ Transformation time =  0:00:00.513813
 </div>
 </div>
 <p>Let’s use an alias to make the graph representation more readable.</p>
-<div class="cell" data-execution_count="45">
-<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>model.set_alias({<span class="st">"hsgp(Lon, Lat, by=Year, m=5, c=1.5)"</span>: <span class="st">"gp"</span>})</span>
-<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>model.build()</span>
-<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="45">
+<div class="cell" data-execution_count="38">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>model.set_alias({<span class="st">"hsgp(Lon, Lat, by=Year, m=5, c=1.5)"</span>: <span class="st">"gp"</span>})</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>model.build()</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="38">
 <p><img src="hsgp_2d_files/figure-html/cell-38-output-1.svg" class="img-fluid"></p>
 </div>
 </div>
 <p>And finally, let’s fit the model.</p>
-<div class="cell" data-execution_count="46">
-<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(inference_method<span class="op">=</span><span class="st">"nuts_numpyro"</span>, target_accept<span class="op">=</span><span class="fl">0.99</span>)</span>
-<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(idata.sample_stats.diverging.<span class="bu">sum</span>().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Compiling...
-Compilation time =  0:00:04.433012
-Sampling...</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"36ea88e4baa440568a04e7f00bc8f557","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"b1707fdd37d44343bda40d092d075ee2","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"2f472a6cfdcc49ac9eb1c61974822a3f","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"9106c4fff104476090febc51422db474","version_major":2,"version_minor":0}
-</script>
+<div class="cell" data-execution_count="39">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(inference_method<span class="op">=</span><span class="st">"numpyro_nuts"</span>, target_accept<span class="op">=</span><span class="fl">0.99</span>, num_chains<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(idata.sample_stats.diverging.<span class="bu">sum</span>().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>sample: 100%|████████████████████████████████████████████████████████████████| 1500/1500 [00:18&lt;00:00, 79.90it/s]</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Sampling time =  0:00:09.698066
-Transforming variables...
-Transformation time =  0:00:00.668909
-15</code></pre>
+<pre><code>143</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="47">
-<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
-<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
-<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"gp_sigma"</span>, <span class="st">"gp_ell"</span>, <span class="st">"gp_weights"</span>], </span>
-<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>    backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>}</span>
-<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="40">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"gp_sigma"</span>, <span class="st">"gp_ell"</span>, <span class="st">"gp_weights"</span>], </span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a>    backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>}</span>
+<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="hsgp_2d_files/figure-html/cell-40-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>Notice the posteriors for the <code>gp_weights</code> are all centered at zero. This is a symptom of the absence of any spatial effect.</p>
-<div class="cell" data-execution_count="48">
-<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
-<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
-<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"Year"</span>, <span class="st">"X1:Year"</span>], </span>
-<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a>    backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>}</span>
-<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="41">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"Year"</span>, <span class="st">"X1:Year"</span>], </span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>    backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>}</span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="hsgp_2d_files/figure-html/cell-41-output-1.png" class="img-fluid"></p>
 </div>
 </div>
-<div class="cell" data-execution_count="49">
-<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
-<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
-<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"1|Site"</span>, <span class="st">"1|Site_sigma"</span>], </span>
-<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>    backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>}</span>
-<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="42">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"1|Site"</span>, <span class="st">"1|Site_sigma"</span>], </span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>    backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>}</span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="hsgp_2d_files/figure-html/cell-42-output-1.png" class="img-fluid"></p>
 </div>

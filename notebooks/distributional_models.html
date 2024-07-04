@@ -126,6 +126,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
@@ -510,43 +511,28 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [y_alpha, Intercept, x]</code></pre>
+NUTS: [alpha, Intercept, x]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"d3535478b6a84f27a90afa6614203f14","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:03&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 4 seconds.
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 8 seconds.
 We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 <p>Once the model is fitted let’s visually inspect the result in terms of the mean (the line in the following figure) and the individual predictions (the band).</p>
 <div class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>model_constant.predict(idata_constant, kind<span class="op">=</span><span class="st">"mean"</span>, data<span class="op">=</span>new_data)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>model_constant.predict(idata_constant, kind<span class="op">=</span><span class="st">"pps"</span>, data<span class="op">=</span>new_data)</span>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>model_constant.predict(idata_constant, kind<span class="op">=</span><span class="st">"response_params"</span>, data<span class="op">=</span>new_data)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>model_constant.predict(idata_constant, kind<span class="op">=</span><span class="st">"response"</span>, data<span class="op">=</span>new_data)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>qts_constant <span class="op">=</span> (</span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    az.extract(idata_constant.posterior_predictive, var_names<span class="op">=</span><span class="st">"y"</span>)</span>
@@ -606,7 +592,11 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 <p>Take another moment to inspect the textual and visual representations of <code>model_varying</code> and also go back and compare those from <code>model_constant</code>.</p>
 <div class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>idata_varying <span class="op">=</span> model_varying.fit(random_seed<span class="op">=</span><span class="dv">121195</span>, idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>idata_varying <span class="op">=</span> model_varying.fit(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="dv">121195</span>, </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>},</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    include_response_params<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
@@ -614,33 +604,18 @@ Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [Intercept, x, alpha_Intercept, alpha_x]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"c03fd732a6974b459a6b03de327edc2c","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:03&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 4 seconds.
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 8 seconds.
 We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
@@ -648,12 +623,12 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.5</span>), dpi<span class="op">=</span><span class="dv">120</span>)</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> idx <span class="kw">in</span> idata_varying.posterior.coords.get(<span class="st">"y_obs"</span>):</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    values <span class="op">=</span> idata_varying.posterior[<span class="st">"alpha"</span>].sel(y_obs<span class="op">=</span>idx).to_numpy().flatten()</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> idx <span class="kw">in</span> idata_varying.posterior.coords.get(<span class="st">"__obs__"</span>):</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    values <span class="op">=</span> idata_varying.posterior[<span class="st">"alpha"</span>].sel(__obs__<span class="op">=</span>idx).to_numpy().flatten()</span>
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    grid, pdf <span class="op">=</span> az.kde(values)</span>
 <span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    ax.plot(grid, pdf, lw<span class="op">=</span><span class="fl">0.05</span>, color<span class="op">=</span><span class="st">"k"</span>)</span>
 <span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>values <span class="op">=</span> idata_constant.posterior[<span class="st">"y_alpha"</span>].to_numpy().flatten()</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>values <span class="op">=</span> idata_constant.posterior[<span class="st">"alpha"</span>].to_numpy().flatten()</span>
 <span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>grid, pdf <span class="op">=</span> az.kde(values)</span>
 <span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>ax.plot(grid, pdf, lw<span class="op">=</span><span class="dv">2</span>, color<span class="op">=</span><span class="st">"C0"</span>)<span class="op">;</span></span>
 <span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a></span>
@@ -672,8 +647,8 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 <p>This is nice statistical art and a good insight into what the model is actully doing. But at this point you may be wondering how results looks like and more important how different they are from <code>model_constant</code>. Let’s plot the mean and predictions as we did before, but for both models.</p>
 <div class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model_varying.predict(idata_varying, kind<span class="op">=</span><span class="st">"mean"</span>, data<span class="op">=</span>new_data)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>model_varying.predict(idata_varying, kind<span class="op">=</span><span class="st">"pps"</span>, data<span class="op">=</span>new_data)</span>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model_varying.predict(idata_varying, kind<span class="op">=</span><span class="st">"response_params"</span>, data<span class="op">=</span>new_data)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>model_varying.predict(idata_varying, kind<span class="op">=</span><span class="st">"response"</span>, data<span class="op">=</span>new_data)</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>qts_varying <span class="op">=</span> (</span>
 <span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    az.extract(idata_varying.posterior_predictive, var_names<span class="op">=</span><span class="st">"y"</span>)</span>
@@ -727,24 +702,24 @@ We recommend running at least 4 chains for robust computation of convergence dia
     <tr>
       <th>varying</th>
       <td>0</td>
-      <td>-309.191836</td>
-      <td>3.851329</td>
+      <td>-309.143281</td>
+      <td>3.785955</td>
       <td>0.000000</td>
-      <td>0.933024</td>
-      <td>16.458759</td>
-      <td>0.00000</td>
+      <td>0.939557</td>
+      <td>16.468110</td>
+      <td>0.000000</td>
       <td>False</td>
       <td>log</td>
     </tr>
     <tr>
       <th>constant</th>
       <td>1</td>
-      <td>-318.913528</td>
-      <td>2.958351</td>
-      <td>9.721692</td>
-      <td>0.066976</td>
-      <td>15.832033</td>
-      <td>4.59755</td>
+      <td>-318.913529</td>
+      <td>2.958352</td>
+      <td>9.770248</td>
+      <td>0.060443</td>
+      <td>15.832034</td>
+      <td>4.560753</td>
       <td>False</td>
       <td>log</td>
     </tr>
@@ -798,47 +773,32 @@ Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [bs(hour, 8, intercept=True), alpha_bs(hour, 8, intercept=True)]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"acc241ca9564408aa9d88c4d8e63b099","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:18&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 19 seconds.
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 13 seconds.
 We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>hour <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">23</span>, num<span class="op">=</span><span class="dv">200</span>)</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> pd.DataFrame({<span class="st">"hour"</span>: hour})</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>model_bikes.predict(idata_bikes, data<span class="op">=</span>new_data, kind<span class="op">=</span><span class="st">"pps"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>model_bikes.predict(idata_bikes, data<span class="op">=</span>new_data, kind<span class="op">=</span><span class="st">"response"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-scrolled="true" data-execution_count="20">
+<div class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> [<span class="fl">0.025</span>, <span class="fl">0.975</span>]</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>dims <span class="op">=</span> (<span class="st">"chain"</span>, <span class="st">"draw"</span>)</span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>mean <span class="op">=</span> idata_bikes.posterior[<span class="st">"count_mean"</span>].mean(dims).to_numpy()</span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>mean_interval <span class="op">=</span> idata_bikes.posterior[<span class="st">"count_mean"</span>].quantile(q, dims).to_numpy()</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>mean <span class="op">=</span> idata_bikes.posterior[<span class="st">"mu"</span>].mean(dims).to_numpy()</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>mean_interval <span class="op">=</span> idata_bikes.posterior[<span class="st">"mu"</span>].quantile(q, dims).to_numpy()</span>
 <span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>y_interval <span class="op">=</span> idata_bikes.posterior_predictive[<span class="st">"count"</span>].quantile(q, dims).to_numpy()</span>
 <span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>))</span>
@@ -854,19 +814,19 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Wed Jun 28 2023
+<pre><code>Last updated: Thu Jul 04 2024
 
 Python implementation: CPython
-Python version       : 3.10.4
-IPython version      : 8.5.0
+Python version       : 3.11.9
+IPython version      : 8.24.0
 
-pandas    : 2.0.2
-bambi     : 0.12.0.dev0
-matplotlib: 3.6.2
-numpy     : 1.25.0
-arviz     : 0.14.0
+numpy     : 1.26.4
+arviz     : 0.18.0
+matplotlib: 3.8.4
+pandas    : 2.2.2
+bambi     : 0.13.1.dev45+ge8510ea5.d20240704
 
-Watermark: 2.3.1
+Watermark: 2.4.3
 </code></pre>
 </div>
 </div>

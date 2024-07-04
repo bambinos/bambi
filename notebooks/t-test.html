@@ -126,6 +126,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
@@ -519,7 +520,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>az.plot_violin({<span class="st">"a"</span>: a, <span class="st">"b"</span>: b})<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/arviz/plots/backends/matplotlib/violinplot.py:64: UserWarning: This figure was using a layout engine that is incompatible with subplots_adjust and/or tight_layout; not calling subplots_adjust.
+<pre><code>/home/tomas/anaconda3/envs/bambi-dev/lib/python3.11/site-packages/arviz/plots/backends/matplotlib/violinplot.py:65: UserWarning: This figure was using a layout engine that is incompatible with subplots_adjust and/or tight_layout; not calling subplots_adjust.
   fig.subplots_adjust(wspace=0)</code></pre>
 </div>
 <div class="cell-output cell-output-display">
@@ -557,36 +558,22 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [Val_sigma, Intercept, Group]</code></pre>
+NUTS: [sigma, Intercept, Group]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"8db8a92ae03b4f8590c0b7d4a142afc3","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:03&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 4 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 2 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 <p>We’ve only specified the formula for the model and Bambi automatically selected priors distributions and values for their parameters. We can inspect both the setup and the priors as following:</p>
@@ -601,10 +588,10 @@ NUTS: [Val_sigma, Intercept, Group]</code></pre>
     target = mu
         Common-level effects
             Intercept ~ Normal(mu: 6.9762, sigma: 8.1247)
-            Group ~ Normal(mu: 0, sigma: 12.4107)
+            Group ~ Normal(mu: 0.0, sigma: 12.4107)
         
         Auxiliary parameters
-            Val_sigma ~ HalfStudentT(nu: 4, sigma: 2.4567)
+            sigma ~ HalfStudentT(nu: 4.0, sigma: 2.4567)
 ------
 * To see a plot of the priors call the .plot_priors() method.
 * To see a summary or plot of the posterior pass the object returned by .fit() to az.summary() or az.plot_trace()</code></pre>
@@ -613,7 +600,7 @@ NUTS: [Val_sigma, Intercept, Group]</code></pre>
 <div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:23:39.715077Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:23:38.912684Z&quot;}" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>model_1.plot_priors()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling: [Group, Intercept, Val_sigma]</code></pre>
+<pre><code>Sampling: [Group, Intercept, sigma]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <p><img src="t-test_files/figure-html/cell-9-output-2.png" class="img-fluid"></p>
@@ -650,40 +637,40 @@ NUTS: [Val_sigma, Intercept, Group]</code></pre>
   </thead>
   <tbody>
     <tr>
-      <th>Intercept</th>
-      <td>6.116</td>
-      <td>0.179</td>
-      <td>5.778</td>
-      <td>6.449</td>
-      <td>0.003</td>
-      <td>0.002</td>
-      <td>3290.0</td>
-      <td>1795.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
       <th>Group[b]</th>
-      <td>2.005</td>
-      <td>0.270</td>
-      <td>1.498</td>
-      <td>2.507</td>
+      <td>2.004</td>
+      <td>0.265</td>
+      <td>1.548</td>
+      <td>2.512</td>
       <td>0.005</td>
       <td>0.003</td>
-      <td>3537.0</td>
-      <td>1634.0</td>
-      <td>1.00</td>
+      <td>3036.0</td>
+      <td>1618.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
-      <th>Val_sigma</th>
-      <td>2.261</td>
-      <td>0.092</td>
-      <td>2.077</td>
-      <td>2.423</td>
+      <th>Intercept</th>
+      <td>6.117</td>
+      <td>0.180</td>
+      <td>5.777</td>
+      <td>6.459</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>3049.0</td>
+      <td>1512.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>sigma</th>
+      <td>2.265</td>
+      <td>0.096</td>
+      <td>2.087</td>
+      <td>2.444</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>3217.0</td>
-      <td>1551.0</td>
-      <td>1.01</td>
+      <td>3570.0</td>
+      <td>1662.0</td>
+      <td>1.0</td>
     </tr>
   </tbody>
 </table>
@@ -738,36 +725,22 @@ NUTS: [Val_sigma, Intercept, Group]</code></pre>
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [Val_sigma, Group]</code></pre>
+NUTS: [sigma, Group]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"07e5ee5bc14d4d12a5c696b9631437fd","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:02&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 3 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 2 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 <p>We’ve only specified the formula for the model and Bambi automatically selected priors distributions and values for their parameters. We can inspect both the setup and the priors as following:</p>
@@ -784,7 +757,7 @@ NUTS: [Val_sigma, Group]</code></pre>
             Group ~ Normal(mu: [0. 0.], sigma: [12.4107 12.4107])
         
         Auxiliary parameters
-            Val_sigma ~ HalfStudentT(nu: 4, sigma: 2.4567)
+            sigma ~ HalfStudentT(nu: 4.0, sigma: 2.4567)
 ------
 * To see a plot of the priors call the .plot_priors() method.
 * To see a summary or plot of the posterior pass the object returned by .fit() to az.summary() or az.plot_trace()</code></pre>
@@ -793,7 +766,7 @@ NUTS: [Val_sigma, Group]</code></pre>
 <div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:23:39.715077Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:23:38.912684Z&quot;}" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>model_2.plot_priors()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling: [Group, Val_sigma]</code></pre>
+<pre><code>Sampling: [Group, sigma]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <p><img src="t-test_files/figure-html/cell-16-output-2.png" class="img-fluid"></p>
@@ -831,39 +804,39 @@ NUTS: [Val_sigma, Group]</code></pre>
   <tbody>
     <tr>
       <th>Group[a]</th>
-      <td>6.113</td>
+      <td>6.124</td>
       <td>0.177</td>
-      <td>5.806</td>
-      <td>6.465</td>
+      <td>5.778</td>
+      <td>6.431</td>
       <td>0.003</td>
       <td>0.002</td>
-      <td>2973.0</td>
-      <td>1385.0</td>
-      <td>1.0</td>
+      <td>2735.0</td>
+      <td>1407.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>Group[b]</th>
-      <td>8.117</td>
-      <td>0.209</td>
-      <td>7.724</td>
-      <td>8.506</td>
+      <td>8.115</td>
+      <td>0.203</td>
+      <td>7.708</td>
+      <td>8.474</td>
       <td>0.004</td>
       <td>0.003</td>
-      <td>3341.0</td>
-      <td>1662.0</td>
-      <td>1.0</td>
+      <td>3086.0</td>
+      <td>1621.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
-      <th>Val_sigma</th>
-      <td>2.263</td>
+      <th>sigma</th>
+      <td>2.265</td>
       <td>0.099</td>
-      <td>2.082</td>
-      <td>2.446</td>
+      <td>2.075</td>
+      <td>2.437</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>2727.0</td>
-      <td>1454.0</td>
-      <td>1.0</td>
+      <td>2884.0</td>
+      <td>1630.0</td>
+      <td>1.01</td>
     </tr>
   </tbody>
 </table>
@@ -891,20 +864,19 @@ NUTS: [Val_sigma, Group]</code></pre>
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Thu Jan 05 2023
+<pre><code>Last updated: Sat May 25 2024
 
 Python implementation: CPython
-Python version       : 3.10.4
-IPython version      : 8.5.0
+Python version       : 3.11.9
+IPython version      : 8.24.0
 
-matplotlib: 3.6.2
-pandas    : 1.5.2
-bambi     : 0.9.3
-arviz     : 0.14.0
-numpy     : 1.23.5
-sys       : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
+pandas    : 2.2.2
+matplotlib: 3.8.4
+arviz     : 0.18.0
+bambi     : 0.13.1.dev37+g2a54df76.d20240525
+numpy     : 1.26.4
 
-Watermark: 2.3.1
+Watermark: 2.4.3
 </code></pre>
 </div>
 </div>

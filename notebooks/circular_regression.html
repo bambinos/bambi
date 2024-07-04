@@ -126,6 +126,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
@@ -445,11 +446,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.lines <span class="im">import</span> Line2D</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> stats</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.lines <span class="im">import</span> Line2D</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> stats</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-white"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -530,105 +532,53 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Just to compare results, we are going to use the VonMises family and the normal (default) family.</p>
 <div class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>model_vm <span class="op">=</span> bmb.Model(<span class="st">"direction ~ distance"</span>, data, family<span class="op">=</span><span class="st">"vonmises"</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>idata_vm <span class="op">=</span> model_vm.fit(include_mean<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>idata_vm <span class="op">=</span> model_vm.fit(include_response_params<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>model_n <span class="op">=</span> bmb.Model(<span class="st">"direction ~ distance"</span>, data)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>idata_n <span class="op">=</span> model_n.fit(include_mean<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>idata_n <span class="op">=</span> model_n.fit(include_response_params<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i1 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
-  warn(
-/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i1 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
-  warn(
-Auto-assigning NUTS sampler...
+<pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i0 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
-  warn(
-/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i0 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
-  warn(
-/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i0 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
-  warn(
-/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i0 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
-  warn(
-/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i1 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
-  warn(
-/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i1 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
-  warn(
-/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i0 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
-  warn(
-/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i0 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
-  warn(
-/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i0 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
-  warn(
-/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i0 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
-  warn(
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [direction_kappa, Intercept, distance]</code></pre>
+NUTS: [kappa, Intercept, distance]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"e1d3c4edc3c5459d8280a3ce2c8e3d85","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:06&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 6 seconds.
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 11 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [direction_sigma, Intercept, distance]</code></pre>
+NUTS: [sigma, Intercept, distance]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"a60fb12ea9614a4d9d059d4ac8967241","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:03&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 3 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 7 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>az.summary(idata_vm, var_names<span class="op">=</span>[<span class="st">"~direction_mean"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>az.summary(idata_vm, var_names<span class="op">=</span>[<span class="st">"~mu"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="7">
 
 <div>
@@ -651,38 +601,38 @@ NUTS: [direction_sigma, Intercept, distance]</code></pre>
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>1.667</td>
-      <td>0.325</td>
-      <td>1.069</td>
-      <td>2.253</td>
-      <td>0.011</td>
-      <td>0.008</td>
-      <td>974.0</td>
-      <td>806.0</td>
+      <td>1.699</td>
+      <td>0.334</td>
+      <td>1.075</td>
+      <td>2.305</td>
+      <td>0.012</td>
+      <td>0.009</td>
+      <td>865.0</td>
+      <td>933.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>distance</th>
-      <td>-0.010</td>
+      <td>-0.011</td>
       <td>0.004</td>
-      <td>-0.018</td>
+      <td>-0.019</td>
       <td>-0.002</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1168.0</td>
-      <td>1170.0</td>
+      <td>1046.0</td>
+      <td>1054.0</td>
       <td>1.0</td>
     </tr>
     <tr>
-      <th>direction_kappa</th>
-      <td>2.601</td>
-      <td>0.590</td>
-      <td>1.528</td>
-      <td>3.699</td>
-      <td>0.015</td>
-      <td>0.011</td>
-      <td>1499.0</td>
-      <td>1277.0</td>
+      <th>kappa</th>
+      <td>2.610</td>
+      <td>0.581</td>
+      <td>1.610</td>
+      <td>3.705</td>
+      <td>0.017</td>
+      <td>0.012</td>
+      <td>1194.0</td>
+      <td>1363.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -692,7 +642,7 @@ NUTS: [direction_sigma, Intercept, distance]</code></pre>
 </div>
 <div class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>_, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">4</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>posterior_mean <span class="op">=</span> bmb.families.link.tan_2(idata_vm.posterior[<span class="st">"direction_mean"</span>])</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>posterior_mean <span class="op">=</span> bmb.families.link.tan_2(idata_vm.posterior[<span class="st">"mu"</span>])</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].plot(data.distance, posterior_mean.mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)))</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>az.plot_hdi(data.distance, posterior_mean, ax<span class="op">=</span>ax[<span class="dv">0</span>])</span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
@@ -701,7 +651,7 @@ NUTS: [direction_sigma, Intercept, distance]</code></pre>
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_ylabel(<span class="st">"Direction of travel (radians)"</span>)</span>
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">"VonMises Family"</span>)</span>
 <span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>posterior_mean <span class="op">=</span> idata_n.posterior[<span class="st">"direction_mean"</span>]</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>posterior_mean <span class="op">=</span> idata_n.posterior[<span class="st">"mu"</span>]</span>
 <span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].plot(data.distance, posterior_mean.mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)))</span>
 <span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>az.plot_hdi(data.distance, posterior_mean, ax<span class="op">=</span>ax[<span class="dv">1</span>])</span>
 <span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a></span>
@@ -719,9 +669,9 @@ NUTS: [direction_sigma, Intercept, distance]</code></pre>
 <div class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">5</span>))</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>ax0 <span class="op">=</span> plt.subplot(<span class="dv">121</span>)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>ax1 <span class="op">=</span> plt.subplot(<span class="dv">122</span>, projection<span class="op">=</span><span class="st">'polar'</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>ax1 <span class="op">=</span> plt.subplot(<span class="dv">122</span>, projection<span class="op">=</span><span class="st">"polar"</span>)</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>model_vm.predict(idata_vm, kind<span class="op">=</span><span class="st">"pps"</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>model_vm.predict(idata_vm, kind<span class="op">=</span><span class="st">"response"</span>)</span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>pp_samples <span class="op">=</span> az.extract_dataset(idata_vm, group<span class="op">=</span><span class="st">"posterior_predictive"</span>, num_samples<span class="op">=</span><span class="dv">200</span>)[<span class="st">"direction"</span>]</span>
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [<span class="st">"C0"</span> , <span class="st">"k"</span>, <span class="st">"C1"</span>]</span>
 <span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
@@ -739,7 +689,7 @@ NUTS: [direction_sigma, Intercept, distance]</code></pre>
 <span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>ax0.set_yticks([])</span>
 <span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">"Directions (radians)"</span>, fontsize<span class="op">=</span><span class="dv">18</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/tmp/ipykernel_21333/4056881271.py:6: FutureWarning: extract_dataset has been deprecated, please use extract
+<pre><code>/tmp/ipykernel_46393/706974292.py:6: FutureWarning: extract_dataset has been deprecated, please use extract
   pp_samples = az.extract_dataset(idata_vm, group="posterior_predictive", num_samples=200)["direction"]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
@@ -757,21 +707,20 @@ NUTS: [direction_sigma, Intercept, distance]</code></pre>
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Thu Jan 05 2023
+<pre><code>Last updated: Thu Jul 04 2024
 
 Python implementation: CPython
-Python version       : 3.10.4
-IPython version      : 8.5.0
+Python version       : 3.11.9
+IPython version      : 8.24.0
 
-scipy     : 1.9.3
-bambi     : 0.9.3
-numpy     : 1.23.5
-arviz     : 0.14.0
-pandas    : 1.5.2
-matplotlib: 3.6.2
-sys       : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
+pandas    : 2.2.2
+bambi     : 0.13.1.dev45+ge8510ea5.d20240704
+matplotlib: 3.8.4
+scipy     : 1.13.0
+numpy     : 1.26.4
+arviz     : 0.18.0
 
-Watermark: 2.3.1
+Watermark: 2.4.3
 </code></pre>
 </div>
 </div>

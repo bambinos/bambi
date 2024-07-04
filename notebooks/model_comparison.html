@@ -126,6 +126,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
@@ -624,8 +625,12 @@ memory usage: 604.7 KB</code></pre>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">2</span>, <span class="dv">0</span>].set_xlabel(<span class="st">"Hours of work / week"</span>)</span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">2</span>, <span class="dv">0</span>].set_ylabel(<span class="st">"Count"</span>)</span>
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">2</span>, <span class="dv">1</span>].axis(<span class="st">'off'</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/tmp/ipykernel_41813/1570134311.py:5: UserWarning: set_ticklabels() should only be used with a fixed number of ticks, i.e. after set_ticks() or using a FixedLocator.
+  axes[1, 0].set_xticklabels(truncate_labels(axes[1, 0].get_xticklabels()))</code></pre>
+</div>
 <div class="cell-output cell-output-display">
-<p><img src="model_comparison_files/figure-html/cell-8-output-1.png" class="img-fluid"></p>
+<p><img src="model_comparison_files/figure-html/cell-8-output-2.png" class="img-fluid"></p>
 </div>
 </div>
 <p><strong>Highlights</strong></p>
@@ -639,21 +644,21 @@ memory usage: 604.7 KB</code></pre>
 <p>We only keep the races black and white to simplify the analysis. The other categories don’t appear very often in our data.</p>
 <p>Now, we see the distribution of income for the different levels of our explanatory variables. Numerical variables are binned to make the analysis possible.</p>
 <div class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data[data[<span class="st">"race"</span>].isin([<span class="st">"Black"</span>, <span class="st">"White"</span>])]</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"race"</span>] <span class="op">=</span> data[<span class="st">"race"</span>].cat.remove_unused_categories()</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>age_bins <span class="op">=</span> [<span class="dv">17</span>, <span class="dv">25</span>, <span class="dv">35</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">90</span>]</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"age_binned"</span>] <span class="op">=</span> pd.cut(data[<span class="st">"age"</span>], age_bins)</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>hours_bins <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">100</span>]</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"hs_week_binned"</span>] <span class="op">=</span> pd.cut(data[<span class="st">"hs_week"</span>], hours_bins)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data[data[<span class="st">"race"</span>].isin([<span class="st">"Black"</span>, <span class="st">"White"</span>])]</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"race"</span>] <span class="op">=</span> data[<span class="st">"race"</span>].cat.remove_unused_categories()</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>age_bins <span class="op">=</span> [<span class="dv">17</span>, <span class="dv">25</span>, <span class="dv">35</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">90</span>]</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"age_binned"</span>] <span class="op">=</span> pd.cut(data[<span class="st">"age"</span>], age_bins)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>hours_bins <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">100</span>]</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"hs_week_binned"</span>] <span class="op">=</span> pd.cut(data[<span class="st">"hs_week"</span>], hours_bins)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">15</span>))</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>sns.countplot(x<span class="op">=</span><span class="st">"income"</span>, color<span class="op">=</span><span class="st">"C0"</span>, data<span class="op">=</span>data, ax<span class="op">=</span>axes[<span class="dv">0</span>, <span class="dv">0</span>])</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>sns.countplot(x<span class="op">=</span><span class="st">"sex"</span>, hue<span class="op">=</span><span class="st">"income"</span>, data<span class="op">=</span>data, ax<span class="op">=</span>axes[<span class="dv">0</span>, <span class="dv">1</span>])</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>sns.countplot(x<span class="op">=</span><span class="st">"race"</span>, hue<span class="op">=</span><span class="st">"income"</span>, data<span class="op">=</span>data, ax<span class="op">=</span>axes[<span class="dv">1</span>, <span class="dv">0</span>])</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>sns.countplot(x<span class="op">=</span><span class="st">"age_binned"</span>, hue<span class="op">=</span><span class="st">"income"</span>, data<span class="op">=</span>data, ax<span class="op">=</span>axes[<span class="dv">1</span>, <span class="dv">1</span>])</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>sns.countplot(x<span class="op">=</span><span class="st">"hs_week_binned"</span>, hue<span class="op">=</span><span class="st">"income"</span>, data<span class="op">=</span>data, ax<span class="op">=</span>axes[<span class="dv">2</span>, <span class="dv">0</span>])</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">2</span>, <span class="dv">1</span>].axis(<span class="st">"off"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">15</span>))</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>sns.countplot(x<span class="op">=</span><span class="st">"income"</span>, color<span class="op">=</span><span class="st">"C0"</span>, data<span class="op">=</span>data, ax<span class="op">=</span>axes[<span class="dv">0</span>, <span class="dv">0</span>])</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>sns.countplot(x<span class="op">=</span><span class="st">"sex"</span>, hue<span class="op">=</span><span class="st">"income"</span>, data<span class="op">=</span>data, ax<span class="op">=</span>axes[<span class="dv">0</span>, <span class="dv">1</span>])</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>sns.countplot(x<span class="op">=</span><span class="st">"race"</span>, hue<span class="op">=</span><span class="st">"income"</span>, data<span class="op">=</span>data, ax<span class="op">=</span>axes[<span class="dv">1</span>, <span class="dv">0</span>])</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>sns.countplot(x<span class="op">=</span><span class="st">"age_binned"</span>, hue<span class="op">=</span><span class="st">"income"</span>, data<span class="op">=</span>data, ax<span class="op">=</span>axes[<span class="dv">1</span>, <span class="dv">1</span>])</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>sns.countplot(x<span class="op">=</span><span class="st">"hs_week_binned"</span>, hue<span class="op">=</span><span class="st">"income"</span>, data<span class="op">=</span>data, ax<span class="op">=</span>axes[<span class="dv">2</span>, <span class="dv">0</span>])</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">2</span>, <span class="dv">1</span>].axis(<span class="st">"off"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="model_comparison_files/figure-html/cell-10-output-1.png" class="img-fluid"></p>
 </div>
@@ -667,23 +672,23 @@ memory usage: 604.7 KB</code></pre>
 </ul>
 <p>Some data preparation before fitting our model. Here we standardize numerical variables <strong>age</strong> and <strong>hs_week</strong> because it may help sampler convergence. Also, we compute their second and third power. These powers will be sequantialy added to the model.</p>
 <div class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>age_mean <span class="op">=</span> np.mean(data[<span class="st">"age"</span>])</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>age_std <span class="op">=</span> np.std(data[<span class="st">"age"</span>])</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>hs_mean <span class="op">=</span> np.mean(data[<span class="st">"hs_week"</span>])</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>hs_std <span class="op">=</span> np.std(data[<span class="st">"hs_week"</span>])</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"age"</span>] <span class="op">=</span> (data[<span class="st">"age"</span>] <span class="op">-</span> age_mean) <span class="op">/</span> age_std</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"age2"</span>] <span class="op">=</span> data[<span class="st">"age"</span>] <span class="op">**</span> <span class="dv">2</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"age3"</span>] <span class="op">=</span> data[<span class="st">"age"</span>] <span class="op">**</span> <span class="dv">3</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"hs_week"</span>] <span class="op">=</span> (data[<span class="st">"hs_week"</span>] <span class="op">-</span> hs_mean) <span class="op">/</span> hs_std</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"hs_week2"</span>] <span class="op">=</span> data[<span class="st">"hs_week"</span>] <span class="op">**</span> <span class="dv">2</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"hs_week3"</span>] <span class="op">=</span> data[<span class="st">"hs_week"</span>] <span class="op">**</span> <span class="dv">3</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data.drop(columns<span class="op">=</span>[<span class="st">"age_binned"</span>, <span class="st">"hs_week_binned"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>age_mean <span class="op">=</span> np.mean(data[<span class="st">"age"</span>])</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>age_std <span class="op">=</span> np.std(data[<span class="st">"age"</span>])</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>hs_mean <span class="op">=</span> np.mean(data[<span class="st">"hs_week"</span>])</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>hs_std <span class="op">=</span> np.std(data[<span class="st">"hs_week"</span>])</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"age"</span>] <span class="op">=</span> (data[<span class="st">"age"</span>] <span class="op">-</span> age_mean) <span class="op">/</span> age_std</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"age2"</span>] <span class="op">=</span> data[<span class="st">"age"</span>] <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"age3"</span>] <span class="op">=</span> data[<span class="st">"age"</span>] <span class="op">**</span> <span class="dv">3</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"hs_week"</span>] <span class="op">=</span> (data[<span class="st">"hs_week"</span>] <span class="op">-</span> hs_mean) <span class="op">/</span> hs_std</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"hs_week2"</span>] <span class="op">=</span> data[<span class="st">"hs_week"</span>] <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"hs_week3"</span>] <span class="op">=</span> data[<span class="st">"hs_week"</span>] <span class="op">**</span> <span class="dv">3</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data.drop(columns<span class="op">=</span>[<span class="st">"age_binned"</span>, <span class="st">"hs_week_binned"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>This is how our data looks like before fitting the models.</p>
 <div class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="11">
 
 <div>
@@ -802,8 +807,8 @@ memory usage: 604.7 KB</code></pre>
 <p>Where:</p>
 <p><span class="math display">\[
 \begin{split}
-X_1 &amp;= \displaystyle \frac{\text{Age} - \text{Age}_{\text{mean}}}{\text{Age}_{\text{std}}} \\
-X_2 &amp;= \displaystyle \frac{\text{Hours\_week} - \text{Hours\_week}_{\text{mean}}}{\text{Hours\_week}_{\text{std}}} \\
+X_1 &amp;= \displaystyle \frac{\text{Age} - \text{mean(Age)}}{\text{std(Age)}} \\
+X_2 &amp;= \displaystyle \frac{\text{Hours week} - \text{mean(Hours week)}}{\text{std(Hours week)}} \\
 X_3 &amp;=
 \left\{
     \begin{array}{ll}
@@ -821,8 +826,8 @@ X_4 &amp;=
 \end{split}
 \]</span></p>
 <div class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>model1 <span class="op">=</span> bmb.Model(<span class="st">"income['&gt;50K'] ~ sex + race + age + hs_week"</span>, data, family<span class="op">=</span><span class="st">"bernoulli"</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>fitted1 <span class="op">=</span> model1.fit(draws<span class="op">=</span><span class="dv">1000</span>, idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>model1 <span class="op">=</span> bmb.Model(<span class="st">"income['&gt;50K'] ~ sex + race + age + hs_week"</span>, data, family<span class="op">=</span><span class="st">"bernoulli"</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>fitted1 <span class="op">=</span> model1.fit(draws<span class="op">=</span><span class="dv">1000</span>, idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Modeling the probability that income==&gt;50K
 Auto-assigning NUTS sampler...
@@ -831,38 +836,24 @@ Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [Intercept, sex, race, age, hs_week]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"9ca6293081cd45d09101c56576ce645f","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:20&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 21 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 23 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(fitted1)<span class="op">;</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>az.summary(fitted1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(fitted1)<span class="op">;</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>az.summary(fitted1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="13">
 
 <div>
@@ -887,60 +878,60 @@ NUTS: [Intercept, sex, race, age, hs_week]</code></pre>
       <th>Intercept</th>
       <td>-2.635</td>
       <td>0.062</td>
-      <td>-2.757</td>
-      <td>-2.525</td>
+      <td>-2.752</td>
+      <td>-2.516</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>2457.0</td>
-      <td>1739.0</td>
+      <td>2651.0</td>
+      <td>1600.0</td>
       <td>1.0</td>
     </tr>
     <tr>
-      <th>sex[Male]</th>
-      <td>1.018</td>
-      <td>0.037</td>
-      <td>0.948</td>
-      <td>1.087</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>2141.0</td>
-      <td>1572.0</td>
+      <th>age</th>
+      <td>0.579</td>
+      <td>0.015</td>
+      <td>0.551</td>
+      <td>0.605</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>1636.0</td>
+      <td>1697.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>hs_week</th>
+      <td>0.505</td>
+      <td>0.014</td>
+      <td>0.478</td>
+      <td>0.532</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>1667.0</td>
+      <td>1507.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>race[White]</th>
       <td>0.630</td>
       <td>0.058</td>
-      <td>0.532</td>
-      <td>0.751</td>
+      <td>0.525</td>
+      <td>0.745</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>3060.0</td>
-      <td>1566.0</td>
+      <td>2870.0</td>
+      <td>1646.0</td>
       <td>1.0</td>
     </tr>
     <tr>
-      <th>age</th>
-      <td>0.578</td>
-      <td>0.015</td>
-      <td>0.554</td>
-      <td>0.608</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>1837.0</td>
-      <td>1281.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>hs_week</th>
-      <td>0.504</td>
-      <td>0.015</td>
-      <td>0.477</td>
-      <td>0.533</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>2047.0</td>
-      <td>1568.0</td>
+      <th>sex[Male]</th>
+      <td>1.019</td>
+      <td>0.037</td>
+      <td>0.952</td>
+      <td>1.089</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>2502.0</td>
+      <td>1684.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -959,10 +950,10 @@ NUTS: [Intercept, sex, race, age, hs_week]</code></pre>
                                          + \beta_5 X_3 + \beta_6 X_4
 \]</span></p>
 <p>Where:</p>
-$$
-<span class="math display">\[\begin{aligned}
-    X_1 &amp;= \displaystyle \frac{\text{Age} - \text{Age}_{\text{mean}}}{\text{Age}_{\text{std}}} \\
-    X_2 &amp;= \displaystyle \frac{\text{Hours\_week} - \text{Hours\_week}_{\text{mean}}}{\text{Hours\_week}_{\text{std}}} \\
+<p><span class="math display">\[
+\begin{aligned}
+    X_1 &amp;= \displaystyle \frac{\text{Age} - \text{mean(Age)}}{\text{std(Age)}} \\
+    X_2 &amp;= \displaystyle \frac{\text{Hours week} - \text{mean(Hours week)}}{\text{std(Hours week)}} \\
     X_3 &amp;=
     \left\{
         \begin{array}{ll}
@@ -970,19 +961,18 @@ $$
             0 &amp; \textrm{if the person is female}
         \end{array}
     \right. \\
-
     X_4 &amp;=
     \left\{
         \begin{array}{ll}
             1 &amp; \textrm{if the person is white} \\
             0 &amp; \textrm{if the person is black}
         \end{array}
-    \right.
-\end{aligned}\]</span>
-<p>$$</p>
+    \right. \\
+\end{aligned}
+\]</span></p>
 <div class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>model2 <span class="op">=</span> bmb.Model(<span class="st">"income['&gt;50K'] ~ sex + race + age + age2 + hs_week + hs_week2"</span>, data, family<span class="op">=</span><span class="st">"bernoulli"</span>)</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>fitted2 <span class="op">=</span> model2.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model2 <span class="op">=</span> bmb.Model(<span class="st">"income['&gt;50K'] ~ sex + race + age + age2 + hs_week + hs_week2"</span>, data, family<span class="op">=</span><span class="st">"bernoulli"</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>fitted2 <span class="op">=</span> model2.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Modeling the probability that income==&gt;50K
 Auto-assigning NUTS sampler...
@@ -991,38 +981,24 @@ Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [Intercept, sex, race, age, age2, hs_week, hs_week2]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"b87fe5a62aed4b9496586c10e6e0f324","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:29&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 30 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 36 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(fitted2)<span class="op">;</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>az.summary(fitted2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(fitted2)<span class="op">;</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>az.summary(fitted2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="15">
 
 <div>
@@ -1045,86 +1021,86 @@ NUTS: [Intercept, sex, race, age, age2, hs_week, hs_week2]</code></pre>
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>-2.282</td>
-      <td>0.065</td>
-      <td>-2.406</td>
-      <td>-2.166</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>2037.0</td>
-      <td>1330.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>sex[Male]</th>
-      <td>1.006</td>
-      <td>0.038</td>
-      <td>0.939</td>
-      <td>1.074</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>2192.0</td>
-      <td>1628.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>race[White]</th>
-      <td>0.702</td>
+      <td>-2.284</td>
       <td>0.061</td>
-      <td>0.590</td>
-      <td>0.818</td>
+      <td>-2.403</td>
+      <td>-2.169</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>2084.0</td>
-      <td>1343.0</td>
+      <td>2324.0</td>
+      <td>1373.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>age</th>
       <td>1.069</td>
-      <td>0.024</td>
-      <td>1.028</td>
-      <td>1.117</td>
+      <td>0.023</td>
+      <td>1.027</td>
+      <td>1.116</td>
       <td>0.001</td>
       <td>0.000</td>
-      <td>1720.0</td>
-      <td>1406.0</td>
+      <td>1857.0</td>
+      <td>1470.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>age2</th>
-      <td>-0.538</td>
+      <td>-0.537</td>
       <td>0.018</td>
-      <td>-0.570</td>
-      <td>-0.503</td>
+      <td>-0.568</td>
+      <td>-0.502</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1730.0</td>
-      <td>1161.0</td>
+      <td>1760.0</td>
+      <td>1671.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>hs_week</th>
-      <td>0.499</td>
-      <td>0.022</td>
-      <td>0.455</td>
-      <td>0.538</td>
+      <td>0.498</td>
+      <td>0.021</td>
+      <td>0.458</td>
+      <td>0.537</td>
       <td>0.001</td>
       <td>0.000</td>
-      <td>1665.0</td>
-      <td>1431.0</td>
+      <td>1787.0</td>
+      <td>1521.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>hs_week2</th>
-      <td>-0.088</td>
-      <td>0.009</td>
-      <td>-0.103</td>
-      <td>-0.072</td>
+      <td>-0.087</td>
+      <td>0.008</td>
+      <td>-0.102</td>
+      <td>-0.071</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1687.0</td>
-      <td>1577.0</td>
+      <td>1807.0</td>
+      <td>1470.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>race[White]</th>
+      <td>0.704</td>
+      <td>0.058</td>
+      <td>0.591</td>
+      <td>0.807</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>2317.0</td>
+      <td>1149.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>sex[Male]</th>
+      <td>1.005</td>
+      <td>0.037</td>
+      <td>0.936</td>
+      <td>1.075</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>1898.0</td>
+      <td>1531.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1145,8 +1121,8 @@ NUTS: [Intercept, sex, race, age, age2, hs_week, hs_week2]</code></pre>
 <p>Where:</p>
 <p><span class="math display">\[
 \begin{aligned}
-    X_1 &amp;= \displaystyle \frac{\text{Age} - \text{Age}_{\text{mean}}}{\text{Age}_{\text{std}}} \\
-    X_2 &amp;= \displaystyle \frac{\text{Hours\_week} - \text{Hours\_week}_{\text{mean}}}{\text{Hours\_week}_{\text{std}}} \\
+    X_1 &amp;= \displaystyle \frac{\text{Age} - \text{mean(Age)}}{\text{std(Age)}} \\
+    X_2 &amp;= \displaystyle \frac{\text{Hours week} - \text{mean(Hours week)}}{\text{std(Hours week)}} \\
     X_3 &amp;=
     \left\{
         \begin{array}{ll}
@@ -1164,14 +1140,14 @@ NUTS: [Intercept, sex, race, age, age2, hs_week, hs_week2]</code></pre>
 \end{aligned}
 \]</span></p>
 <div class="cell" data-execution_count="16">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>model3 <span class="op">=</span> bmb.Model(</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"income['&gt;50K'] ~ age + age2 + age3 + hs_week + hs_week2 + hs_week3 + sex + race"</span>,</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    data,</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">"bernoulli"</span></span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>fitted3 <span class="op">=</span> model3.fit(</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">1000</span>, random_seed<span class="op">=</span><span class="dv">1234</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>, idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>model3 <span class="op">=</span> bmb.Model(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"income['&gt;50K'] ~ age + age2 + age3 + hs_week + hs_week2 + hs_week3 + sex + race"</span>,</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    data,</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">"bernoulli"</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>fitted3 <span class="op">=</span> model3.fit(</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">1000</span>, random_seed<span class="op">=</span><span class="dv">1234</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>, idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Modeling the probability that income==&gt;50K
 Auto-assigning NUTS sampler...
@@ -1180,38 +1156,24 @@ Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [Intercept, age, age2, age3, hs_week, hs_week2, hs_week3, sex, race]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"384db469426e442496401e4cb61098dc","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 01:15&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 75 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 94 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(fitted3)<span class="op">;</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>az.summary(fitted3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(fitted3)<span class="op">;</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>az.summary(fitted3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="17">
 
 <div>
@@ -1234,111 +1196,111 @@ NUTS: [Intercept, age, age2, age3, hs_week, hs_week2, hs_week3, sex, race]</code
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>-2.145</td>
-      <td>0.064</td>
-      <td>-2.270</td>
-      <td>-2.028</td>
+      <td>-2.146</td>
+      <td>0.065</td>
+      <td>-2.266</td>
+      <td>-2.023</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>3201.0</td>
-      <td>1540.0</td>
-      <td>1.0</td>
+      <td>2855.0</td>
+      <td>1152.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>age</th>
       <td>0.963</td>
-      <td>0.026</td>
-      <td>0.913</td>
-      <td>1.009</td>
+      <td>0.024</td>
+      <td>0.916</td>
+      <td>1.007</td>
       <td>0.001</td>
       <td>0.000</td>
-      <td>2243.0</td>
-      <td>1290.0</td>
-      <td>1.0</td>
+      <td>2205.0</td>
+      <td>1628.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>age2</th>
-      <td>-0.894</td>
-      <td>0.030</td>
-      <td>-0.946</td>
-      <td>-0.836</td>
+      <td>-0.893</td>
+      <td>0.031</td>
+      <td>-0.951</td>
+      <td>-0.834</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>1541.0</td>
-      <td>1229.0</td>
-      <td>1.0</td>
+      <td>1300.0</td>
+      <td>1440.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>age3</th>
-      <td>0.175</td>
+      <td>0.174</td>
       <td>0.011</td>
       <td>0.153</td>
-      <td>0.194</td>
+      <td>0.193</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1653.0</td>
-      <td>1506.0</td>
-      <td>1.0</td>
+      <td>1375.0</td>
+      <td>1376.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>hs_week</th>
-      <td>0.612</td>
+      <td>0.613</td>
       <td>0.025</td>
-      <td>0.567</td>
-      <td>0.661</td>
+      <td>0.568</td>
+      <td>0.662</td>
       <td>0.001</td>
       <td>0.000</td>
-      <td>2381.0</td>
-      <td>1300.0</td>
-      <td>1.0</td>
+      <td>1958.0</td>
+      <td>1378.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>hs_week2</th>
-      <td>-0.010</td>
+      <td>-0.011</td>
       <td>0.010</td>
       <td>-0.030</td>
-      <td>0.010</td>
+      <td>0.009</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2299.0</td>
-      <td>1590.0</td>
-      <td>1.0</td>
+      <td>1661.0</td>
+      <td>1443.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>hs_week3</th>
       <td>-0.035</td>
       <td>0.004</td>
-      <td>-0.042</td>
+      <td>-0.041</td>
       <td>-0.028</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1815.0</td>
-      <td>1572.0</td>
-      <td>1.0</td>
+      <td>1529.0</td>
+      <td>1287.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>race[White]</th>
+      <td>0.679</td>
+      <td>0.062</td>
+      <td>0.555</td>
+      <td>0.792</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>2480.0</td>
+      <td>1330.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
       <th>sex[Male]</th>
       <td>0.985</td>
-      <td>0.038</td>
-      <td>0.918</td>
-      <td>1.059</td>
+      <td>0.039</td>
+      <td>0.916</td>
+      <td>1.062</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>2737.0</td>
-      <td>1549.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>race[White]</th>
-      <td>0.681</td>
-      <td>0.060</td>
-      <td>0.573</td>
-      <td>0.798</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>3044.0</td>
-      <td>1514.0</td>
-      <td>1.0</td>
+      <td>2153.0</td>
+      <td>1337.0</td>
+      <td>1.00</td>
     </tr>
   </tbody>
 </table>
@@ -1353,13 +1315,13 @@ NUTS: [Intercept, age, age2, age3, hs_week, hs_week2, hs_week3, sex, race]</code
 <h2 class="anchored" data-anchor-id="model-comparison">Model comparison</h2>
 <p>We can perform a Bayesian model comparison very easily with <code>az.compare()</code>. Here we pass a dictionary with the InferenceData objects that <code>Model.fit()</code> returned and <code>az.compare()</code> returns a data frame that is ordered from best to worst according to the criteria used. By default, ArviZ uses <em>loo</em>, which is an estimation of leave one out cross validation. Another option is the widely applicable information criterion (WAIC). For more information about the information criteria available and other options within the function <a href="https://arviz-devs.github.io/arviz/api/generated/arviz.compare.html">see the docs</a>.</p>
 <div class="cell" data-execution_count="18">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>models_dict <span class="op">=</span> {</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"model1"</span>: fitted1,</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"model2"</span>: fitted2,</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"model3"</span>: fitted3</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>df_compare <span class="op">=</span> az.compare(models_dict)</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>df_compare</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>models_dict <span class="op">=</span> {</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"model1"</span>: fitted1,</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"model2"</span>: fitted2,</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"model3"</span>: fitted3</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>df_compare <span class="op">=</span> az.compare(models_dict)</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>df_compare</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="18">
 
 <div>
@@ -1383,11 +1345,11 @@ NUTS: [Intercept, age, age2, age3, hs_week, hs_week2, hs_week3, sex, race]</code
     <tr>
       <th>model3</th>
       <td>0</td>
-      <td>-13987.197673</td>
-      <td>9.716205</td>
+      <td>-13987.380720</td>
+      <td>9.891946</td>
       <td>0.000000</td>
-      <td>1.000000e+00</td>
-      <td>89.279906</td>
+      <td>1.0</td>
+      <td>89.340034</td>
       <td>0.000000</td>
       <td>False</td>
       <td>log</td>
@@ -1395,24 +1357,24 @@ NUTS: [Intercept, age, age2, age3, hs_week, hs_week2, hs_week3, sex, race]</code
     <tr>
       <th>model2</th>
       <td>1</td>
-      <td>-14155.112761</td>
-      <td>8.147063</td>
-      <td>167.915088</td>
-      <td>3.048565e-12</td>
-      <td>91.305227</td>
-      <td>19.879825</td>
+      <td>-14154.783286</td>
+      <td>7.803931</td>
+      <td>167.402566</td>
+      <td>0.0</td>
+      <td>91.308343</td>
+      <td>19.849452</td>
       <td>False</td>
       <td>log</td>
     </tr>
     <tr>
       <th>model1</th>
       <td>2</td>
-      <td>-14915.862090</td>
-      <td>4.871886</td>
-      <td>928.664417</td>
-      <td>0.000000e+00</td>
-      <td>91.010624</td>
-      <td>38.923423</td>
+      <td>-14915.787100</td>
+      <td>4.796550</td>
+      <td>928.406380</td>
+      <td>0.0</td>
+      <td>91.029032</td>
+      <td>38.924942</td>
       <td>False</td>
       <td>log</td>
     </tr>
@@ -1422,7 +1384,7 @@ NUTS: [Intercept, age, age2, age3, hs_week, hs_week2, hs_week3, sex, race]</code
 </div>
 </div>
 <div class="cell" data-execution_count="19">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>az.plot_compare(df_compare, insample_dev<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>az.plot_compare(df_compare, insample_dev<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="model_comparison_files/figure-html/cell-20-output-1.png" class="img-fluid"></p>
 </div>
@@ -1435,37 +1397,37 @@ NUTS: [Intercept, age, age2, age3, hs_week, hs_week2, hs_week3, sex, race]</code
 <p>We set hours of work per week at 40 hours and assign a grid from 18 to 75 age. They’re standardized because they were standardized when we fitted the model.</p>
 <p>Here we use <code>az.plot_hdi()</code> to get Highest Density Interval plots. We get two bands for each profile. One corresponds to an hdi probability of 0.94 (the default) and the other to an hdi probability of 0.5.</p>
 <div class="cell" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>HS_WEEK <span class="op">=</span> (<span class="dv">40</span> <span class="op">-</span> hs_mean) <span class="op">/</span> hs_std</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>AGE <span class="op">=</span> (np.linspace(<span class="dv">18</span>, <span class="dv">75</span>) <span class="op">-</span> age_mean) <span class="op">/</span> age_std</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>handles <span class="op">=</span> []</span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>i <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> race <span class="kw">in</span> [<span class="st">"Black"</span>, <span class="st">"White"</span>]:</span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> sex <span class="kw">in</span> [<span class="st">"Female"</span>, <span class="st">"Male"</span>]:  </span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>        color <span class="op">=</span> <span class="ss">f"C</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span></span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>        label <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>race<span class="sc">}</span><span class="ss"> - </span><span class="sc">{</span>sex<span class="sc">}</span><span class="ss">"</span></span>
-<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>        handles.append(mlines.Line2D([], [], color<span class="op">=</span>color, label<span class="op">=</span>label, lw<span class="op">=</span><span class="dv">3</span>))</span>
-<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>        new_data <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>            <span class="st">"sex"</span>: [sex] <span class="op">*</span> <span class="bu">len</span>(AGE),</span>
-<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>            <span class="st">"race"</span>: [race] <span class="op">*</span> <span class="bu">len</span>(AGE), </span>
-<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>            <span class="st">"age"</span>: AGE,</span>
-<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>            <span class="st">"age2"</span>: AGE <span class="op">**</span> <span class="dv">2</span>,</span>
-<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>            <span class="st">"hs_week"</span>: [HS_WEEK] <span class="op">*</span> <span class="bu">len</span>(AGE),</span>
-<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>            <span class="st">"hs_week2"</span>: [HS_WEEK <span class="op">**</span> <span class="dv">2</span>] <span class="op">*</span> <span class="bu">len</span>(AGE),</span>
-<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>        })</span>
-<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>        new_idata <span class="op">=</span> model2.predict(fitted2, data<span class="op">=</span>new_data, inplace<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>        mean <span class="op">=</span> new_idata.posterior[<span class="st">"income_mean"</span>].values</span>
-<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>        az.plot_hdi(AGE <span class="op">*</span> age_std <span class="op">+</span> age_mean, mean, ax<span class="op">=</span>ax, color<span class="op">=</span>color)</span>
-<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a>        az.plot_hdi(AGE <span class="op">*</span> age_std <span class="op">+</span> age_mean, mean, ax<span class="op">=</span>ax, color<span class="op">=</span>color, hdi_prob<span class="op">=</span><span class="fl">0.5</span>)</span>
-<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>        i <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Age"</span>)</span>
-<span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"P(Income &gt; $50K)"</span>)</span>
-<span id="cb28-31"><a href="#cb28-31" aria-hidden="true" tabindex="-1"></a>ax.legend(handles<span class="op">=</span>handles, loc<span class="op">=</span><span class="st">"upper left"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>HS_WEEK <span class="op">=</span> (<span class="dv">40</span> <span class="op">-</span> hs_mean) <span class="op">/</span> hs_std</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>AGE <span class="op">=</span> (np.linspace(<span class="dv">18</span>, <span class="dv">75</span>) <span class="op">-</span> age_mean) <span class="op">/</span> age_std</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>handles <span class="op">=</span> []</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>i <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> race <span class="kw">in</span> [<span class="st">"Black"</span>, <span class="st">"White"</span>]:</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> sex <span class="kw">in</span> [<span class="st">"Female"</span>, <span class="st">"Male"</span>]:  </span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>        color <span class="op">=</span> <span class="ss">f"C</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>        label <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>race<span class="sc">}</span><span class="ss"> - </span><span class="sc">{</span>sex<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>        handles.append(mlines.Line2D([], [], color<span class="op">=</span>color, label<span class="op">=</span>label, lw<span class="op">=</span><span class="dv">3</span>))</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>        new_data <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>            <span class="st">"sex"</span>: [sex] <span class="op">*</span> <span class="bu">len</span>(AGE),</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>            <span class="st">"race"</span>: [race] <span class="op">*</span> <span class="bu">len</span>(AGE), </span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>            <span class="st">"age"</span>: AGE,</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>            <span class="st">"age2"</span>: AGE <span class="op">**</span> <span class="dv">2</span>,</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>            <span class="st">"hs_week"</span>: [HS_WEEK] <span class="op">*</span> <span class="bu">len</span>(AGE),</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>            <span class="st">"hs_week2"</span>: [HS_WEEK <span class="op">**</span> <span class="dv">2</span>] <span class="op">*</span> <span class="bu">len</span>(AGE),</span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>        new_idata <span class="op">=</span> model2.predict(fitted2, data<span class="op">=</span>new_data, inplace<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>        mean <span class="op">=</span> new_idata.posterior[<span class="st">"p"</span>].values</span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>        az.plot_hdi(AGE <span class="op">*</span> age_std <span class="op">+</span> age_mean, mean, ax<span class="op">=</span>ax, color<span class="op">=</span>color)</span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>        az.plot_hdi(AGE <span class="op">*</span> age_std <span class="op">+</span> age_mean, mean, ax<span class="op">=</span>ax, color<span class="op">=</span>color, hdi_prob<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>        i <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Age"</span>)</span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"P(Income &gt; $50K)"</span>)</span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>ax.legend(handles<span class="op">=</span>handles, loc<span class="op">=</span><span class="st">"upper left"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="model_comparison_files/figure-html/cell-21-output-1.png" class="img-fluid"></p>
 </div>
@@ -1488,24 +1450,23 @@ We know it’s going to take a couple of hours to fit all those models :)</li>
 </ul>
 <p>And finally, please feel free to <a href="https://github.com/bambinos/bambi/issues">open a new issue</a> if you think there’s something that we can improve.</p>
 <div class="cell" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Thu Jan 05 2023
+<pre><code>Last updated: Sun May 26 2024
 
 Python implementation: CPython
-Python version       : 3.10.4
-IPython version      : 8.5.0
+Python version       : 3.11.9
+IPython version      : 8.24.0
 
-bambi     : 0.9.3
-numpy     : 1.23.5
-matplotlib: 3.6.2
-arviz     : 0.14.0
-seaborn   : 0.12.2
-pandas    : 1.5.2
-sys       : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
+numpy     : 1.26.4
+matplotlib: 3.8.4
+seaborn   : 0.13.2
+pandas    : 2.2.2
+bambi     : 0.13.1.dev39+gb7d6a6cb
+arviz     : 0.18.0
 
-Watermark: 2.3.1
+Watermark: 2.4.3
 </code></pre>
 </div>
 </div>

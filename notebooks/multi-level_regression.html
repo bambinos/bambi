@@ -126,6 +126,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
@@ -568,8 +569,12 @@ We’ll use a multi-level dataset included with <code>statsmodels</code> contain
 Y_i = \beta_{0, i} + \beta_{1, i} X + \epsilon_i
 \]</span></p>
 <p>with</p>
-<p><span class="math inline">\(\beta_{0, i} = \beta_0 + \alpha_{0, i}\)</span><br>
-<span class="math inline">\(\beta_{1, i} = \beta_1 + \alpha_{1, i}\)</span></p>
+<p><span class="math display">\[
+\begin{aligned}
+\beta_{0, i} &amp;= \beta_0 + \alpha_{0, i} \\
+\beta_{1, i} &amp;= \beta_1 + \alpha_{1, i}
+\end{aligned}
+\]</span></p>
 <p>where <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span> are usual common intercept and slope you find in a linear regression. <span class="math inline">\(\alpha_{0, i}\)</span> and <span class="math inline">\(\alpha_{1, i}\)</span> are the group specific components for the pig <span class="math inline">\(i\)</span>, influencing the intercept and the slope respectively. Finally <span class="math inline">\(\epsilon_i\)</span> is the random error we always see in this type of models, assumed to be Gaussian with mean 0. Note that here we use “common” and “group specific” effects to denote what in many fields are known as “fixed” and “random” effects, respectively.</p>
 <p>We use the formula syntax to specify the model. Previously, you had to specify common and group specific components separately. Now, thanks to <a href="https://github.com/bambinos/formulae">formulae</a>, you can specify model formulas just as you would do with R packages like <a href="https://CRAN.R-project.org/package=lme4">lme4</a> and <a href="https://CRAN.R-project.org/package=brms">brms</a>. In a nutshell, the term on the left side tells <code>Weight</code> is the response variable, <code>Time</code> on the right-hand side tells we include a main effect for the variable <code>Time</code>, and <code>(Time|Pig)</code> indicates we want to allow a each pig to have its own slope for <code>Time</code> as well as its own intercept (which is implicit). If we only wanted different intercepts, we would have written <code>Weight ~ Time + (1 | Pig)</code> and if we wanted slopes specific to each pig without including a pig specific intercept, we would write <code>Weight ~ Time + (0 + Time | Pig)</code>.</p>
 <div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:31:24.246456Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:27:54.440092Z&quot;}" data-execution_count="4">
@@ -579,36 +584,22 @@ Y_i = \beta_{0, i} + \beta_{1, i} X + \epsilon_i
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [Weight_sigma, Intercept, Time, 1|Pig_sigma, 1|Pig_offset, Time|Pig_sigma, Time|Pig_offset]</code></pre>
+NUTS: [sigma, Intercept, Time, 1|Pig_sigma, 1|Pig_offset, Time|Pig_sigma, Time|Pig_offset]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"56a575db317341c49c71773f0c68fae1","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:25&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 26 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 30 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 <p>We can print the model to have a summary of the details</p>
@@ -623,13 +614,14 @@ NUTS: [Weight_sigma, Intercept, Time, 1|Pig_sigma, 1|Pig_offset, Time|Pig_sigma,
     target = mu
         Common-level effects
             Intercept ~ Normal(mu: 60.7258, sigma: 133.0346)
-            Time ~ Normal(mu: 0, sigma: 18.1283)
+            Time ~ Normal(mu: 0.0, sigma: 18.1283)
         
         Group-level effects
-            1|Pig ~ Normal(mu: 0, sigma: HalfNormal(sigma: 133.0346))
-            Time|Pig ~ Normal(mu: 0, sigma: HalfNormal(sigma: 18.1283))
+            1|Pig ~ Normal(mu: 0.0, sigma: HalfNormal(sigma: 133.0346))
+            Time|Pig ~ Normal(mu: 0.0, sigma: HalfNormal(sigma: 18.1283))
+        
         Auxiliary parameters
-            Weight_sigma ~ HalfStudentT(nu: 4, sigma: 24.9644)
+            sigma ~ HalfStudentT(nu: 4.0, sigma: 24.9644)
 ------
 * To see a plot of the priors call the .plot_priors() method.
 * To see a summary or plot of the posterior pass the object returned by .fit() to az.summary() or az.plot_trace()</code></pre>
@@ -639,7 +631,7 @@ NUTS: [Weight_sigma, Intercept, Time, 1|Pig_sigma, 1|Pig_offset, Time|Pig_sigma,
 <div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:31:25.923704Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:31:24.437104Z&quot;}" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>model.plot_priors()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling: [1|Pig_sigma, Intercept, Time, Time|Pig_sigma, Weight_sigma]</code></pre>
+<pre><code>Sampling: [1|Pig_sigma, Intercept, Time, Time|Pig_sigma, sigma]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <p><img src="multi-level_regression_files/figure-html/cell-7-output-2.png" class="img-fluid"></p>
@@ -651,7 +643,7 @@ NUTS: [Weight_sigma, Intercept, Time, 1|Pig_sigma, 1|Pig_offset, Time|Pig_sigma,
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot posteriors</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    results,</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"Intercept"</span>, <span class="st">"Time"</span>, <span class="st">"1|Pig"</span>, <span class="st">"Time|Pig"</span>, <span class="st">"Weight_sigma"</span>],</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"Intercept"</span>, <span class="st">"Time"</span>, <span class="st">"1|Pig"</span>, <span class="st">"Time|Pig"</span>, <span class="st">"sigma"</span>],</span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    compact<span class="op">=</span><span class="va">True</span>,</span>
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
@@ -664,7 +656,7 @@ NUTS: [Weight_sigma, Intercept, Time, 1|Pig_sigma, 1|Pig_offset, Time|Pig_sigma,
 Can’t believe it? Come on, run this notebook on your side and have a try!</p>
 <p>The plots generated by <code>az.plot_trace()</code> are enough to be confident that the sampler did a good job and conclude about plausible values for the distribution of each parameter in the model. But if we want to, and it is a good idea to do it, we can get umerical summaries for the posteriors with <code>az.summary()</code>.</p>
 <div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:31:32.842182Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:31:32.770390Z&quot;}" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>az.summary(results, var_names<span class="op">=</span>[<span class="st">"Intercept"</span>, <span class="st">"Time"</span>, <span class="st">"1|Pig_sigma"</span>, <span class="st">"Time|Pig_sigma"</span>, <span class="st">"Weight_sigma"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>az.summary(results, var_names<span class="op">=</span>[<span class="st">"Intercept"</span>, <span class="st">"Time"</span>, <span class="st">"1|Pig_sigma"</span>, <span class="st">"Time|Pig_sigma"</span>, <span class="st">"sigma"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="8">
 
 <div>
@@ -687,62 +679,62 @@ Can’t believe it? Come on, run this notebook on your side and have a try!</p>
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>15.741</td>
-      <td>0.543</td>
-      <td>14.781</td>
-      <td>16.814</td>
-      <td>0.030</td>
-      <td>0.021</td>
-      <td>330.0</td>
-      <td>719.0</td>
+      <td>15.750</td>
+      <td>0.568</td>
+      <td>14.698</td>
+      <td>16.868</td>
+      <td>0.028</td>
+      <td>0.020</td>
+      <td>423.0</td>
+      <td>415.0</td>
       <td>1.01</td>
     </tr>
     <tr>
       <th>Time</th>
-      <td>6.944</td>
-      <td>0.084</td>
-      <td>6.802</td>
-      <td>7.108</td>
+      <td>6.932</td>
+      <td>0.086</td>
+      <td>6.765</td>
+      <td>7.100</td>
       <td>0.005</td>
       <td>0.004</td>
-      <td>236.0</td>
-      <td>424.0</td>
-      <td>1.03</td>
+      <td>247.0</td>
+      <td>513.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
       <th>1|Pig_sigma</th>
-      <td>4.537</td>
-      <td>0.423</td>
-      <td>3.811</td>
-      <td>5.369</td>
-      <td>0.018</td>
-      <td>0.013</td>
-      <td>586.0</td>
-      <td>1161.0</td>
+      <td>4.557</td>
+      <td>0.442</td>
+      <td>3.750</td>
+      <td>5.410</td>
+      <td>0.022</td>
+      <td>0.015</td>
+      <td>424.0</td>
+      <td>865.0</td>
       <td>1.00</td>
     </tr>
     <tr>
       <th>Time|Pig_sigma</th>
-      <td>0.662</td>
-      <td>0.063</td>
-      <td>0.546</td>
-      <td>0.774</td>
-      <td>0.003</td>
+      <td>0.664</td>
+      <td>0.061</td>
+      <td>0.557</td>
+      <td>0.780</td>
       <td>0.002</td>
-      <td>443.0</td>
-      <td>931.0</td>
+      <td>0.002</td>
+      <td>617.0</td>
+      <td>1088.0</td>
       <td>1.00</td>
     </tr>
     <tr>
-      <th>Weight_sigma</th>
-      <td>2.461</td>
-      <td>0.064</td>
-      <td>2.348</td>
-      <td>2.580</td>
+      <th>sigma</th>
+      <td>2.458</td>
+      <td>0.067</td>
+      <td>2.339</td>
+      <td>2.582</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>2534.0</td>
-      <td>1534.0</td>
+      <td>2677.0</td>
+      <td>1453.0</td>
       <td>1.00</td>
     </tr>
   </tbody>
@@ -778,7 +770,7 @@ Can’t believe it? Come on, run this notebook on your side and have a try!</p>
 <span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Weight (kg)"</span>)</span>
 <span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Time (weeks)"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/tmp/ipykernel_25969/3021069513.py:5: FutureWarning: extract_dataset has been deprecated, please use extract
+<pre><code>/tmp/ipykernel_42686/3021069513.py:5: FutureWarning: extract_dataset has been deprecated, please use extract
   posterior = az.extract_dataset(results)</code></pre>
 </div>
 <div class="cell-output cell-output-display">
@@ -826,21 +818,20 @@ Can’t believe it? Come on, run this notebook on your side and have a try!</p>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Thu Jan 05 2023
+<pre><code>Last updated: Sun May 26 2024
 
 Python implementation: CPython
-Python version       : 3.10.4
-IPython version      : 8.5.0
+Python version       : 3.11.9
+IPython version      : 8.24.0
 
-matplotlib : 3.6.2
-xarray     : 2022.11.0
-numpy      : 1.23.5
-arviz      : 0.14.0
-statsmodels: 0.13.2
-bambi      : 0.9.3
-sys        : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
+bambi      : 0.13.1.dev39+gb7d6a6cb
+numpy      : 1.26.4
+matplotlib : 3.8.4
+statsmodels: 0.14.2
+arviz      : 0.18.0
+xarray     : 2024.3.0
 
-Watermark: 2.3.1
+Watermark: 2.4.3
 </code></pre>
 </div>
 </div>

@@ -530,7 +530,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="bambi.Model.fit" class="level3">
 <h3 class="anchored" data-anchor-id="bambi.Model.fit">fit</h3>
-<p><code>Model.fit(self, draws=1000, tune=1000, discard_tuned_samples=True, omit_offsets=True, include_mean=False, inference_method='mcmc', init='auto', n_init=50000, chains=None, cores=None, random_seed=None, **kwargs)</code></p>
+<p><code>Model.fit(self, draws=1000, tune=1000, discard_tuned_samples=True, omit_offsets=True, include_mean=None, include_response_params=False, inference_method='mcmc', init='auto', n_init=50000, chains=None, cores=None, random_seed=None, **kwargs)</code></p>
 <p>Fit the model using PyMC.</p>
 <section id="parameters-2" class="level4">
 <h4 class="anchored" data-anchor-id="parameters-2">Parameters</h4>
@@ -577,46 +577,52 @@ ul.task-list li input[type="checkbox"] {
 <tr class="odd">
 <td><code>include_mean</code></td>
 <td>bool</td>
-<td>Compute the posterior of the mean response. Defaults to <code>False</code>.</td>
-<td><code>False</code></td>
+<td>Deprecated. Use <code>include_response_params</code>.</td>
+<td><code>None</code></td>
 </tr>
 <tr class="even">
+<td><code>include_response_params</code></td>
+<td>bool</td>
+<td>Include parameters of the response distribution in the output. These usually take more space than other parameters as there’s one of them per observation. Defaults to <code>False</code>.</td>
+<td><code>False</code></td>
+</tr>
+<tr class="odd">
 <td><code>inference_method</code></td>
 <td>str</td>
 <td>The method to use for fitting the model. By default, <code>"mcmc"</code>. This automatically assigns a MCMC method best suited for each kind of variables, like NUTS for continuous variables and Metropolis for non-binary discrete ones. Alternatively, <code>"vi"</code>, in which case the model will be fitted using variational inference as implemented in PyMC using the <code>fit</code> function. Finally, <code>"laplace"</code>, in which case a Laplace approximation is used and is not recommended other than for pedagogical use. To get a list of JAX based inference methods, call <code>bmb.inference_methods.names['bayeux']</code>. This will return a dictionary of the available methods such as <code>blackjax_nuts</code>, <code>numpyro_nuts</code>, among others.</td>
 <td><code>'mcmc'</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>init</code></td>
 <td>str</td>
 <td>Initialization method. Defaults to <code>"auto"</code>. The available methods are: * auto: Use <code>"jitter+adapt_diag"</code> and if this method fails it uses <code>"adapt_diag"</code>. * adapt_diag: Start with a identity mass matrix and then adapt a diagonal based on the variance of the tuning samples. All chains use the test value (usually the prior mean) as starting point. * jitter+adapt_diag: Same as <code>"adapt_diag"</code>, but use test value plus a uniform jitter in [-1, 1] as starting point in each chain. * advi+adapt_diag: Run ADVI and then adapt the resulting diagonal mass matrix based on the sample variance of the tuning samples. * advi+adapt_diag_grad: Run ADVI and then adapt the resulting diagonal mass matrix based on the variance of the gradients during tuning. This is <strong>experimental</strong> and might be removed in a future release. * advi: Run ADVI to estimate posterior mean and diagonal mass matrix. * advi_map: Initialize ADVI with MAP and use MAP as starting point. * map: Use the MAP as starting point. This is strongly discouraged. * adapt_full: Adapt a dense mass matrix using the sample covariances. All chains use the test value (usually the prior mean) as starting point. * jitter+adapt_full: Same as <code>"adapt_full"</code>, but use test value plus a uniform jitter in [-1, 1] as starting point in each chain.</td>
 <td><code>'auto'</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>n_init</code></td>
 <td>int</td>
 <td>Number of initialization iterations. Only works for <code>"advi"</code> init methods.</td>
 <td><code>50000</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>chains</code></td>
 <td>int</td>
 <td>The number of chains to sample. Running independent chains is important for some convergence statistics and can also reveal multiple modes in the posterior. If <code>None</code>, then set to either <code>cores</code> or 2, whichever is larger.</td>
 <td><code>None</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>cores</code></td>
 <td>int</td>
 <td>The number of chains to run in parallel. If <code>None</code>, it is equal to the number of CPUs in the system unless there are more than 4 CPUs, in which case it is set to 4.</td>
 <td><code>None</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>random_seed</code></td>
 <td>int or list of ints</td>
 <td>A list is accepted if cores is greater than one.</td>
 <td><code>None</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>**kwargs</code></td>
 <td></td>
 <td>For other kwargs see the documentation for <code>PyMC.sample()</code>.</td>
@@ -880,7 +886,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="bambi.Model.predict" class="level3">
 <h3 class="anchored" data-anchor-id="bambi.Model.predict">predict</h3>
-<p><code>Model.predict(self, idata, kind='mean', data=None, inplace=True, include_group_specific=True, sample_new_groups=False)</code></p>
+<p><code>Model.predict(self, idata, kind='response_params', data=None, inplace=True, include_group_specific=True, sample_new_groups=False)</code></p>
 <p>Predict method for Bambi models</p>
 <p>Obtains in-sample and out-of-sample predictions from a fitted Bambi model.</p>
 <section id="parameters-5" class="level4">
@@ -889,8 +895,8 @@ ul.task-list li input[type="checkbox"] {
 <colgroup>
 <col style="width: 5%">
 <col style="width: 5%">
-<col style="width: 86%">
-<col style="width: 2%">
+<col style="width: 85%">
+<col style="width: 4%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -911,7 +917,7 @@ ul.task-list li input[type="checkbox"] {
 <td><code>kind</code></td>
 <td>str</td>
 <td>Indicates the type of prediction required. Can be <code>"mean"</code> or <code>"pps"</code>. The first returns draws from the posterior distribution of the mean, while the latter returns the draws from the posterior predictive distribution (i.e.&nbsp;the posterior probability distribution for a new observation) in addition to the mean posterior distribution. Defaults to <code>"mean"</code>.</td>
-<td><code>'mean'</code></td>
+<td><code>'response_params'</code></td>
 </tr>
 <tr class="odd">
 <td><code>data</code></td>

@@ -126,6 +126,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
@@ -528,10 +529,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"vote"</span>].value_counts()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
-<pre><code>clinton         215
+<pre><code>vote
+clinton         215
 trump           158
 someone_else     48
-Name: vote, dtype: int64</code></pre>
+Name: count, dtype: int64</code></pre>
 </div>
 </div>
 <p>The two predictors we’ll examine are a respondent’s <code>age</code> and their political party affiliation, <code>party_id</code>, which is their response to the following question prompt:</p>
@@ -539,10 +541,11 @@ Name: vote, dtype: int64</code></pre>
 <div class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"party_id"</span>].value_counts()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="5">
-<pre><code>democrat       186
+<pre><code>party_id
+democrat       186
 independent    138
 republican      97
-Name: party_id, dtype: int64</code></pre>
+Name: count, dtype: int64</code></pre>
 </div>
 </div>
 <p>These two predictors are somewhat correlated, but not all that much:</p>
@@ -730,33 +733,19 @@ Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [Intercept, party_id, party_id:age]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"3e85db8dc9aa4c9cabacfa2bc60a57b9","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="6000" class="" max="6000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [6000/6000 00:13&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws total) took 14 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws total) took 11 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 <p>We can print the model object to see information about the response distribution, the link function and the priors.</p>
@@ -770,7 +759,7 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
         Priors: 
     target = p
         Common-level effects
-            Intercept ~ Normal(mu: 0, sigma: 4.3846)
+            Intercept ~ Normal(mu: 0.0, sigma: 4.3846)
             party_id ~ Normal(mu: [0. 0.], sigma: [5.4007 6.0634])
             party_id:age ~ Normal(mu: [0. 0. 0.], sigma: [0.0938 0.1007 0.1098])
 ------
@@ -821,38 +810,38 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>1.674</td>
-      <td>0.725</td>
-      <td>0.251</td>
-      <td>2.998</td>
-      <td>0.016</td>
-      <td>0.011</td>
-      <td>2199.0</td>
-      <td>2105.0</td>
+      <td>1.701</td>
+      <td>0.717</td>
+      <td>0.283</td>
+      <td>2.992</td>
+      <td>0.014</td>
+      <td>0.010</td>
+      <td>2770.0</td>
+      <td>2596.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id[independent]</th>
-      <td>-0.293</td>
-      <td>0.956</td>
-      <td>-2.037</td>
-      <td>1.543</td>
-      <td>0.021</td>
-      <td>0.018</td>
-      <td>2046.0</td>
-      <td>2230.0</td>
+      <td>-0.304</td>
+      <td>0.944</td>
+      <td>-2.076</td>
+      <td>1.435</td>
+      <td>0.019</td>
+      <td>0.015</td>
+      <td>2530.0</td>
+      <td>2452.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id[republican]</th>
-      <td>-1.151</td>
-      <td>1.575</td>
-      <td>-4.122</td>
-      <td>1.806</td>
-      <td>0.039</td>
-      <td>0.027</td>
-      <td>1667.0</td>
-      <td>1843.0</td>
+      <td>-1.171</td>
+      <td>1.560</td>
+      <td>-4.144</td>
+      <td>1.650</td>
+      <td>0.037</td>
+      <td>0.026</td>
+      <td>1813.0</td>
+      <td>2106.0</td>
       <td>1.0</td>
     </tr>
     <tr>
@@ -860,35 +849,35 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
       <td>0.013</td>
       <td>0.015</td>
       <td>-0.016</td>
-      <td>0.042</td>
+      <td>0.040</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2133.0</td>
-      <td>2064.0</td>
+      <td>2669.0</td>
+      <td>2532.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id:age[independent]</th>
       <td>-0.033</td>
-      <td>0.011</td>
+      <td>0.012</td>
       <td>-0.055</td>
-      <td>-0.012</td>
+      <td>-0.011</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>3257.0</td>
-      <td>2797.0</td>
+      <td>3398.0</td>
+      <td>2370.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id:age[republican]</th>
       <td>-0.080</td>
       <td>0.036</td>
-      <td>-0.153</td>
-      <td>-0.018</td>
+      <td>-0.149</td>
+      <td>-0.014</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>1692.0</td>
-      <td>1546.0</td>
+      <td>1765.0</td>
+      <td>1976.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -905,10 +894,10 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 <h3 class="anchored" data-anchor-id="separation-plot">Separation plot</h3>
 <p>There is a way of assessing the performance of a model with binary outcomes (such as logistic regression) in a visual way called <a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-5907.2011.00525.x">separation plot</a>. In a separation plot, the model’s predictions are averaged, ordered and represented as consecutive vertical lines. These vertical lines are colored according to the class indicated by their corresponding observed value, in this case light blue indicates class 0 (<code>vote == 'Trump'</code>) and blue represents class 1 (<code>vote =='Clinton'</code>). We can use the ArviZ’ implementation of the separation plot, but first we have to obtain the model’s predictions.</p>
 <div class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>clinton_model.predict(clinton_fitted, kind<span class="op">=</span><span class="st">"pps"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>clinton_model.predict(clinton_fitted, kind<span class="op">=</span><span class="st">"response"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> az.plot_separation(clinton_fitted, y<span class="op">=</span><span class="st">'vote'</span>, figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">0.5</span>))<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> az.plot_separation(clinton_fitted, y<span class="op">=</span><span class="st">"vote"</span>, figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">0.5</span>))<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="logistic_regression_files/figure-html/cell-16-output-1.png" class="img-fluid"></p>
 </div>
@@ -967,10 +956,10 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
   </thead>
   <tbody>
     <tr>
-      <th>365</th>
-      <td>410</td>
-      <td>clinton</td>
-      <td>55</td>
+      <th>191</th>
+      <td>215</td>
+      <td>trump</td>
+      <td>95</td>
       <td>republican</td>
     </tr>
   </tbody>
@@ -1014,6 +1003,13 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
   </thead>
   <tbody>
     <tr>
+      <th>17</th>
+      <td>17</td>
+      <td>trump</td>
+      <td>76</td>
+      <td>republican</td>
+    </tr>
+    <tr>
       <th>34</th>
       <td>34</td>
       <td>trump</td>
@@ -1035,13 +1031,6 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
       <td>republican</td>
     </tr>
     <tr>
-      <th>87</th>
-      <td>95</td>
-      <td>trump</td>
-      <td>80</td>
-      <td>republican</td>
-    </tr>
-    <tr>
       <th>191</th>
       <td>215</td>
       <td>trump</td>
@@ -1049,10 +1038,10 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
       <td>republican</td>
     </tr>
     <tr>
-      <th>365</th>
-      <td>410</td>
-      <td>clinton</td>
-      <td>55</td>
+      <th>309</th>
+      <td>347</td>
+      <td>trump</td>
+      <td>79</td>
       <td>republican</td>
     </tr>
   </tbody>
@@ -1062,7 +1051,7 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 </div>
 <p>Observations number 34, 58, 62, and 191 correspond to individuals in under represented age groups in the data set. The rest correspond to Republican party members that voted for Clinton. Let us check how many observations we have of individuals older than 80 years old.</p>
 <div class="cell" data-execution_count="22">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>clinton_data[clinton_data.age<span class="op">&gt;</span><span class="dv">80</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>clinton_data[clinton_data.age <span class="op">&gt;</span> <span class="dv">80</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="22">
 
 <div>
@@ -1215,6 +1204,13 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
   </thead>
   <tbody>
     <tr>
+      <th>17</th>
+      <td>17</td>
+      <td>trump</td>
+      <td>76</td>
+      <td>republican</td>
+    </tr>
+    <tr>
       <th>34</th>
       <td>34</td>
       <td>trump</td>
@@ -1236,13 +1232,6 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
       <td>republican</td>
     </tr>
     <tr>
-      <th>87</th>
-      <td>95</td>
-      <td>trump</td>
-      <td>80</td>
-      <td>republican</td>
-    </tr>
-    <tr>
       <th>191</th>
       <td>215</td>
       <td>trump</td>
@@ -1250,10 +1239,10 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
       <td>republican</td>
     </tr>
     <tr>
-      <th>365</th>
-      <td>410</td>
-      <td>clinton</td>
-      <td>55</td>
+      <th>309</th>
+      <td>347</td>
+      <td>trump</td>
+      <td>79</td>
       <td>republican</td>
     </tr>
   </tbody>
@@ -1285,42 +1274,42 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 <div class="cell" data-execution_count="28">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>(dem <span class="op">&gt;</span> rep).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="28">
-<pre><code>0.99625</code></pre>
+<pre><code>0.995</code></pre>
 </div>
 </div>
 <p>Probability that the Democrat slope is greater than the Independent slope?</p>
 <div class="cell" data-execution_count="29">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>(dem <span class="op">&gt;</span> ind).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="29">
-<pre><code>0.99125</code></pre>
+<pre><code>0.99475</code></pre>
 </div>
 </div>
 <p>Probability that the Independent slope is greater than the Republican slope?</p>
 <div class="cell" data-execution_count="30">
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>(ind <span class="op">&gt;</span> rep).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="30">
-<pre><code>0.899</code></pre>
+<pre><code>0.8995</code></pre>
 </div>
 </div>
 <p>Probability that the Democrat slope is greater than 0?</p>
 <div class="cell" data-execution_count="31">
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>(dem <span class="op">&gt;</span> <span class="dv">0</span>).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="31">
-<pre><code>0.80875</code></pre>
+<pre><code>0.80525</code></pre>
 </div>
 </div>
 <p>Probability that the Republican slope is less than 0?</p>
 <div class="cell" data-execution_count="32">
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>(rep <span class="op">&lt;</span> <span class="dv">0</span>).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="32">
-<pre><code>0.995</code></pre>
+<pre><code>0.993</code></pre>
 </div>
 </div>
 <p>Probability that the Independent slope is less than 0?</p>
 <div class="cell" data-execution_count="33">
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>(ind <span class="op">&lt;</span> <span class="dv">0</span>).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="33">
-<pre><code>0.99875</code></pre>
+<pre><code>0.998</code></pre>
 </div>
 </div>
 <p>If we look at the plot of the marginal posteriors, we may be suspicious that, for example, the probability that Democrat slope is greater than the Republican slope is 0.998 (almost 1!), given the overlap between the blue and green density functions. However, we can’t answer such a question using the marginal posteriors only, as shown in the plot. Since Democrat and Republican slopes (<span class="math inline">\(\beta_3\)</span> and <span class="math inline">\(\beta_5\)</span>, respectively) are random variables, we need to use their joint distribution to answer probability questions that involve both of them. The fact that logical comparisons (e.g.&nbsp;<code>&gt;</code> in <code>dem &gt; ind</code>) are performed elementwise ensures we’re using samples from the joint posterior as we should. We also note that when the question involves only one of the random variables, it is fine to use the marginal distribution (e.g.&nbsp;<code>(rep &lt; 0).mean()</code>).</p>
@@ -1410,16 +1399,16 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 </div>
 </div>
 </div>
-<p>Obtain predictions for the new dataset. By default, Bambi is going to obtain a posterior distribution for the mean probability of voting for Clinton. These values are stored as the <code>"vote_mean"</code> variable in <code>clinton_fitted.posterior</code>.</p>
+<p>Obtain predictions for the new dataset. By default, Bambi is going to obtain a posterior distribution for the mean probability of voting for Clinton. These values are stored as the <code>"p"</code> variable in <code>clinton_fitted.posterior</code>.</p>
 <div class="cell" data-execution_count="35">
 <div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>clinton_model.predict(clinton_fitted, data<span class="op">=</span>new_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-execution_count="36">
 <div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select a sample of posterior values for the mean probability of voting for Clinton</span></span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>vote_posterior <span class="op">=</span> az.extract_dataset(clinton_fitted, num_samples<span class="op">=</span><span class="dv">2000</span>)[<span class="st">"vote_mean"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>vote_posterior <span class="op">=</span> az.extract_dataset(clinton_fitted, num_samples<span class="op">=</span><span class="dv">2000</span>)[<span class="st">"p"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/tmp/ipykernel_23763/325773600.py:2: FutureWarning: extract_dataset has been deprecated, please use extract
-  vote_posterior = az.extract_dataset(clinton_fitted, num_samples=2000)["vote_mean"]</code></pre>
+<pre><code>/tmp/ipykernel_116464/1918123043.py:2: FutureWarning: extract_dataset has been deprecated, please use extract
+  vote_posterior = az.extract_dataset(clinton_fitted, num_samples=2000)["p"]</code></pre>
 </div>
 </div>
 <p>Make the plot!</p>
@@ -1447,20 +1436,19 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 <div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Thu Jan 05 2023
+<pre><code>Last updated: Sat May 25 2024
 
 Python implementation: CPython
-Python version       : 3.10.4
-IPython version      : 8.5.0
+Python version       : 3.11.9
+IPython version      : 8.24.0
 
-pandas    : 1.5.2
-matplotlib: 3.6.2
-numpy     : 1.23.5
-arviz     : 0.14.0
-bambi     : 0.9.3
-sys       : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
+pandas    : 2.2.2
+matplotlib: 3.8.4
+numpy     : 1.26.4
+arviz     : 0.18.0
+bambi     : 0.13.1.dev37+g2a54df76.d20240525
 
-Watermark: 2.3.1
+Watermark: 2.4.3
 </code></pre>
 </div>
 </div>

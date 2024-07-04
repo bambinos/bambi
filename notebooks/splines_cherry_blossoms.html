@@ -126,6 +126,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
@@ -705,7 +706,7 @@ w_j &amp; \sim \text{Normal}(0, 10)\\
 </div>
 <p>Below, we create a chart to visualize the b-spline basis. The overlap between the functions means that, at any given point in time, the regression function is influenced by more than one basis function. For example, if we look at the year 1200, we can see the regression line is going to be influenced mostly by the violet and brown functions, and to a lesser extent by the green and cyan ones. In summary, this is what enables us to capture local patterns in a smooth fashion.</p>
 <div class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> model.response_component.design.common[<span class="st">"bs(year, knots=iknots, intercept=True)"</span>]</span>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> model.components[<span class="st">"mu"</span>].design.common[<span class="st">"bs(year, knots=iknots, intercept=True)"</span>]</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> plot_spline_basis(B, data[<span class="st">"year"</span>].values)</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>plot_knots(knots, ax)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
@@ -723,36 +724,21 @@ w_j &amp; \sim \text{Normal}(0, 10)\\
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [doy_sigma, Intercept, bs(year, knots=iknots, intercept=True)]</code></pre>
+NUTS: [sigma, Intercept, bs(year, knots=iknots, intercept=True)]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"363e1030d9134431b43eeff6d127dd59","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:32&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 33 seconds.
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 10 seconds.
 We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
@@ -784,231 +770,231 @@ We recommend running at least 4 chains for robust computation of convergence dia
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>103.387</td>
-      <td>2.444</td>
-      <td>98.582</td>
-      <td>107.719</td>
-      <td>0.131</td>
-      <td>0.093</td>
-      <td>348.0</td>
-      <td>540.0</td>
-      <td>1.01</td>
+      <td>103.644</td>
+      <td>2.419</td>
+      <td>99.691</td>
+      <td>108.377</td>
+      <td>0.115</td>
+      <td>0.082</td>
+      <td>446.0</td>
+      <td>723.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots, intercept=True)[0]</th>
-      <td>-3.074</td>
-      <td>3.819</td>
-      <td>-10.477</td>
-      <td>3.705</td>
-      <td>0.127</td>
-      <td>0.090</td>
-      <td>908.0</td>
-      <td>1319.0</td>
-      <td>1.00</td>
+      <td>-3.262</td>
+      <td>3.909</td>
+      <td>-10.682</td>
+      <td>3.781</td>
+      <td>0.136</td>
+      <td>0.097</td>
+      <td>824.0</td>
+      <td>1250.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots, intercept=True)[1]</th>
-      <td>-0.841</td>
-      <td>3.949</td>
-      <td>-8.290</td>
-      <td>6.242</td>
-      <td>0.146</td>
-      <td>0.103</td>
-      <td>739.0</td>
-      <td>1089.0</td>
-      <td>1.00</td>
+      <td>-1.213</td>
+      <td>4.016</td>
+      <td>-8.644</td>
+      <td>6.428</td>
+      <td>0.132</td>
+      <td>0.094</td>
+      <td>918.0</td>
+      <td>1337.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots, intercept=True)[2]</th>
-      <td>-1.167</td>
-      <td>3.662</td>
-      <td>-8.245</td>
-      <td>5.517</td>
-      <td>0.140</td>
-      <td>0.099</td>
-      <td>685.0</td>
-      <td>935.0</td>
-      <td>1.00</td>
+      <td>-1.296</td>
+      <td>3.574</td>
+      <td>-7.878</td>
+      <td>5.467</td>
+      <td>0.127</td>
+      <td>0.090</td>
+      <td>795.0</td>
+      <td>1190.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots, intercept=True)[3]</th>
-      <td>4.810</td>
-      <td>2.987</td>
-      <td>-0.362</td>
-      <td>10.721</td>
-      <td>0.135</td>
-      <td>0.096</td>
-      <td>487.0</td>
-      <td>915.0</td>
-      <td>1.00</td>
+      <td>4.549</td>
+      <td>2.968</td>
+      <td>-1.297</td>
+      <td>9.678</td>
+      <td>0.122</td>
+      <td>0.086</td>
+      <td>597.0</td>
+      <td>954.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots, intercept=True)[4]</th>
-      <td>-0.881</td>
-      <td>2.970</td>
-      <td>-6.245</td>
-      <td>4.759</td>
-      <td>0.137</td>
-      <td>0.097</td>
-      <td>472.0</td>
-      <td>951.0</td>
-      <td>1.00</td>
+      <td>-1.137</td>
+      <td>2.894</td>
+      <td>-6.794</td>
+      <td>4.092</td>
+      <td>0.120</td>
+      <td>0.085</td>
+      <td>577.0</td>
+      <td>892.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots, intercept=True)[5]</th>
-      <td>4.277</td>
-      <td>2.963</td>
-      <td>-0.901</td>
-      <td>9.904</td>
-      <td>0.134</td>
-      <td>0.095</td>
-      <td>488.0</td>
-      <td>1104.0</td>
-      <td>1.00</td>
+      <td>3.997</td>
+      <td>2.957</td>
+      <td>-1.706</td>
+      <td>9.342</td>
+      <td>0.119</td>
+      <td>0.084</td>
+      <td>622.0</td>
+      <td>897.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots, intercept=True)[6]</th>
-      <td>-5.350</td>
-      <td>2.883</td>
-      <td>-11.223</td>
-      <td>-0.312</td>
-      <td>0.137</td>
-      <td>0.097</td>
-      <td>439.0</td>
-      <td>870.0</td>
-      <td>1.00</td>
+      <td>-5.603</td>
+      <td>2.911</td>
+      <td>-10.905</td>
+      <td>-0.138</td>
+      <td>0.121</td>
+      <td>0.086</td>
+      <td>578.0</td>
+      <td>861.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots, intercept=True)[7]</th>
-      <td>7.786</td>
-      <td>2.813</td>
-      <td>2.161</td>
-      <td>13.013</td>
-      <td>0.129</td>
-      <td>0.091</td>
-      <td>477.0</td>
-      <td>842.0</td>
-      <td>1.00</td>
+      <td>7.542</td>
+      <td>2.870</td>
+      <td>2.339</td>
+      <td>12.969</td>
+      <td>0.120</td>
+      <td>0.085</td>
+      <td>573.0</td>
+      <td>811.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots, intercept=True)[8]</th>
-      <td>-1.017</td>
-      <td>2.977</td>
-      <td>-6.426</td>
-      <td>4.689</td>
-      <td>0.141</td>
-      <td>0.100</td>
-      <td>445.0</td>
-      <td>697.0</td>
-      <td>1.00</td>
+      <td>-1.304</td>
+      <td>2.956</td>
+      <td>-7.137</td>
+      <td>3.645</td>
+      <td>0.119</td>
+      <td>0.084</td>
+      <td>624.0</td>
+      <td>1208.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots, intercept=True)[9]</th>
-      <td>2.927</td>
-      <td>2.958</td>
-      <td>-2.100</td>
-      <td>9.282</td>
-      <td>0.136</td>
-      <td>0.096</td>
-      <td>474.0</td>
-      <td>809.0</td>
-      <td>1.00</td>
+      <td>2.753</td>
+      <td>2.991</td>
+      <td>-2.551</td>
+      <td>8.544</td>
+      <td>0.126</td>
+      <td>0.089</td>
+      <td>576.0</td>
+      <td>1070.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots, intercept=True)[10]</th>
-      <td>4.693</td>
-      <td>2.990</td>
-      <td>-0.911</td>
-      <td>10.137</td>
-      <td>0.137</td>
-      <td>0.097</td>
-      <td>477.0</td>
-      <td>837.0</td>
-      <td>1.00</td>
+      <td>4.337</td>
+      <td>2.961</td>
+      <td>-1.121</td>
+      <td>9.648</td>
+      <td>0.117</td>
+      <td>0.083</td>
+      <td>640.0</td>
+      <td>1054.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots, intercept=True)[11]</th>
-      <td>-0.246</td>
-      <td>2.943</td>
-      <td>-5.760</td>
-      <td>5.126</td>
-      <td>0.133</td>
-      <td>0.094</td>
-      <td>490.0</td>
-      <td>908.0</td>
-      <td>1.00</td>
+      <td>-0.459</td>
+      <td>2.897</td>
+      <td>-6.121</td>
+      <td>4.573</td>
+      <td>0.117</td>
+      <td>0.083</td>
+      <td>615.0</td>
+      <td>981.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots, intercept=True)[12]</th>
-      <td>5.548</td>
-      <td>2.984</td>
-      <td>0.328</td>
-      <td>11.413</td>
-      <td>0.140</td>
-      <td>0.099</td>
-      <td>451.0</td>
-      <td>837.0</td>
-      <td>1.00</td>
+      <td>5.253</td>
+      <td>2.977</td>
+      <td>-0.125</td>
+      <td>10.722</td>
+      <td>0.119</td>
+      <td>0.084</td>
+      <td>639.0</td>
+      <td>794.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots, intercept=True)[13]</th>
-      <td>0.653</td>
-      <td>3.115</td>
-      <td>-4.897</td>
-      <td>6.839</td>
-      <td>0.132</td>
-      <td>0.094</td>
-      <td>557.0</td>
-      <td>933.0</td>
-      <td>1.00</td>
+      <td>0.454</td>
+      <td>3.055</td>
+      <td>-5.468</td>
+      <td>6.024</td>
+      <td>0.123</td>
+      <td>0.087</td>
+      <td>620.0</td>
+      <td>1035.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots, intercept=True)[14]</th>
-      <td>-0.778</td>
-      <td>3.345</td>
-      <td>-7.165</td>
-      <td>5.314</td>
-      <td>0.142</td>
-      <td>0.101</td>
-      <td>551.0</td>
-      <td>981.0</td>
-      <td>1.00</td>
+      <td>-1.123</td>
+      <td>3.330</td>
+      <td>-7.470</td>
+      <td>4.998</td>
+      <td>0.128</td>
+      <td>0.091</td>
+      <td>683.0</td>
+      <td>969.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots, intercept=True)[15]</th>
-      <td>-7.039</td>
-      <td>3.527</td>
-      <td>-13.975</td>
-      <td>-0.638</td>
-      <td>0.137</td>
-      <td>0.097</td>
-      <td>667.0</td>
-      <td>1021.0</td>
-      <td>1.00</td>
+      <td>-7.222</td>
+      <td>3.397</td>
+      <td>-13.694</td>
+      <td>-1.375</td>
+      <td>0.121</td>
+      <td>0.085</td>
+      <td>794.0</td>
+      <td>1080.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots, intercept=True)[16]</th>
-      <td>-7.711</td>
-      <td>3.293</td>
-      <td>-14.579</td>
-      <td>-2.133</td>
-      <td>0.135</td>
-      <td>0.095</td>
-      <td>595.0</td>
-      <td>1090.0</td>
-      <td>1.00</td>
+      <td>-8.025</td>
+      <td>3.295</td>
+      <td>-13.911</td>
+      <td>-1.816</td>
+      <td>0.119</td>
+      <td>0.085</td>
+      <td>764.0</td>
+      <td>980.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
-      <th>doy_sigma</th>
+      <th>sigma</th>
       <td>5.944</td>
-      <td>0.143</td>
-      <td>5.671</td>
-      <td>6.198</td>
+      <td>0.147</td>
+      <td>5.673</td>
+      <td>6.220</td>
       <td>0.003</td>
       <td>0.002</td>
-      <td>3031.0</td>
-      <td>1497.0</td>
-      <td>1.00</td>
+      <td>2904.0</td>
+      <td>1417.0</td>
+      <td>1.0</td>
     </tr>
   </tbody>
 </table>
@@ -1048,7 +1034,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    posterior_stacked <span class="op">=</span>  az.extract_dataset(idata)</span>
 <span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Extract these predictions</span></span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    y_hat <span class="op">=</span> posterior_stacked[<span class="st">"doy_mean"</span>]</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    y_hat <span class="op">=</span> posterior_stacked[<span class="st">"mu"</span>]</span>
 <span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compute the mean of the predictions, plotted as a single line.</span></span>
 <span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    y_hat_mean <span class="op">=</span> y_hat.mean(<span class="st">"sample"</span>)</span>
@@ -1073,7 +1059,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>plot_predictions(data, idata, model)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/tmp/ipykernel_33590/2247671002.py:8: FutureWarning: extract_dataset has been deprecated, please use extract
+<pre><code>/tmp/ipykernel_46679/4286558085.py:8: FutureWarning: extract_dataset has been deprecated, please use extract
   posterior_stacked =  az.extract_dataset(idata)</code></pre>
 </div>
 <div class="cell-output cell-output-display">
@@ -1090,7 +1076,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <p>where <span class="math inline">\(\mathbf{y}\)</span> is the response column vector of shape <span class="math inline">\((n, 1)\)</span>. <span class="math inline">\(\mathbf{X}\)</span> is the <strong>design matrix</strong> that contains the values of the predictors for all the observations, of shape <span class="math inline">\((n, p)\)</span>. And <span class="math inline">\(\boldsymbol{\beta}\)</span> is the column vector of regression coefficients of shape <span class="math inline">\((n, 1)\)</span>.</p>
 <p>Because it’s not something that you’re supposed to consult regularly, Bambi does not expose the design matrix. However, with a some knowledge of the internals, it is possible to have access to it:</p>
 <div class="cell" data-execution_count="19">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>np.<span class="bu">round</span>(model.response_component.design.common.design_matrix, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>np.<span class="bu">round</span>(model.components[<span class="st">"mu"</span>].design.common.design_matrix, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="19">
 <pre><code>array([[1.   , 1.   , 0.   , ..., 0.   , 0.   , 0.   ],
        [1.   , 0.96 , 0.039, ..., 0.   , 0.   , 0.   ],
@@ -1103,7 +1089,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 <p>Let’s have a look at its shape:</p>
 <div class="cell" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>model.response_component.design.common.design_matrix.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>model.components[<span class="st">"mu"</span>].design.common.design_matrix.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="20">
 <pre><code>(827, 18)</code></pre>
 </div>
@@ -1111,7 +1097,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <p>827 is the number of years we have data for, and 18 is the number of predictors/coefficients in the model. We have the first column of ones due to the <code>Intercept</code> term. Then, there are sixteen columns associated with the the basis functions. And finally, one extra column because we used <code>span_intercept=True</code> when calling the function <code>bs()</code> in the model formula.</p>
 <p>Now we could compute the rank of the design matrix to check whether all the columns are linearly independent.</p>
 <div class="cell" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>np.linalg.matrix_rank(model.response_component.design.common.design_matrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>np.linalg.matrix_rank(model.components[<span class="st">"mu"</span>].design.common.design_matrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="21">
 <pre><code>17</code></pre>
 </div>
@@ -1128,36 +1114,21 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [doy_sigma, Intercept, bs(year, knots=iknots)]</code></pre>
+NUTS: [sigma, Intercept, bs(year, knots=iknots)]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"721fb755c0bf4420920ddfe1cd41ddf4","version_major":2,"version_minor":0}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:31&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 32 seconds.
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 9 seconds.
 We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
@@ -1186,219 +1157,219 @@ We recommend running at least 4 chains for robust computation of convergence dia
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>102.367</td>
-      <td>1.992</td>
-      <td>98.899</td>
-      <td>106.358</td>
-      <td>0.105</td>
-      <td>0.074</td>
-      <td>361.0</td>
-      <td>581.0</td>
-      <td>1.01</td>
+      <td>102.358</td>
+      <td>1.889</td>
+      <td>98.707</td>
+      <td>105.711</td>
+      <td>0.084</td>
+      <td>0.060</td>
+      <td>505.0</td>
+      <td>779.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots)[0]</th>
-      <td>-0.849</td>
-      <td>3.999</td>
-      <td>-8.142</td>
-      <td>6.704</td>
-      <td>0.164</td>
-      <td>0.116</td>
-      <td>591.0</td>
-      <td>930.0</td>
-      <td>1.00</td>
+      <td>-0.875</td>
+      <td>3.832</td>
+      <td>-7.709</td>
+      <td>6.539</td>
+      <td>0.135</td>
+      <td>0.096</td>
+      <td>807.0</td>
+      <td>1356.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots)[1]</th>
-      <td>0.394</td>
-      <td>3.012</td>
-      <td>-5.253</td>
-      <td>5.983</td>
-      <td>0.090</td>
-      <td>0.063</td>
-      <td>1132.0</td>
-      <td>1249.0</td>
-      <td>1.00</td>
+      <td>0.430</td>
+      <td>2.954</td>
+      <td>-4.934</td>
+      <td>6.052</td>
+      <td>0.083</td>
+      <td>0.065</td>
+      <td>1284.0</td>
+      <td>1460.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots)[2]</th>
-      <td>5.707</td>
-      <td>2.712</td>
-      <td>0.074</td>
-      <td>10.305</td>
-      <td>0.120</td>
-      <td>0.085</td>
-      <td>510.0</td>
-      <td>1017.0</td>
-      <td>1.00</td>
+      <td>5.714</td>
+      <td>2.604</td>
+      <td>0.465</td>
+      <td>10.248</td>
+      <td>0.097</td>
+      <td>0.069</td>
+      <td>720.0</td>
+      <td>1266.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots)[3]</th>
-      <td>0.216</td>
-      <td>2.467</td>
-      <td>-4.358</td>
-      <td>4.849</td>
-      <td>0.103</td>
-      <td>0.073</td>
-      <td>571.0</td>
-      <td>1320.0</td>
-      <td>1.00</td>
+      <td>0.226</td>
+      <td>2.446</td>
+      <td>-4.181</td>
+      <td>4.810</td>
+      <td>0.092</td>
+      <td>0.065</td>
+      <td>708.0</td>
+      <td>1168.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots)[4]</th>
-      <td>5.237</td>
-      <td>2.711</td>
-      <td>0.104</td>
-      <td>10.568</td>
-      <td>0.118</td>
-      <td>0.084</td>
-      <td>526.0</td>
-      <td>789.0</td>
-      <td>1.00</td>
+      <td>5.279</td>
+      <td>2.590</td>
+      <td>0.500</td>
+      <td>10.089</td>
+      <td>0.093</td>
+      <td>0.066</td>
+      <td>777.0</td>
+      <td>1304.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots)[5]</th>
-      <td>-4.332</td>
-      <td>2.428</td>
-      <td>-8.909</td>
-      <td>0.043</td>
-      <td>0.105</td>
-      <td>0.074</td>
-      <td>535.0</td>
-      <td>890.0</td>
-      <td>1.01</td>
+      <td>-4.341</td>
+      <td>2.412</td>
+      <td>-8.440</td>
+      <td>0.732</td>
+      <td>0.089</td>
+      <td>0.063</td>
+      <td>736.0</td>
+      <td>1127.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots)[6]</th>
-      <td>8.788</td>
-      <td>2.546</td>
-      <td>3.669</td>
-      <td>13.310</td>
-      <td>0.112</td>
-      <td>0.079</td>
-      <td>518.0</td>
-      <td>854.0</td>
-      <td>1.01</td>
+      <td>8.796</td>
+      <td>2.421</td>
+      <td>4.549</td>
+      <td>13.533</td>
+      <td>0.088</td>
+      <td>0.062</td>
+      <td>753.0</td>
+      <td>1246.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots)[7]</th>
-      <td>0.008</td>
-      <td>2.573</td>
-      <td>-5.056</td>
-      <td>4.474</td>
-      <td>0.112</td>
-      <td>0.079</td>
-      <td>525.0</td>
-      <td>916.0</td>
-      <td>1.00</td>
+      <td>0.029</td>
+      <td>2.521</td>
+      <td>-4.922</td>
+      <td>4.602</td>
+      <td>0.093</td>
+      <td>0.066</td>
+      <td>732.0</td>
+      <td>1119.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots)[8]</th>
-      <td>3.980</td>
-      <td>2.745</td>
-      <td>-0.716</td>
-      <td>9.394</td>
-      <td>0.112</td>
-      <td>0.079</td>
-      <td>597.0</td>
-      <td>927.0</td>
-      <td>1.00</td>
+      <td>4.004</td>
+      <td>2.551</td>
+      <td>-0.700</td>
+      <td>8.912</td>
+      <td>0.091</td>
+      <td>0.064</td>
+      <td>790.0</td>
+      <td>1119.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots)[9]</th>
-      <td>5.658</td>
-      <td>2.559</td>
-      <td>0.917</td>
-      <td>10.350</td>
-      <td>0.109</td>
-      <td>0.077</td>
-      <td>552.0</td>
-      <td>850.0</td>
-      <td>1.00</td>
+      <td>5.651</td>
+      <td>2.563</td>
+      <td>1.126</td>
+      <td>10.653</td>
+      <td>0.092</td>
+      <td>0.065</td>
+      <td>773.0</td>
+      <td>1350.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots)[10]</th>
-      <td>0.801</td>
-      <td>2.655</td>
-      <td>-4.092</td>
-      <td>5.842</td>
-      <td>0.112</td>
-      <td>0.079</td>
-      <td>565.0</td>
-      <td>956.0</td>
-      <td>1.00</td>
+      <td>0.860</td>
+      <td>2.508</td>
+      <td>-3.605</td>
+      <td>5.611</td>
+      <td>0.091</td>
+      <td>0.065</td>
+      <td>756.0</td>
+      <td>1174.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots)[11]</th>
-      <td>6.534</td>
-      <td>2.578</td>
-      <td>1.952</td>
-      <td>11.575</td>
-      <td>0.112</td>
-      <td>0.079</td>
-      <td>531.0</td>
-      <td>845.0</td>
-      <td>1.01</td>
+      <td>6.501</td>
+      <td>2.544</td>
+      <td>1.390</td>
+      <td>10.852</td>
+      <td>0.091</td>
+      <td>0.064</td>
+      <td>783.0</td>
+      <td>1127.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots)[12]</th>
-      <td>1.703</td>
-      <td>2.772</td>
-      <td>-3.154</td>
-      <td>7.363</td>
-      <td>0.114</td>
-      <td>0.081</td>
-      <td>591.0</td>
-      <td>1126.0</td>
-      <td>1.00</td>
+      <td>1.716</td>
+      <td>2.622</td>
+      <td>-3.177</td>
+      <td>6.699</td>
+      <td>0.091</td>
+      <td>0.065</td>
+      <td>824.0</td>
+      <td>1266.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots)[13]</th>
-      <td>0.190</td>
-      <td>3.076</td>
-      <td>-5.277</td>
-      <td>6.077</td>
-      <td>0.115</td>
-      <td>0.081</td>
-      <td>722.0</td>
-      <td>1258.0</td>
-      <td>1.00</td>
+      <td>0.118</td>
+      <td>2.980</td>
+      <td>-5.096</td>
+      <td>5.831</td>
+      <td>0.095</td>
+      <td>0.067</td>
+      <td>974.0</td>
+      <td>1329.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots)[14]</th>
-      <td>-6.026</td>
-      <td>3.162</td>
-      <td>-11.645</td>
-      <td>0.206</td>
-      <td>0.122</td>
-      <td>0.086</td>
-      <td>672.0</td>
-      <td>1164.0</td>
-      <td>1.00</td>
+      <td>-5.901</td>
+      <td>3.032</td>
+      <td>-11.364</td>
+      <td>-0.319</td>
+      <td>0.092</td>
+      <td>0.065</td>
+      <td>1087.0</td>
+      <td>1447.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots=iknots)[15]</th>
-      <td>-6.715</td>
-      <td>3.005</td>
-      <td>-12.485</td>
-      <td>-1.229</td>
-      <td>0.118</td>
-      <td>0.084</td>
-      <td>641.0</td>
-      <td>1306.0</td>
-      <td>1.00</td>
+      <td>-6.734</td>
+      <td>2.977</td>
+      <td>-12.309</td>
+      <td>-1.337</td>
+      <td>0.101</td>
+      <td>0.071</td>
+      <td>883.0</td>
+      <td>1399.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
-      <th>doy_sigma</th>
-      <td>5.949</td>
-      <td>0.146</td>
-      <td>5.674</td>
-      <td>6.221</td>
+      <th>sigma</th>
+      <td>5.941</td>
+      <td>0.152</td>
+      <td>5.657</td>
+      <td>6.219</td>
       <td>0.003</td>
       <td>0.002</td>
-      <td>2287.0</td>
-      <td>1466.0</td>
-      <td>1.00</td>
+      <td>2631.0</td>
+      <td>1420.0</td>
+      <td>1.0</td>
     </tr>
   </tbody>
 </table>
@@ -1415,13 +1386,13 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="cell" data-execution_count="24">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>idata.posterior.sampling_time</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="24">
-<pre><code>32.5815589427948</code></pre>
+<pre><code>9.64709210395813</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>idata_new.posterior.sampling_time</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="25">
-<pre><code>31.589828729629517</code></pre>
+<pre><code>9.324542045593262</code></pre>
 </div>
 </div>
 <p>Sampling times are similar in this particular example. But in general, we expect the sampler to run faster when there aren’t structural dependencies in the design matrix.</p>
@@ -1429,7 +1400,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="cell" data-execution_count="26">
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>plot_predictions(data, idata_new, model_new)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/tmp/ipykernel_33590/2247671002.py:8: FutureWarning: extract_dataset has been deprecated, please use extract
+<pre><code>/tmp/ipykernel_46679/4286558085.py:8: FutureWarning: extract_dataset has been deprecated, please use extract
   posterior_stacked =  az.extract_dataset(idata)</code></pre>
 </div>
 <div class="cell-output cell-output-display">
@@ -1464,11 +1435,11 @@ We recommend running at least 4 chains for robust computation of convergence dia
     <tr>
       <th>New</th>
       <td>0</td>
-      <td>-2657.859115</td>
-      <td>15.945629</td>
+      <td>-2657.850604</td>
+      <td>15.926137</td>
       <td>0.000000</td>
-      <td>1.000000e+00</td>
-      <td>21.134973</td>
+      <td>1.0</td>
+      <td>21.193558</td>
       <td>0.000000</td>
       <td>False</td>
       <td>log</td>
@@ -1476,12 +1447,12 @@ We recommend running at least 4 chains for robust computation of convergence dia
     <tr>
       <th>Original</th>
       <td>1</td>
-      <td>-2658.359085</td>
-      <td>16.652034</td>
-      <td>0.499969</td>
-      <td>3.330669e-16</td>
-      <td>21.173433</td>
-      <td>0.561943</td>
+      <td>-2658.586671</td>
+      <td>16.913997</td>
+      <td>0.736068</td>
+      <td>0.0</td>
+      <td>21.192815</td>
+      <td>0.549973</td>
       <td>False</td>
       <td>log</td>
     </tr>
@@ -1501,22 +1472,16 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute pointwise LOO</span></span>
 <span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>loo_1 <span class="op">=</span> az.loo(idata, pointwise<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>loo_2 <span class="op">=</span> az.loo(idata_new, pointwise<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>/tmp/ipykernel_33590/3493983793.py:2: DeprecationWarning: `product` is deprecated as of NumPy 1.25.0, and will be removed in NumPy 2.0. Please use `prod` instead.
-  loo_1 = az.loo(idata, pointwise=True)
-/tmp/ipykernel_33590/3493983793.py:3: DeprecationWarning: `product` is deprecated as of NumPy 1.25.0, and will be removed in NumPy 2.0. Please use `prod` instead.
-  loo_2 = az.loo(idata_new, pointwise=True)</code></pre>
-</div>
 </div>
 <div class="cell" data-execution_count="30">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot kappa values</span></span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>az.plot_khat(loo_1.pareto_k)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot kappa values</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>az.plot_khat(loo_1.pareto_k)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="splines_cherry_blossoms_files/figure-html/cell-31-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <div class="cell" data-execution_count="31">
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>az.plot_khat(loo_2.pareto_k)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>az.plot_khat(loo_2.pareto_k)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="splines_cherry_blossoms_files/figure-html/cell-32-output-1.png" class="img-fluid"></p>
 </div>
@@ -1526,22 +1491,22 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <h2 class="anchored" data-anchor-id="final-comments">Final comments</h2>
 <p>Another option could have been to use stronger priors on the coefficients associated with the spline functions. For example, the example written in PyMC uses <span class="math inline">\(\text{Normal}(0, 3)\)</span> priors on them instead of <span class="math inline">\(\text{Normal}(0, 10)\)</span>.</p>
 <div class="cell" data-execution_count="32">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Wed Jun 28 2023
+<pre><code>Last updated: Sun May 26 2024
 
 Python implementation: CPython
-Python version       : 3.10.4
-IPython version      : 8.5.0
+Python version       : 3.11.9
+IPython version      : 8.24.0
 
-pandas    : 2.0.2
-bambi     : 0.12.0.dev0
-arviz     : 0.14.0
-numpy     : 1.25.0
-matplotlib: 3.6.2
+pandas    : 2.2.2
+bambi     : 0.13.1.dev39+gb7d6a6cb
+numpy     : 1.26.4
+arviz     : 0.18.0
+matplotlib: 3.8.4
 
-Watermark: 2.3.1
+Watermark: 2.4.3
 </code></pre>
 </div>
 </div>
