@@ -99,7 +99,7 @@ class PyMCModel:
         tune=1000,
         discard_tuned_samples=True,
         omit_offsets=True,
-        include_params=False,
+        include_response_params=False,
         inference_method="mcmc",
         init="auto",
         n_init=50000,
@@ -133,7 +133,7 @@ class PyMCModel:
                 tune,
                 discard_tuned_samples,
                 omit_offsets,
-                include_params,
+                include_response_params,
                 init,
                 n_init,
                 chains,
@@ -145,7 +145,7 @@ class PyMCModel:
         elif inference_method in self.pymc_methods["vi"]:
             result = self._run_vi(**kwargs)
         elif inference_method == "laplace":
-            result = self._run_laplace(draws, omit_offsets, include_params)
+            result = self._run_laplace(draws, omit_offsets, include_response_params)
         else:
             raise NotImplementedError(f"'{inference_method}' method has not been implemented")
 
@@ -181,7 +181,7 @@ class PyMCModel:
         tune=1000,
         discard_tuned_samples=True,
         omit_offsets=True,
-        include_params=False,
+        include_response_params=False,
         init="auto",
         n_init=50000,
         chains=None,
@@ -266,10 +266,10 @@ class PyMCModel:
                 f" {self.pymc_methods['mcmc'] + self.bayeux_methods['mcmc']}"
             )
 
-        idata = self._clean_results(idata, omit_offsets, include_params, idata_from)
+        idata = self._clean_results(idata, omit_offsets, include_response_params, idata_from)
         return idata
 
-    def _clean_results(self, idata, omit_offsets, include_params, idata_from):
+    def _clean_results(self, idata, omit_offsets, include_response_params, idata_from):
         # Before doing anything, make sure we compute deterministics.
         # But, don't include those determinisics for parameters of the likelihood.
         if idata_from == "bayeux":
@@ -351,7 +351,7 @@ class PyMCModel:
                 center_factor = np.dot(X.mean(0), coefs).reshape(shape)
                 idata.posterior[name] = idata.posterior[name] - center_factor
 
-        if include_params:
+        if include_response_params:
             self.spec.predict(idata)
 
         return idata
@@ -361,7 +361,7 @@ class PyMCModel:
             self.vi_approx = pm.fit(**kwargs)
         return self.vi_approx
 
-    def _run_laplace(self, draws, omit_offsets, include_params):
+    def _run_laplace(self, draws, omit_offsets, include_response_params):
         """Fit a model using a Laplace approximation.
 
         Mainly for pedagogical use, provides reasonable results for approximately
@@ -376,7 +376,7 @@ class PyMCModel:
         omit_offsets : bool
             Omits offset terms in the `InferenceData` object returned when the model includes
             group specific effects.
-        include_params : bool
+        include_response_params : bool
             Compute the posterior of the mean response.
 
         Returns
@@ -409,7 +409,7 @@ class PyMCModel:
         samples = np.random.multivariate_normal(modes, cov, size=draws)
 
         idata = _posterior_samples_to_idata(samples, self.model)
-        idata = self._clean_results(idata, omit_offsets, include_params, idata_from="pymc")
+        idata = self._clean_results(idata, omit_offsets, include_response_params, idata_from="pymc")
         return idata
 
     @property

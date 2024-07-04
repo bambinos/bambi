@@ -233,7 +233,7 @@ class Model:
         discard_tuned_samples=True,
         omit_offsets=True,
         include_mean=None,
-        include_params=False,
+        include_response_params=False,
         inference_method="mcmc",
         init="auto",
         n_init=50000,
@@ -259,8 +259,8 @@ class Model:
             Omits offset terms in the `InferenceData` object returned when the model includes
             group specific effects. Defaults to `True`.
         include_mean : bool
-            Deprecated. Use `include_params`.
-        include_params : bool
+            Deprecated. Use `include_response_params`.
+        include_response_params : bool
             Include parameters of the response distribution in the output. These usually take more
             space than other parameters as there's one of them per observation. Defaults to `False`.
         inference_method : str
@@ -339,18 +339,18 @@ class Model:
 
         if include_mean is not None:
             warnings.warn(
-                "'include_mean' has been replaced by 'include_params' and is not going to work in "
-                "the future",
+                "'include_mean' has been replaced by 'include_response_params' and "
+                "is not going to work in the future",
                 FutureWarning,
             )
-            include_params = include_mean
+            include_response_params = include_mean
 
         return self.backend.run(
             draws=draws,
             tune=tune,
             discard_tuned_samples=discard_tuned_samples,
             omit_offsets=omit_offsets,
-            include_params=include_params,
+            include_response_params=include_response_params,
             inference_method=inference_method,
             init=init,
             n_init=n_init,
@@ -797,7 +797,7 @@ class Model:
     def predict(
         self,
         idata,
-        kind="params",
+        kind="response_params",
         data=None,
         inplace=True,
         include_group_specific=True,
@@ -841,14 +841,14 @@ class Model:
         -------
         InferenceData or None
         """
-        # NOTE: 'outcome' better than 'response'?
-        if kind not in ("mean", "pps", "params", "response"):
-            raise ValueError("'kind' must be one of 'params' or 'response'")
+        if kind not in ("mean", "pps", "response_params", "response"):
+            raise ValueError("'kind' must be one of 'response_params' or 'response'")
 
         if kind == "mean":
-            kind = "params"
+            kind = "response_params"
             warnings.warn(
-                "'mean' has been replaced by 'params' and is not going to work in the future",
+                "'mean' has been replaced by 'response_params' and "
+                "is not going to work in the future",
                 FutureWarning,
             )
         if kind == "pps":

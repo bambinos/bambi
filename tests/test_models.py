@@ -513,7 +513,7 @@ class TestGaussian(FitPredictParent):
     def test_fit_include_mean(self, crossed_data):
         draws = 100
         model = bmb.Model("Y ~ continuous * threecats", crossed_data)
-        idata = model.fit(tune=draws, draws=draws, include_params=True)
+        idata = model.fit(tune=draws, draws=draws, include_response_params=True)
         assert idata.posterior["mu"].shape[1:] == (draws, 120)
 
         # Compare with the mean obtained with `model.predict()`
@@ -764,13 +764,13 @@ class TestNegativeBinomial(FitPredictParent):
         model = bmb.Model("n1 ~ y1", data_n100, family="negativebinomial")
         idata = self.fit(model)
 
-        model.predict(idata, kind="params") # FIXME
+        model.predict(idata, kind="response_params")
         assert (0 < idata.posterior["mu"]).all()
 
         model.predict(idata, kind="response")
         assert (np.equal(np.mod(idata.posterior_predictive["n1"].values, 1), 0)).all()
 
-        model.predict(idata, kind="params", data=data_n100.iloc[:20, :])
+        model.predict(idata, kind="response_params", data=data_n100.iloc[:20, :])
         assert (0 < idata.posterior["mu"]).all()
 
         model.predict(idata, kind="response", data=data_n100.iloc[:20, :])
@@ -820,7 +820,7 @@ class TestBeta(FitPredictParent):
         idata = self.fit(model, target_accept=0.9, random_seed=1234)
 
         # To Do: Could be adjusted but this is what we had before
-        model.predict(idata, kind="params")
+        model.predict(idata, kind="response_params")
         model.predict(idata, kind="response")
 
         assert (0 < idata.posterior["mu"]).all() & (idata.posterior["mu"] < 1).all()
@@ -828,7 +828,7 @@ class TestBeta(FitPredictParent):
             idata.posterior_predictive["yield"] < 1
         ).all()
 
-        model.predict(idata, kind="params", data=gasoline_data.iloc[:20, :])
+        model.predict(idata, kind="response_params", data=gasoline_data.iloc[:20, :])
         model.predict(idata, kind="response", data=gasoline_data.iloc[:20, :])
 
         assert (0 < idata.posterior["mu"]).all() & (idata.posterior["mu"] < 1).all()
@@ -1269,13 +1269,13 @@ def test_wald_family(data_n100):
     model = bmb.Model("y ~ y2", data_n100, family="wald", link="log", priors=priors)
     idata = model.fit(tune=DRAWS, draws=DRAWS, random_seed=1234)
 
-    model.predict(idata, kind="params")
+    model.predict(idata, kind="response_params")
     model.predict(idata, kind="response")
 
     assert (0 < idata.posterior["mu"]).all()
     assert (0 < idata.posterior_predictive["y"]).all()
 
-    model.predict(idata, kind="params", data=data_n100.iloc[:20, :])
+    model.predict(idata, kind="response_params", data=data_n100.iloc[:20, :])
     model.predict(idata, kind="response", data=data_n100.iloc[:20, :])
 
     assert (0 < idata.posterior["mu"]).all()
