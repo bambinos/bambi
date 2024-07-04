@@ -72,6 +72,8 @@ class InferenceMethods:
 
     @property
     def names(self):
+        if self.bayeux_model is None:
+            return {"pymc": self.pymc_methods}
         return {"pymc": self.pymc_methods, "bayeux": self.bayeux_methods}
 
 
