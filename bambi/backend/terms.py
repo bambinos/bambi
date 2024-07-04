@@ -13,7 +13,7 @@ from bambi.backend.utils import (
     GP_KERNELS,
 )
 from bambi.families.multivariate import MultivariateFamily, Multinomial, DirichletMultinomial
-from bambi.families.univariate import Categorical
+from bambi.families.univariate import Categorical, Cumulative, StoppingRatio
 from bambi.priors import Prior
 
 
@@ -234,7 +234,17 @@ class ResponseTerm:
         # Auxiliary parameters and data
         kwargs = {"observed": data, "dims": ("__obs__",)}
 
-        if isinstance(self.family, (MultivariateFamily, Categorical)):
+        if isinstance(
+            self.family,
+            (
+                MultivariateFamily,
+                Categorical,
+                Cumulative,
+                StoppingRatio,
+                Multinomial,
+                DirichletMultinomial,
+            ),
+        ):
             response_term = bmb_model.response_component.term
             response_name = response_term.alias or response_term.name
             dim_name = response_name + "_dim"
@@ -385,10 +395,6 @@ class ResponseTerm:
         # linear predictor because the family is not multivariate.
         # In this case, we add extra dimensions to avoid having shape mismatch between the data
         # and the shape implied by the `dims` we pass.
-
-        # Don't do it for the Multinomial families (it's an exception)
-        if isinstance(self.family, (Multinomial, DirichletMultinomial)):
-            return kwargs
 
         if (
             self.term.is_censored
