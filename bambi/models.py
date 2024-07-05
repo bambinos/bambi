@@ -823,8 +823,8 @@ class Model:
         inplace : bool
             If ``True`` it will modify ``idata`` in-place. Otherwise, it will return a copy of
             ``idata`` with the predictions added. If ``kind="response_params"``, a new variable
-            with the name of the parent parameter, e.g. ``"mu"`` or ``"p"``is added to the 
-            ``posterior`` group. If ``kind="response"``, it appends a ``posterior_predictive`` group 
+            with the name of the parent parameter, e.g. ``"mu"`` or ``"p"``is added to the
+            ``posterior`` group. If ``kind="response"``, it appends a ``posterior_predictive`` group
             to ``idata``. If any of these already exist, it will be overwritten.
         include_group_specific : bool
             Determines if predictions incorporate group-specific effects. If ``False``, predictions
