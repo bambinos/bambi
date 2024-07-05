@@ -531,7 +531,7 @@ def predictions(
 
     if pps:
         idata = model.predict(
-            idata, data=cap_data, sample_new_groups=sample_new_groups, inplace=False, kind="pps"
+            idata, data=cap_data, sample_new_groups=sample_new_groups, inplace=False, kind="response"
         )
         y_hat = response_transform(idata["posterior_predictive"][response.name])
         y_hat_mean = y_hat.mean(("chain", "draw"))
