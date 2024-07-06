@@ -826,7 +826,7 @@ class Model:
             ``idata`` with the predictions added. If ``kind="response_params"``, a new variable
             with the name of the parent parameter, e.g. ``"mu"`` and ``"sigma" for a Gaussian
             likelihood, or ``"p"`` for a Bernoulli likelihood, is added to the ``posterior`` group.
-            If ``kind="response"``, it appends a ``posterior_predictive`` group to ``idata``. If 
+            If ``kind="response"``, it appends a ``posterior_predictive`` group to ``idata``. If
             any of these already exist, it will be overwritten.
         include_group_specific : bool
             Determines if predictions incorporate group-specific effects. If ``False``, predictions
