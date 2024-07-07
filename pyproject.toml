@@ -23,7 +23,7 @@ dependencies = [
     "formulae>=0.5.3",
     "graphviz",
     "pandas>=1.0.0",
-    "pymc>=5.13.0",
+    "pymc>=5.16.1",
 ]
 
 [project.optional-dependencies]
@@ -37,12 +37,9 @@ dev = [
     "quartodoc==0.6.1",
     "seaborn>=0.9.0",
 ]
+
 jax = [
-    "bayeux-ml>=0.1.9",
-    "blackjax>=1.0.0",
-    "jax>=0.3.1",
-    "jaxlib>=0.3.1",
-    "numpyro>=0.9.0",
+    "bayeux-ml>=0.1.12",
 ]
 
 [project.urls]
@@ -66,3 +63,6 @@ packages = [
 [tool.black]
 line-length = 100
 target-version = ["py310"]
+
+[tool.pytest.ini_options]
+addopts = "-p no:warnings"

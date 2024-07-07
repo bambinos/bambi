@@ -5,7 +5,7 @@ import pymc as pm
 import xarray as xr
 
 from bambi.families.link import Link
-from bambi.utils import get_auxiliary_parameters, get_aliased_name, response_evaluate_new_data
+from bambi.utils import get_aliased_name, response_evaluate_new_data
 
 
 class Family:
@@ -16,11 +16,11 @@ class Family:
     name : str
         The name of the family. It can be any string.
     likelihood : Likelihood
-        A ``bambi.families.Likelihood`` instance specifying the model likelihood function.
+        A `bambi.families.Likelihood` instance specifying the model likelihood function.
     link : Union[str, Dict[str, Union[str, Link]]]
         The link function that's used for every parameter in the likelihood function.
         Keys are the names of the parameters and values are the link functions.
-        These can be a ``str`` with a name or a ``bambi.families.Link`` instance.
+        These can be a `str` with a name or a `bambi.families.Link` instance.
         The link function transforms the linear predictors.
 
     Examples
@@ -79,6 +79,20 @@ class Family:
             links[name] = link
         self._link = links
 
+    @property
+    def auxiliary_parameters(self):
+        """Get names of auxiliary parameters
+
+        Obtains the difference between all the parameters and the parent parameter of a family.
+        These parameters are known as auxiliary or nuisance parameters.
+
+        Returns
+        -------
+        set
+            Names of auxiliary parameters in the family
+        """
+        return set(self.likelihood.params) - {self.likelihood.parent}
+
     def check_string_link(self, link_name, param_name):
         # When you instantiate Family directly
         if isinstance(self.SUPPORTED_LINKS, list):
@@ -101,8 +115,7 @@ class Family:
         priors : dict
             The keys are the names of non-parent parameters and the values are their default priors.
         """
-        auxiliary_parameters = get_auxiliary_parameters(self)
-        priors = {k: v for k, v in priors.items() if k in auxiliary_parameters}
+        priors = {k: v for k, v in priors.items() if k in self.auxiliary_parameters}
         self.default_priors.update(priors)
 
     def posterior_predictive(self, model, posterior, **kwargs):
@@ -132,7 +145,7 @@ class Family:
             A data array with the draws from the posterior predictive distribution
         """
         response_dist = get_response_dist(model.family)
-        response_term = model.response_component.response_term
+        response_term = model.response_component.term
         kwargs, coords = self._make_dist_kwargs_and_coords(model, posterior, **kwargs)
 
         # Handle constrained responses
@@ -179,16 +192,16 @@ class Family:
         # Get the values of the outcome variable
         if y_values is None:  # when it's not handled by the specific family
             if data is None:
-                y_values = np.squeeze(model.response_component.response_term.data)
+                y_values = np.squeeze(model.response_component.term.data)
             else:
                 y_values = response_evaluate_new_data(model, data)
 
         response_dist = get_response_dist(model.family)
-        response_term = model.response_component.response_term
+        response_term = model.response_component.term
         kwargs, coords = self._make_dist_kwargs_and_coords(model, posterior, **kwargs)
 
         # If it's multivariate, it's going to have a fourth coord, but we actually don't need it
-        # We just need "chain", "draw", "obs"
+        # We just need "chain", "draw", "__obs__"
         coords = dict(list(coords.items())[:3])
 
         # Handle constrained responses
@@ -213,15 +226,11 @@ class Family:
         * A dictionary that maps the names of the likelihood parameters to draws from the
         posterior distribtuion.
         * An `xr.Coordinates` object with the coordinates required for the response. For example:
-        `(chain, draw, y_obs)` or `(chain, draw, y_obs, y_dim)`.
+        `(chain, draw, __obs__)` or `(chain, draw, __obs__, y_dim)`.
 
         It was created to abstract repetitive logic used in both `.posterior_predictive()` and
         `log_likelihood()`.
         """
-        response_term = model.response_component.response_term
-        response_aliased_name = get_aliased_name(response_term)
-        params = model.family.likelihood.params
-
         # Remove the 'data' kwarg
         kwargs.pop("data", None)
 
@@ -231,18 +240,11 @@ class Family:
         # Collect coordinates from all the likelihood parameters
         params_coords = xr.Coordinates()
 
-        for param in params:
-            # In the posterior xr.Dataset we need to consider aliases,
-            # but we can't use aliases when passing kwargs to the PyMC distribution.
-            if param == model.family.likelihood.parent:
-                component = model.components[model.response_name]
-                var_name = response_aliased_name + "_mean"
-            else:
-                component = model.components[param]
-                if component.alias:
-                    var_name = component.alias
-                else:
-                    var_name = f"{response_aliased_name}_{param}"
+        for param in self.likelihood.params:
+            # In the posterior xr.Dataset we need to consider aliases, but we can't use aliases
+            # when passing kwargs to the PyMC distribution.
+            component = model.components[param]
+            var_name = component.alias if component.alias else param
 
             # Get posterior draws or a constant array if it was set to a constant in the prior
             if var_name in posterior:
@@ -274,9 +276,10 @@ class Family:
         # Get the actual coords as 'params_coords' is an object of type Dataset
         params_coords = params_coords.coords
 
-        coord_names = ["chain", "draw", response_aliased_name + "_obs"]
+        coord_names = ["chain", "draw", "__obs__"]
         is_multivariate = hasattr(model.family, "KIND") and model.family.KIND == "Multivariate"
 
+        response_aliased_name = get_aliased_name(model.response_component.term)
         if is_multivariate:
             coord_names.append(response_aliased_name + "_dim")
         elif hasattr(model.family, "create_extra_pps_coord"):
