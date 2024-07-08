@@ -893,10 +893,10 @@ ul.task-list li input[type="checkbox"] {
 <h4 class="anchored" data-anchor-id="parameters-5">Parameters</h4>
 <table class="table">
 <colgroup>
-<col style="width: 5%">
-<col style="width: 5%">
-<col style="width: 85%">
 <col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 86%">
+<col style="width: 3%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -916,7 +916,7 @@ ul.task-list li input[type="checkbox"] {
 <tr class="even">
 <td><code>kind</code></td>
 <td>str</td>
-<td>Indicates the type of prediction required. Can be <code>"mean"</code> or <code>"pps"</code>. The first returns draws from the posterior distribution of the mean, while the latter returns the draws from the posterior predictive distribution (i.e.&nbsp;the posterior probability distribution for a new observation) in addition to the mean posterior distribution. Defaults to <code>"mean"</code>.</td>
+<td>Indicates the type of prediction required. Can be <code>"response_params"</code> or <code>"response"</code>. The first returns draws from the posterior distribution of the likelihood parameters, while the latter returns the draws from the posterior predictive distribution (i.e.&nbsp;the posterior probability distribution for a new observation) in addition to the posterior distribution. Defaults to <code>"response_params"</code>.</td>
 <td><code>'response_params'</code></td>
 </tr>
 <tr class="odd">
@@ -928,20 +928,8 @@ ul.task-list li input[type="checkbox"] {
 <tr class="even">
 <td><code>inplace</code></td>
 <td>bool</td>
-<td>If <code>True</code> it will modify <code>idata</code> in-place. Otherwise, it will return a copy of <code>idata</code> with the predictions added. If <code>kind="mean"</code>, a new variable ending in <code>"_mean"</code> is added to the <code>posterior</code> group. If <code>kind="pps"</code>, it appends a <code>posterior_predictive</code> group to <code>idata</code>. If any of these already exist, it will be overwritten.</td>
-<td><code>True</code></td>
-</tr>
-<tr class="odd">
-<td><code>include_group_specific</code></td>
-<td>bool</td>
-<td>Determines if predictions incorporate group-specific effects. If <code>False</code>, predictions are made with common effects only (i.e.&nbsp;group specific are set to zero). Defaults to <code>True</code>.</td>
-<td><code>True</code></td>
-</tr>
-<tr class="even">
-<td><code>sample_new_groups</code></td>
-<td>bool</td>
-<td>Specifies if it is allowed to obtain predictions for new groups of group-specific terms. When <code>True</code>, each posterior sample for the new groups is drawn from the posterior draws of a randomly selected existing group. Since different groups may be selected at each draw, the end result represents the variation across existing groups. The method implemented is quivalent to <code>sample_new_levels="uncertainty"</code> in brms.</td>
-<td><code>False</code></td>
+<td>If <code>True</code> it will modify <code>idata</code> in-place. Otherwise, it will return a copy of <code>idata</code> with the predictions added. If <code>kind="response_params"</code>, a new variable with the name of the parent parameter, e.g.&nbsp;<code>"mu"</code> and <code>"sigma" for a Gaussian likelihood, or</code>“p”<code>for a Bernoulli likelihood, is added to the</code>posterior<code>group. If</code>kind=“response”<code>, it appends a</code>posterior_predictive<code>group to</code>idata<code>. If any of these already exist, it will be overwritten. | `True`              | | `include_group_specific` | bool                     | Determines if predictions incorporate group-specific effects. If</code>False<code>, predictions are made with common effects only (i.e. group specific are set to zero). Defaults to</code>True<code>.                                                                                                                                                                                                                                                                                                    | `True`              | | `sample_new_groups`      | bool                     | Specifies if it is allowed to obtain predictions for new groups of group-specific terms. When</code>True`<code>, each posterior sample for the new groups is drawn from the posterior draws of a randomly selected existing group. Since different groups may be selected at each draw, the end result represents the variation across existing groups. The method implemented is quivalent to</code>sample_new_levels=“uncertainty”<code>in brms.                                                          |</code>False`</td>
+<td></td>
 </tr>
 </tbody>
 </table>
