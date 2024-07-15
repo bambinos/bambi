@@ -513,12 +513,12 @@ x_f = \beta_2 t^2 + \beta_1 t + \beta_0
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [sigma, Intercept, I(t ** 2), t]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"88f1c9abb7fc4d44bd17f66abec27afa","version_major":2,"version_minor":0}
+{"model_id":"026445add08d449796a0a76aac07cc6f","version_major":2,"version_minor":0}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -528,8 +528,7 @@ NUTS: [sigma, Intercept, I(t ** 2), t]</code></pre>
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 7 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 9 seconds.</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="4">
 
@@ -553,50 +552,50 @@ We recommend running at least 4 chains for robust computation of convergence dia
   <tbody>
     <tr>
       <th>I(t ** 2)</th>
-      <td>-4.871</td>
-      <td>0.113</td>
-      <td>-5.083</td>
-      <td>-4.654</td>
-      <td>0.004</td>
-      <td>0.003</td>
-      <td>950.0</td>
-      <td>987.0</td>
+      <td>-4.875</td>
+      <td>0.112</td>
+      <td>-5.095</td>
+      <td>-4.673</td>
+      <td>0.002</td>
+      <td>0.002</td>
+      <td>2121.0</td>
+      <td>2049.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>Intercept</th>
       <td>1.518</td>
-      <td>0.068</td>
-      <td>1.392</td>
-      <td>1.643</td>
-      <td>0.002</td>
+      <td>0.066</td>
+      <td>1.389</td>
+      <td>1.636</td>
       <td>0.001</td>
-      <td>1147.0</td>
-      <td>1321.0</td>
+      <td>0.001</td>
+      <td>2299.0</td>
+      <td>2047.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>sigma</th>
-      <td>0.203</td>
-      <td>0.017</td>
-      <td>0.170</td>
-      <td>0.233</td>
-      <td>0.001</td>
+      <td>0.201</td>
+      <td>0.016</td>
+      <td>0.172</td>
+      <td>0.232</td>
       <td>0.000</td>
-      <td>1168.0</td>
-      <td>996.0</td>
+      <td>0.000</td>
+      <td>2950.0</td>
+      <td>2330.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>t</th>
-      <td>6.956</td>
-      <td>0.190</td>
-      <td>6.555</td>
-      <td>7.285</td>
-      <td>0.006</td>
+      <td>6.962</td>
+      <td>0.187</td>
+      <td>6.622</td>
+      <td>7.325</td>
       <td>0.004</td>
-      <td>972.0</td>
-      <td>992.0</td>
+      <td>0.003</td>
+      <td>1958.0</td>
+      <td>1925.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -612,12 +611,12 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [sigma, Intercept, poly(t, 2)]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"1c7a6b1653f949ccaced7283ebaa9230","version_major":2,"version_minor":0}
+{"model_id":"029a155ea3004da488a4b7d0635ec20d","version_major":2,"version_minor":0}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -627,8 +626,7 @@ NUTS: [sigma, Intercept, poly(t, 2)]</code></pre>
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 3 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 3 seconds.</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="6">
@@ -655,50 +653,50 @@ We recommend running at least 4 chains for robust computation of convergence dia
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>2.871</td>
+      <td>2.872</td>
       <td>0.023</td>
-      <td>2.831</td>
-      <td>2.915</td>
+      <td>2.828</td>
+      <td>2.913</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2662.0</td>
-      <td>1715.0</td>
+      <td>5984.0</td>
+      <td>3512.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>poly(t, 2)[0]</th>
-      <td>-3.886</td>
-      <td>0.198</td>
-      <td>-4.216</td>
-      <td>-3.461</td>
-      <td>0.004</td>
+      <td>-3.893</td>
+      <td>0.204</td>
+      <td>-4.275</td>
+      <td>-3.504</td>
       <td>0.003</td>
-      <td>2725.0</td>
-      <td>1830.0</td>
+      <td>0.002</td>
+      <td>6053.0</td>
+      <td>3345.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>poly(t, 2)[1]</th>
-      <td>-8.769</td>
-      <td>0.200</td>
-      <td>-9.154</td>
-      <td>-8.422</td>
+      <td>-8.770</td>
+      <td>0.196</td>
+      <td>-9.141</td>
+      <td>-8.413</td>
       <td>0.003</td>
       <td>0.002</td>
-      <td>3265.0</td>
-      <td>1775.0</td>
+      <td>4844.0</td>
+      <td>3327.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>sigma</th>
       <td>0.201</td>
-      <td>0.017</td>
-      <td>0.169</td>
+      <td>0.016</td>
+      <td>0.171</td>
       <td>0.232</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2876.0</td>
-      <td>1458.0</td>
+      <td>7190.0</td>
+      <td>3089.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -753,7 +751,7 @@ Centered: [-2. -1.  0.  1.  2.]</code></pre>
 <pre><code>Orthogonal matrix Q:
  [[-0.4472 -0.6325  0.5345 -0.3162 -0.1195]
  [-0.4472 -0.3162 -0.2673  0.6325  0.4781]
- [-0.4472  0.     -0.5345  0.     -0.7171]
+ [-0.4472 -0.     -0.5345  0.     -0.7171]
  [-0.4472  0.3162 -0.2673 -0.6325  0.4781]
  [-0.4472  0.6325  0.5345  0.3162 -0.1195]]
 
@@ -761,7 +759,7 @@ Upper triangular matrix R:
  [[ -2.2361  -0.      -4.4721  -0.     -15.2053]
  [  0.       3.1623   0.      10.7517   0.    ]
  [  0.       0.       3.7417   0.      16.5702]
- [  0.       0.       0.       3.7947  -0.    ]
+ [  0.       0.       0.       3.7947   0.    ]
  [  0.       0.       0.       0.      -2.8685]]</code></pre>
 </div>
 </div>
@@ -775,7 +773,7 @@ Upper triangular matrix R:
 <div class="cell-output cell-output-stdout">
 <pre><code>[[ 1.     -2.      2.     -1.2     0.3429]
  [ 1.     -1.     -1.      2.4    -1.3714]
- [ 1.      0.     -2.      0.      2.0571]
+ [ 1.     -0.     -2.      0.      2.0571]
  [ 1.      1.     -1.     -2.4    -1.3714]
  [ 1.      2.      2.      1.2     0.3429]]</code></pre>
 </div>
@@ -816,32 +814,22 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>transformed_X <span class="op">/=</span> np.sqrt(norm2)</span>
 <span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>transformed_X  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="12">
-<pre><code>array([[ 4.47213595e-01, -6.32455532e-01,  5.34522484e-01,
-        -3.16227766e-01,  1.19522861e-01],
-       [ 4.47213595e-01, -3.16227766e-01, -2.67261242e-01,
-         6.32455532e-01, -4.78091444e-01],
-       [ 4.47213595e-01,  0.00000000e+00, -5.34522484e-01,
-         2.34055565e-16,  7.17137166e-01],
-       [ 4.47213595e-01,  3.16227766e-01, -2.67261242e-01,
-        -6.32455532e-01, -4.78091444e-01],
-       [ 4.47213595e-01,  6.32455532e-01,  5.34522484e-01,
-         3.16227766e-01,  1.19522861e-01]])</code></pre>
+<pre><code>array([[ 0.4472136 , -0.63245553,  0.53452248, -0.31622777,  0.11952286],
+       [ 0.4472136 , -0.31622777, -0.26726124,  0.63245553, -0.47809144],
+       [ 0.4472136 ,  0.        , -0.53452248, -0.        ,  0.71713717],
+       [ 0.4472136 ,  0.31622777, -0.26726124, -0.63245553, -0.47809144],
+       [ 0.4472136 ,  0.63245553,  0.53452248,  0.31622777,  0.11952286]])</code></pre>
 </div>
 </div>
 <p>This is now a matrix of orthogonalized polynomials of X. The first column is just a constant. The second column corresponds to the input <span class="math inline">\(x\)</span>, the next is <span class="math inline">\(x^2\)</span> and so on. In most implementations, the constant term is eliminated, giving us the following final matrix.</p>
 <div class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>transformed_X[:,<span class="dv">1</span>:]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="13">
-<pre><code>array([[-6.32455532e-01,  5.34522484e-01, -3.16227766e-01,
-         1.19522861e-01],
-       [-3.16227766e-01, -2.67261242e-01,  6.32455532e-01,
-        -4.78091444e-01],
-       [ 0.00000000e+00, -5.34522484e-01,  2.34055565e-16,
-         7.17137166e-01],
-       [ 3.16227766e-01, -2.67261242e-01, -6.32455532e-01,
-        -4.78091444e-01],
-       [ 6.32455532e-01,  5.34522484e-01,  3.16227766e-01,
-         1.19522861e-01]])</code></pre>
+<pre><code>array([[-0.63245553,  0.53452248, -0.31622777,  0.11952286],
+       [-0.31622777, -0.26726124,  0.63245553, -0.47809144],
+       [ 0.        , -0.53452248, -0.        ,  0.71713717],
+       [ 0.31622777, -0.26726124, -0.63245553, -0.47809144],
+       [ 0.63245553,  0.53452248,  0.31622777,  0.11952286]])</code></pre>
 </div>
 </div>
 <p>The approach shown in this derivation been reproduced below as a Scikit-Learn style class below, where the <code>fit</code> method calculates the coefficients and the <code>transform</code> method returns orthoginalized data. It is also <a href="https://gist.github.com/tjburch/062547b3600f81db73b40feb044bab2a#file-orthogonalpolynomialtransformer-py">at this gist</a>, including the typical <code>BaseEstimator</code>, <code>TransformerMixin</code> inheritances.</p>
@@ -919,11 +907,11 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>poly3 <span class="op">=</span> OrthogonalPolynomialTransformer(degree<span class="op">=</span><span class="dv">3</span>).fit(X)</span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>poly3.transform(X)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="15">
-<pre><code>array([[-6.32455532e-01,  5.34522484e-01, -3.16227766e-01],
-       [-3.16227766e-01, -2.67261242e-01,  6.32455532e-01],
-       [ 0.00000000e+00, -5.34522484e-01,  2.34055565e-16],
-       [ 3.16227766e-01, -2.67261242e-01, -6.32455532e-01],
-       [ 6.32455532e-01,  5.34522484e-01,  3.16227766e-01]])</code></pre>
+<pre><code>array([[-0.63245553,  0.53452248, -0.31622777],
+       [-0.31622777, -0.26726124,  0.63245553],
+       [ 0.        , -0.53452248, -0.        ],
+       [ 0.31622777, -0.26726124, -0.63245553],
+       [ 0.63245553,  0.53452248,  0.31622777]])</code></pre>
 </div>
 </div>
 <p>This matches what you may get when calling the same function in R:</p>
@@ -1264,12 +1252,12 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [sigma, Intercept, horsepower]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"5723ccc9fbf24c1fb8d4adff8e83f7ec","version_major":2,"version_minor":0}
+{"model_id":"9cca3de1f39941a995ad21f78a64a66d","version_major":2,"version_minor":0}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -1279,8 +1267,7 @@ NUTS: [sigma, Intercept, horsepower]</code></pre>
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 3 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 4 seconds.</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="25">
@@ -1328,12 +1315,12 @@ Default computed for conditional variable: horsepower</code></pre>
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [sigma, Intercept, poly(horsepower, 2)]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"d3bf6b167b674d26b4f60b9e6767ff19","version_major":2,"version_minor":0}
+{"model_id":"85245ff194c741fdbff895e9e85c551f","version_major":2,"version_minor":0}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -1343,8 +1330,7 @@ NUTS: [sigma, Intercept, poly(horsepower, 2)]</code></pre>
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 5 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 6 seconds.</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="28">
@@ -1414,24 +1400,24 @@ Default computed for conditional variable: horsepower</code></pre>
     <tr>
       <th>Quadratic</th>
       <td>0</td>
-      <td>-1137.469548</td>
-      <td>4.417018</td>
+      <td>-1137.457520</td>
+      <td>4.391553</td>
       <td>0.000000</td>
-      <td>0.916148</td>
-      <td>18.125660</td>
-      <td>0.000000</td>
+      <td>0.915406</td>
+      <td>18.118483</td>
+      <td>0.00000</td>
       <td>False</td>
       <td>log</td>
     </tr>
     <tr>
       <th>Linear</th>
       <td>1</td>
-      <td>-1181.978612</td>
-      <td>3.510644</td>
-      <td>44.509065</td>
-      <td>0.083852</td>
-      <td>15.129138</td>
-      <td>10.337188</td>
+      <td>-1182.021676</td>
+      <td>3.548755</td>
+      <td>44.564155</td>
+      <td>0.084594</td>
+      <td>15.109327</td>
+      <td>10.36876</td>
       <td>False</td>
       <td>log</td>
     </tr>
@@ -1447,189 +1433,64 @@ Default computed for conditional variable: horsepower</code></pre>
 <section id="fitting-too-many-polynomial-degrees" class="level4">
 <h4 class="anchored" data-anchor-id="fitting-too-many-polynomial-degrees">Fitting too many polynomial degrees</h4>
 <p>Typically, when fitting a statistical model, you want to come to your data with a hypothesis and motivate your polynomial degree based on domain knowledge and expertise with the data. Instead of being principled, we’re going to throw caution to the wind and iteratively fit models from degree 1-10 and then see which performs best.</p>
-<div class="cell" data-execution_count="31">
+<div class="cell" data-execution_count="32">
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>poly_fits, poly_models <span class="op">=</span> {}, {}</span>
 <span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> degree <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">10</span>):</span>
 <span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> bmb.Model(<span class="ss">f"mpg ~ poly(horsepower, </span><span class="sc">{</span>degree<span class="sc">}</span><span class="ss">)"</span>, df_mpg)</span>
-<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>    fit <span class="op">=</span> model.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}, random_seed<span class="op">=</span>SEED)</span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>    fit <span class="op">=</span> model.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}, random_seed<span class="op">=</span>SEED, progressbar<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>    poly_models[<span class="ss">f"Poly</span><span class="sc">{</span>degree<span class="sc">}</span><span class="ss">"</span>] <span class="op">=</span> model</span>
 <span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>    poly_fits[<span class="ss">f"Poly</span><span class="sc">{</span>degree<span class="sc">}</span><span class="ss">"</span>] <span class="op">=</span> fit</span>
 <span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>az.compare(poly_fits)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a><span class="bu">cmp</span> <span class="op">=</span> az.compare(poly_fits)</span>
+<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a><span class="bu">cmp</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [sigma, Intercept, poly(horsepower, 1)]</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"6b7ef5936e724918ac10fc5fc77dd789","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 3 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [sigma, Intercept, poly(horsepower, 1)]
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 4 seconds.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [sigma, Intercept, poly(horsepower, 2)]</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"7d3d4aca46b64b4883f6000f05da8595","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 4 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [sigma, Intercept, poly(horsepower, 2)]
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 5 seconds.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [sigma, Intercept, poly(horsepower, 3)]</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"8cef4118a475428c8172b942cb265606","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 5 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [sigma, Intercept, poly(horsepower, 3)]
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 7 seconds.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [sigma, Intercept, poly(horsepower, 4)]</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"a40930681e774d80ad7cc9c1d1a134a4","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 6 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [sigma, Intercept, poly(horsepower, 4)]
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 8 seconds.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [sigma, Intercept, poly(horsepower, 5)]</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"e37c558592104e78bf1e8243de5937a0","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 6 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [sigma, Intercept, poly(horsepower, 5)]
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 8 seconds.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [sigma, Intercept, poly(horsepower, 6)]</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"0bcc0b605b4149659e4f98ba475c1f01","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 6 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [sigma, Intercept, poly(horsepower, 6)]
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 9 seconds.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [sigma, Intercept, poly(horsepower, 7)]</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"787528684ae249adbe6b8733c7ab2c42","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 6 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [sigma, Intercept, poly(horsepower, 7)]
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 9 seconds.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [sigma, Intercept, poly(horsepower, 8)]</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"33b8ce98791b4e61a1f2ade0d96bd7ac","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 7 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [sigma, Intercept, poly(horsepower, 8)]
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 9 seconds.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [sigma, Intercept, poly(horsepower, 9)]</code></pre>
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [sigma, Intercept, poly(horsepower, 9)]
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 9 seconds.</code></pre>
 </div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"99c1812b207e421dbeba497adf685b7d","version_major":2,"version_minor":0}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 7 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
-</div>
-<div class="cell-output cell-output-display" data-execution_count="31">
+<div class="cell-output cell-output-display" data-execution_count="32">
 
 <div>
 
@@ -1652,11 +1513,11 @@ We recommend running at least 4 chains for robust computation of convergence dia
     <tr>
       <th>Poly7</th>
       <td>0</td>
-      <td>-1133.196856</td>
-      <td>9.392475</td>
+      <td>-1133.056651</td>
+      <td>9.286158</td>
       <td>0.000000</td>
-      <td>0.653005</td>
-      <td>18.885662</td>
+      <td>6.605585e-01</td>
+      <td>18.850219</td>
       <td>0.000000</td>
       <td>False</td>
       <td>log</td>
@@ -1664,96 +1525,96 @@ We recommend running at least 4 chains for robust computation of convergence dia
     <tr>
       <th>Poly6</th>
       <td>1</td>
-      <td>-1134.177718</td>
-      <td>8.823271</td>
-      <td>0.980862</td>
-      <td>0.000000</td>
-      <td>18.548657</td>
-      <td>1.854360</td>
+      <td>-1134.077639</td>
+      <td>8.816832</td>
+      <td>1.020989</td>
+      <td>4.232600e-13</td>
+      <td>18.638394</td>
+      <td>1.793307</td>
       <td>False</td>
       <td>log</td>
     </tr>
     <tr>
       <th>Poly8</th>
       <td>2</td>
-      <td>-1134.276366</td>
-      <td>10.588397</td>
-      <td>1.079510</td>
-      <td>0.000000</td>
-      <td>18.862705</td>
-      <td>0.625819</td>
-      <td>False</td>
+      <td>-1134.642557</td>
+      <td>10.942848</td>
+      <td>1.585906</td>
+      <td>4.274684e-13</td>
+      <td>18.820855</td>
+      <td>0.664368</td>
+      <td>True</td>
       <td>log</td>
     </tr>
     <tr>
       <th>Poly5</th>
       <td>3</td>
-      <td>-1134.993240</td>
-      <td>7.805741</td>
-      <td>1.796384</td>
-      <td>0.000000</td>
-      <td>18.474471</td>
-      <td>3.508298</td>
+      <td>-1134.839670</td>
+      <td>7.652049</td>
+      <td>1.783020</td>
+      <td>4.280794e-13</td>
+      <td>18.505057</td>
+      <td>3.502449</td>
       <td>False</td>
       <td>log</td>
     </tr>
     <tr>
       <th>Poly9</th>
       <td>4</td>
-      <td>-1135.207630</td>
-      <td>11.939531</td>
-      <td>2.010774</td>
-      <td>0.000000</td>
-      <td>18.932710</td>
-      <td>1.654552</td>
+      <td>-1135.162445</td>
+      <td>11.876625</td>
+      <td>2.105794</td>
+      <td>4.271587e-13</td>
+      <td>18.921941</td>
+      <td>1.593423</td>
       <td>True</td>
       <td>log</td>
     </tr>
     <tr>
       <th>Poly2</th>
       <td>5</td>
-      <td>-1137.469424</td>
-      <td>4.416895</td>
-      <td>4.272568</td>
-      <td>0.000000</td>
-      <td>18.125624</td>
-      <td>6.480073</td>
+      <td>-1137.457507</td>
+      <td>4.391540</td>
+      <td>4.400857</td>
+      <td>4.134037e-13</td>
+      <td>18.118477</td>
+      <td>6.449275</td>
       <td>False</td>
       <td>log</td>
     </tr>
     <tr>
       <th>Poly3</th>
       <td>6</td>
-      <td>-1138.129364</td>
-      <td>5.529550</td>
-      <td>4.932508</td>
-      <td>0.281902</td>
-      <td>18.403523</td>
-      <td>7.003267</td>
+      <td>-1138.255418</td>
+      <td>5.693683</td>
+      <td>5.198768</td>
+      <td>2.744510e-01</td>
+      <td>18.401059</td>
+      <td>6.961385</td>
       <td>False</td>
       <td>log</td>
     </tr>
     <tr>
       <th>Poly4</th>
       <td>7</td>
-      <td>-1138.625298</td>
-      <td>6.801640</td>
-      <td>5.428442</td>
-      <td>0.000000</td>
-      <td>18.298131</td>
-      <td>6.161024</td>
+      <td>-1138.824420</td>
+      <td>7.106027</td>
+      <td>5.767770</td>
+      <td>4.337785e-13</td>
+      <td>18.322672</td>
+      <td>6.128835</td>
       <td>False</td>
       <td>log</td>
     </tr>
     <tr>
       <th>Poly1</th>
       <td>8</td>
-      <td>-1181.936790</td>
-      <td>3.440981</td>
-      <td>48.739934</td>
-      <td>0.065092</td>
-      <td>15.110136</td>
-      <td>11.013637</td>
+      <td>-1181.947800</td>
+      <td>3.478546</td>
+      <td>48.891149</td>
+      <td>6.499044e-02</td>
+      <td>15.115759</td>
+      <td>10.986985</td>
       <td>False</td>
       <td>log</td>
     </tr>
@@ -1762,46 +1623,57 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 </div>
-<p>Wow! A 7th degree polynomial seems to do better than the quadratic one we fit before. Let’s see what those residuals look like!</p>
-<div class="cell" data-execution_count="32">
-<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>best_model <span class="op">=</span> poly_models[<span class="st">"Poly7"</span>]</span>
-<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>best_fit <span class="op">=</span> poly_fits[<span class="st">"Poly7"</span>]</span>
-<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>best_model.predict(best_fit, kind<span class="op">=</span><span class="st">"response"</span>)</span>
-<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>predicted_mpg <span class="op">=</span> best_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>))</span>
-<span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a>residuals <span class="op">=</span> df_mpg[<span class="st">"mpg"</span>] <span class="op">-</span> predicted_mpg</span>
-<span id="cb66-7"><a href="#cb66-7" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df_mpg, x<span class="op">=</span><span class="st">"horsepower"</span>, y<span class="op">=</span>residuals)</span>
-<span id="cb66-8"><a href="#cb66-8" aria-hidden="true" tabindex="-1"></a>plt.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'black'</span>, lw<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb66-9"><a href="#cb66-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Residuals"</span>)</span>
-<span id="cb66-10"><a href="#cb66-10" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Residuals for degree 7 model'</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Wow! A 7th-degree polynomial seems to do better than the quadratic one we fit before. But we must also notice that most ELPD values are very similar. Let’s do a plot, so we can more easily grasp how different models are according to the ELPD. We are going to use <code>az.plot_compare</code>, and we are going to add a blue band to indicate models that have an ELPD difference of less than 4 with respect to the first-ranked model. Essentially models that are that close can not be distinguished when using ELPD.</p>
+<div class="cell" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> az.plot_compare(<span class="bu">cmp</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>), plot_ic_diff<span class="op">=</span><span class="va">False</span>, legend<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>best_loo <span class="op">=</span> <span class="bu">cmp</span>[<span class="st">"elpd_loo"</span>].iloc[<span class="dv">0</span>]</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>ax.axvspan(best_loo<span class="op">-</span><span class="dv">4</span>, best_loo, color<span class="op">=</span><span class="st">"C0"</span>, alpha<span class="op">=</span><span class="fl">0.2</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="orthogonal_polynomial_reg_files/figure-html/cell-33-output-1.png" class="img-fluid"></p>
 </div>
 </div>
+<p>We can see that <code>Poly6</code>, <code>Poly8</code>, <code>Poly5</code> and <code>Poly9</code> are all very similar (within a difference of 4 units). Evenmore, all model except from <code>Poly1</code> have overlaping standard errors.</p>
+<p>Overall, this is telling us that there is no clear gain in predictive performance once we move beyond a quadratic model. If we want to pick a single model, then we need another criteria to decide. If we have no reason to prefer a more complex model, choosing the simpler one (<code>Poly2</code> in this example) is a good heuristic.</p>
+<p>Before deciding let’s do a couple more plot. First, see what those residuals look like!</p>
+<div class="cell" data-execution_count="34">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>best_model <span class="op">=</span> poly_models[<span class="st">"Poly7"</span>]</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>best_fit <span class="op">=</span> poly_fits[<span class="st">"Poly7"</span>]</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>best_model.predict(best_fit, kind<span class="op">=</span><span class="st">"response"</span>)</span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>predicted_mpg <span class="op">=</span> best_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>))</span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>residuals <span class="op">=</span> df_mpg[<span class="st">"mpg"</span>] <span class="op">-</span> predicted_mpg</span>
+<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df_mpg, x<span class="op">=</span><span class="st">"horsepower"</span>, y<span class="op">=</span>residuals)</span>
+<span id="cb58-8"><a href="#cb58-8" aria-hidden="true" tabindex="-1"></a>plt.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'black'</span>, lw<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb58-9"><a href="#cb58-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Residuals"</span>)</span>
+<span id="cb58-10"><a href="#cb58-10" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Residuals for degree 7 model'</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-34-output-1.png" class="img-fluid"></p>
+</div>
+</div>
 <p>Hey, that looks pretty good, the residuals appear nice and flat. Before we go full steam ahead with this model, let’s take a look at the posterior predictive distribution.</p>
-<div class="cell" data-execution_count="33">
-<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure()</span>
-<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> p <span class="kw">in</span> [<span class="fl">.68</span>, <span class="fl">.95</span>]:</span>
-<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>    bmb.interpret.plot_predictions(</span>
-<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a>        best_model,</span>
-<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a>        best_fit,</span>
-<span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"horsepower"</span>,</span>
-<span id="cb67-7"><a href="#cb67-7" aria-hidden="true" tabindex="-1"></a>        pps<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb67-8"><a href="#cb67-8" aria-hidden="true" tabindex="-1"></a>        legend<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb67-9"><a href="#cb67-9" aria-hidden="true" tabindex="-1"></a>        prob<span class="op">=</span>p,</span>
-<span id="cb67-10"><a href="#cb67-10" aria-hidden="true" tabindex="-1"></a>        ax<span class="op">=</span>plt.gca()</span>
-<span id="cb67-11"><a href="#cb67-11" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb67-12"><a href="#cb67-12" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df_mpg, x<span class="op">=</span><span class="st">"horsepower"</span>, y<span class="op">=</span><span class="st">"mpg"</span>, color<span class="op">=</span><span class="st">'blue'</span>, label<span class="op">=</span><span class="st">'True Data'</span>)</span>
-<span id="cb67-13"><a href="#cb67-13" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Best Fit Model: 7th Degree Polynomial"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="35">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure()</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> p <span class="kw">in</span> [<span class="fl">.68</span>, <span class="fl">.95</span>]:</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>    bmb.interpret.plot_predictions(</span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>        best_model,</span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>        best_fit,</span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"horsepower"</span>,</span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a>        pps<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb59-8"><a href="#cb59-8" aria-hidden="true" tabindex="-1"></a>        legend<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb59-9"><a href="#cb59-9" aria-hidden="true" tabindex="-1"></a>        prob<span class="op">=</span>p,</span>
+<span id="cb59-10"><a href="#cb59-10" aria-hidden="true" tabindex="-1"></a>        ax<span class="op">=</span>plt.gca()</span>
+<span id="cb59-11"><a href="#cb59-11" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb59-12"><a href="#cb59-12" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df_mpg, x<span class="op">=</span><span class="st">"horsepower"</span>, y<span class="op">=</span><span class="st">"mpg"</span>, color<span class="op">=</span><span class="st">'blue'</span>, label<span class="op">=</span><span class="st">'True Data'</span>)</span>
+<span id="cb59-13"><a href="#cb59-13" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Best Fit Model: 7th Degree Polynomial"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Default computed for conditional variable: horsepower
 Default computed for conditional variable: horsepower</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-34-output-2.png" class="img-fluid"></p>
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-35-output-2.png" class="img-fluid"></p>
 </div>
 </div>
-<p>Uh-oh. You can see that while this gave the best elpd, and had a nice residual plot, it’s obviously overfit. Given our knowledge about how cars operate, we expect a decreasing trend of fuel efficiency at higher horsepower. The 7th degree polynomial absolutely is not consistent with that. First, looking at the low values, it increases before starting the decreasing trend. Second, it starts to go back up at the high end of the data, strongly latching onto a couple of points that are likely driven by noise.</p>
+<p>Uh-oh. You can see that while this gave the best elpd, and had a nice residual plot, it’s obviously overfit, as expected given that we already show that the difference with the quadratic model is small. Given our knowledge about how cars operate, we expect a decreasing trend of fuel efficiency at higher horsepower. The 7th degree polynomial absolutely is not consistent with that. First, looking at the low values, it increases before starting the decreasing trend. Second, it starts to go back up at the high end of the data, strongly latching onto a couple of points that are likely driven by noise.</p>
 <p>This behavior evokes the classic quote,</p>
 <blockquote class="blockquote">
 <p>“With four parameters I can fit an elephant, and with five I can make him wiggle his trunk.” - John von Neumann</p>
@@ -1812,87 +1684,87 @@ Default computed for conditional variable: horsepower</code></pre>
 <h4 class="anchored" data-anchor-id="extrapolation-of-polynomial-models">Extrapolation of polynomial models</h4>
 <p>With any model, we should be careful when extrapolating and ensure our assumptions hold, but this particularly applies when considering polynomial regression. Since we consider the higher order polynomials, terms can quickly blow up outside of our domain.</p>
 <p>For example, with the quadratic fit, we see that the drop in mpg flattens out at higher horsepower. However, if you look closely at the posterior predictive of the quadratic model, you can start to see the fit rise again at the end. But, if we extend this beyond the bounds, due to the curvature of a second degree polynomial, we see a reversal of the negative effect on horsepower, where our quadratic model implies a higher horsepower leads to <em>better</em> mpg.</p>
-<div class="cell" data-execution_count="34">
-<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>extrapolate_x_hp <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">500</span>, <span class="dv">250</span>)  </span>
-<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>mpg_hp_sq_mod.predict(mpg_hp_sq_fit, data<span class="op">=</span>pd.DataFrame({<span class="st">"horsepower"</span>: extrapolate_x_hp}))</span>
-<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df_mpg, x<span class="op">=</span><span class="st">"horsepower"</span>, y<span class="op">=</span><span class="st">"mpg"</span>, color<span class="op">=</span><span class="st">'blue'</span>, label<span class="op">=</span><span class="st">'True Data'</span>)</span>
-<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>plt.plot(</span>
-<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a>    extrapolate_x_hp,</span>
-<span id="cb69-7"><a href="#cb69-7" aria-hidden="true" tabindex="-1"></a>    mpg_hp_sq_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)),</span>
-<span id="cb69-8"><a href="#cb69-8" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"red"</span>,</span>
-<span id="cb69-9"><a href="#cb69-9" aria-hidden="true" tabindex="-1"></a>    label<span class="op">=</span><span class="st">"Extrapolated Fit"</span>,</span>
-<span id="cb69-10"><a href="#cb69-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb69-11"><a href="#cb69-11" aria-hidden="true" tabindex="-1"></a>plt.xlim(left<span class="op">=</span><span class="dv">0</span>, right<span class="op">=</span>extrapolate_x_hp.<span class="bu">max</span>())</span>
-<span id="cb69-12"><a href="#cb69-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-13"><a href="#cb69-13" aria-hidden="true" tabindex="-1"></a>plt.legend(frameon<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="34">
-<pre><code>&lt;matplotlib.legend.Legend at 0x766128255590&gt;</code></pre>
+<div class="cell" data-execution_count="36">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>extrapolate_x_hp <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">500</span>, <span class="dv">250</span>)  </span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>mpg_hp_sq_mod.predict(mpg_hp_sq_fit, data<span class="op">=</span>pd.DataFrame({<span class="st">"horsepower"</span>: extrapolate_x_hp}))</span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df_mpg, x<span class="op">=</span><span class="st">"horsepower"</span>, y<span class="op">=</span><span class="st">"mpg"</span>, color<span class="op">=</span><span class="st">'blue'</span>, label<span class="op">=</span><span class="st">'True Data'</span>)</span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a>plt.plot(</span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a>    extrapolate_x_hp,</span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a>    mpg_hp_sq_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)),</span>
+<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"red"</span>,</span>
+<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a>    label<span class="op">=</span><span class="st">"Extrapolated Fit"</span>,</span>
+<span id="cb61-10"><a href="#cb61-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb61-11"><a href="#cb61-11" aria-hidden="true" tabindex="-1"></a>plt.xlim(left<span class="op">=</span><span class="dv">0</span>, right<span class="op">=</span>extrapolate_x_hp.<span class="bu">max</span>())</span>
+<span id="cb61-12"><a href="#cb61-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-13"><a href="#cb61-13" aria-hidden="true" tabindex="-1"></a>plt.legend(frameon<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="36">
+<pre><code>&lt;matplotlib.legend.Legend at 0x7611d9b24ed0&gt;</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-35-output-2.png" class="img-fluid"></p>
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-36-output-2.png" class="img-fluid"></p>
 </div>
 </div>
 <p>This is strictly untrue based on what we know about cars and what we’ve seen in the data, so you would <em>not</em> want to use the model outside of the intended domain. If that is the goal, you would want to find more appropriate specification. Something like an exponential or inverse fit may be appropriate, in order to make sure the fit approaches 0, while still forbidding predictions below 0.</p>
 <p>Extrapolation issues are not unique to polynomial regression, for example we run into forbidden values with linear regression when extrapolating too.</p>
-<div class="cell" data-execution_count="35">
-<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>mpg_hp_linear_mod.predict(mpg_hp_linear_fit, data<span class="op">=</span>pd.DataFrame({<span class="st">"horsepower"</span>: extrapolate_x_hp}))</span>
-<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df_mpg, x<span class="op">=</span><span class="st">"horsepower"</span>, y<span class="op">=</span><span class="st">"mpg"</span>, color<span class="op">=</span><span class="st">'blue'</span>, label<span class="op">=</span><span class="st">'True Data'</span>)</span>
-<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>plt.plot(</span>
-<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>    extrapolate_x_hp,</span>
-<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>    mpg_hp_linear_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)),</span>
-<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"red"</span>,</span>
-<span id="cb71-8"><a href="#cb71-8" aria-hidden="true" tabindex="-1"></a>    label<span class="op">=</span><span class="st">"Predicted"</span></span>
-<span id="cb71-9"><a href="#cb71-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb71-10"><a href="#cb71-10" aria-hidden="true" tabindex="-1"></a>plt.fill_between(extrapolate_x_hp, plt.ylim()[<span class="dv">0</span>], <span class="dv">0</span>, color<span class="op">=</span><span class="st">'grey'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">"MPG Forbidden region"</span>)</span>
-<span id="cb71-11"><a href="#cb71-11" aria-hidden="true" tabindex="-1"></a>plt.xlim(left<span class="op">=</span><span class="dv">0</span>, right<span class="op">=</span>extrapolate_x_hp.<span class="bu">max</span>())</span>
-<span id="cb71-12"><a href="#cb71-12" aria-hidden="true" tabindex="-1"></a>plt.ylim(bottom<span class="op">=</span>mpg_hp_linear_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)).<span class="bu">min</span>())</span>
-<span id="cb71-13"><a href="#cb71-13" aria-hidden="true" tabindex="-1"></a>plt.legend(frameon<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-36-output-1.png" class="img-fluid"></p>
-</div>
-</div>
-<p>However, it is highlighted in this notebook because, due to the nature of polynomial regression, it can be very sensitive outside the fitting domain. Just for fun to wrap this notebook up, we will take a look at what the 7th order “best model” does outside of where we fit the model.</p>
-<div class="cell" data-execution_count="36">
-<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>extrapolate_x_hp <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">300</span>, <span class="dv">250</span>)  </span>
-<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>best_model.predict(best_fit, data<span class="op">=</span>pd.DataFrame({<span class="st">"horsepower"</span>: extrapolate_x_hp}))</span>
-<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df_mpg, x<span class="op">=</span><span class="st">"horsepower"</span>, y<span class="op">=</span><span class="st">"mpg"</span>, color<span class="op">=</span><span class="st">'blue'</span>, label<span class="op">=</span><span class="st">'True Data'</span>)</span>
-<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a>plt.plot(</span>
-<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a>    extrapolate_x_hp,</span>
-<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a>    best_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)),</span>
-<span id="cb72-8"><a href="#cb72-8" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"red"</span>,</span>
-<span id="cb72-9"><a href="#cb72-9" aria-hidden="true" tabindex="-1"></a>    label<span class="op">=</span><span class="st">"Extrapolated Fit"</span>,</span>
-<span id="cb72-10"><a href="#cb72-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb72-11"><a href="#cb72-11" aria-hidden="true" tabindex="-1"></a>plt.fill_between(extrapolate_x_hp, plt.ylim()[<span class="dv">0</span>], <span class="dv">0</span>, color<span class="op">=</span><span class="st">'grey'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">"MPG Forbidden region"</span>)</span>
-<span id="cb72-12"><a href="#cb72-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb72-13"><a href="#cb72-13" aria-hidden="true" tabindex="-1"></a>plt.xlim(left<span class="op">=</span><span class="dv">0</span>, right<span class="op">=</span>extrapolate_x_hp.<span class="bu">max</span>())</span>
-<span id="cb72-14"><a href="#cb72-14" aria-hidden="true" tabindex="-1"></a>plt.ylim(bottom<span class="op">=</span>best_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)).<span class="bu">min</span>())</span>
-<span id="cb72-15"><a href="#cb72-15" aria-hidden="true" tabindex="-1"></a>plt.legend(frameon<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="37">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>mpg_hp_linear_mod.predict(mpg_hp_linear_fit, data<span class="op">=</span>pd.DataFrame({<span class="st">"horsepower"</span>: extrapolate_x_hp}))</span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df_mpg, x<span class="op">=</span><span class="st">"horsepower"</span>, y<span class="op">=</span><span class="st">"mpg"</span>, color<span class="op">=</span><span class="st">'blue'</span>, label<span class="op">=</span><span class="st">'True Data'</span>)</span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a>plt.plot(</span>
+<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a>    extrapolate_x_hp,</span>
+<span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a>    mpg_hp_linear_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)),</span>
+<span id="cb63-7"><a href="#cb63-7" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"red"</span>,</span>
+<span id="cb63-8"><a href="#cb63-8" aria-hidden="true" tabindex="-1"></a>    label<span class="op">=</span><span class="st">"Predicted"</span></span>
+<span id="cb63-9"><a href="#cb63-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb63-10"><a href="#cb63-10" aria-hidden="true" tabindex="-1"></a>plt.fill_between(extrapolate_x_hp, plt.ylim()[<span class="dv">0</span>], <span class="dv">0</span>, color<span class="op">=</span><span class="st">'grey'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">"MPG Forbidden region"</span>)</span>
+<span id="cb63-11"><a href="#cb63-11" aria-hidden="true" tabindex="-1"></a>plt.xlim(left<span class="op">=</span><span class="dv">0</span>, right<span class="op">=</span>extrapolate_x_hp.<span class="bu">max</span>())</span>
+<span id="cb63-12"><a href="#cb63-12" aria-hidden="true" tabindex="-1"></a>plt.ylim(bottom<span class="op">=</span>mpg_hp_linear_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)).<span class="bu">min</span>())</span>
+<span id="cb63-13"><a href="#cb63-13" aria-hidden="true" tabindex="-1"></a>plt.legend(frameon<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="orthogonal_polynomial_reg_files/figure-html/cell-37-output-1.png" class="img-fluid"></p>
 </div>
 </div>
+<p>However, it is highlighted in this notebook because, due to the nature of polynomial regression, it can be very sensitive outside the fitting domain. Just for fun to wrap this notebook up, we will take a look at what the 7th order “best model” does outside of where we fit the model.</p>
+<div class="cell" data-execution_count="38">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>extrapolate_x_hp <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">300</span>, <span class="dv">250</span>)  </span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>best_model.predict(best_fit, data<span class="op">=</span>pd.DataFrame({<span class="st">"horsepower"</span>: extrapolate_x_hp}))</span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df_mpg, x<span class="op">=</span><span class="st">"horsepower"</span>, y<span class="op">=</span><span class="st">"mpg"</span>, color<span class="op">=</span><span class="st">'blue'</span>, label<span class="op">=</span><span class="st">'True Data'</span>)</span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>plt.plot(</span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a>    extrapolate_x_hp,</span>
+<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a>    best_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)),</span>
+<span id="cb64-8"><a href="#cb64-8" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"red"</span>,</span>
+<span id="cb64-9"><a href="#cb64-9" aria-hidden="true" tabindex="-1"></a>    label<span class="op">=</span><span class="st">"Extrapolated Fit"</span>,</span>
+<span id="cb64-10"><a href="#cb64-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb64-11"><a href="#cb64-11" aria-hidden="true" tabindex="-1"></a>plt.fill_between(extrapolate_x_hp, plt.ylim()[<span class="dv">0</span>], <span class="dv">0</span>, color<span class="op">=</span><span class="st">'grey'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">"MPG Forbidden region"</span>)</span>
+<span id="cb64-12"><a href="#cb64-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-13"><a href="#cb64-13" aria-hidden="true" tabindex="-1"></a>plt.xlim(left<span class="op">=</span><span class="dv">0</span>, right<span class="op">=</span>extrapolate_x_hp.<span class="bu">max</span>())</span>
+<span id="cb64-14"><a href="#cb64-14" aria-hidden="true" tabindex="-1"></a>plt.ylim(bottom<span class="op">=</span>best_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)).<span class="bu">min</span>())</span>
+<span id="cb64-15"><a href="#cb64-15" aria-hidden="true" tabindex="-1"></a>plt.legend(frameon<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-38-output-1.png" class="img-fluid"></p>
+</div>
+</div>
 <p>Yikes.</p>
-<div class="cell" data-execution_count="37">
-<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="39">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Sun May 26 2024
+<pre><code>Last updated: Thu Jul 11 2024
 
 Python implementation: CPython
-Python version       : 3.11.9
-IPython version      : 8.24.0
+Python version       : 3.11.5
+IPython version      : 8.16.1
 
-arviz     : 0.18.0
-matplotlib: 3.8.4
-formulae  : 0.5.3
-bambi     : 0.13.1.dev39+gb7d6a6cb
-numpy     : 1.26.4
-scipy     : 1.13.0
-pandas    : 2.2.2
+bambi     : 0.12.1.dev63+g18e3db6f.d20240711
+scipy     : 1.11.4
+pandas    : 2.1.2
+numpy     : 1.24.4
 seaborn   : 0.13.2
+arviz     : 0.19.0.dev0
+formulae  : 0.5.3
+matplotlib: 3.8.4
 
 Watermark: 2.4.3
 </code></pre>
