@@ -812,20 +812,22 @@ class Model:
         idata : InferenceData
             The ``InferenceData`` instance returned by ``.fit()``.
         kind : str
-            Indicates the type of prediction required. Can be ``"mean"`` or ``"pps"``. The
-            first returns draws from the posterior distribution of the mean, while the latter
-            returns the draws from the posterior predictive distribution (i.e. the posterior
-            probability distribution for a new observation) in addition to the mean posterior
-            distribution. Defaults to ``"mean"``.
+            Indicates the type of prediction required. Can be ``"response_params"`` or
+            ``"response"``. The first returns draws from the posterior distribution of the
+            likelihood parameters, while the latter returns the draws from the posterior
+            predictive distribution (i.e. the posterior probability distribution for a new
+            observation) in addition to the posterior distribution. Defaults to
+            ``"response_params"``.
         data : pandas.DataFrame or None
             An optional data frame with values for the predictors that are used to obtain
             out-of-sample predictions. If omitted, the original dataset is used.
         inplace : bool
             If ``True`` it will modify ``idata`` in-place. Otherwise, it will return a copy of
-            ``idata`` with the predictions added. If ``kind="mean"``, a new variable ending in
-            ``"_mean"`` is added to the ``posterior`` group. If ``kind="pps"``, it appends a
-            ``posterior_predictive`` group to ``idata``. If any of these already exist, it will be
-            overwritten.
+            ``idata`` with the predictions added. If ``kind="response_params"``, a new variable
+            with the name of the parent parameter, e.g. ``"mu"`` and ``"sigma" for a Gaussian
+            likelihood, or ``"p"`` for a Bernoulli likelihood, is added to the ``posterior`` group.
+            If ``kind="response"``, it appends a ``posterior_predictive`` group to ``idata``. If
+            any of these already exist, it will be overwritten.
         include_group_specific : bool
             Determines if predictions incorporate group-specific effects. If ``False``, predictions
             are made with common effects only (i.e. group specific are set to zero). Defaults to
