@@ -4,11 +4,22 @@
 
 ### New features
 
+### Maintenance and fixes
+
+### Documentation
+
+### Deprecation
+
+## 0.14.0
+
+### New features
+
 * Add configuration facilities to Bambi (#745) 
 * Interpet submodule now outputs informative messages when computing default values (#745) 
 * Bambi supports weighted responses (#761)
 * Bambi supports constrained responses (#764)
 * Implement `compute_log_likelihood()` method to compute the log likelihood on a model (#769)
+* Add a class `InferenceMethods` that allows users to access the available inference methods and kwargs (#795)
 
 ### Maintenance and fixes
 
@@ -16,12 +27,23 @@
 * Fix `get_model_covariates()` utility function (#801)
 * Upgrade PyMC dependency to >= 5.13 (#803)
 * Use `pm.compute_deterministics()` to compute deterministics when bayeux based samplers are used (#803)
+* Wrap all the parameters of the response distribution (the likelihood) with a `pm.Deterministic` (#804)
+* Keep `bayeux-ml` as the single direct JAX-related dependency (#804)
+* The response component only holds response information about the response, not about predictors of the parent parameter (#804)
+* Resolve import error associated with bayeux (#822)
 
 ### Documentation
 
 * Our Code of Conduct now includes how to send a report (#783)
+* Add polynomial regression example (#809)
+* Add Contact form to our webpage (#816)
 
 ### Deprecation
+
+* `f"{response_name}_obs"` has been replaced by `"__obs__"` as the dimension name for the observation index (#804)
+* `f"{response_name}_{parameter_name}"` is no longer the name for the name of parameters of the likelihood. Now Bambi uses `"{parameter_name}"` (#804)
+* `kind` in `Model.predict()` now use `"response_params"` and `"response"` instead of `"mean"` and `"pps"` (#804)
+* `include_mean` has been replaced by `include_response_params` in `Model.fit()` (#804)
 
 ## 0.13.0
 
