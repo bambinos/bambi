@@ -79,12 +79,12 @@ class PriorScaler:
     def scale_common(self, term):
         if term.prior.name != "Normal":
             return
-        
+
         if term.data.ndim == 1:
             mu = 0
             if (
-            isinstance(self.model.family, (Bernoulli, Binomial))
-            and self.model.family.link["p"].name == "logit"
+                isinstance(self.model.family, (Bernoulli, Binomial))
+                and self.model.family.link["p"].name == "logit"
             ):
                 if term.kind == "interaction":
                     all_categoric = all(
@@ -107,8 +107,8 @@ class PriorScaler:
             # Iterate over columns in the data
             for i, value in enumerate(term.data.T):
                 if (
-                isinstance(self.model.family, (Bernoulli, Binomial))
-                and self.model.family.link["p"].name == "logit"
+                    isinstance(self.model.family, (Bernoulli, Binomial))
+                    and self.model.family.link["p"].name == "logit"
                 ):
                     if term.kind == "interaction":
                         all_categoric = all(
