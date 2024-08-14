@@ -115,8 +115,7 @@ class PriorScaler:
                 # Iterate over columns in the data
                 for i, value in enumerate(term.data.T):
                     if term.kind == "interaction":
-                        # For interaction terms, distinguish cases where all factor terms 
-                        # are categorical
+                        # Distinguish cases where all interaction factor terms are categorical
                         all_categoric = all(
                             component.kind == "categoric" for component in term.term.components
                         )
