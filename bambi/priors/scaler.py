@@ -66,10 +66,9 @@ class PriorScaler:
         if term.prior.name != "Normal":
             return
         # Special case for logit/probit links with bernoulli or binomial family
-        if (
-            isinstance(self.model.family, (Bernoulli, Binomial))
-            and self.model.family.link["p"].name in ["logit", "probit"]
-        ):
+        if isinstance(self.model.family, (Bernoulli, Binomial)) and self.model.family.link[
+            "p"
+        ].name in ["logit", "probit"]:
             mu = 0
             sigma = 1.5
         else:
@@ -83,10 +82,9 @@ class PriorScaler:
         if term.data.ndim == 1:
             mu = 0
             # Special case for logit/probit links with bernoulli or binomial family
-            if (
-                isinstance(self.model.family, (Bernoulli, Binomial))
-                and self.model.family.link["p"].name in ["logit", "probit"]
-            ):
+            if isinstance(self.model.family, (Bernoulli, Binomial)) and self.model.family.link[
+                "p"
+            ].name in ["logit", "probit"]:
                 # For interaction terms, distinguish cases where all factor terms are categorical
                 if term.kind == "interaction":
                     all_categoric = all(
@@ -110,10 +108,9 @@ class PriorScaler:
             mu = np.zeros(term.data.shape[1])
             sigma = np.zeros(term.data.shape[1])
             # Special case for logit/probit links with bernoulli or binomial family
-            if (
-                isinstance(self.model.family, (Bernoulli, Binomial))
-                and self.model.family.link["p"].name in ["logit", "probit"]
-            ):
+            if isinstance(self.model.family, (Bernoulli, Binomial)) and self.model.family.link[
+                "p"
+            ].name in ["logit", "probit"]:
                 # Iterate over columns in the data
                 for i, value in enumerate(term.data.T):
                     if term.kind == "interaction":
