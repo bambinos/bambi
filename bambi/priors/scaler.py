@@ -65,10 +65,10 @@ class PriorScaler:
     def scale_intercept(self, term):
         if term.prior.name != "Normal":
             return
-        # Special case for logit links with bernoulli or binomial family
+        # Special case for logit/probit links with bernoulli or binomial family
         if (
             isinstance(self.model.family, (Bernoulli, Binomial))
-            and self.model.family.link["p"].name == "logit"
+            and self.model.family.link["p"].name in ["logit", "probit"]
         ):
             mu = 0
             sigma = 1.5
@@ -82,10 +82,10 @@ class PriorScaler:
 
         if term.data.ndim == 1:
             mu = 0
-            # Special case for logit links with bernoulli or binomial family
+            # Special case for logit/probit links with bernoulli or binomial family
             if (
                 isinstance(self.model.family, (Bernoulli, Binomial))
-                and self.model.family.link["p"].name == "logit"
+                and self.model.family.link["p"].name in ["logit", "probit"]
             ):
                 # For interaction terms, distinguish cases where all factor terms are categorical
                 if term.kind == "interaction":
@@ -109,10 +109,10 @@ class PriorScaler:
         else:
             mu = np.zeros(term.data.shape[1])
             sigma = np.zeros(term.data.shape[1])
-            # Special case for logit links with bernoulli or binomial family
+            # Special case for logit/probit links with bernoulli or binomial family
             if (
                 isinstance(self.model.family, (Bernoulli, Binomial))
-                and self.model.family.link["p"].name == "logit"
+                and self.model.family.link["p"].name in ["logit", "probit"]
             ):
                 # Iterate over columns in the data
                 for i, value in enumerate(term.data.T):
@@ -123,7 +123,7 @@ class PriorScaler:
                         )
                         if all_categoric:
                             sigma[i] = 1
-                        # It's the standard deviation of the marginal numerical variable (_not_ by group)
+                        # It's the std dev of the marginal numerical variable (_not_ by group)
                         else:
                             sigma[i] = 1 / np.std(np.sum(term.data, axis=1))
                     # Single categorical term
