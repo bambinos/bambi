@@ -65,7 +65,7 @@ class PriorScaler:
     def scale_intercept(self, term):
         if term.prior.name != "Normal":
             return
-        # Special case for logit links with bernoulli family
+        # Special case for logit links with bernoulli or binomial family
         if (
             isinstance(self.model.family, (Bernoulli, Binomial))
             and self.model.family.link["p"].name == "logit"
@@ -82,7 +82,7 @@ class PriorScaler:
 
         if term.data.ndim == 1:
             mu = 0
-            # Special case for logit links with bernoulli family
+            # Special case for logit links with bernoulli or binomial family
             if (
                 isinstance(self.model.family, (Bernoulli, Binomial))
                 and self.model.family.link["p"].name == "logit"
@@ -102,12 +102,14 @@ class PriorScaler:
                 # Single numerical term
                 else:
                     sigma = 1 / np.std(term.data, axis=0)
+            # If not, fall back to the regular case
             else:
                 sigma = self.get_slope_sigma(term.data)
+        # It's a term that spans multiple columns of the design matrix
         else:
             mu = np.zeros(term.data.shape[1])
             sigma = np.zeros(term.data.shape[1])
-            # Special case for logit links with bernoulli family
+            # Special case for logit links with bernoulli or binomial family
             if (
                 isinstance(self.model.family, (Bernoulli, Binomial))
                 and self.model.family.link["p"].name == "logit"
@@ -121,6 +123,7 @@ class PriorScaler:
                         )
                         if all_categoric:
                             sigma[i] = 1
+                        # It's the standard deviation of the marginal numerical variable (_not_ by group)
                         else:
                             sigma[i] = 1 / np.std(np.sum(term.data, axis=1))
                     # Single categorical term
