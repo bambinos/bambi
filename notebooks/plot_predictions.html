@@ -523,12 +523,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"3850ba821e5e4ab98e200919f02f9143","version_major":2,"version_minor":0}
+{"model_id":"10e8fedc9e9346e19ae7d544f79f5a61","version_major":2,"version_minor":0}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -538,9 +538,7 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 41 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics
-The rhat statistic is larger than 1.01 for some parameters. This indicates problems during sampling. See https://arxiv.org/abs/1903.08008 for details</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 147 seconds.</code></pre>
 </div>
 </div>
 <p>We can print the Bambi model object to obtain the model components. Below, we see that the Gaussian linear model uses an identity link function that results in no transformation of the linear predictor to the mean of the outcome variable, and the distrbution of the likelihood is Gaussian.</p>
@@ -602,9 +600,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>high</td>
       <td>A</td>
       <td>3.21725</td>
-      <td>21.920836</td>
-      <td>15.675414</td>
-      <td>28.096253</td>
+      <td>21.753967</td>
+      <td>15.879149</td>
+      <td>28.467278</td>
     </tr>
     <tr>
       <th>1</th>
@@ -612,9 +610,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>high</td>
       <td>A</td>
       <td>3.21725</td>
-      <td>21.864299</td>
-      <td>16.083605</td>
-      <td>28.164090</td>
+      <td>21.626621</td>
+      <td>15.401400</td>
+      <td>28.073208</td>
     </tr>
     <tr>
       <th>2</th>
@@ -622,9 +620,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>high</td>
       <td>A</td>
       <td>3.21725</td>
-      <td>21.556234</td>
-      <td>15.924024</td>
-      <td>27.673221</td>
+      <td>21.380708</td>
+      <td>15.193230</td>
+      <td>27.758124</td>
     </tr>
     <tr>
       <th>3</th>
@@ -632,9 +630,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>high</td>
       <td>A</td>
       <td>3.21725</td>
-      <td>21.255795</td>
-      <td>15.181309</td>
-      <td>27.002164</td>
+      <td>21.220707</td>
+      <td>15.203868</td>
+      <td>27.537716</td>
     </tr>
     <tr>
       <th>4</th>
@@ -642,9 +640,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>high</td>
       <td>A</td>
       <td>3.21725</td>
-      <td>21.091406</td>
-      <td>14.821219</td>
-      <td>26.502849</td>
+      <td>21.016281</td>
+      <td>15.097675</td>
+      <td>27.076450</td>
     </tr>
     <tr>
       <th>5</th>
@@ -652,9 +650,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>high</td>
       <td>A</td>
       <td>3.21725</td>
-      <td>20.955432</td>
-      <td>15.520032</td>
-      <td>26.290511</td>
+      <td>20.824757</td>
+      <td>15.074355</td>
+      <td>26.626349</td>
     </tr>
     <tr>
       <th>6</th>
@@ -662,9 +660,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>high</td>
       <td>A</td>
       <td>3.21725</td>
-      <td>20.667079</td>
-      <td>15.119132</td>
-      <td>26.286052</td>
+      <td>20.597090</td>
+      <td>14.910748</td>
+      <td>26.088777</td>
     </tr>
     <tr>
       <th>7</th>
@@ -672,9 +670,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>high</td>
       <td>A</td>
       <td>3.21725</td>
-      <td>20.459366</td>
-      <td>14.927590</td>
-      <td>25.803844</td>
+      <td>20.307775</td>
+      <td>14.679274</td>
+      <td>25.904986</td>
     </tr>
     <tr>
       <th>8</th>
@@ -682,9 +680,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>high</td>
       <td>A</td>
       <td>3.21725</td>
-      <td>20.282865</td>
-      <td>14.978005</td>
-      <td>25.363441</td>
+      <td>20.240255</td>
+      <td>14.765620</td>
+      <td>25.693768</td>
     </tr>
     <tr>
       <th>9</th>
@@ -692,9 +690,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>high</td>
       <td>A</td>
       <td>3.21725</td>
-      <td>20.032851</td>
-      <td>14.842361</td>
-      <td>25.499042</td>
+      <td>19.970688</td>
+      <td>14.348661</td>
+      <td>25.422012</td>
     </tr>
   </tbody>
 </table>
@@ -780,9 +778,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>1.5</td>
       <td>high</td>
       <td>A</td>
-      <td>26.517721</td>
-      <td>22.231329</td>
-      <td>31.409020</td>
+      <td>26.566766</td>
+      <td>21.969808</td>
+      <td>30.943151</td>
     </tr>
     <tr>
       <th>1</th>
@@ -790,9 +788,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>1.5</td>
       <td>low</td>
       <td>A</td>
-      <td>27.154631</td>
-      <td>23.710370</td>
-      <td>30.854390</td>
+      <td>27.329344</td>
+      <td>23.732834</td>
+      <td>31.023226</td>
     </tr>
     <tr>
       <th>2</th>
@@ -800,9 +798,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>1.5</td>
       <td>medium</td>
       <td>A</td>
-      <td>25.388964</td>
-      <td>20.858360</td>
-      <td>29.439134</td>
+      <td>25.571809</td>
+      <td>21.451557</td>
+      <td>29.660434</td>
     </tr>
     <tr>
       <th>3</th>
@@ -810,9 +808,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>3.5</td>
       <td>high</td>
       <td>A</td>
-      <td>19.125688</td>
-      <td>16.198962</td>
-      <td>22.480499</td>
+      <td>19.050509</td>
+      <td>15.782297</td>
+      <td>22.263920</td>
     </tr>
     <tr>
       <th>4</th>
@@ -820,9 +818,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>3.5</td>
       <td>low</td>
       <td>A</td>
-      <td>19.762599</td>
-      <td>16.651143</td>
-      <td>23.520939</td>
+      <td>19.813088</td>
+      <td>16.472862</td>
+      <td>23.414660</td>
     </tr>
     <tr>
       <th>5</th>
@@ -830,9 +828,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>3.5</td>
       <td>medium</td>
       <td>A</td>
-      <td>17.996931</td>
-      <td>15.646609</td>
-      <td>20.272951</td>
+      <td>18.055552</td>
+      <td>15.632819</td>
+      <td>20.474585</td>
     </tr>
     <tr>
       <th>6</th>
@@ -840,9 +838,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>1.5</td>
       <td>high</td>
       <td>A</td>
-      <td>25.242986</td>
-      <td>21.389207</td>
-      <td>29.835175</td>
+      <td>25.300803</td>
+      <td>21.208498</td>
+      <td>29.449365</td>
     </tr>
     <tr>
       <th>7</th>
@@ -850,9 +848,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>1.5</td>
       <td>low</td>
       <td>A</td>
-      <td>25.879897</td>
-      <td>21.993742</td>
-      <td>29.826717</td>
+      <td>26.063382</td>
+      <td>21.954223</td>
+      <td>29.802325</td>
     </tr>
     <tr>
       <th>8</th>
@@ -860,9 +858,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>1.5</td>
       <td>medium</td>
       <td>A</td>
-      <td>24.114229</td>
-      <td>19.499411</td>
-      <td>27.954867</td>
+      <td>24.305846</td>
+      <td>20.088821</td>
+      <td>28.257285</td>
     </tr>
     <tr>
       <th>9</th>
@@ -870,9 +868,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>3.5</td>
       <td>high</td>
       <td>A</td>
-      <td>18.499053</td>
-      <td>15.805280</td>
-      <td>21.040859</td>
+      <td>18.441151</td>
+      <td>15.569090</td>
+      <td>20.982979</td>
     </tr>
     <tr>
       <th>10</th>
@@ -880,9 +878,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>3.5</td>
       <td>low</td>
       <td>A</td>
-      <td>19.135964</td>
-      <td>15.476760</td>
-      <td>22.781403</td>
+      <td>19.203729</td>
+      <td>15.518468</td>
+      <td>22.845879</td>
     </tr>
     <tr>
       <th>11</th>
@@ -890,9 +888,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>3.5</td>
       <td>medium</td>
       <td>A</td>
-      <td>17.370296</td>
-      <td>14.906599</td>
-      <td>19.609224</td>
+      <td>17.446194</td>
+      <td>14.967520</td>
+      <td>19.927605</td>
     </tr>
   </tbody>
 </table>
@@ -936,9 +934,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>B</td>
       <td>110</td>
       <td>2.620</td>
-      <td>22.230773</td>
-      <td>20.057140</td>
-      <td>24.322536</td>
+      <td>22.233743</td>
+      <td>20.121823</td>
+      <td>24.395500</td>
     </tr>
     <tr>
       <th>1</th>
@@ -946,9 +944,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>B</td>
       <td>110</td>
       <td>2.875</td>
-      <td>21.329605</td>
-      <td>19.371961</td>
-      <td>23.354494</td>
+      <td>21.317279</td>
+      <td>19.250855</td>
+      <td>23.284851</td>
     </tr>
     <tr>
       <th>2</th>
@@ -956,9 +954,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>B</td>
       <td>93</td>
       <td>2.320</td>
-      <td>25.914300</td>
-      <td>24.439324</td>
-      <td>27.767257</td>
+      <td>25.916714</td>
+      <td>24.242191</td>
+      <td>27.574153</td>
     </tr>
     <tr>
       <th>3</th>
@@ -966,9 +964,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>A</td>
       <td>110</td>
       <td>3.215</td>
-      <td>18.690801</td>
-      <td>16.457099</td>
-      <td>21.072167</td>
+      <td>18.775156</td>
+      <td>16.444976</td>
+      <td>21.276683</td>
     </tr>
     <tr>
       <th>4</th>
@@ -976,9 +974,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
       <td>A</td>
       <td>175</td>
       <td>3.440</td>
-      <td>16.924656</td>
-      <td>15.260324</td>
-      <td>18.603531</td>
+      <td>16.917035</td>
+      <td>15.219165</td>
+      <td>18.653843</td>
     </tr>
   </tbody>
 </table>
@@ -1071,9 +1069,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
   <tbody>
     <tr>
       <th>0</th>
-      <td>20.072681</td>
-      <td>17.957895</td>
-      <td>22.215034</td>
+      <td>20.06417</td>
+      <td>17.895285</td>
+      <td>22.250253</td>
     </tr>
   </tbody>
 </table>
@@ -1123,12 +1121,12 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"a9d46bde8c95441b81b60a1e42100ad9","version_major":2,"version_minor":0}
+{"model_id":"bbe857d7b90f46b2a7f9317415057a1e","version_major":2,"version_minor":0}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -1138,7 +1136,7 @@ NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 10 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 15 seconds.</code></pre>
 </div>
 </div>
 <p>This model utilizes a log link function and a negative binomial distribution for the likelihood. Also note that this model also contains an interaction <code>prog:sale(math)</code>.</p>
@@ -1226,12 +1224,12 @@ NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
 <pre><code>Modeling the probability that certified_fresh==1
 Auto-assigning NUTS sampler...
 Initializing NUTS using adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [length, style, length:style]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"8de9163581cb4dba9baf4942c1189faa","version_major":2,"version_minor":0}
+{"model_id":"abd79afa6d174a718a4671ba4f594f51","version_major":2,"version_minor":0}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -1241,8 +1239,7 @@ NUTS: [length, style, length:style]</code></pre>
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 484 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1686 seconds.</code></pre>
 </div>
 </div>
 <p>The logistic regression model uses a logit link function and a Bernoulli likelihood. Therefore, the link scale is the log-odds of a successful response and the response scale is the probability of a successful response.</p>
@@ -1256,9 +1253,9 @@ We recommend running at least 4 chains for robust computation of convergence dia
         Priors: 
     target = p
         Common-level effects
-            length ~ Normal(mu: 0.0, sigma: 0.0708)
+            length ~ Normal(mu: 0.0, sigma: 0.0283)
             style ~ Normal(mu: 0.0, sigma: 2.0)
-            length:style ~ Normal(mu: [0. 0. 0.], sigma: [0.0702 0.0509 0.0611])
+            length:style ~ Normal(mu: [0. 0. 0.], sigma: [0.0263 0.0263 0.0263])
 ------
 * To see a plot of the priors call the .plot_priors() method.
 * To see a summary or plot of the posterior pass the object returned by .fit() to az.summary() or az.plot_trace()</code></pre>
@@ -1299,12 +1296,12 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [Intercept, x, alpha_Intercept, alpha_x]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"a7ec0a10ffde426e81d434da1b4385e5","version_major":2,"version_minor":0}
+{"model_id":"eb9f4a6dab334426b2c228f24b424dea","version_major":2,"version_minor":0}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -1314,9 +1311,8 @@ NUTS: [Intercept, x, alpha_Intercept, alpha_x]</code></pre>
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 6 seconds.
-There were 1 divergences after tuning. Increase `target_accept` or reparameterize.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 18 seconds.
+There were 8 divergences after tuning. Increase `target_accept` or reparameterize.</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="25">
@@ -1364,16 +1360,16 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Sat May 25 2024
+<pre><code>Last updated: Fri Aug 16 2024
 
 Python implementation: CPython
 Python version       : 3.11.9
 IPython version      : 8.24.0
 
-numpy     : 1.26.4
 matplotlib: 3.8.4
+bambi     : 0.14.1.dev12+g64e57423.d20240730
+numpy     : 1.26.4
 pandas    : 2.2.2
-bambi     : 0.13.1.dev37+g2a54df76.d20240525
 
 Watermark: 2.4.3
 </code></pre>

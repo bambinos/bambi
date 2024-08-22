@@ -525,12 +525,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [psi, Intercept, livebait, camper, persons, child]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"189a12d561c54e159932e300cf1107a3","version_major":2,"version_minor":0}
+{"model_id":"6470bfa523b34ccbb65849e3431c3cbc","version_major":2,"version_minor":0}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -540,7 +540,7 @@ NUTS: [psi, Intercept, livebait, camper, persons, child]</code></pre>
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 25 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 45 seconds.</code></pre>
 </div>
 </div>
 <section id="user-provided-values" class="level3">
@@ -1719,12 +1719,12 @@ dtype: float64</code></pre>
 <pre><code>Modeling the probability that Survived==1
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [Intercept, PClass, SexCode, PClass:SexCode, Age, PClass:Age, SexCode:Age, PClass:SexCode:Age]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"e41846890b414622937f9f479d347962","version_major":2,"version_minor":0}
+{"model_id":"317d20c655d442b2b682b4319d9b8c8e","version_major":2,"version_minor":0}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -1734,8 +1734,7 @@ NUTS: [Intercept, PClass, SexCode, PClass:SexCode, Age, PClass:Age, SexCode:Age,
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 500 tune and 500 draw iterations (1_000 + 1_000 draws total) took 23 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 500 tune and 500 draw iterations (2_000 + 2_000 draws total) took 127 seconds.</code></pre>
 </div>
 </div>
 <section id="comparison-types" class="level3">
@@ -1762,16 +1761,16 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Sun May 26 2024
+<pre><code>Last updated: Thu Aug 15 2024
 
 Python implementation: CPython
 Python version       : 3.11.9
 IPython version      : 8.24.0
 
+bambi : 0.14.1.dev12+g64e57423.d20240730
 pandas: 2.2.2
-bambi : 0.13.1.dev39+gb7d6a6cb
-arviz : 0.18.0
 numpy : 1.26.4
+arviz : 0.18.0
 
 Watermark: 2.4.3
 </code></pre>

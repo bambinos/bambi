@@ -750,9 +750,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
         Priors: 
     target = p
         Common-level effects
-            playerID ~ Normal(mu: [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.], sigma: [10.0223 10.0223
-                10.0223 10.0223 10.0223 10.0223 10.0223 10.0223 10.0223
-             10.0223 10.0223 10.0223 10.0223 10.0223 10.0223])</code></pre>
+            playerID ~ Normal(mu: [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.], sigma: [1. 1. 1. 1. 1. 1.
+                1. 1. 1. 1. 1. 1. 1. 1. 1.])</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="7">
@@ -760,12 +759,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [playerID]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"26e1d0c6d3644cc6b563d06d8cb4fe9d","version_major":2,"version_minor":0}
+{"model_id":"b72de9b6dff64b018988d5b706d7d9d1","version_major":2,"version_minor":0}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -775,8 +774,7 @@ NUTS: [playerID]</code></pre>
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 4 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 5 seconds.</code></pre>
 </div>
 </div>
 <p>Next we observe the posterior of the coefficient for each player. The <code>compact=False</code> argument means we want separated panels for each player.</p>
@@ -817,7 +815,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
         Priors: 
     target = p
         Common-level effects
-            Intercept ~ Normal(mu: 0.0, sigma: 2.5)
+            Intercept ~ Normal(mu: 0.0, sigma: 1.5)
         
         Group-level effects
             1|playerID ~ Normal(mu: 0.0, sigma: HalfNormal(sigma: 2.5))</code></pre>
@@ -828,12 +826,12 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"93015e3a2dd5472ea39a65a8ea792d8b","version_major":2,"version_minor":0}
+{"model_id":"f2630c308e19440a927585a831e7ac81","version_major":2,"version_minor":0}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -843,10 +841,8 @@ NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]</code></pre>
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 5 seconds.
-There were 5 divergences after tuning. Increase `target_accept` or reparameterize.
-We recommend running at least 4 chains for robust computation of convergence diagnostics
-The rhat statistic is larger than 1.01 for some parameters. This indicates problems during sampling. See https://arxiv.org/abs/1903.08008 for details</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 14 seconds.
+There were 6 divergences after tuning. Increase `target_accept` or reparameterize.</code></pre>
 </div>
 </div>
 <p>Sometimes, there can be several <a href="https://www.pymc.io/projects/docs/en/v3.11.4/pymc-examples/examples/diagnostics_and_criticism/Diagnosing_biased_Inference_with_Divergences.html">divergences</a> when fitting a hierarchical model. What can we do in that case?</p>
@@ -857,7 +853,7 @@ The rhat statistic is larger than 1.01 for some parameters. This indicates probl
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>prior <span class="op">=</span> az.extract_dataset(idata_prior, group<span class="op">=</span><span class="st">"prior_predictive"</span>)[<span class="st">"p(H, AB)"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Sampling: [1|playerID_offset, 1|playerID_sigma, Intercept, p(H, AB)]
-/tmp/ipykernel_95801/2686921361.py:2: FutureWarning: extract_dataset has been deprecated, please use extract
+/tmp/ipykernel_12852/2686921361.py:2: FutureWarning: extract_dataset has been deprecated, please use extract
   prior = az.extract_dataset(idata_prior, group="prior_predictive")["p(H, AB)"]</code></pre>
 </div>
 </div>
@@ -930,7 +926,7 @@ The rhat statistic is larger than 1.01 for some parameters. This indicates probl
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>plot_prior_predictive(df, prior)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Sampling: [1|playerID_offset, 1|playerID_sigma, Intercept, p(H, AB)]
-/tmp/ipykernel_95801/1302716284.py:3: FutureWarning: extract_dataset has been deprecated, please use extract
+/tmp/ipykernel_12852/1302716284.py:3: FutureWarning: extract_dataset has been deprecated, please use extract
   prior = az.extract_dataset(idata_prior, group="prior_predictive")["p(H, AB)"]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
@@ -943,12 +939,12 @@ The rhat statistic is larger than 1.01 for some parameters. This indicates probl
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"3761c2c02160469485935ef185eab15a","version_major":2,"version_minor":0}
+{"model_id":"5876266e1eb34f2ca33984df13939a2b","version_major":2,"version_minor":0}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -958,9 +954,8 @@ NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]</code></pre>
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 6 seconds.
-There were 1 divergences after tuning. Increase `target_accept` or reparameterize.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 13 seconds.
+There were 3 divergences after tuning. Increase `target_accept` or reparameterize.</code></pre>
 </div>
 </div>
 <p>Let’s try with increasing <code>target_accept</code> and the number of <code>tune</code> samples.</p>
@@ -969,12 +964,12 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"6cf8db0e1af347e8aa76e8965661e3d6","version_major":2,"version_minor":0}
+{"model_id":"6c331d298bd04ade8b3c7e829d3bd986","version_major":2,"version_minor":0}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -984,9 +979,7 @@ NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]</code></pre>
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws total) took 13 seconds.
-There were 3 divergences after tuning. Increase `target_accept` or reparameterize.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws total) took 24 seconds.</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="18">
@@ -1051,15 +1044,15 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Sat May 25 2024
+<pre><code>Last updated: Thu Aug 15 2024
 
 Python implementation: CPython
 Python version       : 3.11.9
 IPython version      : 8.24.0
 
-matplotlib: 3.8.4
-bambi     : 0.13.1.dev37+g2a54df76.d20240525
+bambi     : 0.14.1.dev12+g64e57423.d20240730
 numpy     : 1.26.4
+matplotlib: 3.8.4
 arviz     : 0.18.0
 
 Watermark: 2.4.3

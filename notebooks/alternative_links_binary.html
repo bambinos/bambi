@@ -642,12 +642,12 @@ Y_i =
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [Intercept, x]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"773e1caac46b47918b2d7f75b3d18a92","version_major":2,"version_minor":0}
+{"model_id":"0b46745a11bb4c0bb9aabf0ad54ce48f","version_major":2,"version_minor":0}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -657,8 +657,7 @@ NUTS: [Intercept, x]</code></pre>
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws total) took 3 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 7 seconds.</code></pre>
 </div>
 </div>
 </section>
@@ -670,12 +669,12 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [Intercept, x]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"fcbfed24f9984d45b061a92714dcf58f","version_major":2,"version_minor":0}
+{"model_id":"627ec745b4484595a2eec6c8b419d081","version_major":2,"version_minor":0}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -685,25 +684,41 @@ NUTS: [Intercept, x]</code></pre>
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws total) took 3 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 7 seconds.</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>model_probit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<pre><code>       Formula: p(y, n) ~ x
+        Family: binomial
+          Link: p = probit
+  Observations: 8
+        Priors: 
+    target = p
+        Common-level effects
+            Intercept ~ Normal(mu: 0.0, sigma: 1.5)
+            x ~ Normal(mu: 0.0, sigma: 15.848)
+------
+* To see a plot of the priors call the .plot_priors() method.
+* To see a summary or plot of the posterior pass the object returned by .fit() to az.summary() or az.plot_trace()</code></pre>
 </div>
 </div>
 </section>
 <section id="cloglog-link" class="level3">
 <h3 class="anchored" data-anchor-id="cloglog-link">Cloglog link</h3>
-<div class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>model_cloglog <span class="op">=</span> bmb.Model(formula, data, family<span class="op">=</span><span class="st">"binomial"</span>, link<span class="op">=</span><span class="st">"cloglog"</span>)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>idata_cloglog <span class="op">=</span> model_cloglog.fit(draws<span class="op">=</span><span class="dv">2000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>model_cloglog <span class="op">=</span> bmb.Model(formula, data, family<span class="op">=</span><span class="st">"binomial"</span>, link<span class="op">=</span><span class="st">"cloglog"</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>idata_cloglog <span class="op">=</span> model_cloglog.fit(draws<span class="op">=</span><span class="dv">2000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [Intercept, x]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"8a71257f0d7d40028635d029b7d92f08","version_major":2,"version_minor":0}
+{"model_id":"84a20a897da4420cad227a820f0a73ce","version_major":2,"version_minor":0}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -713,8 +728,7 @@ NUTS: [Intercept, x]</code></pre>
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws total) took 3 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 5 seconds.</code></pre>
 </div>
 </div>
 </section>
@@ -722,56 +736,56 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <section id="results" class="level2">
 <h2 class="anchored" data-anchor-id="results">Results</h2>
 <p>We can use the samples from the posteriors to see the mean estimate for the probability of dying at each concentration level. To do so, we use a little helper function that will help us to write less code. This function leverages the power of the new <code>Model.predict()</code> method that is helpful to obtain both in-sample and out-of-sample predictions.</p>
-<div class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_predictions(model, idata, seq):</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create a data frame with the new data</span></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    new_data <span class="op">=</span> pd.DataFrame({<span class="st">"x"</span>: seq})</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Predict probability of dying using out of sample data</span></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    model.predict(idata, data<span class="op">=</span>new_data)</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get posterior mean across all chains and draws</span></span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> idata.posterior[<span class="st">"p"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>))</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> mu</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
 <div class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>x_seq <span class="op">=</span> np.linspace(<span class="fl">1.6</span>, <span class="dv">2</span>, num<span class="op">=</span><span class="dv">200</span>)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>mu_logit <span class="op">=</span> get_predictions(model_logit, idata_logit, x_seq)</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>mu_probit <span class="op">=</span> get_predictions(model_probit, idata_probit, x_seq)</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>mu_cloglog <span class="op">=</span> get_predictions(model_cloglog, idata_cloglog, x_seq)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_predictions(model, idata, seq):</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create a data frame with the new data</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    new_data <span class="op">=</span> pd.DataFrame({<span class="st">"x"</span>: seq})</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Predict probability of dying using out of sample data</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    model.predict(idata, data<span class="op">=</span>new_data)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get posterior mean across all chains and draws</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> idata.posterior[<span class="st">"p"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>))</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> mu</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>plt.scatter(x, y <span class="op">/</span> n, c <span class="op">=</span> <span class="st">"white"</span>, edgecolors <span class="op">=</span> <span class="st">"black"</span>, s<span class="op">=</span><span class="dv">100</span>)</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>plt.plot(x_seq, mu_logit, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">"Logit"</span>)</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>plt.plot(x_seq, mu_probit, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">"Probit"</span>)</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>plt.plot(x_seq, mu_cloglog, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">"CLogLog"</span>)</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>plt.axhline(<span class="fl">0.5</span>, c<span class="op">=</span><span class="st">"k"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, ls<span class="op">=</span><span class="st">"--"</span>)</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="vs">r"Dose $\log_</span><span class="sc">{10}</span><span class="vs">CS_2mgl^{-1}$"</span>)</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Probability of death"</span>)</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>plt.legend()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>x_seq <span class="op">=</span> np.linspace(<span class="fl">1.6</span>, <span class="dv">2</span>, num<span class="op">=</span><span class="dv">200</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>mu_logit <span class="op">=</span> get_predictions(model_logit, idata_logit, x_seq)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>mu_probit <span class="op">=</span> get_predictions(model_probit, idata_probit, x_seq)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>mu_cloglog <span class="op">=</span> get_predictions(model_cloglog, idata_cloglog, x_seq)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>plt.scatter(x, y <span class="op">/</span> n, c <span class="op">=</span> <span class="st">"white"</span>, edgecolors <span class="op">=</span> <span class="st">"black"</span>, s<span class="op">=</span><span class="dv">100</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>plt.plot(x_seq, mu_logit, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">"Logit"</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>plt.plot(x_seq, mu_probit, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">"Probit"</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>plt.plot(x_seq, mu_cloglog, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">"CLogLog"</span>)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>plt.axhline(<span class="fl">0.5</span>, c<span class="op">=</span><span class="st">"k"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, ls<span class="op">=</span><span class="st">"--"</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="vs">r"Dose $\log_</span><span class="sc">{10}</span><span class="vs">CS_2mgl^{-1}$"</span>)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Probability of death"</span>)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>plt.legend()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="alternative_links_binary_files/figure-html/cell-13-output-1.png" class="img-fluid"></p>
+<p><img src="alternative_links_binary_files/figure-html/cell-14-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>In this example, we can see the models using the <strong>logit</strong> and <strong>probit</strong> link functions present very similar estimations. With these particular data, all the three link functions fit the data well and the results do not differ significantly. However, there can be scenarios where the results are more sensitive to the choice of the link function.</p>
 <p><strong>References</strong></p>
 <p>Bliss, C. I. (1935). The calculation of the dose-mortality curve. Annals of Applied Biology 22, 134–167</p>
-<div class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Sat May 25 2024
+<pre><code>Last updated: Thu Aug 15 2024
 
 Python implementation: CPython
 Python version       : 3.11.9
 IPython version      : 8.24.0
 
-numpy     : 1.26.4
-bambi     : 0.13.1.dev37+g2a54df76.d20240525
 pandas    : 2.2.2
-arviz     : 0.18.0
 matplotlib: 3.8.4
+arviz     : 0.18.0
+numpy     : 1.26.4
+bambi     : 0.14.1.dev12+g64e57423.d20240730
 
 Watermark: 2.4.3
 </code></pre>
