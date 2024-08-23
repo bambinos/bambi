@@ -5,7 +5,14 @@ from functools import partial
 import pytensor.tensor as pt
 import pymc as pm
 
-MAPPING = {"Cumulative": pm.Categorical, "StoppingRatio": pm.Categorical}
+def Horseshoe(name, tau_nu = 3, lam_nu = 1, dims=None):
+    tau = pm.HalfStudentT(f"{name}_tau", nu=tau_nu)
+    lam = pm.HalfStudentT(f"{name}_lam", nu=lam_nu, dims=dims) 
+    beta_raw = pm.Normal(f"{name}_raw", 0, 1, dims=dims)
+    beta = pm.Deterministic(name, beta_raw * tau ** 2 * lam ** 2, dims=dims)
+    return beta
+
+MAPPING = {"Cumulative": pm.Categorical, "StoppingRatio": pm.Categorical, "Horseshoe": Horseshoe}
 
 
 def get_distribution(dist):
