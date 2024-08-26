@@ -252,7 +252,7 @@ class PyMCModel:
                     random_seed = random_seed[0]
                 np.random.seed(random_seed)
 
-            jax_seed = jax.random.PRNGKey(np.random.randint(2**32 - 1))
+            jax_seed = jax.random.PRNGKey(np.random.randint(2**31 - 1))
 
             bx_model = bx.Model.from_pymc(self.model)
             bx_sampler = operator.attrgetter(sampler_backend)(
