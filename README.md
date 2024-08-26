@@ -151,7 +151,7 @@ If you use Bambi and want to cite it please use
 
 ## Contributions
 
-Bambi is a community project and welcomes contributions. Additional information can be found in the [Contributing](https://github.com/bambinos/bambi/blob/main/docs/CONTRIBUTING.md) Readme.
+Bambi is a community project and welcomes contributions. Additional information can be found in the [Contributing](https://github.com/bambinos/bambi/blob/main/CONTRIBUTING.md) Readme.
 
 For a list of contributors see the [GitHub contributor](https://github.com/bambinos/bambi/graphs/contributors) page
 
