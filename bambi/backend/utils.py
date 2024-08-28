@@ -7,7 +7,7 @@ import pymc as pm
 
 
 def horseshoe(name, tau_nu=3, lam_nu=1, dims=None):
-    """Simulate a beta coefficient value with a horseshoe prior. 
+    """Simulate a beta coefficient value with a horseshoe prior.
     This is an internal function which is not supposed to be used by users.
     This will be used only when a horseshoe prior is called for beta coefficients.
 
@@ -25,7 +25,7 @@ def horseshoe(name, tau_nu=3, lam_nu=1, dims=None):
     Returns
     ------
     np.ndarray
-        Array with the beta coefficient simulated. 
+        Array with the beta coefficient simulated.
     """
     tau = pm.HalfStudentT(f"{name}_tau", nu=tau_nu)
     lam = pm.HalfStudentT(f"{name}_lam", nu=lam_nu, dims=dims)
