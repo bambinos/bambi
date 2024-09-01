@@ -5,7 +5,36 @@ from functools import partial
 import pytensor.tensor as pt
 import pymc as pm
 
-MAPPING = {"Cumulative": pm.Categorical, "StoppingRatio": pm.Categorical}
+
+def horseshoe(name, tau_nu=3, lam_nu=1, dims=None):
+    """Simulate a beta coefficient value with a horseshoe prior.
+    This is an internal function which is not supposed to be used by users.
+    This will be used only when a horseshoe prior is called for beta coefficients.
+
+    Parameters
+    ----------
+    name: str
+        is the name of the parameters as registered in the PyMC model
+    tau_nu: int, float
+        Degrees of freedom of tau. Default: 3
+    lam_nu: int, float
+        Degrees of freedom of lam. Default: 1 (equivalent to a HalfCauchy)
+    dims: str
+        dimensions passed to PyMC. Default: None
+
+    Returns
+    ------
+    np.ndarray
+        Array with the beta coefficient simulated.
+    """
+    tau = pm.HalfStudentT(f"{name}_tau", nu=tau_nu)
+    lam = pm.HalfStudentT(f"{name}_lam", nu=lam_nu, dims=dims)
+    beta_raw = pm.Normal(f"{name}_raw", 0, 1, dims=dims)
+    beta = pm.Deterministic(name, beta_raw * tau**2 * lam**2, dims=dims)
+    return beta
+
+
+MAPPING = {"Cumulative": pm.Categorical, "StoppingRatio": pm.Categorical, "Horseshoe": horseshoe}
 
 
 def get_distribution(dist):
