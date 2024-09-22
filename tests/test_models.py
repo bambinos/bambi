@@ -1186,6 +1186,10 @@ class TestMultinomial(FitPredictParent):
         idata = self.predict_oos(model, idata, data=model.data)
         self.assert_posterior_predictive(model, idata)
 
+        # Out of sample with different number of rows, see issue #845
+        idata = self.predict_oos(model, idata, data=model.data.sample(frac=0.8, random_state=1211))
+        self.assert_posterior_predictive(model, idata)
+
     def test_numerical_predictors(self, multinomial_data):
         model = bmb.Model(
             "c(y1, y2, y3, y4) ~ treat + carry", multinomial_data, family="multinomial"
@@ -1241,6 +1245,10 @@ class TestDirichletMultinomial(FitPredictParent):
         idata = self.fit(model)
         idata = self.predict_oos(model, idata, model.data)
         self.assert_posterior_predictive(model, idata)
+
+        # Out of sample with different number of rows, see issue #845
+        idata = self.predict_oos(model, idata, data=model.data.sample(frac=0.8, random_state=1211))
+        self.assert_posterior_predictive(model, idata)        
 
     def test_predictor(self, multinomial_data):
         model = bmb.Model(
