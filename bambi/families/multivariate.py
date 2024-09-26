@@ -36,9 +36,18 @@ class Multinomial(MultivariateFamily):
         return mean
 
     def posterior_predictive(self, model, posterior, **kwargs):
-        n = model.response_component.term.data.sum(1).astype(int)
+        data = kwargs["data"]
+        if data is None:
+            y = model.response_component.term.data
+            trials = model.response_component.term.data.sum(1).astype(int)
+        else:
+            y = response_evaluate_new_data(model, data).astype(int)
+            trials = y.sum(1).astype(int)
+
+        # Prepend 'draw' and 'chain' dimensions
+        trials = trials[np.newaxis, np.newaxis, :]
         dont_reshape = ["n"]
-        return super().posterior_predictive(model, posterior, n=n, dont_reshape=dont_reshape)
+        return super().posterior_predictive(model, posterior, n=trials, dont_reshape=dont_reshape)
 
     def log_likelihood(self, model, posterior, data, **kwargs):
         if data is None:
@@ -91,9 +100,35 @@ class DirichletMultinomial(MultivariateFamily):
     SUPPORTED_LINKS = {"a": ["log"]}
 
     def posterior_predictive(self, model, posterior, **kwargs):
-        n = model.response_component.term.data.sum(1).astype(int)
+        data = kwargs["data"]
+        if data is None:
+            y = model.response_component.term.data
+            trials = model.response_component.term.data.sum(1).astype(int)
+        else:
+            y = response_evaluate_new_data(model, data).astype(int)
+            trials = y.sum(1).astype(int)
+
+        # Prepend 'draw' and 'chain' dimensions
+        trials = trials[np.newaxis, np.newaxis, :]
         dont_reshape = ["n"]
-        return super().posterior_predictive(model, posterior, n=n, dont_reshape=dont_reshape)
+        return super().posterior_predictive(model, posterior, n=trials, dont_reshape=dont_reshape)
+
+    def log_likelihood(self, model, posterior, data, **kwargs):
+        if data is None:
+            y = model.response_component.term.data
+            trials = model.response_component.term.data.sum(1).astype(int)
+        else:
+            y = response_evaluate_new_data(model, data).astype(int)
+            trials = y.sum(1).astype(int)
+
+        # Prepend 'draw' and 'chain' dimensions
+        y = y[np.newaxis, np.newaxis, :]
+        trials = trials[np.newaxis, np.newaxis, :]
+
+        dont_reshape = ["n"]
+        return super().log_likelihood(
+            model, posterior, data=None, y=y, n=trials, dont_reshape=dont_reshape, **kwargs
+        )
 
     def get_coords(self, response):
         name = get_aliased_name(response) + "_dim"
