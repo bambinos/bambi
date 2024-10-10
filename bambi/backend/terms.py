@@ -447,7 +447,7 @@ class HSGPTerm:
             if self.term.by_levels is not None:
                 self.coords[f"{self.term.alias}_by"] = self.coords.pop(f"{self.term.name}_by")
 
-    def build(self):
+    def build(self, spec):
         # Get the name of the term
         label = self.name
 
@@ -507,11 +507,23 @@ class HSGPTerm:
             phi = phi.eval()
 
         # Build weights coefficient
+        # FIXME: this is a hot-fix, not sure if this is what we want it to do
+        # Dims of the response variable
+        response_dims = None
+        if isinstance(spec.family, (MultivariateFamily, Categorical)):
+            response_dims = tuple(spec.response_component.term.coords)
+            coeff_dims = coeff_dims + response_dims
+            contribution_dims = contribution_dims + response_dims
+            sqrt_psd = sqrt_psd[:, np.newaxis]
+
         if self.term.centered:
             coeffs = pm.Normal(f"{label}_weights", sigma=sqrt_psd, dims=coeff_dims)
         else:
             coeffs_raw = pm.Normal(f"{label}_weights_raw", dims=coeff_dims)
             coeffs = pm.Deterministic(f"{label}_weights", coeffs_raw * sqrt_psd, dims=coeff_dims)
+
+        print("sqrt_psd", sqrt_psd.shape.eval())
+        print("coeffs", coeffs.shape.eval())
 
         # Build deterministic for the HSGP contribution
         # If there are groups, we do as many dot products as groups
@@ -525,6 +537,9 @@ class HSGPTerm:
         else:
             contribution = pt.dot(phi, coeffs)  # "@" operator is not working as expected
 
+        print("coeffs", coeffs.shape.eval())
+        print("phi", phi.shape)
+        print("contribution", contribution.shape.eval())
         output = pm.Deterministic(label, contribution, dims=contribution_dims)
         return output
 
