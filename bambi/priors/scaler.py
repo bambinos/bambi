@@ -65,7 +65,7 @@ class PriorScaler:
             kappa = self.model.components["kappa"]
             if (
                 isinstance(kappa, ConstantComponent)
-                and hasattr(kappa.prior, "auto_scale") # not available when `.prior` is a scalar
+                and hasattr(kappa.prior, "auto_scale")  # not available when `.prior` is a scalar
                 and kappa.prior.auto_scale
             ):
                 kappa.prior = Prior("HalfStudentT", nu=4, sigma=self.response_std)
