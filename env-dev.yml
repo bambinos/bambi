@@ -1,0 +1,23 @@
+name: bambi-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.10,<3.13
+  - arviz>=0.12.0
+  - formulae>=0.5.3
+  - graphviz
+  - pandas>=1.0.0
+  - pymc>=5.16.1
+  # Dev dependencies
+  - black=24.3.0
+  - ipython>=5.8.0,!=8.7.0
+  - pre-commit>=2.19
+  - pylint=3.1.0
+  - pytest-cov>=2.6.1
+  - pytest>=4.4.0
+  - seaborn>=0.9.0
+  - pip
+  - pip:
+    - quartodoc==0.6.1
+    - bayeux-ml>=0.1.13  # Optional JAX dependency
