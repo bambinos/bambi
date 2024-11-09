@@ -250,6 +250,10 @@ class ResponseTerm:
             dim_name = response_name + "_dim"
             pymc_backend.model.add_coords({dim_name: response_term.levels})
             dims = ("__obs__", dim_name)
+
+            # For a subset of the families, the outcome variable has two dimensions too.
+            if isinstance(self.family, (MultivariateFamily, Multinomial, DirichletMultinomial)):
+                kwargs["dims"] = dims
         else:
             dims = ("__obs__",)
 
