@@ -23,7 +23,7 @@ dependencies = [
     "formulae>=0.5.3",
     "graphviz",
     "pandas>=1.0.0",
-    "pymc>=5.16.1",
+    "pymc>=5.18.0",
 ]
 
 [project.optional-dependencies]
@@ -38,8 +38,12 @@ dev = [
     "seaborn>=0.9.0",
 ]
 
+# TODO: Unpin this before making a release
 jax = [
-    "bayeux-ml>=0.1.13",
+    "bayeux-ml==0.1.14",
+    "blackjax==1.2.3",
+    "jax<=0.4.33",
+    "jaxlib<=0.4.33",
 ]
 
 [project.urls]
@@ -50,14 +54,14 @@ changelog = "https://github.com/bambinos/bambi/blob/main/docs/CHANGELOG.md"
 
 [tool.setuptools]
 packages = [
-    "bambi", 
-    "bambi.backend", 
-    "bambi.data", 
-    "bambi.defaults", 
+    "bambi",
+    "bambi.backend",
+    "bambi.data",
+    "bambi.defaults",
     "bambi.families",
-    "bambi.interpret", 
-    "bambi.priors", 
-    "bambi.terms", 
+    "bambi.interpret",
+    "bambi.priors",
+    "bambi.terms",
 ]
 
 [tool.black]

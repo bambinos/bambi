@@ -220,8 +220,17 @@ class Cumulative(UnivariateFamily):
         # shape(threshold) = (K, )
         # shape(eta) = (n, )
         # shape(threshold - shape_padright(eta)) = (n, K)
+
         threshold = kwargs["threshold"]
-        eta_shifted = threshold - pt.shape_padright(eta)
+
+        # When the model does not have any predictors.
+        # Inference can be slower, as this can potentially build a larger object.
+        # However, this is needed for consistency with other parts of the codebase
+        if eta == 0:
+            eta_shifted = threshold - pt.shape_padright(pt.zeros(len(kwargs["observed"])))
+        else:
+            eta_shifted = threshold - pt.shape_padright(eta)
+
         return eta_shifted
 
     @staticmethod
@@ -393,8 +402,17 @@ class StoppingRatio(UnivariateFamily):
         # shape(threshold) = (K, )
         # shape(eta) = (n, )
         # shape(threshold - shape_padright(eta)) = (n, K)
+
         threshold = kwargs["threshold"]
-        eta_shifted = threshold - pt.shape_padright(eta)
+
+        # When the model does not have any predictors.
+        # Inference can be slower, as this can potentially build a larger object.
+        # However, this is needed for consistency with other parts of the codebase
+        if eta == 0:
+            eta_shifted = threshold - pt.shape_padright(pt.zeros(len(kwargs["observed"])))
+        else:
+            eta_shifted = threshold - pt.shape_padright(eta)
+
         return eta_shifted
 
     @staticmethod

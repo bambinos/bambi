@@ -55,11 +55,19 @@ class PriorScaler:
         # Here we would add cases for other families if we wanted
         if isinstance(self.model.family, (Gaussian, StudentT)):
             sigma = self.model.components["sigma"]
-            if isinstance(sigma, ConstantComponent) and sigma.prior.auto_scale:
+            if (
+                isinstance(sigma, ConstantComponent)
+                and hasattr(sigma.prior, "auto_scale")  # not available when `.prior` is a scalar
+                and sigma.prior.auto_scale
+            ):
                 sigma.prior = Prior("HalfStudentT", nu=4, sigma=self.response_std)
         elif isinstance(self.model.family, VonMises):
             kappa = self.model.components["kappa"]
-            if isinstance(kappa, ConstantComponent) and kappa.prior.auto_scale:
+            if (
+                isinstance(kappa, ConstantComponent)
+                and hasattr(kappa.prior, "auto_scale")  # not available when `.prior` is a scalar
+                and kappa.prior.auto_scale
+            ):
                 kappa.prior = Prior("HalfStudentT", nu=4, sigma=self.response_std)
 
     def scale_intercept(self, term):
