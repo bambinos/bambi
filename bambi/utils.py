@@ -110,25 +110,6 @@ def clean_formula_lhs(x):
     return x[position + 1 :]
 
 
-def get_auxiliary_parameters(family):
-    """Get names of auxiliary parameters
-
-    Obtains the difference between all the parameters and the parent parameter of a family.
-    These parameters are known as auxiliary or nuisance parameters.
-
-    Parameters
-    ----------
-    family : bambi.families.Family
-        The family.
-
-    Returns
-    -------
-    set
-        Names of auxiliary parameters in the family.
-    """
-    return set(family.likelihood.params) - {family.likelihood.parent}
-
-
 def get_aliased_name(term):
     """Get the aliased name of a model term
 
@@ -145,9 +126,7 @@ def get_aliased_name(term):
     str
         The aliased name.
     """
-    if term.alias:
-        return term.alias
-    return term.name
+    return term.alias if term.alias else term.name
 
 
 def is_single_component(term) -> bool:
@@ -190,3 +169,14 @@ def remove_common_intercept(dm: fm.matrices.DesignMatrices) -> fm.matrices.Desig
     intercept_slice = dm.common.slices.pop("Intercept")
     dm.common.design_matrix = np.delete(dm.common.design_matrix, intercept_slice, axis=1)
     return dm
+
+
+def response_evaluate_new_data(model, data):
+    # Probably we need formulae to have an "evaluate_new_data" on the response
+    # It would save us from having to do this.
+    name = model.response_component.term.name
+    env = model.response_component.response.env
+
+    # We add an intercept to have a valid formula, but it's not used
+    dm = fm.design_matrices(name + " ~ 1", data, env=env)
+    return np.asarray(dm.response)

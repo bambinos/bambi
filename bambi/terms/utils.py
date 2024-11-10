@@ -12,7 +12,7 @@ def is_call_component(component) -> bool:
     return isinstance(component, fm.terms.call.Call)
 
 
-def is_call_of_kind(call, kind):
+def is_call_of_kind(call, kind: str) -> bool:
     """Determines if formulae call component is of certain kind
 
     To do so, it checks whether the callee has metadata and whether the 'kind' slot matches the
@@ -22,31 +22,11 @@ def is_call_of_kind(call, kind):
     return hasattr(function, "__metadata__") and function.__metadata__["kind"] == kind
 
 
-def is_censored_response(term):
-    """Determines if a formulae term represents a censored response."""
+def is_response_of_kind(term, kind: str) -> bool:
+    """Determines if a formulae term represents a response of a certain kind"""
     if not is_single_component(term):
         return False
     component = term.components[0]  # get the first (and single) component
     if not is_call_component(component):
         return False
-    return is_call_of_kind(component, "censored")
-
-
-def is_truncated_response(term):
-    """Determines if a formulae term represents a truncated response."""
-    if not is_single_component(term):
-        return False
-    component = term.components[0]  # get the first (and single) component
-    if not is_call_component(component):
-        return False
-    return is_call_of_kind(component, "truncated")
-
-
-def is_weighted_response(term):
-    """Determines if a formulae term represents a weighted response."""
-    if not is_single_component(term):
-        return False
-    component = term.components[0]  # get the first (and single) component
-    if not is_call_component(component):
-        return False
-    return is_call_of_kind(component, "weighted")
+    return is_call_of_kind(component, kind)

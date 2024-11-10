@@ -44,7 +44,7 @@ def _plot_differences(
     if transforms is None:
         transforms = {}
 
-    response_name = get_aliased_name(model.response_component.response_term)
+    response_name = get_aliased_name(model.response_component.term)
 
     if ax is None:
         fig_kwargs = {} if fig_kwargs is None else fig_kwargs
@@ -73,7 +73,7 @@ def _plot_differences(
     else:
         raise TypeError("Main covariate must be numeric or categoric.")
 
-    response_name = get_aliased_name(model.response_component.response_term)
+    response_name = get_aliased_name(model.response_component.term)
     for ax in axes.ravel():  # pylint: disable = redefined-argument-from-local
         ax.set(xlabel=covariates.main, ylabel=response_name)
 
@@ -111,37 +111,37 @@ def plot_predictions(
     average_by: str, list, bool, optional
         The covariates we would like to average by. The passed covariate(s) will marginalize
         over the other covariates in the model. If True, it averages over all covariates
-        in the model to obtain the average estimate. Defaults to ``None``.
+        in the model to obtain the average estimate. Defaults to `None`.
     target : str
         Which model parameter to plot. Defaults to 'mean'. Passing a parameter into target only
         works when pps is False as the target may not be available in the posterior predictive
         distribution.
     sample_new_groups : bool, optional
         If the model contains group-level effects, and data is passed for unseen groups, whether
-        to sample from the new groups. Defaults to ``False``.
+        to sample from the new groups. Defaults to `False`.
     pps: bool, optional
-        Whether to plot the posterior predictive samples. Defaults to ``False``.
+        Whether to plot the posterior predictive samples. Defaults to `False`.
     use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.
+        Changing the global variable `az.rcParam["stats.hdi_prob"]` affects this default.
     legend : bool, optional
-        Whether to automatically include a legend in the plot. Defaults to ``True``.
+        Whether to automatically include a legend in the plot. Defaults to `True`.
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
-        name of the variables, and the values are functions to be applied. Defaults to ``None``.
+        name of the variables, and the values are functions to be applied. Defaults to `None`.
     ax : matplotlib.axes._subplots.AxesSubplot, optional
         A matplotlib axes object or a sequence of them. If None, this function instantiates a
-        new axes object. Defaults to ``None``.
+        new axes object. Defaults to `None`.
     fig_kwargs : optional
         Keyword arguments passed to the matplotlib figure function as a dict. For example,
-        ``fig_kwargs=dict(figsize=(11, 8)), sharey=True`` would make the figure 11 inches wide
+        `fig_kwargs=dict(figsize=(11, 8)), sharey=True` would make the figure 11 inches wide
         by 8 inches high and would share the y-axis values.
     subplot_kwargs : optional
         Keyword arguments used to determine the covariates used for the horizontal, group,
-        and panel axes. For example, ``subplot_kwargs=dict(main="x", group="y", panel="z")`` would
-        plot the horizontal axis as ``x``, the color (hue) as ``y``, and the panel axis as ``z``.
+        and panel axes. For example, `subplot_kwargs=dict(main="x", group="y", panel="z")` would
+        plot the horizontal axis as `x`, the color (hue) as `y`, and the panel axis as `z`.
 
     Returns
     -------
@@ -151,8 +151,8 @@ def plot_predictions(
     Raises
     ------
     ValueError
-        If ``conditional`` and ``average_by`` are both ``None``.
-        If length of ``conditional`` is greater than 3 and ``average_by`` is ``None``.
+        If `conditional` and `average_by` are both `None`.
+        If length of `conditional` is greater than 3 and `average_by` is `None`.
         If main covariate is not numeric or categoric.
     """
     if conditional is None and average_by is None:
@@ -207,7 +207,7 @@ def plot_predictions(
     else:
         covariates = get_covariates(conditional_info.covariates)
 
-    response_name = get_aliased_name(model.response_component.response_term)
+    response_name = get_aliased_name(model.response_component.term)
 
     if ax is None:
         fig_kwargs = {} if fig_kwargs is None else fig_kwargs
@@ -270,33 +270,33 @@ def plot_comparisons(
         values are the values to condition on.
     average_by: str, list, optional
         The covariates we would like to average by. The passed covariate(s) will marginalize
-        over the other covariates in the model. Defaults to ``None``.
+        over the other covariates in the model. Defaults to `None`.
     comparison_type : str, optional
         The type of comparison to plot. Defaults to 'diff'.
     sample_new_groups : bool, optional
         If the model contains group-level effects, and data is passed for unseen groups, whether
-        to sample from the new groups. Defaults to ``False``.
+        to sample from the new groups. Defaults to `False`.
     use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.
+        Changing the global variable `az.rcParam["stats.hdi_prob"]` affects this default.
     legend : bool, optional
-        Whether to automatically include a legend in the plot. Defaults to ``True``.
+        Whether to automatically include a legend in the plot. Defaults to `True`.
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
-        name of the variables, and the values are functions to be applied. Defaults to ``None``.
+        name of the variables, and the values are functions to be applied. Defaults to `None`.
     ax : matplotlib.axes._subplots.AxesSubplot, optional
         A matplotlib axes object or a sequence of them. If None, this function instantiates a
-        new axes object. Defaults to ``None``.
+        new axes object. Defaults to `None`.
     fig_kwargs : optional
         Keyword arguments passed to the matplotlib figure function as a dict. For example,
-        ``fig_kwargs=dict(figsize=(11, 8)), sharey=True`` would make the figure 11 inches wide
+        `fig_kwargs=dict(figsize=(11, 8)), sharey=True` would make the figure 11 inches wide
         by 8 inches high and would share the y-axis values.
     subplot_kwargs : optional
         Keyword arguments used to determine the covariates used for the horizontal, group,
-        and panel axes. For example, ``subplot_kwargs=dict(main="x", group="y", panel="z")`` would
-        plot the horizontal axis as ``x``, the color (hue) as ``y``, and the panel axis as ``z``.
+        and panel axes. For example, `subplot_kwargs=dict(main="x", group="y", panel="z")` would
+        plot the horizontal axis as `x`, the color (hue) as `y`, and the panel axis as `z`.
 
     Returns
     -------
@@ -306,10 +306,10 @@ def plot_comparisons(
     Raises
     ------
     ValueError
-        If the number of contrast levels is greater than 2 and ``average_by`` is ``None``.
-        If ``conditional`` and ``average_by`` are both ``None``.
-        If length of ``conditional`` is greater than 3 and ``average_by`` is ``None``.
-        If ``average_by`` is ``True``.
+        If the number of contrast levels is greater than 2 and `average_by` is `None`.
+        If `conditional` and `average_by` are both `None`.
+        If length of `conditional` is greater than 3 and `average_by` is `None`.
+        If `average_by` is `True`.
         If main covariate is not numeric or categoric.
     """
     contrast_name = contrast
@@ -337,9 +337,7 @@ def plot_comparisons(
     if conditional is None and average_by is None:
         raise ValueError("Must specify at least one of 'conditional' or 'average_by'.")
 
-    if isinstance(conditional, dict):
-        conditional = {key: sorted(listify(value)) for key, value in conditional.items()}
-    elif conditional is not None:
+    if conditional is not None and not isinstance(conditional, dict):
         conditional = listify(conditional)
         if len(conditional) > 3 and average_by is None:
             raise ValueError(
@@ -418,7 +416,7 @@ def plot_slopes(
     average_by: str, list, bool, optional
         The covariates we would like to average by. The passed covariate(s) will marginalize
         over the other covariates in the model. If True, it averages over all covariates
-        in the model to obtain the average estimate. Defaults to ``None``.
+        in the model to obtain the average estimate. Defaults to `None`.
     eps : float, optional
         To compute the slope, 'wrt' is evaluated at wrt +/- 'eps'. The rate of change is then
         computed as the difference between the two values divided by 'eps'. Defaults to 1e-4.
@@ -434,28 +432,28 @@ def plot_slopes(
         in the response.
     sample_new_groups : bool, optional
         If the model contains group-level effects, and data is passed for unseen groups, whether
-        to sample from the new groups. Defaults to ``False``.
+        to sample from the new groups. Defaults to `False`.
     use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.
+        Changing the global variable `az.rcParam["stats.hdi_prob"]` affects this default.
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
-        name of the variables, and the values are functions to be applied. Defaults to ``None``.
+        name of the variables, and the values are functions to be applied. Defaults to `None`.
     legend : bool, optional
-        Whether to automatically include a legend in the plot. Defaults to ``True``.
+        Whether to automatically include a legend in the plot. Defaults to `True`.
     ax : matplotlib.axes._subplots.AxesSubplot, optional
         A matplotlib axes object or a sequence of them. If None, this function instantiates a
-        new axes object. Defaults to ``None``.
+        new axes object. Defaults to `None`.
     fig_kwargs : optional
         Keyword arguments passed to the matplotlib figure function as a dict. For example,
-        ``fig_kwargs=dict(figsize=(11, 8)), sharey=True`` would make the figure 11 inches wide
+        `fig_kwargs=dict(figsize=(11, 8)), sharey=True` would make the figure 11 inches wide
         by 8 inches high and would share the y-axis values.
     subplot_kwargs : optional
         Keyword arguments used to determine the covariates used for the horizontal, group,
-        and panel axes. For example, ``subplot_kwargs=dict(main="x", group="y", panel="z")`` would
-        plot the horizontal axis as ``x``, the color (hue) as ``y``, and the panel axis as ``z``.
+        and panel axes. For example, `subplot_kwargs=dict(main="x", group="y", panel="z")` would
+        plot the horizontal axis as `x`, the color (hue) as `y`, and the panel axis as `z`.
 
     Returns
     -------
@@ -465,20 +463,18 @@ def plot_slopes(
     Raises
     ------
     ValueError
-        If the number of ``wrt`` values is greater than 2 and ``average_by`` is ``None``.
-        If ``conditional`` and ``average_by`` are both ``None``.
-        If length of ``conditional`` is greater than 3 and ``average_by`` is ``None``.
-        If ``average_by`` is ``True``.
-        If ``slope`` is not one of ('dydx', 'dyex', 'eyex', 'eydx').
+        If the number of `wrt` values is greater than 2 and `average_by` is `None`.
+        If `conditional` and `average_by` are both `None`.
+        If length of `conditional` is greater than 3 and `average_by` is `None`.
+        If `average_by` is `True`.
+        If `slope` is not one of ('dydx', 'dyex', 'eyex', 'eydx').
         If main covariate is not numeric or categoric.
     """
     wrt_name = wrt
     if isinstance(wrt, dict):
         wrt_name, wrt_value = next(iter(wrt.items()))
-
         if not isinstance(wrt_value, (list, np.ndarray)):
             wrt_value = [wrt_value]
-
         if len(wrt_value) > 2 and average_by is None:
             raise ValueError(
                 "When plotting with more than 2 values for 'wrt', you must "
@@ -497,9 +493,7 @@ def plot_slopes(
     if conditional is None and average_by is None:
         raise ValueError("Must specify at least one of 'conditional' or 'average_by'.")
 
-    if isinstance(conditional, dict):
-        conditional = {key: sorted(listify(value)) for key, value in conditional.items()}
-    elif conditional is not None:
+    if conditional is not None and not isinstance(conditional, dict):
         conditional = listify(conditional)
         if len(conditional) > 3 and average_by is None:
             raise ValueError(

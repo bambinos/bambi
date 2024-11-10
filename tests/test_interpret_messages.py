@@ -24,32 +24,28 @@ def test_predictions_list(mtcars, caplog):
     conditional = ["hp", "drat", "am"]
     plot_predictions(model, idata, conditional)
 
-    main_msg = "Default computed for main variable: hp"
-    group_panel_msg = "Default computed for group/panel variable: drat, am"
+    conditional_msg = "Default computed for conditional variable: hp, drat, am"
     interpret_log_msgs = [r.message for r in caplog.records]
 
-    assert main_msg in interpret_log_msgs
-    assert group_panel_msg in interpret_log_msgs
-    assert len(caplog.records) == 2
+    assert conditional_msg in interpret_log_msgs
+    assert len(caplog.records) == 1
 
 
 def test_predictions_list_unspecified(mtcars, caplog):
     model, idata = mtcars
     caplog.set_level("INFO", logger="__bambi_interpret__")
 
-    # List of values with unspecified covariates
+    # List of values with unspecified covariate "am"
     conditional = ["hp", "drat"]
     plot_predictions(model, idata, conditional)
 
-    main_msg = "Default computed for main variable: hp"
-    group_msg = "Default computed for group/panel variable: drat"
+    conditional_msg = "Default computed for conditional variable: hp, drat"
     unspecified_msg = "Default computed for unspecified variable: am"
     interpret_log_msgs = [r.message for r in caplog.records]
 
-    assert main_msg in interpret_log_msgs
-    assert group_msg in interpret_log_msgs
+    assert conditional_msg in interpret_log_msgs
     assert unspecified_msg in interpret_log_msgs
-    assert len(caplog.records) == 3
+    assert len(caplog.records) == 2
 
 
 def test_predictions_dict_unspecified(mtcars, caplog):

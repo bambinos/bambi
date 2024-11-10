@@ -6,7 +6,6 @@ from bambi.backend.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, Interce
 from bambi.backend.utils import get_distribution_from_prior
 from bambi.families.multivariate import MultivariateFamily
 from bambi.families.univariate import Categorical, Cumulative, StoppingRatio
-from bambi.utils import get_aliased_name
 
 
 ORDINAL_FAMILIES = (Cumulative, StoppingRatio)
@@ -18,18 +17,14 @@ class ConstantComponent:
         self.output = 0
 
     def build(self, pymc_backend, bmb_model):
-        response_aliased_name = get_aliased_name(bmb_model.response_component.response_term)
-        if self.component.alias:
-            label = self.component.alias
-        else:
-            label = f"{response_aliased_name}_{self.component.name}"
+        label = self.component.alias if self.component.alias else self.component.name
 
         # NOTE: This could be handled in a different manner in the future, only applies to
         # thresholds and assumes we always do it when using ordinal families.
         extra_args = {}
         if isinstance(bmb_model.family, ORDINAL_FAMILIES):
             threshold_dim = label + "_dim"
-            threshold_values = np.arange(len(bmb_model.response_component.response_term.levels) - 1)
+            threshold_values = np.arange(len(bmb_model.response_component.term.levels) - 1)
             extra_args["dims"] = threshold_dim
             pymc_backend.model.add_coords({threshold_dim: threshold_values})
 
@@ -58,7 +53,7 @@ class DistributionalComponent:
             self.build_intercept(bmb_model)
             self.build_offsets()
             self.build_common_terms(pymc_backend, bmb_model)
-            self.build_hsgp_terms(pymc_backend, bmb_model)
+            self.build_hsgp_terms(pymc_backend)
             self.build_group_specific_terms(pymc_backend, bmb_model)
 
     def build_intercept(self, bmb_model):
@@ -78,7 +73,7 @@ class DistributionalComponent:
         """Add common (fixed) terms to the PyMC model
 
         We have linear predictors of the form 'X @ b + Z @ u'.
-        This creates the 'b' parameter vector in PyMC, computes 'X @ b', and adds it to ``self.mu``.
+        This creates the 'b' parameter vector in PyMC, computes `X @ b`, and adds it to `self.mu`.
 
         Parameters
         ----------
@@ -114,25 +109,25 @@ class DistributionalComponent:
             # Add term to linear predictor
             self.output += pt.dot(data, coefs)
 
-    def build_hsgp_terms(self, pymc_backend, bmb_model):
-        """Add HSGP (Hilbert-Space Gaussian Process approximation) terms to the PyMC model
+    def build_hsgp_terms(self, pymc_backend):
+        """Add HSGP (Hilbert-Space Gaussian Process approximation) terms to the PyMC model.
 
         The linear predictor 'X @ b + Z @ u' can be augmented with non-parametric HSGP terms
-        'f(x)'. This creates the 'f(x)' and adds it ``self.output``.
+        'f(x)'. This creates the 'f(x)' and adds it `self.output`.
         """
         for term in self.component.hsgp_terms.values():
             hsgp_term = HSGPTerm(term)
             for name, values in hsgp_term.coords.items():
                 if name not in pymc_backend.model.coords:
                     pymc_backend.model.add_coords({name: values})
-            self.output += hsgp_term.build(bmb_model)
+            self.output += hsgp_term.build()
 
     def build_group_specific_terms(self, pymc_backend, bmb_model):
         """Add group-specific (random or varying) terms to the PyMC model
 
         We have linear predictors of the form 'X @ b + Z @ u'.
-        This creates the 'u' parameter vector in PyMC, computes 'Z @ u', and adds it to
-        ``self.output``.
+        This creates the 'u' parameter vector in PyMC, computes `Z @ u`, and adds it to
+        `self.output`.
         """
         for term in self.component.group_specific_terms.values():
             group_specific_term = GroupSpecificTerm(term, bmb_model.noncentered)
@@ -156,20 +151,21 @@ class DistributionalComponent:
             else:
                 self.output += coef * predictor
 
-    def build_response(self, pymc_backend, bmb_model):
-        # Extract the response term from the Bambi family
-        response_term = bmb_model.response_component.response_term
-
-        # Create and build the response term
-        response_term = ResponseTerm(response_term, bmb_model.family)
-        response_term.build(pymc_backend, bmb_model)
-
     def add_response_coords(self, pymc_backend, bmb_model):
-        response_term = bmb_model.response_component.response_term
-        response_name = get_aliased_name(response_term)
-        dim_name = f"{response_name}_obs"
+        response_term = bmb_model.response_component.term
+        dim_name = "__obs__"
         dim_value = np.arange(response_term.shape[0])
         pymc_backend.model.add_coords({dim_name: dim_value})
+
+
+class ResponseComponent:
+    def __init__(self, component):
+        self.component = component
+
+    def build(self, pymc_backend, bmb_model):
+        # Create and build the response term
+        response_term = ResponseTerm(self.component.term, bmb_model.family)
+        response_term.build(pymc_backend, bmb_model)
 
 
 # # NOTE: Here for historical reasons, not supposed to work now at least for now
@@ -183,7 +179,7 @@ class DistributionalComponent:
 #     Parameters
 #     ----------
 #     terms: list
-#         A list of terms that share a common grouper (i.e. ``1|Group`` and ``Variable|Group`` in
+#         A list of terms that share a common grouper (i.e. `1|Group` and `Variable|Group` in
 #         formula notation).
 #     eta: num
 #         The value for the eta parameter in the LKJ distribution.
@@ -191,7 +187,7 @@ class DistributionalComponent:
 #     Parameters
 #     ----------
 #     mu
-#         The contribution to the linear predictor of the roup-specific terms in ``terms``.
+#         The contribution to the linear predictor of the roup-specific terms in `terms`.
 #     """
 
 #     # Parameters

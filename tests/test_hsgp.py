@@ -120,40 +120,40 @@ def test_L_bad_shape(data_1d_multiple_groups, data_2d_multiple_groups):
 def test_m_good_shape(data_1d_multiple_groups, data_2d_multiple_groups):
     m = 10
     model = bmb.Model("y ~ 0 + hsgp(x2, c=2, m=m)", data_1d_multiple_groups)
-    term = model.response_component.terms["hsgp(x2, c=2, m=m)"]
+    term = model.components["mu"].terms["hsgp(x2, c=2, m=m)"]
     assert (term.m == np.array([m])).all()
 
     m = 10
     model = bmb.Model("y ~ 0 + hsgp(x2, by=fac, c=2, m=m)", data_1d_multiple_groups)
-    term = model.response_component.terms["hsgp(x2, by=fac, c=2, m=m)"]
+    term = model.components["mu"].terms["hsgp(x2, by=fac, c=2, m=m)"]
     assert (term.m == np.array([m])).all()
 
     m = [20, 10]
     model = bmb.Model("outcome ~ 0 + hsgp(x, y, c=2, m=m)", data_2d_multiple_groups)
-    term = model.response_component.terms["hsgp(x, y, c=2, m=m)"]
+    term = model.components["mu"].terms["hsgp(x, y, c=2, m=m)"]
     assert (np.array(m) == term.m).all()
 
     m = [20, 10]
     model = bmb.Model("outcome ~ 0 + hsgp(x, y, by=group, c=2, m=m)", data_2d_multiple_groups)
-    term = model.response_component.terms["hsgp(x, y, by=group, c=2, m=m)"]
+    term = model.components["mu"].terms["hsgp(x, y, by=group, c=2, m=m)"]
     assert (np.array(m) == term.m).all()
 
 
 def test_c_good_shape(data_1d_multiple_groups, data_2d_multiple_groups):
     c = [[2], [1.5], [1.4]]  # (groups_n, variables_n)
     model = bmb.Model("y ~ 0 + hsgp(x2, by=fac, c=c, m=10)", data_1d_multiple_groups)
-    term = model.response_component.terms["hsgp(x2, by=fac, c=c, m=10)"]
+    term = model.components["mu"].terms["hsgp(x2, by=fac, c=c, m=10)"]
     assert (term.c == np.array(c)).all()
 
     c = [2, 1.5]  # (variables_n, )
     model = bmb.Model("outcome ~ 0 + hsgp(x, y, by=group, c=c, m=10)", data_2d_multiple_groups)
-    term = model.response_component.terms["hsgp(x, y, by=group, c=c, m=10)"]
+    term = model.components["mu"].terms["hsgp(x, y, by=group, c=c, m=10)"]
     assert term.c.shape == (3, 2)
     assert (term.c == np.tile(np.array(c), (3, 1))).all()
 
     c = [[2, 1.5], [1.8, 1.4], [1.6, 1.3]]  # (groups_n, variables_n)
     model = bmb.Model("outcome ~ 0 + hsgp(x, y, by=group, c=c, m=10)", data_2d_multiple_groups)
-    term = model.response_component.terms["hsgp(x, y, by=group, c=c, m=10)"]
+    term = model.components["mu"].terms["hsgp(x, y, by=group, c=c, m=10)"]
     assert term.c.shape == (3, 2)
     assert (term.c == np.array(c)).all()
 
@@ -161,18 +161,18 @@ def test_c_good_shape(data_1d_multiple_groups, data_2d_multiple_groups):
 def test_L_good_shape(data_1d_multiple_groups, data_2d_multiple_groups):
     L = [[10], [12], [15]]  # (groups_n, variables_n)
     model = bmb.Model("y ~ 0 + hsgp(x2, by=fac, L=L, m=10)", data_1d_multiple_groups)
-    term = model.response_component.terms["hsgp(x2, by=fac, L=L, m=10)"]
+    term = model.components["mu"].terms["hsgp(x2, by=fac, L=L, m=10)"]
     assert (term.L == np.array(L)).all()
 
     L = [10, 12]  # (variables_n, )
     model = bmb.Model("outcome ~ 0 + hsgp(x, y, by=group, L=L, m=10)", data_2d_multiple_groups)
-    term = model.response_component.terms["hsgp(x, y, by=group, L=L, m=10)"]
+    term = model.components["mu"].terms["hsgp(x, y, by=group, L=L, m=10)"]
     assert term.L.shape == (3, 2)
     assert (term.L == np.tile(np.array(L), (3, 1))).all()
 
     L = [[10, 12], [15, 13], [16, 14]]  # (groups_n, variables_n)
     model = bmb.Model("outcome ~ 0 + hsgp(x, y, by=group, L=L, m=10)", data_2d_multiple_groups)
-    term = model.response_component.terms["hsgp(x, y, by=group, L=L, m=10)"]
+    term = model.components["mu"].terms["hsgp(x, y, by=group, L=L, m=10)"]
     assert term.L.shape == (3, 2)
     assert (term.L == np.array(L)).all()
 
@@ -279,24 +279,56 @@ def test_minimal_1d_predicts(data_1d_single_group):
 
     # Mean: In-sample
     new_idata = model.predict(idata, inplace=False)
-    assert new_idata.posterior["y_mean"].dims == ("chain", "draw", "y_obs")
-    assert new_idata.posterior["y_mean"].to_numpy().shape == (2, 500, 100)
-    assert new_idata.posterior["hsgp(x, c=1.5, m=10)"].dims == ("chain", "draw", "y_obs")
+    assert new_idata.posterior["mu"].dims == ("chain", "draw", "__obs__")
+    assert new_idata.posterior["mu"].to_numpy().shape == (2, 500, 100)
+    assert new_idata.posterior["hsgp(x, c=1.5, m=10)"].dims == ("chain", "draw", "__obs__")
     assert new_idata.posterior["hsgp(x, c=1.5, m=10)"].to_numpy().shape == (2, 500, 100)
 
     # Mean: Out-of-sample
     new_idata = model.predict(idata, data=new_data, inplace=False)
-    assert new_idata.posterior["y_mean"].dims == ("chain", "draw", "y_obs")
-    assert new_idata.posterior["y_mean"].to_numpy().shape == (2, 500, 10)
-    assert new_idata.posterior["hsgp(x, c=1.5, m=10)"].dims == ("chain", "draw", "y_obs")
+    assert new_idata.posterior["mu"].dims == ("chain", "draw", "__obs__")
+    assert new_idata.posterior["mu"].to_numpy().shape == (2, 500, 10)
+    assert new_idata.posterior["hsgp(x, c=1.5, m=10)"].dims == ("chain", "draw", "__obs__")
     assert new_idata.posterior["hsgp(x, c=1.5, m=10)"].to_numpy().shape == (2, 500, 10)
 
     # Posterior predictive: In-sample
-    new_idata = model.predict(idata, kind="pps", inplace=False)
-    assert new_idata.posterior_predictive["y"].dims == ("chain", "draw", "y_obs")
+    new_idata = model.predict(idata, kind="response", inplace=False)
+    assert new_idata.posterior_predictive["y"].dims == ("chain", "draw", "__obs__")
     assert new_idata.posterior_predictive["y"].to_numpy().shape == (2, 500, 100)
 
     # Posterior predictive: Out-of-sample
-    new_idata = model.predict(idata, data=new_data, kind="pps", inplace=False)
-    assert new_idata.posterior_predictive["y"].dims == ("chain", "draw", "y_obs")
+    new_idata = model.predict(idata, data=new_data, kind="response", inplace=False)
+    assert new_idata.posterior_predictive["y"].dims == ("chain", "draw", "__obs__")
     assert new_idata.posterior_predictive["y"].to_numpy().shape == (2, 500, 10)
+
+
+def test_multiple_hsgp_and_by(data_1d_multiple_groups):
+    rng = np.random.default_rng(1234)
+    df = data_1d_multiple_groups.copy()
+    df["fac2"] = rng.choice(["a", "b", "c"], size=df.shape[0])
+
+    formula = "y ~ 1 + x0 + hsgp(x1, by=fac, m=10, c=2) + hsgp(x1, by=fac2, m=10, c=2)"
+    model = bmb.Model(
+        formula=formula,
+        data=df,
+        categorical=["fac"],
+    )
+    idata = model.fit(tune=400, draws=200, target_accept=0.9)
+
+    bmb.interpret.plot_predictions(
+        model, 
+        idata, 
+        conditional="x1", 
+        subplot_kwargs={"main": "x1", "group": "fac2", "panel": "fac2"},
+    );
+
+    bmb.interpret.plot_predictions(
+        model, 
+        idata, 
+        conditional={
+            "x1": np.linspace(0, 1, num=100),
+            "fac2": ["a", "b", "c"]
+        }, 
+        legend=False,
+        subplot_kwargs={"main": "x1", "group": "fac2", "panel": "fac2"},
+    );

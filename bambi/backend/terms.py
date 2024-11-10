@@ -13,9 +13,8 @@ from bambi.backend.utils import (
     GP_KERNELS,
 )
 from bambi.families.multivariate import MultivariateFamily, Multinomial, DirichletMultinomial
-from bambi.families.univariate import Categorical
+from bambi.families.univariate import Categorical, Cumulative, StoppingRatio
 from bambi.priors import Prior
-from bambi.utils import get_aliased_name
 
 
 class CommonTerm:
@@ -45,8 +44,8 @@ class CommonTerm:
         # Dims of the response variable
         response_dims = []
         if isinstance(spec.family, (MultivariateFamily, Categorical)):
-            response_dims = list(spec.response_component.response_term.coords)
-            response_dims_n = len(spec.response_component.response_term.coords[response_dims[0]])
+            response_dims = list(spec.response_component.term.coords)
+            response_dims_n = len(spec.response_component.term.coords[response_dims[0]])
             # Arguments may be of shape (a,) but we need them to be of shape (a, b)
             # a: length of predictor coordinates
             # b: length of response coordinates
@@ -107,12 +106,16 @@ class GroupSpecificTerm:
         # Dims of the response variable (e.g. categorical)
         response_dims = []
         if isinstance(spec.family, (MultivariateFamily, Categorical)):
-            response_dims = list(spec.response_component.response_term.coords)
+            response_dims = list(spec.response_component.term.coords)
 
         dims = list(self.coords) + response_dims
+        coef = self.build_distribution(self.term.prior, label, dims=dims, **kwargs)
+
         # Squeeze ensures we don't have a shape of (n, 1) when we mean (n, )
         # This happens with categorical predictors with two levels and intercept.
-        coef = self.build_distribution(self.term.prior, label, dims=dims, **kwargs).squeeze()
+        # See https://github.com/pymc-devs/pymc/issues/7246
+        if len(coef.shape.eval()) == 2 and coef.shape.eval()[-1] == 1:
+            coef = pt.specify_broadcastable(coef, 1).squeeze()
         coef = coef[self.term.group_index]
 
         return coef, predictor
@@ -169,7 +172,7 @@ class InterceptTerm:
     Parameters
     ----------
     term : bambi.terms.Term
-        An object representing the intercept. This has ``.kind == "intercept"``
+        An object representing the intercept. This has `.kind == "intercept"`
     """
 
     def __init__(self, term):
@@ -180,10 +183,12 @@ class InterceptTerm:
         label = self.name
         # Prepends one dimension if response is multivariate
         if isinstance(spec.family, (MultivariateFamily, Categorical)):
-            dims = list(spec.response_component.response_term.coords)
+            dims = list(spec.response_component.term.coords)
             dist = dist(label, dims=dims, **self.term.prior.args)[np.newaxis, :]
         else:
             dist = dist(label, **self.term.prior.args)
+            # Multiply it by a vector of ones so it then has the proper length
+            dist = dist * np.ones((spec.response_component.term.data.shape[0],))
         return dist
 
     @property
@@ -224,42 +229,47 @@ class ResponseTerm:
             The response distribution.
         """
         data = np.squeeze(self.term.data)
-        parent = self.family.likelihood.parent
+        parent_name = self.family.likelihood.parent
 
-        # Auxiliary parameters
-        kwargs = {}
+        # Auxiliary parameters and data
+        kwargs = {"observed": data, "dims": ("__obs__",)}
+
+        if isinstance(
+            self.family,
+            (
+                MultivariateFamily,
+                Categorical,
+                Cumulative,
+                StoppingRatio,
+                Multinomial,
+                DirichletMultinomial,
+            ),
+        ):
+            response_term = bmb_model.response_component.term
+            response_name = response_term.alias or response_term.name
+            dim_name = response_name + "_dim"
+            pymc_backend.model.add_coords({dim_name: response_term.levels})
+            dims = ("__obs__", dim_name)
+        else:
+            dims = ("__obs__",)
 
         # Constant parameters. No link function is used.
         for name, component in pymc_backend.constant_components.items():
             kwargs[name] = component.output
 
-        # Distributional parameters. A link funciton is used.
-        dims = (f"{self.name}_obs",)
+        # Distributional parameters. A link function is used.
         for name, component in pymc_backend.distributional_components.items():
             bmb_component = bmb_model.components[name]
-            if bmb_component.response_term:  # The response is added later
-                continue
-            aliased_name = (
-                bmb_component.alias if bmb_component.alias else bmb_component.response_name
-            )
+            aliased_name = bmb_component.alias or bmb_component.name
             linkinv = get_linkinv(self.family.link[name], pymc_backend.INVLINKS)
-            kwargs[name] = pm.Deterministic(aliased_name, linkinv(component.output), dims=dims)
 
-        # Add observed and dims
-        kwargs["observed"] = data
-        kwargs["dims"] = dims
+            # Transform the linear predictor of the parent parameter (usually the mean)
+            if name == parent_name and hasattr(self.family, "transform_backend_eta"):
+                output = self.family.transform_backend_eta(component.output, kwargs)
+            else:
+                output = component.output
 
-        # The linear predictor for the parent parameter (usually the mean)
-        eta = pymc_backend.distributional_components[self.term.name].output
-
-        if hasattr(self.family, "transform_backend_eta"):
-            eta = self.family.transform_backend_eta(eta, kwargs)
-
-        # Take the inverse link function that maps from linear predictor to the parent of likelihood
-        linkinv = get_linkinv(self.family.link[parent], pymc_backend.INVLINKS)
-
-        # Add parent parameter after the applying the linkinv transformation
-        kwargs[parent] = linkinv(eta)
+            kwargs[name] = pm.Deterministic(aliased_name, linkinv(output), dims=dims)
 
         # Build the response distribution
         dist = self.build_response_distribution(kwargs, pymc_backend)
@@ -326,6 +336,34 @@ class ResponseTerm:
                 self.name, stateless_dist, lower=lower, upper=upper, observed=observed, dims=dims
             )
 
+        # Handle constrained responses (through truncated distributions)
+        elif self.term.is_constrained:
+            dims = kwargs.pop("dims", None)
+            data_matrix = kwargs.pop("observed")
+
+            # Get values of the response variable
+            observed = np.squeeze(data_matrix[:, 0])
+
+            # Get truncation values
+            lower = np.squeeze(data_matrix[:, 1])
+            upper = np.squeeze(data_matrix[:, 2])
+
+            # Handle 'None' and scalars appropriately
+            if np.all(lower == -np.inf):
+                lower = None
+            elif np.all(lower == lower[0]):
+                lower = lower[0]
+
+            if np.all(upper == np.inf):
+                upper = None
+            elif np.all(upper == upper[0]):
+                upper = upper[0]
+
+            stateless_dist = distribution.dist(**kwargs)
+            dist_rv = pm.Truncated(
+                self.name, stateless_dist, lower=lower, upper=upper, observed=observed, dims=dims
+            )
+
         # Handle weighted responses
         elif self.term.is_weighted:
             dims = kwargs.pop("dims", None)
@@ -340,6 +378,7 @@ class ResponseTerm:
             # Get a weighted version of the response distribution
             weighted_dist = make_weighted_distribution(distribution)
             dist_rv = weighted_dist(self.name, weights, **kwargs, observed=observed, dims=dims)
+        # All of the other response kinds are "not special" and thus are handled the same way
         else:
             dist_rv = distribution(self.name, **kwargs)
 
@@ -357,11 +396,12 @@ class ResponseTerm:
         # In this case, we add extra dimensions to avoid having shape mismatch between the data
         # and the shape implied by the `dims` we pass.
 
-        # Don't do it for the Multinomial families (it's an exception)
-        if isinstance(self.family, (Multinomial, DirichletMultinomial)):
-            return kwargs
-
-        if self.term.is_censored or self.term.is_truncated or self.term.is_weighted:
+        if (
+            self.term.is_censored
+            or self.term.is_truncated
+            or self.term.is_weighted
+            or self.term.is_constrained
+        ):
             return kwargs
 
         dims, data = kwargs["dims"], kwargs["observed"]
@@ -407,19 +447,16 @@ class HSGPTerm:
             if self.term.by_levels is not None:
                 self.coords[f"{self.term.alias}_by"] = self.coords.pop(f"{self.term.name}_by")
 
-    def build(self, bmb_model):
+    def build(self):
         # Get the name of the term
         label = self.name
 
         # Get the covariance functions (it's possibly more than one)
         covariance_functions = self.get_covariance_functions()
 
-        # Get dimension name for the response
-        response_name = get_aliased_name(bmb_model.response_component.response_term)
-
         # Prepare dims
         coeff_dims = (f"{label}_weights_dim",)
-        contribution_dims = (f"{response_name}_obs",)
+        contribution_dims = ("__obs__",)
 
         # Data may be scaled so the maximum Euclidean distance between two points is 1
         if self.term.scale_predictors:

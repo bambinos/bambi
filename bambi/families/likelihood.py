@@ -32,8 +32,8 @@ class Likelihood:
     """Representation of a Likelihood function for a Bambi model
 
     Notes:
-    * ``parent`` must be in ``params``
-    * ``parent`` is inferred from the ``name`` if it is a known name
+    * `parent` must be in `params`
+    * `parent` is inferred from the `name` if it is a known name
 
     Parameters
     ----------

@@ -90,22 +90,23 @@ def test_distribute_group_specific_effect_over(diabetes_data):
     # Treatment encoding because of the intercept
     levels = sorted(list(diabetes_data["age_grp"].unique()))[1:]
     levels = [str(level) for level in levels]
-
-    assert "C(age_grp)|BMI" in model.response_component.terms
-    assert "1|BMI" in model.response_component.terms
-    assert model.response_component.terms["C(age_grp)|BMI"].coords["C(age_grp)__expr_dim"] == levels
+    parent_component = model.components[model.family.likelihood.parent]
+    assert "C(age_grp)|BMI" in parent_component.terms
+    assert "1|BMI" in parent_component.terms
+    assert parent_component.terms["C(age_grp)|BMI"].coords["C(age_grp)__expr_dim"] == levels
 
     # This is equal to the sub-matrix of Z that corresponds to this term.
     # 442 is the number of observations. 163 the number of groups.
     # 2 is the number of levels of the categorical variable 'C(age_grp)' after removing
     # the reference level. Then the number of columns is 326 = 163 * 2.
-    assert model.response_component.terms["C(age_grp)|BMI"].data.shape == (442, 326)
+    assert parent_component.terms["C(age_grp)|BMI"].data.shape == (442, 326)
 
     # Without intercept. Reference level is not removed.
     model = bmb.Model("BP ~ (0 + C(age_grp)|BMI)", diabetes_data)
-    assert "C(age_grp)|BMI" in model.response_component.terms
-    assert not "1|BMI" in model.response_component.terms
-    assert model.response_component.terms["C(age_grp)|BMI"].data.shape == (442, 489)
+    parent_component = model.components[model.family.likelihood.parent]
+    assert "C(age_grp)|BMI" in parent_component.terms
+    assert not "1|BMI" in parent_component.terms
+    assert parent_component.terms["C(age_grp)|BMI"].data.shape == (442, 489)
 
 
 def test_model_init_bad_data():
@@ -129,12 +130,13 @@ def test_model_categorical_argument():
         }
     )
     model = bmb.Model("y ~ 0 + x", data, categorical="x")
-    assert model.response_component.terms["x"].categorical
+    assert model.components[model.family.likelihood.parent].terms["x"].categorical
 
     model = bmb.Model("y ~ 0 + x*z", data, categorical=["x", "z"])
-    assert model.response_component.terms["x"].categorical
-    assert model.response_component.terms["z"].categorical
-    assert model.response_component.terms["x:z"].categorical
+    parent_component = model.components[model.family.likelihood.parent]
+    assert parent_component.terms["x"].categorical
+    assert parent_component.terms["z"].categorical
+    assert parent_component.terms["x:z"].categorical
 
 
 def test_model_no_response():
@@ -144,15 +146,17 @@ def test_model_no_response():
 
 def test_model_term_names_property(diabetes_data):
     model = bmb.Model("BMI ~ age_grp + BP + S1", diabetes_data)
-    assert model.response_component.intercept_term.name == "Intercept"
-    assert set(model.response_component.common_terms) == {"age_grp", "BP", "S1"}
+    parent_component = model.components[model.family.likelihood.parent]
+    assert parent_component.intercept_term.name == "Intercept"
+    assert set(parent_component.common_terms) == {"age_grp", "BP", "S1"}
 
 
 def test_model_term_names_property_interaction(crossed_data):
     crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
     model = bmb.Model("Y ~ threecats*fourcats", crossed_data)
-    assert model.response_component.intercept_term.name == "Intercept"
-    assert set(model.response_component.common_terms) == {
+    parent_component = model.components[model.family.likelihood.parent]
+    assert parent_component.intercept_term.name == "Intercept"
+    assert set(parent_component.common_terms) == {
         "threecats",
         "fourcats",
         "threecats:fourcats",
@@ -163,7 +167,7 @@ def test_model_terms_levels_interaction(crossed_data):
     crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
     model = bmb.Model("Y ~ threecats*fourcats", crossed_data)
 
-    assert model.response_component.terms["threecats:fourcats"].levels == [
+    assert model.components[model.family.likelihood.parent].terms["threecats:fourcats"].levels == [
         "b, b",
         "b, c",
         "b, d",
@@ -185,11 +189,12 @@ def test_model_terms_levels():
         }
     )
     model = bmb.Model("y ~ x + z + time + (time|subject)", data)
-    assert model.response_component.terms["z"].levels == ["Group 2", "Group 3"]
-    assert model.response_component.terms["1|subject"].groups == [
+    parent_component = model.components[model.family.likelihood.parent]
+    assert parent_component.terms["z"].levels == ["Group 2", "Group 3"]
+    assert parent_component.terms["1|subject"].groups == [
         f"Subject {x}" for x in range(1, 6)
     ]
-    assert model.response_component.terms["time|subject"].groups == [
+    assert parent_component.terms["time|subject"].groups == [
         f"Subject {x}" for x in range(1, 6)
     ]
 
@@ -207,14 +212,15 @@ def test_model_term_classes():
 
     model = bmb.Model("y ~ x*g + (x|s)", data)
 
-    assert isinstance(model.response_component.terms["x"], CommonTerm)
-    assert isinstance(model.response_component.terms["g"], CommonTerm)
-    assert isinstance(model.response_component.terms["x:g"], CommonTerm)
-    assert isinstance(model.response_component.terms["1|s"], GroupSpecificTerm)
-    assert isinstance(model.response_component.terms["x|s"], GroupSpecificTerm)
+    parent_component = model.components[model.family.likelihood.parent]
+    assert isinstance(parent_component.terms["x"], CommonTerm)
+    assert isinstance(parent_component.terms["g"], CommonTerm)
+    assert isinstance(parent_component.terms["x:g"], CommonTerm)
+    assert isinstance(parent_component.terms["1|s"], GroupSpecificTerm)
+    assert isinstance(parent_component.terms["x|s"], GroupSpecificTerm)
 
     # Also check 'categorical' attribute is right
-    assert model.response_component.terms["g"].categorical
+    assert parent_component.terms["g"].categorical
 
 
 def test_one_shot_formula_fit(diabetes_data):
@@ -247,7 +253,7 @@ def test_categorical_term():
         "1|g2_sigma",
         "g1|g2_sigma[b]",
         "x2|g2_sigma",
-        "y_sigma",
+        "sigma",
         "1|g2[x]",
         "1|g2[y]",
         "1|g2[z]",
@@ -422,7 +428,7 @@ def test_1d_group_specific():
     # The difference is that we do .squeeze() on it after creation.
     model = bmb.Model("y ~ (x|g)", data)
     model.build()
-    assert model.backend.components["y"].output.shape.eval() == (40,)
+    assert model.backend.components["mu"].output.shape.eval() == (40,)
 
 
 def test_data_is_copied():
@@ -446,13 +452,13 @@ def test_response_is_censored():
         }
     )
     dm = bmb.Model("censored(x, status) ~ 1", df)
-    assert dm.response_component.response_term.is_censored is True
+    assert dm.response_component.term.is_censored is True
 
 
 def test_response_is_truncated():
     df = pd.DataFrame({"x": [1, 2, 3, 4, 5]})
     dm = bmb.Model("truncated(x, 5.5) ~ 1", df)
-    assert dm.response_component.response_term.is_truncated is True
+    assert dm.response_component.term.is_truncated is True
 
 
 def test_custom_likelihood_function():
@@ -468,7 +474,7 @@ def test_custom_likelihood_function():
     family = bmb.Family("custom_gaussian", likelihood, "identity")
     model = bmb.Model("y ~ x", df, family=family, priors={"sigma": sigma_prior})
     _ = model.fit(tune=100, draws=100)
-    assert model.backend.model.observed_RVs[0].str_repr() == "y ~ Normal(f(Intercept, x), y_sigma)"
+    assert model.backend.model.observed_RVs[0].str_repr() == "y ~ Normal(mu, sigma)"
 
 
 def test_extra_namespace():
@@ -477,7 +483,7 @@ def test_extra_namespace():
     extra_namespace = {"levels": data["veh_body"].unique()}
     formula = "numclaims ~ 0 + C(veh_body, levels=levels)"
     model = bmb.Model(formula, data, family="poisson", link="log", extra_namespace=extra_namespace)
-    term = model.response_component.terms["C(veh_body, levels=levels)"]
+    term = model.components[model.family.likelihood.parent].terms["C(veh_body, levels=levels)"]
     assert (np.asarray(term.levels) == data["veh_body"].unique()).all()
 
 

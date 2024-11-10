@@ -1,5 +1,10 @@
 # Bambi Community Code of Conduct
 
+Bambi adopts the NumFOCUS Code of Conduct directly. 
+In other words, we expect our community to treat others with kindness and understanding.
+
+# The short version  
+
 Be kind to others. Do not insult or put down others.
 Behave professionally. Remember that harassment and sexist, racist,
 or exclusionary jokes are not appropriate.
@@ -15,3 +20,24 @@ or religion. We do not tolerate harassment of community members
 in any form.
 
 Thank you for helping make this a welcoming, friendly community for all.
+
+# How to Submit a Report
+
+If you feel that there has been a Code of Conduct violation an anonymous
+reporting form is available.
+
+**If you feel your safety is in jeopardy or the situation is an
+emergency, we urge you to contact local law enforcement before making
+a report. (In the U.S., dial 911.)**
+
+We are committed to promptly addressing any reported issues.
+If you have experienced or witnessed behavior that violates this 
+Code of Conduct, please complete the form below to
+make a report.
+
+**REPORTING FORM:** https://bambinos.github.io/bambi/contact.html
+
+# Full Code of Conduct
+
+The full text of the NumFOCUS/Bambi Code of Conduct can be found on
+NumFOCUS's website  https://numfocus.org/code-of-conduct

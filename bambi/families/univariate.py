@@ -4,7 +4,7 @@ import scipy.special as sp
 import xarray as xr
 
 from bambi.families.family import Family
-from bambi.utils import get_aliased_name
+from bambi.utils import get_aliased_name, response_evaluate_new_data
 
 
 class UnivariateFamily(Family):
@@ -15,12 +15,26 @@ class BinomialBaseFamily(UnivariateFamily):
     def posterior_predictive(self, model, posterior, **kwargs):
         data = kwargs["data"]
         if data is None:
-            trials = model.response_component.response_term.data[:, 1]
+            trials = model.response_component.term.data[:, 1]
         else:
-            trials = model.response_component.design.response.evaluate_new_data(data).astype(int)
+            trials = model.response_component.response.evaluate_new_data(data).astype(int)
         # Prepend 'draw' and 'chain' dimensions
         trials = trials[np.newaxis, np.newaxis, :]
         return super().posterior_predictive(model, posterior, n=trials)
+
+    def log_likelihood(self, model, posterior, data, **kwargs):
+        if data is None:
+            y = model.response_component.term.data[:, 0]
+            trials = model.response_component.term.data[:, 1]
+        else:
+            output = response_evaluate_new_data(model, data).astype(int)
+            y = output[:, 0]
+            trials = output[:, 1]
+
+        # Prepend 'draw' and 'chain' dimensions
+        y = y[np.newaxis, np.newaxis, :]
+        trials = trials[np.newaxis, np.newaxis, :]
+        return super().log_likelihood(model, posterior, data=None, y=y, n=trials, **kwargs)
 
     @staticmethod
     def transform_backend_kwargs(kwargs):
@@ -120,17 +134,17 @@ class Categorical(UnivariateFamily):
     def transform_linear_predictor(
         model, linear_predictor: xr.DataArray, posterior: xr.DataArray
     ) -> xr.DataArray:
-        response_name = get_aliased_name(model.response_component.response_term)
+        response_name = get_aliased_name(model.response_component.term)
         response_levels_dim = response_name + "_reduced_dim"
         linear_predictor = linear_predictor.pad({response_levels_dim: (1, 0)}, constant_values=0)
         return linear_predictor
 
     def transform_coords(self, model, mean):
         # The mean has the reference level in the dimension, a new name is needed
-        response_name = get_aliased_name(model.response_component.response_term)
+        response_name = get_aliased_name(model.response_component.term)
         response_levels_dim = response_name + "_reduced_dim"
         response_levels_dim_complete = response_name + "_dim"
-        levels_complete = model.response_component.response_term.levels
+        levels_complete = model.response_component.term.levels
         mean = mean.rename({response_levels_dim: response_levels_dim_complete})
         mean = mean.assign_coords({response_levels_dim_complete: levels_complete})
         return mean
@@ -170,11 +184,10 @@ class Cumulative(UnivariateFamily):
     ) -> xr.DataArray:
         """Computes threshold_k - eta"""
         threshold_component = model.components["threshold"]
-        response_name = get_aliased_name(model.response_component.response_term)
         if threshold_component.alias:
             threshold_name = threshold_component.alias
         else:
-            threshold_name = f"{response_name}_threshold"
+            threshold_name = "threshold"
         threshold = posterior[threshold_name]
         return threshold - linear_predictor
 
@@ -182,11 +195,11 @@ class Cumulative(UnivariateFamily):
     def transform_mean(model, mean: xr.DataArray) -> xr.DataArray:
         """Computes P(Y = k) = F(threshold_k - eta) - F(threshold_{k - 1} - eta)"""
         threshold_component = model.components["threshold"]
-        response_name = get_aliased_name(model.response_component.response_term)
+        response_name = get_aliased_name(model.response_component.term)
         if threshold_component.alias:
             threshold_name = threshold_component.alias
         else:
-            threshold_name = response_name + "_threshold"
+            threshold_name = "threshold"
         threshold_dim = threshold_name + "_dim"
         response_dim = response_name + "_dim"
         mean = xr.concat(
@@ -198,7 +211,7 @@ class Cumulative(UnivariateFamily):
             dim=threshold_dim,
         )
         mean = mean.rename({threshold_dim: response_dim})
-        mean = mean.assign_coords({response_dim: model.response_component.response_term.levels})
+        mean = mean.assign_coords({response_dim: model.response_component.term.levels})
         mean = mean.transpose(..., response_dim)  # make sure response levels is the last dim
         return mean
 
@@ -207,8 +220,17 @@ class Cumulative(UnivariateFamily):
         # shape(threshold) = (K, )
         # shape(eta) = (n, )
         # shape(threshold - shape_padright(eta)) = (n, K)
+
         threshold = kwargs["threshold"]
-        eta_shifted = threshold - pt.shape_padright(eta)
+
+        # When the model does not have any predictors.
+        # Inference can be slower, as this can potentially build a larger object.
+        # However, this is needed for consistency with other parts of the codebase
+        if eta == 0:
+            eta_shifted = threshold - pt.shape_padright(pt.zeros(len(kwargs["observed"])))
+        else:
+            eta_shifted = threshold - pt.shape_padright(eta)
+
         return eta_shifted
 
     @staticmethod
@@ -335,11 +357,10 @@ class StoppingRatio(UnivariateFamily):
     ) -> xr.DataArray:
         """Computes threshold_k - eta"""
         threshold_component = model.components["threshold"]
-        response_name = get_aliased_name(model.response_component.response_term)
         if threshold_component.alias:
             threshold_name = threshold_component.alias
         else:
-            threshold_name = f"{response_name}_threshold"
+            threshold_name = "threshold"
         threshold = posterior[threshold_name]
         return threshold - linear_predictor
 
@@ -347,16 +368,16 @@ class StoppingRatio(UnivariateFamily):
     def transform_mean(model, mean: xr.DataArray) -> xr.DataArray:
         """Computes P(Y = k) = F(threshold_k - eta) - F(threshold_{k - 1} - eta)"""
         threshold_component = model.components["threshold"]
-        response_name = get_aliased_name(model.response_component.response_term)
+        response_name = get_aliased_name(model.response_component.term)
         if threshold_component.alias:
             threshold_name = threshold_component.alias
         else:
-            threshold_name = response_name + "_threshold"
+            threshold_name = "threshold"
         threshold_dim = threshold_name + "_dim"
         response_dim = response_name + "_dim"
         threshold_n = len(mean[threshold_dim])
 
-        # the `.assign_coords`` is needed for the concat to work
+        # the `.assign_coords` is needed for the concat to work
         mean = xr.concat(
             [
                 mean.isel({threshold_dim: 0}),
@@ -372,7 +393,7 @@ class StoppingRatio(UnivariateFamily):
             dim=threshold_dim,
         )
         mean = mean.rename({threshold_dim: response_dim})
-        mean = mean.assign_coords({response_dim: model.response_component.response_term.levels})
+        mean = mean.assign_coords({response_dim: model.response_component.term.levels})
         mean = mean.transpose(..., response_dim)  # make sure response levels is the last dim
         return mean
 
@@ -381,15 +402,24 @@ class StoppingRatio(UnivariateFamily):
         # shape(threshold) = (K, )
         # shape(eta) = (n, )
         # shape(threshold - shape_padright(eta)) = (n, K)
+
         threshold = kwargs["threshold"]
-        eta_shifted = threshold - pt.shape_padright(eta)
+
+        # When the model does not have any predictors.
+        # Inference can be slower, as this can potentially build a larger object.
+        # However, this is needed for consistency with other parts of the codebase
+        if eta == 0:
+            eta_shifted = threshold - pt.shape_padright(pt.zeros(len(kwargs["observed"])))
+        else:
+            eta_shifted = threshold - pt.shape_padright(eta)
+
         return eta_shifted
 
     @staticmethod
     def transform_backend_kwargs(kwargs):
         # P(Y = k) = F(threshold_k - eta) * \prod_{j=1}^{k-1}{1 - F(threshold_j - eta)}
         p = kwargs.pop("p")
-        n_columns = p.type.shape[-1]
+        n_columns = p.shape.eval()[-1]
         p = pt.concatenate(
             [
                 pt.shape_padright(p[..., 0]),

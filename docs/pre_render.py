@@ -3,7 +3,7 @@ import shutil
 
 # Copy CHANGELOG file to 'docs' and change its extension to '.qmd'
 shutil.copyfile("../CHANGELOG.md", "CHANGELOG.md")
-os.rename("CHANGELOG.md", "changelog.qmd")
+os.replace("CHANGELOG.md", "changelog.qmd")
 
 # Remove TOC from it
 lines = """---
