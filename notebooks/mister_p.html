@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.2.280">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Bambi – mister_p</title>
+<title>Multilevel Regression and Post-stratification – Bambi</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -17,11 +17,12 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -32,7 +33,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -46,47 +47,17 @@ pre.numberSource code > span > a:first-child::before
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
     padding: 0 4px; width: 4em;
-    color: #aaaaaa;
   }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
 div.sourceCode
   {   }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { color: #008000; } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { color: #008000; font-weight: bold; } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
@@ -110,7 +81,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -119,16 +96,46 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 <script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -137,293 +144,338 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a href="../index.html" class="navbar-brand navbar-brand-logo">
     <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo">
     </a>
   </div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../notebooks/getting_started.html">
- <span class="menu-text">Getting Started</span></a>
+    <a class="nav-link" href="../notebooks/getting_started.html"> 
+<span class="menu-text">Getting Started</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../api/index.html">
- <span class="menu-text">API Reference</span></a>
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../notebooks/index.html" aria-current="page">
- <span class="menu-text">Examples</span></a>
+    <a class="nav-link active" href="../notebooks/index.html" aria-current="page"> 
+<span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../faq.html">
- <span class="menu-text">FAQ</span></a>
+    <a class="nav-link" href="../faq.html"> 
+<span class="menu-text">FAQ</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../changelog.html">
- <span class="menu-text">Changelog</span></a>
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../contact.html">
- <span class="menu-text">Contact</span></a>
+    <a class="nav-link" href="../contact.html"> 
+<span class="menu-text">Contact</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/bambinos/bambi"><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/bambinos/bambi"> <i class="bi bi-github" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
 </ul>
-              <div id="quarto-search" class="" title="Search"></div>
           </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
-  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-    <div class="container-fluid d-flex justify-content-between">
-      <h1 class="quarto-secondary-nav-title"></h1>
-      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
-        <i class="bi bi-chevron-right"></i>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/logistic_regression.html">Generalized linear models</a></li><li class="breadcrumb-item"><a href="../notebooks/mister_p.html">Multilevel Regression and Post-stratification</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
     </div>
   </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/index.html" class="sidebar-item-text sidebar-link">Examples gallery</a>
+  <a href="../notebooks/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Examples gallery</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="false">Linear regression models</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Linear regression models</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link">Comparison of two means (T-test)</a>
+  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Comparison of two means (T-test)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">Multiple linear regression</a>
+  <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multiple linear regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/splines_cherry_blossoms.html" class="sidebar-item-text sidebar-link">Regression splines (Cherry blossom example)</a>
+  <a href="../notebooks/splines_cherry_blossoms.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Regression splines (Cherry blossom example)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/multi-level_regression.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Pigs dataset)</a>
+  <a href="../notebooks/multi-level_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Linear Regression (Pigs dataset)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/sleepstudy.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Sleepstudy example)</a>
+  <a href="../notebooks/sleepstudy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Linear Regression (Sleepstudy example)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/radon_example.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Radon Contamination dataset)</a>
+  <a href="../notebooks/radon_example.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Linear Regression (Radon Contamination dataset)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/Strack_RRR_re_analysis.html" class="sidebar-item-text sidebar-link">Bayesian Workflow (Strack RRR Analysis Replication)</a>
+  <a href="../notebooks/Strack_RRR_re_analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Workflow (Strack RRR Analysis Replication)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/shooter_crossed_random_ANOVA.html" class="sidebar-item-text sidebar-link">Bayesian Workflow (Police Officer’s Dilemma)</a>
+  <a href="../notebooks/shooter_crossed_random_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Workflow (Police Officer’s Dilemma)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/t_regression.html" class="sidebar-item-text sidebar-link">Robust Linear Regression</a>
+  <a href="../notebooks/t_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Robust Linear Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/predict_new_groups.html" class="sidebar-item-text sidebar-link">Predict New Groups</a>
+  <a href="../notebooks/predict_new_groups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Predict New Groups</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/polynomial_regression.html" class="sidebar-item-text sidebar-link">Polynomial Regression</a>
+  <a href="../notebooks/polynomial_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Polynomial Regression</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">Generalized linear models</a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Generalized linear models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/logistic_regression.html" class="sidebar-item-text sidebar-link">Logistic Regression (Vote intention with ANES data)</a>
+  <a href="../notebooks/logistic_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Logistic Regression (Vote intention with ANES data)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/model_comparison.html" class="sidebar-item-text sidebar-link">Logistic Regression and Model Comparison with Bambi and ArviZ</a>
+  <a href="../notebooks/model_comparison.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Logistic Regression and Model Comparison with Bambi and ArviZ</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/hierarchical_binomial_bambi.html" class="sidebar-item-text sidebar-link">Hierarchical Logistic regression with Binomial family</a>
+  <a href="../notebooks/hierarchical_binomial_bambi.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Logistic regression with Binomial family</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/alternative_links_binary.html" class="sidebar-item-text sidebar-link">Regression for Binary responses: Alternative link functions</a>
+  <a href="../notebooks/alternative_links_binary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Regression for Binary responses: Alternative link functions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/wald_gamma_glm.html" class="sidebar-item-text sidebar-link">Wald and Gamma Regression (Australian insurance claims 2004-2005)</a>
+  <a href="../notebooks/wald_gamma_glm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Wald and Gamma Regression (Australian insurance claims 2004-2005)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/negative_binomial.html" class="sidebar-item-text sidebar-link">Negative Binomial Regression (Students absence example)</a>
+  <a href="../notebooks/negative_binomial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Negative Binomial Regression (Students absence example)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/count_roaches.html" class="sidebar-item-text sidebar-link">Count Regression with Variable Exposure</a>
+  <a href="../notebooks/count_roaches.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Count Regression with Variable Exposure</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/beta_regression.html" class="sidebar-item-text sidebar-link">Beta Regression</a>
+  <a href="../notebooks/beta_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Beta Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/categorical_regression.html" class="sidebar-item-text sidebar-link">Categorical Regression</a>
+  <a href="../notebooks/categorical_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Categorical Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/circular_regression.html" class="sidebar-item-text sidebar-link">Circular Regression</a>
+  <a href="../notebooks/circular_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Circular Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/quantile_regression.html" class="sidebar-item-text sidebar-link">Quantile Regression</a>
+  <a href="../notebooks/quantile_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Quantile Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/mister_p.html" class="sidebar-item-text sidebar-link active">Multilevel Regression and Post-stratification</a>
+  <a href="../notebooks/mister_p.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Multilevel Regression and Post-stratification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/ordinal_regression.html" class="sidebar-item-text sidebar-link">Ordinal Regression</a>
+  <a href="../notebooks/ordinal_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ordinal Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/zero_inflated_regression.html" class="sidebar-item-text sidebar-link">Zero inflated models</a>
+  <a href="../notebooks/zero_inflated_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Zero inflated models</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="false">More advanced models</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">More advanced models</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/distributional_models.html" class="sidebar-item-text sidebar-link">Distributional models</a>
+  <a href="../notebooks/distributional_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Distributional models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/hsgp_1d.html" class="sidebar-item-text sidebar-link">Gaussian Processes</a>
+  <a href="../notebooks/hsgp_1d.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gaussian Processes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/hsgp_2d.html" class="sidebar-item-text sidebar-link">Gaussian Processes in 2D</a>
+  <a href="../notebooks/hsgp_2d.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gaussian Processes in 2D</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/survival_model.html" class="sidebar-item-text sidebar-link">Survival Models</a>
+  <a href="../notebooks/survival_model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Survival Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/orthogonal_polynomial_reg.html" class="sidebar-item-text sidebar-link">Orthogonal Polynomial regression</a>
+  <a href="../notebooks/orthogonal_polynomial_reg.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Orthogonal Polynomial regression</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="false">Tools to interpret model outputs</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">Tools to interpret model outputs</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/plot_predictions.html" class="sidebar-item-text sidebar-link">Plot Conditional Adjusted Predictions</a>
+  <a href="../notebooks/plot_predictions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Plot Conditional Adjusted Predictions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/plot_comparisons.html" class="sidebar-item-text sidebar-link">Plot Comparisons</a>
+  <a href="../notebooks/plot_comparisons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Plot Comparisons</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/plot_slopes.html" class="sidebar-item-text sidebar-link">Plot Slopes</a>
+  <a href="../notebooks/plot_slopes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Plot Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/interpret_advanced_usage.html" class="sidebar-item-text sidebar-link">Interpret Advanced Usage</a>
+  <a href="../notebooks/interpret_advanced_usage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Interpret Advanced Usage</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="false">Alternative sampling backends</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Alternative sampling backends</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/alternative_samplers.html" class="sidebar-item-text sidebar-link">Alternative sampling backends</a>
+  <a href="../notebooks/alternative_samplers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Alternative sampling backends</span></a>
   </div>
 </li>
       </ul>
@@ -431,15 +483,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     </ul>
     </div>
 </nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#multilevel-regression-and-post-stratification" id="toc-multilevel-regression-and-post-stratification" class="nav-link active" data-scroll-target="#multilevel-regression-and-post-stratification">Multilevel Regression and Post-stratification</a>
-  <ul class="collapse">
-  <li><a href="#regression-and-effect-modification" id="toc-regression-and-effect-modification" class="nav-link" data-scroll-target="#regression-and-effect-modification">Regression and Effect Modification</a></li>
+  <li><a href="#regression-and-effect-modification" id="toc-regression-and-effect-modification" class="nav-link active" data-scroll-target="#regression-and-effect-modification">Regression and Effect Modification</a></li>
   <li><a href="#risk-stratification" id="toc-risk-stratification" class="nav-link" data-scroll-target="#risk-stratification">Risk Stratification</a></li>
   <li><a href="#regression-as-stratification" id="toc-regression-as-stratification" class="nav-link" data-scroll-target="#regression-as-stratification">Regression as Stratification</a></li>
   <li><a href="#the-need-for-post-stratification" id="toc-the-need-for-post-stratification" class="nav-link" data-scroll-target="#the-need-for-post-stratification">The Need for Post-Stratification</a>
@@ -457,22 +508,36 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <li><a href="#plot-the-effect-of-adjustment" id="toc-plot-the-effect-of-adjustment" class="nav-link" data-scroll-target="#plot-the-effect-of-adjustment">Plot the Effect of Adjustment</a></li>
   </ul></li>
   <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
-  </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/logistic_regression.html">Generalized linear models</a></li><li class="breadcrumb-item"><a href="../notebooks/mister_p.html">Multilevel Regression and Post-stratification</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Multilevel Regression and Post-stratification</h1>
+</div>
 
 
-<section id="multilevel-regression-and-post-stratification" class="level1">
-<h1>Multilevel Regression and Post-stratification</h1>
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
 <section id="regression-and-effect-modification" class="level2">
 <h2 class="anchored" data-anchor-id="regression-and-effect-modification">Regression and Effect Modification</h2>
 <p>What are we even doing when we fit a regression model? Is a question that arises when first learning the tools of the trade and again when debugging strange results of your thousandth logistic regression model.</p>
 <p>This notebook is intended to showcase how regression can be seen as a method for automating the calculation of stratum specific conditional effects. Additionally, we’ll see how we can enrich regression models by a post-stratification adjustment with knowledge of the appropriate stratum specific weights. This technique of multilevel regression and post stratification (MrP) is often used in the context of national surveys where we have knowledge of the population weights appropriate to different demographic groups. It can be used in a wide variety of areas ranging from political polling to online market research. We will demonstrate how to fit and and assess these models using Bambi.</p>
-<div class="cell" data-execution_count="1">
+<div id="cell-2" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
@@ -489,7 +554,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2 class="anchored" data-anchor-id="risk-stratification">Risk Stratification</h2>
 <p>First consider this example of heart transplant patients adapted from Hernan and Robins’ excellent book <em>Causal Inference: What if</em>. Here we have a number of patients (anonymised with names for the Greek Gods). The data records the outcomes of a heart transplant program for those who were part of the program and those who were not. We also see the different risk levels of each patient assigned the treatment.</p>
 <p>What we want to show here is that a regression model fit to this data automatically accounts for the weighting appropriate to the different risk strata. The data is coded with 0-1 indicators for status. <code>Risk_Strata</code> is either 1 for higher risk or 0 for lower risk. <code>Outcome</code> is whether or not the patient died from the procedure, and <code>Treatment</code> is whether or not the patient received treatment.</p>
-<div class="cell" data-execution_count="2">
+<div id="cell-4" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame(</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    {</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"name"</span>: [</span>
@@ -524,221 +589,223 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>name</th>
-      <th>Risk_Strata</th>
-      <th>Treatment</th>
-      <th>Outcome</th>
-      <th>Treatment_x_Risk_Strata</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>Rheia</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>Kronos</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>Demeter</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>Hades</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>Hestia</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>Poseidon</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>Hera</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>Zeus</td>
-      <td>0</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>Artemis</td>
-      <td>1</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>Apollo</td>
-      <td>1</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>Leto</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>11</th>
-      <td>Ares</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>12</th>
-      <td>Athena</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>13</th>
-      <td>Hephaestus</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>14</th>
-      <td>Aphrodite</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>15</th>
-      <td>Cyclope</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>16</th>
-      <td>Persephone</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>17</th>
-      <td>Hermes</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>18</th>
-      <td>Hebe</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>19</th>
-      <td>Dionysus</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0</td>
-      <td>1</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">name</th>
+<th data-quarto-table-cell-role="th">Risk_Strata</th>
+<th data-quarto-table-cell-role="th">Treatment</th>
+<th data-quarto-table-cell-role="th">Outcome</th>
+<th data-quarto-table-cell-role="th">Treatment_x_Risk_Strata</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>Rheia</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>Kronos</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>Demeter</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>Hades</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>Hestia</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>Poseidon</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>Hera</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>Zeus</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>Artemis</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>Apollo</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">10</td>
+<td>Leto</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11</td>
+<td>Ares</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12</td>
+<td>Athena</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">13</td>
+<td>Hephaestus</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">14</td>
+<td>Aphrodite</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">15</td>
+<td>Cyclope</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">16</td>
+<td>Persephone</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">17</td>
+<td>Hermes</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">18</td>
+<td>Hebe</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">19</td>
+<td>Dionysus</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
 <p>If the treatment assignment procedure involved complete randomisation then we might expect a reasonable balance of strata effects across the treated and non-treated. In this sample we see (perhaps counter intuitively) that the treatment seems to induce a higher rate of death than the non-treated group.</p>
-<div class="cell" data-execution_count="3">
+<div id="cell-6" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>simple_average <span class="op">=</span> df.groupby(<span class="st">"Treatment"</span>)[[<span class="st">"Outcome"</span>]].mean().rename({<span class="st">"Outcome"</span>: <span class="st">"Share"</span>}, axis<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>simple_average</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>Share</th>
-    </tr>
-    <tr>
-      <th>Treatment</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.428571</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.538462</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Share</th>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Treatment</th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>0.428571</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>0.538462</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
 <p>Which suggests an alarming causal effect whereby the treatment seems to increase risk of death in the population.</p>
-<div class="cell" data-execution_count="4">
+<div id="cell-8" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>causal_risk_ratio <span class="op">=</span> simple_average.iloc[<span class="dv">1</span>][<span class="st">"Share"</span>] <span class="op">/</span> simple_average.iloc[<span class="dv">0</span>][<span class="st">"Share"</span>]</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Causal Risk Ratio:"</span>, causal_risk_ratio)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -746,45 +813,46 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <p>This finding we know on inspection is driven by the imbalance in the risk strata across the treatment groups.</p>
-<div class="cell" data-execution_count="5">
+<div id="cell-10" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>df.groupby(<span class="st">"Risk_Strata"</span>)[[<span class="st">"Treatment"</span>]].count().assign(</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    proportion<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="st">"Treatment"</span>] <span class="op">/</span> <span class="bu">len</span>(df)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="5">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>Treatment</th>
-      <th>proportion</th>
-    </tr>
-    <tr>
-      <th>Risk_Strata</th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>8</td>
-      <td>0.4</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>12</td>
-      <td>0.6</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Treatment</th>
+<th data-quarto-table-cell-role="th">proportion</th>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Risk_Strata</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>8</td>
+<td>0.4</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>12</td>
+<td>0.6</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
 <p>We can correct for this by weighting the results by the share each group represents across the <code>Risk_Strata</code>. In other words when we correct for the population size at the different levels of risk we get a better estimate of the effect. First we see what the expected outcome is for each strata.</p>
-<div class="cell" data-execution_count="6">
+<div id="cell-12" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>outcomes_controlled <span class="op">=</span> (</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    df.groupby([<span class="st">"Risk_Strata"</span>, <span class="st">"Treatment"</span>])[[<span class="st">"Outcome"</span>]]</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    .mean()</span>
@@ -794,40 +862,41 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>outcomes_controlled</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="6">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th>Risk_Strata</th>
-      <th>0</th>
-      <th>1</th>
-    </tr>
-    <tr>
-      <th>Treatment</th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.25</td>
-      <td>0.666667</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.25</td>
-      <td>0.666667</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Risk_Strata</th>
+<th data-quarto-table-cell-role="th">0</th>
+<th data-quarto-table-cell-role="th">1</th>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Treatment</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>0.25</td>
+<td>0.666667</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>0.25</td>
+<td>0.666667</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
 <p>Note how the expected outcomes are equal across the stratified groups. We can now combine these estimate with the population weights (derived earlier) in each segment to get our weighted average.</p>
-<div class="cell" data-execution_count="7">
+<div id="cell-14" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>weighted_avg <span class="op">=</span> outcomes_controlled.assign(formula<span class="op">=</span><span class="st">"0.4*0.25 + 0.6*0.66"</span>).assign(</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    weighted_average<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="dv">0</span>] <span class="op">*</span> (df[df[<span class="st">"Risk_Strata"</span>] <span class="op">==</span> <span class="dv">0</span>].shape[<span class="dv">0</span>] <span class="op">/</span> <span class="bu">len</span>(df))</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> x[<span class="dv">1</span>] <span class="op">*</span> (df[df[<span class="st">"Risk_Strata"</span>] <span class="op">==</span> <span class="dv">1</span>].shape[<span class="dv">0</span>] <span class="op">/</span> <span class="bu">len</span>(df))</span>
@@ -835,48 +904,49 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>weighted_avg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="7">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th>Risk_Strata</th>
-      <th>0</th>
-      <th>1</th>
-      <th>formula</th>
-      <th>weighted_average</th>
-    </tr>
-    <tr>
-      <th>Treatment</th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.25</td>
-      <td>0.666667</td>
-      <td>0.4*0.25 + 0.6*0.66</td>
-      <td>0.5</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.25</td>
-      <td>0.666667</td>
-      <td>0.4*0.25 + 0.6*0.66</td>
-      <td>0.5</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Risk_Strata</th>
+<th data-quarto-table-cell-role="th">0</th>
+<th data-quarto-table-cell-role="th">1</th>
+<th data-quarto-table-cell-role="th">formula</th>
+<th data-quarto-table-cell-role="th">weighted_average</th>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Treatment</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>0.25</td>
+<td>0.666667</td>
+<td>0.4*0.25 + 0.6*0.66</td>
+<td>0.5</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>0.25</td>
+<td>0.666667</td>
+<td>0.4*0.25 + 0.6*0.66</td>
+<td>0.5</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
 <p>From which we can derive a more sensible treatment effect.</p>
-<div class="cell" data-execution_count="8">
+<div id="cell-16" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>causal_risk_ratio <span class="op">=</span> (</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    weighted_avg.iloc[<span class="dv">1</span>][<span class="st">"weighted_average"</span>] <span class="op">/</span> weighted_avg.iloc[<span class="dv">0</span>][<span class="st">"weighted_average"</span>]</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>)</span>
@@ -891,7 +961,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2 class="anchored" data-anchor-id="regression-as-stratification">Regression as Stratification</h2>
 <p>So far, so good. But so what?</p>
 <p>The point here is that the above series of steps can be difficult to accomplish with more complex sets of groups and risk profiles. So it’s useful to understand that regression can be used to automatically account for the variation in outcome effects across the different strata of our population. More prosaically, the example shows that it really matters what variables you put in your model.</p>
-<div class="cell" data-execution_count="9">
+<div id="cell-19" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>reg <span class="op">=</span> bmb.Model(<span class="st">"Outcome ~ 1 + Treatment"</span>, df)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> reg.fit()</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -905,7 +975,7 @@ NUTS: [sigma, Intercept, Treatment]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"10c29193bb6242128d967f709789070e","version_major":2,"version_minor":0}
+{"model_id":"10c29193bb6242128d967f709789070e","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -924,7 +994,7 @@ NUTS: [sigma, Intercept, Treatment, Risk_Strata, Treatment_x_Risk_Strata]</code>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"8bb549d0800140879b146e45a94bb979","version_major":2,"version_minor":0}
+{"model_id":"8bb549d0800140879b146e45a94bb979","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -939,157 +1009,159 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 <p>We can now inspect the treatment effect and the implied causal risk ratio in each model. We can quickly recover that controlling for the <strong>right</strong> variables in our regression model automatically adjusts the treatment effect downwards towards 0.</p>
-<div class="cell" data-execution_count="10">
+<div id="cell-21" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>az.summary(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="10">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>mean</th>
-      <th>sd</th>
-      <th>hdi_3%</th>
-      <th>hdi_97%</th>
-      <th>mcse_mean</th>
-      <th>mcse_sd</th>
-      <th>ess_bulk</th>
-      <th>ess_tail</th>
-      <th>r_hat</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>Intercept</th>
-      <td>0.433</td>
-      <td>0.214</td>
-      <td>0.036</td>
-      <td>0.830</td>
-      <td>0.004</td>
-      <td>0.003</td>
-      <td>2394.0</td>
-      <td>1504.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>Treatment</th>
-      <td>0.109</td>
-      <td>0.275</td>
-      <td>-0.379</td>
-      <td>0.641</td>
-      <td>0.006</td>
-      <td>0.007</td>
-      <td>2084.0</td>
-      <td>1071.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>sigma</th>
-      <td>0.545</td>
-      <td>0.093</td>
-      <td>0.391</td>
-      <td>0.722</td>
-      <td>0.002</td>
-      <td>0.002</td>
-      <td>1831.0</td>
-      <td>1501.0</td>
-      <td>1.0</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">sd</th>
+<th data-quarto-table-cell-role="th">hdi_3%</th>
+<th data-quarto-table-cell-role="th">hdi_97%</th>
+<th data-quarto-table-cell-role="th">mcse_mean</th>
+<th data-quarto-table-cell-role="th">mcse_sd</th>
+<th data-quarto-table-cell-role="th">ess_bulk</th>
+<th data-quarto-table-cell-role="th">ess_tail</th>
+<th data-quarto-table-cell-role="th">r_hat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Intercept</td>
+<td>0.433</td>
+<td>0.214</td>
+<td>0.036</td>
+<td>0.830</td>
+<td>0.004</td>
+<td>0.003</td>
+<td>2394.0</td>
+<td>1504.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Treatment</td>
+<td>0.109</td>
+<td>0.275</td>
+<td>-0.379</td>
+<td>0.641</td>
+<td>0.006</td>
+<td>0.007</td>
+<td>2084.0</td>
+<td>1071.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sigma</td>
+<td>0.545</td>
+<td>0.093</td>
+<td>0.391</td>
+<td>0.722</td>
+<td>0.002</td>
+<td>0.002</td>
+<td>1831.0</td>
+<td>1501.0</td>
+<td>1.0</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="11">
+<div id="cell-22" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>az.summary(results_strata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="11">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>mean</th>
-      <th>sd</th>
-      <th>hdi_3%</th>
-      <th>hdi_97%</th>
-      <th>mcse_mean</th>
-      <th>mcse_sd</th>
-      <th>ess_bulk</th>
-      <th>ess_tail</th>
-      <th>r_hat</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>Intercept</th>
-      <td>0.252</td>
-      <td>0.266</td>
-      <td>-0.274</td>
-      <td>0.713</td>
-      <td>0.008</td>
-      <td>0.005</td>
-      <td>1212.0</td>
-      <td>1628.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>Risk_Strata</th>
-      <td>0.408</td>
-      <td>0.404</td>
-      <td>-0.302</td>
-      <td>1.165</td>
-      <td>0.014</td>
-      <td>0.010</td>
-      <td>788.0</td>
-      <td>1160.0</td>
-      <td>1.01</td>
-    </tr>
-    <tr>
-      <th>Treatment</th>
-      <td>-0.004</td>
-      <td>0.366</td>
-      <td>-0.706</td>
-      <td>0.645</td>
-      <td>0.012</td>
-      <td>0.008</td>
-      <td>1016.0</td>
-      <td>1278.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>Treatment_x_Risk_Strata</th>
-      <td>0.014</td>
-      <td>0.493</td>
-      <td>-0.967</td>
-      <td>0.882</td>
-      <td>0.018</td>
-      <td>0.013</td>
-      <td>748.0</td>
-      <td>1009.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>sigma</th>
-      <td>0.531</td>
-      <td>0.094</td>
-      <td>0.361</td>
-      <td>0.693</td>
-      <td>0.003</td>
-      <td>0.002</td>
-      <td>1413.0</td>
-      <td>1201.0</td>
-      <td>1.00</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">sd</th>
+<th data-quarto-table-cell-role="th">hdi_3%</th>
+<th data-quarto-table-cell-role="th">hdi_97%</th>
+<th data-quarto-table-cell-role="th">mcse_mean</th>
+<th data-quarto-table-cell-role="th">mcse_sd</th>
+<th data-quarto-table-cell-role="th">ess_bulk</th>
+<th data-quarto-table-cell-role="th">ess_tail</th>
+<th data-quarto-table-cell-role="th">r_hat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Intercept</td>
+<td>0.252</td>
+<td>0.266</td>
+<td>-0.274</td>
+<td>0.713</td>
+<td>0.008</td>
+<td>0.005</td>
+<td>1212.0</td>
+<td>1628.0</td>
+<td>1.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Risk_Strata</td>
+<td>0.408</td>
+<td>0.404</td>
+<td>-0.302</td>
+<td>1.165</td>
+<td>0.014</td>
+<td>0.010</td>
+<td>788.0</td>
+<td>1160.0</td>
+<td>1.01</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Treatment</td>
+<td>-0.004</td>
+<td>0.366</td>
+<td>-0.706</td>
+<td>0.645</td>
+<td>0.012</td>
+<td>0.008</td>
+<td>1016.0</td>
+<td>1278.0</td>
+<td>1.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Treatment_x_Risk_Strata</td>
+<td>0.014</td>
+<td>0.493</td>
+<td>-0.967</td>
+<td>0.882</td>
+<td>0.018</td>
+<td>0.013</td>
+<td>748.0</td>
+<td>1009.0</td>
+<td>1.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sigma</td>
+<td>0.531</td>
+<td>0.094</td>
+<td>0.361</td>
+<td>0.693</td>
+<td>0.003</td>
+<td>0.002</td>
+<td>1413.0</td>
+<td>1201.0</td>
+<td>1.00</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="12">
+<div id="cell-23" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> az.plot_forest(</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    [results, results_strata],</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    model_names<span class="op">=</span>[<span class="st">"naive_model"</span>, <span class="st">"stratified_model"</span>],</span>
@@ -1102,11 +1174,15 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"black"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>)</span>
 <span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">"Treatment Effects under Stratification/Non-stratification"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="mister_p_files/figure-html/cell-13-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="mister_p_files/figure-html/cell-13-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>We can even see this in the predicted outcomes for the model. This is an important step. The regression model automatically adjusts for the risk profile within the appropriate strata in the data “seen” by the model.</p>
-<div class="cell" data-execution_count="13">
+<div id="cell-25" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>new_df <span class="op">=</span> df[[<span class="st">"Risk_Strata"</span>]].assign(Treatment<span class="op">=</span><span class="dv">1</span>).assign(Treatment_x_Risk_Strata<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>new_preds <span class="op">=</span> reg_strata.predict(results_strata, kind<span class="op">=</span><span class="st">"pps"</span>, data<span class="op">=</span>new_df, inplace<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Expected Outcome in the Treated"</span>)</span>
@@ -1118,7 +1194,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <pre><code>0.5073302224271066</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="14">
+<div id="cell-26" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>new_df <span class="op">=</span> df[[<span class="st">"Risk_Strata"</span>]].assign(Treatment<span class="op">=</span><span class="dv">0</span>).assign(Treatment_x_Risk_Strata<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>new_preds <span class="op">=</span> reg_strata.predict(results_strata, kind<span class="op">=</span><span class="st">"pps"</span>, data<span class="op">=</span>new_df, inplace<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Expected Outcome in the Untreated"</span>)</span>
@@ -1132,7 +1208,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 <p>We can see these results more clearly using <code>bambi</code> model interpretation functions to see the predictions within a specific strata.</p>
-<div class="cell" data-execution_count="15">
+<div id="cell-28" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">20</span>, <span class="dv">6</span>))</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>axs <span class="op">=</span> axs.flatten()</span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(reg, results, conditional<span class="op">=</span>[<span class="st">"Treatment"</span>], ax<span class="op">=</span>axs[<span class="dv">0</span>])</span>
@@ -1145,7 +1221,11 @@ Default computed for conditional variable: Treatment
 Default computed for unspecified variable: Risk_Strata, Treatment_x_Risk_Strata</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="mister_p_files/figure-html/cell-16-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="mister_p_files/figure-html/cell-16-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Hernan and Robins expand on these foundational observations and elaborate the implications for causal inference and the bias of confounding variables. We won’t go into these details, as we instead we want to draw out the connection with controlling for the risk of non-representative sampling. The usefulness of “representative-ness” as an idea is disputed in the statistical literature due to the vagueness of the term. To say a sample is representative is ussually akin to meaning that it was generated from a high-quality probability sampling design. This design is specified to avoid the creep of bias due to selection effects contaminating the results.</p>
@@ -1156,163 +1236,164 @@ Default computed for unspecified variable: Risk_Strata, Treatment_x_Risk_Strata<
 <p>In the context of national survey design there is always a concern that the sample respondents may be more or less representative of the population across different key demographics e.g.&nbsp;it’s unlikely we would put much faith in the survey’s accuracy if it had 90% male respondents on a question about the lived experience of women. Given that we can know before hand that certain demographic splits are not relective of the census data, we can use this information to appropriately re-weight the regressions fit to non-representative survey data.</p>
 <p>We’ll demonstrate the idea of multi-level regression and post-stratification adjustment by replicating some of the steps discussed in Martin, Philips and Gelmen’s <a href="https://bookdown.org/jl5522/MRP-case-studies/">“Multilevel Regression and Poststratification Case Studies”</a>.</p>
 <p>They cite data from the Cooperative Congressional Election Study (Schaffner, Ansolabehere, and Luks (2018)), a US nationwide survey designed by a consortium of 60 research teams and administered by YouGov. The outcome of interest is a binary question: Should employers decline coverage of abortions in insurance plans?</p>
-<div class="cell" data-execution_count="16">
+<div id="cell-31" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>cces_all_df <span class="op">=</span> pd.read_csv(<span class="st">"data/mr_p_cces18_common_vv.csv.gz"</span>, low_memory<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>cces_all_df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="16">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>caseid</th>
-      <th>commonweight</th>
-      <th>commonpostweight</th>
-      <th>vvweight</th>
-      <th>vvweight_post</th>
-      <th>tookpost</th>
-      <th>CCEStake</th>
-      <th>birthyr</th>
-      <th>gender</th>
-      <th>educ</th>
-      <th>...</th>
-      <th>CL_party</th>
-      <th>CL_2018gvm</th>
-      <th>CL_2018pep</th>
-      <th>CL_2018pvm</th>
-      <th>starttime</th>
-      <th>endtime</th>
-      <th>starttime_post</th>
-      <th>endtime_post</th>
-      <th>DMA</th>
-      <th>dmaname</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>123464282</td>
-      <td>0.940543</td>
-      <td>0.7936</td>
-      <td>0.740858</td>
-      <td>0.641412</td>
-      <td>2</td>
-      <td>1</td>
-      <td>1964</td>
-      <td>2</td>
-      <td>4</td>
-      <td>...</td>
-      <td>11.0</td>
-      <td>1.0</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>04oct2018 02:47:10</td>
-      <td>09oct2018 04:16:31</td>
-      <td>11nov2018 00:41:13</td>
-      <td>11nov2018 01:21:53</td>
-      <td>512.0</td>
-      <td>BALTIMORE</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>170169205</td>
-      <td>0.769724</td>
-      <td>0.7388</td>
-      <td>0.425236</td>
-      <td>0.415134</td>
-      <td>2</td>
-      <td>1</td>
-      <td>1971</td>
-      <td>2</td>
-      <td>2</td>
-      <td>...</td>
-      <td>13.0</td>
-      <td>NaN</td>
-      <td>6.0</td>
-      <td>2.0</td>
-      <td>02oct2018 06:55:22</td>
-      <td>02oct2018 07:32:51</td>
-      <td>12nov2018 00:49:50</td>
-      <td>12nov2018 01:08:43</td>
-      <td>531.0</td>
-      <td>"TRI-CITIES</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>175996005</td>
-      <td>1.491642</td>
-      <td>1.3105</td>
-      <td>1.700094</td>
-      <td>1.603264</td>
-      <td>2</td>
-      <td>1</td>
-      <td>1958</td>
-      <td>2</td>
-      <td>3</td>
-      <td>...</td>
-      <td>13.0</td>
-      <td>5.0</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>07oct2018 00:48:23</td>
-      <td>07oct2018 01:38:41</td>
-      <td>12nov2018 21:49:41</td>
-      <td>12nov2018 22:19:28</td>
-      <td>564.0</td>
-      <td>CHARLESTON-HUNTINGTON</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>176818556</td>
-      <td>5.104709</td>
-      <td>4.6304</td>
-      <td>5.946729</td>
-      <td>5.658840</td>
-      <td>2</td>
-      <td>1</td>
-      <td>1946</td>
-      <td>2</td>
-      <td>6</td>
-      <td>...</td>
-      <td>4.0</td>
-      <td>3.0</td>
-      <td>NaN</td>
-      <td>3.0</td>
-      <td>11oct2018 15:20:26</td>
-      <td>11oct2018 16:18:42</td>
-      <td>11nov2018 13:24:16</td>
-      <td>11nov2018 14:00:14</td>
-      <td>803.0</td>
-      <td>LOS ANGELES</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>202120533</td>
-      <td>0.466526</td>
-      <td>0.3745</td>
-      <td>0.412451</td>
-      <td>0.422327</td>
-      <td>2</td>
-      <td>1</td>
-      <td>1972</td>
-      <td>2</td>
-      <td>2</td>
-      <td>...</td>
-      <td>3.0</td>
-      <td>5.0</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>08oct2018 02:31:28</td>
-      <td>08oct2018 03:03:48</td>
-      <td>15nov2018 01:04:16</td>
-      <td>15nov2018 01:57:21</td>
-      <td>529.0</td>
-      <td>LOUISVILLE</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">caseid</th>
+<th data-quarto-table-cell-role="th">commonweight</th>
+<th data-quarto-table-cell-role="th">commonpostweight</th>
+<th data-quarto-table-cell-role="th">vvweight</th>
+<th data-quarto-table-cell-role="th">vvweight_post</th>
+<th data-quarto-table-cell-role="th">tookpost</th>
+<th data-quarto-table-cell-role="th">CCEStake</th>
+<th data-quarto-table-cell-role="th">birthyr</th>
+<th data-quarto-table-cell-role="th">gender</th>
+<th data-quarto-table-cell-role="th">educ</th>
+<th data-quarto-table-cell-role="th">...</th>
+<th data-quarto-table-cell-role="th">CL_party</th>
+<th data-quarto-table-cell-role="th">CL_2018gvm</th>
+<th data-quarto-table-cell-role="th">CL_2018pep</th>
+<th data-quarto-table-cell-role="th">CL_2018pvm</th>
+<th data-quarto-table-cell-role="th">starttime</th>
+<th data-quarto-table-cell-role="th">endtime</th>
+<th data-quarto-table-cell-role="th">starttime_post</th>
+<th data-quarto-table-cell-role="th">endtime_post</th>
+<th data-quarto-table-cell-role="th">DMA</th>
+<th data-quarto-table-cell-role="th">dmaname</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>123464282</td>
+<td>0.940543</td>
+<td>0.7936</td>
+<td>0.740858</td>
+<td>0.641412</td>
+<td>2</td>
+<td>1</td>
+<td>1964</td>
+<td>2</td>
+<td>4</td>
+<td>...</td>
+<td>11.0</td>
+<td>1.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>04oct2018 02:47:10</td>
+<td>09oct2018 04:16:31</td>
+<td>11nov2018 00:41:13</td>
+<td>11nov2018 01:21:53</td>
+<td>512.0</td>
+<td>BALTIMORE</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>170169205</td>
+<td>0.769724</td>
+<td>0.7388</td>
+<td>0.425236</td>
+<td>0.415134</td>
+<td>2</td>
+<td>1</td>
+<td>1971</td>
+<td>2</td>
+<td>2</td>
+<td>...</td>
+<td>13.0</td>
+<td>NaN</td>
+<td>6.0</td>
+<td>2.0</td>
+<td>02oct2018 06:55:22</td>
+<td>02oct2018 07:32:51</td>
+<td>12nov2018 00:49:50</td>
+<td>12nov2018 01:08:43</td>
+<td>531.0</td>
+<td>"TRI-CITIES</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>175996005</td>
+<td>1.491642</td>
+<td>1.3105</td>
+<td>1.700094</td>
+<td>1.603264</td>
+<td>2</td>
+<td>1</td>
+<td>1958</td>
+<td>2</td>
+<td>3</td>
+<td>...</td>
+<td>13.0</td>
+<td>5.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>07oct2018 00:48:23</td>
+<td>07oct2018 01:38:41</td>
+<td>12nov2018 21:49:41</td>
+<td>12nov2018 22:19:28</td>
+<td>564.0</td>
+<td>CHARLESTON-HUNTINGTON</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>176818556</td>
+<td>5.104709</td>
+<td>4.6304</td>
+<td>5.946729</td>
+<td>5.658840</td>
+<td>2</td>
+<td>1</td>
+<td>1946</td>
+<td>2</td>
+<td>6</td>
+<td>...</td>
+<td>4.0</td>
+<td>3.0</td>
+<td>NaN</td>
+<td>3.0</td>
+<td>11oct2018 15:20:26</td>
+<td>11oct2018 16:18:42</td>
+<td>11nov2018 13:24:16</td>
+<td>11nov2018 14:00:14</td>
+<td>803.0</td>
+<td>LOS ANGELES</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>202120533</td>
+<td>0.466526</td>
+<td>0.3745</td>
+<td>0.412451</td>
+<td>0.422327</td>
+<td>2</td>
+<td>1</td>
+<td>1972</td>
+<td>2</td>
+<td>2</td>
+<td>...</td>
+<td>3.0</td>
+<td>5.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>08oct2018 02:31:28</td>
+<td>08oct2018 03:03:48</td>
+<td>15nov2018 01:04:16</td>
+<td>15nov2018 01:57:21</td>
+<td>529.0</td>
+<td>LOUISVILLE</td>
+</tr>
+</tbody>
 </table>
+
 <p>5 rows × 526 columns</p>
 </div>
 </div>
@@ -1320,7 +1401,7 @@ Default computed for unspecified variable: Risk_Strata, Treatment_x_Risk_Strata<
 <section id="cleaning-census-data" class="level3">
 <h3 class="anchored" data-anchor-id="cleaning-census-data">Cleaning Census Data</h3>
 <p>To prepare the census data for modelling we need to break the demographic data into appropriate stratum. We will break out these groupings as along broad categories familiar to audiences of election coverage news. Even these steps amount to a significant choice where we use our knowledge of pertinent demographics to decide upon the key strata we wish to represent in our model, as we seek to better predict and understand the voting outcome.</p>
-<div class="cell" data-execution_count="17">
+<div id="cell-33" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>states <span class="op">=</span> [</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"AL"</span>,</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"AK"</span>,</span>
@@ -1432,75 +1513,76 @@ Default computed for unspecified variable: Risk_Strata, Treatment_x_Risk_Strata<
 <span id="cb27-109"><a href="#cb27-109" aria-hidden="true" tabindex="-1"></a>cces_all_df <span class="op">=</span> clean_df(cces_all_df)</span>
 <span id="cb27-110"><a href="#cb27-110" aria-hidden="true" tabindex="-1"></a>cces_all_df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="17">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>abortion</th>
-      <th>state</th>
-      <th>eth</th>
-      <th>male</th>
-      <th>age</th>
-      <th>edu</th>
-      <th>caseid</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1.0</td>
-      <td>MS</td>
-      <td>Other</td>
-      <td>-0.5</td>
-      <td>50-59</td>
-      <td>Some college</td>
-      <td>123464282</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1.0</td>
-      <td>WA</td>
-      <td>White</td>
-      <td>-0.5</td>
-      <td>40-49</td>
-      <td>HS</td>
-      <td>170169205</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>1.0</td>
-      <td>RI</td>
-      <td>White</td>
-      <td>-0.5</td>
-      <td>60-69</td>
-      <td>Some college</td>
-      <td>175996005</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.0</td>
-      <td>CO</td>
-      <td>Other</td>
-      <td>-0.5</td>
-      <td>70+</td>
-      <td>Post-grad</td>
-      <td>176818556</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>1.0</td>
-      <td>MA</td>
-      <td>White</td>
-      <td>-0.5</td>
-      <td>40-49</td>
-      <td>HS</td>
-      <td>202120533</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">abortion</th>
+<th data-quarto-table-cell-role="th">state</th>
+<th data-quarto-table-cell-role="th">eth</th>
+<th data-quarto-table-cell-role="th">male</th>
+<th data-quarto-table-cell-role="th">age</th>
+<th data-quarto-table-cell-role="th">edu</th>
+<th data-quarto-table-cell-role="th">caseid</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>1.0</td>
+<td>MS</td>
+<td>Other</td>
+<td>-0.5</td>
+<td>50-59</td>
+<td>Some college</td>
+<td>123464282</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>1.0</td>
+<td>WA</td>
+<td>White</td>
+<td>-0.5</td>
+<td>40-49</td>
+<td>HS</td>
+<td>170169205</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>1.0</td>
+<td>RI</td>
+<td>White</td>
+<td>-0.5</td>
+<td>60-69</td>
+<td>Some college</td>
+<td>175996005</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>0.0</td>
+<td>CO</td>
+<td>Other</td>
+<td>-0.5</td>
+<td>70+</td>
+<td>Post-grad</td>
+<td>176818556</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>1.0</td>
+<td>MA</td>
+<td>White</td>
+<td>-0.5</td>
+<td>40-49</td>
+<td>HS</td>
+<td>202120533</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
@@ -1509,7 +1591,7 @@ Default computed for unspecified variable: Risk_Strata, Treatment_x_Risk_Strata<
 <section id="biased-sample" class="level3">
 <h3 class="anchored" data-anchor-id="biased-sample">Biased Sample</h3>
 <p>Consider a deliberately biased sample. Biased away from the census data and in this manner we show how to better recover population level estimates by incorporating details about the census population size across each of the stratum.</p>
-<div class="cell" data-execution_count="18">
+<div id="cell-36" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>cces_df <span class="op">=</span> cces_all_df.merge(statelevel_predictors_df, left_on<span class="op">=</span><span class="st">"state"</span>, right_on<span class="op">=</span><span class="st">"state"</span>, how<span class="op">=</span><span class="st">"left"</span>)</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>cces_df[<span class="st">"weight"</span>] <span class="op">=</span> (</span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    <span class="dv">5</span> <span class="op">*</span> cces_df[<span class="st">"repvote"</span>]</span>
@@ -1526,93 +1608,94 @@ Default computed for unspecified variable: Risk_Strata, Treatment_x_Risk_Strata<
 <span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>cces_df <span class="op">=</span> cces_df.sample(<span class="dv">5000</span>, weights<span class="op">=</span><span class="st">"weight"</span>, random_state<span class="op">=</span><span class="dv">1000</span>)</span>
 <span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>cces_df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="18">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>abortion</th>
-      <th>state</th>
-      <th>eth</th>
-      <th>male</th>
-      <th>age</th>
-      <th>edu</th>
-      <th>caseid</th>
-      <th>repvote</th>
-      <th>region</th>
-      <th>weight</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>35171</th>
-      <td>0.0</td>
-      <td>KY</td>
-      <td>White</td>
-      <td>-0.5</td>
-      <td>60-69</td>
-      <td>HS</td>
-      <td>415208636</td>
-      <td>0.656706</td>
-      <td>South</td>
-      <td>10.333531</td>
-    </tr>
-    <tr>
-      <th>5167</th>
-      <td>0.0</td>
-      <td>NM</td>
-      <td>White</td>
-      <td>0.5</td>
-      <td>60-69</td>
-      <td>No HS</td>
-      <td>412278020</td>
-      <td>0.453492</td>
-      <td>West</td>
-      <td>9.317460</td>
-    </tr>
-    <tr>
-      <th>52365</th>
-      <td>0.0</td>
-      <td>OK</td>
-      <td>Hispanic</td>
-      <td>-0.5</td>
-      <td>30-39</td>
-      <td>4-Year College</td>
-      <td>419467449</td>
-      <td>0.693047</td>
-      <td>South</td>
-      <td>4.465237</td>
-    </tr>
-    <tr>
-      <th>23762</th>
-      <td>1.0</td>
-      <td>WV</td>
-      <td>White</td>
-      <td>-0.5</td>
-      <td>50-59</td>
-      <td>Post-grad</td>
-      <td>413757903</td>
-      <td>0.721611</td>
-      <td>South</td>
-      <td>8.658053</td>
-    </tr>
-    <tr>
-      <th>48197</th>
-      <td>0.0</td>
-      <td>RI</td>
-      <td>White</td>
-      <td>0.5</td>
-      <td>50-59</td>
-      <td>4-Year College</td>
-      <td>417619385</td>
-      <td>0.416893</td>
-      <td>Northeast</td>
-      <td>7.134465</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">abortion</th>
+<th data-quarto-table-cell-role="th">state</th>
+<th data-quarto-table-cell-role="th">eth</th>
+<th data-quarto-table-cell-role="th">male</th>
+<th data-quarto-table-cell-role="th">age</th>
+<th data-quarto-table-cell-role="th">edu</th>
+<th data-quarto-table-cell-role="th">caseid</th>
+<th data-quarto-table-cell-role="th">repvote</th>
+<th data-quarto-table-cell-role="th">region</th>
+<th data-quarto-table-cell-role="th">weight</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">35171</td>
+<td>0.0</td>
+<td>KY</td>
+<td>White</td>
+<td>-0.5</td>
+<td>60-69</td>
+<td>HS</td>
+<td>415208636</td>
+<td>0.656706</td>
+<td>South</td>
+<td>10.333531</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5167</td>
+<td>0.0</td>
+<td>NM</td>
+<td>White</td>
+<td>0.5</td>
+<td>60-69</td>
+<td>No HS</td>
+<td>412278020</td>
+<td>0.453492</td>
+<td>West</td>
+<td>9.317460</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">52365</td>
+<td>0.0</td>
+<td>OK</td>
+<td>Hispanic</td>
+<td>-0.5</td>
+<td>30-39</td>
+<td>4-Year College</td>
+<td>419467449</td>
+<td>0.693047</td>
+<td>South</td>
+<td>4.465237</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">23762</td>
+<td>1.0</td>
+<td>WV</td>
+<td>White</td>
+<td>-0.5</td>
+<td>50-59</td>
+<td>Post-grad</td>
+<td>413757903</td>
+<td>0.721611</td>
+<td>South</td>
+<td>8.658053</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">48197</td>
+<td>0.0</td>
+<td>RI</td>
+<td>White</td>
+<td>0.5</td>
+<td>50-59</td>
+<td>4-Year College</td>
+<td>417619385</td>
+<td>0.416893</td>
+<td>Northeast</td>
+<td>7.134465</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
@@ -1620,7 +1703,7 @@ Default computed for unspecified variable: Risk_Strata, Treatment_x_Risk_Strata<
 <section id="visualise-the-bias" class="level3">
 <h3 class="anchored" data-anchor-id="visualise-the-bias">Visualise the Bias</h3>
 <p>Now we plot the outcome of expected shares within each demographic bucket across both the biased sample and the census data.</p>
-<div class="cell" data-execution_count="19">
+<div id="cell-38" class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>mosaic <span class="op">=</span> <span class="st">"""</span></span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="st">    ABCD</span></span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="st">    EEEE</span></span>
@@ -1662,11 +1745,15 @@ Default computed for unspecified variable: Risk_Strata, Treatment_x_Risk_Strata<
 <span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a>ax_dict[<span class="st">"C"</span>].set_xlabel(<span class="st">"Female / Male"</span>)</span>
 <span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a>plt.suptitle(<span class="st">"Comparison of Proportions: Survey Sample V Census"</span>, fontsize<span class="op">=</span><span class="dv">20</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="mister_p_files/figure-html/cell-20-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="mister_p_files/figure-html/cell-20-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>We can see here how the proportions differ markedly across the census report and our biased sample in how they represent the preferential votes with each strata. We now try and quantify the overall differences between the biased sample and the census report. We calculate the expected proportions in each dataset and their standard error.</p>
-<div class="cell" data-execution_count="20">
+<div id="cell-40" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_se_bernoulli(p, n):</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.sqrt(p <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> p) <span class="op">/</span> n)</span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1688,33 +1775,34 @@ Default computed for unspecified variable: Risk_Strata, Treatment_x_Risk_Strata<
 <span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>summary[<span class="st">"data"</span>] <span class="op">=</span> [<span class="st">"Full Data"</span>, <span class="st">"Biased Data"</span>]</span>
 <span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="20">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>mean</th>
-      <th>se</th>
-      <th>data</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.434051</td>
-      <td>0.002113</td>
-      <td>Full Data</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.465000</td>
-      <td>0.007054</td>
-      <td>Biased Data</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">se</th>
+<th data-quarto-table-cell-role="th">data</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>0.434051</td>
+<td>0.002113</td>
+<td>Full Data</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>0.465000</td>
+<td>0.007054</td>
+<td>Biased Data</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
@@ -1725,7 +1813,7 @@ Default computed for unspecified variable: Risk_Strata, Treatment_x_Risk_Strata<
 <h2 class="anchored" data-anchor-id="modelling-the-data">Modelling the Data</h2>
 <p>To facilitate regression based stratification we first need a regression model. In our case we will ultimately fit a multi-level regression model with intercept terms for each for each of the groups in our demographic stratum. In this way we try to account for the appropriate set of variables (as in the example above) to better specify the effect modification due to membership within a particular demographic stratum.</p>
 <p>We will fit the model using <code>bambi</code> using the binomial link function on the biased sample data. But first we aggregate up by demographic strata and count the occurences within each strata.</p>
-<div class="cell" data-execution_count="21">
+<div id="cell-43" class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>model_df <span class="op">=</span> (</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    cces_df.groupby([<span class="st">"state"</span>, <span class="st">"eth"</span>, <span class="st">"male"</span>, <span class="st">"age"</span>, <span class="st">"edu"</span>], observed<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    .agg({<span class="st">"caseid"</span>: <span class="st">"nunique"</span>, <span class="st">"abortion"</span>: <span class="st">"sum"</span>})</span>
@@ -1738,87 +1826,88 @@ Default computed for unspecified variable: Risk_Strata, Treatment_x_Risk_Strata<
 <span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>model_df[<span class="st">"n"</span>] <span class="op">=</span> model_df[<span class="st">"n"</span>].astype(<span class="bu">int</span>)</span>
 <span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>model_df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="21">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>state</th>
-      <th>eth</th>
-      <th>male</th>
-      <th>age</th>
-      <th>edu</th>
-      <th>n</th>
-      <th>abortion</th>
-      <th>repvote</th>
-      <th>region</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>ID</td>
-      <td>White</td>
-      <td>-0.5</td>
-      <td>70+</td>
-      <td>HS</td>
-      <td>32</td>
-      <td>18</td>
-      <td>0.683102</td>
-      <td>West</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>ID</td>
-      <td>White</td>
-      <td>0.5</td>
-      <td>70+</td>
-      <td>4-Year College</td>
-      <td>20</td>
-      <td>16</td>
-      <td>0.683102</td>
-      <td>West</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>WV</td>
-      <td>White</td>
-      <td>0.5</td>
-      <td>70+</td>
-      <td>Some college</td>
-      <td>17</td>
-      <td>13</td>
-      <td>0.721611</td>
-      <td>South</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>WV</td>
-      <td>White</td>
-      <td>0.5</td>
-      <td>70+</td>
-      <td>4-Year College</td>
-      <td>15</td>
-      <td>12</td>
-      <td>0.721611</td>
-      <td>South</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>ID</td>
-      <td>White</td>
-      <td>0.5</td>
-      <td>70+</td>
-      <td>Post-grad</td>
-      <td>17</td>
-      <td>11</td>
-      <td>0.683102</td>
-      <td>West</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">state</th>
+<th data-quarto-table-cell-role="th">eth</th>
+<th data-quarto-table-cell-role="th">male</th>
+<th data-quarto-table-cell-role="th">age</th>
+<th data-quarto-table-cell-role="th">edu</th>
+<th data-quarto-table-cell-role="th">n</th>
+<th data-quarto-table-cell-role="th">abortion</th>
+<th data-quarto-table-cell-role="th">repvote</th>
+<th data-quarto-table-cell-role="th">region</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>ID</td>
+<td>White</td>
+<td>-0.5</td>
+<td>70+</td>
+<td>HS</td>
+<td>32</td>
+<td>18</td>
+<td>0.683102</td>
+<td>West</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>ID</td>
+<td>White</td>
+<td>0.5</td>
+<td>70+</td>
+<td>4-Year College</td>
+<td>20</td>
+<td>16</td>
+<td>0.683102</td>
+<td>West</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>WV</td>
+<td>White</td>
+<td>0.5</td>
+<td>70+</td>
+<td>Some college</td>
+<td>17</td>
+<td>13</td>
+<td>0.721611</td>
+<td>South</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>WV</td>
+<td>White</td>
+<td>0.5</td>
+<td>70+</td>
+<td>4-Year College</td>
+<td>15</td>
+<td>12</td>
+<td>0.721611</td>
+<td>South</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>ID</td>
+<td>White</td>
+<td>0.5</td>
+<td>70+</td>
+<td>Post-grad</td>
+<td>17</td>
+<td>11</td>
+<td>0.683102</td>
+<td>West</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
@@ -1826,7 +1915,7 @@ Default computed for unspecified variable: Risk_Strata, Treatment_x_Risk_Strata<
 <section id="fit-base-model-to-biased-sample" class="level3">
 <h3 class="anchored" data-anchor-id="fit-base-model-to-biased-sample">Fit Base Model to Biased Sample</h3>
 <p>Here we use some of bambi’s latest functionality to assess the interaction effects between the variables.</p>
-<div class="cell" data-execution_count="22">
+<div id="cell-46" class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>formula <span class="op">=</span> <span class="st">""" p(abortion, n) ~ C(state) + C(eth) + C(edu) + male + repvote"""</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>base_model <span class="op">=</span> bmb.Model(formula, model_df, family<span class="op">=</span><span class="st">"binomial"</span>)</span>
@@ -1844,7 +1933,7 @@ NUTS: [Intercept, C(state), C(eth), C(edu), male, repvote]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"33a93f3531d5400b9dab941ea9fb8841","version_major":2,"version_minor":0}
+{"model_id":"33a93f3531d5400b9dab941ea9fb8841","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -1861,7 +1950,7 @@ The effective sample size per chain is smaller than 100 for some parameters.  A 
 </div>
 </div>
 <p>We plot the predicted outcomes within each group using the <code>plot_predictions</code> function.</p>
-<div class="cell" data-execution_count="23">
+<div id="cell-48" class="cell" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>mosaic <span class="op">=</span> <span class="st">"""</span></span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="st">    AABB</span></span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="st">    CCCC</span></span>
@@ -1883,11 +1972,15 @@ Default computed for conditional variable: state
 Default computed for unspecified variable: edu, eth, male, repvote</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="mister_p_files/figure-html/cell-24-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="mister_p_files/figure-html/cell-24-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>More interesting we can use the comparison functionality to compare differences in <code>eth</code> conditional on <code>age</code> and <code>edu</code>. Where we can see that the differences between ethnicities are pretty stable across all age groups, slightly shifted by within the <code>Post-grad</code> level of education.</p>
-<div class="cell" data-execution_count="24">
+<div id="cell-50" class="cell" data-execution_count="24">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_comparisons(</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>base_model,</span>
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>result,</span>
@@ -1904,11 +1997,15 @@ Default computed for unspecified variable: edu, eth, male, repvote</code></pre>
 Default computed for unspecified variable: male, repvote, state</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="mister_p_files/figure-html/cell-25-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="mister_p_files/figure-html/cell-25-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>We can pull these specific estimates out into a table for closer inspection to see that the differences in response expected between the extremes of educational attainment are moderated by state iand race.</p>
-<div class="cell" data-execution_count="25">
+<div id="cell-52" class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.comparisons(</span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>base_model,</span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>result,</span>
@@ -1920,132 +2017,133 @@ Default computed for unspecified variable: male, repvote, state</code></pre>
 <pre><code>Default computed for unspecified variable: male, repvote</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="25">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>term</th>
-      <th>estimate_type</th>
-      <th>value</th>
-      <th>eth</th>
-      <th>state</th>
-      <th>male</th>
-      <th>repvote</th>
-      <th>estimate</th>
-      <th>lower_3.0%</th>
-      <th>upper_97.0%</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>edu</td>
-      <td>diff</td>
-      <td>(Post-grad, No HS)</td>
-      <td>Black</td>
-      <td>CA</td>
-      <td>0.0</td>
-      <td>0.530191</td>
-      <td>0.080885</td>
-      <td>0.000010</td>
-      <td>0.192397</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>edu</td>
-      <td>diff</td>
-      <td>(Post-grad, No HS)</td>
-      <td>Black</td>
-      <td>ID</td>
-      <td>0.0</td>
-      <td>0.530191</td>
-      <td>0.084249</td>
-      <td>0.000027</td>
-      <td>0.189721</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>edu</td>
-      <td>diff</td>
-      <td>(Post-grad, No HS)</td>
-      <td>Black</td>
-      <td>NY</td>
-      <td>0.0</td>
-      <td>0.530191</td>
-      <td>0.096051</td>
-      <td>0.000142</td>
-      <td>0.197739</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>edu</td>
-      <td>diff</td>
-      <td>(Post-grad, No HS)</td>
-      <td>Black</td>
-      <td>VA</td>
-      <td>0.0</td>
-      <td>0.530191</td>
-      <td>0.126502</td>
-      <td>0.017389</td>
-      <td>0.215645</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>edu</td>
-      <td>diff</td>
-      <td>(Post-grad, No HS)</td>
-      <td>White</td>
-      <td>CA</td>
-      <td>0.0</td>
-      <td>0.530191</td>
-      <td>0.079627</td>
-      <td>0.000004</td>
-      <td>0.190620</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>edu</td>
-      <td>diff</td>
-      <td>(Post-grad, No HS)</td>
-      <td>White</td>
-      <td>ID</td>
-      <td>0.0</td>
-      <td>0.530191</td>
-      <td>0.094141</td>
-      <td>0.000065</td>
-      <td>0.199827</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>edu</td>
-      <td>diff</td>
-      <td>(Post-grad, No HS)</td>
-      <td>White</td>
-      <td>NY</td>
-      <td>0.0</td>
-      <td>0.530191</td>
-      <td>0.094476</td>
-      <td>0.000149</td>
-      <td>0.199248</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>edu</td>
-      <td>diff</td>
-      <td>(Post-grad, No HS)</td>
-      <td>White</td>
-      <td>VA</td>
-      <td>0.0</td>
-      <td>0.530191</td>
-      <td>0.100414</td>
-      <td>0.005637</td>
-      <td>0.197609</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">term</th>
+<th data-quarto-table-cell-role="th">estimate_type</th>
+<th data-quarto-table-cell-role="th">value</th>
+<th data-quarto-table-cell-role="th">eth</th>
+<th data-quarto-table-cell-role="th">state</th>
+<th data-quarto-table-cell-role="th">male</th>
+<th data-quarto-table-cell-role="th">repvote</th>
+<th data-quarto-table-cell-role="th">estimate</th>
+<th data-quarto-table-cell-role="th">lower_3.0%</th>
+<th data-quarto-table-cell-role="th">upper_97.0%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>edu</td>
+<td>diff</td>
+<td>(Post-grad, No HS)</td>
+<td>Black</td>
+<td>CA</td>
+<td>0.0</td>
+<td>0.530191</td>
+<td>0.080885</td>
+<td>0.000010</td>
+<td>0.192397</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>edu</td>
+<td>diff</td>
+<td>(Post-grad, No HS)</td>
+<td>Black</td>
+<td>ID</td>
+<td>0.0</td>
+<td>0.530191</td>
+<td>0.084249</td>
+<td>0.000027</td>
+<td>0.189721</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>edu</td>
+<td>diff</td>
+<td>(Post-grad, No HS)</td>
+<td>Black</td>
+<td>NY</td>
+<td>0.0</td>
+<td>0.530191</td>
+<td>0.096051</td>
+<td>0.000142</td>
+<td>0.197739</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>edu</td>
+<td>diff</td>
+<td>(Post-grad, No HS)</td>
+<td>Black</td>
+<td>VA</td>
+<td>0.0</td>
+<td>0.530191</td>
+<td>0.126502</td>
+<td>0.017389</td>
+<td>0.215645</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>edu</td>
+<td>diff</td>
+<td>(Post-grad, No HS)</td>
+<td>White</td>
+<td>CA</td>
+<td>0.0</td>
+<td>0.530191</td>
+<td>0.079627</td>
+<td>0.000004</td>
+<td>0.190620</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>edu</td>
+<td>diff</td>
+<td>(Post-grad, No HS)</td>
+<td>White</td>
+<td>ID</td>
+<td>0.0</td>
+<td>0.530191</td>
+<td>0.094141</td>
+<td>0.000065</td>
+<td>0.199827</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>edu</td>
+<td>diff</td>
+<td>(Post-grad, No HS)</td>
+<td>White</td>
+<td>NY</td>
+<td>0.0</td>
+<td>0.530191</td>
+<td>0.094476</td>
+<td>0.000149</td>
+<td>0.199248</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>edu</td>
+<td>diff</td>
+<td>(Post-grad, No HS)</td>
+<td>White</td>
+<td>VA</td>
+<td>0.0</td>
+<td>0.530191</td>
+<td>0.100414</td>
+<td>0.005637</td>
+<td>0.197609</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
@@ -2067,7 +2165,7 @@ Pr(y_i = 1) = \text{logit}^{-1}(
 )
 \]</span></p>
 <p>Here we have used the fact that we can add components to the <span class="math inline">\(\alpha\)</span> intercept terms and interaction effects to express the stratum specific variation in the outcomes that we’ve seen in our exploratory work. Using the <code>bambi</code> formula syntax. We have:</p>
-<div class="cell" data-execution_count="31">
+<div id="cell-55" class="cell" data-execution_count="31">
 <div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>formula <span class="op">=</span> <span class="st">"p(abortion, n) ~ male + repvote + (1 | state) + (1 | eth) + (1 | edu) + (1 | male:eth) + (1 | edu:age) + (1 | edu:eth)"</span></span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>model_hierarchical <span class="op">=</span> bmb.Model(formula, model_df, family<span class="op">=</span><span class="st">"binomial"</span>)</span>
@@ -2089,7 +2187,7 @@ NUTS: [Intercept, male, repvote, 1|state_sigma, 1|state_offset, 1|eth_sigma, 1|e
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"b67b00a8ad2b47f4abe041a02b8e57a7","version_major":2,"version_minor":0}
+{"model_id":"b67b00a8ad2b47f4abe041a02b8e57a7","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-stderr">
@@ -2110,10 +2208,9 @@ The rhat statistic is larger than 1.01 for some parameters. This indicates probl
 The effective sample size per chain is smaller than 100 for some parameters.  A higher number is needed for reliable rhat and ess computation. See https://arxiv.org/abs/1903.08008 for details</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="32">
+<div id="cell-56" class="cell" data-execution_count="32">
 <div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>result</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="32">
-
 
             <div>
               <div class="xr-header">
@@ -4340,198 +4437,207 @@ dl.xr-attrs {
 .xr-wrap{width:700px!important;} </style>
 </div>
 </div>
-<div class="cell" data-execution_count="33">
+<div id="cell-57" class="cell" data-execution_count="33">
 <div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>az.summary(result, var_names<span class="op">=</span>[<span class="st">"Intercept"</span>, <span class="st">"male"</span>, <span class="st">"1|edu"</span>, <span class="st">"1|eth"</span>, <span class="st">"repvote"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="33">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>mean</th>
-      <th>sd</th>
-      <th>hdi_3%</th>
-      <th>hdi_97%</th>
-      <th>mcse_mean</th>
-      <th>mcse_sd</th>
-      <th>ess_bulk</th>
-      <th>ess_tail</th>
-      <th>r_hat</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>Intercept</th>
-      <td>0.167</td>
-      <td>0.433</td>
-      <td>-0.218</td>
-      <td>1.107</td>
-      <td>0.187</td>
-      <td>0.140</td>
-      <td>5.0</td>
-      <td>94.0</td>
-      <td>2.02</td>
-    </tr>
-    <tr>
-      <th>male</th>
-      <td>0.499</td>
-      <td>0.330</td>
-      <td>0.010</td>
-      <td>0.799</td>
-      <td>0.215</td>
-      <td>0.188</td>
-      <td>3.0</td>
-      <td>20.0</td>
-      <td>2.19</td>
-    </tr>
-    <tr>
-      <th>1|edu[4-Year College]</th>
-      <td>0.921</td>
-      <td>0.978</td>
-      <td>-0.256</td>
-      <td>1.890</td>
-      <td>0.684</td>
-      <td>0.582</td>
-      <td>3.0</td>
-      <td>11.0</td>
-      <td>2.09</td>
-    </tr>
-    <tr>
-      <th>1|edu[HS]</th>
-      <td>2.123</td>
-      <td>2.067</td>
-      <td>-0.105</td>
-      <td>4.185</td>
-      <td>1.453</td>
-      <td>1.231</td>
-      <td>3.0</td>
-      <td>14.0</td>
-      <td>2.17</td>
-    </tr>
-    <tr>
-      <th>1|edu[No HS]</th>
-      <td>-1.513</td>
-      <td>1.686</td>
-      <td>-3.191</td>
-      <td>0.423</td>
-      <td>1.183</td>
-      <td>1.004</td>
-      <td>3.0</td>
-      <td>11.0</td>
-      <td>2.11</td>
-    </tr>
-    <tr>
-      <th>1|edu[Post-grad]</th>
-      <td>-2.459</td>
-      <td>2.273</td>
-      <td>-4.725</td>
-      <td>0.020</td>
-      <td>1.597</td>
-      <td>1.354</td>
-      <td>3.0</td>
-      <td>13.0</td>
-      <td>2.05</td>
-    </tr>
-    <tr>
-      <th>1|edu[Some college]</th>
-      <td>-0.528</td>
-      <td>0.566</td>
-      <td>-1.079</td>
-      <td>0.207</td>
-      <td>0.390</td>
-      <td>0.335</td>
-      <td>3.0</td>
-      <td>50.0</td>
-      <td>1.97</td>
-    </tr>
-    <tr>
-      <th>1|eth[Black]</th>
-      <td>-5.782</td>
-      <td>5.378</td>
-      <td>-11.687</td>
-      <td>0.006</td>
-      <td>3.783</td>
-      <td>3.201</td>
-      <td>3.0</td>
-      <td>11.0</td>
-      <td>2.23</td>
-    </tr>
-    <tr>
-      <th>1|eth[Hispanic]</th>
-      <td>6.118</td>
-      <td>6.054</td>
-      <td>-0.285</td>
-      <td>12.765</td>
-      <td>4.260</td>
-      <td>3.603</td>
-      <td>3.0</td>
-      <td>11.0</td>
-      <td>2.23</td>
-    </tr>
-    <tr>
-      <th>1|eth[Other]</th>
-      <td>-7.896</td>
-      <td>7.996</td>
-      <td>-16.677</td>
-      <td>0.473</td>
-      <td>5.628</td>
-      <td>4.760</td>
-      <td>3.0</td>
-      <td>11.0</td>
-      <td>2.23</td>
-    </tr>
-    <tr>
-      <th>1|eth[White]</th>
-      <td>-1.228</td>
-      <td>1.422</td>
-      <td>-2.758</td>
-      <td>0.510</td>
-      <td>0.986</td>
-      <td>0.843</td>
-      <td>3.0</td>
-      <td>11.0</td>
-      <td>2.23</td>
-    </tr>
-    <tr>
-      <th>repvote</th>
-      <td>-0.928</td>
-      <td>0.474</td>
-      <td>-1.949</td>
-      <td>-0.429</td>
-      <td>0.228</td>
-      <td>0.174</td>
-      <td>5.0</td>
-      <td>113.0</td>
-      <td>2.23</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">sd</th>
+<th data-quarto-table-cell-role="th">hdi_3%</th>
+<th data-quarto-table-cell-role="th">hdi_97%</th>
+<th data-quarto-table-cell-role="th">mcse_mean</th>
+<th data-quarto-table-cell-role="th">mcse_sd</th>
+<th data-quarto-table-cell-role="th">ess_bulk</th>
+<th data-quarto-table-cell-role="th">ess_tail</th>
+<th data-quarto-table-cell-role="th">r_hat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Intercept</td>
+<td>0.167</td>
+<td>0.433</td>
+<td>-0.218</td>
+<td>1.107</td>
+<td>0.187</td>
+<td>0.140</td>
+<td>5.0</td>
+<td>94.0</td>
+<td>2.02</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">male</td>
+<td>0.499</td>
+<td>0.330</td>
+<td>0.010</td>
+<td>0.799</td>
+<td>0.215</td>
+<td>0.188</td>
+<td>3.0</td>
+<td>20.0</td>
+<td>2.19</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1|edu[4-Year College]</td>
+<td>0.921</td>
+<td>0.978</td>
+<td>-0.256</td>
+<td>1.890</td>
+<td>0.684</td>
+<td>0.582</td>
+<td>3.0</td>
+<td>11.0</td>
+<td>2.09</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1|edu[HS]</td>
+<td>2.123</td>
+<td>2.067</td>
+<td>-0.105</td>
+<td>4.185</td>
+<td>1.453</td>
+<td>1.231</td>
+<td>3.0</td>
+<td>14.0</td>
+<td>2.17</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1|edu[No HS]</td>
+<td>-1.513</td>
+<td>1.686</td>
+<td>-3.191</td>
+<td>0.423</td>
+<td>1.183</td>
+<td>1.004</td>
+<td>3.0</td>
+<td>11.0</td>
+<td>2.11</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1|edu[Post-grad]</td>
+<td>-2.459</td>
+<td>2.273</td>
+<td>-4.725</td>
+<td>0.020</td>
+<td>1.597</td>
+<td>1.354</td>
+<td>3.0</td>
+<td>13.0</td>
+<td>2.05</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1|edu[Some college]</td>
+<td>-0.528</td>
+<td>0.566</td>
+<td>-1.079</td>
+<td>0.207</td>
+<td>0.390</td>
+<td>0.335</td>
+<td>3.0</td>
+<td>50.0</td>
+<td>1.97</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1|eth[Black]</td>
+<td>-5.782</td>
+<td>5.378</td>
+<td>-11.687</td>
+<td>0.006</td>
+<td>3.783</td>
+<td>3.201</td>
+<td>3.0</td>
+<td>11.0</td>
+<td>2.23</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1|eth[Hispanic]</td>
+<td>6.118</td>
+<td>6.054</td>
+<td>-0.285</td>
+<td>12.765</td>
+<td>4.260</td>
+<td>3.603</td>
+<td>3.0</td>
+<td>11.0</td>
+<td>2.23</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1|eth[Other]</td>
+<td>-7.896</td>
+<td>7.996</td>
+<td>-16.677</td>
+<td>0.473</td>
+<td>5.628</td>
+<td>4.760</td>
+<td>3.0</td>
+<td>11.0</td>
+<td>2.23</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1|eth[White]</td>
+<td>-1.228</td>
+<td>1.422</td>
+<td>-2.758</td>
+<td>0.510</td>
+<td>0.986</td>
+<td>0.843</td>
+<td>3.0</td>
+<td>11.0</td>
+<td>2.23</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">repvote</td>
+<td>-0.928</td>
+<td>0.474</td>
+<td>-1.949</td>
+<td>-0.429</td>
+<td>0.228</td>
+<td>0.174</td>
+<td>5.0</td>
+<td>113.0</td>
+<td>2.23</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
 <p>The terms in the model formula allow for specific intercept terms across the demographic splits of <code>eth</code>, <code>edu</code>, and <code>state</code>. These represent stratum specific adjustments of the intercept term in the model. Similarly we invoke intercepts for the interaction terms of <code>age:edu</code>, <code>male:eth</code> and <code>edu:eth</code>. Each of these cohorts represents a share of the data in our sample.</p>
-<div class="cell" data-execution_count="34">
+<div id="cell-59" class="cell" data-execution_count="34">
 <div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>model_hierarchical.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="34">
-<p><img src="mister_p_files/figure-html/cell-30-output-1.svg" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="mister_p_files/figure-html/cell-30-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>We then predict the outcomes implied by the biased sample. These predictions are to be adjusted by what we take to be the share of that demographic cohort in population. We can plot the posterior predictive distribution against the observed data from our biased sample to see that we have generally good fit to the distribution.</p>
-<div class="cell" data-execution_count="35">
+<div id="cell-61" class="cell" data-execution_count="35">
 <div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>model_hierarchical.predict(result, kind<span class="op">=</span><span class="st">"response"</span>)</span>
 <span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> az.plot_ppc(result, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>), kind<span class="op">=</span><span class="st">"cumulative"</span>, observed_rug<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Posterior Predictive Checks </span><span class="ch">\n</span><span class="st"> On Biased Sample"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="mister_p_files/figure-html/cell-31-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="mister_p_files/figure-html/cell-31-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 </section>
 <section id="apply-the-post-stratification-weighting" class="level3">
 <h3 class="anchored" data-anchor-id="apply-the-post-stratification-weighting">Apply the Post-stratification Weighting</h3>
 <p>We now use the fitted model to predict the voting shares on the data where we use the genuine state numbers per strata. To do so we load data from the national census and augment our data set so as to be able to apply the appropriate weights.</p>
-<div class="cell" data-execution_count="36">
+<div id="cell-63" class="cell" data-execution_count="36">
 <div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>poststrat_df <span class="op">=</span> pd.read_csv(<span class="st">"data/mr_p_poststrat_df.csv"</span>)</span>
 <span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> poststrat_df.merge(</span>
@@ -4554,96 +4660,96 @@ dl.xr-attrs {
 <span id="cb49-20"><a href="#cb49-20" aria-hidden="true" tabindex="-1"></a>new_data[<span class="st">"state_percent"</span>] <span class="op">=</span> new_data[<span class="st">"n"</span>] <span class="op">/</span> new_data[<span class="st">"state_total"</span>]</span>
 <span id="cb49-21"><a href="#cb49-21" aria-hidden="true" tabindex="-1"></a>new_data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="36">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>state</th>
-      <th>eth</th>
-      <th>male</th>
-      <th>age</th>
-      <th>edu</th>
-      <th>n</th>
-      <th>repvote</th>
-      <th>state_total</th>
-      <th>state_percent</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>ID</td>
-      <td>White</td>
-      <td>-0.5</td>
-      <td>70+</td>
-      <td>HS</td>
-      <td>31503</td>
-      <td>0.683102</td>
-      <td>1193885</td>
-      <td>0.026387</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>ID</td>
-      <td>White</td>
-      <td>0.5</td>
-      <td>70+</td>
-      <td>4-Year College</td>
-      <td>11809</td>
-      <td>0.683102</td>
-      <td>1193885</td>
-      <td>0.009891</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>WV</td>
-      <td>White</td>
-      <td>0.5</td>
-      <td>70+</td>
-      <td>Some college</td>
-      <td>17089</td>
-      <td>0.721611</td>
-      <td>1441882</td>
-      <td>0.011852</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>WV</td>
-      <td>White</td>
-      <td>0.5</td>
-      <td>70+</td>
-      <td>4-Year College</td>
-      <td>7396</td>
-      <td>0.721611</td>
-      <td>1441882</td>
-      <td>0.005129</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>ID</td>
-      <td>White</td>
-      <td>0.5</td>
-      <td>70+</td>
-      <td>Post-grad</td>
-      <td>9873</td>
-      <td>0.683102</td>
-      <td>1193885</td>
-      <td>0.008270</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">state</th>
+<th data-quarto-table-cell-role="th">eth</th>
+<th data-quarto-table-cell-role="th">male</th>
+<th data-quarto-table-cell-role="th">age</th>
+<th data-quarto-table-cell-role="th">edu</th>
+<th data-quarto-table-cell-role="th">n</th>
+<th data-quarto-table-cell-role="th">repvote</th>
+<th data-quarto-table-cell-role="th">state_total</th>
+<th data-quarto-table-cell-role="th">state_percent</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>ID</td>
+<td>White</td>
+<td>-0.5</td>
+<td>70+</td>
+<td>HS</td>
+<td>31503</td>
+<td>0.683102</td>
+<td>1193885</td>
+<td>0.026387</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>ID</td>
+<td>White</td>
+<td>0.5</td>
+<td>70+</td>
+<td>4-Year College</td>
+<td>11809</td>
+<td>0.683102</td>
+<td>1193885</td>
+<td>0.009891</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>WV</td>
+<td>White</td>
+<td>0.5</td>
+<td>70+</td>
+<td>Some college</td>
+<td>17089</td>
+<td>0.721611</td>
+<td>1441882</td>
+<td>0.011852</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>WV</td>
+<td>White</td>
+<td>0.5</td>
+<td>70+</td>
+<td>4-Year College</td>
+<td>7396</td>
+<td>0.721611</td>
+<td>1441882</td>
+<td>0.005129</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>ID</td>
+<td>White</td>
+<td>0.5</td>
+<td>70+</td>
+<td>Post-grad</td>
+<td>9873</td>
+<td>0.683102</td>
+<td>1193885</td>
+<td>0.008270</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
 <p>This dataset is exactly the same structure and length as our input data to the fitted model. We have simply switched the observed counts across the demographic strata with the counts that reflect their proportion in the national survey. Additionally we have calculated the state totals and the share of each strata within the state. This will be important for later when we use this <code>state_percent</code> variable to calculate an adjusted MrP estimate of the predictions at a state level. We now use this data set with our fitted model to generate posterior predictive distribution.</p>
-<div class="cell" data-execution_count="37">
+<div id="cell-65" class="cell" data-execution_count="37">
 <div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>result_adjust <span class="op">=</span> model_hierarchical.predict(result, data<span class="op">=</span>new_data, inplace<span class="op">=</span><span class="va">False</span>, kind<span class="op">=</span><span class="st">"response"</span>)</span>
 <span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>result_adjust</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="37">
-
 
             <div>
               <div class="xr-header">
@@ -7308,7 +7414,7 @@ dl.xr-attrs {
 <section id="make-adjustments-by-state" class="level3">
 <h3 class="anchored" data-anchor-id="make-adjustments-by-state">Make Adjustments by State</h3>
 <p>We need to adjust each state specific strata by the weight appropriate for each state to post-stratify the estimates.To do so we extract the indices for each strata in our data on a state by state basis. Then we weight the predicted estimate by the appropriate percentage on a state basis and sum them to recover a state level estimate.</p>
-<div class="cell" data-execution_count="38">
+<div id="cell-67" class="cell" data-execution_count="38">
 <div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>estimates <span class="op">=</span> []</span>
 <span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>abortion_posterior_base <span class="op">=</span> az.extract(result, num_samples<span class="op">=</span><span class="dv">2000</span>)[<span class="st">"p"</span>]</span>
 <span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>abortion_posterior_mrp <span class="op">=</span> az.extract(result_adjust, num_samples<span class="op">=</span><span class="dv">2000</span>)[<span class="st">"p"</span>]</span>
@@ -7361,81 +7467,82 @@ dl.xr-attrs {
 <span id="cb51-50"><a href="#cb51-50" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb51-51"><a href="#cb51-51" aria-hidden="true" tabindex="-1"></a>state_predicted.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="38">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>state</th>
-      <th>base_expected</th>
-      <th>base_lb</th>
-      <th>base_ub</th>
-      <th>mrp_adjusted</th>
-      <th>mrp_ub</th>
-      <th>mrp_lb</th>
-      <th>census_share</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>36</th>
-      <td>WY</td>
-      <td>0.338274</td>
-      <td>2.440599e-22</td>
-      <td>1.0</td>
-      <td>0.378751</td>
-      <td>0.688924</td>
-      <td>0.110863</td>
-      <td>0.367188</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>OK</td>
-      <td>0.357949</td>
-      <td>3.722056e-19</td>
-      <td>1.0</td>
-      <td>0.413191</td>
-      <td>0.689851</td>
-      <td>0.139452</td>
-      <td>0.321553</td>
-    </tr>
-    <tr>
-      <th>41</th>
-      <td>HI</td>
-      <td>0.424572</td>
-      <td>5.972032e-22</td>
-      <td>1.0</td>
-      <td>0.415080</td>
-      <td>0.775743</td>
-      <td>0.124029</td>
-      <td>0.251969</td>
-    </tr>
-    <tr>
-      <th>37</th>
-      <td>NJ</td>
-      <td>0.405110</td>
-      <td>3.618629e-20</td>
-      <td>1.0</td>
-      <td>0.430793</td>
-      <td>0.719506</td>
-      <td>0.160311</td>
-      <td>0.426923</td>
-    </tr>
-    <tr>
-      <th>26</th>
-      <td>NV</td>
-      <td>0.406223</td>
-      <td>3.766937e-22</td>
-      <td>1.0</td>
-      <td>0.434659</td>
-      <td>0.756333</td>
-      <td>0.152533</td>
-      <td>0.581609</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">state</th>
+<th data-quarto-table-cell-role="th">base_expected</th>
+<th data-quarto-table-cell-role="th">base_lb</th>
+<th data-quarto-table-cell-role="th">base_ub</th>
+<th data-quarto-table-cell-role="th">mrp_adjusted</th>
+<th data-quarto-table-cell-role="th">mrp_ub</th>
+<th data-quarto-table-cell-role="th">mrp_lb</th>
+<th data-quarto-table-cell-role="th">census_share</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">36</td>
+<td>WY</td>
+<td>0.338274</td>
+<td>2.440599e-22</td>
+<td>1.0</td>
+<td>0.378751</td>
+<td>0.688924</td>
+<td>0.110863</td>
+<td>0.367188</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>OK</td>
+<td>0.357949</td>
+<td>3.722056e-19</td>
+<td>1.0</td>
+<td>0.413191</td>
+<td>0.689851</td>
+<td>0.139452</td>
+<td>0.321553</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">41</td>
+<td>HI</td>
+<td>0.424572</td>
+<td>5.972032e-22</td>
+<td>1.0</td>
+<td>0.415080</td>
+<td>0.775743</td>
+<td>0.124029</td>
+<td>0.251969</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">37</td>
+<td>NJ</td>
+<td>0.405110</td>
+<td>3.618629e-20</td>
+<td>1.0</td>
+<td>0.430793</td>
+<td>0.719506</td>
+<td>0.160311</td>
+<td>0.426923</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">26</td>
+<td>NV</td>
+<td>0.406223</td>
+<td>3.766937e-22</td>
+<td>1.0</td>
+<td>0.434659</td>
+<td>0.756333</td>
+<td>0.152533</td>
+<td>0.581609</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
@@ -7444,7 +7551,7 @@ dl.xr-attrs {
 <section id="plot-the-effect-of-adjustment" class="level3">
 <h3 class="anchored" data-anchor-id="plot-the-effect-of-adjustment">Plot the Effect of Adjustment</h3>
 <p>These adjusted estimates can be plotted against the shares ascribed at the state level in the census. These adjustments provide a far better reflection of the national picture than the ones derived from model fitted to the biased sample.</p>
-<div class="cell" data-execution_count="39">
+<div id="cell-70" class="cell" data-execution_count="39">
 <div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">17</span>, <span class="dv">10</span>))</span>
 <span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>axs <span class="op">=</span> axs.flatten()</span>
 <span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axs[<span class="dv">0</span>]</span>
@@ -7502,7 +7609,11 @@ dl.xr-attrs {
 <span id="cb52-55"><a href="#cb52-55" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Comparison of Post-stratified Adjustment and Census Report"</span>, fontsize<span class="op">=</span><span class="dv">15</span>)</span>
 <span id="cb52-56"><a href="#cb52-56" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">"Proportion"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="mister_p_files/figure-html/cell-35-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="mister_p_files/figure-html/cell-35-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>In the top plot here we see the state specific MrP estimates for the proportion voting yes, compared to the estimate inferred from the biased sample and estimates from the national census. We can see how the MrP estimates are much closer to those drawn from the national census.</p>
@@ -7517,7 +7628,6 @@ dl.xr-attrs {
 <p>Predictions made from sample data are consequential. It’s not even an exaggeration to say that the fates of entire nations can hang on decisions made from poorly understood sampling procedures. Multilevel regression and post-stratification is an apt tool for making the adjustments required and guiding decisions makers in crucial policy choices, but it should be used carefully.</p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
@@ -7548,12 +7658,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
     }
-  });
-  clipboard.on('success', function(e) {
+    return false;
+  }
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -7585,11 +7698,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -7599,8 +7751,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -7612,9 +7773,245 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
     });
   }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
   const findCites = (el) => {
     const parentEl = el.parentElement;
     if (parentEl) {
@@ -7656,12 +8053,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../notebooks/quantile_regression.html" class="pagination-link">
+      <a href="../notebooks/quantile_regression.html" class="pagination-link" aria-label="Quantile Regression">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Quantile Regression</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../notebooks/ordinal_regression.html" class="pagination-link">
+      <a href="../notebooks/ordinal_regression.html" class="pagination-link" aria-label="Ordinal Regression">
         <span class="nav-page-text">Ordinal Regression</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
@@ -7669,9 +8066,18 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
-      <div class="nav-footer-center">© Copyright 2024, The developers of Bambi.</div>
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>© Copyright 2024, The developers of Bambi.</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
   </div>
 </footer>
+
 
 
 

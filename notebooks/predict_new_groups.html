@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.2.280">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Bambi – predict_new_groups</title>
+<title>Predict New Groups – Bambi</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -17,11 +17,12 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -32,7 +33,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -46,47 +47,17 @@ pre.numberSource code > span > a:first-child::before
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
     padding: 0 4px; width: 4em;
-    color: #aaaaaa;
   }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
 div.sourceCode
   {   }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { color: #008000; } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { color: #008000; font-weight: bold; } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
@@ -110,7 +81,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -119,16 +96,46 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 <script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -137,293 +144,338 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a href="../index.html" class="navbar-brand navbar-brand-logo">
     <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo">
     </a>
   </div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../notebooks/getting_started.html">
- <span class="menu-text">Getting Started</span></a>
+    <a class="nav-link" href="../notebooks/getting_started.html"> 
+<span class="menu-text">Getting Started</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../api/index.html">
- <span class="menu-text">API Reference</span></a>
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../notebooks/index.html" aria-current="page">
- <span class="menu-text">Examples</span></a>
+    <a class="nav-link active" href="../notebooks/index.html" aria-current="page"> 
+<span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../faq.html">
- <span class="menu-text">FAQ</span></a>
+    <a class="nav-link" href="../faq.html"> 
+<span class="menu-text">FAQ</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../changelog.html">
- <span class="menu-text">Changelog</span></a>
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../contact.html">
- <span class="menu-text">Contact</span></a>
+    <a class="nav-link" href="../contact.html"> 
+<span class="menu-text">Contact</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/bambinos/bambi"><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/bambinos/bambi"> <i class="bi bi-github" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
 </ul>
-              <div id="quarto-search" class="" title="Search"></div>
           </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
-  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-    <div class="container-fluid d-flex justify-content-between">
-      <h1 class="quarto-secondary-nav-title"></h1>
-      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
-        <i class="bi bi-chevron-right"></i>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/t-test.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/predict_new_groups.html">Predict New Groups</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
     </div>
   </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/index.html" class="sidebar-item-text sidebar-link">Examples gallery</a>
+  <a href="../notebooks/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Examples gallery</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Linear regression models</a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Linear regression models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link">Comparison of two means (T-test)</a>
+  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Comparison of two means (T-test)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">Multiple linear regression</a>
+  <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multiple linear regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/splines_cherry_blossoms.html" class="sidebar-item-text sidebar-link">Regression splines (Cherry blossom example)</a>
+  <a href="../notebooks/splines_cherry_blossoms.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Regression splines (Cherry blossom example)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/multi-level_regression.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Pigs dataset)</a>
+  <a href="../notebooks/multi-level_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Linear Regression (Pigs dataset)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/sleepstudy.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Sleepstudy example)</a>
+  <a href="../notebooks/sleepstudy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Linear Regression (Sleepstudy example)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/radon_example.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Radon Contamination dataset)</a>
+  <a href="../notebooks/radon_example.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Linear Regression (Radon Contamination dataset)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/Strack_RRR_re_analysis.html" class="sidebar-item-text sidebar-link">Bayesian Workflow (Strack RRR Analysis Replication)</a>
+  <a href="../notebooks/Strack_RRR_re_analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Workflow (Strack RRR Analysis Replication)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/shooter_crossed_random_ANOVA.html" class="sidebar-item-text sidebar-link">Bayesian Workflow (Police Officer’s Dilemma)</a>
+  <a href="../notebooks/shooter_crossed_random_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Workflow (Police Officer’s Dilemma)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/t_regression.html" class="sidebar-item-text sidebar-link">Robust Linear Regression</a>
+  <a href="../notebooks/t_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Robust Linear Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/predict_new_groups.html" class="sidebar-item-text sidebar-link active">Predict New Groups</a>
+  <a href="../notebooks/predict_new_groups.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Predict New Groups</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/polynomial_regression.html" class="sidebar-item-text sidebar-link">Polynomial Regression</a>
+  <a href="../notebooks/polynomial_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Polynomial Regression</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="false">Generalized linear models</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Generalized linear models</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/logistic_regression.html" class="sidebar-item-text sidebar-link">Logistic Regression (Vote intention with ANES data)</a>
+  <a href="../notebooks/logistic_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Logistic Regression (Vote intention with ANES data)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/model_comparison.html" class="sidebar-item-text sidebar-link">Logistic Regression and Model Comparison with Bambi and ArviZ</a>
+  <a href="../notebooks/model_comparison.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Logistic Regression and Model Comparison with Bambi and ArviZ</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/hierarchical_binomial_bambi.html" class="sidebar-item-text sidebar-link">Hierarchical Logistic regression with Binomial family</a>
+  <a href="../notebooks/hierarchical_binomial_bambi.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Logistic regression with Binomial family</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/alternative_links_binary.html" class="sidebar-item-text sidebar-link">Regression for Binary responses: Alternative link functions</a>
+  <a href="../notebooks/alternative_links_binary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Regression for Binary responses: Alternative link functions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/wald_gamma_glm.html" class="sidebar-item-text sidebar-link">Wald and Gamma Regression (Australian insurance claims 2004-2005)</a>
+  <a href="../notebooks/wald_gamma_glm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Wald and Gamma Regression (Australian insurance claims 2004-2005)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/negative_binomial.html" class="sidebar-item-text sidebar-link">Negative Binomial Regression (Students absence example)</a>
+  <a href="../notebooks/negative_binomial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Negative Binomial Regression (Students absence example)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/count_roaches.html" class="sidebar-item-text sidebar-link">Count Regression with Variable Exposure</a>
+  <a href="../notebooks/count_roaches.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Count Regression with Variable Exposure</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/beta_regression.html" class="sidebar-item-text sidebar-link">Beta Regression</a>
+  <a href="../notebooks/beta_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Beta Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/categorical_regression.html" class="sidebar-item-text sidebar-link">Categorical Regression</a>
+  <a href="../notebooks/categorical_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Categorical Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/circular_regression.html" class="sidebar-item-text sidebar-link">Circular Regression</a>
+  <a href="../notebooks/circular_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Circular Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/quantile_regression.html" class="sidebar-item-text sidebar-link">Quantile Regression</a>
+  <a href="../notebooks/quantile_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Quantile Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/mister_p.html" class="sidebar-item-text sidebar-link">Multilevel Regression and Post-stratification</a>
+  <a href="../notebooks/mister_p.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multilevel Regression and Post-stratification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/ordinal_regression.html" class="sidebar-item-text sidebar-link">Ordinal Regression</a>
+  <a href="../notebooks/ordinal_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ordinal Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/zero_inflated_regression.html" class="sidebar-item-text sidebar-link">Zero inflated models</a>
+  <a href="../notebooks/zero_inflated_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Zero inflated models</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="false">More advanced models</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">More advanced models</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/distributional_models.html" class="sidebar-item-text sidebar-link">Distributional models</a>
+  <a href="../notebooks/distributional_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Distributional models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/hsgp_1d.html" class="sidebar-item-text sidebar-link">Gaussian Processes</a>
+  <a href="../notebooks/hsgp_1d.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gaussian Processes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/hsgp_2d.html" class="sidebar-item-text sidebar-link">Gaussian Processes in 2D</a>
+  <a href="../notebooks/hsgp_2d.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gaussian Processes in 2D</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/survival_model.html" class="sidebar-item-text sidebar-link">Survival Models</a>
+  <a href="../notebooks/survival_model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Survival Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/orthogonal_polynomial_reg.html" class="sidebar-item-text sidebar-link">Orthogonal Polynomial regression</a>
+  <a href="../notebooks/orthogonal_polynomial_reg.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Orthogonal Polynomial regression</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="false">Tools to interpret model outputs</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">Tools to interpret model outputs</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/plot_predictions.html" class="sidebar-item-text sidebar-link">Plot Conditional Adjusted Predictions</a>
+  <a href="../notebooks/plot_predictions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Plot Conditional Adjusted Predictions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/plot_comparisons.html" class="sidebar-item-text sidebar-link">Plot Comparisons</a>
+  <a href="../notebooks/plot_comparisons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Plot Comparisons</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/plot_slopes.html" class="sidebar-item-text sidebar-link">Plot Slopes</a>
+  <a href="../notebooks/plot_slopes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Plot Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/interpret_advanced_usage.html" class="sidebar-item-text sidebar-link">Interpret Advanced Usage</a>
+  <a href="../notebooks/interpret_advanced_usage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Interpret Advanced Usage</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="false">Alternative sampling backends</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Alternative sampling backends</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/alternative_samplers.html" class="sidebar-item-text sidebar-link">Alternative sampling backends</a>
+  <a href="../notebooks/alternative_samplers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Alternative sampling backends</span></a>
   </div>
 </li>
       </ul>
@@ -431,15 +483,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     </ul>
     </div>
 </nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#predict-new-groups" id="toc-predict-new-groups" class="nav-link active" data-scroll-target="#predict-new-groups">Predict New Groups</a>
-  <ul class="collapse">
-  <li><a href="#hierarchical-models-and-predictions-at-multiple-levels" id="toc-hierarchical-models-and-predictions-at-multiple-levels" class="nav-link" data-scroll-target="#hierarchical-models-and-predictions-at-multiple-levels">Hierarchical models and predictions at multiple levels</a></li>
+  <li><a href="#hierarchical-models-and-predictions-at-multiple-levels" id="toc-hierarchical-models-and-predictions-at-multiple-levels" class="nav-link active" data-scroll-target="#hierarchical-models-and-predictions-at-multiple-levels">Hierarchical models and predictions at multiple levels</a></li>
   <li><a href="#sampling-new-groups-in-bambi" id="toc-sampling-new-groups-in-bambi" class="nav-link" data-scroll-target="#sampling-new-groups-in-bambi">Sampling new groups in Bambi</a></li>
   <li><a href="#hierarchical-regression" id="toc-hierarchical-regression" class="nav-link" data-scroll-target="#hierarchical-regression">Hierarchical regression</a>
   <ul class="collapse">
@@ -450,17 +501,31 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <li><a href="#predict-new-patients" id="toc-predict-new-patients" class="nav-link" data-scroll-target="#predict-new-patients">Predict new patients</a></li>
   </ul></li>
   <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
-  </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/t-test.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/predict_new_groups.html">Predict New Groups</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Predict New Groups</h1>
+</div>
 
 
-<section id="predict-new-groups" class="level1">
-<h1>Predict New Groups</h1>
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
 <p>In Bambi, it is possible to perform predictions on new, unseen, groups of data that were not in the observed data used to fit the model with the argument <code>sample_new_groups</code> in the <code>model.predict()</code> method. This is useful in the context of hierarchical modeling, where groups are assumed to be a sample from a larger group.</p>
 <p>Below, it is first described how predictions at multiple levels and for unseen groups are possible with hierarchical models. Then, it is described how this is performed in Bambi. Lastly, a hierarchical model is developed to show how to use the <code>sample_new_groups</code> argument in the <code>model.predict()</code> method, and within the <code>interpret</code> sub-package. For users coming from <code>brms</code> in R, this is equivalent to the <code>sample_new_levels</code> argument.</p>
 <section id="hierarchical-models-and-predictions-at-multiple-levels" class="level2">
@@ -478,7 +543,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="hierarchical-regression" class="level2">
 <h2 class="anchored" data-anchor-id="hierarchical-regression">Hierarchical regression</h2>
 <p>To demonstrate the <code>sample_new_groups</code> argument, we will develop a hierarchical model on the <a href="https://www.kaggle.com/c/osic-pulmonary-fibrosis-progression">OSIC Pulmonary Fibrosis Progression</a> dataset. Pulmonary fibrosis is a disorder with no known cause and no known cure, created by scarring of the lungs. Using a hierarchical model, the objective is to predict a patient’s severity of decline in lung function. Lung function is assessed based on output from a spirometer, which measures the forced vital capacity (FVC), i.e.&nbsp;the volume of air exhaled by the patient.</p>
-<div class="cell" data-execution_count="1">
+<div id="cell-5" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -502,7 +567,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><code>age</code> - age of the patient</li>
 </ul>
 <p>A patient has an image acquired at time <code>week = 0</code> and has numerous follow up visits over the course of approximately 1-2 years, at which time their FVC is measured. Below, we randomly sample three patients and plot their FVC measurements over time.</p>
-<div class="cell" data-execution_count="2">
+<div id="cell-7" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"https://gist.githubusercontent.com/ucals/"</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2cf9d101992cb1b78c2cdd6e3bac6a4b/raw/"</span></span>
@@ -514,140 +579,141 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>data.columns <span class="op">=</span> data.columns.<span class="bu">str</span>.replace(<span class="st">"smokingstatus"</span>, <span class="st">"smoking_status"</span>)</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>patient</th>
-      <th>weeks</th>
-      <th>fvc</th>
-      <th>percent</th>
-      <th>age</th>
-      <th>sex</th>
-      <th>smoking_status</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>ID00007637202177411956430</td>
-      <td>-4</td>
-      <td>2315</td>
-      <td>58.253649</td>
-      <td>79</td>
-      <td>Male</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>ID00007637202177411956430</td>
-      <td>5</td>
-      <td>2214</td>
-      <td>55.712129</td>
-      <td>79</td>
-      <td>Male</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>ID00007637202177411956430</td>
-      <td>7</td>
-      <td>2061</td>
-      <td>51.862104</td>
-      <td>79</td>
-      <td>Male</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>ID00007637202177411956430</td>
-      <td>9</td>
-      <td>2144</td>
-      <td>53.950679</td>
-      <td>79</td>
-      <td>Male</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>ID00007637202177411956430</td>
-      <td>11</td>
-      <td>2069</td>
-      <td>52.063412</td>
-      <td>79</td>
-      <td>Male</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>1544</th>
-      <td>ID00426637202313170790466</td>
-      <td>13</td>
-      <td>2712</td>
-      <td>66.594637</td>
-      <td>73</td>
-      <td>Male</td>
-      <td>Never smoked</td>
-    </tr>
-    <tr>
-      <th>1545</th>
-      <td>ID00426637202313170790466</td>
-      <td>19</td>
-      <td>2978</td>
-      <td>73.126412</td>
-      <td>73</td>
-      <td>Male</td>
-      <td>Never smoked</td>
-    </tr>
-    <tr>
-      <th>1546</th>
-      <td>ID00426637202313170790466</td>
-      <td>31</td>
-      <td>2908</td>
-      <td>71.407524</td>
-      <td>73</td>
-      <td>Male</td>
-      <td>Never smoked</td>
-    </tr>
-    <tr>
-      <th>1547</th>
-      <td>ID00426637202313170790466</td>
-      <td>43</td>
-      <td>2975</td>
-      <td>73.052745</td>
-      <td>73</td>
-      <td>Male</td>
-      <td>Never smoked</td>
-    </tr>
-    <tr>
-      <th>1548</th>
-      <td>ID00426637202313170790466</td>
-      <td>59</td>
-      <td>2774</td>
-      <td>68.117081</td>
-      <td>73</td>
-      <td>Male</td>
-      <td>Never smoked</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">patient</th>
+<th data-quarto-table-cell-role="th">weeks</th>
+<th data-quarto-table-cell-role="th">fvc</th>
+<th data-quarto-table-cell-role="th">percent</th>
+<th data-quarto-table-cell-role="th">age</th>
+<th data-quarto-table-cell-role="th">sex</th>
+<th data-quarto-table-cell-role="th">smoking_status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>ID00007637202177411956430</td>
+<td>-4</td>
+<td>2315</td>
+<td>58.253649</td>
+<td>79</td>
+<td>Male</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>ID00007637202177411956430</td>
+<td>5</td>
+<td>2214</td>
+<td>55.712129</td>
+<td>79</td>
+<td>Male</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>ID00007637202177411956430</td>
+<td>7</td>
+<td>2061</td>
+<td>51.862104</td>
+<td>79</td>
+<td>Male</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>ID00007637202177411956430</td>
+<td>9</td>
+<td>2144</td>
+<td>53.950679</td>
+<td>79</td>
+<td>Male</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>ID00007637202177411956430</td>
+<td>11</td>
+<td>2069</td>
+<td>52.063412</td>
+<td>79</td>
+<td>Male</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1544</td>
+<td>ID00426637202313170790466</td>
+<td>13</td>
+<td>2712</td>
+<td>66.594637</td>
+<td>73</td>
+<td>Male</td>
+<td>Never smoked</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1545</td>
+<td>ID00426637202313170790466</td>
+<td>19</td>
+<td>2978</td>
+<td>73.126412</td>
+<td>73</td>
+<td>Male</td>
+<td>Never smoked</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1546</td>
+<td>ID00426637202313170790466</td>
+<td>31</td>
+<td>2908</td>
+<td>71.407524</td>
+<td>73</td>
+<td>Male</td>
+<td>Never smoked</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1547</td>
+<td>ID00426637202313170790466</td>
+<td>43</td>
+<td>2975</td>
+<td>73.052745</td>
+<td>73</td>
+<td>Male</td>
+<td>Never smoked</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1548</td>
+<td>ID00426637202313170790466</td>
+<td>59</td>
+<td>2774</td>
+<td>68.117081</td>
+<td>73</td>
+<td>Male</td>
+<td>Never smoked</td>
+</tr>
+</tbody>
 </table>
+
 <p>1549 rows × 7 columns</p>
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="3">
+<div id="cell-8" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> label_encoder(labels):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Encode patient IDs as integers.</span></span>
@@ -657,7 +723,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    encoded_labels <span class="op">=</span> labels.<span class="bu">map</span>(label_to_index)</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> encoded_labels</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="4">
+<div id="cell-9" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>predictors <span class="op">=</span> [<span class="st">"patient"</span>, <span class="st">"weeks"</span>, <span class="st">"fvc"</span>, <span class="st">"smoking_status"</span>]</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"patient"</span>] <span class="op">=</span> label_encoder(data[<span class="st">'patient'</span>])</span>
@@ -671,7 +737,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data[predictors]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="5">
+<div id="cell-10" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>patient_id <span class="op">=</span> data.sample(n<span class="op">=</span><span class="dv">3</span>, random_state<span class="op">=</span><span class="dv">42</span>)[<span class="st">"patient"</span>].values</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">3</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
@@ -684,7 +750,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="predict_new_groups_files/figure-html/cell-6-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="predict_new_groups_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>The plots show variability in FVC measurements, unequal time intervals between follow up visits, and different number of visits per patient. This is a good scenario to use a hierarchical model, where we can model the FVC measurements for each patient as a function of time, and also model the variability in the FVC measurements across patients.</p>
@@ -698,7 +768,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul>
 <p>Additionally, the global intercept is not included. Since the global intercept is excluded, <code>smoking_status</code> uses cell means encoding (i.e.&nbsp;the coefficient represents the estimate for each <code>smoking_status</code> category of the entire group). This logic also applies for <code>weeks</code>. However, a group-effect is also specified for <code>weeks</code>, which means that the association between <code>weeks</code> and the <code>fvc</code> is allowed to vary by individual <code>patients</code>.</p>
 <p>Below, the default prior for the group-effect sigma is changed from <code>HalfNormal</code> to a <code>Gamma</code> distribution. Additionally, the model graph shows the model has been reparameterized to be non-centered. This is the default when there are group-effects in Bambi.</p>
-<div class="cell" data-execution_count="6">
+<div id="cell-13" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"weeks|patient"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span>bmb.Prior(<span class="st">"Gamma"</span>, alpha<span class="op">=</span><span class="dv">3</span>, beta<span class="op">=</span><span class="dv">3</span>)),</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>}</span>
@@ -712,10 +782,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>model.build()</span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="6">
-<p><img src="predict_new_groups_files/figure-html/cell-7-output-1.svg" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="predict_new_groups_files/figure-html/cell-7-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
 </div>
 </div>
-<div class="cell" data-execution_count="7">
+</div>
+<div id="cell-14" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">1500</span>,</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    tune<span class="op">=</span><span class="dv">1000</span>,</span>
@@ -731,7 +805,7 @@ NUTS: [sigma, weeks, smoking_status, weeks|patient_sigma, weeks|patient_offset]<
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"39da99921efb4be7a0923eda187ffbd5","version_major":2,"version_minor":0}
+{"model_id":"39da99921efb4be7a0923eda187ffbd5","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -748,110 +822,115 @@ NUTS: [sigma, weeks, smoking_status, weeks|patient_sigma, weeks|patient_offset]<
 <section id="model-criticism" class="level3">
 <h3 class="anchored" data-anchor-id="model-criticism">Model criticism</h3>
 <p>Hierarchical models can induce difficult posterior geometries to sample from. Below, we quickly analyze the traces to ensure sampling went well.</p>
-<div class="cell" data-execution_count="8">
+<div id="cell-16" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(idata)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="predict_new_groups_files/figure-html/cell-9-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="predict_new_groups_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Analyzing the marginal posteriors of <code>weeks</code> and <code>weeks|patient</code>, we see that the slope can be very different for some individuals. <code>weeks</code> indicates that as a population, the slope is negative. However, <code>weeks|patients</code> indicates some patients are negative, some are positive, and some are close to zero. Moreover, there are varying levels of uncertainty observed in the coefficients for the three different values of the <code>smoking_status</code> variable.</p>
-<div class="cell" data-execution_count="9">
+<div id="cell-18" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>az.summary(idata, var_names<span class="op">=</span>[<span class="st">"weeks"</span>, <span class="st">"smoking_status"</span>, <span class="st">"sigma"</span>, <span class="st">"weeks|patient_sigma"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="9">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>mean</th>
-      <th>sd</th>
-      <th>hdi_3%</th>
-      <th>hdi_97%</th>
-      <th>mcse_mean</th>
-      <th>mcse_sd</th>
-      <th>ess_bulk</th>
-      <th>ess_tail</th>
-      <th>r_hat</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>weeks</th>
-      <td>-0.116</td>
-      <td>0.036</td>
-      <td>-0.183</td>
-      <td>-0.046</td>
-      <td>0.002</td>
-      <td>0.001</td>
-      <td>416.0</td>
-      <td>822.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>smoking_status[Currently smokes]</th>
-      <td>0.398</td>
-      <td>0.017</td>
-      <td>0.364</td>
-      <td>0.429</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>3305.0</td>
-      <td>4116.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>smoking_status[Ex-smoker]</th>
-      <td>0.382</td>
-      <td>0.005</td>
-      <td>0.373</td>
-      <td>0.392</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>5004.0</td>
-      <td>4945.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>smoking_status[Never smoked]</th>
-      <td>0.291</td>
-      <td>0.008</td>
-      <td>0.277</td>
-      <td>0.305</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>2813.0</td>
-      <td>4261.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>sigma</th>
-      <td>0.077</td>
-      <td>0.001</td>
-      <td>0.074</td>
-      <td>0.080</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>9197.0</td>
-      <td>4194.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>weeks|patient_sigma</th>
-      <td>0.458</td>
-      <td>0.026</td>
-      <td>0.413</td>
-      <td>0.511</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>697.0</td>
-      <td>1411.0</td>
-      <td>1.01</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">sd</th>
+<th data-quarto-table-cell-role="th">hdi_3%</th>
+<th data-quarto-table-cell-role="th">hdi_97%</th>
+<th data-quarto-table-cell-role="th">mcse_mean</th>
+<th data-quarto-table-cell-role="th">mcse_sd</th>
+<th data-quarto-table-cell-role="th">ess_bulk</th>
+<th data-quarto-table-cell-role="th">ess_tail</th>
+<th data-quarto-table-cell-role="th">r_hat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">weeks</td>
+<td>-0.116</td>
+<td>0.036</td>
+<td>-0.183</td>
+<td>-0.046</td>
+<td>0.002</td>
+<td>0.001</td>
+<td>416.0</td>
+<td>822.0</td>
+<td>1.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">smoking_status[Currently smokes]</td>
+<td>0.398</td>
+<td>0.017</td>
+<td>0.364</td>
+<td>0.429</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>3305.0</td>
+<td>4116.0</td>
+<td>1.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">smoking_status[Ex-smoker]</td>
+<td>0.382</td>
+<td>0.005</td>
+<td>0.373</td>
+<td>0.392</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>5004.0</td>
+<td>4945.0</td>
+<td>1.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">smoking_status[Never smoked]</td>
+<td>0.291</td>
+<td>0.008</td>
+<td>0.277</td>
+<td>0.305</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>2813.0</td>
+<td>4261.0</td>
+<td>1.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sigma</td>
+<td>0.077</td>
+<td>0.001</td>
+<td>0.074</td>
+<td>0.080</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>9197.0</td>
+<td>4194.0</td>
+<td>1.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">weeks|patient_sigma</td>
+<td>0.458</td>
+<td>0.026</td>
+<td>0.413</td>
+<td>0.511</td>
+<td>0.001</td>
+<td>0.001</td>
+<td>697.0</td>
+<td>1411.0</td>
+<td>1.01</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
@@ -860,11 +939,11 @@ NUTS: [sigma, weeks, smoking_status, weeks|patient_sigma, weeks|patient_offset]<
 <section id="predict-observed-patients" class="level3">
 <h3 class="anchored" data-anchor-id="predict-observed-patients">Predict observed patients</h3>
 <p>First, we will use the posterior distribution to plot the mean and 95% credible interval for the FVC measurements of the three randomly sampled patients above.</p>
-<div class="cell" data-execution_count="10">
+<div id="cell-21" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> model.predict(idata, kind<span class="op">=</span><span class="st">"params"</span>, inplace<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>fvc_mean <span class="op">=</span> az.extract(preds[<span class="st">"posterior"</span>])[<span class="st">"mu"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="11">
+<div id="cell-22" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot posterior predictions</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">3</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, p <span class="kw">in</span> <span class="bu">enumerate</span>(patient_id):</span>
@@ -882,7 +961,11 @@ NUTS: [sigma, weeks, smoking_status, weeks|patient_sigma, weeks|patient_offset]<
 <span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="predict_new_groups_files/figure-html/cell-12-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="predict_new_groups_files/figure-html/cell-12-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>The plots show that the posterior estimates seem to fit the three patients well. Where there are more observations, the credible interval is smaller, and where there are fewer observations, the credible interval is larger. Next, we will predict new, unseen, patients.</p>
@@ -891,7 +974,7 @@ NUTS: [sigma, weeks, smoking_status, weeks|patient_sigma, weeks|patient_offset]<
 <h3 class="anchored" data-anchor-id="predict-new-patients">Predict new patients</h3>
 <p>Imagine the cost of acquiring a CT scan increases dramatically, and we would like to interopolate the FVC measurement for a new patient with a given set of clinical information <code>smoking_status</code> and <code>weeks</code>. We achieve this by passing this data to the predict method and setting <code>sample_new_groups=True</code>. As outlined in the <em>Sampling new groups in Bambi</em> section, this new data is evaluated by <code>formulae</code> to update the design matrix, and then predictions are made for the new group by sampling from the posterior draws of a randomly selected existing group.</p>
 <p>Below, we will simulate a new patient and predict their FVC measurements over time. First, we will copy clinical data from patient 39 and use it for patient 176 (the new, unseen, patient). Subsequently, we will construct another new patient, with different clinical data.</p>
-<div class="cell" data-execution_count="12">
+<div id="cell-25" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># copy patient 39 data to the new patient 176</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>patient_39 <span class="op">=</span> data[data[<span class="st">"patient"</span>] <span class="op">==</span> <span class="dv">39</span>].reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> patient_39.copy()</span>
@@ -899,166 +982,167 @@ NUTS: [sigma, weeks, smoking_status, weeks|patient_sigma, weeks|patient_offset]<
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> pd.concat([new_data, patient_39]).reset_index(drop<span class="op">=</span><span class="va">True</span>)[predictors]</span>
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>new_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="12">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>patient</th>
-      <th>weeks</th>
-      <th>fvc</th>
-      <th>smoking_status</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>176</td>
-      <td>0.355072</td>
-      <td>0.378141</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>176</td>
-      <td>0.376812</td>
-      <td>0.365937</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>176</td>
-      <td>0.391304</td>
-      <td>0.401651</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>176</td>
-      <td>0.405797</td>
-      <td>0.405958</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>176</td>
-      <td>0.420290</td>
-      <td>0.390883</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>176</td>
-      <td>0.456522</td>
-      <td>0.390165</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>176</td>
-      <td>0.543478</td>
-      <td>0.348528</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>176</td>
-      <td>0.637681</td>
-      <td>0.337581</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>176</td>
-      <td>0.746377</td>
-      <td>0.365219</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>176</td>
-      <td>0.775362</td>
-      <td>0.360014</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>39</td>
-      <td>0.355072</td>
-      <td>0.378141</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>11</th>
-      <td>39</td>
-      <td>0.376812</td>
-      <td>0.365937</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>12</th>
-      <td>39</td>
-      <td>0.391304</td>
-      <td>0.401651</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>13</th>
-      <td>39</td>
-      <td>0.405797</td>
-      <td>0.405958</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>14</th>
-      <td>39</td>
-      <td>0.420290</td>
-      <td>0.390883</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>15</th>
-      <td>39</td>
-      <td>0.456522</td>
-      <td>0.390165</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>16</th>
-      <td>39</td>
-      <td>0.543478</td>
-      <td>0.348528</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>17</th>
-      <td>39</td>
-      <td>0.637681</td>
-      <td>0.337581</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>18</th>
-      <td>39</td>
-      <td>0.746377</td>
-      <td>0.365219</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>19</th>
-      <td>39</td>
-      <td>0.775362</td>
-      <td>0.360014</td>
-      <td>Ex-smoker</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">patient</th>
+<th data-quarto-table-cell-role="th">weeks</th>
+<th data-quarto-table-cell-role="th">fvc</th>
+<th data-quarto-table-cell-role="th">smoking_status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>176</td>
+<td>0.355072</td>
+<td>0.378141</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>176</td>
+<td>0.376812</td>
+<td>0.365937</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>176</td>
+<td>0.391304</td>
+<td>0.401651</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>176</td>
+<td>0.405797</td>
+<td>0.405958</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>176</td>
+<td>0.420290</td>
+<td>0.390883</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>176</td>
+<td>0.456522</td>
+<td>0.390165</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>176</td>
+<td>0.543478</td>
+<td>0.348528</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>176</td>
+<td>0.637681</td>
+<td>0.337581</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>176</td>
+<td>0.746377</td>
+<td>0.365219</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>176</td>
+<td>0.775362</td>
+<td>0.360014</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">10</td>
+<td>39</td>
+<td>0.355072</td>
+<td>0.378141</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11</td>
+<td>39</td>
+<td>0.376812</td>
+<td>0.365937</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12</td>
+<td>39</td>
+<td>0.391304</td>
+<td>0.401651</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">13</td>
+<td>39</td>
+<td>0.405797</td>
+<td>0.405958</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">14</td>
+<td>39</td>
+<td>0.420290</td>
+<td>0.390883</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">15</td>
+<td>39</td>
+<td>0.456522</td>
+<td>0.390165</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">16</td>
+<td>39</td>
+<td>0.543478</td>
+<td>0.348528</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">17</td>
+<td>39</td>
+<td>0.637681</td>
+<td>0.337581</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">18</td>
+<td>39</td>
+<td>0.746377</td>
+<td>0.365219</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">19</td>
+<td>39</td>
+<td>0.775362</td>
+<td>0.360014</td>
+<td>Ex-smoker</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="13">
+<div id="cell-26" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> model.predict(</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">"params"</span>,</span>
@@ -1067,7 +1151,7 @@ NUTS: [sigma, weeks, smoking_status, weeks|patient_sigma, weeks|patient_offset]<
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    inplace<span class="op">=</span><span class="va">False</span></span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="14">
+<div id="cell-27" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># utility func for plotting</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_new_patient(idata, data, patient_ids):</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    fvc_mean <span class="op">=</span> az.extract(idata[<span class="st">"posterior"</span>])[<span class="st">"mu"</span>]</span>
@@ -1088,180 +1172,185 @@ NUTS: [sigma, weeks, smoking_status, weeks|patient_sigma, weeks|patient_offset]<
 <span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>        ax[i].set_ylabel(<span class="st">"fvc"</span>)</span>
 <span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>        ax[i].set_title(<span class="ss">f"patient </span><span class="sc">{</span>p<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="15">
+<div id="cell-28" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>plot_new_patient(preds, new_data, [<span class="dv">39</span>, <span class="dv">176</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="predict_new_groups_files/figure-html/cell-16-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="predict_new_groups_files/figure-html/cell-16-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Although identical data was used for both patients, the variability increased consideribly for patient 176. However, the mean predictions for both patients appear to be almost identical. Now, lets construct a new patient with different clinical data and see how the predictions change. We will select 10 time of follow up visits at random, and set the <code>smoking_status = "Currently smokes"</code>.</p>
-<div class="cell" data-execution_count="16">
+<div id="cell-30" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>new_data.loc[new_data[<span class="st">"patient"</span>] <span class="op">==</span> <span class="dv">176</span>, <span class="st">"smoking_status"</span>] <span class="op">=</span> <span class="st">"Currently smokes"</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>weeks <span class="op">=</span> np.random.choice(<span class="bu">sorted</span>(model.data.weeks.unique()), size<span class="op">=</span><span class="dv">10</span>)</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>new_data.loc[new_data[<span class="st">"patient"</span>] <span class="op">==</span> <span class="dv">176</span>, <span class="st">"weeks"</span>] <span class="op">=</span> weeks </span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>new_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="16">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>patient</th>
-      <th>weeks</th>
-      <th>fvc</th>
-      <th>smoking_status</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>176</td>
-      <td>0.413043</td>
-      <td>0.378141</td>
-      <td>Currently smokes</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>176</td>
-      <td>0.181159</td>
-      <td>0.365937</td>
-      <td>Currently smokes</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>176</td>
-      <td>0.644928</td>
-      <td>0.401651</td>
-      <td>Currently smokes</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>176</td>
-      <td>0.681159</td>
-      <td>0.405958</td>
-      <td>Currently smokes</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>176</td>
-      <td>0.028986</td>
-      <td>0.390883</td>
-      <td>Currently smokes</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>176</td>
-      <td>0.028986</td>
-      <td>0.390165</td>
-      <td>Currently smokes</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>176</td>
-      <td>0.695652</td>
-      <td>0.348528</td>
-      <td>Currently smokes</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>176</td>
-      <td>0.456522</td>
-      <td>0.337581</td>
-      <td>Currently smokes</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>176</td>
-      <td>0.152174</td>
-      <td>0.365219</td>
-      <td>Currently smokes</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>176</td>
-      <td>0.144928</td>
-      <td>0.360014</td>
-      <td>Currently smokes</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>39</td>
-      <td>0.355072</td>
-      <td>0.378141</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>11</th>
-      <td>39</td>
-      <td>0.376812</td>
-      <td>0.365937</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>12</th>
-      <td>39</td>
-      <td>0.391304</td>
-      <td>0.401651</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>13</th>
-      <td>39</td>
-      <td>0.405797</td>
-      <td>0.405958</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>14</th>
-      <td>39</td>
-      <td>0.420290</td>
-      <td>0.390883</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>15</th>
-      <td>39</td>
-      <td>0.456522</td>
-      <td>0.390165</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>16</th>
-      <td>39</td>
-      <td>0.543478</td>
-      <td>0.348528</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>17</th>
-      <td>39</td>
-      <td>0.637681</td>
-      <td>0.337581</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>18</th>
-      <td>39</td>
-      <td>0.746377</td>
-      <td>0.365219</td>
-      <td>Ex-smoker</td>
-    </tr>
-    <tr>
-      <th>19</th>
-      <td>39</td>
-      <td>0.775362</td>
-      <td>0.360014</td>
-      <td>Ex-smoker</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">patient</th>
+<th data-quarto-table-cell-role="th">weeks</th>
+<th data-quarto-table-cell-role="th">fvc</th>
+<th data-quarto-table-cell-role="th">smoking_status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>176</td>
+<td>0.413043</td>
+<td>0.378141</td>
+<td>Currently smokes</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>176</td>
+<td>0.181159</td>
+<td>0.365937</td>
+<td>Currently smokes</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>176</td>
+<td>0.644928</td>
+<td>0.401651</td>
+<td>Currently smokes</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>176</td>
+<td>0.681159</td>
+<td>0.405958</td>
+<td>Currently smokes</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>176</td>
+<td>0.028986</td>
+<td>0.390883</td>
+<td>Currently smokes</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>176</td>
+<td>0.028986</td>
+<td>0.390165</td>
+<td>Currently smokes</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>176</td>
+<td>0.695652</td>
+<td>0.348528</td>
+<td>Currently smokes</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>176</td>
+<td>0.456522</td>
+<td>0.337581</td>
+<td>Currently smokes</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>176</td>
+<td>0.152174</td>
+<td>0.365219</td>
+<td>Currently smokes</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>176</td>
+<td>0.144928</td>
+<td>0.360014</td>
+<td>Currently smokes</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">10</td>
+<td>39</td>
+<td>0.355072</td>
+<td>0.378141</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11</td>
+<td>39</td>
+<td>0.376812</td>
+<td>0.365937</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12</td>
+<td>39</td>
+<td>0.391304</td>
+<td>0.401651</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">13</td>
+<td>39</td>
+<td>0.405797</td>
+<td>0.405958</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">14</td>
+<td>39</td>
+<td>0.420290</td>
+<td>0.390883</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">15</td>
+<td>39</td>
+<td>0.456522</td>
+<td>0.390165</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">16</td>
+<td>39</td>
+<td>0.543478</td>
+<td>0.348528</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">17</td>
+<td>39</td>
+<td>0.637681</td>
+<td>0.337581</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">18</td>
+<td>39</td>
+<td>0.746377</td>
+<td>0.365219</td>
+<td>Ex-smoker</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">19</td>
+<td>39</td>
+<td>0.775362</td>
+<td>0.360014</td>
+<td>Ex-smoker</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
 <p>If we were to keep the default value of <code>sample_new_groups=False</code>, the following error would be raised: <code>ValueError: There are new groups for the factors ('patient',) and 'sample_new_groups' is False</code>. Thus, we set <code>sample_new_groups=True</code> and obtain predictions for the new patient.</p>
-<div class="cell" data-execution_count="17">
+<div id="cell-32" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> model.predict(</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">"params"</span>,</span>
@@ -1270,17 +1359,21 @@ NUTS: [sigma, weeks, smoking_status, weeks|patient_sigma, weeks|patient_offset]<
 <span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    inplace<span class="op">=</span><span class="va">False</span></span>
 <span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="18">
+<div id="cell-33" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>plot_new_patient(preds, new_data, [<span class="dv">39</span>, <span class="dv">176</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="predict_new_groups_files/figure-html/cell-19-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="predict_new_groups_files/figure-html/cell-19-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>With <code>smoking_status = "Currently smokes"</code>, and the time of follow up visit randomly selected, we can see that the intercept is slightly higher, and it appears that the slope is steeper for this new patient. Again, the variability is much higher for patient 176, and in particular, where there are fewer <code>fvc</code> measurements.</p>
 <section id="predict-new-patients-with-interpret" class="level4">
 <h4 class="anchored" data-anchor-id="predict-new-patients-with-interpret">Predict new patients with <code>interpret</code></h4>
 <p>The <code>interpret</code> sub-package in Bambi allows us to easily interpret the predictions for new patients. In particular, using <code>bmb.interpret.comparisons</code>, we can compare the predictions made for a new patient and an existing similar patient. Below, we will compare the predictions made for patient 176 and patient 39. We will use the same clinical data for both patients as we did in the first exampe above.</p>
-<div class="cell" data-execution_count="19">
+<div id="cell-36" class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>time_of_follow_up <span class="op">=</span> <span class="bu">list</span>(new_data.query(<span class="st">"patient == 39"</span>)[<span class="st">"weeks"</span>].values)</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>time_of_follow_up</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="19">
@@ -1296,7 +1389,7 @@ NUTS: [sigma, weeks, smoking_status, weeks|patient_sigma, weeks|patient_offset]<
  0.7753623188405797]</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="20">
+<div id="cell-37" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_comparisons(</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    model,</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    idata,</span>
@@ -1307,7 +1400,11 @@ NUTS: [sigma, weeks, smoking_status, weeks|patient_sigma, weeks|patient_offset]<
 <span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Difference in predictions for patient 176 vs 39"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="predict_new_groups_files/figure-html/cell-21-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="predict_new_groups_files/figure-html/cell-21-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Referring to the plots where patient 39 and 176 use identical data, the mean <code>fvc</code> predictions “look” about the same. When this comparison is made quantitatively using the comparisons function, we can see that mean <code>fvc</code> measurements are slightly below 0.0, and have a constant slope across <code>weeks</code> indicating there is a slight difference in mean <code>fvc</code> measurements between the two patients.</p>
@@ -1318,7 +1415,7 @@ NUTS: [sigma, weeks, smoking_status, weeks|patient_sigma, weeks|patient_offset]<
 <h2 class="anchored" data-anchor-id="summary">Summary</h2>
 <p>In this notebook, it was shown how predictions at multiple levels and for unseen groups are possible with hierarchical models. To utilize this feature of hierarchical models, Bambi first updates the design matrix to include the new group. Then, predictions are made for the new group by sampling from the posterior draws of a randomly selected existing group.</p>
 <p>To predict new groups in Bambi, you can either: (1) create a dataset with new groups and pass it to the <code>model.predict()</code> method while specifying <code>sample_new_groups=True</code>, or (2) use the functions <code>comparisons</code> or <code>slopes</code> in the <code>interpret</code> sub-package with <code>sample_new_groups=True</code> to compare predictions or slopes for new groups and existing groups.</p>
-<div class="cell" data-execution_count="21">
+<div id="cell-40" class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1340,7 +1437,6 @@ Watermark: 2.4.3
 </div>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
@@ -1371,12 +1467,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
     }
-  });
-  clipboard.on('success', function(e) {
+    return false;
+  }
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -1408,11 +1507,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1422,8 +1560,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1435,9 +1582,245 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
     });
   }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
   const findCites = (el) => {
     const parentEl = el.parentElement;
     if (parentEl) {
@@ -1479,12 +1862,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../notebooks/t_regression.html" class="pagination-link">
+      <a href="../notebooks/t_regression.html" class="pagination-link" aria-label="Robust Linear Regression">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Robust Linear Regression</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../notebooks/polynomial_regression.html" class="pagination-link">
+      <a href="../notebooks/polynomial_regression.html" class="pagination-link" aria-label="Polynomial Regression">
         <span class="nav-page-text">Polynomial Regression</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
@@ -1492,9 +1875,18 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
-      <div class="nav-footer-center">© Copyright 2024, The developers of Bambi.</div>
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>© Copyright 2024, The developers of Bambi.</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
   </div>
 </footer>
+
 
 
 

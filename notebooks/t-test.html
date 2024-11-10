@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.2.280">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Bambi – t-test</title>
+<title>Comparison of two means (T-test) – Bambi</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -17,11 +17,12 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -32,7 +33,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -46,47 +47,17 @@ pre.numberSource code > span > a:first-child::before
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
     padding: 0 4px; width: 4em;
-    color: #aaaaaa;
   }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
 div.sourceCode
   {   }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { color: #008000; } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { color: #008000; font-weight: bold; } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
@@ -110,7 +81,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -119,16 +96,46 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 <script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -137,293 +144,338 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a href="../index.html" class="navbar-brand navbar-brand-logo">
     <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo">
     </a>
   </div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../notebooks/getting_started.html">
- <span class="menu-text">Getting Started</span></a>
+    <a class="nav-link" href="../notebooks/getting_started.html"> 
+<span class="menu-text">Getting Started</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../api/index.html">
- <span class="menu-text">API Reference</span></a>
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../notebooks/index.html" aria-current="page">
- <span class="menu-text">Examples</span></a>
+    <a class="nav-link active" href="../notebooks/index.html" aria-current="page"> 
+<span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../faq.html">
- <span class="menu-text">FAQ</span></a>
+    <a class="nav-link" href="../faq.html"> 
+<span class="menu-text">FAQ</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../changelog.html">
- <span class="menu-text">Changelog</span></a>
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../contact.html">
- <span class="menu-text">Contact</span></a>
+    <a class="nav-link" href="../contact.html"> 
+<span class="menu-text">Contact</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/bambinos/bambi"><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/bambinos/bambi"> <i class="bi bi-github" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
 </ul>
-              <div id="quarto-search" class="" title="Search"></div>
           </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
-  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-    <div class="container-fluid d-flex justify-content-between">
-      <h1 class="quarto-secondary-nav-title"></h1>
-      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
-        <i class="bi bi-chevron-right"></i>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/t-test.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/t-test.html">Comparison of two means (T-test)</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
     </div>
   </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/index.html" class="sidebar-item-text sidebar-link">Examples gallery</a>
+  <a href="../notebooks/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Examples gallery</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Linear regression models</a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Linear regression models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link active">Comparison of two means (T-test)</a>
+  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Comparison of two means (T-test)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">Multiple linear regression</a>
+  <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multiple linear regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/splines_cherry_blossoms.html" class="sidebar-item-text sidebar-link">Regression splines (Cherry blossom example)</a>
+  <a href="../notebooks/splines_cherry_blossoms.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Regression splines (Cherry blossom example)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/multi-level_regression.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Pigs dataset)</a>
+  <a href="../notebooks/multi-level_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Linear Regression (Pigs dataset)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/sleepstudy.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Sleepstudy example)</a>
+  <a href="../notebooks/sleepstudy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Linear Regression (Sleepstudy example)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/radon_example.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Radon Contamination dataset)</a>
+  <a href="../notebooks/radon_example.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Linear Regression (Radon Contamination dataset)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/Strack_RRR_re_analysis.html" class="sidebar-item-text sidebar-link">Bayesian Workflow (Strack RRR Analysis Replication)</a>
+  <a href="../notebooks/Strack_RRR_re_analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Workflow (Strack RRR Analysis Replication)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/shooter_crossed_random_ANOVA.html" class="sidebar-item-text sidebar-link">Bayesian Workflow (Police Officer’s Dilemma)</a>
+  <a href="../notebooks/shooter_crossed_random_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Workflow (Police Officer’s Dilemma)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/t_regression.html" class="sidebar-item-text sidebar-link">Robust Linear Regression</a>
+  <a href="../notebooks/t_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Robust Linear Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/predict_new_groups.html" class="sidebar-item-text sidebar-link">Predict New Groups</a>
+  <a href="../notebooks/predict_new_groups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Predict New Groups</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/polynomial_regression.html" class="sidebar-item-text sidebar-link">Polynomial Regression</a>
+  <a href="../notebooks/polynomial_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Polynomial Regression</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="false">Generalized linear models</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Generalized linear models</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/logistic_regression.html" class="sidebar-item-text sidebar-link">Logistic Regression (Vote intention with ANES data)</a>
+  <a href="../notebooks/logistic_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Logistic Regression (Vote intention with ANES data)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/model_comparison.html" class="sidebar-item-text sidebar-link">Logistic Regression and Model Comparison with Bambi and ArviZ</a>
+  <a href="../notebooks/model_comparison.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Logistic Regression and Model Comparison with Bambi and ArviZ</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/hierarchical_binomial_bambi.html" class="sidebar-item-text sidebar-link">Hierarchical Logistic regression with Binomial family</a>
+  <a href="../notebooks/hierarchical_binomial_bambi.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Logistic regression with Binomial family</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/alternative_links_binary.html" class="sidebar-item-text sidebar-link">Regression for Binary responses: Alternative link functions</a>
+  <a href="../notebooks/alternative_links_binary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Regression for Binary responses: Alternative link functions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/wald_gamma_glm.html" class="sidebar-item-text sidebar-link">Wald and Gamma Regression (Australian insurance claims 2004-2005)</a>
+  <a href="../notebooks/wald_gamma_glm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Wald and Gamma Regression (Australian insurance claims 2004-2005)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/negative_binomial.html" class="sidebar-item-text sidebar-link">Negative Binomial Regression (Students absence example)</a>
+  <a href="../notebooks/negative_binomial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Negative Binomial Regression (Students absence example)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/count_roaches.html" class="sidebar-item-text sidebar-link">Count Regression with Variable Exposure</a>
+  <a href="../notebooks/count_roaches.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Count Regression with Variable Exposure</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/beta_regression.html" class="sidebar-item-text sidebar-link">Beta Regression</a>
+  <a href="../notebooks/beta_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Beta Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/categorical_regression.html" class="sidebar-item-text sidebar-link">Categorical Regression</a>
+  <a href="../notebooks/categorical_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Categorical Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/circular_regression.html" class="sidebar-item-text sidebar-link">Circular Regression</a>
+  <a href="../notebooks/circular_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Circular Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/quantile_regression.html" class="sidebar-item-text sidebar-link">Quantile Regression</a>
+  <a href="../notebooks/quantile_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Quantile Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/mister_p.html" class="sidebar-item-text sidebar-link">Multilevel Regression and Post-stratification</a>
+  <a href="../notebooks/mister_p.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multilevel Regression and Post-stratification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/ordinal_regression.html" class="sidebar-item-text sidebar-link">Ordinal Regression</a>
+  <a href="../notebooks/ordinal_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ordinal Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/zero_inflated_regression.html" class="sidebar-item-text sidebar-link">Zero inflated models</a>
+  <a href="../notebooks/zero_inflated_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Zero inflated models</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="false">More advanced models</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">More advanced models</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/distributional_models.html" class="sidebar-item-text sidebar-link">Distributional models</a>
+  <a href="../notebooks/distributional_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Distributional models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/hsgp_1d.html" class="sidebar-item-text sidebar-link">Gaussian Processes</a>
+  <a href="../notebooks/hsgp_1d.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gaussian Processes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/hsgp_2d.html" class="sidebar-item-text sidebar-link">Gaussian Processes in 2D</a>
+  <a href="../notebooks/hsgp_2d.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gaussian Processes in 2D</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/survival_model.html" class="sidebar-item-text sidebar-link">Survival Models</a>
+  <a href="../notebooks/survival_model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Survival Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/orthogonal_polynomial_reg.html" class="sidebar-item-text sidebar-link">Orthogonal Polynomial regression</a>
+  <a href="../notebooks/orthogonal_polynomial_reg.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Orthogonal Polynomial regression</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="false">Tools to interpret model outputs</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">Tools to interpret model outputs</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/plot_predictions.html" class="sidebar-item-text sidebar-link">Plot Conditional Adjusted Predictions</a>
+  <a href="../notebooks/plot_predictions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Plot Conditional Adjusted Predictions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/plot_comparisons.html" class="sidebar-item-text sidebar-link">Plot Comparisons</a>
+  <a href="../notebooks/plot_comparisons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Plot Comparisons</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/plot_slopes.html" class="sidebar-item-text sidebar-link">Plot Slopes</a>
+  <a href="../notebooks/plot_slopes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Plot Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/interpret_advanced_usage.html" class="sidebar-item-text sidebar-link">Interpret Advanced Usage</a>
+  <a href="../notebooks/interpret_advanced_usage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Interpret Advanced Usage</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="false">Alternative sampling backends</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Alternative sampling backends</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/alternative_samplers.html" class="sidebar-item-text sidebar-link">Alternative sampling backends</a>
+  <a href="../notebooks/alternative_samplers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Alternative sampling backends</span></a>
   </div>
 </li>
       </ul>
@@ -431,21 +483,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     </ul>
     </div>
 </nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#comparison-of-two-means-t-test" id="toc-comparison-of-two-means-t-test" class="nav-link active" data-scroll-target="#comparison-of-two-means-t-test">Comparison of two means (T-test)</a>
-  <ul class="collapse">
-  <li><a href="#generate-data" id="toc-generate-data" class="nav-link" data-scroll-target="#generate-data">Generate data</a>
+  <li><a href="#generate-data" id="toc-generate-data" class="nav-link active" data-scroll-target="#generate-data">Generate data</a>
   <ul class="collapse">
   <li><a href="#model-1" id="toc-model-1" class="nav-link" data-scroll-target="#model-1">Model 1</a></li>
   <li><a href="#analysis" id="toc-analysis" class="nav-link" data-scroll-target="#analysis">Analysis</a></li>
   <li><a href="#model-2" id="toc-model-2" class="nav-link" data-scroll-target="#model-2">Model 2</a></li>
   <li><a href="#analysis-1" id="toc-analysis-1" class="nav-link" data-scroll-target="#analysis-1">Analysis</a></li>
-  </ul></li>
   </ul></li>
   </ul>
 </nav>
@@ -453,18 +503,33 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/t-test.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/t-test.html">Comparison of two means (T-test)</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Comparison of two means (T-test)</h1>
+</div>
 
 
-<section id="comparison-of-two-means-t-test" class="level1">
-<h1>Comparison of two means (T-test)</h1>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:23:32.893304Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:23:32.849988Z&quot;}" data-execution_count="1">
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div id="cell-2" class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:23:32.893304Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:23:32.849988Z&quot;}" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="2">
+<div id="cell-3" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-darkgrid"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">1234</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -472,64 +537,69 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="generate-data" class="level2">
 <h2 class="anchored" data-anchor-id="generate-data">Generate data</h2>
 <p>We generate 160 values from a Gaussian with <span class="math inline">\(\mu=6\)</span> and <span class="math inline">\(\sigma=2.5\)</span> and another 120 values from a Gaussian’ with <span class="math inline">\(\mu=8\)</span> and <span class="math inline">\(\sigma=2\)</span></p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:16:34.291525Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:16:34.260418Z&quot;}" data-scrolled="true" data-execution_count="3">
+<div id="cell-6" class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:16:34.291525Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:16:34.260418Z&quot;}" data-scrolled="true" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> np.random.normal(<span class="dv">6</span>, <span class="fl">2.5</span>, <span class="dv">160</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> np.random.normal(<span class="dv">8</span>, <span class="dv">2</span>, <span class="dv">120</span>)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame({<span class="st">"Group"</span>: [<span class="st">"a"</span>] <span class="op">*</span> <span class="dv">160</span> <span class="op">+</span> [<span class="st">"b"</span>] <span class="op">*</span> <span class="dv">120</span>, <span class="st">"Val"</span>: np.hstack([a, b])})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="4">
+<div id="cell-7" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>Group</th>
-      <th>Val</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>a</td>
-      <td>7.178588</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>a</td>
-      <td>3.022561</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>a</td>
-      <td>9.581767</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>a</td>
-      <td>5.218370</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>a</td>
-      <td>4.198528</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Group</th>
+<th data-quarto-table-cell-role="th">Val</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>a</td>
+<td>7.178588</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>a</td>
+<td>3.022561</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>a</td>
+<td>9.581767</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>a</td>
+<td>5.218370</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>a</td>
+<td>4.198528</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="5">
+<div id="cell-8" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>az.plot_violin({<span class="st">"a"</span>: a, <span class="st">"b"</span>: b})<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>/home/tomas/anaconda3/envs/bambi-dev/lib/python3.11/site-packages/arviz/plots/backends/matplotlib/violinplot.py:65: UserWarning: This figure was using a layout engine that is incompatible with subplots_adjust and/or tight_layout; not calling subplots_adjust.
   fig.subplots_adjust(wspace=0)</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="t-test_files/figure-html/cell-6-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="t-test_files/figure-html/cell-6-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>When we carry out a two sample t-test we are implicitly using a linear model that can be specified in different ways. One of these approaches is the following:</p>
@@ -556,7 +626,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="analysis" class="level3">
 <h3 class="anchored" data-anchor-id="analysis">Analysis</h3>
 <p>We start by instantiating our model and specifying the model previously described.</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:14.025148Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:03.635845Z&quot;}" data-execution_count="6">
+<div id="cell-11" class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:14.025148Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:03.635845Z&quot;}" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>model_1 <span class="op">=</span> bmb.Model(<span class="st">"Val ~ Group"</span>, df)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>results_1 <span class="op">=</span> model_1.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -567,7 +637,7 @@ NUTS: [sigma, Intercept, Group]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"8db8a92ae03b4f8590c0b7d4a142afc3","version_major":2,"version_minor":0}
+{"model_id":"8db8a92ae03b4f8590c0b7d4a142afc3","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -582,7 +652,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 <p>We’ve only specified the formula for the model and Bambi automatically selected priors distributions and values for their parameters. We can inspect both the setup and the priors as following:</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:14.093227Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:14.028196Z&quot;}" data-execution_count="7">
+<div id="cell-13" class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:14.093227Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:14.028196Z&quot;}" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>model_1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="7">
 <pre><code>       Formula: Val ~ Group
@@ -602,96 +672,109 @@ We recommend running at least 4 chains for robust computation of convergence dia
 * To see a summary or plot of the posterior pass the object returned by .fit() to az.summary() or az.plot_trace()</code></pre>
 </div>
 </div>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:23:39.715077Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:23:38.912684Z&quot;}" data-execution_count="8">
+<div id="cell-14" class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:23:39.715077Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:23:38.912684Z&quot;}" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>model_1.plot_priors()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Sampling: [Group, Intercept, sigma]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="t-test_files/figure-html/cell-9-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="t-test_files/figure-html/cell-9-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>To inspect our posterior and the sampling process we can call <code>az.plot_trace()</code>. The option <code>kind='rank_vlines'</code> gives us a variant of the rank plot that uses lines and dots and helps us to inspect the stationarity of the chains. Since there is no clear pattern or serious deviations from the horizontal lines, we can conclude the chains are stationary.</p>
 <!-- I think the reasoning is too simplistic but I don't know if we should make it more complicated here -->
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:16.028568Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:15.017492Z&quot;}" data-execution_count="9">
+<div id="cell-16" class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:16.028568Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:15.017492Z&quot;}" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(results_1, kind<span class="op">=</span><span class="st">"rank_vlines"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="t-test_files/figure-html/cell-10-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="t-test_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></p>
+</figure>
 </div>
 </div>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:16.089430Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:16.031107Z&quot;}" data-execution_count="10">
+</div>
+<div id="cell-17" class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:16.089430Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:16.031107Z&quot;}" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>az.summary(results_1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="10">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>mean</th>
-      <th>sd</th>
-      <th>hdi_3%</th>
-      <th>hdi_97%</th>
-      <th>mcse_mean</th>
-      <th>mcse_sd</th>
-      <th>ess_bulk</th>
-      <th>ess_tail</th>
-      <th>r_hat</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>Group[b]</th>
-      <td>2.004</td>
-      <td>0.265</td>
-      <td>1.548</td>
-      <td>2.512</td>
-      <td>0.005</td>
-      <td>0.003</td>
-      <td>3036.0</td>
-      <td>1618.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>Intercept</th>
-      <td>6.117</td>
-      <td>0.180</td>
-      <td>5.777</td>
-      <td>6.459</td>
-      <td>0.003</td>
-      <td>0.002</td>
-      <td>3049.0</td>
-      <td>1512.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>sigma</th>
-      <td>2.265</td>
-      <td>0.096</td>
-      <td>2.087</td>
-      <td>2.444</td>
-      <td>0.002</td>
-      <td>0.001</td>
-      <td>3570.0</td>
-      <td>1662.0</td>
-      <td>1.0</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">sd</th>
+<th data-quarto-table-cell-role="th">hdi_3%</th>
+<th data-quarto-table-cell-role="th">hdi_97%</th>
+<th data-quarto-table-cell-role="th">mcse_mean</th>
+<th data-quarto-table-cell-role="th">mcse_sd</th>
+<th data-quarto-table-cell-role="th">ess_bulk</th>
+<th data-quarto-table-cell-role="th">ess_tail</th>
+<th data-quarto-table-cell-role="th">r_hat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Group[b]</td>
+<td>2.004</td>
+<td>0.265</td>
+<td>1.548</td>
+<td>2.512</td>
+<td>0.005</td>
+<td>0.003</td>
+<td>3036.0</td>
+<td>1618.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Intercept</td>
+<td>6.117</td>
+<td>0.180</td>
+<td>5.777</td>
+<td>6.459</td>
+<td>0.003</td>
+<td>0.002</td>
+<td>3049.0</td>
+<td>1512.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sigma</td>
+<td>2.265</td>
+<td>0.096</td>
+<td>2.087</td>
+<td>2.444</td>
+<td>0.002</td>
+<td>0.001</td>
+<td>3570.0</td>
+<td>1662.0</td>
+<td>1.0</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
 <p>In the summary table we can see the 94% highest density interval for <span class="math inline">\(\beta_1\)</span> ranges from 1.511 to 2.499. Thus, according to the data and the model used, we conclude the difference between the two population means is somewhere between 1.2 and 2.2 and hence we support the hypotehsis that <span class="math inline">\(\beta_1 \ne 0\)</span>.</p>
 <p>Similar conclusions can be made with the density estimate for the posterior distribution of <span class="math inline">\(\beta_1\)</span>. As seen in the table, most of the probability for the difference in the mean roughly ranges from 1.2 to 2.2.</p>
-<div class="cell" data-execution_count="11">
+<div id="cell-19" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>az.plot_posterior(results_1, var_names<span class="op">=</span><span class="st">"Group"</span>, ref_val<span class="op">=</span><span class="dv">0</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="t-test_files/figure-html/cell-12-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="t-test_files/figure-html/cell-12-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Another way to arrive to a similar conclusion is by calculating the probability that the parameter <span class="math inline">\(\beta_1 &gt; 0\)</span>. This probability is equal to 1, telling us that the mean of the two populations are different.</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:16.411144Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:16.370610Z&quot;}" data-execution_count="12">
+<div id="cell-21" class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:16.411144Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:16.370610Z&quot;}" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Probabiliy that posterior is &gt; 0</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>(results_1.posterior[<span class="st">"Group"</span>] <span class="op">&gt;</span> <span class="dv">0</span>).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="12">
@@ -723,7 +806,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <section id="analysis-1" class="level3">
 <h3 class="anchored" data-anchor-id="analysis-1">Analysis</h3>
 <p>We start by instantiating our model and specifying the model previously described. In this model we will bypass the intercept that Bambi adds by default by setting it to zero, even though setting to -1 has the same effect.</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:14.025148Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:03.635845Z&quot;}" data-execution_count="13">
+<div id="cell-24" class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:14.025148Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:03.635845Z&quot;}" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model_2 <span class="op">=</span> bmb.Model(<span class="st">"Val ~ 0 + Group"</span>, df)</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>results_2 <span class="op">=</span> model_2.fit() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -734,7 +817,7 @@ NUTS: [sigma, Group]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"07e5ee5bc14d4d12a5c696b9631437fd","version_major":2,"version_minor":0}
+{"model_id":"07e5ee5bc14d4d12a5c696b9631437fd","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -749,7 +832,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 <p>We’ve only specified the formula for the model and Bambi automatically selected priors distributions and values for their parameters. We can inspect both the setup and the priors as following:</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:14.093227Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:14.028196Z&quot;}" data-execution_count="14">
+<div id="cell-26" class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:14.093227Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:14.028196Z&quot;}" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>model_2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="14">
 <pre><code>       Formula: Val ~ 0 + Group
@@ -768,104 +851,117 @@ We recommend running at least 4 chains for robust computation of convergence dia
 * To see a summary or plot of the posterior pass the object returned by .fit() to az.summary() or az.plot_trace()</code></pre>
 </div>
 </div>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:23:39.715077Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:23:38.912684Z&quot;}" data-execution_count="15">
+<div id="cell-27" class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:23:39.715077Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:23:38.912684Z&quot;}" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>model_2.plot_priors()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Sampling: [Group, sigma]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="t-test_files/figure-html/cell-16-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="t-test_files/figure-html/cell-16-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>To inspect our posterior and the sampling process we can call <code>az.plot_trace()</code>. The option <code>kind='rank_vlines'</code> gives us a variant of the rank plot that uses lines and dots and helps us to inspect the stationarity of the chains. Since there is no clear pattern or serious deviations from the horizontal lines, we can conclude the chains are stationary.</p>
 <!-- I think the reasoning is too simplistic but I don't know if we should make it more complicated here -->
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:16.028568Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:15.017492Z&quot;}" data-execution_count="16">
+<div id="cell-29" class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:16.028568Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:15.017492Z&quot;}" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(results_2, kind<span class="op">=</span><span class="st">"rank_vlines"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="t-test_files/figure-html/cell-17-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="t-test_files/figure-html/cell-17-output-1.png" class="img-fluid figure-img"></p>
+</figure>
 </div>
 </div>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:16.089430Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:16.031107Z&quot;}" data-execution_count="17">
+</div>
+<div id="cell-30" class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:16.089430Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:16.031107Z&quot;}" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>az.summary(results_2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="17">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>mean</th>
-      <th>sd</th>
-      <th>hdi_3%</th>
-      <th>hdi_97%</th>
-      <th>mcse_mean</th>
-      <th>mcse_sd</th>
-      <th>ess_bulk</th>
-      <th>ess_tail</th>
-      <th>r_hat</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>Group[a]</th>
-      <td>6.124</td>
-      <td>0.177</td>
-      <td>5.778</td>
-      <td>6.431</td>
-      <td>0.003</td>
-      <td>0.002</td>
-      <td>2735.0</td>
-      <td>1407.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>Group[b]</th>
-      <td>8.115</td>
-      <td>0.203</td>
-      <td>7.708</td>
-      <td>8.474</td>
-      <td>0.004</td>
-      <td>0.003</td>
-      <td>3086.0</td>
-      <td>1621.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>sigma</th>
-      <td>2.265</td>
-      <td>0.099</td>
-      <td>2.075</td>
-      <td>2.437</td>
-      <td>0.002</td>
-      <td>0.001</td>
-      <td>2884.0</td>
-      <td>1630.0</td>
-      <td>1.01</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">sd</th>
+<th data-quarto-table-cell-role="th">hdi_3%</th>
+<th data-quarto-table-cell-role="th">hdi_97%</th>
+<th data-quarto-table-cell-role="th">mcse_mean</th>
+<th data-quarto-table-cell-role="th">mcse_sd</th>
+<th data-quarto-table-cell-role="th">ess_bulk</th>
+<th data-quarto-table-cell-role="th">ess_tail</th>
+<th data-quarto-table-cell-role="th">r_hat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Group[a]</td>
+<td>6.124</td>
+<td>0.177</td>
+<td>5.778</td>
+<td>6.431</td>
+<td>0.003</td>
+<td>0.002</td>
+<td>2735.0</td>
+<td>1407.0</td>
+<td>1.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Group[b]</td>
+<td>8.115</td>
+<td>0.203</td>
+<td>7.708</td>
+<td>8.474</td>
+<td>0.004</td>
+<td>0.003</td>
+<td>3086.0</td>
+<td>1621.0</td>
+<td>1.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sigma</td>
+<td>2.265</td>
+<td>0.099</td>
+<td>2.075</td>
+<td>2.437</td>
+<td>0.002</td>
+<td>0.001</td>
+<td>2884.0</td>
+<td>1630.0</td>
+<td>1.01</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
 <p>In this summary we can observe the estimated distribution of means for each population. A simple way to compare them is subtracting one to the other. In the next plot we can se that the entirety of the distribution of differences is higher than zero and that the mean of population 2 is higher than the mean of population 1 by a mean of 2.</p>
-<div class="cell" data-execution_count="18">
+<div id="cell-32" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>post_group <span class="op">=</span> results_2.posterior[<span class="st">"Group"</span>]</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>diff <span class="op">=</span> post_group.sel(Group_dim<span class="op">=</span><span class="st">"b"</span>) <span class="op">-</span> post_group.sel(Group_dim<span class="op">=</span><span class="st">"a"</span>) </span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>az.plot_posterior(diff, ref_val<span class="op">=</span><span class="dv">0</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="t-test_files/figure-html/cell-19-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="t-test_files/figure-html/cell-19-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Another way to arrive to a similar conclusion is by calculating the probability that the parameter <span class="math inline">\(\beta_1 - \beta_0 &gt; 0\)</span>. This probability equals to 1, telling us that the mean of the two populations are different.</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:16.411144Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:16.370610Z&quot;}" data-execution_count="19">
+<div id="cell-34" class="cell" data-executetime="{&quot;end_time&quot;:&quot;2019-04-13T18:22:16.411144Z&quot;,&quot;start_time&quot;:&quot;2019-04-13T18:22:16.370610Z&quot;}" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Probabiliy that posterior is &gt; 0</span></span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>(post_group <span class="op">&gt;</span> <span class="dv">0</span>).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="19">
 <pre><code>1.0</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="20">
+<div id="cell-35" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -887,7 +983,6 @@ Watermark: 2.4.3
 </div>
 
 
-</section>
 </section>
 </section>
 
@@ -919,12 +1014,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
     }
-  });
-  clipboard.on('success', function(e) {
+    return false;
+  }
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -956,11 +1054,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -970,8 +1107,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -983,9 +1129,245 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
     });
   }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
   const findCites = (el) => {
     const parentEl = el.parentElement;
     if (parentEl) {
@@ -1027,12 +1409,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../notebooks/index.html" class="pagination-link">
+      <a href="../notebooks/index.html" class="pagination-link" aria-label="Examples gallery">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Examples gallery</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../notebooks/ESCS_multiple_regression.html" class="pagination-link">
+      <a href="../notebooks/ESCS_multiple_regression.html" class="pagination-link" aria-label="Multiple linear regression">
         <span class="nav-page-text">Multiple linear regression</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
@@ -1040,9 +1422,18 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
-      <div class="nav-footer-center">© Copyright 2024, The developers of Bambi.</div>
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>© Copyright 2024, The developers of Bambi.</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
   </div>
 </footer>
+
 
 
 

@@ -12,8 +12,8 @@ of the likelihood function, allowing distributional models.
 
 | Name           | Type   | Description                                                                         | Default    |
 |----------------|--------|-------------------------------------------------------------------------------------|------------|
-| `formula`      | str    | A model description written using the formula syntax from the ``formulae`` library. | _required_ |
-| `*additionals` | str    | Additional formulas that describe the                                               | `()`       |
+| `formula`      | str    | A model description written using the formula syntax from the `formulae` library.   | _required_ |
+| `*additionals` | str    | Additional formulas that describe model parameters rather than a response variable. | `()`       |
 
 ## Methods
 
@@ -37,10 +37,10 @@ Check if an additional formula matches the expected format
 
 #### Raises
 
-| Type       | Description                                     |
-|------------|-------------------------------------------------|
-| ValueError | If the formula does not contain a response term |
-| ValueError | If the response term is not a plain name        |
+| Type       | Description                                      |
+|------------|--------------------------------------------------|
+| ValueError | If the formula does not contain a response term. |
+| ValueError | If the response term is not a plain name.        |
 
 ### check_additionals { #bambi.Formula.check_additionals }
 
@@ -50,9 +50,9 @@ Check if the additional formulas match the expected format
 
 #### Parameters
 
-| Name          | Type            | Description                                                                   | Default    |
-|---------------|-----------------|-------------------------------------------------------------------------------|------------|
-| `additionals` | Sequence\[str\] | Model formulas that describe model parameters rather than a response variable | _required_ |
+| Name          | Type            | Description                                                                    | Default    |
+|---------------|-----------------|--------------------------------------------------------------------------------|------------|
+| `additionals` | Sequence\[str\] | Model formulas that describe model parameters rather than a response variable. | _required_ |
 
 #### Returns
 
@@ -68,6 +68,6 @@ Get all the model formulas
 
 #### Returns
 
-| Type   | Description                      |
-|--------|----------------------------------|
-| list   | All the formulas in the instance |
+| Type   | Description                       |
+|--------|-----------------------------------|
+| list   | All the formulas in the instance. |

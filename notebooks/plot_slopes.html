@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.2.280">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Bambi – plot_slopes</title>
+<title>Plot Slopes – Bambi</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -17,11 +17,12 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -32,7 +33,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -46,47 +47,17 @@ pre.numberSource code > span > a:first-child::before
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
     padding: 0 4px; width: 4em;
-    color: #aaaaaa;
   }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
 div.sourceCode
   {   }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { color: #008000; } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { color: #008000; font-weight: bold; } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
@@ -110,7 +81,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -119,16 +96,46 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 <script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -137,293 +144,338 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a href="../index.html" class="navbar-brand navbar-brand-logo">
     <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo">
     </a>
   </div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../notebooks/getting_started.html">
- <span class="menu-text">Getting Started</span></a>
+    <a class="nav-link" href="../notebooks/getting_started.html"> 
+<span class="menu-text">Getting Started</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../api/index.html">
- <span class="menu-text">API Reference</span></a>
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../notebooks/index.html" aria-current="page">
- <span class="menu-text">Examples</span></a>
+    <a class="nav-link active" href="../notebooks/index.html" aria-current="page"> 
+<span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../faq.html">
- <span class="menu-text">FAQ</span></a>
+    <a class="nav-link" href="../faq.html"> 
+<span class="menu-text">FAQ</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../changelog.html">
- <span class="menu-text">Changelog</span></a>
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../contact.html">
- <span class="menu-text">Contact</span></a>
+    <a class="nav-link" href="../contact.html"> 
+<span class="menu-text">Contact</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/bambinos/bambi"><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/bambinos/bambi"> <i class="bi bi-github" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
 </ul>
-              <div id="quarto-search" class="" title="Search"></div>
           </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
-  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-    <div class="container-fluid d-flex justify-content-between">
-      <h1 class="quarto-secondary-nav-title"></h1>
-      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
-        <i class="bi bi-chevron-right"></i>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/plot_predictions.html">Tools to interpret model outputs</a></li><li class="breadcrumb-item"><a href="../notebooks/plot_slopes.html">Plot Slopes</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
     </div>
   </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/index.html" class="sidebar-item-text sidebar-link">Examples gallery</a>
+  <a href="../notebooks/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Examples gallery</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="false">Linear regression models</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Linear regression models</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link">Comparison of two means (T-test)</a>
+  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Comparison of two means (T-test)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">Multiple linear regression</a>
+  <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multiple linear regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/splines_cherry_blossoms.html" class="sidebar-item-text sidebar-link">Regression splines (Cherry blossom example)</a>
+  <a href="../notebooks/splines_cherry_blossoms.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Regression splines (Cherry blossom example)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/multi-level_regression.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Pigs dataset)</a>
+  <a href="../notebooks/multi-level_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Linear Regression (Pigs dataset)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/sleepstudy.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Sleepstudy example)</a>
+  <a href="../notebooks/sleepstudy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Linear Regression (Sleepstudy example)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/radon_example.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Radon Contamination dataset)</a>
+  <a href="../notebooks/radon_example.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Linear Regression (Radon Contamination dataset)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/Strack_RRR_re_analysis.html" class="sidebar-item-text sidebar-link">Bayesian Workflow (Strack RRR Analysis Replication)</a>
+  <a href="../notebooks/Strack_RRR_re_analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Workflow (Strack RRR Analysis Replication)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/shooter_crossed_random_ANOVA.html" class="sidebar-item-text sidebar-link">Bayesian Workflow (Police Officer’s Dilemma)</a>
+  <a href="../notebooks/shooter_crossed_random_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Workflow (Police Officer’s Dilemma)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/t_regression.html" class="sidebar-item-text sidebar-link">Robust Linear Regression</a>
+  <a href="../notebooks/t_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Robust Linear Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/predict_new_groups.html" class="sidebar-item-text sidebar-link">Predict New Groups</a>
+  <a href="../notebooks/predict_new_groups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Predict New Groups</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/polynomial_regression.html" class="sidebar-item-text sidebar-link">Polynomial Regression</a>
+  <a href="../notebooks/polynomial_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Polynomial Regression</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="false">Generalized linear models</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Generalized linear models</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/logistic_regression.html" class="sidebar-item-text sidebar-link">Logistic Regression (Vote intention with ANES data)</a>
+  <a href="../notebooks/logistic_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Logistic Regression (Vote intention with ANES data)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/model_comparison.html" class="sidebar-item-text sidebar-link">Logistic Regression and Model Comparison with Bambi and ArviZ</a>
+  <a href="../notebooks/model_comparison.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Logistic Regression and Model Comparison with Bambi and ArviZ</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/hierarchical_binomial_bambi.html" class="sidebar-item-text sidebar-link">Hierarchical Logistic regression with Binomial family</a>
+  <a href="../notebooks/hierarchical_binomial_bambi.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Logistic regression with Binomial family</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/alternative_links_binary.html" class="sidebar-item-text sidebar-link">Regression for Binary responses: Alternative link functions</a>
+  <a href="../notebooks/alternative_links_binary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Regression for Binary responses: Alternative link functions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/wald_gamma_glm.html" class="sidebar-item-text sidebar-link">Wald and Gamma Regression (Australian insurance claims 2004-2005)</a>
+  <a href="../notebooks/wald_gamma_glm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Wald and Gamma Regression (Australian insurance claims 2004-2005)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/negative_binomial.html" class="sidebar-item-text sidebar-link">Negative Binomial Regression (Students absence example)</a>
+  <a href="../notebooks/negative_binomial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Negative Binomial Regression (Students absence example)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/count_roaches.html" class="sidebar-item-text sidebar-link">Count Regression with Variable Exposure</a>
+  <a href="../notebooks/count_roaches.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Count Regression with Variable Exposure</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/beta_regression.html" class="sidebar-item-text sidebar-link">Beta Regression</a>
+  <a href="../notebooks/beta_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Beta Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/categorical_regression.html" class="sidebar-item-text sidebar-link">Categorical Regression</a>
+  <a href="../notebooks/categorical_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Categorical Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/circular_regression.html" class="sidebar-item-text sidebar-link">Circular Regression</a>
+  <a href="../notebooks/circular_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Circular Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/quantile_regression.html" class="sidebar-item-text sidebar-link">Quantile Regression</a>
+  <a href="../notebooks/quantile_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Quantile Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/mister_p.html" class="sidebar-item-text sidebar-link">Multilevel Regression and Post-stratification</a>
+  <a href="../notebooks/mister_p.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multilevel Regression and Post-stratification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/ordinal_regression.html" class="sidebar-item-text sidebar-link">Ordinal Regression</a>
+  <a href="../notebooks/ordinal_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ordinal Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/zero_inflated_regression.html" class="sidebar-item-text sidebar-link">Zero inflated models</a>
+  <a href="../notebooks/zero_inflated_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Zero inflated models</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="false">More advanced models</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">More advanced models</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/distributional_models.html" class="sidebar-item-text sidebar-link">Distributional models</a>
+  <a href="../notebooks/distributional_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Distributional models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/hsgp_1d.html" class="sidebar-item-text sidebar-link">Gaussian Processes</a>
+  <a href="../notebooks/hsgp_1d.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gaussian Processes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/hsgp_2d.html" class="sidebar-item-text sidebar-link">Gaussian Processes in 2D</a>
+  <a href="../notebooks/hsgp_2d.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gaussian Processes in 2D</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/survival_model.html" class="sidebar-item-text sidebar-link">Survival Models</a>
+  <a href="../notebooks/survival_model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Survival Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/orthogonal_polynomial_reg.html" class="sidebar-item-text sidebar-link">Orthogonal Polynomial regression</a>
+  <a href="../notebooks/orthogonal_polynomial_reg.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Orthogonal Polynomial regression</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">Tools to interpret model outputs</a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Tools to interpret model outputs</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/plot_predictions.html" class="sidebar-item-text sidebar-link">Plot Conditional Adjusted Predictions</a>
+  <a href="../notebooks/plot_predictions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Plot Conditional Adjusted Predictions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/plot_comparisons.html" class="sidebar-item-text sidebar-link">Plot Comparisons</a>
+  <a href="../notebooks/plot_comparisons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Plot Comparisons</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/plot_slopes.html" class="sidebar-item-text sidebar-link active">Plot Slopes</a>
+  <a href="../notebooks/plot_slopes.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Plot Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/interpret_advanced_usage.html" class="sidebar-item-text sidebar-link">Interpret Advanced Usage</a>
+  <a href="../notebooks/interpret_advanced_usage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Interpret Advanced Usage</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="false">Alternative sampling backends</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Alternative sampling backends</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/alternative_samplers.html" class="sidebar-item-text sidebar-link">Alternative sampling backends</a>
+  <a href="../notebooks/alternative_samplers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Alternative sampling backends</span></a>
   </div>
 </li>
       </ul>
@@ -431,15 +483,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     </ul>
     </div>
 </nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#plot-slopes" id="toc-plot-slopes" class="nav-link active" data-scroll-target="#plot-slopes">Plot Slopes</a>
-  <ul class="collapse">
-  <li><a href="#interpretation-of-regression-coefficients" id="toc-interpretation-of-regression-coefficients" class="nav-link" data-scroll-target="#interpretation-of-regression-coefficients">Interpretation of Regression Coefficients</a>
+  <li><a href="#interpretation-of-regression-coefficients" id="toc-interpretation-of-regression-coefficients" class="nav-link active" data-scroll-target="#interpretation-of-regression-coefficients">Interpretation of Regression Coefficients</a>
   <ul class="collapse">
   <li><a href="#interpreting-interaction-effects" id="toc-interpreting-interaction-effects" class="nav-link" data-scroll-target="#interpreting-interaction-effects">Interpreting interaction effects</a></li>
   </ul></li>
@@ -454,17 +505,31 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <li><a href="#interpreting-coefficients-as-an-elasticity" id="toc-interpreting-coefficients-as-an-elasticity" class="nav-link" data-scroll-target="#interpreting-coefficients-as-an-elasticity">Interpreting coefficients as an elasticity</a></li>
   <li><a href="#categorical-covariates" id="toc-categorical-covariates" class="nav-link" data-scroll-target="#categorical-covariates">Categorical covariates</a></li>
   </ul></li>
-  </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/plot_predictions.html">Tools to interpret model outputs</a></li><li class="breadcrumb-item"><a href="../notebooks/plot_slopes.html">Plot Slopes</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Plot Slopes</h1>
+</div>
 
 
-<section id="plot-slopes" class="level1">
-<h1>Plot Slopes</h1>
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
 <p>Bambi’s sub-package <code>interpret</code> features a set of functions to help interpret complex regression models. The sub-package is inspired by the R package <a href="https://vincentarelbundock.github.io/marginaleffects/articles/predictions.html#conditional-adjusted-predictions-plot">marginaleffects</a>. In this notebook we will discuss two functions <code>slopes</code> and <code>plot_slopes</code>. These two functions allow the modeler to easier interpret slopes, either by a inspecting a summary output or plotting them.</p>
 <p>Below, it is described why estimating the slope of the prediction function is useful in interpreting generalized linear models (GLMs), how this methodology is implemented in Bambi, and how to use <code>slopes</code> and <code>plot_slopes</code>. It is assumed that the reader is familiar with the basics of GLMs. If not, refer to the Bambi <a href="https://bambinos.github.io/bambi/notebooks/how_bambi_works.html#Link-functions">Basic Building Blocks</a> example.</p>
 <section id="interpretation-of-regression-coefficients" class="level2">
@@ -507,7 +572,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>In the case of (1) and (2) above, Bambi assembles all pairwise combinations (transitions) of <span class="math inline">\(w\)</span> and <span class="math inline">\(c\)</span> into a new “hypothetical” dataset. In (3), Bambi uses the original <span class="math inline">\(c\)</span>, and adds a small amount <span class="math inline">\(\epsilon\)</span> to each unit of observation’s <span class="math inline">\(w\)</span>. In each scenario, predictions are made on the data using the fitted model. Once the predictions are made, comparisons are computed using the posterior samples by taking the difference in the predicted outcome for each pair of transitions and dividing by <span class="math inline">\(\epsilon\)</span>. The average of these slopes is the average predictive slopes.</p>
 <p>For variables <span class="math inline">\(w\)</span> with a string or categorical data type, the <code>comparisons</code> function is called to compute the expected difference in group means. Please refer to the <a href="https://bambinos.github.io/bambi/notebooks/plot_comparisons.html">comparisons</a> documentation for more details.</p>
 <p>Below, we present several examples showing how to use Bambi to perform these computations for us, and to return either a summary dataframe, or a visualization of the results.</p>
-<div class="cell" data-execution_count="1">
+<div id="cell-6" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -532,86 +597,87 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><code>educ</code>: years of education of the household head</li>
 </ul>
 <p>First, a logistic regression model with no interactions is fit to the data. Subsequently, to demonstrate the benefits of <code>plot_slopes</code> in interpreting interactions, we will fit a logistic regression model with an interaction term.</p>
-<div class="cell" data-execution_count="2">
+<div id="cell-8" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">"http://www.stat.columbia.edu/~gelman/arm/examples/arsenic/wells.dat"</span>, sep<span class="op">=</span><span class="st">" "</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"switch"</span>] <span class="op">=</span> pd.Categorical(data[<span class="st">"switch"</span>])</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"dist100"</span>] <span class="op">=</span> data[<span class="st">"dist"</span>] <span class="op">/</span> <span class="dv">100</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"educ4"</span>] <span class="op">=</span> data[<span class="st">"educ"</span>] <span class="op">/</span> <span class="dv">4</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>switch</th>
-      <th>arsenic</th>
-      <th>dist</th>
-      <th>assoc</th>
-      <th>educ</th>
-      <th>dist100</th>
-      <th>educ4</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>2.36</td>
-      <td>16.826000</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0.16826</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>1</td>
-      <td>0.71</td>
-      <td>47.321999</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0.47322</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0</td>
-      <td>2.07</td>
-      <td>20.966999</td>
-      <td>0</td>
-      <td>10</td>
-      <td>0.20967</td>
-      <td>2.5</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>1</td>
-      <td>1.15</td>
-      <td>21.486000</td>
-      <td>0</td>
-      <td>12</td>
-      <td>0.21486</td>
-      <td>3.0</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>1</td>
-      <td>1.10</td>
-      <td>40.874001</td>
-      <td>1</td>
-      <td>14</td>
-      <td>0.40874</td>
-      <td>3.5</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">switch</th>
+<th data-quarto-table-cell-role="th">arsenic</th>
+<th data-quarto-table-cell-role="th">dist</th>
+<th data-quarto-table-cell-role="th">assoc</th>
+<th data-quarto-table-cell-role="th">educ</th>
+<th data-quarto-table-cell-role="th">dist100</th>
+<th data-quarto-table-cell-role="th">educ4</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1</td>
+<td>1</td>
+<td>2.36</td>
+<td>16.826000</td>
+<td>0</td>
+<td>0</td>
+<td>0.16826</td>
+<td>0.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2</td>
+<td>1</td>
+<td>0.71</td>
+<td>47.321999</td>
+<td>0</td>
+<td>0</td>
+<td>0.47322</td>
+<td>0.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3</td>
+<td>0</td>
+<td>2.07</td>
+<td>20.966999</td>
+<td>0</td>
+<td>10</td>
+<td>0.20967</td>
+<td>2.5</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4</td>
+<td>1</td>
+<td>1.15</td>
+<td>21.486000</td>
+<td>0</td>
+<td>12</td>
+<td>0.21486</td>
+<td>3.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">5</td>
+<td>1</td>
+<td>1.10</td>
+<td>40.874001</td>
+<td>1</td>
+<td>14</td>
+<td>0.40874</td>
+<td>3.5</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="3">
+<div id="cell-9" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>well_model <span class="op">=</span> bmb.Model(</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"switch ~ dist100 + arsenic + educ4"</span>,</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    data,</span>
@@ -633,7 +699,7 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"101f64f53aac4d8e95c4bf0ec36a7b2e","version_major":2,"version_minor":0}
+{"model_id":"101f64f53aac4d8e95c4bf0ec36a7b2e","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -651,7 +717,7 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <p>First, an example of scenario 1 (user provided values) is given below. In both <code>plot_slopes</code> and <code>slopes</code>, <span class="math inline">\(w\)</span> and <span class="math inline">\(c\)</span> are represented by <code>wrt</code> (with respect to) and <code>conditional</code>, respectively. The modeler has the ability to pass their own values for <code>wrt</code> and <code>conditional</code> by using a dictionary where the key-value pairs are the covariate and value(s) of interest.</p>
 <p>For example, if we wanted to compute the slope of the probability of switching wells for a typical <code>arsenic</code> value of <span class="math inline">\(1.3\)</span> conditional on a range of <code>dist</code> and <code>educ</code> values, we would pass the following dictionary in the code block below. By default, for <span class="math inline">\(w\)</span>, Bambi compares <span class="math inline">\(w^\text{value}\)</span> to <span class="math inline">\(w^{\text{value} + \epsilon}\)</span> where <span class="math inline">\(\epsilon =\)</span> <code>1e-4</code>. However, the value for <span class="math inline">\(\epsilon\)</span> can be changed by passing a value to the argument <code>eps</code>.</p>
 <p>Thus, in this example, <span class="math inline">\(w^\text{value} = 1.3\)</span> and <span class="math inline">\(w^{\text{value} + \epsilon} = 1.3001\)</span>. The user is not limited to passing a list for the values. A <code>np.array</code> can also be used. Furthermore, Bambi by default, maps the order of the dict keys to the main, group, and panel of the matplotlib figure. Below, since <code>dist100</code> is the first key, this is used for the x-axis, and <code>educ4</code> is used for the group (color). If a third key was passed, it would be used for the panel (facet).</p>
-<div class="cell" data-execution_count="4">
+<div id="cell-11" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    well_model,</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    well_idata,</span>
@@ -661,12 +727,16 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>fig.axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Slope of Well Switching Probability"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="plot_slopes_files/figure-html/cell-5-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="plot_slopes_files/figure-html/cell-5-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>The plot above shows that, for example, conditional on <code>dist100</code> <span class="math inline">\(= 0.2\)</span> and <code>educ4</code> <span class="math inline">\(= 1.0\)</span> a unit increase in <code>arsenic</code> is associated with households being <span class="math inline">\(11\)</span>% less likely to switch wells. Notice that even though we fit a logistic regression model where the coefficients are on the log-odds scale, the <code>slopes</code> function returns the slope on the probability scale. Thus, we can interpret the y-axis (slope) as the expected change in the probability of switching wells for a unit increase in <code>arsenic</code> conditional on the specified covariates.</p>
 <p><code>slopes</code> can be called directly to view a summary dataframe that includes the term name, estimate type (discussed in detail in the <em>interpreting coefficients as an elasticity</em> section), values <span class="math inline">\(w\)</span> used to compute the estimate, the specified conditional covariates <span class="math inline">\(c\)</span>, and the expected slope of the outcome with the uncertainty interval (by default the <span class="math inline">\(94\)</span>% highest density interval is computed).</p>
-<div class="cell" data-execution_count="5">
+<div id="cell-13" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.slopes(</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    well_model,</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    well_idata,</span>
@@ -677,125 +747,126 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        }</span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="5">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>term</th>
-      <th>estimate_type</th>
-      <th>value</th>
-      <th>dist100</th>
-      <th>educ4</th>
-      <th>estimate</th>
-      <th>lower_3.0%</th>
-      <th>upper_97.0%</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(1.5, 1.5001)</td>
-      <td>0.2</td>
-      <td>1.0</td>
-      <td>-0.110797</td>
-      <td>-0.128775</td>
-      <td>-0.092806</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(1.5, 1.5001)</td>
-      <td>0.2</td>
-      <td>1.2</td>
-      <td>-0.109867</td>
-      <td>-0.126725</td>
-      <td>-0.091065</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(1.5, 1.5001)</td>
-      <td>0.2</td>
-      <td>2.0</td>
-      <td>-0.105618</td>
-      <td>-0.122685</td>
-      <td>-0.088383</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(1.5, 1.5001)</td>
-      <td>0.5</td>
-      <td>1.0</td>
-      <td>-0.116087</td>
-      <td>-0.134965</td>
-      <td>-0.096843</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(1.5, 1.5001)</td>
-      <td>0.5</td>
-      <td>1.2</td>
-      <td>-0.115632</td>
-      <td>-0.134562</td>
-      <td>-0.096543</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(1.5, 1.5001)</td>
-      <td>0.5</td>
-      <td>2.0</td>
-      <td>-0.113140</td>
-      <td>-0.130448</td>
-      <td>-0.093209</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(1.5, 1.5001)</td>
-      <td>0.8</td>
-      <td>1.0</td>
-      <td>-0.117262</td>
-      <td>-0.136850</td>
-      <td>-0.098549</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(1.5, 1.5001)</td>
-      <td>0.8</td>
-      <td>1.2</td>
-      <td>-0.117347</td>
-      <td>-0.136475</td>
-      <td>-0.098044</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(1.5, 1.5001)</td>
-      <td>0.8</td>
-      <td>2.0</td>
-      <td>-0.116957</td>
-      <td>-0.135079</td>
-      <td>-0.096476</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">term</th>
+<th data-quarto-table-cell-role="th">estimate_type</th>
+<th data-quarto-table-cell-role="th">value</th>
+<th data-quarto-table-cell-role="th">dist100</th>
+<th data-quarto-table-cell-role="th">educ4</th>
+<th data-quarto-table-cell-role="th">estimate</th>
+<th data-quarto-table-cell-role="th">lower_3.0%</th>
+<th data-quarto-table-cell-role="th">upper_97.0%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(1.5, 1.5001)</td>
+<td>0.2</td>
+<td>1.0</td>
+<td>-0.110797</td>
+<td>-0.128775</td>
+<td>-0.092806</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(1.5, 1.5001)</td>
+<td>0.2</td>
+<td>1.2</td>
+<td>-0.109867</td>
+<td>-0.126725</td>
+<td>-0.091065</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(1.5, 1.5001)</td>
+<td>0.2</td>
+<td>2.0</td>
+<td>-0.105618</td>
+<td>-0.122685</td>
+<td>-0.088383</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(1.5, 1.5001)</td>
+<td>0.5</td>
+<td>1.0</td>
+<td>-0.116087</td>
+<td>-0.134965</td>
+<td>-0.096843</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(1.5, 1.5001)</td>
+<td>0.5</td>
+<td>1.2</td>
+<td>-0.115632</td>
+<td>-0.134562</td>
+<td>-0.096543</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(1.5, 1.5001)</td>
+<td>0.5</td>
+<td>2.0</td>
+<td>-0.113140</td>
+<td>-0.130448</td>
+<td>-0.093209</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(1.5, 1.5001)</td>
+<td>0.8</td>
+<td>1.0</td>
+<td>-0.117262</td>
+<td>-0.136850</td>
+<td>-0.098549</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(1.5, 1.5001)</td>
+<td>0.8</td>
+<td>1.2</td>
+<td>-0.117347</td>
+<td>-0.136475</td>
+<td>-0.098044</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(1.5, 1.5001)</td>
+<td>0.8</td>
+<td>2.0</td>
+<td>-0.116957</td>
+<td>-0.135079</td>
+<td>-0.096476</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
@@ -804,7 +875,7 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <section id="multiple-slope-values" class="level3">
 <h3 class="anchored" data-anchor-id="multiple-slope-values">Multiple slope values</h3>
 <p>Users can also compute slopes on multiple values for <code>wrt</code>. For example, if we want to compute the slope of <span class="math inline">\(y\)</span> with respect to <code>arsenic</code> <span class="math inline">\(= 1.5\)</span>, <span class="math inline">\(2.0\)</span>, and <span class="math inline">\(2.5\)</span>, simply pass a list or numpy array as the dictionary values for <code>wrt</code>. Keeping the conditional covariate and values the same, the following slope estimates are computed below.</p>
-<div class="cell" data-execution_count="6">
+<div id="cell-16" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>multiple_values <span class="op">=</span> bmb.interpret.slopes(</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    well_model,</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    well_idata,</span>
@@ -817,92 +888,93 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>multiple_values.head(<span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="6">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>term</th>
-      <th>estimate_type</th>
-      <th>value</th>
-      <th>dist100</th>
-      <th>educ4</th>
-      <th>estimate</th>
-      <th>lower_3.0%</th>
-      <th>upper_97.0%</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(1.5, 1.5001)</td>
-      <td>0.2</td>
-      <td>1.0</td>
-      <td>-0.110797</td>
-      <td>-0.128775</td>
-      <td>-0.092806</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(2.0, 2.0001)</td>
-      <td>0.2</td>
-      <td>1.0</td>
-      <td>-0.109867</td>
-      <td>-0.126725</td>
-      <td>-0.091065</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(2.5, 2.5001)</td>
-      <td>0.2</td>
-      <td>1.0</td>
-      <td>-0.105618</td>
-      <td>-0.122685</td>
-      <td>-0.088383</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(1.5, 1.5001)</td>
-      <td>0.2</td>
-      <td>1.2</td>
-      <td>-0.116087</td>
-      <td>-0.134965</td>
-      <td>-0.096843</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(2.0, 2.0001)</td>
-      <td>0.2</td>
-      <td>1.2</td>
-      <td>-0.115632</td>
-      <td>-0.134562</td>
-      <td>-0.096543</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(2.5, 2.5001)</td>
-      <td>0.2</td>
-      <td>1.2</td>
-      <td>-0.113140</td>
-      <td>-0.130448</td>
-      <td>-0.093209</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">term</th>
+<th data-quarto-table-cell-role="th">estimate_type</th>
+<th data-quarto-table-cell-role="th">value</th>
+<th data-quarto-table-cell-role="th">dist100</th>
+<th data-quarto-table-cell-role="th">educ4</th>
+<th data-quarto-table-cell-role="th">estimate</th>
+<th data-quarto-table-cell-role="th">lower_3.0%</th>
+<th data-quarto-table-cell-role="th">upper_97.0%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(1.5, 1.5001)</td>
+<td>0.2</td>
+<td>1.0</td>
+<td>-0.110797</td>
+<td>-0.128775</td>
+<td>-0.092806</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(2.0, 2.0001)</td>
+<td>0.2</td>
+<td>1.0</td>
+<td>-0.109867</td>
+<td>-0.126725</td>
+<td>-0.091065</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(2.5, 2.5001)</td>
+<td>0.2</td>
+<td>1.0</td>
+<td>-0.105618</td>
+<td>-0.122685</td>
+<td>-0.088383</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(1.5, 1.5001)</td>
+<td>0.2</td>
+<td>1.2</td>
+<td>-0.116087</td>
+<td>-0.134965</td>
+<td>-0.096843</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(2.0, 2.0001)</td>
+<td>0.2</td>
+<td>1.2</td>
+<td>-0.115632</td>
+<td>-0.134562</td>
+<td>-0.096543</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(2.5, 2.5001)</td>
+<td>0.2</td>
+<td>1.2</td>
+<td>-0.113140</td>
+<td>-0.130448</td>
+<td>-0.093209</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
@@ -911,7 +983,7 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <section id="conditional-slopes" class="level3">
 <h3 class="anchored" data-anchor-id="conditional-slopes">Conditional slopes</h3>
 <p>As stated in the <em>interpreting interaction effects</em> section, interpreting coefficients of multiple interaction terms can be difficult and cumbersome. Thus, <code>plot_slopes</code> provides an effective way to visualize the conditional slopes of the interaction effects. Below, we will use the same well switching dataset, but with interaction terms. Specifically, one interaction is added between <code>dist100</code> and <code>educ4</code>, and another between <code>arsenic</code> and <code>educ4</code>.</p>
-<div class="cell" data-execution_count="7">
+<div id="cell-19" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>well_model_interact <span class="op">=</span> bmb.Model(</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"switch ~ dist100 + arsenic + educ4 + dist100:educ4 + arsenic:educ4"</span>,</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>data,</span>
@@ -934,7 +1006,7 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"1ab962ebdd2b4fff8a0a716be8fef636","version_major":2,"version_minor":0}
+{"model_id":"1ab962ebdd2b4fff8a0a716be8fef636","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -947,110 +1019,111 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <pre><code>Sampling 4 chains for 500 tune and 500 draw iterations (2_000 + 2_000 draws total) took 13 seconds.</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="8">
+<div id="cell-20" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># summary of coefficients</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>az.summary(well_idata_interact)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="8">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>mean</th>
-      <th>sd</th>
-      <th>hdi_3%</th>
-      <th>hdi_97%</th>
-      <th>mcse_mean</th>
-      <th>mcse_sd</th>
-      <th>ess_bulk</th>
-      <th>ess_tail</th>
-      <th>r_hat</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>Intercept</th>
-      <td>-0.100</td>
-      <td>0.126</td>
-      <td>-0.308</td>
-      <td>0.155</td>
-      <td>0.004</td>
-      <td>0.003</td>
-      <td>1249.0</td>
-      <td>1350.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>arsenic</th>
-      <td>-0.396</td>
-      <td>0.064</td>
-      <td>-0.505</td>
-      <td>-0.267</td>
-      <td>0.002</td>
-      <td>0.001</td>
-      <td>1051.0</td>
-      <td>938.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>arsenic:educ4</th>
-      <td>-0.079</td>
-      <td>0.045</td>
-      <td>-0.162</td>
-      <td>0.006</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>1072.0</td>
-      <td>1160.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>dist100</th>
-      <td>1.321</td>
-      <td>0.181</td>
-      <td>1.011</td>
-      <td>1.681</td>
-      <td>0.005</td>
-      <td>0.004</td>
-      <td>1105.0</td>
-      <td>1101.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>dist100:educ4</th>
-      <td>-0.331</td>
-      <td>0.109</td>
-      <td>-0.539</td>
-      <td>-0.133</td>
-      <td>0.003</td>
-      <td>0.002</td>
-      <td>1072.0</td>
-      <td>1056.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>educ4</th>
-      <td>0.101</td>
-      <td>0.082</td>
-      <td>-0.054</td>
-      <td>0.251</td>
-      <td>0.003</td>
-      <td>0.002</td>
-      <td>1049.0</td>
-      <td>1062.0</td>
-      <td>1.0</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">sd</th>
+<th data-quarto-table-cell-role="th">hdi_3%</th>
+<th data-quarto-table-cell-role="th">hdi_97%</th>
+<th data-quarto-table-cell-role="th">mcse_mean</th>
+<th data-quarto-table-cell-role="th">mcse_sd</th>
+<th data-quarto-table-cell-role="th">ess_bulk</th>
+<th data-quarto-table-cell-role="th">ess_tail</th>
+<th data-quarto-table-cell-role="th">r_hat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Intercept</td>
+<td>-0.100</td>
+<td>0.126</td>
+<td>-0.308</td>
+<td>0.155</td>
+<td>0.004</td>
+<td>0.003</td>
+<td>1249.0</td>
+<td>1350.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">arsenic</td>
+<td>-0.396</td>
+<td>0.064</td>
+<td>-0.505</td>
+<td>-0.267</td>
+<td>0.002</td>
+<td>0.001</td>
+<td>1051.0</td>
+<td>938.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">arsenic:educ4</td>
+<td>-0.079</td>
+<td>0.045</td>
+<td>-0.162</td>
+<td>0.006</td>
+<td>0.001</td>
+<td>0.001</td>
+<td>1072.0</td>
+<td>1160.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">dist100</td>
+<td>1.321</td>
+<td>0.181</td>
+<td>1.011</td>
+<td>1.681</td>
+<td>0.005</td>
+<td>0.004</td>
+<td>1105.0</td>
+<td>1101.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">dist100:educ4</td>
+<td>-0.331</td>
+<td>0.109</td>
+<td>-0.539</td>
+<td>-0.133</td>
+<td>0.003</td>
+<td>0.002</td>
+<td>1072.0</td>
+<td>1056.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">educ4</td>
+<td>0.101</td>
+<td>0.082</td>
+<td>-0.054</td>
+<td>0.251</td>
+<td>0.003</td>
+<td>0.002</td>
+<td>1049.0</td>
+<td>1062.0</td>
+<td>1.0</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
 <p>The coefficients of the linear model are shown in the table above. The interaction coefficents indicate the slope varies in a continuous fashion with the continuous variable.</p>
 <p>A negative value for <code>arsenic:dist100</code> indicates that the “effect” of arsenic on the outcome is less negative as distance from the well increases. Similarly, a negative value for <code>arsenic:educ4</code> indicates that the “effect” of arsenic on the outcome is more negative as education increases. Remember, these coefficients are still on the logit scale. Furthermore, as more variables and interaction terms are added to the model, interpreting these coefficients becomes more difficult.</p>
 <p>Thus, lets use <code>plot_slopes</code> to visually see how the slope changes with respect to <code>arsenic</code> conditional on <code>dist100</code> and <code>educ4</code> changing. Notice in the code block below how parameters are passed to the <code>subplot_kwargs</code> and <code>fig_kwargs</code> arguments. At times, it can be useful to pass specific <code>group</code> and <code>panel</code> arguments to aid in the interpretation of the plot. Therefore, <code>subplot_kwargs</code> allows the user to manipulate the plotting by passing a dictionary where the keys are <code>{"main": ..., "group": ..., "panel": ...}</code> and the values are the names of the covariates to be plotted. <code>fig_kwargs</code> are figure level key word arguments such as <code>figsize</code> and <code>sharey</code>.</p>
-<div class="cell" data-execution_count="9">
+<div id="cell-22" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -1067,15 +1140,19 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <pre><code>Default computed for wrt variable: arsenic</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="plot_slopes_files/figure-html/cell-10-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="plot_slopes_files/figure-html/cell-10-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Before we talk about the plot, you will notice that some messages have been logged to the console. By default <code>interpret</code> is <em>verbose</em> and logs a message to the console if a default value is computed for covariates in <code>conditional</code> and <code>wrt</code>. This is useful because unless the documentation is read, it can be difficult to tell which covariates are having default values computed for. Thus, Bambi has a config file <code>bmb.config["INTERPRET_VERBOSE"]</code> where we can specify whether or not to log messages. By default, this is set to true. To turn off logging, set <code>bmb.config["INTERPRET_VERBOSE"] = False</code>. From here on, we will turn off logging.</p>
 <p>With interaction terms now defined, it can be seen how the slope of the outcome with respect to <code>arsenic</code> differ depending on the value of <code>educ4</code>. Especially in the case of <code>educ4</code> <span class="math inline">\(= 4.25\)</span>, the slope is more “constant”, but with greater uncertainty. Lets compare this with the model that does not include any interaction terms.</p>
-<div class="cell" data-execution_count="10">
+<div id="cell-24" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>bmb.config[<span class="st">"INTERPRET_VERBOSE"</span>] <span class="op">=</span> <span class="va">False</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="11">
+<div id="cell-25" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    well_model,</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    well_idata,</span>
@@ -1089,7 +1166,11 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    legend<span class="op">=</span><span class="va">False</span></span>
 <span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="plot_slopes_files/figure-html/cell-12-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="plot_slopes_files/figure-html/cell-12-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>For the non-interaction model, conditional on a range of values for <code>educ4</code> and <code>dist100</code>, the slopes of the outcome are nearly identical.</p>
@@ -1097,7 +1178,7 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <section id="unit-level-slopes" class="level3">
 <h3 class="anchored" data-anchor-id="unit-level-slopes">Unit level slopes</h3>
 <p>Evaluating average predictive slopes at central values for the conditional covariates <span class="math inline">\(c\)</span> can be problematic when the inputs have a large variance since no single central value (mean, median, etc.) is representative of the covariate. This is especially true when <span class="math inline">\(c\)</span> exhibits bi or multimodality. Thus, it may be desireable to use the empirical distribution of <span class="math inline">\(c\)</span> to compute the predictive slopes, and then average over a specific or set of covariates to obtain average slopes. To achieve unit level slopes, do not pass a parameter into <code>conditional</code> and or specify <code>None</code>.</p>
-<div class="cell" data-execution_count="12">
+<div id="cell-28" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>unit_level <span class="op">=</span> bmb.interpret.slopes(</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -1112,261 +1193,263 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <pre><code>True</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="12">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>term</th>
-      <th>estimate_type</th>
-      <th>value</th>
-      <th>dist100</th>
-      <th>educ4</th>
-      <th>estimate</th>
-      <th>lower_3.0%</th>
-      <th>upper_97.0%</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(2.36, 2.3601)</td>
-      <td>0.16826</td>
-      <td>0.00</td>
-      <td>-0.083830</td>
-      <td>-0.103303</td>
-      <td>-0.059619</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(0.71, 0.7101)</td>
-      <td>0.47322</td>
-      <td>0.00</td>
-      <td>-0.097236</td>
-      <td>-0.125494</td>
-      <td>-0.069691</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(2.07, 2.0701)</td>
-      <td>0.20967</td>
-      <td>2.50</td>
-      <td>-0.117659</td>
-      <td>-0.141282</td>
-      <td>-0.093521</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(1.15, 1.1501)</td>
-      <td>0.21486</td>
-      <td>3.00</td>
-      <td>-0.150092</td>
-      <td>-0.188730</td>
-      <td>-0.101029</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(1.1, 1.1001)</td>
-      <td>0.40874</td>
-      <td>3.50</td>
-      <td>-0.160705</td>
-      <td>-0.211825</td>
-      <td>-0.101781</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(3.9, 3.9001)</td>
-      <td>0.69518</td>
-      <td>2.25</td>
-      <td>-0.073752</td>
-      <td>-0.080340</td>
-      <td>-0.067324</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(2.97, 2.9701000000000004)</td>
-      <td>0.80711</td>
-      <td>1.00</td>
-      <td>-0.108058</td>
-      <td>-0.123407</td>
-      <td>-0.092499</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(3.24, 3.2401000000000004)</td>
-      <td>0.55146</td>
-      <td>2.50</td>
-      <td>-0.087782</td>
-      <td>-0.097920</td>
-      <td>-0.077981</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(3.28, 3.2801)</td>
-      <td>0.52647</td>
-      <td>0.00</td>
-      <td>-0.086990</td>
-      <td>-0.106773</td>
-      <td>-0.065548</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>(2.52, 2.5201000000000002)</td>
-      <td>0.75072</td>
-      <td>0.00</td>
-      <td>-0.098481</td>
-      <td>-0.125366</td>
-      <td>-0.066855</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">term</th>
+<th data-quarto-table-cell-role="th">estimate_type</th>
+<th data-quarto-table-cell-role="th">value</th>
+<th data-quarto-table-cell-role="th">dist100</th>
+<th data-quarto-table-cell-role="th">educ4</th>
+<th data-quarto-table-cell-role="th">estimate</th>
+<th data-quarto-table-cell-role="th">lower_3.0%</th>
+<th data-quarto-table-cell-role="th">upper_97.0%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(2.36, 2.3601)</td>
+<td>0.16826</td>
+<td>0.00</td>
+<td>-0.083830</td>
+<td>-0.103303</td>
+<td>-0.059619</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(0.71, 0.7101)</td>
+<td>0.47322</td>
+<td>0.00</td>
+<td>-0.097236</td>
+<td>-0.125494</td>
+<td>-0.069691</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(2.07, 2.0701)</td>
+<td>0.20967</td>
+<td>2.50</td>
+<td>-0.117659</td>
+<td>-0.141282</td>
+<td>-0.093521</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(1.15, 1.1501)</td>
+<td>0.21486</td>
+<td>3.00</td>
+<td>-0.150092</td>
+<td>-0.188730</td>
+<td>-0.101029</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(1.1, 1.1001)</td>
+<td>0.40874</td>
+<td>3.50</td>
+<td>-0.160705</td>
+<td>-0.211825</td>
+<td>-0.101781</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(3.9, 3.9001)</td>
+<td>0.69518</td>
+<td>2.25</td>
+<td>-0.073752</td>
+<td>-0.080340</td>
+<td>-0.067324</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(2.97, 2.9701000000000004)</td>
+<td>0.80711</td>
+<td>1.00</td>
+<td>-0.108058</td>
+<td>-0.123407</td>
+<td>-0.092499</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(3.24, 3.2401000000000004)</td>
+<td>0.55146</td>
+<td>2.50</td>
+<td>-0.087782</td>
+<td>-0.097920</td>
+<td>-0.077981</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(3.28, 3.2801)</td>
+<td>0.52647</td>
+<td>0.00</td>
+<td>-0.086990</td>
+<td>-0.106773</td>
+<td>-0.065548</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>(2.52, 2.5201000000000002)</td>
+<td>0.75072</td>
+<td>0.00</td>
+<td>-0.098481</td>
+<td>-0.125366</td>
+<td>-0.066855</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="13">
+<div id="cell-29" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>well_model_interact.data.head(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="13">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>switch</th>
-      <th>arsenic</th>
-      <th>dist</th>
-      <th>assoc</th>
-      <th>educ</th>
-      <th>dist100</th>
-      <th>educ4</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>2.36</td>
-      <td>16.826000</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0.16826</td>
-      <td>0.00</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>1</td>
-      <td>0.71</td>
-      <td>47.321999</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0.47322</td>
-      <td>0.00</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0</td>
-      <td>2.07</td>
-      <td>20.966999</td>
-      <td>0</td>
-      <td>10</td>
-      <td>0.20967</td>
-      <td>2.50</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>1</td>
-      <td>1.15</td>
-      <td>21.486000</td>
-      <td>0</td>
-      <td>12</td>
-      <td>0.21486</td>
-      <td>3.00</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>1</td>
-      <td>1.10</td>
-      <td>40.874001</td>
-      <td>1</td>
-      <td>14</td>
-      <td>0.40874</td>
-      <td>3.50</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>1</td>
-      <td>3.90</td>
-      <td>69.517998</td>
-      <td>1</td>
-      <td>9</td>
-      <td>0.69518</td>
-      <td>2.25</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>1</td>
-      <td>2.97</td>
-      <td>80.710999</td>
-      <td>1</td>
-      <td>4</td>
-      <td>0.80711</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>1</td>
-      <td>3.24</td>
-      <td>55.146000</td>
-      <td>0</td>
-      <td>10</td>
-      <td>0.55146</td>
-      <td>2.50</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>1</td>
-      <td>3.28</td>
-      <td>52.646999</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0.52647</td>
-      <td>0.00</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>1</td>
-      <td>2.52</td>
-      <td>75.071999</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0.75072</td>
-      <td>0.00</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">switch</th>
+<th data-quarto-table-cell-role="th">arsenic</th>
+<th data-quarto-table-cell-role="th">dist</th>
+<th data-quarto-table-cell-role="th">assoc</th>
+<th data-quarto-table-cell-role="th">educ</th>
+<th data-quarto-table-cell-role="th">dist100</th>
+<th data-quarto-table-cell-role="th">educ4</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1</td>
+<td>1</td>
+<td>2.36</td>
+<td>16.826000</td>
+<td>0</td>
+<td>0</td>
+<td>0.16826</td>
+<td>0.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2</td>
+<td>1</td>
+<td>0.71</td>
+<td>47.321999</td>
+<td>0</td>
+<td>0</td>
+<td>0.47322</td>
+<td>0.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3</td>
+<td>0</td>
+<td>2.07</td>
+<td>20.966999</td>
+<td>0</td>
+<td>10</td>
+<td>0.20967</td>
+<td>2.50</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4</td>
+<td>1</td>
+<td>1.15</td>
+<td>21.486000</td>
+<td>0</td>
+<td>12</td>
+<td>0.21486</td>
+<td>3.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">5</td>
+<td>1</td>
+<td>1.10</td>
+<td>40.874001</td>
+<td>1</td>
+<td>14</td>
+<td>0.40874</td>
+<td>3.50</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">6</td>
+<td>1</td>
+<td>3.90</td>
+<td>69.517998</td>
+<td>1</td>
+<td>9</td>
+<td>0.69518</td>
+<td>2.25</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">7</td>
+<td>1</td>
+<td>2.97</td>
+<td>80.710999</td>
+<td>1</td>
+<td>4</td>
+<td>0.80711</td>
+<td>1.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">8</td>
+<td>1</td>
+<td>3.24</td>
+<td>55.146000</td>
+<td>0</td>
+<td>10</td>
+<td>0.55146</td>
+<td>2.50</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">9</td>
+<td>1</td>
+<td>3.28</td>
+<td>52.646999</td>
+<td>1</td>
+<td>0</td>
+<td>0.52647</td>
+<td>0.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">10</td>
+<td>1</td>
+<td>2.52</td>
+<td>75.071999</td>
+<td>1</td>
+<td>0</td>
+<td>0.75072</td>
+<td>0.00</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
@@ -1374,7 +1457,7 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <section id="marginalizing-over-covariates" class="level4">
 <h4 class="anchored" data-anchor-id="marginalizing-over-covariates">Marginalizing over covariates</h4>
 <p>Since the empirical distrubution is used for computing the average predictive slopes, the same number of rows (<span class="math inline">\(3020\)</span>) is returned as the data used to fit the model. To average over a covariate, use the <code>average_by</code> argument. If <code>True</code> is passed, then <code>slopes</code> averages over all covariates. Else, if a single or list of covariates are passed, then <code>slopes</code> averages by the covariates passed.</p>
-<div class="cell" data-execution_count="14">
+<div id="cell-32" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.slopes(</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -1383,36 +1466,37 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="va">True</span></span>
 <span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="14">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>term</th>
-      <th>estimate_type</th>
-      <th>estimate</th>
-      <th>lower_3.0%</th>
-      <th>upper_97.0%</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>-0.110844</td>
-      <td>-0.134169</td>
-      <td>-0.086302</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">term</th>
+<th data-quarto-table-cell-role="th">estimate_type</th>
+<th data-quarto-table-cell-role="th">estimate</th>
+<th data-quarto-table-cell-role="th">lower_3.0%</th>
+<th data-quarto-table-cell-role="th">upper_97.0%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>-0.110844</td>
+<td>-0.134169</td>
+<td>-0.086302</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
 <p>The code block above is equivalent to taking the mean of the <code>estimate</code> and uncertainty columns. For example:</p>
-<div class="cell" data-execution_count="15">
+<div id="cell-34" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>unit_level[[<span class="st">"estimate"</span>, <span class="st">"lower_3.0%"</span>, <span class="st">"upper_97.0%"</span>]].mean()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="15">
 <pre><code>estimate      -0.110844
@@ -1425,7 +1509,7 @@ dtype: float64</code></pre>
 <section id="average-by-subgroups" class="level4">
 <h4 class="anchored" data-anchor-id="average-by-subgroups">Average by subgroups</h4>
 <p>Averaging over all covariates may not be desired, and you would rather average by a group or specific covariate. To perform averaging by subgroups, users can pass a single or list of covariates to <code>average_by</code> to average over specific covariates. For example, if we wanted to average by <code>educ4</code>:</p>
-<div class="cell" data-execution_count="16">
+<div id="cell-36" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># average by educ4</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>bmb.interpret.slopes(</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
@@ -1435,190 +1519,191 @@ dtype: float64</code></pre>
 <span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="st">"educ4"</span></span>
 <span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="16">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>term</th>
-      <th>estimate_type</th>
-      <th>educ4</th>
-      <th>estimate</th>
-      <th>lower_3.0%</th>
-      <th>upper_97.0%</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>0.00</td>
-      <td>-0.091847</td>
-      <td>-0.116890</td>
-      <td>-0.064127</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>0.25</td>
-      <td>-0.101129</td>
-      <td>-0.125250</td>
-      <td>-0.075227</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>0.50</td>
-      <td>-0.101583</td>
-      <td>-0.121680</td>
-      <td>-0.081013</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>0.75</td>
-      <td>-0.105501</td>
-      <td>-0.123085</td>
-      <td>-0.086949</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>1.00</td>
-      <td>-0.110082</td>
-      <td>-0.127725</td>
-      <td>-0.092328</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>1.25</td>
-      <td>-0.111864</td>
-      <td>-0.128894</td>
-      <td>-0.094192</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>1.50</td>
-      <td>-0.114416</td>
-      <td>-0.132123</td>
-      <td>-0.095338</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>1.75</td>
-      <td>-0.122075</td>
-      <td>-0.143268</td>
-      <td>-0.100941</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>2.00</td>
-      <td>-0.124711</td>
-      <td>-0.149062</td>
-      <td>-0.101160</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>2.25</td>
-      <td>-0.124916</td>
-      <td>-0.150870</td>
-      <td>-0.099147</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>2.50</td>
-      <td>-0.130269</td>
-      <td>-0.160280</td>
-      <td>-0.100108</td>
-    </tr>
-    <tr>
-      <th>11</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>2.75</td>
-      <td>-0.136928</td>
-      <td>-0.169772</td>
-      <td>-0.100540</td>
-    </tr>
-    <tr>
-      <th>12</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>3.00</td>
-      <td>-0.135619</td>
-      <td>-0.171182</td>
-      <td>-0.096698</td>
-    </tr>
-    <tr>
-      <th>13</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>3.25</td>
-      <td>-0.156415</td>
-      <td>-0.203887</td>
-      <td>-0.105919</td>
-    </tr>
-    <tr>
-      <th>14</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>3.50</td>
-      <td>-0.142054</td>
-      <td>-0.186528</td>
-      <td>-0.095787</td>
-    </tr>
-    <tr>
-      <th>15</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>3.75</td>
-      <td>-0.137817</td>
-      <td>-0.183458</td>
-      <td>-0.092731</td>
-    </tr>
-    <tr>
-      <th>16</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>4.00</td>
-      <td>-0.137608</td>
-      <td>-0.187025</td>
-      <td>-0.087608</td>
-    </tr>
-    <tr>
-      <th>17</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>4.25</td>
-      <td>-0.176076</td>
-      <td>-0.249957</td>
-      <td>-0.106476</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">term</th>
+<th data-quarto-table-cell-role="th">estimate_type</th>
+<th data-quarto-table-cell-role="th">educ4</th>
+<th data-quarto-table-cell-role="th">estimate</th>
+<th data-quarto-table-cell-role="th">lower_3.0%</th>
+<th data-quarto-table-cell-role="th">upper_97.0%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>0.00</td>
+<td>-0.091847</td>
+<td>-0.116890</td>
+<td>-0.064127</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>0.25</td>
+<td>-0.101129</td>
+<td>-0.125250</td>
+<td>-0.075227</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>0.50</td>
+<td>-0.101583</td>
+<td>-0.121680</td>
+<td>-0.081013</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>0.75</td>
+<td>-0.105501</td>
+<td>-0.123085</td>
+<td>-0.086949</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>1.00</td>
+<td>-0.110082</td>
+<td>-0.127725</td>
+<td>-0.092328</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>1.25</td>
+<td>-0.111864</td>
+<td>-0.128894</td>
+<td>-0.094192</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>1.50</td>
+<td>-0.114416</td>
+<td>-0.132123</td>
+<td>-0.095338</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>1.75</td>
+<td>-0.122075</td>
+<td>-0.143268</td>
+<td>-0.100941</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>2.00</td>
+<td>-0.124711</td>
+<td>-0.149062</td>
+<td>-0.101160</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>2.25</td>
+<td>-0.124916</td>
+<td>-0.150870</td>
+<td>-0.099147</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">10</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>2.50</td>
+<td>-0.130269</td>
+<td>-0.160280</td>
+<td>-0.100108</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>2.75</td>
+<td>-0.136928</td>
+<td>-0.169772</td>
+<td>-0.100540</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>3.00</td>
+<td>-0.135619</td>
+<td>-0.171182</td>
+<td>-0.096698</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">13</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>3.25</td>
+<td>-0.156415</td>
+<td>-0.203887</td>
+<td>-0.105919</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">14</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>3.50</td>
+<td>-0.142054</td>
+<td>-0.186528</td>
+<td>-0.095787</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">15</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>3.75</td>
+<td>-0.137817</td>
+<td>-0.183458</td>
+<td>-0.092731</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">16</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>4.00</td>
+<td>-0.137608</td>
+<td>-0.187025</td>
+<td>-0.087608</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">17</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>4.25</td>
+<td>-0.176076</td>
+<td>-0.249957</td>
+<td>-0.106476</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="17">
+<div id="cell-37" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># average by both educ4 and dist100</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>bmb.interpret.slopes(</span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
@@ -1628,141 +1713,142 @@ dtype: float64</code></pre>
 <span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span>[<span class="st">"educ4"</span>, <span class="st">"dist100"</span>]</span>
 <span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="17">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>term</th>
-      <th>estimate_type</th>
-      <th>educ4</th>
-      <th>dist100</th>
-      <th>estimate</th>
-      <th>lower_3.0%</th>
-      <th>upper_97.0%</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>0.00</td>
-      <td>0.00591</td>
-      <td>-0.085353</td>
-      <td>-0.106906</td>
-      <td>-0.058374</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>0.00</td>
-      <td>0.02409</td>
-      <td>-0.095671</td>
-      <td>-0.122071</td>
-      <td>-0.063162</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>0.00</td>
-      <td>0.02454</td>
-      <td>-0.056419</td>
-      <td>-0.065869</td>
-      <td>-0.046909</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>0.00</td>
-      <td>0.02791</td>
-      <td>-0.097036</td>
-      <td>-0.124305</td>
-      <td>-0.064259</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>0.00</td>
-      <td>0.03252</td>
-      <td>-0.075905</td>
-      <td>-0.094201</td>
-      <td>-0.055535</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>2992</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>4.00</td>
-      <td>1.13727</td>
-      <td>-0.069666</td>
-      <td>-0.095900</td>
-      <td>-0.047386</td>
-    </tr>
-    <tr>
-      <th>2993</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>4.00</td>
-      <td>1.14418</td>
-      <td>-0.124765</td>
-      <td>-0.177566</td>
-      <td>-0.078547</td>
-    </tr>
-    <tr>
-      <th>2994</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>4.00</td>
-      <td>1.25308</td>
-      <td>-0.155919</td>
-      <td>-0.225351</td>
-      <td>-0.091734</td>
-    </tr>
-    <tr>
-      <th>2995</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>4.00</td>
-      <td>1.67025</td>
-      <td>-0.160505</td>
-      <td>-0.230657</td>
-      <td>-0.084599</td>
-    </tr>
-    <tr>
-      <th>2996</th>
-      <td>arsenic</td>
-      <td>dydx</td>
-      <td>4.25</td>
-      <td>0.29633</td>
-      <td>-0.176076</td>
-      <td>-0.249957</td>
-      <td>-0.106476</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">term</th>
+<th data-quarto-table-cell-role="th">estimate_type</th>
+<th data-quarto-table-cell-role="th">educ4</th>
+<th data-quarto-table-cell-role="th">dist100</th>
+<th data-quarto-table-cell-role="th">estimate</th>
+<th data-quarto-table-cell-role="th">lower_3.0%</th>
+<th data-quarto-table-cell-role="th">upper_97.0%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>0.00</td>
+<td>0.00591</td>
+<td>-0.085353</td>
+<td>-0.106906</td>
+<td>-0.058374</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>0.00</td>
+<td>0.02409</td>
+<td>-0.095671</td>
+<td>-0.122071</td>
+<td>-0.063162</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>0.00</td>
+<td>0.02454</td>
+<td>-0.056419</td>
+<td>-0.065869</td>
+<td>-0.046909</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>0.00</td>
+<td>0.02791</td>
+<td>-0.097036</td>
+<td>-0.124305</td>
+<td>-0.064259</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>0.00</td>
+<td>0.03252</td>
+<td>-0.075905</td>
+<td>-0.094201</td>
+<td>-0.055535</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2992</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>4.00</td>
+<td>1.13727</td>
+<td>-0.069666</td>
+<td>-0.095900</td>
+<td>-0.047386</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2993</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>4.00</td>
+<td>1.14418</td>
+<td>-0.124765</td>
+<td>-0.177566</td>
+<td>-0.078547</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2994</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>4.00</td>
+<td>1.25308</td>
+<td>-0.155919</td>
+<td>-0.225351</td>
+<td>-0.091734</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2995</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>4.00</td>
+<td>1.67025</td>
+<td>-0.160505</td>
+<td>-0.230657</td>
+<td>-0.084599</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2996</td>
+<td>arsenic</td>
+<td>dydx</td>
+<td>4.25</td>
+<td>0.29633</td>
+<td>-0.176076</td>
+<td>-0.249957</td>
+<td>-0.106476</td>
+</tr>
+</tbody>
 </table>
+
 <p>2997 rows × 7 columns</p>
 </div>
 </div>
 </div>
 <p>It is still possible to use <code>plot_slopes</code> when passing an argument to <code>average_by</code>. In the plot below, the empirical distribution is used to compute unit level slopes with respect to <code>arsenic</code> and then averaged over <code>educ4</code> to obtain the average predictive slopes.</p>
-<div class="cell" data-execution_count="18">
+<div id="cell-39" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -1772,7 +1858,11 @@ dtype: float64</code></pre>
 <span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="plot_slopes_files/figure-html/cell-19-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="plot_slopes_files/figure-html/cell-19-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 </section>
@@ -1793,7 +1883,7 @@ dtype: float64</code></pre>
 </ul>
 <p><span class="math display">\[\frac{\partial \hat{y}}{\partial x_1} * x_1\]</span></p>
 <p>Below, each code cell shows the same model, and <code>wrt</code> and <code>conditional</code> argument, but with a different elasticity (<code>slope</code>) argument. By default, <code>dydx</code> (a derivative with no post-processing) is used.</p>
-<div class="cell" data-execution_count="19">
+<div id="cell-41" class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.slopes(</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -1803,35 +1893,36 @@ dtype: float64</code></pre>
 <span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="va">True</span></span>
 <span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="19">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>term</th>
-      <th>estimate_type</th>
-      <th>estimate</th>
-      <th>lower_3.0%</th>
-      <th>upper_97.0%</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>arsenic</td>
-      <td>eyex</td>
-      <td>-0.522681</td>
-      <td>-0.653823</td>
-      <td>-0.390103</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">term</th>
+<th data-quarto-table-cell-role="th">estimate_type</th>
+<th data-quarto-table-cell-role="th">estimate</th>
+<th data-quarto-table-cell-role="th">lower_3.0%</th>
+<th data-quarto-table-cell-role="th">upper_97.0%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>arsenic</td>
+<td>eyex</td>
+<td>-0.522681</td>
+<td>-0.653823</td>
+<td>-0.390103</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="20">
+<div id="cell-42" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.slopes(</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -1841,35 +1932,36 @@ dtype: float64</code></pre>
 <span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="va">True</span></span>
 <span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="20">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>term</th>
-      <th>estimate_type</th>
-      <th>estimate</th>
-      <th>lower_3.0%</th>
-      <th>upper_97.0%</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>arsenic</td>
-      <td>eydx</td>
-      <td>-0.285539</td>
-      <td>-0.352966</td>
-      <td>-0.217926</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">term</th>
+<th data-quarto-table-cell-role="th">estimate_type</th>
+<th data-quarto-table-cell-role="th">estimate</th>
+<th data-quarto-table-cell-role="th">lower_3.0%</th>
+<th data-quarto-table-cell-role="th">upper_97.0%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>arsenic</td>
+<td>eydx</td>
+<td>-0.285539</td>
+<td>-0.352966</td>
+<td>-0.217926</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="21">
+<div id="cell-43" class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.slopes(</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -1879,36 +1971,37 @@ dtype: float64</code></pre>
 <span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="va">True</span></span>
 <span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="21">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>term</th>
-      <th>estimate_type</th>
-      <th>estimate</th>
-      <th>lower_3.0%</th>
-      <th>upper_97.0%</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>arsenic</td>
-      <td>dyex</td>
-      <td>-0.16691</td>
-      <td>-0.200171</td>
-      <td>-0.132009</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">term</th>
+<th data-quarto-table-cell-role="th">estimate_type</th>
+<th data-quarto-table-cell-role="th">estimate</th>
+<th data-quarto-table-cell-role="th">lower_3.0%</th>
+<th data-quarto-table-cell-role="th">upper_97.0%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>arsenic</td>
+<td>dyex</td>
+<td>-0.16691</td>
+<td>-0.200171</td>
+<td>-0.132009</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
 <p><code>slope</code> is also an argument for <code>plot_slopes</code>. Below, we visualize the elasticity with respect to <code>arsenic</code> conditional on a range of <code>dist100</code> and <code>educ4</code> values (notice this is the same plot as in the <em>conditional slopes</em> section).</p>
-<div class="cell" data-execution_count="22">
+<div id="cell-45" class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -1923,20 +2016,24 @@ dtype: float64</code></pre>
 <span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    legend<span class="op">=</span><span class="va">False</span></span>
 <span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="plot_slopes_files/figure-html/cell-23-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="plot_slopes_files/figure-html/cell-23-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 </section>
 <section id="categorical-covariates" class="level3">
 <h3 class="anchored" data-anchor-id="categorical-covariates">Categorical covariates</h3>
 <p>As mentioned in the <em>computing slopes</em> section, if you pass a variable with a string or categorical data type, the <code>comparisons</code> function will be called to compute the expected difference in group means. Here, we fit the same interaction model as above, albeit, by specifying <code>educ4</code> as an ordinal data type.</p>
-<div class="cell" data-execution_count="23">
+<div id="cell-47" class="cell" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">"http://www.stat.columbia.edu/~gelman/arm/examples/arsenic/wells.dat"</span>, sep<span class="op">=</span><span class="st">" "</span>)</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"switch"</span>] <span class="op">=</span> pd.Categorical(data[<span class="st">"switch"</span>])</span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"dist100"</span>] <span class="op">=</span> data[<span class="st">"dist"</span>] <span class="op">/</span> <span class="dv">100</span></span>
 <span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"educ4"</span>] <span class="op">=</span> pd.Categorical(data[<span class="st">"educ"</span>] <span class="op">/</span> <span class="dv">4</span>, ordered<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="24">
+<div id="cell-48" class="cell" data-execution_count="24">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>well_model_interact <span class="op">=</span> bmb.Model(</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"switch ~ dist100 + arsenic + educ4 + dist100:educ4 + arsenic:educ4"</span>,</span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    data,</span>
@@ -1958,7 +2055,7 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"9a46f28e7c474860b3f3d3ebef7f37c8","version_major":2,"version_minor":0}
+{"model_id":"9a46f28e7c474860b3f3d3ebef7f37c8","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -1971,7 +2068,7 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 449 seconds.</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="25">
+<div id="cell-49" class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -1981,11 +2078,15 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="plot_slopes_files/figure-html/cell-26-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="plot_slopes_files/figure-html/cell-26-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>As the model was fit with <code>educ4</code> as a categorical data type, Bambi recognized this, and calls <code>comparisons</code> to compute the differences between each level of <code>educ4</code>. As <code>educ4</code> contains many category levels, a covariate must be passed to <code>average_by</code> in order to perform plotting. Below, we can see this plot is equivalent to <code>plot_comparisons</code>.</p>
-<div class="cell" data-execution_count="26">
+<div id="cell-51" class="cell" data-execution_count="26">
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_comparisons(</span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -1995,11 +2096,15 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="plot_slopes_files/figure-html/cell-27-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="plot_slopes_files/figure-html/cell-27-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>However, computing the predictive difference between each <code>educ4</code> level may not be desired. Thus, in <code>plot_slopes</code>, as in <code>plot_comparisons</code>, if <code>wrt</code> is a categorical or string data type, it is possible to specify the <code>wrt</code> values. For example, if we wanted to compute the expected difference in probability of switching wells for when <code>educ4</code> is <span class="math inline">\(4\)</span> versus <span class="math inline">\(1\)</span> conditional on a range of <code>dist100</code> and <code>arsenic</code> values, we would pass the following dictionary in the code block below. Please refer to the <a href="https://bambinos.github.io/bambi/notebooks/plot_comparisons.html">comparisons</a> documentation for more details.</p>
-<div class="cell" data-execution_count="27">
+<div id="cell-53" class="cell" data-execution_count="27">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -2009,10 +2114,14 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="plot_slopes_files/figure-html/cell-28-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="plot_slopes_files/figure-html/cell-28-output-1.png" class="img-fluid figure-img"></p>
+</figure>
 </div>
 </div>
-<div class="cell" data-execution_count="28">
+</div>
+<div id="cell-54" class="cell" data-execution_count="28">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -2033,7 +2142,6 @@ Watermark: 2.4.3
 </div>
 
 
-</section>
 </section>
 </section>
 
@@ -2065,12 +2173,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
     }
-  });
-  clipboard.on('success', function(e) {
+    return false;
+  }
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -2102,11 +2213,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -2116,8 +2266,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -2129,9 +2288,245 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
     });
   }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
   const findCites = (el) => {
     const parentEl = el.parentElement;
     if (parentEl) {
@@ -2173,12 +2568,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../notebooks/plot_comparisons.html" class="pagination-link">
+      <a href="../notebooks/plot_comparisons.html" class="pagination-link" aria-label="Plot Comparisons">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Plot Comparisons</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../notebooks/interpret_advanced_usage.html" class="pagination-link">
+      <a href="../notebooks/interpret_advanced_usage.html" class="pagination-link" aria-label="Interpret Advanced Usage">
         <span class="nav-page-text">Interpret Advanced Usage</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
@@ -2186,9 +2581,18 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
-      <div class="nav-footer-center">© Copyright 2024, The developers of Bambi.</div>
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>© Copyright 2024, The developers of Bambi.</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
   </div>
 </footer>
+
 
 
 

@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.2.280">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Bambi – radon_example</title>
+<title>Hierarchical Linear Regression (Radon Contamination dataset) – Bambi</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -17,11 +17,12 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -32,7 +33,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -46,47 +47,17 @@ pre.numberSource code > span > a:first-child::before
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
     padding: 0 4px; width: 4em;
-    color: #aaaaaa;
   }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
 div.sourceCode
   {   }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { color: #008000; } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { color: #008000; font-weight: bold; } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
@@ -110,7 +81,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -119,16 +96,46 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 <script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -137,293 +144,338 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a href="../index.html" class="navbar-brand navbar-brand-logo">
     <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo">
     </a>
   </div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../notebooks/getting_started.html">
- <span class="menu-text">Getting Started</span></a>
+    <a class="nav-link" href="../notebooks/getting_started.html"> 
+<span class="menu-text">Getting Started</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../api/index.html">
- <span class="menu-text">API Reference</span></a>
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../notebooks/index.html" aria-current="page">
- <span class="menu-text">Examples</span></a>
+    <a class="nav-link active" href="../notebooks/index.html" aria-current="page"> 
+<span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../faq.html">
- <span class="menu-text">FAQ</span></a>
+    <a class="nav-link" href="../faq.html"> 
+<span class="menu-text">FAQ</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../changelog.html">
- <span class="menu-text">Changelog</span></a>
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../contact.html">
- <span class="menu-text">Contact</span></a>
+    <a class="nav-link" href="../contact.html"> 
+<span class="menu-text">Contact</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/bambinos/bambi"><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/bambinos/bambi"> <i class="bi bi-github" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
 </ul>
-              <div id="quarto-search" class="" title="Search"></div>
           </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
-  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-    <div class="container-fluid d-flex justify-content-between">
-      <h1 class="quarto-secondary-nav-title"></h1>
-      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
-        <i class="bi bi-chevron-right"></i>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/t-test.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/radon_example.html">Hierarchical Linear Regression (Radon Contamination dataset)</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
     </div>
   </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/index.html" class="sidebar-item-text sidebar-link">Examples gallery</a>
+  <a href="../notebooks/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Examples gallery</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Linear regression models</a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Linear regression models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link">Comparison of two means (T-test)</a>
+  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Comparison of two means (T-test)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">Multiple linear regression</a>
+  <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multiple linear regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/splines_cherry_blossoms.html" class="sidebar-item-text sidebar-link">Regression splines (Cherry blossom example)</a>
+  <a href="../notebooks/splines_cherry_blossoms.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Regression splines (Cherry blossom example)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/multi-level_regression.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Pigs dataset)</a>
+  <a href="../notebooks/multi-level_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Linear Regression (Pigs dataset)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/sleepstudy.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Sleepstudy example)</a>
+  <a href="../notebooks/sleepstudy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Linear Regression (Sleepstudy example)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/radon_example.html" class="sidebar-item-text sidebar-link active">Hierarchical Linear Regression (Radon Contamination dataset)</a>
+  <a href="../notebooks/radon_example.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Hierarchical Linear Regression (Radon Contamination dataset)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/Strack_RRR_re_analysis.html" class="sidebar-item-text sidebar-link">Bayesian Workflow (Strack RRR Analysis Replication)</a>
+  <a href="../notebooks/Strack_RRR_re_analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Workflow (Strack RRR Analysis Replication)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/shooter_crossed_random_ANOVA.html" class="sidebar-item-text sidebar-link">Bayesian Workflow (Police Officer’s Dilemma)</a>
+  <a href="../notebooks/shooter_crossed_random_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Workflow (Police Officer’s Dilemma)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/t_regression.html" class="sidebar-item-text sidebar-link">Robust Linear Regression</a>
+  <a href="../notebooks/t_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Robust Linear Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/predict_new_groups.html" class="sidebar-item-text sidebar-link">Predict New Groups</a>
+  <a href="../notebooks/predict_new_groups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Predict New Groups</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/polynomial_regression.html" class="sidebar-item-text sidebar-link">Polynomial Regression</a>
+  <a href="../notebooks/polynomial_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Polynomial Regression</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="false">Generalized linear models</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Generalized linear models</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/logistic_regression.html" class="sidebar-item-text sidebar-link">Logistic Regression (Vote intention with ANES data)</a>
+  <a href="../notebooks/logistic_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Logistic Regression (Vote intention with ANES data)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/model_comparison.html" class="sidebar-item-text sidebar-link">Logistic Regression and Model Comparison with Bambi and ArviZ</a>
+  <a href="../notebooks/model_comparison.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Logistic Regression and Model Comparison with Bambi and ArviZ</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/hierarchical_binomial_bambi.html" class="sidebar-item-text sidebar-link">Hierarchical Logistic regression with Binomial family</a>
+  <a href="../notebooks/hierarchical_binomial_bambi.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Logistic regression with Binomial family</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/alternative_links_binary.html" class="sidebar-item-text sidebar-link">Regression for Binary responses: Alternative link functions</a>
+  <a href="../notebooks/alternative_links_binary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Regression for Binary responses: Alternative link functions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/wald_gamma_glm.html" class="sidebar-item-text sidebar-link">Wald and Gamma Regression (Australian insurance claims 2004-2005)</a>
+  <a href="../notebooks/wald_gamma_glm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Wald and Gamma Regression (Australian insurance claims 2004-2005)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/negative_binomial.html" class="sidebar-item-text sidebar-link">Negative Binomial Regression (Students absence example)</a>
+  <a href="../notebooks/negative_binomial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Negative Binomial Regression (Students absence example)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/count_roaches.html" class="sidebar-item-text sidebar-link">Count Regression with Variable Exposure</a>
+  <a href="../notebooks/count_roaches.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Count Regression with Variable Exposure</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/beta_regression.html" class="sidebar-item-text sidebar-link">Beta Regression</a>
+  <a href="../notebooks/beta_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Beta Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/categorical_regression.html" class="sidebar-item-text sidebar-link">Categorical Regression</a>
+  <a href="../notebooks/categorical_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Categorical Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/circular_regression.html" class="sidebar-item-text sidebar-link">Circular Regression</a>
+  <a href="../notebooks/circular_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Circular Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/quantile_regression.html" class="sidebar-item-text sidebar-link">Quantile Regression</a>
+  <a href="../notebooks/quantile_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Quantile Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/mister_p.html" class="sidebar-item-text sidebar-link">Multilevel Regression and Post-stratification</a>
+  <a href="../notebooks/mister_p.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multilevel Regression and Post-stratification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/ordinal_regression.html" class="sidebar-item-text sidebar-link">Ordinal Regression</a>
+  <a href="../notebooks/ordinal_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ordinal Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/zero_inflated_regression.html" class="sidebar-item-text sidebar-link">Zero inflated models</a>
+  <a href="../notebooks/zero_inflated_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Zero inflated models</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="false">More advanced models</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">More advanced models</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/distributional_models.html" class="sidebar-item-text sidebar-link">Distributional models</a>
+  <a href="../notebooks/distributional_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Distributional models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/hsgp_1d.html" class="sidebar-item-text sidebar-link">Gaussian Processes</a>
+  <a href="../notebooks/hsgp_1d.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gaussian Processes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/hsgp_2d.html" class="sidebar-item-text sidebar-link">Gaussian Processes in 2D</a>
+  <a href="../notebooks/hsgp_2d.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gaussian Processes in 2D</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/survival_model.html" class="sidebar-item-text sidebar-link">Survival Models</a>
+  <a href="../notebooks/survival_model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Survival Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/orthogonal_polynomial_reg.html" class="sidebar-item-text sidebar-link">Orthogonal Polynomial regression</a>
+  <a href="../notebooks/orthogonal_polynomial_reg.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Orthogonal Polynomial regression</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="false">Tools to interpret model outputs</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">Tools to interpret model outputs</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/plot_predictions.html" class="sidebar-item-text sidebar-link">Plot Conditional Adjusted Predictions</a>
+  <a href="../notebooks/plot_predictions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Plot Conditional Adjusted Predictions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/plot_comparisons.html" class="sidebar-item-text sidebar-link">Plot Comparisons</a>
+  <a href="../notebooks/plot_comparisons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Plot Comparisons</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/plot_slopes.html" class="sidebar-item-text sidebar-link">Plot Slopes</a>
+  <a href="../notebooks/plot_slopes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Plot Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/interpret_advanced_usage.html" class="sidebar-item-text sidebar-link">Interpret Advanced Usage</a>
+  <a href="../notebooks/interpret_advanced_usage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Interpret Advanced Usage</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="false">Alternative sampling backends</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Alternative sampling backends</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/alternative_samplers.html" class="sidebar-item-text sidebar-link">Alternative sampling backends</a>
+  <a href="../notebooks/alternative_samplers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Alternative sampling backends</span></a>
   </div>
 </li>
       </ul>
@@ -431,15 +483,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     </ul>
     </div>
 </nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#hierarchical-linear-regression-radon-contamination-dataset" id="toc-hierarchical-linear-regression-radon-contamination-dataset" class="nav-link active" data-scroll-target="#hierarchical-linear-regression-radon-contamination-dataset">Hierarchical Linear Regression (Radon Contamination dataset)</a>
-  <ul class="collapse">
-  <li><a href="#prepare-notebook" id="toc-prepare-notebook" class="nav-link" data-scroll-target="#prepare-notebook">Prepare Notebook</a></li>
+  <li><a href="#prepare-notebook" id="toc-prepare-notebook" class="nav-link active" data-scroll-target="#prepare-notebook">Prepare Notebook</a></li>
   <li><a href="#read-data" id="toc-read-data" class="nav-link" data-scroll-target="#read-data">Read Data</a></li>
   <li><a href="#preprocess-data" id="toc-preprocess-data" class="nav-link" data-scroll-target="#preprocess-data">Preprocess Data</a></li>
   <li><a href="#eda" id="toc-eda" class="nav-link" data-scroll-target="#eda">EDA</a></li>
@@ -456,22 +507,36 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <li><a href="#adding-group-level-predictors" id="toc-adding-group-level-predictors" class="nav-link" data-scroll-target="#adding-group-level-predictors">Adding group-level predictors</a></li>
   </ul></li>
   <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
-  </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/t-test.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/radon_example.html">Hierarchical Linear Regression (Radon Contamination dataset)</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Hierarchical Linear Regression (Radon Contamination dataset)</h1>
+</div>
 
 
-<section id="hierarchical-linear-regression-radon-contamination-dataset" class="level1">
-<h1>Hierarchical Linear Regression (Radon Contamination dataset)</h1>
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
 <p>In this notebook we want to revisit the classical hierarchical linear regression model based on the dataset of the <em>Radon Contamination</em> by Gelman and Hill. In particular, we want to show how easy is to port the <a href="https://docs.pymc.io/en/v3/">PyMC</a> models, presented in the very complete article <a href="https://docs.pymc.io/projects/examples/en/latest/case_studies/multilevel_modeling.html">A Primer on Bayesian Methods for Multilevel Modeling</a>, to <a href="https://bambinos.github.io/bambi/main/index.html">Bambi</a> using the more concise formula specification for the models.</p>
 <p>This example has been ported from PyMC by Juan Orduz (<a href="https://github.com/juanitorduz">@juanitorduz</a>) and Bambi developers.</p>
 <section id="prepare-notebook" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-notebook">Prepare Notebook</h2>
-<div class="cell" data-execution_count="1">
+<div id="cell-3" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -480,7 +545,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pymc <span class="im">as</span> pm</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="2">
+<div id="cell-4" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-darkgrid"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>np.random.default_rng(<span class="dv">8924</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
@@ -491,7 +556,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="read-data" class="level2">
 <h2 class="anchored" data-anchor-id="read-data">Read Data</h2>
 <p>Let us load the data into a pandas data frame.</p>
-<div class="cell" data-execution_count="3">
+<div id="cell-6" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get radon data</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>path <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/pymc-devs/pymc-examples/main/examples/data/srrs2.dat"</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>radon_df <span class="op">=</span> pd.read_csv(path)</span>
@@ -499,163 +564,164 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Get city data</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>city_df <span class="op">=</span> pd.read_csv(pm.get_data(<span class="st">"cty.dat"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="4">
+<div id="cell-7" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>display(radon_df.head())</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(radon_df.shape[<span class="dv">0</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>idnum</th>
-      <th>state</th>
-      <th>state2</th>
-      <th>stfips</th>
-      <th>zip</th>
-      <th>region</th>
-      <th>typebldg</th>
-      <th>floor</th>
-      <th>room</th>
-      <th>basement</th>
-      <th>...</th>
-      <th>stoptm</th>
-      <th>startdt</th>
-      <th>stopdt</th>
-      <th>activity</th>
-      <th>pcterr</th>
-      <th>adjwt</th>
-      <th>dupflag</th>
-      <th>zipflag</th>
-      <th>cntyfips</th>
-      <th>county</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>AZ</td>
-      <td>AZ</td>
-      <td>4</td>
-      <td>85920</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>2</td>
-      <td>N</td>
-      <td>...</td>
-      <td>1100</td>
-      <td>112987</td>
-      <td>120287</td>
-      <td>0.3</td>
-      <td>0.0</td>
-      <td>136.060971</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>APACHE</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2</td>
-      <td>AZ</td>
-      <td>AZ</td>
-      <td>4</td>
-      <td>85920</td>
-      <td>1</td>
-      <td>0</td>
-      <td>9</td>
-      <td>0</td>
-      <td></td>
-      <td>...</td>
-      <td>700</td>
-      <td>70788</td>
-      <td>71188</td>
-      <td>0.6</td>
-      <td>33.3</td>
-      <td>128.784975</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>APACHE</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>3</td>
-      <td>AZ</td>
-      <td>AZ</td>
-      <td>4</td>
-      <td>85924</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>3</td>
-      <td>N</td>
-      <td>...</td>
-      <td>1145</td>
-      <td>70788</td>
-      <td>70788</td>
-      <td>0.5</td>
-      <td>0.0</td>
-      <td>150.245112</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>APACHE</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>4</td>
-      <td>AZ</td>
-      <td>AZ</td>
-      <td>4</td>
-      <td>85925</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>3</td>
-      <td>N</td>
-      <td>...</td>
-      <td>1900</td>
-      <td>52088</td>
-      <td>52288</td>
-      <td>0.6</td>
-      <td>97.2</td>
-      <td>136.060971</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>APACHE</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>5</td>
-      <td>AZ</td>
-      <td>AZ</td>
-      <td>4</td>
-      <td>85932</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>N</td>
-      <td>...</td>
-      <td>900</td>
-      <td>70788</td>
-      <td>70788</td>
-      <td>0.3</td>
-      <td>0.0</td>
-      <td>136.060971</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>APACHE</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">idnum</th>
+<th data-quarto-table-cell-role="th">state</th>
+<th data-quarto-table-cell-role="th">state2</th>
+<th data-quarto-table-cell-role="th">stfips</th>
+<th data-quarto-table-cell-role="th">zip</th>
+<th data-quarto-table-cell-role="th">region</th>
+<th data-quarto-table-cell-role="th">typebldg</th>
+<th data-quarto-table-cell-role="th">floor</th>
+<th data-quarto-table-cell-role="th">room</th>
+<th data-quarto-table-cell-role="th">basement</th>
+<th data-quarto-table-cell-role="th">...</th>
+<th data-quarto-table-cell-role="th">stoptm</th>
+<th data-quarto-table-cell-role="th">startdt</th>
+<th data-quarto-table-cell-role="th">stopdt</th>
+<th data-quarto-table-cell-role="th">activity</th>
+<th data-quarto-table-cell-role="th">pcterr</th>
+<th data-quarto-table-cell-role="th">adjwt</th>
+<th data-quarto-table-cell-role="th">dupflag</th>
+<th data-quarto-table-cell-role="th">zipflag</th>
+<th data-quarto-table-cell-role="th">cntyfips</th>
+<th data-quarto-table-cell-role="th">county</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>1</td>
+<td>AZ</td>
+<td>AZ</td>
+<td>4</td>
+<td>85920</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>N</td>
+<td>...</td>
+<td>1100</td>
+<td>112987</td>
+<td>120287</td>
+<td>0.3</td>
+<td>0.0</td>
+<td>136.060971</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>APACHE</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2</td>
+<td>AZ</td>
+<td>AZ</td>
+<td>4</td>
+<td>85920</td>
+<td>1</td>
+<td>0</td>
+<td>9</td>
+<td>0</td>
+<td></td>
+<td>...</td>
+<td>700</td>
+<td>70788</td>
+<td>71188</td>
+<td>0.6</td>
+<td>33.3</td>
+<td>128.784975</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>APACHE</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>3</td>
+<td>AZ</td>
+<td>AZ</td>
+<td>4</td>
+<td>85924</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>3</td>
+<td>N</td>
+<td>...</td>
+<td>1145</td>
+<td>70788</td>
+<td>70788</td>
+<td>0.5</td>
+<td>0.0</td>
+<td>150.245112</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>APACHE</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>4</td>
+<td>AZ</td>
+<td>AZ</td>
+<td>4</td>
+<td>85925</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>3</td>
+<td>N</td>
+<td>...</td>
+<td>1900</td>
+<td>52088</td>
+<td>52288</td>
+<td>0.6</td>
+<td>97.2</td>
+<td>136.060971</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>APACHE</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>5</td>
+<td>AZ</td>
+<td>AZ</td>
+<td>4</td>
+<td>85932</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>N</td>
+<td>...</td>
+<td>900</td>
+<td>70788</td>
+<td>70788</td>
+<td>0.3</td>
+<td>0.0</td>
+<td>136.060971</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>APACHE</td>
+</tr>
+</tbody>
 </table>
+
 <p>5 rows × 25 columns</p>
 </div>
 </div>
@@ -663,79 +729,80 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <pre><code>12777</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="5">
+<div id="cell-8" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>display(city_df.head())</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(city_df.shape[<span class="dv">0</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>stfips</th>
-      <th>ctfips</th>
-      <th>st</th>
-      <th>cty</th>
-      <th>lon</th>
-      <th>lat</th>
-      <th>Uppm</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>1</td>
-      <td>AL</td>
-      <td>AUTAUGA</td>
-      <td>-86.643</td>
-      <td>32.534</td>
-      <td>1.78331</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>3</td>
-      <td>AL</td>
-      <td>BALDWIN</td>
-      <td>-87.750</td>
-      <td>30.661</td>
-      <td>1.38323</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>1</td>
-      <td>5</td>
-      <td>AL</td>
-      <td>BARBOUR</td>
-      <td>-85.393</td>
-      <td>31.870</td>
-      <td>2.10105</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>1</td>
-      <td>7</td>
-      <td>AL</td>
-      <td>BIBB</td>
-      <td>-87.126</td>
-      <td>32.998</td>
-      <td>1.67313</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>1</td>
-      <td>9</td>
-      <td>AL</td>
-      <td>BLOUNT</td>
-      <td>-86.568</td>
-      <td>33.981</td>
-      <td>1.88501</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">stfips</th>
+<th data-quarto-table-cell-role="th">ctfips</th>
+<th data-quarto-table-cell-role="th">st</th>
+<th data-quarto-table-cell-role="th">cty</th>
+<th data-quarto-table-cell-role="th">lon</th>
+<th data-quarto-table-cell-role="th">lat</th>
+<th data-quarto-table-cell-role="th">Uppm</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>1</td>
+<td>1</td>
+<td>AL</td>
+<td>AUTAUGA</td>
+<td>-86.643</td>
+<td>32.534</td>
+<td>1.78331</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>1</td>
+<td>3</td>
+<td>AL</td>
+<td>BALDWIN</td>
+<td>-87.750</td>
+<td>30.661</td>
+<td>1.38323</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>1</td>
+<td>5</td>
+<td>AL</td>
+<td>BARBOUR</td>
+<td>-85.393</td>
+<td>31.870</td>
+<td>2.10105</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>1</td>
+<td>7</td>
+<td>AL</td>
+<td>BIBB</td>
+<td>-87.126</td>
+<td>32.998</td>
+<td>1.67313</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>1</td>
+<td>9</td>
+<td>AL</td>
+<td>BLOUNT</td>
+<td>-86.568</td>
+<td>33.981</td>
+<td>1.88501</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 <div class="cell-output cell-output-stdout">
@@ -746,7 +813,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="preprocess-data" class="level2">
 <h2 class="anchored" data-anchor-id="preprocess-data">Preprocess Data</h2>
 <p>We are going to preprocess the data as done in the article <a href="https://docs.pymc.io/projects/examples/en/latest/case_studies/multilevel_modeling.html">A Primer on Bayesian Methods for Multilevel Modeling</a>.</p>
-<div class="cell" data-execution_count="6">
+<div id="cell-10" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Strip spaces from column names</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>radon_df.columns <span class="op">=</span> radon_df.columns.<span class="bu">map</span>(<span class="bu">str</span>.strip)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -785,27 +852,35 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="eda" class="level2">
 <h2 class="anchored" data-anchor-id="eda">EDA</h2>
 <p>In order to get a glimpse of the data, we are going to do some exploratory data analysis. First, let’s have a look at the global distribution of the untransformed radon levels.</p>
-<div class="cell" data-execution_count="7">
+<div id="cell-13" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>_, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>sns.histplot(x<span class="op">=</span><span class="st">"activity"</span>, alpha<span class="op">=</span><span class="fl">0.2</span>, stat<span class="op">=</span><span class="st">"density"</span>, element<span class="op">=</span><span class="st">"step"</span>, common_norm<span class="op">=</span><span class="va">False</span>, data<span class="op">=</span>df, ax<span class="op">=</span>ax)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>sns.kdeplot(x<span class="op">=</span><span class="st">"activity"</span>, data<span class="op">=</span>df, ax<span class="op">=</span>ax, cut<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Density of Radon"</span>, xlabel<span class="op">=</span><span class="st">"Radon"</span>, ylabel<span class="op">=</span><span class="st">"Density"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="radon_example_files/figure-html/cell-8-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-8-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Next, let us see the global <code>log(radon + 0.1)</code> distribution.</p>
-<div class="cell" data-execution_count="8">
+<div id="cell-15" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>_, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>sns.histplot(x<span class="op">=</span><span class="st">"log_radon"</span>, alpha<span class="op">=</span><span class="fl">0.2</span>, stat<span class="op">=</span><span class="st">"density"</span>, element<span class="op">=</span><span class="st">"step"</span>, common_norm<span class="op">=</span><span class="va">False</span>, data<span class="op">=</span>df, ax<span class="op">=</span>ax)</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>sns.kdeplot(x<span class="op">=</span><span class="st">"log_radon"</span>, data<span class="op">=</span>df, ax<span class="op">=</span>ax)</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Density of log(Radon + 0.1)"</span>, xlabel<span class="op">=</span><span class="st">"$\log(Radon + 0.1)$"</span>, ylabel<span class="op">=</span><span class="st">"Density"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="radon_example_files/figure-html/cell-9-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>There are many a priori reasons to think houses with basement has higher radon levels. From geochemistry to composition of building materials to poor ventilation. We can split the distribution of <code>log(radon + 0.1)</code> per <code>floor</code> to see if we are able to see that difference in our data.</p>
-<div class="cell" data-execution_count="9">
+<div id="cell-17" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>_, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>sns.histplot(</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">"log_radon"</span>, hue<span class="op">=</span><span class="st">"floor"</span>, alpha<span class="op">=</span><span class="fl">0.2</span>, stat<span class="op">=</span><span class="st">"density"</span>, element<span class="op">=</span><span class="st">"step"</span>, </span>
@@ -814,12 +889,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>sns.kdeplot(x<span class="op">=</span><span class="st">"log_radon"</span>, hue<span class="op">=</span><span class="st">"floor"</span>, common_norm<span class="op">=</span><span class="va">False</span>, data<span class="op">=</span>df, ax<span class="op">=</span>ax)</span>
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Density of log(Radon + 0.1)"</span>, xlabel<span class="op">=</span><span class="st">"$\log + 0.1$"</span>, ylabel<span class="op">=</span><span class="st">"Density"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="radon_example_files/figure-html/cell-10-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>This exploration tell us that, as expected, the average radon level is higher in <code>Basement</code> than <code>Floor</code>.</p>
 <p>Next, we are going to count the number of counties.</p>
-<div class="cell" data-execution_count="10">
+<div id="cell-20" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>n_counties <span class="op">=</span> df[<span class="st">"county"</span>].unique().size</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Number of counties: </span><span class="sc">{</span>n_counties<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -827,7 +906,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <p>Let us dig deeper into the distribution of radon and number of observations per county and floor level.</p>
-<div class="cell" data-execution_count="11">
+<div id="cell-22" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>log_radon_county_agg  <span class="op">=</span> (</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    df </span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    .groupby([<span class="st">"county"</span>, <span class="st">"floor"</span>], as_index<span class="op">=</span><span class="va">False</span>)</span>
@@ -844,14 +923,18 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>sns.boxplot(x<span class="op">=</span><span class="st">"floor"</span>, y<span class="op">=</span><span class="st">"n_obs"</span>, data<span class="op">=</span>log_radon_county_agg, ax<span class="op">=</span>ax[<span class="dv">1</span>])</span>
 <span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Number of Observations"</span>, xlabel<span class="op">=</span><span class="st">"floor"</span>, ylabel<span class="op">=</span><span class="st">"Number of observations"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="radon_example_files/figure-html/cell-12-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-12-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <ul>
 <li>On the left hand side we can see that the <code>"Basement"</code> distribution per county is shifted to higher values with respect to the <code>"Floor"</code> distribution. We had seen this above when considering all counties together.</li>
 <li>On the right hand side we see that the number of observations per county is not the same for the <code>floor</code> levels. In particular, we see that there are some counties with a lot of basement observations. This can create some bias when computing simple statistics to compare across counties. Moreover, not all <code>county</code> and <code>floor</code> combinations are present in the dataset. For example:</li>
 </ul>
-<div class="cell" data-execution_count="12">
+<div id="cell-24" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> df.query(<span class="st">"county == 'YELLOW MEDICINE' and floor == 'Floor'"</span>).empty</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
@@ -896,7 +979,7 @@ y &amp;= \text{Response for the (log) radon measurement }\\
 <p>where <span class="math inline">\(\lambda\)</span> is a positive constant that we set to 1.</p>
 <p>Let us now write the Bambi model.</p>
 <p>The <code>0</code> on the right side of <code>~</code> in the model formula removes the global intercept that is added by default. This allows Bambi to use one coefficient for each floor level.</p>
-<div class="cell" data-execution_count="13">
+<div id="cell-30" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A dictionary with the priors we pass to the model initialization</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>pooled_priors <span class="op">=</span> {</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"floor"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">10</span>),</span>
@@ -921,15 +1004,19 @@ y &amp;= \text{Response for the (log) radon measurement }\\
 </div>
 <p>The <code>Family name: Gaussian</code> indicates the selected family, which defaults to Gaussian. And <code>Link: identity</code> indicates the default value for the link argument in <code>bmb.Model()</code>. Taken together this simply means that we are fitting a normal linear regression model.</p>
 <p>Let’s see the graph representation of the model before fitting. To do so, we first need to call the <code>.build()</code> method. Internally, this builds the underlying PyMC model.</p>
-<div class="cell" data-execution_count="14">
+<div id="cell-33" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>pooled_model.build()</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>pooled_model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="14">
-<p><img src="radon_example_files/figure-html/cell-15-output-1.svg" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-15-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Let’s now fit the model.</p>
-<div class="cell" data-execution_count="15">
+<div id="cell-35" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>pooled_results <span class="op">=</span> pooled_model.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
@@ -939,7 +1026,7 @@ NUTS: [sigma, floor]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"392ea9efbea3411680fe950031c84493","version_major":2,"version_minor":0}
+{"model_id":"392ea9efbea3411680fe950031c84493","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -954,81 +1041,86 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 <p>Now we can examine the posterior distribution, i.e.&nbsp;the joint distribution of model parameters conditional on the data:</p>
-<div class="cell" data-execution_count="16">
+<div id="cell-37" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(data<span class="op">=</span>pooled_results, compact<span class="op">=</span><span class="va">True</span>, chain_prop<span class="op">=</span>{<span class="st">"ls"</span>: <span class="st">"-"</span>})</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>plt.suptitle(<span class="st">"Pooled Model Trace"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="radon_example_files/figure-html/cell-17-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-17-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>We can also see some posterior summary statistics.</p>
-<div class="cell" data-execution_count="17">
+<div id="cell-39" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>pooled_summary <span class="op">=</span> az.summary(data<span class="op">=</span>pooled_results)</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>pooled_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="17">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>mean</th>
-      <th>sd</th>
-      <th>hdi_3%</th>
-      <th>hdi_97%</th>
-      <th>mcse_mean</th>
-      <th>mcse_sd</th>
-      <th>ess_bulk</th>
-      <th>ess_tail</th>
-      <th>r_hat</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>floor[Basement]</th>
-      <td>1.362</td>
-      <td>0.029</td>
-      <td>1.309</td>
-      <td>1.416</td>
-      <td>0.001</td>
-      <td>0.000</td>
-      <td>3280.0</td>
-      <td>1577.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>floor[Floor]</th>
-      <td>0.776</td>
-      <td>0.066</td>
-      <td>0.657</td>
-      <td>0.898</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>3035.0</td>
-      <td>1397.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>sigma</th>
-      <td>0.791</td>
-      <td>0.019</td>
-      <td>0.752</td>
-      <td>0.824</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>3143.0</td>
-      <td>1483.0</td>
-      <td>1.0</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">sd</th>
+<th data-quarto-table-cell-role="th">hdi_3%</th>
+<th data-quarto-table-cell-role="th">hdi_97%</th>
+<th data-quarto-table-cell-role="th">mcse_mean</th>
+<th data-quarto-table-cell-role="th">mcse_sd</th>
+<th data-quarto-table-cell-role="th">ess_bulk</th>
+<th data-quarto-table-cell-role="th">ess_tail</th>
+<th data-quarto-table-cell-role="th">r_hat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">floor[Basement]</td>
+<td>1.362</td>
+<td>0.029</td>
+<td>1.309</td>
+<td>1.416</td>
+<td>0.001</td>
+<td>0.000</td>
+<td>3280.0</td>
+<td>1577.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">floor[Floor]</td>
+<td>0.776</td>
+<td>0.066</td>
+<td>0.657</td>
+<td>0.898</td>
+<td>0.001</td>
+<td>0.001</td>
+<td>3035.0</td>
+<td>1397.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sigma</td>
+<td>0.791</td>
+<td>0.019</td>
+<td>0.752</td>
+<td>0.824</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>3143.0</td>
+<td>1483.0</td>
+<td>1.0</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
 <p>From the posterior plot and the summary, we can see the mean radon level is considerably higher in the Basement than in the Floor level. This reflects what we originally saw in the initial data exploration. In addition, sice we have more measurements in the Basement, the uncertainty in its posterior is smaller than the uncertainty in the posterior for the Floor level.</p>
 <p>We can compare the mean of the posterior distribution of the <code>floor</code> terms to the sample mean. This is going to be useful to understand the meaning of <strong>complete pooling</strong>.</p>
-<div class="cell" data-execution_count="18">
+<div id="cell-42" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>_, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>(</span>
@@ -1058,7 +1150,11 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"log(Radon + 0.1) Mean per Floor - Pooled Model"</span>, ylabel<span class="op">=</span><span class="st">"$\log + 0.1$"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="radon_example_files/figure-html/cell-19-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-19-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>From the plot alone it is hard to detect the difference between the posterior mean and the sample mean. This happens because the estimation for any observation in either group is simply the group mean plus the smoothing due to the non-flat priors.</p>
@@ -1071,7 +1167,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <li>Obtain samples from the posterior predictive distribution using the <code>.predict()</code> method.</li>
 <li>Apply the inverse transform to have the posterior predictive samples in the original scale of the response.</li>
 </ul>
-<div class="cell" data-execution_count="19">
+<div id="cell-45" class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Note we create a new data set. </span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="co"># One observation per group is enough to obtain posterior predictive samples for that group</span></span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co"># The more observations we create, the more posterior predictive samples from the same distribution</span></span>
@@ -1104,17 +1200,21 @@ We recommend running at least 4 chains for robust computation of convergence dia
   pps = az.extract_dataset(pooled_results, group="posterior_predictive")["log_radon"].values</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="radon_example_files/figure-html/cell-20-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-20-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>The distributions look very similar, but we see that we have some extreme values. Hence if we need a number to compare them let us use the median.</p>
-<div class="cell" data-execution_count="20">
+<div id="cell-47" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>np.median(a<span class="op">=</span>pps, axis<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="20">
 <pre><code>array([3.862334  , 2.07121177])</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="21">
+<div id="cell-48" class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>df.groupby([<span class="st">"floor"</span>])[<span class="st">"activity"</span>].median()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="21">
 <pre><code>floor
@@ -1163,7 +1263,7 @@ y &amp;= \text{Response for the (log) radon measurement }\\
 \end{aligned}
 \]</span> where <span class="math inline">\(\lambda\)</span> is a positive constant that we set to 1.</p>
 <p>To specify this model in Bambi we can use the formula <code>log_radon ~ 0 + county:floor</code>. Again, we remove the global intercept with the <code>0</code> on the right hand side. <code>county:floor</code> specifies the multiplicative interaction between <code>county</code> and <code>floor</code>.</p>
-<div class="cell" data-execution_count="22">
+<div id="cell-53" class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>unpooled_priors <span class="op">=</span> {</span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"county:floor"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">10</span>),</span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"Exponential"</span>, lam<span class="op">=</span><span class="dv">1</span>),</span>
@@ -1185,7 +1285,7 @@ y &amp;= \text{Response for the (log) radon measurement }\\
             sigma ~ Exponential(lam: 1.0)</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="23">
+<div id="cell-54" class="cell" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>unpooled_results <span class="op">=</span> unpooled_model.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
@@ -1195,7 +1295,7 @@ NUTS: [sigma, county:floor]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"afd44092af0c488fb8a5c3d5fc608bf2","version_major":2,"version_minor":0}
+{"model_id":"afd44092af0c488fb8a5c3d5fc608bf2","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -1210,35 +1310,47 @@ We recommend running at least 4 chains for robust computation of convergence dia
 The rhat statistic is larger than 1.01 for some parameters. This indicates problems during sampling. See https://arxiv.org/abs/1903.08008 for details</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="24">
+<div id="cell-55" class="cell" data-execution_count="24">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>unpooled_model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="24">
-<p><img src="radon_example_files/figure-html/cell-25-output-1.svg" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-25-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>From the graph representation of the model we see the model estimates <span class="math inline">\(170 = 85 \times 2\)</span> parameters for the <code>county:floor</code> interaction. Let us now explore the model fit.</p>
 <p>First, we can now see the plot of the marginal posterior distributions along with the sampling traces.</p>
-<div class="cell" data-execution_count="25">
+<div id="cell-58" class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(data<span class="op">=</span>unpooled_results, compact<span class="op">=</span><span class="va">True</span>, chain_prop<span class="op">=</span>{<span class="st">"ls"</span>: <span class="st">"-"</span>})</span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>plt.suptitle(<span class="st">"Un-Pooled Model Trace"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="radon_example_files/figure-html/cell-26-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-26-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Some posteriors for <code>county:floor</code> are much more spread than others, which makes it harder to compare them. To obtain a better summary visualization we can use a forest plot. This plot also allows us to identify exactly the combination of <code>county</code> and <code>floor</code> level.</p>
-<div class="cell" data-execution_count="26">
+<div id="cell-60" class="cell" data-execution_count="26">
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>az.plot_forest(data<span class="op">=</span>unpooled_results, figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">32</span>), r_hat<span class="op">=</span><span class="va">True</span>, combined<span class="op">=</span><span class="va">True</span>, textsize<span class="op">=</span><span class="dv">8</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="radon_example_files/figure-html/cell-27-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-27-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Note how for the combination <code>county == 'YELLOW MEDICINE' and floor == 'Floor'</code> where we do not have any observations, the model can still generate predictions which are essentially coming from the prior distributions, which explains the large HDI intervals.</p>
 <p>Next, let’s have a look into the posterior mean for each <code>county</code> and <code>floor</code> combination:</p>
-<div class="cell" data-execution_count="27">
+<div id="cell-63" class="cell" data-execution_count="27">
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>unpooled_summary <span class="op">=</span> az.summary(data<span class="op">=</span>unpooled_results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We can now plot the posterior distribution mean of the gamma coefficients against the observed values (sample).</p>
-<div class="cell" data-execution_count="28">
+<div id="cell-65" class="cell" data-execution_count="28">
 <div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get county and floor names from summary table</span></span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>var_mapping <span class="op">=</span> (</span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    unpooled_summary</span>
@@ -1275,7 +1387,11 @@ The rhat statistic is larger than 1.01 for some parameters. This indicates probl
 <span id="cb41-34"><a href="#cb41-34" aria-hidden="true" tabindex="-1"></a>    ylabel<span class="op">=</span><span class="st">"prediction"</span>,</span>
 <span id="cb41-35"><a href="#cb41-35" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="radon_example_files/figure-html/cell-29-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-29-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>As expected, the values strongly concentrated along the diagonal. In other words, for each county and floor level combination, the model uses their sample mean of radon level as prediction, plus smoothing due to the non-flat priors.</p>
@@ -1345,7 +1461,7 @@ u_j \sim \text{Normal}(0, \sigma_u)
 <h4 class="anchored" data-anchor-id="notes">Notes</h4>
 <p>The common intercept <span class="math inline">\(\alpha\)</span> represents the mean response across all counties and floor levels.</p>
 <p>On top of it, the county-specific intercept terms <span class="math inline">\(u_j\)</span> represent county-specific deviations from that global mean. This type of term is also known as a vaying intercept in the statistical literature.</p>
-<div class="cell" data-execution_count="29">
+<div id="cell-73" class="cell" data-execution_count="29">
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We can add the hyper-priors inside the prior dictionary parameter of the model constructor</span></span>
 <span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>partial_pooling_priors <span class="op">=</span> {</span>
 <span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Intercept"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">10</span>),</span>
@@ -1378,7 +1494,7 @@ u_j \sim \text{Normal}(0, \sigma_u)
 </div>
 </div>
 <p>The <code>noncentered</code> argument asks Bambi not to use the non centered representation for the varying effects. This makes the graph representation clearer and is closer to the original implementation in the PyMC documentation.</p>
-<div class="cell" data-execution_count="30">
+<div id="cell-75" class="cell" data-execution_count="30">
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>partial_pooling_results <span class="op">=</span> partial_pooling_model.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
@@ -1388,7 +1504,7 @@ NUTS: [sigma, Intercept, 1|county_sigma, 1|county]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"6828a1f20a024191af101b0169427205","version_major":2,"version_minor":0}
+{"model_id":"6828a1f20a024191af101b0169427205","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -1404,19 +1520,27 @@ The rhat statistic is larger than 1.01 for some parameters. This indicates probl
 </div>
 </div>
 <p>We can inspect the graphical representation of the model:</p>
-<div class="cell" data-execution_count="31">
+<div id="cell-77" class="cell" data-execution_count="31">
 <div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>partial_pooling_model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="31">
-<p><img src="radon_example_files/figure-html/cell-32-output-1.svg" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-32-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>We can clearly see a new hierarchical level as compared to the complete pooling model and unpooled model.</p>
 <p>Next, we can plot the posterior distribution of the coefficients in the model:</p>
-<div class="cell" data-execution_count="32">
+<div id="cell-80" class="cell" data-execution_count="32">
 <div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(data<span class="op">=</span>partial_pooling_results, compact<span class="op">=</span><span class="va">True</span>, chain_prop<span class="op">=</span>{<span class="st">"ls"</span>: <span class="st">"-"</span>})</span>
 <span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>plt.suptitle(<span class="st">"Partial Pooling Model Trace"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="radon_example_files/figure-html/cell-33-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-33-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <ul>
@@ -1424,10 +1548,9 @@ The rhat statistic is larger than 1.01 for some parameters. This indicates probl
 <li><code>1|county_sigma</code> is <span class="math inline">\(\sigma_u\)</span>, the standard deviation of the county-specific intercepts above.</li>
 </ul>
 <p>Let us now compare the posterior predictive mean against the observed data at county level.</p>
-<div class="cell" data-execution_count="33">
+<div id="cell-83" class="cell" data-execution_count="33">
 <div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>partial_pooling_results</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="33">
-
 
             <div>
               <div class="xr-header">
@@ -3110,7 +3233,7 @@ dl.xr-attrs {
 .xr-wrap{width:700px!important;} </style>
 </div>
 </div>
-<div class="cell" data-execution_count="34">
+<div id="cell-84" class="cell" data-execution_count="34">
 <div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>partial_pooling_model.predict(partial_pooling_results, kind<span class="op">=</span><span class="st">"pps"</span>)</span>
 <span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Stack chains and draws. pps stands for posterior predictive samples</span></span>
@@ -3139,7 +3262,11 @@ dl.xr-attrs {
   pps = az.extract_dataset(partial_pooling_results, group="posterior_predictive")["log_radon"].values</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="radon_example_files/figure-html/cell-35-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-35-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Note that in this case the points are not concentrated along the diagonal (as it was the case for the unpooled model). The reason is that in the partial pooling model the hyperprior shrinks the predictions towards the global mean, represented by the horizonital dashed line.</p>
@@ -3204,7 +3331,7 @@ u_k \sim \text{Normal}(0, \sigma_u)
 <section id="notes-1" class="level5">
 <h5 class="anchored" data-anchor-id="notes-1">Notes</h5>
 <p><span class="math inline">\(\beta_j\)</span> and <span class="math inline">\(u_k\)</span> may look similar. The difference is that the latter is a hierarchical effect (it has a hyperprior), while the former is not.</p>
-<div class="cell" data-execution_count="35">
+<div id="cell-91" class="cell" data-execution_count="35">
 <div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>varying_intercept_priors <span class="op">=</span> {</span>
 <span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"floor"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">10</span>),</span>
 <span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"1|county"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span>bmb.Prior(<span class="st">"Exponential"</span>, lam<span class="op">=</span><span class="dv">1</span>)),</span>
@@ -3236,7 +3363,7 @@ u_k \sim \text{Normal}(0, \sigma_u)
             sigma ~ Exponential(lam: 1.0)</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="36">
+<div id="cell-92" class="cell" data-execution_count="36">
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>varying_intercept_results <span class="op">=</span> varying_intercept_model.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
@@ -3246,7 +3373,7 @@ NUTS: [sigma, floor, 1|county_sigma, 1|county]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"60a2d7f859074784aa41a418cfa7a222","version_major":2,"version_minor":0}
+{"model_id":"60a2d7f859074784aa41a418cfa7a222","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -3262,18 +3389,26 @@ The rhat statistic is larger than 1.01 for some parameters. This indicates probl
 </div>
 </div>
 <p>When looking at the graph representation of the model we still see the hierarchical structure for the <code>county</code> varying intercepts, but we do not see it for the <code>floor</code> feature as expected.</p>
-<div class="cell" data-execution_count="37">
+<div id="cell-94" class="cell" data-execution_count="37">
 <div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>varying_intercept_model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="37">
-<p><img src="radon_example_files/figure-html/cell-38-output-1.svg" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-38-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Let us visualize the posterior distributions:</p>
-<div class="cell" data-execution_count="38">
+<div id="cell-96" class="cell" data-execution_count="38">
 <div class="sourceCode cell-code" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(data<span class="op">=</span>varying_intercept_results, compact<span class="op">=</span><span class="va">True</span>, chain_prop<span class="op">=</span>{<span class="st">"ls"</span>: <span class="st">"-"</span>})<span class="op">;</span></span>
 <span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>plt.suptitle(<span class="st">"Varying Intercepts Model Trace"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="radon_example_files/figure-html/cell-39-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-39-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 </section>
@@ -3341,7 +3476,7 @@ b_{jk} \sim \text{Normal}(0, \sigma_{b_j})
 <li>The <code>0</code> in <code>(0 + floor|county)</code> means we don’t want county-specific intercept. We need to explicitly turn it off as we did with the regular intercept.</li>
 <li><code>floor|county</code> is <span class="math inline">\(b_{jk}\)</span>, the county-specific floor coefficients. Again, since there’s no varying intercepot for the counties, this includes coefficients for both floor levels.</li>
 </ul>
-<div class="cell" data-execution_count="39">
+<div id="cell-103" class="cell" data-execution_count="39">
 <div class="sourceCode cell-code" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>varying_intercept_slope_priors <span class="op">=</span> {</span>
 <span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"floor"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">10</span>),</span>
 <span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"floor|county"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span>bmb.Prior(<span class="st">"Exponential"</span>, lam<span class="op">=</span><span class="dv">1</span>)),</span>
@@ -3374,7 +3509,7 @@ b_{jk} \sim \text{Normal}(0, \sigma_{b_j})
 </div>
 </div>
 <p>Next, we fit the model. Note we increase the default number of <code>draws</code> from the posterior and the <code>tune</code> samples to 2000. In addition, as the structure of the model gets more complex, so does the posterior. That’s why we increase <code>target_accept</code> from the default 0.8 to 0.9, because we want to explore the posterior more cautiously .</p>
-<div class="cell" data-execution_count="40">
+<div id="cell-105" class="cell" data-execution_count="40">
 <div class="sourceCode cell-code" id="cb61"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>varying_intercept_slope_results <span class="op">=</span> varying_intercept_slope_model.fit(</span>
 <span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">2000</span>, </span>
 <span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>    tune<span class="op">=</span><span class="dv">2000</span>,</span>
@@ -3388,7 +3523,7 @@ NUTS: [sigma, floor, floor|county_sigma, floor|county_offset]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"1f791094fc294104ab894757656b5165","version_major":2,"version_minor":0}
+{"model_id":"1f791094fc294104ab894757656b5165","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -3403,14 +3538,18 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 <p>In the graph representation of the model we can now see hierarchical structures both in the intercepts and the slopes. The terms that end with <code>_offset</code> appeared because we are using a non-centered parametrization. This parametrization is an algebraic trick that helps computation but leaves the model unchanged.</p>
-<div class="cell" data-execution_count="41">
+<div id="cell-107" class="cell" data-execution_count="41">
 <div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>varying_intercept_slope_model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="41">
-<p><img src="radon_example_files/figure-html/cell-42-output-1.svg" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-42-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Let’s have a look at the marginal posterior for the coefficients in the model.</p>
-<div class="cell" data-execution_count="42">
+<div id="cell-109" class="cell" data-execution_count="42">
 <div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>var_names <span class="op">=</span> [<span class="st">"floor"</span>, <span class="st">"floor|county"</span>, <span class="st">"floor|county_sigma"</span>, <span class="st">"sigma"</span>]</span>
 <span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
 <span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>varying_intercept_slope_results,</span>
@@ -3419,7 +3558,11 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a>    chain_prop<span class="op">=</span>{<span class="st">"ls"</span>: <span class="st">"-"</span>}</span>
 <span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="radon_example_files/figure-html/cell-43-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-43-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 </section>
@@ -3481,7 +3624,7 @@ b_{jk} \sim \text{Normal}(0, \sigma_{b_j})
 \end{aligned}
 \]</span></p>
 <p>where <span class="math inline">\(\lambda\)</span> is a positive constant that we set to <span class="math inline">\(1\)</span>.</p>
-<div class="cell" data-execution_count="43">
+<div id="cell-114" class="cell" data-execution_count="43">
 <div class="sourceCode cell-code" id="cb66"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>covariate_priors <span class="op">=</span> {</span>
 <span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"floor"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">10</span>),</span>
 <span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"log_u"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">10</span>),</span>
@@ -3515,7 +3658,7 @@ b_{jk} \sim \text{Normal}(0, \sigma_{b_j})
             sigma ~ Exponential(lam: 1.0)</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="44">
+<div id="cell-115" class="cell" data-execution_count="44">
 <div class="sourceCode cell-code" id="cb68"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>covariate_results <span class="op">=</span> covariate_model.fit(</span>
 <span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">2000</span>, </span>
 <span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>    tune<span class="op">=</span><span class="dv">2000</span>,</span>
@@ -3530,7 +3673,7 @@ NUTS: [sigma, floor, log_u, floor|county_sigma, floor|county_offset]</code></pre
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"65eee87d7ed34e228581177723723e8b","version_major":2,"version_minor":0}
+{"model_id":"65eee87d7ed34e228581177723723e8b","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -3545,13 +3688,17 @@ There were 3 divergences after tuning. Increase `target_accept` or reparameteriz
 We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="45">
+<div id="cell-116" class="cell" data-execution_count="45">
 <div class="sourceCode cell-code" id="cb71"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>covariate_model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="45">
-<p><img src="radon_example_files/figure-html/cell-46-output-1.svg" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-46-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
 </div>
 </div>
-<div class="cell" data-execution_count="46">
+</div>
+<div id="cell-117" class="cell" data-execution_count="46">
 <div class="sourceCode cell-code" id="cb72"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>var_names <span class="op">=</span> [<span class="st">"floor"</span>, <span class="st">"log_u"</span>, <span class="st">"floor|county"</span>, <span class="st">"floor|county_sigma"</span>, <span class="st">"sigma"</span>]</span>
 <span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
 <span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>covariate_results,</span>
@@ -3560,11 +3707,15 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a>    chain_prop<span class="op">=</span>{<span class="st">"ls"</span>: <span class="st">"-"</span>}</span>
 <span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="radon_example_files/figure-html/cell-47-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-47-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Let us now visualize the posterior distributions of the intercepts:</p>
-<div class="cell" data-execution_count="47">
+<div id="cell-119" class="cell" data-execution_count="47">
 <div class="sourceCode cell-code" id="cb73"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get log_u values per county</span></span>
 <span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>log_u_sample <span class="op">=</span> df.groupby([<span class="st">"county"</span>])[<span class="st">"log_u"</span>].mean().values</span>
 <span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -3582,7 +3733,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <span id="cb73-15"><a href="#cb73-15" aria-hidden="true" tabindex="-1"></a><span class="co"># reduce the intercepts posterior samples to the mean per county</span></span>
 <span id="cb73-16"><a href="#cb73-16" aria-hidden="true" tabindex="-1"></a>mean_intercept <span class="op">=</span> intercepts.mean(axis<span class="op">=</span><span class="dv">2</span>)[..., <span class="va">None</span>] <span class="op">+</span> log_u_slope</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="48">
+<div id="cell-120" class="cell" data-execution_count="48">
 <div class="sourceCode cell-code" id="cb74"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>y_predicted_bounds <span class="op">=</span> np.quantile(y_predicted, q<span class="op">=</span>[<span class="fl">0.03</span>, <span class="fl">0.96</span>], axis<span class="op">=</span><span class="dv">1</span>)</span>
@@ -3622,7 +3773,11 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <span id="cb74-37"><a href="#cb74-37" aria-hidden="true" tabindex="-1"></a>    ylabel<span class="op">=</span><span class="st">"Intercept estimate"</span></span>
 <span id="cb74-38"><a href="#cb74-38" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="radon_example_files/figure-html/cell-49-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-49-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <hr>
@@ -3633,7 +3788,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <section id="summary" class="level2">
 <h2 class="anchored" data-anchor-id="summary">Summary</h2>
 <p>Let us dig deeper into the model comparison for the pooled, unpooled, and partial pooling models. To do so we are generate predictions for each model ad county level, where we aggregate by taking the mean, and plot them against the observed values.</p>
-<div class="cell" data-execution_count="49">
+<div id="cell-123" class="cell" data-execution_count="49">
 <div class="sourceCode cell-code" id="cb75"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="co"># generate posterior predictive samples</span></span>
 <span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>pooled_model.predict(pooled_results, kind<span class="op">=</span><span class="st">"response"</span>)</span>
 <span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>unpooled_model.predict(unpooled_results, kind<span class="op">=</span><span class="st">"response"</span>)</span>
@@ -3665,7 +3820,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
   partial_pooling_pps = az.extract_dataset(partial_pooling_results, group="posterior_predictive")["log_radon"].values</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="50">
+<div id="cell-124" class="cell" data-execution_count="50">
 <div class="sourceCode cell-code" id="cb77"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">8</span>))</span>
 <span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>sns.regplot(x<span class="op">=</span>y_sample, y<span class="op">=</span>y_pred_pooled, label<span class="op">=</span><span class="st">"pooled"</span>, color<span class="op">=</span><span class="st">"C0"</span>, ax<span class="op">=</span>ax)</span>
@@ -3686,7 +3841,11 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <span id="cb77-18"><a href="#cb77-18" aria-hidden="true" tabindex="-1"></a>    ylim<span class="op">=</span>(<span class="fl">0.2</span>, <span class="fl">2.8</span>),</span>
 <span id="cb77-19"><a href="#cb77-19" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="radon_example_files/figure-html/cell-51-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="radon_example_files/figure-html/cell-51-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <ul>
@@ -3694,7 +3853,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <li>On the other hand, the unpooled model considers each county separately, so the prediction is very close to the observation mean. This is represented by the line very close to the diagonal (orange).</li>
 <li>The partial pooling model is mixing global and information at county level. This is clearly seen by how corresponding (green) line is in between the pooling and unpooling lines.</li>
 </ul>
-<div class="cell" data-execution_count="51">
+<div id="cell-126" class="cell" data-execution_count="51">
 <div class="sourceCode cell-code" id="cb78"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -3718,7 +3877,6 @@ Watermark: 2.4.3
 </div>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
@@ -3749,12 +3907,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
     }
-  });
-  clipboard.on('success', function(e) {
+    return false;
+  }
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -3786,11 +3947,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -3800,8 +4000,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -3813,9 +4022,245 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
     });
   }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
   const findCites = (el) => {
     const parentEl = el.parentElement;
     if (parentEl) {
@@ -3857,12 +4302,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../notebooks/sleepstudy.html" class="pagination-link">
+      <a href="../notebooks/sleepstudy.html" class="pagination-link" aria-label="Hierarchical Linear Regression (Sleepstudy example)">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Hierarchical Linear Regression (Sleepstudy example)</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../notebooks/Strack_RRR_re_analysis.html" class="pagination-link">
+      <a href="../notebooks/Strack_RRR_re_analysis.html" class="pagination-link" aria-label="Bayesian Workflow (Strack RRR Analysis Replication)">
         <span class="nav-page-text">Bayesian Workflow (Strack RRR Analysis Replication)</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
@@ -3870,9 +4315,18 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
-      <div class="nav-footer-center">© Copyright 2024, The developers of Bambi.</div>
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>© Copyright 2024, The developers of Bambi.</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
   </div>
 </footer>
+
 
 
 

@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.2.280">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Bambi – orthogonal_polynomial_reg</title>
+<title>Orthogonal Polynomial regression – Bambi</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -17,11 +17,12 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -32,7 +33,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -46,47 +47,17 @@ pre.numberSource code > span > a:first-child::before
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
     padding: 0 4px; width: 4em;
-    color: #aaaaaa;
   }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
 div.sourceCode
   {   }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { color: #008000; } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { color: #008000; font-weight: bold; } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
@@ -110,7 +81,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -119,16 +96,46 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 <script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -137,293 +144,338 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a href="../index.html" class="navbar-brand navbar-brand-logo">
     <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo">
     </a>
   </div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../notebooks/getting_started.html">
- <span class="menu-text">Getting Started</span></a>
+    <a class="nav-link" href="../notebooks/getting_started.html"> 
+<span class="menu-text">Getting Started</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../api/index.html">
- <span class="menu-text">API Reference</span></a>
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../notebooks/index.html" aria-current="page">
- <span class="menu-text">Examples</span></a>
+    <a class="nav-link active" href="../notebooks/index.html" aria-current="page"> 
+<span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../faq.html">
- <span class="menu-text">FAQ</span></a>
+    <a class="nav-link" href="../faq.html"> 
+<span class="menu-text">FAQ</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../changelog.html">
- <span class="menu-text">Changelog</span></a>
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../contact.html">
- <span class="menu-text">Contact</span></a>
+    <a class="nav-link" href="../contact.html"> 
+<span class="menu-text">Contact</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/bambinos/bambi"><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/bambinos/bambi"> <i class="bi bi-github" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
 </ul>
-              <div id="quarto-search" class="" title="Search"></div>
           </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
-  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-    <div class="container-fluid d-flex justify-content-between">
-      <h1 class="quarto-secondary-nav-title"></h1>
-      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
-        <i class="bi bi-chevron-right"></i>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/distributional_models.html">More advanced models</a></li><li class="breadcrumb-item"><a href="../notebooks/orthogonal_polynomial_reg.html">Orthogonal Polynomial regression</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
     </div>
   </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/index.html" class="sidebar-item-text sidebar-link">Examples gallery</a>
+  <a href="../notebooks/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Examples gallery</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="false">Linear regression models</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Linear regression models</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link">Comparison of two means (T-test)</a>
+  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Comparison of two means (T-test)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">Multiple linear regression</a>
+  <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multiple linear regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/splines_cherry_blossoms.html" class="sidebar-item-text sidebar-link">Regression splines (Cherry blossom example)</a>
+  <a href="../notebooks/splines_cherry_blossoms.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Regression splines (Cherry blossom example)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/multi-level_regression.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Pigs dataset)</a>
+  <a href="../notebooks/multi-level_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Linear Regression (Pigs dataset)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/sleepstudy.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Sleepstudy example)</a>
+  <a href="../notebooks/sleepstudy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Linear Regression (Sleepstudy example)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/radon_example.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Radon Contamination dataset)</a>
+  <a href="../notebooks/radon_example.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Linear Regression (Radon Contamination dataset)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/Strack_RRR_re_analysis.html" class="sidebar-item-text sidebar-link">Bayesian Workflow (Strack RRR Analysis Replication)</a>
+  <a href="../notebooks/Strack_RRR_re_analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Workflow (Strack RRR Analysis Replication)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/shooter_crossed_random_ANOVA.html" class="sidebar-item-text sidebar-link">Bayesian Workflow (Police Officer’s Dilemma)</a>
+  <a href="../notebooks/shooter_crossed_random_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Workflow (Police Officer’s Dilemma)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/t_regression.html" class="sidebar-item-text sidebar-link">Robust Linear Regression</a>
+  <a href="../notebooks/t_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Robust Linear Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/predict_new_groups.html" class="sidebar-item-text sidebar-link">Predict New Groups</a>
+  <a href="../notebooks/predict_new_groups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Predict New Groups</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/polynomial_regression.html" class="sidebar-item-text sidebar-link">Polynomial Regression</a>
+  <a href="../notebooks/polynomial_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Polynomial Regression</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="false">Generalized linear models</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Generalized linear models</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/logistic_regression.html" class="sidebar-item-text sidebar-link">Logistic Regression (Vote intention with ANES data)</a>
+  <a href="../notebooks/logistic_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Logistic Regression (Vote intention with ANES data)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/model_comparison.html" class="sidebar-item-text sidebar-link">Logistic Regression and Model Comparison with Bambi and ArviZ</a>
+  <a href="../notebooks/model_comparison.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Logistic Regression and Model Comparison with Bambi and ArviZ</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/hierarchical_binomial_bambi.html" class="sidebar-item-text sidebar-link">Hierarchical Logistic regression with Binomial family</a>
+  <a href="../notebooks/hierarchical_binomial_bambi.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Logistic regression with Binomial family</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/alternative_links_binary.html" class="sidebar-item-text sidebar-link">Regression for Binary responses: Alternative link functions</a>
+  <a href="../notebooks/alternative_links_binary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Regression for Binary responses: Alternative link functions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/wald_gamma_glm.html" class="sidebar-item-text sidebar-link">Wald and Gamma Regression (Australian insurance claims 2004-2005)</a>
+  <a href="../notebooks/wald_gamma_glm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Wald and Gamma Regression (Australian insurance claims 2004-2005)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/negative_binomial.html" class="sidebar-item-text sidebar-link">Negative Binomial Regression (Students absence example)</a>
+  <a href="../notebooks/negative_binomial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Negative Binomial Regression (Students absence example)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/count_roaches.html" class="sidebar-item-text sidebar-link">Count Regression with Variable Exposure</a>
+  <a href="../notebooks/count_roaches.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Count Regression with Variable Exposure</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/beta_regression.html" class="sidebar-item-text sidebar-link">Beta Regression</a>
+  <a href="../notebooks/beta_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Beta Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/categorical_regression.html" class="sidebar-item-text sidebar-link">Categorical Regression</a>
+  <a href="../notebooks/categorical_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Categorical Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/circular_regression.html" class="sidebar-item-text sidebar-link">Circular Regression</a>
+  <a href="../notebooks/circular_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Circular Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/quantile_regression.html" class="sidebar-item-text sidebar-link">Quantile Regression</a>
+  <a href="../notebooks/quantile_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Quantile Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/mister_p.html" class="sidebar-item-text sidebar-link">Multilevel Regression and Post-stratification</a>
+  <a href="../notebooks/mister_p.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multilevel Regression and Post-stratification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/ordinal_regression.html" class="sidebar-item-text sidebar-link">Ordinal Regression</a>
+  <a href="../notebooks/ordinal_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ordinal Regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/zero_inflated_regression.html" class="sidebar-item-text sidebar-link">Zero inflated models</a>
+  <a href="../notebooks/zero_inflated_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Zero inflated models</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">More advanced models</a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">More advanced models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/distributional_models.html" class="sidebar-item-text sidebar-link">Distributional models</a>
+  <a href="../notebooks/distributional_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Distributional models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/hsgp_1d.html" class="sidebar-item-text sidebar-link">Gaussian Processes</a>
+  <a href="../notebooks/hsgp_1d.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gaussian Processes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/hsgp_2d.html" class="sidebar-item-text sidebar-link">Gaussian Processes in 2D</a>
+  <a href="../notebooks/hsgp_2d.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gaussian Processes in 2D</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/survival_model.html" class="sidebar-item-text sidebar-link">Survival Models</a>
+  <a href="../notebooks/survival_model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Survival Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/orthogonal_polynomial_reg.html" class="sidebar-item-text sidebar-link active">Orthogonal Polynomial regression</a>
+  <a href="../notebooks/orthogonal_polynomial_reg.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Orthogonal Polynomial regression</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="false">Tools to interpret model outputs</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">Tools to interpret model outputs</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/plot_predictions.html" class="sidebar-item-text sidebar-link">Plot Conditional Adjusted Predictions</a>
+  <a href="../notebooks/plot_predictions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Plot Conditional Adjusted Predictions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/plot_comparisons.html" class="sidebar-item-text sidebar-link">Plot Comparisons</a>
+  <a href="../notebooks/plot_comparisons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Plot Comparisons</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/plot_slopes.html" class="sidebar-item-text sidebar-link">Plot Slopes</a>
+  <a href="../notebooks/plot_slopes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Plot Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/interpret_advanced_usage.html" class="sidebar-item-text sidebar-link">Interpret Advanced Usage</a>
+  <a href="../notebooks/interpret_advanced_usage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Interpret Advanced Usage</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="false">Alternative sampling backends</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Alternative sampling backends</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/alternative_samplers.html" class="sidebar-item-text sidebar-link">Alternative sampling backends</a>
+  <a href="../notebooks/alternative_samplers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Alternative sampling backends</span></a>
   </div>
 </li>
       </ul>
@@ -431,20 +483,18 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     </ul>
     </div>
 </nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#orthogonal-polynomial-regression" id="toc-orthogonal-polynomial-regression" class="nav-link active" data-scroll-target="#orthogonal-polynomial-regression">Orthogonal Polynomial regression</a>
-  <ul class="collapse">
-  <li><a href="#revisiting-polynomial-regression" id="toc-revisiting-polynomial-regression" class="nav-link" data-scroll-target="#revisiting-polynomial-regression">Revisiting Polynomial Regression</a></li>
+  <li><a href="#revisiting-polynomial-regression" id="toc-revisiting-polynomial-regression" class="nav-link active" data-scroll-target="#revisiting-polynomial-regression">Revisiting Polynomial Regression</a></li>
   <li><a href="#the-poly-keyword" id="toc-the-poly-keyword" class="nav-link" data-scroll-target="#the-poly-keyword">The <code>poly</code> Keyword</a></li>
   <li><a href="#orthogonal-polynomials-in-practice" id="toc-orthogonal-polynomials-in-practice" class="nav-link" data-scroll-target="#orthogonal-polynomials-in-practice">Orthogonal Polynomials in Practice</a>
   <ul class="collapse">
   <li><a href="#cautionary-tales" id="toc-cautionary-tales" class="nav-link" data-scroll-target="#cautionary-tales">Cautionary Tales</a></li>
-  </ul></li>
   </ul></li>
   </ul>
 </nav>
@@ -452,12 +502,27 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/distributional_models.html">More advanced models</a></li><li class="breadcrumb-item"><a href="../notebooks/orthogonal_polynomial_reg.html">Orthogonal Polynomial regression</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Orthogonal Polynomial regression</h1>
+</div>
 
 
-<section id="orthogonal-polynomial-regression" class="level1">
-<h1>Orthogonal Polynomial regression</h1>
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
 <p>This example has been contributed by Tyler James Burch (<a href="https://github.com/tjburch">@tjburch</a> on GitHub). While the content in this notebook can stand alone, it is a companion to the <a href="https://bambinos.github.io/bambi/notebooks/polynomial_regression.html">polynomial regression notebook</a>, which contains additional useful examples.</p>
-<div class="cell" data-execution_count="1">
+<div id="5eb463de-d10c-4b9c-9a87-516b0fe8af2c" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> formulae</span>
@@ -472,7 +537,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>SEED <span class="op">=</span> <span class="dv">1234</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>np.random.seed(SEED)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="2">
+<div id="d66f940b-8fd2-4860-a800-f2e237355b4d" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Temporary fix to make outputs cleaner</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">"ignore"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -484,7 +549,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 x_f = \frac{1}{2} g t^2 + v_0 t + x_0
 \]</span></p>
 <p>Where <span class="math inline">\(g\)</span> will be the acceleration of gravity on Earth, <span class="math inline">\(-9.81\)</span> <span class="math inline">\(m\)</span>/<span class="math inline">\(s^2\)</span>. First we’ll generate the data.</p>
-<div class="cell" data-execution_count="3">
+<div id="5cfe8fdf-1fd8-4884-955c-6a2b6464359d" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> <span class="op">-</span><span class="fl">9.81</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>v0 <span class="op">=</span> <span class="dv">7</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>x0 <span class="op">=</span> <span class="fl">1.5</span></span>
@@ -503,7 +568,11 @@ x_f = \frac{1}{2} g t^2 + v_0 t + x_0
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-4-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-4-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Putting this into Bambi, we set <span class="math inline">\(\beta_2 = \frac{g}{2}\)</span>, <span class="math inline">\(\beta_1 = v_0\)</span>, and <span class="math inline">\(\beta_0 = x_0\)</span>, then perform the following regression:</p>
@@ -511,7 +580,7 @@ x_f = \frac{1}{2} g t^2 + v_0 t + x_0
 x_f = \beta_2 t^2 + \beta_1 t + \beta_0
 \]</span></p>
 <p>We expect to recover <span class="math inline">\(\beta_2 = -4.905\)</span>, <span class="math inline">\(\beta_1 = 7\)</span>, <span class="math inline">\(\beta_0 = 1.5\)</span> from our fit. We start with the approach from the other notebook where we explicitly tell formulae to calculate coefficients on <span class="math inline">\(t^2\)</span> and <span class="math inline">\(t\)</span>.</p>
-<div class="cell" data-execution_count="4">
+<div id="a3078924-f334-42ab-a924-1a95e913c540" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>model_projectile_all_terms <span class="op">=</span> bmb.Model(<span class="st">"x ~ I(t**2) + t + 1"</span>, df_projectile)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fit_projectile_all_terms <span class="op">=</span> model_projectile_all_terms.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}, random_seed<span class="op">=</span>SEED)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>az.summary(fit_projectile_all_terms)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -523,7 +592,7 @@ NUTS: [sigma, Intercept, I(t ** 2), t]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"026445add08d449796a0a76aac07cc6f","version_major":2,"version_minor":0}
+{"model_id":"026445add08d449796a0a76aac07cc6f","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -536,81 +605,82 @@ NUTS: [sigma, Intercept, I(t ** 2), t]</code></pre>
 <pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 9 seconds.</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="4">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>mean</th>
-      <th>sd</th>
-      <th>hdi_3%</th>
-      <th>hdi_97%</th>
-      <th>mcse_mean</th>
-      <th>mcse_sd</th>
-      <th>ess_bulk</th>
-      <th>ess_tail</th>
-      <th>r_hat</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>I(t ** 2)</th>
-      <td>-4.875</td>
-      <td>0.112</td>
-      <td>-5.095</td>
-      <td>-4.673</td>
-      <td>0.002</td>
-      <td>0.002</td>
-      <td>2121.0</td>
-      <td>2049.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>Intercept</th>
-      <td>1.518</td>
-      <td>0.066</td>
-      <td>1.389</td>
-      <td>1.636</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>2299.0</td>
-      <td>2047.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>sigma</th>
-      <td>0.201</td>
-      <td>0.016</td>
-      <td>0.172</td>
-      <td>0.232</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>2950.0</td>
-      <td>2330.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>t</th>
-      <td>6.962</td>
-      <td>0.187</td>
-      <td>6.622</td>
-      <td>7.325</td>
-      <td>0.004</td>
-      <td>0.003</td>
-      <td>1958.0</td>
-      <td>1925.0</td>
-      <td>1.0</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">sd</th>
+<th data-quarto-table-cell-role="th">hdi_3%</th>
+<th data-quarto-table-cell-role="th">hdi_97%</th>
+<th data-quarto-table-cell-role="th">mcse_mean</th>
+<th data-quarto-table-cell-role="th">mcse_sd</th>
+<th data-quarto-table-cell-role="th">ess_bulk</th>
+<th data-quarto-table-cell-role="th">ess_tail</th>
+<th data-quarto-table-cell-role="th">r_hat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">I(t ** 2)</td>
+<td>-4.875</td>
+<td>0.112</td>
+<td>-5.095</td>
+<td>-4.673</td>
+<td>0.002</td>
+<td>0.002</td>
+<td>2121.0</td>
+<td>2049.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Intercept</td>
+<td>1.518</td>
+<td>0.066</td>
+<td>1.389</td>
+<td>1.636</td>
+<td>0.001</td>
+<td>0.001</td>
+<td>2299.0</td>
+<td>2047.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sigma</td>
+<td>0.201</td>
+<td>0.016</td>
+<td>0.172</td>
+<td>0.232</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>2950.0</td>
+<td>2330.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">t</td>
+<td>6.962</td>
+<td>0.187</td>
+<td>6.622</td>
+<td>7.325</td>
+<td>0.004</td>
+<td>0.003</td>
+<td>1958.0</td>
+<td>1925.0</td>
+<td>1.0</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
 <p>The parameters are recovered as anticipated.</p>
 <p>If you want to include <em>all</em> terms of a variable up to a given degree, you can also use the keyword <code>poly</code>. So if we want the linear and quadratic effects, as in this case, we would designate <code>poly(t, 2)</code>.</p>
-<div class="cell" data-execution_count="5">
+<div id="3bbd8d1c-174b-4a7b-ae22-c3e761269b04" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>model_projectile_poly <span class="op">=</span> bmb.Model(<span class="st">"x ~ poly(t, 2) + 1"</span>, df_projectile)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>fit_projectile_poly <span class="op">=</span> model_projectile_poly.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}, random_seed<span class="op">=</span>SEED)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -621,7 +691,7 @@ NUTS: [sigma, Intercept, poly(t, 2)]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"029a155ea3004da488a4b7d0635ec20d","version_major":2,"version_minor":0}
+{"model_id":"029a155ea3004da488a4b7d0635ec20d","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -634,78 +704,79 @@ NUTS: [sigma, Intercept, poly(t, 2)]</code></pre>
 <pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 3 seconds.</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="6">
+<div id="1d84e8ad-52b0-433f-a222-1f04f0aaf0e7" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>az.summary(fit_projectile_poly)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="6">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>mean</th>
-      <th>sd</th>
-      <th>hdi_3%</th>
-      <th>hdi_97%</th>
-      <th>mcse_mean</th>
-      <th>mcse_sd</th>
-      <th>ess_bulk</th>
-      <th>ess_tail</th>
-      <th>r_hat</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>Intercept</th>
-      <td>2.872</td>
-      <td>0.023</td>
-      <td>2.828</td>
-      <td>2.913</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>5984.0</td>
-      <td>3512.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>poly(t, 2)[0]</th>
-      <td>-3.893</td>
-      <td>0.204</td>
-      <td>-4.275</td>
-      <td>-3.504</td>
-      <td>0.003</td>
-      <td>0.002</td>
-      <td>6053.0</td>
-      <td>3345.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>poly(t, 2)[1]</th>
-      <td>-8.770</td>
-      <td>0.196</td>
-      <td>-9.141</td>
-      <td>-8.413</td>
-      <td>0.003</td>
-      <td>0.002</td>
-      <td>4844.0</td>
-      <td>3327.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>sigma</th>
-      <td>0.201</td>
-      <td>0.016</td>
-      <td>0.171</td>
-      <td>0.232</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>7190.0</td>
-      <td>3089.0</td>
-      <td>1.0</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">sd</th>
+<th data-quarto-table-cell-role="th">hdi_3%</th>
+<th data-quarto-table-cell-role="th">hdi_97%</th>
+<th data-quarto-table-cell-role="th">mcse_mean</th>
+<th data-quarto-table-cell-role="th">mcse_sd</th>
+<th data-quarto-table-cell-role="th">ess_bulk</th>
+<th data-quarto-table-cell-role="th">ess_tail</th>
+<th data-quarto-table-cell-role="th">r_hat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Intercept</td>
+<td>2.872</td>
+<td>0.023</td>
+<td>2.828</td>
+<td>2.913</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>5984.0</td>
+<td>3512.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">poly(t, 2)[0]</td>
+<td>-3.893</td>
+<td>0.204</td>
+<td>-4.275</td>
+<td>-3.504</td>
+<td>0.003</td>
+<td>0.002</td>
+<td>6053.0</td>
+<td>3345.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">poly(t, 2)[1]</td>
+<td>-8.770</td>
+<td>0.196</td>
+<td>-9.141</td>
+<td>-8.413</td>
+<td>0.003</td>
+<td>0.002</td>
+<td>4844.0</td>
+<td>3327.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">sigma</td>
+<td>0.201</td>
+<td>0.016</td>
+<td>0.171</td>
+<td>0.232</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>7190.0</td>
+<td>3089.0</td>
+<td>1.0</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
@@ -719,7 +790,7 @@ NUTS: [sigma, Intercept, poly(t, 2)]</code></pre>
 <ul>
 <li>The data is first centered around the mean for stability</li>
 </ul>
-<div class="cell" data-execution_count="7">
+<div id="c8d578d2-442c-4e69-999f-ccdd579a924e" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> np.array([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>])</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>mean <span class="op">=</span> np.mean(X)</span>
@@ -733,7 +804,7 @@ Centered: [-2. -1.  0.  1.  2.]</code></pre>
 <ul>
 <li>A <em>Vandermonde matrix</em> is created. This just takes the input data and generates a matrix where columns represent increasing polynomial degrees. In this example, the first column is <span class="math inline">\(x^0\)</span>, a constant term. The second is <span class="math inline">\(x^1\)</span>, or the centered data. The third column is <span class="math inline">\(x^2\)</span>, the fourth is <span class="math inline">\(x^3\)</span>, the last is <span class="math inline">\(x^4\)</span>.</li>
 </ul>
-<div class="cell" data-execution_count="8">
+<div id="b57063f8-c0a9-402f-a817-e0c2ff8c5b09" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>degree <span class="op">=</span> <span class="dv">4</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>simple_vander <span class="op">=</span> np.vander(X_centered, N<span class="op">=</span>degree<span class="op">+</span><span class="dv">1</span>, increasing<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>simple_vander</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -748,7 +819,7 @@ Centered: [-2. -1.  0.  1.  2.]</code></pre>
 <ul>
 <li>QR decomposition is performed. There are <a href="https://en.wikipedia.org/wiki/QR_decomposition">several methods to doing this in practice</a>, the most common being the <a href="https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process">Gram-Schmidt process</a>. Here I just take advantage of the <a href="https://numpy.org/doc/stable/reference/generated/numpy.linalg.qr.html">Numpy implementation</a>. We take the above matrix and convert it into two components, an orthogonal matrix <span class="math inline">\(Q\)</span>, and an upper triangular matrix <span class="math inline">\(R\)</span>.</li>
 </ul>
-<div class="cell" data-execution_count="9">
+<div id="004f5052-c55a-41fe-a496-cf60165e35ef" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>q, r <span class="op">=</span> np.linalg.qr(simple_vander)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Orthogonal matrix Q:</span><span class="ch">\n</span><span class="st">"</span>, q.<span class="bu">round</span>(<span class="dv">4</span>))</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Upper triangular matrix R:</span><span class="ch">\n</span><span class="st">"</span>, r.<span class="bu">round</span>(<span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -771,7 +842,7 @@ Upper triangular matrix R:
 <ul>
 <li>Last take the dot product of <span class="math inline">\(Q\)</span> with the diagonal elements of <span class="math inline">\(R\)</span>. <span class="math inline">\(Q\)</span> is then scaled to the magnitude of the polynomial degrees in <span class="math inline">\(R\)</span>. This serves as our transformation matrix which transforms input data into the space defined by the orthogonal polynomials.</li>
 </ul>
-<div class="cell" data-execution_count="10">
+<div id="08d42b63-e4fc-4ad2-bb39-377202981669" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>diagonal <span class="op">=</span> np.diag(np.diag(r))  <span class="co"># First call gets elements, second creates diag matrix</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>transformation_matrix <span class="op">=</span> np.dot(q, diagonal)</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(transformation_matrix.<span class="bu">round</span>(<span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -786,7 +857,7 @@ Upper triangular matrix R:
 <ul>
 <li>From the transformation matrix, we get squared norms (<code>norm2</code>), which give us the scale of each polynomial. We also get the value by which we need to shift each polynomial to match the centered data (<code>alpha</code>).</li>
 </ul>
-<div class="cell" data-execution_count="11">
+<div id="f0bdab71-9ce8-4ce2-a1c6-a7f2a6aa6968" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>norm2 <span class="op">=</span> np.<span class="bu">sum</span>(transformation_matrix<span class="op">**</span><span class="dv">2</span>, axis<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>weighted_sums <span class="op">=</span> np.<span class="bu">sum</span>(</span>
@@ -806,7 +877,7 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <ul>
 <li>Finally, we iteratively apply this to all desired polynomial degrees, shifting the data and scaling by the squared norms appropriately to maintain orthogonality with the prior term.</li>
 </ul>
-<div class="cell" data-execution_count="12">
+<div id="40fead32-10c3-48ee-8c96-63ef466633a3" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>transformed_X <span class="op">=</span> np.full((<span class="bu">len</span>(X), degree<span class="op">+</span><span class="dv">1</span>), np.nan)</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>transformed_X[:,<span class="dv">0</span>] <span class="op">=</span> <span class="dv">1</span></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>transformed_X[:, <span class="dv">1</span>] <span class="op">=</span> X <span class="op">-</span> alpha[<span class="dv">0</span>]</span>
@@ -827,7 +898,7 @@ alpha: [3. 3. 3. 3.]</code></pre>
 </div>
 </div>
 <p>This is now a matrix of orthogonalized polynomials of X. The first column is just a constant. The second column corresponds to the input <span class="math inline">\(x\)</span>, the next is <span class="math inline">\(x^2\)</span> and so on. In most implementations, the constant term is eliminated, giving us the following final matrix.</p>
-<div class="cell" data-execution_count="13">
+<div id="5b868eb5-9fa2-412f-b704-5b1c1ceeabd2" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>transformed_X[:,<span class="dv">1</span>:]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="13">
 <pre><code>array([[-0.63245553,  0.53452248, -0.31622777,  0.11952286],
@@ -838,7 +909,7 @@ alpha: [3. 3. 3. 3.]</code></pre>
 </div>
 </div>
 <p>The approach shown in this derivation been reproduced below as a Scikit-Learn style class below, where the <code>fit</code> method calculates the coefficients and the <code>transform</code> method returns orthoginalized data. It is also <a href="https://gist.github.com/tjburch/062547b3600f81db73b40feb044bab2a#file-orthogonalpolynomialtransformer-py">at this gist</a>, including the typical <code>BaseEstimator</code>, <code>TransformerMixin</code> inheritances.</p>
-<div class="cell" data-execution_count="14">
+<div id="ab8e0ebe" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> OrthogonalPolynomialTransformer:</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Transforms input data using orthogonal polynomials."""</span></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    </span>
@@ -907,7 +978,7 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <span id="cb25-66"><a href="#cb25-66" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.transform(X)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>An example call is shown below. It’s worth noting that in this implementation, the constant term is not returned, the first column corresponds to <span class="math inline">\(x\)</span>, the second to <span class="math inline">\(x^2\)</span>, and the third to <span class="math inline">\(x^3\)</span>.</p>
-<div class="cell" data-execution_count="15">
+<div id="ab4cd520" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> np.array([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>])</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>poly3 <span class="op">=</span> OrthogonalPolynomialTransformer(degree<span class="op">=</span><span class="dv">3</span>).fit(X)</span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>poly3.transform(X)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -920,7 +991,7 @@ alpha: [3. 3. 3. 3.]</code></pre>
 </div>
 </div>
 <p>This matches what you may get when calling the same function in R:</p>
-<pre class="{r}"><code>&gt; poly(X, 4)
+<pre class="{R}"><code>&gt; poly(X, 4)
                  1          2             3          4
 [1,] -6.324555e-01  0.5345225 -3.162278e-01  0.1195229
 [2,] -3.162278e-01 -0.2672612  6.324555e-01 -0.4780914
@@ -928,7 +999,7 @@ alpha: [3. 3. 3. 3.]</code></pre>
 [4,]  3.162278e-01 -0.2672612 -6.324555e-01 -0.4780914
 [5,]  6.324555e-01  0.5345225  3.162278e-01  0.1195229</code></pre>
 <p>or, most relevant, from formulae,</p>
-<div class="cell" data-execution_count="16">
+<div id="6aea71ac-3d90-47a8-9e6a-dce2e08eee2c" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>formulae_poly <span class="op">=</span> formulae.transforms.Polynomial()</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>formulae_poly(X, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="16">
@@ -940,7 +1011,7 @@ alpha: [3. 3. 3. 3.]</code></pre>
 </div>
 </div>
 <p>For an example, applying this function to x over a domain from 0-10,</p>
-<div class="cell" data-execution_count="17">
+<div id="d4d4ce45-3ffb-4177-99e5-817752170893" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate data</span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">10</span>, <span class="dv">100</span>)</span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>x2 <span class="op">=</span> x<span class="op">**</span><span class="dv">2</span></span>
@@ -959,11 +1030,15 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>plt.xticks(rotation<span class="op">=</span><span class="dv">45</span>)</span>
 <span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-18-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-18-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>We now see that the orthogonalized version of <span class="math inline">\(x\)</span> and <span class="math inline">\(x^2\)</span> are no longer correlated to each other. Next, we construct a response variable and plot against it.</p>
-<div class="cell" data-execution_count="18">
+<div id="87bd479f-83ed-4457-90fb-aa7e6dca81e7" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> <span class="dv">3</span> <span class="op">*</span> x2  <span class="op">+</span> x</span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>), sharey<span class="op">=</span><span class="st">'row'</span>)</span>
@@ -991,13 +1066,17 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
 <span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-19-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-19-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>The top half shows the response variable against <span class="math inline">\(x\)</span> and <span class="math inline">\(x^2\)</span>, this should look familiar.</p>
 <p>The bottom half shows the new orthogonalized polynomial terms. First, you’ll notice the domain is centered at 0 and more compressed than the original scale, which is done within the orthogonalization process. Otherwise, the <span class="math inline">\(x\)</span> term is the same. Remember in the construction, the first order is untouched, then subsequent terms are built orthogonal to the first degree polynomial.</p>
 <p>I’ve shown a linear fit on top of the first order term. What you’ll notice is that the orthogonalized <span class="math inline">\(x^2\)</span> correspond to the residuals of this line. At the lowest values of <span class="math inline">\(y\)</span>, the fit is poor, and this is where the orthogonalized <span class="math inline">\(x^2\)</span> is highest. As the first order term crosses the linear fit, you see the orthogonalized <span class="math inline">\(x^2\)</span> cross zero, then go to negative values as it dips under the linear fit. It crosses 0 one more time and then is once again poor at the highest values shown. Since the <span class="math inline">\(x^2\)</span> is proportional to the residuals of the first order term, if we plot the orthogonalized <span class="math inline">\(x^2\)</span> term against the residuals, we should see a linear trend.</p>
-<div class="cell" data-execution_count="19">
+<div id="a4e155a4-b42f-4ba0-80a6-6f9763a3881f" class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform linear fit on x_orth vs y</span></span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>slope, intercept, r_value, p_value, std_err <span class="op">=</span> scipy.stats.linregress(x_orth, y)</span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1026,12 +1105,16 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
 <span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-20-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-20-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>And, in fact, the linear trend bears out when plotting the orthogonal <span class="math inline">\(x^2\)</span> vs the residuals.</p>
 <p>We can take this a degree higher and look at a cubic term.</p>
-<div class="cell" data-execution_count="20">
+<div id="2aaeaaff-3eae-4036-bba0-bc822d663c9e" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>x3 <span class="op">=</span> x<span class="op">**</span><span class="dv">3</span></span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>x2 <span class="op">=</span> x<span class="op">**</span><span class="dv">2</span></span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a cubic function with an up and down pattern</span></span>
@@ -1073,11 +1156,15 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <span id="cb34-39"><a href="#cb34-39" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
 <span id="cb34-40"><a href="#cb34-40" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-21-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-21-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>At a cubic level, it’s a bit more difficult to see the trends, however, the procedure is still the same. We can model each subsequent term against the residuals of the prior, and we can see that since this data was constructed from a cubic function, the <span class="math inline">\(x^3\)</span> plot against the residuals of the <span class="math inline">\(x^2\)</span> term is linear.</p>
-<div class="cell" data-execution_count="21">
+<div id="7fe443d4-9703-45fe-ae4e-13730e8c9157" class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform linear fit on x_orth vs y</span></span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>slope, intercept, r_value, p_value, std_err <span class="op">=</span> scipy.stats.linregress(x_orth, y_cubic)</span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1129,7 +1216,11 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <pre><code>No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-22-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-22-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>The main takeaway of this deep dive is the following: <strong>The <code>poly</code> keyword when used in a formula creates orthogonal polynomials. This is well-suited for fitting statistical models, since it eliminates the risk of multicollinearity between terms.</strong></p>
@@ -1139,97 +1230,98 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <section id="orthogonal-polynomials-in-practice" class="level2">
 <h2 class="anchored" data-anchor-id="orthogonal-polynomials-in-practice">Orthogonal Polynomials in Practice</h2>
 <p>In order to see the <code>poly</code> keyword in action, we’ll take a look at the cars dataset. This dataset, preloaded into Seaborn, includes information on cars manufactured between 1970-1982. First we’ll load it in and take a look at the included variables.</p>
-<div class="cell" data-execution_count="22">
+<div id="3d94ca31-49aa-40f1-a3ea-1bb856d2765e" class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>df_mpg <span class="op">=</span> sns.load_dataset(<span class="st">"mpg"</span>)</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>df_mpg.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="22">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>mpg</th>
-      <th>cylinders</th>
-      <th>displacement</th>
-      <th>horsepower</th>
-      <th>weight</th>
-      <th>acceleration</th>
-      <th>model_year</th>
-      <th>origin</th>
-      <th>name</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>18.0</td>
-      <td>8</td>
-      <td>307.0</td>
-      <td>130.0</td>
-      <td>3504</td>
-      <td>12.0</td>
-      <td>70</td>
-      <td>usa</td>
-      <td>chevrolet chevelle malibu</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>15.0</td>
-      <td>8</td>
-      <td>350.0</td>
-      <td>165.0</td>
-      <td>3693</td>
-      <td>11.5</td>
-      <td>70</td>
-      <td>usa</td>
-      <td>buick skylark 320</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>18.0</td>
-      <td>8</td>
-      <td>318.0</td>
-      <td>150.0</td>
-      <td>3436</td>
-      <td>11.0</td>
-      <td>70</td>
-      <td>usa</td>
-      <td>plymouth satellite</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>16.0</td>
-      <td>8</td>
-      <td>304.0</td>
-      <td>150.0</td>
-      <td>3433</td>
-      <td>12.0</td>
-      <td>70</td>
-      <td>usa</td>
-      <td>amc rebel sst</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>17.0</td>
-      <td>8</td>
-      <td>302.0</td>
-      <td>140.0</td>
-      <td>3449</td>
-      <td>10.5</td>
-      <td>70</td>
-      <td>usa</td>
-      <td>ford torino</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">mpg</th>
+<th data-quarto-table-cell-role="th">cylinders</th>
+<th data-quarto-table-cell-role="th">displacement</th>
+<th data-quarto-table-cell-role="th">horsepower</th>
+<th data-quarto-table-cell-role="th">weight</th>
+<th data-quarto-table-cell-role="th">acceleration</th>
+<th data-quarto-table-cell-role="th">model_year</th>
+<th data-quarto-table-cell-role="th">origin</th>
+<th data-quarto-table-cell-role="th">name</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>18.0</td>
+<td>8</td>
+<td>307.0</td>
+<td>130.0</td>
+<td>3504</td>
+<td>12.0</td>
+<td>70</td>
+<td>usa</td>
+<td>chevrolet chevelle malibu</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>15.0</td>
+<td>8</td>
+<td>350.0</td>
+<td>165.0</td>
+<td>3693</td>
+<td>11.5</td>
+<td>70</td>
+<td>usa</td>
+<td>buick skylark 320</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>18.0</td>
+<td>8</td>
+<td>318.0</td>
+<td>150.0</td>
+<td>3436</td>
+<td>11.0</td>
+<td>70</td>
+<td>usa</td>
+<td>plymouth satellite</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>16.0</td>
+<td>8</td>
+<td>304.0</td>
+<td>150.0</td>
+<td>3433</td>
+<td>12.0</td>
+<td>70</td>
+<td>usa</td>
+<td>amc rebel sst</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>17.0</td>
+<td>8</td>
+<td>302.0</td>
+<td>140.0</td>
+<td>3449</td>
+<td>10.5</td>
+<td>70</td>
+<td>usa</td>
+<td>ford torino</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
 <p>In this example, we’ll take a look at how a car’s fuel efficiency (<code>mpg</code>) relates to it’s <code>horsepower</code> (hp).</p>
 <p>To start, we’ll just plot the joint distribution, as well as the distribution of the response variable as well.</p>
-<div class="cell" data-execution_count="23">
+<div id="7d083c73" class="cell" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>df_mpg <span class="op">=</span> df_mpg.dropna(subset<span class="op">=</span>[<span class="st">"horsepower"</span>, <span class="st">"mpg"</span>])</span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1246,11 +1338,15 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
 <span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-24-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-24-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Immediately, we see that the linear fit doesn’t seem to model this data perfectly, it exhibits some nonlinearity. We’ll use a polynomial regression in order to see if we can improve that fit and capture the curvature. We will first fit a linear model as a benchmark.</p>
-<div class="cell" data-execution_count="24">
+<div id="43e534c1" class="cell" data-execution_count="24">
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>mpg_hp_linear_mod <span class="op">=</span> bmb.Model(<span class="st">"mpg ~ horsepower"</span>, df_mpg)</span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>mpg_hp_linear_fit <span class="op">=</span> mpg_hp_linear_mod.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}, random_seed<span class="op">=</span>SEED)</span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>mpg_hp_linear_mod.predict(mpg_hp_linear_fit, kind<span class="op">=</span><span class="st">"response"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1262,7 +1358,7 @@ NUTS: [sigma, Intercept, horsepower]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"9cca3de1f39941a995ad21f78a64a66d","version_major":2,"version_minor":0}
+{"model_id":"9cca3de1f39941a995ad21f78a64a66d","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -1275,7 +1371,7 @@ NUTS: [sigma, Intercept, horsepower]</code></pre>
 <pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 4 seconds.</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="25">
+<div id="d7c64860-d4d5-4d3f-a793-911b323d76d7" class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure()</span>
 <span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> p <span class="kw">in</span> [<span class="fl">.68</span>, <span class="fl">.95</span>]:</span>
 <span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>    bmb.interpret.plot_predictions(</span>
@@ -1293,11 +1389,15 @@ NUTS: [sigma, Intercept, horsepower]</code></pre>
 Default computed for conditional variable: horsepower</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-26-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-26-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Looking at this plot with the 68% and 95% CIs shown, the fit looks <em>okay</em>. Most notably, at about 160 hp, then the data diverge from the fit pretty drastically. The fit at low hp values isn’t particularly good either, there’s quite a bit that falls outside of our 95% CI. This can be accented pretty heavily by looking at the the residuals from the mean of the model.</p>
-<div class="cell" data-execution_count="26">
+<div id="47a65748" class="cell" data-execution_count="26">
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>predicted_mpg <span class="op">=</span> mpg_hp_linear_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>))</span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>residuals <span class="op">=</span> df_mpg[<span class="st">"mpg"</span>] <span class="op">-</span> predicted_mpg</span>
 <span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df_mpg, x<span class="op">=</span><span class="st">"horsepower"</span>, y<span class="op">=</span>residuals)</span>
@@ -1308,12 +1408,16 @@ Default computed for conditional variable: horsepower</code></pre>
 <pre><code>Text(0.5, 1.0, 'Residuals for linear model')</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-27-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-27-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>This is definitely not flat like we would ideally like it.</p>
 <p>Next we fit a polynomial regression, including a square term.</p>
-<div class="cell" data-execution_count="27">
+<div id="03bcd1d2" class="cell" data-execution_count="27">
 <div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>mpg_hp_sq_mod <span class="op">=</span> bmb.Model(<span class="st">"mpg ~ poly(horsepower, 2)"</span>, df_mpg)</span>
 <span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>mpg_hp_sq_fit <span class="op">=</span> mpg_hp_sq_mod.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}, random_seed<span class="op">=</span>SEED)</span>
 <span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>mpg_hp_sq_mod.predict(mpg_hp_sq_fit, kind<span class="op">=</span><span class="st">"response"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1325,7 +1429,7 @@ NUTS: [sigma, Intercept, poly(horsepower, 2)]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"85245ff194c741fdbff895e9e85c551f","version_major":2,"version_minor":0}
+{"model_id":"85245ff194c741fdbff895e9e85c551f","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -1338,7 +1442,7 @@ NUTS: [sigma, Intercept, poly(horsepower, 2)]</code></pre>
 <pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 6 seconds.</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="28">
+<div id="b7e53bd3" class="cell" data-execution_count="28">
 <div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure()</span>
 <span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> p <span class="kw">in</span> [<span class="fl">.68</span>, <span class="fl">.95</span>]:</span>
 <span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>    bmb.interpret.plot_predictions(</span>
@@ -1360,11 +1464,15 @@ Default computed for conditional variable: horsepower</code></pre>
 <pre><code>Text(0.5, 1.0, 'Quadratic Fit')</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-29-output-3.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-29-output-3.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Visually, this seems to look better. Particularly at high values, the model follows the pattern in the data much, much better, since we allow for curvature by including the polynomial term. Generating the same residual plot gives the following,</p>
-<div class="cell" data-execution_count="29">
+<div id="b1dfdf33" class="cell" data-execution_count="29">
 <div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>predicted_mpg <span class="op">=</span> mpg_hp_sq_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>))</span>
 <span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>residuals <span class="op">=</span> df_mpg[<span class="st">"mpg"</span>] <span class="op">-</span> predicted_mpg</span>
 <span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df_mpg, x<span class="op">=</span><span class="st">"horsepower"</span>, y<span class="op">=</span>residuals)</span>
@@ -1375,59 +1483,64 @@ Default computed for conditional variable: horsepower</code></pre>
 <pre><code>Text(0.5, 1.0, 'Residuals for quadratic model')</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-30-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-30-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>This is far closer to flat than before.</p>
 <p>For a true comparison, we can look at the elpd difference between the models.</p>
-<div class="cell" data-execution_count="30">
+<div id="71a474f4" class="cell" data-execution_count="30">
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>az.compare({<span class="st">"Linear"</span>: mpg_hp_linear_fit, <span class="st">"Quadratic"</span>: mpg_hp_sq_fit})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="30">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>rank</th>
-      <th>elpd_loo</th>
-      <th>p_loo</th>
-      <th>elpd_diff</th>
-      <th>weight</th>
-      <th>se</th>
-      <th>dse</th>
-      <th>warning</th>
-      <th>scale</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>Quadratic</th>
-      <td>0</td>
-      <td>-1137.457520</td>
-      <td>4.391553</td>
-      <td>0.000000</td>
-      <td>0.915406</td>
-      <td>18.118483</td>
-      <td>0.00000</td>
-      <td>False</td>
-      <td>log</td>
-    </tr>
-    <tr>
-      <th>Linear</th>
-      <td>1</td>
-      <td>-1182.021676</td>
-      <td>3.548755</td>
-      <td>44.564155</td>
-      <td>0.084594</td>
-      <td>15.109327</td>
-      <td>10.36876</td>
-      <td>False</td>
-      <td>log</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">rank</th>
+<th data-quarto-table-cell-role="th">elpd_loo</th>
+<th data-quarto-table-cell-role="th">p_loo</th>
+<th data-quarto-table-cell-role="th">elpd_diff</th>
+<th data-quarto-table-cell-role="th">weight</th>
+<th data-quarto-table-cell-role="th">se</th>
+<th data-quarto-table-cell-role="th">dse</th>
+<th data-quarto-table-cell-role="th">warning</th>
+<th data-quarto-table-cell-role="th">scale</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Quadratic</td>
+<td>0</td>
+<td>-1137.457520</td>
+<td>4.391553</td>
+<td>0.000000</td>
+<td>0.915406</td>
+<td>18.118483</td>
+<td>0.00000</td>
+<td>False</td>
+<td>log</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Linear</td>
+<td>1</td>
+<td>-1182.021676</td>
+<td>3.548755</td>
+<td>44.564155</td>
+<td>0.084594</td>
+<td>15.109327</td>
+<td>10.36876</td>
+<td>False</td>
+<td>log</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
@@ -1438,7 +1551,7 @@ Default computed for conditional variable: horsepower</code></pre>
 <section id="fitting-too-many-polynomial-degrees" class="level4">
 <h4 class="anchored" data-anchor-id="fitting-too-many-polynomial-degrees">Fitting too many polynomial degrees</h4>
 <p>Typically, when fitting a statistical model, you want to come to your data with a hypothesis and motivate your polynomial degree based on domain knowledge and expertise with the data. Instead of being principled, we’re going to throw caution to the wind and iteratively fit models from degree 1-10 and then see which performs best.</p>
-<div class="cell" data-execution_count="32">
+<div id="9d4f395c" class="cell" data-execution_count="32">
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>poly_fits, poly_models <span class="op">=</span> {}, {}</span>
 <span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> degree <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">10</span>):</span>
 <span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> bmb.Model(<span class="ss">f"mpg ~ poly(horsepower, </span><span class="sc">{</span>degree<span class="sc">}</span><span class="ss">)"</span>, df_mpg)</span>
@@ -1496,151 +1609,156 @@ NUTS: [sigma, Intercept, poly(horsepower, 9)]
 Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 9 seconds.</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="32">
-
 <div>
 
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>rank</th>
-      <th>elpd_loo</th>
-      <th>p_loo</th>
-      <th>elpd_diff</th>
-      <th>weight</th>
-      <th>se</th>
-      <th>dse</th>
-      <th>warning</th>
-      <th>scale</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>Poly7</th>
-      <td>0</td>
-      <td>-1133.056651</td>
-      <td>9.286158</td>
-      <td>0.000000</td>
-      <td>6.605585e-01</td>
-      <td>18.850219</td>
-      <td>0.000000</td>
-      <td>False</td>
-      <td>log</td>
-    </tr>
-    <tr>
-      <th>Poly6</th>
-      <td>1</td>
-      <td>-1134.077639</td>
-      <td>8.816832</td>
-      <td>1.020989</td>
-      <td>4.232600e-13</td>
-      <td>18.638394</td>
-      <td>1.793307</td>
-      <td>False</td>
-      <td>log</td>
-    </tr>
-    <tr>
-      <th>Poly8</th>
-      <td>2</td>
-      <td>-1134.642557</td>
-      <td>10.942848</td>
-      <td>1.585906</td>
-      <td>4.274684e-13</td>
-      <td>18.820855</td>
-      <td>0.664368</td>
-      <td>True</td>
-      <td>log</td>
-    </tr>
-    <tr>
-      <th>Poly5</th>
-      <td>3</td>
-      <td>-1134.839670</td>
-      <td>7.652049</td>
-      <td>1.783020</td>
-      <td>4.280794e-13</td>
-      <td>18.505057</td>
-      <td>3.502449</td>
-      <td>False</td>
-      <td>log</td>
-    </tr>
-    <tr>
-      <th>Poly9</th>
-      <td>4</td>
-      <td>-1135.162445</td>
-      <td>11.876625</td>
-      <td>2.105794</td>
-      <td>4.271587e-13</td>
-      <td>18.921941</td>
-      <td>1.593423</td>
-      <td>True</td>
-      <td>log</td>
-    </tr>
-    <tr>
-      <th>Poly2</th>
-      <td>5</td>
-      <td>-1137.457507</td>
-      <td>4.391540</td>
-      <td>4.400857</td>
-      <td>4.134037e-13</td>
-      <td>18.118477</td>
-      <td>6.449275</td>
-      <td>False</td>
-      <td>log</td>
-    </tr>
-    <tr>
-      <th>Poly3</th>
-      <td>6</td>
-      <td>-1138.255418</td>
-      <td>5.693683</td>
-      <td>5.198768</td>
-      <td>2.744510e-01</td>
-      <td>18.401059</td>
-      <td>6.961385</td>
-      <td>False</td>
-      <td>log</td>
-    </tr>
-    <tr>
-      <th>Poly4</th>
-      <td>7</td>
-      <td>-1138.824420</td>
-      <td>7.106027</td>
-      <td>5.767770</td>
-      <td>4.337785e-13</td>
-      <td>18.322672</td>
-      <td>6.128835</td>
-      <td>False</td>
-      <td>log</td>
-    </tr>
-    <tr>
-      <th>Poly1</th>
-      <td>8</td>
-      <td>-1181.947800</td>
-      <td>3.478546</td>
-      <td>48.891149</td>
-      <td>6.499044e-02</td>
-      <td>15.115759</td>
-      <td>10.986985</td>
-      <td>False</td>
-      <td>log</td>
-    </tr>
-  </tbody>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">rank</th>
+<th data-quarto-table-cell-role="th">elpd_loo</th>
+<th data-quarto-table-cell-role="th">p_loo</th>
+<th data-quarto-table-cell-role="th">elpd_diff</th>
+<th data-quarto-table-cell-role="th">weight</th>
+<th data-quarto-table-cell-role="th">se</th>
+<th data-quarto-table-cell-role="th">dse</th>
+<th data-quarto-table-cell-role="th">warning</th>
+<th data-quarto-table-cell-role="th">scale</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Poly7</td>
+<td>0</td>
+<td>-1133.056651</td>
+<td>9.286158</td>
+<td>0.000000</td>
+<td>6.605585e-01</td>
+<td>18.850219</td>
+<td>0.000000</td>
+<td>False</td>
+<td>log</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Poly6</td>
+<td>1</td>
+<td>-1134.077639</td>
+<td>8.816832</td>
+<td>1.020989</td>
+<td>4.232600e-13</td>
+<td>18.638394</td>
+<td>1.793307</td>
+<td>False</td>
+<td>log</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Poly8</td>
+<td>2</td>
+<td>-1134.642557</td>
+<td>10.942848</td>
+<td>1.585906</td>
+<td>4.274684e-13</td>
+<td>18.820855</td>
+<td>0.664368</td>
+<td>True</td>
+<td>log</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Poly5</td>
+<td>3</td>
+<td>-1134.839670</td>
+<td>7.652049</td>
+<td>1.783020</td>
+<td>4.280794e-13</td>
+<td>18.505057</td>
+<td>3.502449</td>
+<td>False</td>
+<td>log</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Poly9</td>
+<td>4</td>
+<td>-1135.162445</td>
+<td>11.876625</td>
+<td>2.105794</td>
+<td>4.271587e-13</td>
+<td>18.921941</td>
+<td>1.593423</td>
+<td>True</td>
+<td>log</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Poly2</td>
+<td>5</td>
+<td>-1137.457507</td>
+<td>4.391540</td>
+<td>4.400857</td>
+<td>4.134037e-13</td>
+<td>18.118477</td>
+<td>6.449275</td>
+<td>False</td>
+<td>log</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Poly3</td>
+<td>6</td>
+<td>-1138.255418</td>
+<td>5.693683</td>
+<td>5.198768</td>
+<td>2.744510e-01</td>
+<td>18.401059</td>
+<td>6.961385</td>
+<td>False</td>
+<td>log</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Poly4</td>
+<td>7</td>
+<td>-1138.824420</td>
+<td>7.106027</td>
+<td>5.767770</td>
+<td>4.337785e-13</td>
+<td>18.322672</td>
+<td>6.128835</td>
+<td>False</td>
+<td>log</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Poly1</td>
+<td>8</td>
+<td>-1181.947800</td>
+<td>3.478546</td>
+<td>48.891149</td>
+<td>6.499044e-02</td>
+<td>15.115759</td>
+<td>10.986985</td>
+<td>False</td>
+<td>log</td>
+</tr>
+</tbody>
 </table>
+
 </div>
 </div>
 </div>
 <p>Wow! A 7th-degree polynomial seems to do better than the quadratic one we fit before. But we must also notice that most ELPD values are very similar. Let’s do a plot, so we can more easily grasp how different models are according to the ELPD. We are going to use <code>az.plot_compare</code>, and we are going to add a blue band to indicate models that have an ELPD difference of less than 4 with respect to the first-ranked model. Essentially models that are that close can not be distinguished when using ELPD.</p>
-<div class="cell" data-execution_count="33">
+<div id="164d569e" class="cell" data-execution_count="33">
 <div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> az.plot_compare(<span class="bu">cmp</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>), plot_ic_diff<span class="op">=</span><span class="va">False</span>, legend<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span>
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>best_loo <span class="op">=</span> <span class="bu">cmp</span>[<span class="st">"elpd_loo"</span>].iloc[<span class="dv">0</span>]</span>
 <span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>ax.axvspan(best_loo<span class="op">-</span><span class="dv">4</span>, best_loo, color<span class="op">=</span><span class="st">"C0"</span>, alpha<span class="op">=</span><span class="fl">0.2</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-33-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-33-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>We can see that <code>Poly6</code>, <code>Poly8</code>, <code>Poly5</code> and <code>Poly9</code> are all very similar (within a difference of 4 units). Evenmore, all model except from <code>Poly1</code> have overlaping standard errors.</p>
 <p>Overall, this is telling us that there is no clear gain in predictive performance once we move beyond a quadratic model. If we want to pick a single model, then we need another criteria to decide. If we have no reason to prefer a more complex model, choosing the simpler one (<code>Poly2</code> in this example) is a good heuristic.</p>
 <p>Before deciding let’s do a couple more plot. First, see what those residuals look like!</p>
-<div class="cell" data-execution_count="34">
+<div id="bd65c0ab" class="cell" data-execution_count="34">
 <div class="sourceCode cell-code" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>best_model <span class="op">=</span> poly_models[<span class="st">"Poly7"</span>]</span>
 <span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>best_fit <span class="op">=</span> poly_fits[<span class="st">"Poly7"</span>]</span>
 <span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>best_model.predict(best_fit, kind<span class="op">=</span><span class="st">"response"</span>)</span>
@@ -1652,11 +1770,15 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <span id="cb58-9"><a href="#cb58-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Residuals"</span>)</span>
 <span id="cb58-10"><a href="#cb58-10" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Residuals for degree 7 model'</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-34-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-34-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Hey, that looks pretty good, the residuals appear nice and flat. Before we go full steam ahead with this model, let’s take a look at the posterior predictive distribution.</p>
-<div class="cell" data-execution_count="35">
+<div id="5c0e19e1" class="cell" data-execution_count="35">
 <div class="sourceCode cell-code" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure()</span>
 <span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> p <span class="kw">in</span> [<span class="fl">.68</span>, <span class="fl">.95</span>]:</span>
 <span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>    bmb.interpret.plot_predictions(</span>
@@ -1675,7 +1797,11 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 Default computed for conditional variable: horsepower</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-35-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-35-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Uh-oh. You can see that while this gave the best elpd, and had a nice residual plot, it’s obviously overfit, as expected given that we already show that the difference with the quadratic model is small. Given our knowledge about how cars operate, we expect a decreasing trend of fuel efficiency at higher horsepower. The 7th degree polynomial absolutely is not consistent with that. First, looking at the low values, it increases before starting the decreasing trend. Second, it starts to go back up at the high end of the data, strongly latching onto a couple of points that are likely driven by noise.</p>
@@ -1689,7 +1815,7 @@ Default computed for conditional variable: horsepower</code></pre>
 <h4 class="anchored" data-anchor-id="extrapolation-of-polynomial-models">Extrapolation of polynomial models</h4>
 <p>With any model, we should be careful when extrapolating and ensure our assumptions hold, but this particularly applies when considering polynomial regression. Since we consider the higher order polynomials, terms can quickly blow up outside of our domain.</p>
 <p>For example, with the quadratic fit, we see that the drop in mpg flattens out at higher horsepower. However, if you look closely at the posterior predictive of the quadratic model, you can start to see the fit rise again at the end. But, if we extend this beyond the bounds, due to the curvature of a second degree polynomial, we see a reversal of the negative effect on horsepower, where our quadratic model implies a higher horsepower leads to <em>better</em> mpg.</p>
-<div class="cell" data-execution_count="36">
+<div id="b34ef85c" class="cell" data-execution_count="36">
 <div class="sourceCode cell-code" id="cb61"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>extrapolate_x_hp <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">500</span>, <span class="dv">250</span>)  </span>
 <span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>mpg_hp_sq_mod.predict(mpg_hp_sq_fit, data<span class="op">=</span>pd.DataFrame({<span class="st">"horsepower"</span>: extrapolate_x_hp}))</span>
 <span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1703,58 +1829,67 @@ Default computed for conditional variable: horsepower</code></pre>
 <span id="cb61-11"><a href="#cb61-11" aria-hidden="true" tabindex="-1"></a>plt.xlim(left<span class="op">=</span><span class="dv">0</span>, right<span class="op">=</span>extrapolate_x_hp.<span class="bu">max</span>())</span>
 <span id="cb61-12"><a href="#cb61-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb61-13"><a href="#cb61-13" aria-hidden="true" tabindex="-1"></a>plt.legend(frameon<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="36">
-<pre><code>&lt;matplotlib.legend.Legend at 0x7611d9b24ed0&gt;</code></pre>
-</div>
 <div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-36-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-36-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>This is strictly untrue based on what we know about cars and what we’ve seen in the data, so you would <em>not</em> want to use the model outside of the intended domain. If that is the goal, you would want to find more appropriate specification. Something like an exponential or inverse fit may be appropriate, in order to make sure the fit approaches 0, while still forbidding predictions below 0.</p>
 <p>Extrapolation issues are not unique to polynomial regression, for example we run into forbidden values with linear regression when extrapolating too.</p>
-<div class="cell" data-execution_count="37">
-<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>mpg_hp_linear_mod.predict(mpg_hp_linear_fit, data<span class="op">=</span>pd.DataFrame({<span class="st">"horsepower"</span>: extrapolate_x_hp}))</span>
-<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df_mpg, x<span class="op">=</span><span class="st">"horsepower"</span>, y<span class="op">=</span><span class="st">"mpg"</span>, color<span class="op">=</span><span class="st">'blue'</span>, label<span class="op">=</span><span class="st">'True Data'</span>)</span>
-<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a>plt.plot(</span>
-<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a>    extrapolate_x_hp,</span>
-<span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a>    mpg_hp_linear_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)),</span>
-<span id="cb63-7"><a href="#cb63-7" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"red"</span>,</span>
-<span id="cb63-8"><a href="#cb63-8" aria-hidden="true" tabindex="-1"></a>    label<span class="op">=</span><span class="st">"Predicted"</span></span>
-<span id="cb63-9"><a href="#cb63-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb63-10"><a href="#cb63-10" aria-hidden="true" tabindex="-1"></a>plt.fill_between(extrapolate_x_hp, plt.ylim()[<span class="dv">0</span>], <span class="dv">0</span>, color<span class="op">=</span><span class="st">'grey'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">"MPG Forbidden region"</span>)</span>
-<span id="cb63-11"><a href="#cb63-11" aria-hidden="true" tabindex="-1"></a>plt.xlim(left<span class="op">=</span><span class="dv">0</span>, right<span class="op">=</span>extrapolate_x_hp.<span class="bu">max</span>())</span>
-<span id="cb63-12"><a href="#cb63-12" aria-hidden="true" tabindex="-1"></a>plt.ylim(bottom<span class="op">=</span>mpg_hp_linear_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)).<span class="bu">min</span>())</span>
-<span id="cb63-13"><a href="#cb63-13" aria-hidden="true" tabindex="-1"></a>plt.legend(frameon<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="5dbfa6b6" class="cell" data-execution_count="37">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>mpg_hp_linear_mod.predict(mpg_hp_linear_fit, data<span class="op">=</span>pd.DataFrame({<span class="st">"horsepower"</span>: extrapolate_x_hp}))</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df_mpg, x<span class="op">=</span><span class="st">"horsepower"</span>, y<span class="op">=</span><span class="st">"mpg"</span>, color<span class="op">=</span><span class="st">'blue'</span>, label<span class="op">=</span><span class="st">'True Data'</span>)</span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a>plt.plot(</span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>    extrapolate_x_hp,</span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>    mpg_hp_linear_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)),</span>
+<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"red"</span>,</span>
+<span id="cb62-8"><a href="#cb62-8" aria-hidden="true" tabindex="-1"></a>    label<span class="op">=</span><span class="st">"Predicted"</span></span>
+<span id="cb62-9"><a href="#cb62-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb62-10"><a href="#cb62-10" aria-hidden="true" tabindex="-1"></a>plt.fill_between(extrapolate_x_hp, plt.ylim()[<span class="dv">0</span>], <span class="dv">0</span>, color<span class="op">=</span><span class="st">'grey'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">"MPG Forbidden region"</span>)</span>
+<span id="cb62-11"><a href="#cb62-11" aria-hidden="true" tabindex="-1"></a>plt.xlim(left<span class="op">=</span><span class="dv">0</span>, right<span class="op">=</span>extrapolate_x_hp.<span class="bu">max</span>())</span>
+<span id="cb62-12"><a href="#cb62-12" aria-hidden="true" tabindex="-1"></a>plt.ylim(bottom<span class="op">=</span>mpg_hp_linear_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)).<span class="bu">min</span>())</span>
+<span id="cb62-13"><a href="#cb62-13" aria-hidden="true" tabindex="-1"></a>plt.legend(frameon<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-37-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-37-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>However, it is highlighted in this notebook because, due to the nature of polynomial regression, it can be very sensitive outside the fitting domain. Just for fun to wrap this notebook up, we will take a look at what the 7th order “best model” does outside of where we fit the model.</p>
-<div class="cell" data-execution_count="38">
-<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>extrapolate_x_hp <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">300</span>, <span class="dv">250</span>)  </span>
-<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>best_model.predict(best_fit, data<span class="op">=</span>pd.DataFrame({<span class="st">"horsepower"</span>: extrapolate_x_hp}))</span>
-<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df_mpg, x<span class="op">=</span><span class="st">"horsepower"</span>, y<span class="op">=</span><span class="st">"mpg"</span>, color<span class="op">=</span><span class="st">'blue'</span>, label<span class="op">=</span><span class="st">'True Data'</span>)</span>
-<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>plt.plot(</span>
-<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a>    extrapolate_x_hp,</span>
-<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a>    best_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)),</span>
-<span id="cb64-8"><a href="#cb64-8" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"red"</span>,</span>
-<span id="cb64-9"><a href="#cb64-9" aria-hidden="true" tabindex="-1"></a>    label<span class="op">=</span><span class="st">"Extrapolated Fit"</span>,</span>
-<span id="cb64-10"><a href="#cb64-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb64-11"><a href="#cb64-11" aria-hidden="true" tabindex="-1"></a>plt.fill_between(extrapolate_x_hp, plt.ylim()[<span class="dv">0</span>], <span class="dv">0</span>, color<span class="op">=</span><span class="st">'grey'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">"MPG Forbidden region"</span>)</span>
-<span id="cb64-12"><a href="#cb64-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-13"><a href="#cb64-13" aria-hidden="true" tabindex="-1"></a>plt.xlim(left<span class="op">=</span><span class="dv">0</span>, right<span class="op">=</span>extrapolate_x_hp.<span class="bu">max</span>())</span>
-<span id="cb64-14"><a href="#cb64-14" aria-hidden="true" tabindex="-1"></a>plt.ylim(bottom<span class="op">=</span>best_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)).<span class="bu">min</span>())</span>
-<span id="cb64-15"><a href="#cb64-15" aria-hidden="true" tabindex="-1"></a>plt.legend(frameon<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="dfe793c9" class="cell" data-execution_count="38">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>extrapolate_x_hp <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">300</span>, <span class="dv">250</span>)  </span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>best_model.predict(best_fit, data<span class="op">=</span>pd.DataFrame({<span class="st">"horsepower"</span>: extrapolate_x_hp}))</span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df_mpg, x<span class="op">=</span><span class="st">"horsepower"</span>, y<span class="op">=</span><span class="st">"mpg"</span>, color<span class="op">=</span><span class="st">'blue'</span>, label<span class="op">=</span><span class="st">'True Data'</span>)</span>
+<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a>plt.plot(</span>
+<span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a>    extrapolate_x_hp,</span>
+<span id="cb63-7"><a href="#cb63-7" aria-hidden="true" tabindex="-1"></a>    best_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)),</span>
+<span id="cb63-8"><a href="#cb63-8" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"red"</span>,</span>
+<span id="cb63-9"><a href="#cb63-9" aria-hidden="true" tabindex="-1"></a>    label<span class="op">=</span><span class="st">"Extrapolated Fit"</span>,</span>
+<span id="cb63-10"><a href="#cb63-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb63-11"><a href="#cb63-11" aria-hidden="true" tabindex="-1"></a>plt.fill_between(extrapolate_x_hp, plt.ylim()[<span class="dv">0</span>], <span class="dv">0</span>, color<span class="op">=</span><span class="st">'grey'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">"MPG Forbidden region"</span>)</span>
+<span id="cb63-12"><a href="#cb63-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-13"><a href="#cb63-13" aria-hidden="true" tabindex="-1"></a>plt.xlim(left<span class="op">=</span><span class="dv">0</span>, right<span class="op">=</span>extrapolate_x_hp.<span class="bu">max</span>())</span>
+<span id="cb63-14"><a href="#cb63-14" aria-hidden="true" tabindex="-1"></a>plt.ylim(bottom<span class="op">=</span>best_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)).<span class="bu">min</span>())</span>
+<span id="cb63-15"><a href="#cb63-15" aria-hidden="true" tabindex="-1"></a>plt.legend(frameon<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-38-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="orthogonal_polynomial_reg_files/figure-html/cell-38-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Yikes.</p>
-<div class="cell" data-execution_count="39">
-<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="21a0b2a2" class="cell" data-execution_count="39">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Last updated: Thu Jul 11 2024
 
@@ -1777,7 +1912,6 @@ Watermark: 2.4.3
 </div>
 
 
-</section>
 </section>
 </section>
 </section>
@@ -1810,12 +1944,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
     }
-  });
-  clipboard.on('success', function(e) {
+    return false;
+  }
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -1847,11 +1984,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1861,8 +2037,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1874,9 +2059,245 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
     });
   }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
   const findCites = (el) => {
     const parentEl = el.parentElement;
     if (parentEl) {
@@ -1918,12 +2339,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../notebooks/survival_model.html" class="pagination-link">
+      <a href="../notebooks/survival_model.html" class="pagination-link" aria-label="Survival Models">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Survival Models</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../notebooks/plot_predictions.html" class="pagination-link">
+      <a href="../notebooks/plot_predictions.html" class="pagination-link" aria-label="Plot Conditional Adjusted Predictions">
         <span class="nav-page-text">Plot Conditional Adjusted Predictions</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
@@ -1931,9 +2352,18 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
-      <div class="nav-footer-center">© Copyright 2024, The developers of Bambi.</div>
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>© Copyright 2024, The developers of Bambi.</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
   </div>
 </footer>
+
 
 
 

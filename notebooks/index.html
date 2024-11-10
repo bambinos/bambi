@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.2.280">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Examples</title>
+<title>Examples – Bambi</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -17,7 +17,7 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
 </style>
@@ -48,7 +48,13 @@ ul.task-list li input[type="checkbox"] {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -57,8 +63,10 @@ ul.task-list li input[type="checkbox"] {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 <script>
@@ -91,7 +99,35 @@ ul.task-list li input[type="checkbox"] {
   })
   </script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -100,50 +136,52 @@ ul.task-list li input[type="checkbox"] {
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a href="../index.html" class="navbar-brand navbar-brand-logo">
     <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo">
     </a>
   </div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../notebooks/getting_started.html">
- <span class="menu-text">Getting Started</span></a>
+    <a class="nav-link" href="../notebooks/getting_started.html"> 
+<span class="menu-text">Getting Started</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../api/index.html">
- <span class="menu-text">API Reference</span></a>
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../notebooks/index.html" aria-current="page">
- <span class="menu-text">Examples</span></a>
+    <a class="nav-link active" href="../notebooks/index.html" aria-current="page"> 
+<span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../faq.html">
- <span class="menu-text">FAQ</span></a>
+    <a class="nav-link" href="../faq.html"> 
+<span class="menu-text">FAQ</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../changelog.html">
- <span class="menu-text">Changelog</span></a>
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../contact.html">
- <span class="menu-text">Contact</span></a>
+    <a class="nav-link" href="../contact.html"> 
+<span class="menu-text">Contact</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/bambinos/bambi"><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/bambinos/bambi"> <i class="bi bi-github" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
 </ul>
-              <div id="quarto-search" class="" title="Search"></div>
           </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -162,7 +200,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<div class="quarto-title-meta">
+<div class="quarto-title-meta column-page">
 
     
   
@@ -170,20 +208,27 @@ ul.task-list li input[type="checkbox"] {
   </div>
   
 
+
 </header>
 
 
 
 
 
+
 <div class="quarto-listing quarto-listing-container-custom" id="listing-gallery">
+
 <h2 class="anchored">Linear regression models</h2>
+
 <p></p>
+
 <div class="list grid" style="column-gap: 10px;">
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="0">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/t-test.html" class="listing-title">Comparison of two means</a>
+        
         <br>
         <span class="text-muted listing-subtitle">With a t-test</span>
       </small>
@@ -193,11 +238,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/t_test.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="1">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/ESCS_multiple_regression.html" class="listing-title">Multiple linear regression</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Personality dimensions</span>
       </small>
@@ -207,11 +256,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/escs_multiple_regression.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="2">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/splines_cherry_blossoms.html" class="listing-title">Regression splines</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Cherry blossoms</span>
       </small>
@@ -221,11 +274,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/splines_cherry_blossoms.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="3">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/multi-level_regression.html" class="listing-title">Hierarchical linear regression</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Pigs growth</span>
       </small>
@@ -235,11 +292,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/multi_level_regression.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="4">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/sleepstudy.html" class="listing-title">Hierarchical linear regression</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Sleep deprivation</span>
       </small>
@@ -249,11 +310,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/sleepstudy.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="5">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/radon_example.html" class="listing-title">Hierarchical linear regression</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Radon contamination</span>
       </small>
@@ -263,11 +328,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/radon_example.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="6">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/Strack_RRR_re_analysis.html" class="listing-title">Bayesian workflow</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Strack RRR analysis replication</span>
       </small>
@@ -277,11 +346,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/strack_rrr_re_analysis.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="7">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/shooter_crossed_random_ANOVA.html" class="listing-title">Bayesian workflow</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Police officer's dilemma</span>
       </small>
@@ -291,11 +364,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/shooter_crossed_random_anova.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="8">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/t_regression.html" class="listing-title">Robust linear regression</a>
+        
         <br>
         <span class="text-muted listing-subtitle">With the Student's T distribution</span>
       </small>
@@ -305,11 +382,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/t_regression.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="9">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/predict_new_groups.html" class="listing-title">Predict new groups</a>
+        
         <br>
         <span class="text-muted listing-subtitle">With Hierarchical models</span>
       </small>
@@ -319,11 +400,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/predict_new_group.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="10">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/polynomial_regression.html" class="listing-title">Polynomial regression</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Learning gravity with Bayesian stats</span>
       </small>
@@ -333,15 +418,23 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/polynomial_regression.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
 </div>
+
 <h2 class="anchored">Generalized Linear Models</h2>
+
 <p></p>
+
 <div class="list grid" style="column-gap: 10px;">
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="11">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/logistic_regression.html" class="listing-title">Logistic regression</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Model vote intention</span>
       </small>
@@ -351,11 +444,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/logistic_regression.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="12">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/model_comparison.html" class="listing-title">Logistic regression</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Model comparison with ArviZ</span>
       </small>
@@ -365,11 +462,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/model_comparison.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="13">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/hierarchical_binomial_bambi.html" class="listing-title">Hierarchical logistic regression</a>
+        
         <br>
         <span class="text-muted listing-subtitle">With the Binomial family</span>
       </small>
@@ -379,11 +480,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/hierarchical_binomial_bambi.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="14">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/alternative_links_binary.html" class="listing-title">Regression for binary responses</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Alternative link functions</span>
       </small>
@@ -393,11 +498,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/alternative_links_binary.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="15">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/wald_gamma_glm.html" class="listing-title">Wald and Gamma regression</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Australian insurance claims</span>
       </small>
@@ -407,11 +516,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/wald_gamma_glm.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="16">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/negative_binomial.html" class="listing-title">Negative Binomial regression</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Students absence</span>
       </small>
@@ -421,11 +534,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/negative_binomial.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="17">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/count_roaches.html" class="listing-title">Count Regression with Variable Exposure</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Accounting for varying exposure using offsets</span>
       </small>
@@ -435,11 +552,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/roaches.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="18">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/beta_regression.html" class="listing-title">Beta regression</a>
+        
         <br>
         <span class="text-muted listing-subtitle">With many datasets</span>
       </small>
@@ -449,11 +570,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/beta_regression.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="19">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/categorical_regression.html" class="listing-title">Categorical outcomes</a>
+        
         <br>
         <span class="text-muted listing-subtitle">When the outcome is not a number</span>
       </small>
@@ -463,11 +588,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/categorical_regression.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="20">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/circular_regression.html" class="listing-title">Circular regression</a>
+        
         <br>
         <span class="text-muted listing-subtitle">For directional statistics</span>
       </small>
@@ -477,11 +606,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/circular_regression.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="21">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/quantile_regression.html" class="listing-title">Quantile regression</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Model a percentile</span>
       </small>
@@ -491,11 +624,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/quantile_regression.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="22">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/mister_p.html" class="listing-title">MrP (Multilevel Regression and Post-stratification)</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Survey Data and Representative Sampling</span>
       </small>
@@ -505,11 +642,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/mr_p_adjustment.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="23">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/zero_inflated_regression.html" class="listing-title">Zero inflated models</a>
+        
         <br>
         <span class="text-muted listing-subtitle">When the outcome is mostly zeros and or is overdispersed</span>
       </small>
@@ -519,11 +660,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/zip_model_pps.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="24">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/ordinal_regression.html" class="listing-title">Ordinal regression</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Model ordered category outcomes</span>
       </small>
@@ -533,15 +678,23 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/ordinal_regression.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
 </div>
+
 <h2 class="anchored">More advanced models</h2>
+
 <p></p>
+
 <div class="list grid" style="column-gap: 10px;">
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="25">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/distributional_models.html" class="listing-title">Distributional models</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Many parameters simultaneously</span>
       </small>
@@ -551,11 +704,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/distributional_models.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="26">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/hsgp_1d.html" class="listing-title">Gaussian processes</a>
+        
         <br>
         <span class="text-muted listing-subtitle">In one dimension</span>
       </small>
@@ -565,11 +722,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/hsgp_1d.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="27">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/hsgp_2d.html" class="listing-title">Gaussian processes</a>
+        
         <br>
         <span class="text-muted listing-subtitle">In multiple dimensions</span>
       </small>
@@ -579,11 +740,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/hsgp_2d.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="28">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/survival_model.html" class="listing-title">Survival models</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Model censored data</span>
       </small>
@@ -593,11 +758,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/survival_adoption_times.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="29">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/orthogonal_polynomial_reg.html" class="listing-title">Orthogonal Polynomial regression</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Polynomials that avoid multicollinearity</span>
       </small>
@@ -607,15 +776,23 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/orthogonal_polynomial_reg.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
 </div>
+
 <h2 class="anchored">Tools to interpret model outputs</h2>
+
 <p></p>
+
 <div class="list grid" style="column-gap: 10px;">
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="30">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/plot_predictions.html" class="listing-title">Predictions</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Compute and plot predictions on new data</span>
       </small>
@@ -625,11 +802,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/plot_predictions.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="31">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/plot_comparisons.html" class="listing-title">Comparisons</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Compare outputs between groups</span>
       </small>
@@ -639,11 +820,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/plot_comparisons.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="32">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/plot_slopes.html" class="listing-title">Slopes</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Determine how the response changes</span>
       </small>
@@ -653,11 +838,15 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/plot_slopes.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="33">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/interpret_advanced_usage.html" class="listing-title">Advanced interpret usage</a>
+        
         <br>
         <span class="text-muted listing-subtitle">Create data grids and compute complex quantities of interest</span>
       </small>
@@ -667,15 +856,23 @@ ul.task-list li input[type="checkbox"] {
         <img src="thumbnails/advanced_interpret.png" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
 </div>
+
 <h2 class="anchored">Alternative sampling backends</h2>
+
 <p></p>
+
 <div class="list grid" style="column-gap: 10px;">
+
   <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" data-index="34">
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="../notebooks/alternative_samplers.html" class="listing-title">Using other samplers</a>
+        
         <br>
         <span class="text-muted listing-subtitle">JAX based samplers</span>
       </small>
@@ -685,8 +882,12 @@ ul.task-list li input[type="checkbox"] {
         <img src="" alt="" class="card-img-top">
       </a>
     </div>
+    
+    
   </div>
+
 </div>
+
 <div class="listing-no-matching d-none">
 No matching items
 </div>
@@ -718,12 +919,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
     }
-  });
-  clipboard.on('success', function(e) {
+    return false;
+  }
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -755,11 +959,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -769,8 +1012,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -782,9 +1034,245 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
     });
   }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
   const findCites = (el) => {
     const parentEl = el.parentElement;
     if (parentEl) {
@@ -828,7 +1316,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   <div class="nav-page nav-page-previous">
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../notebooks/t-test.html" class="pagination-link">
+      <a href="../notebooks/t-test.html" class="pagination-link" aria-label="Comparison of two means (T-test)">
         <span class="nav-page-text">Comparison of two means (T-test)</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
@@ -836,9 +1324,18 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
-      <div class="nav-footer-center">© Copyright 2024, The developers of Bambi.</div>
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>© Copyright 2024, The developers of Bambi.</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
   </div>
 </footer>
+
 
 
 
