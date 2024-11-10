@@ -10,7 +10,7 @@ from bambi.transformations import HSGP
 
 
 def listify(obj):
-    """Wrap all non-list or tuple objects in a list.
+    """Wrap all non-list or tuple objects in a list
 
     Provides a simple way to accept flexible arguments.
     """
@@ -33,7 +33,7 @@ def multilinify(sequence: Sequence[str], sep: str = ",") -> str:
 
 
 def wrapify(string: str, width: int = 100, indentation: int = 2) -> str:
-    """Wraps long strings into multiple lines.
+    """Wraps long strings into multiple lines
 
     This function is used to print the model summary.
     """
@@ -49,7 +49,7 @@ def wrapify(string: str, width: int = 100, indentation: int = 2) -> str:
 
 
 def extract_argument_names(expr, accepted_funcs):
-    """Extract the names of the arguments passed to a function.
+    """Extract the names of the arguments passed to a function
 
     This is used to extract the labels from function calls such as `c(y1, y2, y3, y3)`.
 
@@ -63,7 +63,7 @@ def extract_argument_names(expr, accepted_funcs):
     Returns
     -------
     list
-        If all criteria are met, the names of the arguments. Otherwise it returns None.
+        If all criteria are met, the names of the arguments. Otherwise it returns `None`.
     """
     # Extract the first thing in the body
     parsed_expr = ast.parse(expr).body[0]
@@ -93,7 +93,7 @@ def extract_argument_names(expr, accepted_funcs):
 
 
 def clean_formula_lhs(x):
-    """Remove the left hand side of a model formula and the tilde.
+    """Remove the left hand side of a model formula and the tilde
 
     Parameters
     ----------
@@ -103,7 +103,7 @@ def clean_formula_lhs(x):
     Returns
     -------
     str
-        The right hand side of the model formula
+        The right hand side of the model formula.
     """
     assert "~" in x
     position = x.find("~")
@@ -119,28 +119,28 @@ def get_aliased_name(term):
     Parameters
     ----------
     term : BaseTerm
-        The term
+        The term.
 
     Returns
     -------
     str
-        The aliased name
+        The aliased name.
     """
     return term.alias if term.alias else term.name
 
 
 def is_single_component(term) -> bool:
-    """Determines if formulae term contains a single component"""
+    """Determines if formulae term contains a single component."""
     return hasattr(term, "components") and len(term.components) == 1
 
 
 def is_call_component(component) -> bool:
-    """Determines if formulae component is the result of a function call"""
+    """Determines if formulae component is the result of a function call."""
     return isinstance(component, fm.terms.call.Call)
 
 
 def is_stateful_transform(component):
-    """Determines if formulae call component is a stateful transformation"""
+    """Determines if formulae call component is a stateful transformation."""
     return component.call.stateful_transform is not None
 
 

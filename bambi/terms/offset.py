@@ -2,7 +2,7 @@ from bambi.terms.common import CommonTerm
 
 
 class OffsetTerm(CommonTerm):
-    """Representation of a single offset term.
+    """Representation of a single offset term
 
     Parameters
     ----------

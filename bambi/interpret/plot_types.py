@@ -13,7 +13,7 @@ def plot_numeric(
     legend: bool = True,
     axes=None,
 ):
-    """Plotting of numeric data types.
+    """Plotting of numeric data types
 
     Parameters
     ----------
@@ -158,7 +158,7 @@ def plot_numeric(
 
 
 def plot_categoric(covariates: Covariates, plot_data: pd.DataFrame, legend: bool = True, axes=None):
-    """Plotting of categorical data types.
+    """Plotting of categorical data types
 
     Parameters
     ----------

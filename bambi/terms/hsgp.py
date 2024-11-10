@@ -18,14 +18,14 @@ class HSGPTerm(BaseTerm):
         Parameters
         ----------
         term : formulae.terms.terms.Term
-            A term that was created with ``hsgp(...)``. The caller is an instance of ``HSGP()``.
+            A term that was created with `hsgp(...)`. The caller is an instance of `HSGP()`.
         prior : dict
             The keys are the names of the parameters of the covariance function and the values are
-            instances of ``bambi.Prior`` or other values that are accepted by the covariance
+            instances of `bambi.Prior` or other values that are accepted by the covariance
             function.
         prefix : str
             It is used to indicate the term belongs to the component of a non-parent parameter.
-            Defaults to ``None``.
+            Defaults to `None`.
         """
         self.term = term
         self.prior = prior

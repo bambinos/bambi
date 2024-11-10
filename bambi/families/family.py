@@ -9,7 +9,7 @@ from bambi.utils import get_aliased_name, response_evaluate_new_data
 
 
 class Family:
-    """A specification of model family.
+    """A specification of model family
 
     Parameters
     ----------
@@ -142,7 +142,7 @@ class Family:
         Returns
         -------
         xr.DataArray
-            A data array with the draws from the posterior predictive distribution
+            A data array with the draws from the posterior predictive distribution.
         """
         response_dist = get_response_dist(model.family)
         response_term = model.response_component.term
@@ -307,12 +307,12 @@ def get_response_dist(family):
     Parameters
     ----------
     family : bambi.Family
-        The family for which the response distribution is wanted
+        The family for which the response distribution is wanted.
 
     Returns
     -------
     pm.Distribution
-        The response distribution
+        The response distribution.
     """
     mapping = {"Cumulative": pm.Categorical, "StoppingRatio": pm.Categorical}
 
@@ -328,25 +328,25 @@ def get_response_dist(family):
 def expand_array(x, ndim):
     """Add dimensions to an array to match the number of desired dimensions
 
-    If x.ndim < ndim, it adds ndim - x.ndim dimensions after the last axis. If not, it is left
-    untouched.
+    If `x.ndim < ndim`, it adds `ndim - x.ndim` dimensions after the last axis. If not,
+    it is left untouched.
 
-    For example, if we have a normal regression model with n = 1000, chains = 2, and draws = 500
-    the shape of the draws of mu will be (2, 500, 1000) but the shape of the draws of sigma will be
-    (2, 500). This function makes sure the shape of the draws of sigma is (2, 500, 1) which is
-    comaptible with (2, 500, 1000).
+    For example, if we have a normal regression model with `n = 1000`, `chains = 2`, and
+    `draws = 500` the shape of the draws of mu will be `(2, 500, 1000)` but the shape of the
+    draws of sigma will be `(2, 500)`. This function makes sure the shape of the draws of
+    sigma is `(2, 500, 1)` which is comaptible with `(2, 500, 1000)`.
 
     Parameters
     ----------
     x : np.ndarray
         The array
     ndim : int
-        The number of desired dimensions
+        The number of desired dimensions.
 
     Returns
     -------
     np.ndarray
-        The array with the expanded dimensions
+        The array with the expanded dimensions.
     """
     if x.ndim == ndim:
         return x

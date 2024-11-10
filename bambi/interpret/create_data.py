@@ -106,7 +106,7 @@ def create_grid(
 
 def _pairwise_grid(data_dict: dict) -> pd.DataFrame:
     """Creates a pairwise grid (cartesian product) of data by using the
-    key-values of the dictionary.
+    key-values of the dictionary
 
     Parameters
     ----------
@@ -197,7 +197,7 @@ def create_differences_data(
 
 def create_predictions_data(condition_info: ConditionalInfo) -> pd.DataFrame:
     """Creates either unit level or grid level data for 'predictions' depending
-    if the user passed covariates.
+    if the user passed covariates
 
     Parameters
     ----------

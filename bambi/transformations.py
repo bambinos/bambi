@@ -5,7 +5,7 @@ from formulae.transforms import register_stateful_transform
 
 
 def c(*args):  # pylint: disable=invalid-name
-    """Concatenate columns into a 2D NumPy Array"""
+    """Concatenate columns into a 2D NumPy Array."""
     return np.column_stack(args)
 
 
@@ -21,7 +21,7 @@ def censored(*args):
     upper bound, only if it's interval censoring, and the third argument contains the censoring
     statuses.
 
-    Valid censoring statuses are
+    Valid censoring statuses are:
 
     * "left": left censoring
     * "none": no censoring
@@ -220,7 +220,7 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
         Parameters
         ----------
         m : int, Sequence[int], ndarray
-            The number of basis vectors. See `HSGP.reconciliate_shape` to see how it is
+            The number of basis vectors. See `HSGP.reconciliate_shape`? to see how it is
             broadcasted/recycled.
         L : float, Sequence[float], Sequence[Sequence[float]], ndarray, optional
             The boundary of the variable space. See `HSGP.reconciliate_shape` to see how it is
@@ -240,9 +240,10 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
             distance between two points is 1. This adjustment often improves the sampling speed and
             convergence. The rescaling also impacts the estimated length-scale parameters,
             which will resemble those of the scaled predictors rather than the original predictors
-            when `scale` is `True`. Defaults to `None`, which means the behavior depends on whether
-            custom priors are passed or not. If custom priors are used, `None` is translated to
-            `False`. If automatic priors are used, `None` is translated to `True`.
+            when `scale` is `True`. Defaults to `None`, which means the behavior depends on
+            whether custom priors are passed or not. If custom priors are used, `None` is
+            translated to `False`. If automatic priors are used, `None` is translated to
+            `True`.
         iso : bool, optional
             Determines whether to use an isotropic or non-isotropic Gaussian Process.
             If isotropic, the same level of smoothing is applied to all predictors,
@@ -257,12 +258,13 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
         -------
         values
             A NumPy array of shape (observations_n, variables_n) or
-            (observations_n, variables_n + 1) if `by` is not None.
+            (observations_n, variables_n + 1) if `by` is not `None`.
 
         Raises
         ------
         ValueError
-            When both `L` and `c` are `None` or when both of them are not `None` at the same time.
+            When both `L` and `c` are `None` or when both of them are not `None` at the
+            same time.
         """
         values = np.column_stack(x)
 
@@ -360,17 +362,17 @@ def as_matrix(x):
     Parameters
     ----------
     x : np.ndarray
-        Array
+        Array.
 
     Returns
     -------
     np.ndarray
-        A two dimensional array
+        A two dimensional array.
 
     Raises
     ------
     ValueError
-        If the input has more than two dimensions
+        If the input has more than two dimensions.
     """
     x = np.atleast_1d(x)
     if x.ndim == 1:

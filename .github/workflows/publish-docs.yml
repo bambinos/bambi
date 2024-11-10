@@ -32,9 +32,9 @@ jobs:
           python -m pip install quartodoc==0.6.1
 
       - name: Set up Quarto
-        uses: quarto-dev/quarto-actions/setup@v2   
+        uses: quarto-dev/quarto-actions/setup@v2
         with:
-          version: 1.2.280 # since this is my local version, we could change it
+          version: 1.5.57 # since this is my local version, we could change it
 
       - name: Build docs
         shell: bash
@@ -43,7 +43,7 @@ jobs:
           quarto render docs
           touch docs/_site/.nojekyll
 
-      - name: Publish to GitHub 
+      - name: Publish to GitHub
         if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags') # Only from main or a tag
         uses: quarto-dev/quarto-actions/publish@v2
         with:

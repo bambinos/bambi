@@ -59,7 +59,7 @@ class PyMCModel:
         self.pymc_methods = inference_methods.names["pymc"]
 
     def build(self, spec):
-        """Compile the PyMC model from an abstract model specification.
+        """Compile the PyMC model from an abstract model specification
 
         Parameters
         ----------
@@ -153,7 +153,7 @@ class PyMCModel:
         return result
 
     def build_potentials(self, spec):
-        """Add potentials to the PyMC model.
+        """Add potentials to the PyMC model
 
         Potentials are arbitrary quantities that are added to the model log likelihood.
         See 'Factor Potentials' in
@@ -422,7 +422,7 @@ class PyMCModel:
 
 
 def _posterior_samples_to_idata(samples, model):
-    """Create InferenceData from samples.
+    """Create InferenceData from samples
 
     Parameters
     ----------

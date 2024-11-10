@@ -61,7 +61,7 @@ class DistributionalComponent:
             self.output += InterceptTerm(self.component.intercept_term).build(bmb_model)
 
     def build_offsets(self):
-        """Add intercept term to the PyMC model.
+        """Add intercept term to the PyMC model
 
         We have linear predictors of the form 'X @ b + Z @ u'. This is technically part of
         'X @ b' but it is added separately for convenience reasons.
@@ -70,7 +70,7 @@ class DistributionalComponent:
             self.output += offset.data.squeeze()
 
     def build_common_terms(self, pymc_backend, bmb_model):
-        """Add common (fixed) terms to the PyMC model.
+        """Add common (fixed) terms to the PyMC model
 
         We have linear predictors of the form 'X @ b + Z @ u'.
         This creates the 'b' parameter vector in PyMC, computes `X @ b`, and adds it to `self.mu`.
@@ -123,7 +123,7 @@ class DistributionalComponent:
             self.output += hsgp_term.build()
 
     def build_group_specific_terms(self, pymc_backend, bmb_model):
-        """Add group-specific (random or varying) terms to the PyMC model.
+        """Add group-specific (random or varying) terms to the PyMC model
 
         We have linear predictors of the form 'X @ b + Z @ u'.
         This creates the 'u' parameter vector in PyMC, computes `Z @ u`, and adds it to

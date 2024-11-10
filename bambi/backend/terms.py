@@ -167,7 +167,7 @@ class GroupSpecificTerm:
 
 
 class InterceptTerm:
-    """Representation of an intercept term in a PyMC model.
+    """Representation of an intercept term in a PyMC model
 
     Parameters
     ----------
@@ -199,7 +199,7 @@ class InterceptTerm:
 
 
 class ResponseTerm:
-    """Representation of a response term in a PyMC model.
+    """Representation of a response term in a PyMC model
 
     Parameters
     ----------
@@ -214,19 +214,19 @@ class ResponseTerm:
         self.family = family
 
     def build(self, pymc_backend, bmb_model):
-        """Create and return the response distribution for the PyMC model.
+        """Create and return the response distribution for the PyMC model
 
         Parameters
         ----------
         pymc_backend : bambi.backend.PyMCModel
             The object with all the backend information
         bmb_model : bambi.Model
-            The Bambi model instance
+            The Bambi model instance.
 
         Returns
         -------
         dist : pm.Distribution
-            The response distribution
+            The response distribution.
         """
         data = np.squeeze(self.term.data)
         parent_name = self.family.likelihood.parent
@@ -541,7 +541,7 @@ class HSGPTerm:
         Returns
         -------
         Sequence[pm.gp.Covariance]
-            A covariance function that can be used with a GP in PyMC
+            A covariance function that can be used with a GP in PyMC.
         """
 
         # Get the callable that creates the function

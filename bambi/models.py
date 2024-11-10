@@ -36,37 +36,37 @@ __version__ = version("bambi")
 
 
 class Model:
-    """Specification of model class.
+    """Specification of model class
 
     Parameters
     ----------
     formula : str or bambi.formula.Formula
-        A model description written using the formula syntax from the ``formulae`` library.
+        A model description written using the formula syntax from the `formulae` library.
     data : pandas.DataFrame
         A pandas dataframe containing the data on which the model will be fit, with column
         names matching variables defined in the formula.
     family : str or bambi.families.Family
         A specification of the model family (analogous to the family object in R). Either
-        a string, or an instance of class ``bambi.families.Family``. If a string is passed, a
-        family with the corresponding name must be defined in the defaults loaded at ``Model``
-        initialization. Valid pre-defined families are ``"bernoulli"``, ``"beta"``,
-        ``"binomial"``, ``"categorical"``, ``"gamma"``, ``"gaussian"``, ``"negativebinomial"``,
-        ``"poisson"``, ``"t"``, and ``"wald"``. Defaults to ``"gaussian"``.
+        a string, or an instance of class `bambi.families.Family`. If a string is passed, a
+        family with the corresponding name must be defined in the defaults loaded at `Model`
+        initialization. Valid pre-defined families are `"bernoulli"`, `"beta"`,
+        `"binomial"`, `"categorical"`, `"gamma"`, `"gaussian"`, `"negativebinomial"`,
+        `"poisson"`, `"t"`, and `"wald"`. Defaults to `"gaussian"`.
     priors : dict
         Optional specification of priors for one or more terms. A dictionary where the keys are
         the names of terms in the model, "common," or "group_specific" and the values are
-        instances of class ``Prior``. If priors are unset, uses automatic priors inspired by
+        instances of class `Prior`. If priors are unset, uses automatic priors inspired by
         the R rstanarm library.
     link : str or Dict[str, str]
-        The name of the link function to use. Valid names are ``"cloglog"``, ``"identity"``,
-        ``"inverse_squared"``, ``"inverse"``, ``"log"``, ``"logit"``, ``"probit"``, and
-        ``"softmax"``. Not all the link functions can be used with all the families.
+        The name of the link function to use. Valid names are `"cloglog"`, `"identity"`,
+        `"inverse_squared"`, `"inverse"`, `"log"`, `"logit"`, `"probit"`, and
+        `"softmax"`. Not all the link functions can be used with all the families.
         If a dictionary, keys are the names of the target parameters and the values are the names
         of the link functions.
     categorical : str or list
         The names of any variables to treat as categorical. Can be either a single variable
-        name, or a list of names. If categorical is ``None``, the data type of the columns in
-        the ``data`` will be used to infer handling. In cases where numeric columns are
+        name, or a list of names. If categorical is `None`, the data type of the columns in
+        the `data` will be used to infer handling. In cases where numeric columns are
         to be treated as categorical (e.g., group specific factors coded as numerical IDs),
         explicitly passing variable names via this argument is recommended.
     potentials : A list of 2-tuples.
@@ -78,17 +78,17 @@ class Model:
         element is a n-tuple and second element is a lambda function with n arguments. The number
         and order of the lambda function has to match the number and order of the variables names.
     dropna : bool
-        When ``True``, rows with any missing values in either the predictors or outcome are
+        When `True`, rows with any missing values in either the predictors or outcome are
         automatically dropped from the dataset in a listwise manner.
     auto_scale : bool
-        If ``True`` (default), priors are automatically rescaled to the data
+        If `True` (default), priors are automatically rescaled to the data
         (to be weakly informative) any time default priors are used. Note that any priors
         explicitly set by the user will always take precedence over default priors.
     noncentered : bool
-        If ``True`` (default), uses a non-centered parameterization for normal hyperpriors on
-        grouped parameters. If ``False``, naive (centered) parameterization is used.
+        If `True` (default), uses a non-centered parameterization for normal hyperpriors on
+        grouped parameters. If `False`, naive (centered) parameterization is used.
     center_predictors : bool
-        If ``True`` (default), and if there is an intercept in the common terms, the data is
+        If `True` (default), and if there is an intercept in the common terms, the data is
         centered by subtracting the mean. The centering is undone after sampling to provide
         the actual intercept in all distributional components that have an intercept. Note
         that this changes the interpretation of the prior on the intercept because it refers
@@ -242,7 +242,7 @@ class Model:
         random_seed=None,
         **kwargs,
     ):
-        """Fit the model using PyMC.
+        """Fit the model using PyMC
 
         Parameters
         ----------
@@ -361,26 +361,26 @@ class Model:
         )
 
     def build(self):
-        """Set up the model for sampling/fitting.
+        """Set up the model for sampling/fitting
 
         Creates an instance of the underlying PyMC model and adds all the necessary terms to it.
 
         Returns
         -------
-        None
+        `None`.
         """
         self.backend = PyMCModel()
         self.backend.build(self)
         self.built = True
 
     def set_priors(self, priors=None, common=None, group_specific=None):
-        """Set priors for one or more existing terms.
+        """Set priors for one or more existing terms
 
         Parameters
         ----------
         priors : dict
             Dictionary of priors to update. Keys are names of terms to update; values are the new
-            priors (either a ``Prior`` instance, or an int or float that scales the default priors).
+            priors (either a `Prior` instance, or an int or float that scales the default priors).
         common : Prior, int, or float
             A prior specification to apply to all common terms included in the model.
         group_specific : Prior, int, or float
@@ -388,7 +388,7 @@ class Model:
 
         Returns
         -------
-        None
+        `None`.
         """
         kwargs = dict(zip(["priors", "common", "group_specific"], [priors, common, group_specific]))
         self._added_priors.update(kwargs)
@@ -423,9 +423,9 @@ class Model:
             self.scaler.scale()
 
     def _set_priors(self, priors=None, common=None, group_specific=None):
-        """Internal version of ``set_priors()``, with same arguments.
+        """Internal version of `set_priors()`, with same arguments.
 
-        Runs during ``Model._build_priors()``.
+        Runs during `Model._build_priors()`.
         """
         # 'common' and 'group_specific' only apply to the parent component
         parent_component = self.components[self.family.likelihood.parent]
@@ -457,25 +457,25 @@ class Model:
                         component.update_priors(prior)
 
     def _set_family(self, family, link):
-        """Set the Family of the model.
+        """Set the Family of the model
 
         Parameters
         ----------
         family : str or bambi.families.Family
             A specification of the model family.
-            Either a string, or an instance of class ``families.Family``.
+            Either a string, or an instance of class `families.Family`.
             If a string is passed, a family with the corresponding name must be defined in the
             defaults loaded at model initialization.
         link : str or Dict[str, str]
-            The name of the link function to use. Valid names are ``"cloglog"``, ``"identity"``,
-            ``"inverse_squared"``, ``"inverse"``, ``"log"``, ``"logit"``, ``"probit"``, and
-            ``"softmax"``. Not all the link functions can be used with all the families.
+            The name of the link function to use. Valid names are `"cloglog"`, `"identity"`,
+            `"inverse_squared"`, `"inverse"`, `"log"`, `"logit"`, `"probit"`, and
+            `"softmax"`. Not all the link functions can be used with all the families.
             If a dictionary, keys are the names of the target parameters and the values are the
             names of the link functions.
 
         Returns
         -------
-        None
+        `None`.
         """
 
         # If string, get builtin family
@@ -510,7 +510,7 @@ class Model:
 
         Returns
         -------
-        None
+        `None`.
         """
         if not isinstance(aliases, dict):
             raise ValueError(f"'aliases' must be a dictionary, not a {type(aliases)}.")
@@ -650,45 +650,45 @@ class Model:
             Number of draws to sample from the prior predictive distribution. Defaults to 5000.
         var_names : str or list
             A list of names of variables for which to compute the prior predictive
-            distribution. Defaults to ``None`` which means to include both observed and
+            distribution. Defaults to `None` which means to include both observed and
             unobserved RVs.
         random_seed : int
             Seed for the random number generator.
         figsize : tuple
-            Figure size. If ``None`` it will be defined automatically.
+            Figure size. If `None` it will be defined automatically.
         textsize : float
-            Text size scaling factor for labels, titles and lines. If ``None`` it will be
-            autoscaled based on ``figsize``.
+            Text size scaling factor for labels, titles and lines. If `None` it will be
+            autoscaled based on `figsize`.
         hdi_prob : float or str
             Plots highest density interval for chosen percentage of density.
-            Use ``"hide"`` to hide the highest density interval. Defaults to 0.94.
+            Use `"hide"` to hide the highest density interval. Defaults to 0.94.
         round_to : int
             Controls formatting of floats. Defaults to 2 or the integer part, whichever is bigger.
         point_estimate : str
-            Plot point estimate per variable. Values should be ``"mean"``, ``"median"``, ``"mode"``
-            or ``None``. Defaults to ``"auto"`` i.e. it falls back to default set in
+            Plot point estimate per variable. Values should be `"mean"`, `"median"`, `"mode"`
+            or `None`. Defaults to `"auto"` i.e. it falls back to default set in
             ArviZ's rcParams.
         kind : str
-            Type of plot to display (``"kde"`` or ``"hist"``) For discrete variables this argument
+            Type of plot to display (`"kde"` or `"hist"`) For discrete variables this argument
             is ignored and a histogram is always used.
         bins : integer or sequence or "auto"
-            Controls the number of bins, accepts the same keywords ``matplotlib.pyplot.hist()``
-            does. Only works if ``kind == "hist"``. If ``None`` (default) it will use ``"auto"``
-            for continuous variables and ``range(xmin, xmax + 1)`` for discrete variables.
+            Controls the number of bins, accepts the same keywords `matplotlib.pyplot.hist()`
+            does. Only works if `kind == "hist"`. If `None` (default) it will use `"auto"`
+            for continuous variables and `range(xmin, xmax + 1)` for discrete variables.
         omit_offsets : bool
-            Whether to omit offset terms in the plot. Defaults to ``True``.
+            Whether to omit offset terms in the plot. Defaults to `True`.
         omit_group_specific : bool
-            Whether to omit group specific effects in the plot. Defaults to ``True``.
+            Whether to omit group specific effects in the plot. Defaults to `True`.
         ax : numpy array-like of matplotlib axes or bokeh figures
             A 2D array of locations into which to plot the densities. If not supplied, ArviZ will
             create its own array of plot areas (and return it).
         **kwargs
-            Passed as-is to ``matplotlib.pyplot.hist()`` or ``matplotlib.pyplot.plot()`` function
-            depending on the value of ``kind``.
+            Passed as-is to `matplotlib.pyplot.hist()` or `matplotlib.pyplot.plot()` function
+            depending on the value of `kind`.
 
         Returns
         -------
-        axes: matplotlib axes
+        axes: matplotlib axes.
         """
         self._check_built()
 
@@ -762,17 +762,17 @@ class Model:
             Number of draws to sample from the prior predictive distribution. Defaults to 500.
         var_names : str or list
             A list of names of variables for which to compute the prior predictive distribution.
-            Defaults to ``None`` which means both observed and unobserved RVs.
+            Defaults to `None` which means both observed and unobserved RVs.
         omit_offsets : bool
-            Whether to omit offset terms in the plot. Defaults to ``True``.
+            Whether to omit offset terms in the plot. Defaults to `True`.
         random_seed : int
             Seed for the random number generator.
 
         Returns
         -------
         InferenceData
-            ``InferenceData`` object with the groups ``prior``, ``prior_predictive`` and
-            ``observed_data``.
+            `InferenceData` object with the groups `prior`, `prior_predictive` and
+            `observed_data`.
         """
         self._check_built()
 
@@ -810,31 +810,31 @@ class Model:
         Parameters
         ----------
         idata : InferenceData
-            The ``InferenceData`` instance returned by ``.fit()``.
+            The `InferenceData` instance returned by `.fit()`.
         kind : str
-            Indicates the type of prediction required. Can be ``"response_params"`` or
-            ``"response"``. The first returns draws from the posterior distribution of the
+            Indicates the type of prediction required. Can be `"response_params"` or
+            `"response"`. The first returns draws from the posterior distribution of the
             likelihood parameters, while the latter returns the draws from the posterior
             predictive distribution (i.e. the posterior probability distribution for a new
             observation) in addition to the posterior distribution. Defaults to
-            ``"response_params"``.
+            `"response_params"`.
         data : pandas.DataFrame or None
             An optional data frame with values for the predictors that are used to obtain
             out-of-sample predictions. If omitted, the original dataset is used.
         inplace : bool
-            If ``True`` it will modify ``idata`` in-place. Otherwise, it will return a copy of
-            ``idata`` with the predictions added. If ``kind="response_params"``, a new variable
-            with the name of the parent parameter, e.g. ``"mu"`` and ``"sigma" for a Gaussian
-            likelihood, or ``"p"`` for a Bernoulli likelihood, is added to the ``posterior`` group.
-            If ``kind="response"``, it appends a ``posterior_predictive`` group to ``idata``. If
+            If `True` it will modify `idata` in-place. Otherwise, it will return a copy of
+            `idata` with the predictions added. If `kind="response_params"`, a new variable
+            with the name of the parent parameter, e.g. `"mu"` and `"sigma" for a Gaussian
+            likelihood, or `"p"` for a Bernoulli likelihood, is added to the `posterior` group.
+            If `kind="response"`, it appends a `posterior_predictive` group to `idata`. If
             any of these already exist, it will be overwritten.
         include_group_specific : bool
-            Determines if predictions incorporate group-specific effects. If ``False``, predictions
+            Determines if predictions incorporate group-specific effects. If `False`, predictions
             are made with common effects only (i.e. group specific are set to zero). Defaults to
-            ``True``.
+            `True`.
         sample_new_groups : bool
             Specifies if it is allowed to obtain predictions for new groups of group-specific terms.
-            When ``True``, each posterior sample for the new groups is drawn from the posterior
+            When `True`, each posterior sample for the new groups is drawn from the posterior
             draws of a randomly selected existing group. Since different groups may be selected at
             each draw, the end result represents the variation across existing groups.
             The method implemented is quivalent to `sample_new_levels="uncertainty"` in brms.
@@ -1004,29 +1004,29 @@ class Model:
         """Produce a graphviz Digraph from a built Bambi model.
 
         Requires graphviz, which may be installed most easily with
-            ``conda install -c conda-forge python-graphviz``
+            `conda install -c conda-forge python-graphviz`
 
-        Alternatively, you may install the ``graphviz`` binaries yourself, and then
-        ``pip install graphviz`` to get the python bindings.
+        Alternatively, you may install the `graphviz` binaries yourself, and then
+        `pip install graphviz` to get the python bindings.
         See http://graphviz.readthedocs.io/en/stable/manual.html for more information.
 
         Parameters
         ----------
         formatting : str
-            One of ``"plain"`` or ``"plain_with_params"``. Defaults to ``"plain"``.
+            One of `"plain"` or `"plain_with_params"`. Defaults to `"plain"`.
         name : str
-            Name of the figure to save. Defaults to ``None``, no figure is saved.
+            Name of the figure to save. Defaults to `None`, no figure is saved.
         figsize : tuple
-            Maximum width and height of figure in inches. Defaults to ``None``, the figure size is
+            Maximum width and height of figure in inches. Defaults to `None`, the figure size is
             set automatically. If defined and the drawing is larger than the given size, the drawing
-            is uniformly scaled down so that it fits within the given size.  Only works if ``name``
-            is not ``None``.
+            is uniformly scaled down so that it fits within the given size.  Only works if `name`
+            is not `None`.
         dpi : int
             Point per inch of the figure to save.
-            Defaults to 300. Only works if ``name`` is not ``None``.
+            Defaults to 300. Only works if `name` is not `None`.
         fmt : str
             Format of the figure to save.
-            Defaults to ``"png"``. Only works if ``name`` is not ``None``.
+            Defaults to `"png"`. Only works if `name` is not `None`.
 
         Returns
         -------

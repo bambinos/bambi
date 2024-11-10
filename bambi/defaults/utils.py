@@ -8,20 +8,20 @@ from bambi.priors import Prior
 def generate_prior(dist, **kwargs):
     """Generate a Prior distribution.
 
-    The parameter ``kwargs`` is used to pass hyperpriors that are assigned to the parameters of
+    The parameter `kwargs` is used to pass hyperpriors that are assigned to the parameters of
     the prior to be built.
 
     Parameters
     ----------
     dist: str, int, float
         If a string, it is the name of the prior distribution with default values taken from
-        ``SETTINGS_DISTRIBUTIONS``. If a number, it is a factor used to scale the standard deviation
+        `SETTINGS_DISTRIBUTIONS`. If a number, it is a factor used to scale the standard deviation
         of the priors generated automatically by Bambi.
 
     Raises
     ------
     ValueError
-        If ``dist`` is not a string or a number.
+        If `dist` is not a string or a number.
 
     Returns
     -------
@@ -84,12 +84,12 @@ def get_default_prior(term_type, **kwargs):
     Raises
     ------
     ValueError
-        If ``term_type`` is not within the values listed above.
+        If `term_type` is not within the values listed above.
 
     Returns
     -------
     prior: Prior
-        The instance of Prior according to the ``term_type``.
+        The instance of Prior according to the `term_type`.
     """
     if term_type in ["intercept", "common"]:
         prior = generate_prior("Normal")
@@ -115,8 +115,8 @@ def generate_likelihood(name, params, parent):
         The name of the likelihood function.
     args: dict
         Indicates the auxiliary parameters and the values for their default priors. The keys are the
-        names of the parameters and the values are passed to ``generate_prior()`` to obtain the
-        actual instance of ``bambi.Prior``.
+        names of the parameters and the values are passed to `generate_prior()` to obtain the
+        actual instance of `bambi.Prior`.
     parent: str
         The name of the parent parameter. In other words, the name of the mean parameter in the
         likelihood function.

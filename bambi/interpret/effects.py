@@ -33,7 +33,7 @@ SUPPORTED_COMPARISONS = {
 class ResponseInfo:
     """Stores metadata about the response variable for indexing data in az.InferenceData,
     computing uncertainty intervals, and creating the summary dataframe in
-    'PredictiveDifferences'.
+    'PredictiveDifferences'
 
     FIXME: is the documentation outdated?
 
@@ -77,8 +77,9 @@ class ResponseInfo:
 @dataclass
 class Estimate:
     """Stores the mean and bounds (uncertainty interval) of 'comparisons' and
-    'slopes' estimates. Used in 'PredictiveDifferences' to store typed data
-    for the summary dataframe.
+    'slopes' estimates
+
+    Used in 'PredictiveDifferences' to store typed data for the summary dataframe.
 
     Parameters
     ----------
@@ -130,7 +131,7 @@ class Estimate:
 class PredictiveDifferences:
     """Computes predictive differences and their uncertainty intervals for
     'comparisons' and 'slopes' effects and returns a summary dataframe of the
-    results.
+    results
 
     Parameters
     ----------
@@ -237,10 +238,11 @@ class PredictiveDifferences:
         prob: float = 0.94,
     ):
         """Obtain the effect ('comparisons' or 'slopes') estimate and uncertainty
-        interval using the posterior samples. First, the posterior samples are
-        subsetted by the variable of interest's values. Then, the effect is
-        computed for each pairwise combination of the variable of interest's
-        values.
+        interval using the posterior samples
+
+        First, the posterior samples are subsetted by the variable of interest's
+        values. Then, the effect is computed for each pairwise combination of the
+        variable of interest's values.
 
         Parameters
         ----------
@@ -325,7 +327,8 @@ class PredictiveDifferences:
 
     def get_summary_df(self, response_dim: np.ndarray) -> pd.DataFrame:
         """
-        Builds the summary dataframe for 'comparisons' and 'slopes' effects.
+        Builds the summary dataframe for 'comparisons' and 'slopes' effects
+
         There are four scenarios to consider:
 
             1.) If the effect kind is 'comparisons' and more than 2 values are being
@@ -401,7 +404,7 @@ class PredictiveDifferences:
 
     def average_by(self, variable: Union[bool, str]) -> pd.DataFrame:
         """Uses the original 'summary_df' to perform a marginal (if 'variable=True')
-        or group by average if covariate(s) are passed.
+        or group by average if covariate(s) are passed
 
         Parameters
         ----------
