@@ -299,14 +299,14 @@ BUILTIN_FAMILIES = {
 
 
 def get_builtin_family(name):
-    """Generate a built-in ``bambi.families.Family`` instance.
+    """Generate a built-in `bambi.families.Family` instance.
 
-    Given the name of a built-in family, this function returns a ``bambi.families.Family`` instance
+    Given the name of a built-in family, this function returns a `bambi.families.Family` instance
     that is constructed by calling other utility functions that construct the
-    ``bambi.families.Likelihood`` and the ``bambi.priors.Prior`` instances that are needed to build
+    `bambi.families.Likelihood` and the `bambi.priors.Prior` instances that are needed to build
     the family.
 
-    The available built-in families are found in ``SETTINGS_FAMILIES``.
+    The available built-in families are found in `SETTINGS_FAMILIES`.
 
     Parameters
     ----------
@@ -316,7 +316,7 @@ def get_builtin_family(name):
     Raises
     ------
     ValueError
-        If ``name`` is not the name of a built-in family.
+        If `name` is not the name of a built-in family.
 
     Returns
     -------

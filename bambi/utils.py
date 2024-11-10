@@ -51,7 +51,7 @@ def wrapify(string: str, width: int = 100, indentation: int = 2) -> str:
 def extract_argument_names(expr, accepted_funcs):
     """Extract the names of the arguments passed to a function
 
-    This is used to extract the labels from function calls such as ``c(y1, y2, y3, y3)``.
+    This is used to extract the labels from function calls such as `c(y1, y2, y3, y3)`.
 
     Parameters
     ----------
@@ -63,7 +63,7 @@ def extract_argument_names(expr, accepted_funcs):
     Returns
     -------
     list
-        If all criteria are met, the names of the arguments. Otherwise it returns ``None``.
+        If all criteria are met, the names of the arguments. Otherwise it returns `None`.
     """
     # Extract the first thing in the body
     parsed_expr = ast.parse(expr).body[0]

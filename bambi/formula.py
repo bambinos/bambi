@@ -15,7 +15,7 @@ class Formula:
     Parameters
     ----------
     formula : str
-        A model description written using the formula syntax from the ``formulae`` library.
+        A model description written using the formula syntax from the `formulae` library.
     *additionals : str
         Additional formulas that describe model parameters rather than a response variable.
     """

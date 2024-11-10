@@ -94,7 +94,7 @@ class VariableInfo:
         for the 'slopes' and 'comparisons' effects.
 
         Depends on the dtype of the variable of interest, effect type, and if
-        self.grid is ``True``. The scenarios are described below:
+        self.grid is `True`. The scenarios are described below:
 
         If numeric dtype and kind is 'comparisons', the returned value is a
         centered difference based on the mean of `variable'.
@@ -316,7 +316,7 @@ def enforce_dtypes(
 def get_group_offset(n, lower: float = 0.05, upper: float = 0.4) -> np.ndarray:
     """
     When plotting categorical variables, this function computes the offset of the
-    stripplot points based on the number of groups ``n``.
+    stripplot points based on the number of groups `n`.
     """
     intercept, slope = 3.25, 1
     return lower + np.exp(-np.exp(intercept - slope * n)) * (upper - lower)

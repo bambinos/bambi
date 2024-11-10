@@ -532,9 +532,9 @@ def prepare_prior(prior, kind, auto_scale):
     prior : Prior or None
         The prior.
     kind : string
-        Accepted values are: ``"intercept"``, ``"common"``, or ``"group_specific"``.
+        Accepted values are: `"intercept"`, `"common"`, or `"group_specific"`.
     auto_scale : bool
-        Whether priors should be scaled or not. Defaults to ``True``.
+        Whether priors should be scaled or not. Defaults to `True`.
 
     Returns
     -------
@@ -549,5 +549,5 @@ def prepare_prior(prior, kind, auto_scale):
     elif isinstance(prior, Prior):
         prior.auto_scale = False
     else:
-        raise ValueError("'prior' must be instance of Prior or ``None``.")
+        raise ValueError("'prior' must be instance of Prior or `None`.")
     return prior

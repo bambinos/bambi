@@ -182,7 +182,7 @@ This dataset is taken from McGilchrist and Aisbett (1991).
 * sex: Sex of the patient
 * disease: The type of disease. Can be "AN", "GN", "PKG", or "other"
 
-McGilchrist, C. A., & Aisbett, C. W. (1991). Regression with frailty in survival analysis. 
+McGilchrist, C. A., & Aisbett, C. W. (1991). Regression with frailty in survival analysis.
 Biometrics, 47(2), 461-466
 """,
     ),
@@ -195,8 +195,8 @@ def get_data_home(data_home=None):
     This folder is used to avoid downloading the data several times.
 
     By default the data dir is set to a folder named 'bambi_data' in the user home folder.
-    Alternatively, it can be set by the ``"BAMBI_DATA"`` environment variable or programmatically by
-    giving an explicit folder path. The ``"~"`` symbol is expanded to the user home folder. If the
+    Alternatively, it can be set by the `"BAMBI_DATA"` environment variable or programmatically by
+    giving an explicit folder path. The `"~"` symbol is expanded to the user home folder. If the
     folder does not already exist, it is automatically created.
 
     Parameters
@@ -218,7 +218,7 @@ def clear_data_home(data_home=None):
     Parameters
     ----------
     data_home: str
-        The path to Bambi data dir. By default a folder named ``"bambi_data"`` in the user home
+        The path to Bambi data dir. By default a folder named `"bambi_data"` in the user home
         folder.
     """
     data_home = get_data_home(data_home)
@@ -244,9 +244,9 @@ def load_data(dataset=None, data_home=None):
 
     Run with no parameters to get a list of all available data sets.
 
-    The directory to save can also be set with the environment variable ``BAMBI_HOME``.
+    The directory to save can also be set with the environment variable `BAMBI_HOME`.
     The checksum of the dataset is checked against a hardcoded value to watch for data corruption.
-    Run ``bmb.clear_data_home()`` to clear the data directory.
+    Run `bmb.clear_data_home()` to clear the data directory.
 
     Parameters
     ----------
