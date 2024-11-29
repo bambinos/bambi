@@ -836,13 +836,13 @@ Name: count, dtype: int64</code></pre>
 <section id="model-1" class="level3">
 <h3 class="anchored" data-anchor-id="model-1">Model 1</h3>
 <p><span class="math display">\[
-\log{Y_i} = \beta_1 \text{Academic}_i + \beta_2 \text{General}_i + \beta_3 \text{Vocational}_i + \beta_4 \text{Math\_std}_i
+\log(\mathbb{E}[Y_i]) = \beta_1 \text{Academic}_i + \beta_2 \text{General}_i + \beta_3 \text{Vocational}_i + \beta_4 \text{Math\_std}_i
 \]</span></p>
 </section>
 <section id="model-2" class="level3">
 <h3 class="anchored" data-anchor-id="model-2">Model 2</h3>
 <p><span class="math display">\[
-\log{Y_i} = \beta_1 \text{Academic}_i + \beta_2 \text{General}_i + \beta_3 \text{Vocational}_i + \beta_4 \text{Math\_std}_i
+\log(\mathbb{E}[Y_i]) = \beta_1 \text{Academic}_i + \beta_2 \text{General}_i + \beta_3 \text{Vocational}_i + \beta_4 \text{Math\_std}_i
             + \beta_5 \text{General}_i \cdot \text{Math\_std}_i + \beta_6 \text{Vocational}_i \cdot \text{Math\_std}_i
 \]</span></p>
 <p>In both cases we have the following dummy variables</p>
@@ -872,7 +872,7 @@ Name: count, dtype: int64</code></pre>
 \]</span></p>
 <p>and <span class="math inline">\(Y\)</span> represents the days of absence.</p>
 <p>So, for example, the first model for a student under the Vocational program reduces to <span class="math display">\[
-\log{Y_i} = \beta_3 + \beta_4 \text{Math\_std}_i
+\log(\mathbb{E}[Y_i]) = \beta_3 + \beta_4 \text{Math\_std}_i
 \]</span></p>
 <p>And one last thing to note is we’ve decided not to inclide an intercept term, that’s why you don’t see any <span class="math inline">\(\beta_0\)</span> above. This choice allows us to represent the effect of each program directly with <span class="math inline">\(\beta_1\)</span>, <span class="math inline">\(\beta_2\)</span>, and <span class="math inline">\(\beta_3\)</span>.</p>
 </section>
