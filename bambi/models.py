@@ -320,6 +320,10 @@ class Model:
         else:
             kwargs["num_steps"] = draws
 
+        if tune is None:
+            tune = 1000
+        else:
+            kwargs["num_adapt_draws"] = tune
 
         method = kwargs.pop("method", None)
         if method is not None:
