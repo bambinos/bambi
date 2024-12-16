@@ -158,9 +158,6 @@ class Family:
                 pm.Truncated.dist(response_dist.dist(**kwargs), lower=lower, upper=upper)
             )
         else:
-            # for k, v in kwargs.items():
-            #     print(k, v.shape)
-            # kwargs["n"] = np.ones(shape=20).astype(int)
             output_array = pm.draw(response_dist.dist(**kwargs))
 
         return xr.DataArray(output_array, coords=coords)
