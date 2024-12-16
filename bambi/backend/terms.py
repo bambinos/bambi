@@ -12,7 +12,7 @@ from bambi.backend.utils import (
     make_weighted_distribution,
     GP_KERNELS,
 )
-from bambi.families.multivariate import MultivariateFamily, Multinomial, DirichletMultinomial
+from bambi.families.multivariate import MultivariateFamily
 from bambi.families.univariate import Categorical, Cumulative, StoppingRatio
 from bambi.priors import Prior
 
@@ -234,22 +234,16 @@ class ResponseTerm:
         # Auxiliary parameters and data
         kwargs = {"observed": data, "dims": ("__obs__",)}
 
-        if isinstance(
-            self.family,
-            (
-                MultivariateFamily,
-                Categorical,
-                Cumulative,
-                StoppingRatio,
-                Multinomial,
-                DirichletMultinomial,
-            ),
-        ):
+        if isinstance(self.family, (MultivariateFamily, Categorical, Cumulative, StoppingRatio)):
             response_term = bmb_model.response_component.term
             response_name = response_term.alias or response_term.name
             dim_name = response_name + "_dim"
             pymc_backend.model.add_coords({dim_name: response_term.levels})
             dims = ("__obs__", dim_name)
+
+            # For multivariate families, the outcome variable has two dimensions too.
+            if isinstance(self.family, MultivariateFamily):
+                kwargs["dims"] = dims
         else:
             dims = ("__obs__",)
 
@@ -447,7 +441,7 @@ class HSGPTerm:
             if self.term.by_levels is not None:
                 self.coords[f"{self.term.alias}_by"] = self.coords.pop(f"{self.term.name}_by")
 
-    def build(self):
+    def build(self, spec):
         # Get the name of the term
         label = self.name
 
@@ -507,6 +501,19 @@ class HSGPTerm:
             phi = phi.eval()
 
         # Build weights coefficient
+        # Handle the case where the outcome is multivariate
+        if isinstance(spec.family, (MultivariateFamily, Categorical)):
+            # Append the dims of the response variables to the coefficient and contribution dims
+            # In general:
+            # coeff_dims: ('weights_dim', ) -> ('weights_dim', f'{response}_dim')
+            # contribution_dims: ('__obs__', ) -> ('__obs__', f'{response}_dim')
+            response_dims = tuple(spec.response_component.term.coords)
+            coeff_dims = coeff_dims + response_dims
+            contribution_dims = contribution_dims + response_dims
+
+            # Append a dimension to sqrt_psd: ('weights_dim', ) -> ('weights_dim', 1)
+            sqrt_psd = sqrt_psd[:, np.newaxis]
+
         if self.term.centered:
             coeffs = pm.Normal(f"{label}_weights", sigma=sqrt_psd, dims=coeff_dims)
         else:

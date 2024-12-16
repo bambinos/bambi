@@ -53,7 +53,7 @@ class DistributionalComponent:
             self.build_intercept(bmb_model)
             self.build_offsets()
             self.build_common_terms(pymc_backend, bmb_model)
-            self.build_hsgp_terms(pymc_backend)
+            self.build_hsgp_terms(bmb_model, pymc_backend)
             self.build_group_specific_terms(pymc_backend, bmb_model)
 
     def build_intercept(self, bmb_model):
@@ -109,7 +109,7 @@ class DistributionalComponent:
             # Add term to linear predictor
             self.output += pt.dot(data, coefs)
 
-    def build_hsgp_terms(self, pymc_backend):
+    def build_hsgp_terms(self, bmb_model, pymc_backend):
         """Add HSGP (Hilbert-Space Gaussian Process approximation) terms to the PyMC model.
 
         The linear predictor 'X @ b + Z @ u' can be augmented with non-parametric HSGP terms
@@ -120,7 +120,7 @@ class DistributionalComponent:
             for name, values in hsgp_term.coords.items():
                 if name not in pymc_backend.model.coords:
                     pymc_backend.model.add_coords({name: values})
-            self.output += hsgp_term.build()
+            self.output += hsgp_term.build(bmb_model)
 
     def build_group_specific_terms(self, pymc_backend, bmb_model):
         """Add group-specific (random or varying) terms to the PyMC model
