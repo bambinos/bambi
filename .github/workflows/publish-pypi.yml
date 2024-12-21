@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v3
@@ -20,27 +20,27 @@ jobs:
 
       - name: Install dependencies
         run: python3 -m pip install --upgrade build
-   
+
       - name: Build
         run: python3 -m build
-      
+
       - name: Upload source distribution artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: artifact
           path: dist/*
 
   test:
-    name: Upload release to test PyPI 
+    name: Upload release to test PyPI
     needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: Download source distribution artifact
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v4
         with:
           name: artifact
           path: dist
-      
+
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
@@ -54,7 +54,7 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
         run: python3 -m twine upload --skip-existing --repository testpypi dist/*
-            
+
       - name: Test pip install from test.pypi
         run: |
           python -m venv venv-test-pypi
@@ -67,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download source distribution artifact
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v4
         with:
           name: artifact
           path: dist
