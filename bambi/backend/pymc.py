@@ -3,7 +3,6 @@ import logging
 import operator
 import traceback
 import warnings
-
 from copy import deepcopy
 from importlib.metadata import version
 
@@ -11,13 +10,19 @@ import numpy as np
 import pymc as pm
 import pytensor.tensor as pt
 import xarray as xr
-
 from pymc.backends.arviz import coords_and_dims_for_inferencedata, find_observations
 from pymc.util import get_default_varnames
 from pytensor.tensor.special import softmax
 
 from bambi.backend.inference_methods import inference_methods
-from bambi.backend.links import cloglog, identity, inverse_squared, logit, probit, arctan_2
+from bambi.backend.links import (
+    arctan_2,
+    cloglog,
+    identity,
+    inverse_squared,
+    logit,
+    probit,
+)
 from bambi.backend.model_components import (
     ConstantComponent,
     DistributionalComponent,
@@ -246,6 +251,17 @@ class PyMCModel:
             import bayeux as bx  # pylint: disable=import-outside-toplevel
             import jax  # pylint: disable=import-outside-toplevel
 
+            # pylint: disable=import-outside-toplevel
+            from pymc.sampling.parallel import (
+                _cpu_count,
+            )
+
+            # handle case where cores and chains are not provided
+            if cores is None:
+                cores = min(4, _cpu_count())
+            if chains is None:
+                chains = max(2, cores)
+
             # Set the seed for reproducibility if provided
             if random_seed is not None:
                 if not isinstance(random_seed, int):
@@ -255,10 +271,20 @@ class PyMCModel:
             jax_seed = jax.random.PRNGKey(np.random.randint(2**31 - 1))
 
             bx_model = bx.Model.from_pymc(self.model)
-            bx_sampler = operator.attrgetter(sampler_backend)(
-                bx_model.mcmc  # pylint: disable=no-member
+            # pylint: disable=no-member
+            bx_sampler = operator.attrgetter(sampler_backend)(bx_model.mcmc)
+
+            # We pass 'draws', 'tune', 'chains', and 'cores' because they can be used by some
+            # samplers. Since those are keyword arguments of `Model.fit()`, they would not
+            # be passed in the `kwargs` dict.
+            idata = bx_sampler(
+                seed=jax_seed,
+                draws=draws,
+                tune=tune,
+                chains=chains,
+                cores=cores,
+                **kwargs,
             )
-            idata = bx_sampler(seed=jax_seed, **kwargs)
             idata_from = "bayeux"
         else:
             raise ValueError(
@@ -494,7 +520,10 @@ def create_posterior_bayeux(posterior, pm_model):
     # https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html
     data_vars_values = {}
     for data_var_name, data_var_dims in data_vars_dims.items():
-        data_vars_values[data_var_name] = (data_var_dims, posterior[data_var_name].to_numpy())
+        data_vars_values[data_var_name] = (
+            data_var_dims,
+            posterior[data_var_name].to_numpy(),
+        )
 
     # Get coords
     dims_in_use = set(dim for dims in data_vars_dims.values() for dim in dims)
