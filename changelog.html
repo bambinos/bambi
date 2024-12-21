@@ -153,9 +153,46 @@ ul.task-list li input[type="checkbox"] {
 </section>
 </section>
 <section id="section" class="level2">
-<h2 class="anchored" data-anchor-id="section">0.14.0</h2>
+<h2 class="anchored" data-anchor-id="section">0.15.0</h2>
 <section id="new-features-1" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-1">New features</h3>
+<ul>
+<li>Add default priors for binomial and bernoulli families with logit link (#830)</li>
+<li>Add horseshoe prior (#836)</li>
+<li>Handle multivariate responses with HSGP (#856)</li>
+</ul>
+</section>
+<section id="maintenance-and-fixes-1" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-1">Maintenance and fixes</h3>
+<ul>
+<li>Change the JAX random number generator key for 32 bit systems (#833)</li>
+<li>Change <code>rename</code> to <code>replace</code> in <code>pre-render.py</code> (#843)</li>
+<li>Fix out of sample prediction for multivariate families. It would not work for tables where the number of rows was different from the one used to fit the model (#847)</li>
+<li>Check variables before trying to access them in posterior predictive sampling (#851)</li>
+<li>Pass kwargs to nutpie + create env.yml file (#855)</li>
+</ul>
+</section>
+<section id="documentation-1" class="level3">
+<h3 class="anchored" data-anchor-id="documentation-1">Documentation</h3>
+<ul>
+<li>Fix typos and incomplete doc strings (#765)</li>
+<li>Clarify elpd differences interepretation (#825)</li>
+<li>Fix the contributing readme link (#837)</li>
+<li>Add example using <code>offset</code> (#842)</li>
+<li>Fix model formula in negative binomial notebook (#859)</li>
+<li>Fix formatting in t-test examples (#861)</li>
+<li>Fix issue 812 Broken link (#862)</li>
+<li>Update repository documentation files (#865)</li>
+</ul>
+</section>
+<section id="deprecation-1" class="level3">
+<h3 class="anchored" data-anchor-id="deprecation-1">Deprecation</h3>
+</section>
+</section>
+<section id="section-1" class="level2">
+<h2 class="anchored" data-anchor-id="section-1">0.14.0</h2>
+<section id="new-features-2" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-2">New features</h3>
 <ul>
 <li>Add configuration facilities to Bambi (#745)</li>
 <li>Interpet submodule now outputs informative messages when computing default values (#745)</li>
@@ -165,8 +202,8 @@ ul.task-list li input[type="checkbox"] {
 <li>Add a class <code>InferenceMethods</code> that allows users to access the available inference methods and kwargs (#795)</li>
 </ul>
 </section>
-<section id="maintenance-and-fixes-1" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-1">Maintenance and fixes</h3>
+<section id="maintenance-and-fixes-2" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-2">Maintenance and fixes</h3>
 <ul>
 <li>Fix bug in predictions with models using HSGP (#780)</li>
 <li>Fix <code>get_model_covariates()</code> utility function (#801)</li>
@@ -178,16 +215,16 @@ ul.task-list li input[type="checkbox"] {
 <li>Resolve import error associated with bayeux (#822)</li>
 </ul>
 </section>
-<section id="documentation-1" class="level3">
-<h3 class="anchored" data-anchor-id="documentation-1">Documentation</h3>
+<section id="documentation-2" class="level3">
+<h3 class="anchored" data-anchor-id="documentation-2">Documentation</h3>
 <ul>
 <li>Our Code of Conduct now includes how to send a report (#783)</li>
 <li>Add polynomial regression example (#809)</li>
 <li>Add Contact form to our webpage (#816)</li>
 </ul>
 </section>
-<section id="deprecation-1" class="level3">
-<h3 class="anchored" data-anchor-id="deprecation-1">Deprecation</h3>
+<section id="deprecation-2" class="level3">
+<h3 class="anchored" data-anchor-id="deprecation-2">Deprecation</h3>
 <ul>
 <li><code>f"{response_name}_obs"</code> has been replaced by <code>"__obs__"</code> as the dimension name for the observation index (#804)</li>
 <li><code>f"{response_name}_{parameter_name}"</code> is no longer the name for the name of parameters of the likelihood. Now Bambi uses <code>"{parameter_name}"</code> (#804)</li>
@@ -196,11 +233,11 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-1" class="level2">
-<h2 class="anchored" data-anchor-id="section-1">0.13.0</h2>
+<section id="section-2" class="level2">
+<h2 class="anchored" data-anchor-id="section-2">0.13.0</h2>
 <p>This is the first version of Bambi that is released with a Governance structure. Added in #709.</p>
-<section id="new-features-2" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-2">New features</h3>
+<section id="new-features-3" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-3">New features</h3>
 <ul>
 <li>Bambi now supports censored responses (#697)</li>
 <li>Implement <code>"exponential"</code> and <code>"weibull"</code> families (#697)</li>
@@ -212,8 +249,8 @@ ul.task-list li input[type="checkbox"] {
 <li>Support censored families</li>
 </ul>
 </section>
-<section id="maintenance-and-fixes-2" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-2">Maintenance and fixes</h3>
+<section id="maintenance-and-fixes-3" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-3">Maintenance and fixes</h3>
 <ul>
 <li>Bump <code>quartodoc</code> version to 0.6.1 (#720)</li>
 <li>Replace <code>univariate_ordered</code> with <code>ordered</code> (#724)</li>
@@ -221,8 +258,8 @@ ul.task-list li input[type="checkbox"] {
 <li>Fix bugs in <code>plot_comparison</code> (#731)</li>
 </ul>
 </section>
-<section id="documentation-2" class="level3">
-<h3 class="anchored" data-anchor-id="documentation-2">Documentation</h3>
+<section id="documentation-3" class="level3">
+<h3 class="anchored" data-anchor-id="documentation-3">Documentation</h3>
 <ul>
 <li>Add docstrings to utility functions (#696)</li>
 <li>Migrate documentation to Quarto (#712)</li>
@@ -232,26 +269,26 @@ ul.task-list li input[type="checkbox"] {
 <li>Add example about predictions for new groups (#734)</li>
 </ul>
 </section>
-<section id="deprecation-2" class="level3">
-<h3 class="anchored" data-anchor-id="deprecation-2">Deprecation</h3>
+<section id="deprecation-3" class="level3">
+<h3 class="anchored" data-anchor-id="deprecation-3">Deprecation</h3>
 <ul>
 <li>Drop official suport for Python 3.8 (#720)</li>
 <li>Change <code>plots</code> submodule name to <code>interpret</code> (#705)</li>
 </ul>
 </section>
 </section>
-<section id="section-2" class="level2">
-<h2 class="anchored" data-anchor-id="section-2">0.12.0</h2>
-<section id="new-features-3" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-3">New features</h3>
+<section id="section-3" class="level2">
+<h2 class="anchored" data-anchor-id="section-3">0.12.0</h2>
+<section id="new-features-4" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-4">New features</h3>
 <ul>
 <li>Implement new families <code>"ordinal"</code> and <code>"sratio"</code> for modeling of ordinal responses (#678)</li>
 <li>Allow families to implement a custom <code>create_extra_pps_coord()</code> (#688)</li>
 <li>Allow predictions on new groups (#693)</li>
 </ul>
 </section>
-<section id="maintenance-and-fixes-3" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-3">Maintenance and fixes</h3>
+<section id="maintenance-and-fixes-4" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-4">Maintenance and fixes</h3>
 <ul>
 <li>Robustify how Bambi handles dims (#682)</li>
 <li>Fix links in FAQ (#686)</li>
@@ -260,20 +297,20 @@ ul.task-list li input[type="checkbox"] {
 <li>Add warning for aliases athat aren’t used (#691)</li>
 </ul>
 </section>
-<section id="documentation-3" class="level3">
-<h3 class="anchored" data-anchor-id="documentation-3">Documentation</h3>
+<section id="documentation-4" class="level3">
+<h3 class="anchored" data-anchor-id="documentation-4">Documentation</h3>
 <ul>
 <li>Add families to the Getting Started guide (#683)</li>
 </ul>
 </section>
-<section id="deprecation-3" class="level3">
-<h3 class="anchored" data-anchor-id="deprecation-3">Deprecation</h3>
+<section id="deprecation-4" class="level3">
+<h3 class="anchored" data-anchor-id="deprecation-4">Deprecation</h3>
 </section>
 </section>
-<section id="section-3" class="level2">
-<h2 class="anchored" data-anchor-id="section-3">0.11.0</h2>
-<section id="new-features-4" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-4">New features</h3>
+<section id="section-4" class="level2">
+<h2 class="anchored" data-anchor-id="section-4">0.11.0</h2>
+<section id="new-features-5" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-5">New features</h3>
 <ul>
 <li>Add support for Gaussian Processes via the HSGP approximation (#632)</li>
 <li>Add new families: <code>"zero_inflated_poisson"</code>, <code>"zero_inflated_binomial"</code>, and <code>"zero_inflated_negativebinomial"</code> (#654)</li>
@@ -282,8 +319,8 @@ ul.task-list li input[type="checkbox"] {
 <li>Add new families: <code>"hurdle_gamma"</code>, <code>"hurdle_lognormal"</code>, <code>"hurdle_negativebinomial"</code>, and <code>"hurdle_poisson"</code> (#676)</li>
 </ul>
 </section>
-<section id="maintenance-and-fixes-4" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-4">Maintenance and fixes</h3>
+<section id="maintenance-and-fixes-5" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-5">Maintenance and fixes</h3>
 <ul>
 <li>Modify how HSGP is built in PyMC when there are groups (#661)</li>
 <li>Modify how Bambi is imported in the tests (#662)</li>
@@ -291,46 +328,46 @@ ul.task-list li input[type="checkbox"] {
 <li>Bump sphix dependency to a version greater than 7 (#672)</li>
 </ul>
 </section>
-<section id="documentation-4" class="level3">
-<h3 class="anchored" data-anchor-id="documentation-4">Documentation</h3>
+<section id="documentation-5" class="level3">
+<h3 class="anchored" data-anchor-id="documentation-5">Documentation</h3>
 <ul>
 <li>Document how to use custom priors (#656)</li>
 <li>Fix name of arviz traceplot function in the docs (#666)</li>
 <li>Add example that shows how <code>plot_cap()</code> works (#670)</li>
 </ul>
 </section>
-<section id="deprecation-4" class="level3">
-<h3 class="anchored" data-anchor-id="deprecation-4">Deprecation</h3>
+<section id="deprecation-5" class="level3">
+<h3 class="anchored" data-anchor-id="deprecation-5">Deprecation</h3>
 </section>
 </section>
-<section id="section-4" class="level2">
-<h2 class="anchored" data-anchor-id="section-4">0.10.0</h2>
-<section id="new-features-5" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-5">New features</h3>
+<section id="section-5" class="level2">
+<h2 class="anchored" data-anchor-id="section-5">0.10.0</h2>
+<section id="new-features-6" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-6">New features</h3>
 <ul>
 <li>Refactored the codebase to support distributional models (#607)</li>
 <li>Added a default method to handle posterior predictive sampling for custom families (#625)</li>
 <li><code>plot_cap()</code> gains a new argument <code>target</code> that allows to plot different parameters of the response distribution (#627)</li>
 </ul>
 </section>
-<section id="maintenance-and-fixes-5" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-5">Maintenance and fixes</h3>
+<section id="maintenance-and-fixes-6" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-6">Maintenance and fixes</h3>
 <ul>
 <li>Moved the <code>tests</code> directory to the root of the repository (#607)</li>
 <li>Don’t pass <code>dims</code> to the response of the likelihood distribution anymore (#629)</li>
 <li>Remove requirements.txt and replace with <code>pyproject.toml</code> config file to distribute the package (#631)</li>
 </ul>
 </section>
-<section id="documentation-5" class="level3">
-<h3 class="anchored" data-anchor-id="documentation-5">Documentation</h3>
+<section id="documentation-6" class="level3">
+<h3 class="anchored" data-anchor-id="documentation-6">Documentation</h3>
 <ul>
 <li>Update examples to work with the new internals (#607)</li>
 <li>Fixed figure in the Sleepstudy example (#607)</li>
 <li>Add example using distributional models (#641)</li>
 </ul>
 </section>
-<section id="deprecation-5" class="level3">
-<h3 class="anchored" data-anchor-id="deprecation-5">Deprecation</h3>
+<section id="deprecation-6" class="level3">
+<h3 class="anchored" data-anchor-id="deprecation-6">Deprecation</h3>
 <ul>
 <li>Removed versioned documentation webpage (#616)</li>
 <li>Removed correlated priors for group-specific terms (#607)</li>
@@ -338,19 +375,19 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-5" class="level2">
-<h2 class="anchored" data-anchor-id="section-5">0.9.3</h2>
-<section id="maintenance-and-fixes-6" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-6">Maintenance and fixes</h3>
+<section id="section-6" class="level2">
+<h2 class="anchored" data-anchor-id="section-6">0.9.3</h2>
+<section id="maintenance-and-fixes-7" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-7">Maintenance and fixes</h3>
 <ul>
 <li>Update to PyMC &gt;= 5, which means we use PyTensor instead of Aesara now (#613, #614)</li>
 </ul>
 </section>
 </section>
-<section id="section-6" class="level2">
-<h2 class="anchored" data-anchor-id="section-6">0.9.2</h2>
-<section id="new-features-6" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-6">New features</h3>
+<section id="section-7" class="level2">
+<h2 class="anchored" data-anchor-id="section-7">0.9.2</h2>
+<section id="new-features-7" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-7">New features</h3>
 <ul>
 <li>Implement <code>censored()</code> (#581)</li>
 <li>Add <code>Formula</code> class (#585)</li>
@@ -360,8 +397,8 @@ ul.task-list li input[type="checkbox"] {
 <li>Add panel covariates to <code>plot_cap()</code> and make it more flexible (#596)</li>
 </ul>
 </section>
-<section id="maintenance-and-fixes-7" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-7">Maintenance and fixes</h3>
+<section id="maintenance-and-fixes-8" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-8">Maintenance and fixes</h3>
 <ul>
 <li>Reimplemented predictions to make better usage of xarray data structures (#573)</li>
 <li>Keep 0 dimensional parameters as 0 dimensional instead of 1 dimensional (#575)</li>
@@ -370,80 +407,80 @@ ul.task-list li input[type="checkbox"] {
 <li>Add build check function on prior predictive and plot prior (#605)</li>
 </ul>
 </section>
-<section id="documentation-6" class="level3">
-<h3 class="anchored" data-anchor-id="documentation-6">Documentation</h3>
+<section id="documentation-7" class="level3">
+<h3 class="anchored" data-anchor-id="documentation-7">Documentation</h3>
 <ul>
 <li>Add quantile regression example (#608)</li>
 </ul>
 </section>
-<section id="deprecation-6" class="level3">
-<h3 class="anchored" data-anchor-id="deprecation-6">Deprecation</h3>
+<section id="deprecation-7" class="level3">
+<h3 class="anchored" data-anchor-id="deprecation-7">Deprecation</h3>
 <ul>
 <li>Remove <code>automatic_priors</code> argument from <code>Model</code> (#603)</li>
 <li>Remove string option for data input in <code>Model</code> (#604)</li>
 </ul>
 </section>
 </section>
-<section id="section-7" class="level2">
-<h2 class="anchored" data-anchor-id="section-7">0.9.1</h2>
-<section id="new-features-7" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-7">New features</h3>
+<section id="section-8" class="level2">
+<h2 class="anchored" data-anchor-id="section-8">0.9.1</h2>
+<section id="new-features-8" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-8">New features</h3>
 <ul>
 <li>Add support for jax sampling via numpyro and blackjax samplers (#526)</li>
 <li>Add Laplace family (#524)</li>
 <li>Improve Laplace computation and integration (#555 and #563)</li>
 </ul>
 </section>
-<section id="maintenance-and-fixes-8" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-8">Maintenance and fixes</h3>
+<section id="maintenance-and-fixes-9" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-9">Maintenance and fixes</h3>
 <ul>
 <li>Ensure order variable is preserved when ploting priors (#529)</li>
 <li>Treat offset accordingly (#534)</li>
 <li>Refactor tests to share data generation code (#531)</li>
 </ul>
 </section>
-<section id="documentation-7" class="level3">
-<h3 class="anchored" data-anchor-id="documentation-7">Documentation</h3>
+<section id="documentation-8" class="level3">
+<h3 class="anchored" data-anchor-id="documentation-8">Documentation</h3>
 <ul>
 <li>Update documentation following good inferencedata practices (#537)</li>
 <li>Add logos to repo and docs (#542)</li>
 </ul>
 </section>
-<section id="deprecation-7" class="level3">
-<h3 class="anchored" data-anchor-id="deprecation-7">Deprecation</h3>
+<section id="deprecation-8" class="level3">
+<h3 class="anchored" data-anchor-id="deprecation-8">Deprecation</h3>
 <ul>
 <li>Deprecate method argument in favor of inference_method (#554)</li>
 </ul>
 </section>
 </section>
-<section id="section-8" class="level2">
-<h2 class="anchored" data-anchor-id="section-8">0.9.0</h2>
-<section id="new-features-8" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-8">New features</h3>
+<section id="section-9" class="level2">
+<h2 class="anchored" data-anchor-id="section-9">0.9.0</h2>
+<section id="new-features-9" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-9">New features</h3>
 <ul>
 <li>Bambi now uses <a href="https://www.pymc.io/blog/v4_announcement.html">PyMC 4.0</a> as it’s backend. Most if not all your previous model should run the same, without the need of any change.</li>
 <li>Add Plot Conditional Adjusted Predictions <code>plot_cap</code> (#517)</li>
 </ul>
 </section>
-<section id="maintenance-and-fixes-9" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-9">Maintenance and fixes</h3>
+<section id="maintenance-and-fixes-10" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-10">Maintenance and fixes</h3>
 <ul>
 <li>Group specific terms now work with numeric of multiple columns (#516)</li>
 </ul>
 </section>
 </section>
-<section id="section-9" class="level2">
-<h2 class="anchored" data-anchor-id="section-9">0.8.0</h2>
-<section id="new-features-9" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-9">New features</h3>
+<section id="section-10" class="level2">
+<h2 class="anchored" data-anchor-id="section-10">0.8.0</h2>
+<section id="new-features-10" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-10">New features</h3>
 <ul>
 <li>Add VonMises (<code>"vonmises"</code>) built-in family (#453)</li>
 <li><code>Model.predict()</code> gains a new argument <code>include_group_specific</code> to determine if group-specific effects are considered when making predictions (#470)</li>
 <li>Add Multinomial (<code>"multinomial"</code>) built-in family (#490)</li>
 </ul>
 </section>
-<section id="maintenance-and-fixes-10" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-10">Maintenance and fixes</h3>
+<section id="maintenance-and-fixes-11" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-11">Maintenance and fixes</h3>
 <ul>
 <li>Add posterior predictive sampling method to “categorical” family (#458)</li>
 <li>Require Python &gt;= 3.7.2 to fix NoReturn type bug in Python (#463)</li>
@@ -457,8 +494,8 @@ ul.task-list li input[type="checkbox"] {
 <li>Fixed a bug related to modifying the types of the columns in the original data frame (#502)</li>
 </ul>
 </section>
-<section id="documentation-8" class="level3">
-<h3 class="anchored" data-anchor-id="documentation-8">Documentation</h3>
+<section id="documentation-9" class="level3">
+<h3 class="anchored" data-anchor-id="documentation-9">Documentation</h3>
 <ul>
 <li>Add circular regression example (#465)</li>
 <li>Add Categorical regression example (#457)</li>
@@ -470,43 +507,43 @@ ul.task-list li input[type="checkbox"] {
 <li>Cleaned Strack RRR example (#479)</li>
 </ul>
 </section>
-<section id="deprecation-8" class="level3">
-<h3 class="anchored" data-anchor-id="deprecation-8">Deprecation</h3>
+<section id="deprecation-9" class="level3">
+<h3 class="anchored" data-anchor-id="deprecation-9">Deprecation</h3>
 <ul>
 <li>Removed old default priors (#474)</li>
 <li>Removed <code>draws</code> parameter from <code>Model.predict()</code> method (#504)</li>
 </ul>
 </section>
 </section>
-<section id="section-10" class="level2">
-<h2 class="anchored" data-anchor-id="section-10">0.7.1</h2>
-<section id="maintenance-and-fixes-11" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-11">Maintenance and fixes</h3>
+<section id="section-11" class="level2">
+<h2 class="anchored" data-anchor-id="section-11">0.7.1</h2>
+<section id="maintenance-and-fixes-12" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-12">Maintenance and fixes</h3>
 <ul>
 <li>Fixed bug related to the shape of 2 level categorical group-specific effects (#441)</li>
 </ul>
 </section>
 </section>
-<section id="section-11" class="level2">
-<h2 class="anchored" data-anchor-id="section-11">0.7.0</h2>
-<section id="new-features-10" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-10">New features</h3>
+<section id="section-12" class="level2">
+<h2 class="anchored" data-anchor-id="section-12">0.7.0</h2>
+<section id="new-features-11" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-11">New features</h3>
 <ul>
 <li>Add “categorical” built-in family (#426)</li>
 <li>Add <code>include_mean</code> argument to the method <code>Model.fit()</code> (#434)</li>
 <li>Add <code>.set_alias()</code> method to <code>Model</code> (#435)</li>
 </ul>
 </section>
-<section id="maintenance-and-fixes-12" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-12">Maintenance and fixes</h3>
+<section id="maintenance-and-fixes-13" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-13">Maintenance and fixes</h3>
 <ul>
 <li>Codebase for the PyMC backend has been refactored (#408)</li>
 <li>Fix examples that averaged posterior values across chains (#429)</li>
 <li>Fix issue #427 with automatic priors for the intercept term (#430)</li>
 </ul>
 </section>
-<section id="documentation-9" class="level3">
-<h3 class="anchored" data-anchor-id="documentation-9">Documentation</h3>
+<section id="documentation-10" class="level3">
+<h3 class="anchored" data-anchor-id="documentation-10">Documentation</h3>
 <ul>
 <li>Add StudentT regression example, thanks to <span class="citation" data-cites="tjburch">@tjburch</span> (#414)</li>
 <li>Add B-Spline regression example with cherry blossoms dataset (#416)</li>
@@ -514,22 +551,22 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-12" class="level2">
-<h2 class="anchored" data-anchor-id="section-12">0.6.3</h2>
+<section id="section-13" class="level2">
+<h2 class="anchored" data-anchor-id="section-13">0.6.3</h2>
 <ul>
 <li>Use formulae 0.2.0 (#411)</li>
 </ul>
 </section>
-<section id="section-13" class="level2">
-<h2 class="anchored" data-anchor-id="section-13">0.6.2</h2>
-<section id="maintenance-and-fixes-13" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-13">Maintenance and fixes</h3>
+<section id="section-14" class="level2">
+<h2 class="anchored" data-anchor-id="section-14">0.6.2</h2>
+<section id="maintenance-and-fixes-14" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-14">Maintenance and fixes</h3>
 <ul>
 <li>Change default priors for the ‘t’ family (#403)</li>
 </ul>
 </section>
-<section id="documentation-10" class="level3">
-<h3 class="anchored" data-anchor-id="documentation-10">Documentation</h3>
+<section id="documentation-11" class="level3">
+<h3 class="anchored" data-anchor-id="documentation-11">Documentation</h3>
 <ul>
 <li>Add installation instructions with conda (#406)</li>
 <li>Corrected a typo: pary_id -&gt; party_id (#402)</li>
@@ -537,27 +574,27 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-14" class="level2">
-<h2 class="anchored" data-anchor-id="section-14">0.6.1</h2>
-<section id="maintenance-and-fixes-14" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-14">Maintenance and fixes</h3>
+<section id="section-15" class="level2">
+<h2 class="anchored" data-anchor-id="section-15">0.6.1</h2>
+<section id="maintenance-and-fixes-15" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-15">Maintenance and fixes</h3>
 <ul>
 <li>Documentation for all versions is built from scratch when there’s a release. This ensures older versions link to the current stable release. (#396)</li>
 <li>Add new axis to prior predictive samples to represent 1 chain in the InferenceData object we return (#397)</li>
 <li>Move Family, Likelihood and Link to the families submodule and improved some docstrings (#399)</li>
 </ul>
 </section>
-<section id="documentation-11" class="level3">
-<h3 class="anchored" data-anchor-id="documentation-11">Documentation</h3>
+<section id="documentation-12" class="level3">
+<h3 class="anchored" data-anchor-id="documentation-12">Documentation</h3>
 <ul>
 <li>Add example with hierarchical binomial model (#398)</li>
 </ul>
 </section>
 </section>
-<section id="section-15" class="level2">
-<h2 class="anchored" data-anchor-id="section-15">0.6.0</h2>
-<section id="new-features-11" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-11">New features</h3>
+<section id="section-16" class="level2">
+<h2 class="anchored" data-anchor-id="section-16">0.6.0</h2>
+<section id="new-features-12" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-12">New features</h3>
 <ul>
 <li>Add alternative default priors (#360)</li>
 <li>Add StudentT family (#367)</li>
@@ -568,33 +605,33 @@ ul.task-list li input[type="checkbox"] {
 <li>Add Binomial family (#386)</li>
 </ul>
 </section>
-<section id="maintenance-and-fixes-15" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-15">Maintenance and fixes</h3>
+<section id="maintenance-and-fixes-16" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-16">Maintenance and fixes</h3>
 <ul>
 <li>Automatic switch initialization method from “jitter-adapt_diag” to “adapt_diag” when sampling fails (#383)</li>
 <li>Predictors are internally centered when there is an intercept. This generally results in improved sampling efficiency (#385)</li>
 <li>Improve documentation and error message in <code>Model.graph()</code> (#390)</li>
 </ul>
 </section>
-<section id="documentation-12" class="level3">
-<h3 class="anchored" data-anchor-id="documentation-12">Documentation</h3>
+<section id="documentation-13" class="level3">
+<h3 class="anchored" data-anchor-id="documentation-13">Documentation</h3>
 <ul>
 <li>Add Negative Binomial family example notebook (#346)</li>
 <li>Fixed typos and improved many notebooks (#374, #377, #382)</li>
 </ul>
 </section>
 </section>
-<section id="section-16" class="level2">
-<h2 class="anchored" data-anchor-id="section-16">0.5.0</h2>
-<section id="new-features-12" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-12">New features</h3>
+<section id="section-17" class="level2">
+<h2 class="anchored" data-anchor-id="section-17">0.5.0</h2>
+<section id="new-features-13" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-13">New features</h3>
 <ul>
 <li>It is possible to specify priors for parameters in the response distribution (#335)</li>
 <li>Add probit and cloglog link functions (#340)</li>
 </ul>
 </section>
-<section id="maintenance-and-fixes-16" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-16">Maintenance and fixes</h3>
+<section id="maintenance-and-fixes-17" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-17">Maintenance and fixes</h3>
 <ul>
 <li>Informative message when default priors fail because of perfect separation. Model can be fit with custom priors (#330)</li>
 <li>Breaking changes to the API. All the information related to the model goes in <code>Model()</code> instantiation now (#333)</li>
@@ -606,8 +643,8 @@ ul.task-list li input[type="checkbox"] {
 <li>Update formulae version to 0.0.10 (#348)</li>
 </ul>
 </section>
-<section id="documentation-13" class="level3">
-<h3 class="anchored" data-anchor-id="documentation-13">Documentation</h3>
+<section id="documentation-14" class="level3">
+<h3 class="anchored" data-anchor-id="documentation-14">Documentation</h3>
 <ul>
 <li>Notebooks are updated to the new API (#336)</li>
 <li>Add badges, update introduction and minor style changes in webpage (#344)</li>
@@ -617,65 +654,65 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="section-17" class="level2">
-<h2 class="anchored" data-anchor-id="section-17">0.4.1</h2>
-<section id="new-features-13" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-13">New features</h3>
+<section id="section-18" class="level2">
+<h2 class="anchored" data-anchor-id="section-18">0.4.1</h2>
+<section id="new-features-14" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-14">New features</h3>
 <ul>
 <li>Add option to save a figure from model.graph() by passing the name of a file. Figure format and resolution can also be set (#317)</li>
 <li>Objects of class Prior, Family and Model have nicer print methods (#326)</li>
 </ul>
 </section>
-<section id="maintenance-and-fixes-17" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-17">Maintenance and fixes</h3>
+<section id="maintenance-and-fixes-18" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-18">Maintenance and fixes</h3>
 <ul>
 <li>Add negative binomial family to config file, which was missing (#324)</li>
 <li>Add test to check model compilation with families available (#327)</li>
 <li>Update formulae to version 0.0.9 (#329)</li>
 </ul>
 </section>
-<section id="documentation-14" class="level3">
-<h3 class="anchored" data-anchor-id="documentation-14">Documentation</h3>
+<section id="documentation-15" class="level3">
+<h3 class="anchored" data-anchor-id="documentation-15">Documentation</h3>
 <ul>
 <li>Fix gamma docstring (#328)</li>
 </ul>
 </section>
 </section>
-<section id="section-18" class="level2">
-<h2 class="anchored" data-anchor-id="section-18">0.4.0</h2>
-<section id="new-features-14" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-14">New features</h3>
+<section id="section-19" class="level2">
+<h2 class="anchored" data-anchor-id="section-19">0.4.0</h2>
+<section id="new-features-15" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-15">New features</h3>
 <ul>
 <li>Use formulae to parse model formulas (#299)</li>
 <li>Add model representation (#300)</li>
 </ul>
 </section>
-<section id="maintenance-and-fixes-18" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-18">Maintenance and fixes</h3>
+<section id="maintenance-and-fixes-19" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-19">Maintenance and fixes</h3>
 <ul>
 <li>Remove deprecation warning related to pm.sample returning idata (#295)</li>
 </ul>
 </section>
-<section id="documentation-15" class="level3">
-<h3 class="anchored" data-anchor-id="documentation-15">Documentation</h3>
+<section id="documentation-16" class="level3">
+<h3 class="anchored" data-anchor-id="documentation-16">Documentation</h3>
 <ul>
 <li>Add citation to Bambi preprint (#290)</li>
 <li>Remove reference to pystan (#292)</li>
 </ul>
 </section>
 </section>
-<section id="section-19" class="level2">
-<h2 class="anchored" data-anchor-id="section-19">0.3.0</h2>
-<section id="new-features-15" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-15">New features</h3>
+<section id="section-20" class="level2">
+<h2 class="anchored" data-anchor-id="section-20">0.3.0</h2>
+<section id="new-features-16" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-16">New features</h3>
 <ul>
 <li>Add posterior predictive sampling (#250)</li>
 <li>Add prior predictive sampling (#244)</li>
 <li>Add gamma, negativebinomial and wald families (#207)</li>
 </ul>
 </section>
-<section id="maintenance-and-fixes-19" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-19">Maintenance and fixes</h3>
+<section id="maintenance-and-fixes-20" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-20">Maintenance and fixes</h3>
 <ul>
 <li>Use pm.sample_prior_predictive function to sample and plot from prior (#238)</li>
 <li>Fix FutureWarning: Support for multi-dimensional indexing (#242)</li>
@@ -696,8 +733,8 @@ ul.task-list li input[type="checkbox"] {
 <li>Add argument to optionally keep group level effects and offsets variables in <code>plot_prior</code> (#288)</li>
 </ul>
 </section>
-<section id="documentation-16" class="level3">
-<h3 class="anchored" data-anchor-id="documentation-16">Documentation</h3>
+<section id="documentation-17" class="level3">
+<h3 class="anchored" data-anchor-id="documentation-17">Documentation</h3>
 <ul>
 <li>Update example notebooks (#232)</li>
 <li>add missing notebooks (#229)</li>
@@ -708,8 +745,8 @@ ul.task-list li input[type="checkbox"] {
 <li>Fix divergences in examples (two divergences remaining in Strack RRR example) (#282)</li>
 </ul>
 </section>
-<section id="deprecation-9" class="level3">
-<h3 class="anchored" data-anchor-id="deprecation-9">Deprecation</h3>
+<section id="deprecation-10" class="level3">
+<h3 class="anchored" data-anchor-id="deprecation-10">Deprecation</h3>
 <ul>
 <li>Drop support python 3.6 (#218)</li>
 <li>Remove stan backend and replace sd with sigma (#205)</li>
@@ -719,15 +756,15 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="the-first-python-3-and-arviz-bambino" class="level2">
 <h2 class="anchored" data-anchor-id="the-first-python-3-and-arviz-bambino">0.2.0 The First Python 3 (and ArviZ) Bambino</h2>
-<section id="new-features-16" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-16">New features</h3>
+<section id="new-features-17" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-17">New features</h3>
 <ul>
 <li>Add laplace approximation (#184) (only for educational use, do not use for real problems)</li>
 <li>Use arviz (#182, #178, #166, #159)</li>
 </ul>
 </section>
-<section id="maintenance-and-fixes-20" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-20">Maintenance and fixes</h3>
+<section id="maintenance-and-fixes-21" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-21">Maintenance and fixes</h3>
 <ul>
 <li>Update requirements (#191)</li>
 <li>Change default sd prior and update docs (#189)</li>
@@ -739,8 +776,8 @@ ul.task-list li input[type="checkbox"] {
 <li>Black list external/ and tests/from pylint</li>
 </ul>
 </section>
-<section id="documentation-17" class="level3">
-<h3 class="anchored" data-anchor-id="documentation-17">Documentation</h3>
+<section id="documentation-18" class="level3">
+<h3 class="anchored" data-anchor-id="documentation-18">Documentation</h3>
 <ul>
 <li>Add missing example (#194)</li>
 <li>Update docs and fix typos (#185, #181)</li>
@@ -749,8 +786,8 @@ ul.task-list li input[type="checkbox"] {
 <li>Unify docstring style and remove not used code (#169)</li>
 </ul>
 </section>
-<section id="deprecation-10" class="level3">
-<h3 class="anchored" data-anchor-id="deprecation-10">Deprecation</h3>
+<section id="deprecation-11" class="level3">
+<h3 class="anchored" data-anchor-id="deprecation-11">Deprecation</h3>
 <ul>
 <li>Deprecate Stan backend (#183)</li>
 </ul>
@@ -758,14 +795,14 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="the-last-legacy-python-bambino" class="level2">
 <h2 class="anchored" data-anchor-id="the-last-legacy-python-bambino">0.1.5 (The last legacy Python Bambino)</h2>
-<section id="new-features-17" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-17">New features</h3>
+<section id="new-features-18" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-18">New features</h3>
 <ul>
 <li>Use a callable as link function (#147)</li>
 </ul>
 </section>
-<section id="maintenance-and-fixes-21" class="level3">
-<h3 class="anchored" data-anchor-id="maintenance-and-fixes-21">Maintenance and fixes</h3>
+<section id="maintenance-and-fixes-22" class="level3">
+<h3 class="anchored" data-anchor-id="maintenance-and-fixes-22">Maintenance and fixes</h3>
 <ul>
 <li>Update to Python 3, black and some pylint (#158)</li>
 <li>Fix test warnings (#144)</li>
@@ -774,15 +811,15 @@ ul.task-list li input[type="checkbox"] {
 <li>Update travis config (#135)</li>
 </ul>
 </section>
-<section id="documentation-18" class="level3">
-<h3 class="anchored" data-anchor-id="documentation-18">Documentation</h3>
+<section id="documentation-19" class="level3">
+<h3 class="anchored" data-anchor-id="documentation-19">Documentation</h3>
 <ul>
 <li>Add contributing guide (#146)</li>
 <li>Update notebooks (#140)</li>
 </ul>
 </section>
-<section id="deprecation-11" class="level3">
-<h3 class="anchored" data-anchor-id="deprecation-11">Deprecation</h3>
+<section id="deprecation-12" class="level3">
+<h3 class="anchored" data-anchor-id="deprecation-12">Deprecation</h3>
 <ul>
 <li>Last version to support Python 2.7</li>
 </ul>
