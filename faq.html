@@ -165,26 +165,26 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="inference-questions">Inference Questions</h2>
 <section id="what-sampling-methods-are-available" class="level3">
 <h3 class="anchored" data-anchor-id="what-sampling-methods-are-available">What sampling methods are available?</h3>
-<p>The sampler used is automatically selected given the type of variables used in the model. For inference, Bambi supports both MCMC and variational inference. MCMC is the default, but you can specify variational inference by passing <code>inference_method='vi'</code> to <code>Model.fit()</code>. Bambi also supports multiple backends for MCMC, including NumPyro, and BlackJax (see API for “fit” method for more details <a href="https://bambinos.github.io/bambi/api_reference.html">here</a>.</p>
+<p>The sampler used is automatically selected given the type of variables used in the model. For inference, Bambi supports both MCMC and variational inference. MCMC is the default, but you can specify variational inference by passing <code>inference_method='vi'</code> to <code>Model.fit()</code>. Bambi also supports multiple backends for MCMC, including NumPyro, and BlackJax. See API for “fit” method for more details <a href="https://bambinos.github.io/bambi/api/Model.html#bambi.Model.fit">here</a>.</p>
 </section>
 <section id="can-inference-in-bambi-be-sped-up-using-gpustpus" class="level3">
 <h3 class="anchored" data-anchor-id="can-inference-in-bambi-be-sped-up-using-gpustpus">Can inference in Bambi be sped up using GPUs/TPUs?</h3>
-<p>Yes, Bambi supports inference on GPUs and TPUs using the numpyro and blackjax backends. See the API for “fit” method for more details <a href="https://bambinos.github.io/bambi/api_reference.html">here</a>.</p>
+<p>Yes, Bambi supports inference on GPUs and TPUs using the numpyro and blackjax backends. See the API for “fit” method for more details <a href="https://bambinos.github.io/bambi/api/Model.html#bambi.Model.fit">here</a>.</p>
 </section>
 </section>
 <section id="model-specification-questions" class="level2">
 <h2 class="anchored" data-anchor-id="model-specification-questions">Model Specification Questions</h2>
 <section id="my-data-has-a-non-normal-distributions-can-i-still-use-bambi" class="level3">
 <h3 class="anchored" data-anchor-id="my-data-has-a-non-normal-distributions-can-i-still-use-bambi">My data has a non-normal distributions, can I still use Bambi?</h3>
-<p>Yes, Bambi supports a wide range of distributions which can be specified using the “family” argument to the “Model”. You can find examples of how to specify these distributions in the <a href="https://bambinos.github.io/bambi/examples.html">Bambi examples</a>.</p>
+<p>Yes, Bambi supports a wide range of distributions which can be specified using the “family” argument to the “Model”. You can find examples of how to specify these distributions in the <a href="https://bambinos.github.io/bambi/notebooks/">Bambi examples</a>.</p>
 </section>
 <section id="how-do-i-find-out-what-priors-are-available" class="level3">
 <h3 class="anchored" data-anchor-id="how-do-i-find-out-what-priors-are-available">How do I find out what priors are available?</h3>
-<p>You can use any valid PyMC distribution as a prior. You can find a list of all the distributions available in PyMC <a href="https://www.pymc.io/projects/docs/en/stable/api/distributions.html">here</a>. You can also find examples of how to specify priors in the <a href="https://bambinos.github.io/bambi/examples.html">Bambi examples</a>, and in the <a href="https://bambinos.github.io/bambi/notebooks/getting_started.html#Specifying-priors">Getting Started Guide</a>.</p>
+<p>You can use any valid PyMC distribution as a prior. You can find a list of all the distributions available in PyMC <a href="https://www.pymc.io/projects/docs/en/stable/api/distributions.html">here</a>. You can also find examples of how to specify priors in the <a href="https://bambinos.github.io/bambi/notebooks/">Bambi examples</a>, and in the <a href="https://bambinos.github.io/bambi/notebooks/getting_started.html#Specifying-priors">Getting Started Guide</a>.</p>
 </section>
 <section id="does-bambi-come-with-pre-specified-regression-models" class="level3">
 <h3 class="anchored" data-anchor-id="does-bambi-come-with-pre-specified-regression-models">Does bambi come with pre-specified regression models?</h3>
-<p>To allow building of bespoke models, Bambi does not come with pre-specified regression models. However, you can find examples of how to specify models in the <a href="https://bambinos.github.io/bambi/examples.html">Bambi examples</a>.</p>
+<p>To allow building of bespoke models, Bambi does not come with pre-specified regression models. However, you can find examples of how to specify models in the <a href="https://bambinos.github.io/bambi/notebooks/">Bambi examples</a>.</p>
 
 
 </section>
