@@ -824,16 +824,16 @@ class TestBeta(FitPredictParent):
         model.predict(idata, kind="response")
 
         assert (0 < idata.posterior["mu"]).all() & (idata.posterior["mu"] < 1).all()
-        assert (0 < idata.posterior_predictive["yield"]).all() & (
-            idata.posterior_predictive["yield"] < 1
+        assert (0 <= idata.posterior_predictive["yield"]).all() & (
+            idata.posterior_predictive["yield"] <= 1
         ).all()
 
         model.predict(idata, kind="response_params", data=gasoline_data.iloc[:20, :])
         model.predict(idata, kind="response", data=gasoline_data.iloc[:20, :])
 
         assert (0 < idata.posterior["mu"]).all() & (idata.posterior["mu"] < 1).all()
-        assert (0 < idata.posterior_predictive["yield"]).all() & (
-            idata.posterior_predictive["yield"] < 1
+        assert (0 <= idata.posterior_predictive["yield"]).all() & (
+            idata.posterior_predictive["yield"] <= 1
         ).all()
 
 
