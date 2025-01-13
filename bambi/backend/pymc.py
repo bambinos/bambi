@@ -148,7 +148,7 @@ class PyMCModel:
                 **kwargs,
             )
         elif inference_method in self.pymc_methods["vi"]:
-            result = self._run_vi(**kwargs)
+            result = self._run_vi(random_seed, **kwargs)
         elif inference_method == "laplace":
             result = self._run_laplace(draws, omit_offsets, include_response_params)
         else:
@@ -382,9 +382,9 @@ class PyMCModel:
 
         return idata
 
-    def _run_vi(self, **kwargs):
+    def _run_vi(self, random_seed, **kwargs):
         with self.model:
-            self.vi_approx = pm.fit(**kwargs)
+            self.vi_approx = pm.fit(random_seed=random_seed, **kwargs)
         return self.vi_approx
 
     def _run_laplace(self, draws, omit_offsets, include_response_params):
