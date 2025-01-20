@@ -804,6 +804,7 @@ class Model:
         include_group_specific=True,
         sample_new_groups=False,
         num_draws=None,
+        random_seed=42,
     ):
         """Predict method for Bambi models
 
@@ -843,6 +844,8 @@ class Model:
         num_draws : int or None, optional
             Determines the number of draws to use for the posterior predictive distribution.
             If `None`, all available draws from the posterior are used.
+        random_seed : int
+            Seed for the random number generator.
 
         Returns
         -------
@@ -869,6 +872,8 @@ class Model:
             idata = deepcopy(idata)
 
         if num_draws is not None:
+            if inplace:
+                raise ValueError("Cannot set `inplace=True` when `num_draws` is not None.")
             total_draws = len(idata.posterior.draw)
             if num_draws > total_draws:
                 warnings.warn(
@@ -878,9 +883,9 @@ class Model:
                 )
                 num_draws = total_draws
 
-            selected_draws = np.random.choice(
-                idata.posterior.draw.values, size=num_draws, replace=False
-            )
+            rng = np.random.default_rng(seed=random_seed)
+
+            selected_draws = rng.choice(idata.posterior.draw.values, size=num_draws, replace=False)
 
             idata_subset = idata.sel(draw=selected_draws)
         else:
