@@ -877,13 +877,11 @@ class Model:
                     UserWarning,
                 )
                 num_draws = total_draws
-            
+
             selected_draws = np.random.choice(
-                idata.posterior.draw.values, 
-                size=num_draws, 
-                replace=False
+                idata.posterior.draw.values, size=num_draws, replace=False
             )
-            
+
             idata_subset = idata.sel(draw=selected_draws)
         else:
             idata_subset = idata
