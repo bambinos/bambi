@@ -10,6 +10,7 @@ import formulae as fm
 import pymc as pm
 import pandas as pd
 import numpy as np
+from tqdm import tqdm
 
 from arviz.plots import plot_posterior
 
@@ -995,7 +996,7 @@ class Model:
         hsgp_dict = {}  # To store the HSGP contributions (they are added to the posterior dataset)
         response_dim = "__obs__"
 
-        for name, component in self.distributional_components.items():
+        for name, component in tqdm(self.distributional_components.items()):
             var_name = component.alias if component.alias else name
             means_dict[var_name] = component.predict(
                 idata, data, include_group_specific, hsgp_dict, sample_new_groups
