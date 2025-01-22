@@ -804,7 +804,7 @@ class Model:
         include_group_specific=True,
         sample_new_groups=False,
         num_draws=None,
-        random_seed=42,
+        random_seed=None,
     ):
         """Predict method for Bambi models
 
