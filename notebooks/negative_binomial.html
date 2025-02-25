@@ -532,17 +532,17 @@ window.Quarto = {
 
 <section id="negative-binomial-distribution-review" class="level2">
 <h2 class="anchored" data-anchor-id="negative-binomial-distribution-review">Negative binomial distribution review</h2>
-<p>I always experience some kind of confusion when looking at the negative binomial distribution after a while of not working with it. There are so many different definitions that I usually need to read everything more than once. The definition I’ve first learned, and the one I like the most, says as follows: The negative binomial distribution is the distribution of a random variable that is defined as the number of independent Bernoulli trials until the k-th “success”. In short, we repeat a Bernoulli experiment until we observe k successes and record the number of trials it required.</p>
-<p><span class="math display">\[
-Y \sim \text{NB}(k, p)
-\]</span></p>
-<p>where <span class="math inline">\(0 \le p \le 1\)</span> is the probability of success in each Bernoulli trial, <span class="math inline">\(k &gt; 0\)</span>, usually integer, and <span class="math inline">\(y \in \{k, k + 1, \cdots\}\)</span></p>
-<p>The probability mass function (pmf) is</p>
+<p>The negative binomial distribution is flexible with multiple possible formulations. For example, it can model the number of <em>trials</em> or <em>failures</em> in a sequence of independent Bernoulli trials with probability of success (or failure) <span class="math inline">\(p\)</span> until the <span class="math inline">\(k\)</span>-th “success”. If we want to model the number of trials until the <span class="math inline">\(k\)</span>-th success, the probability mass function (pmf) results:</p>
 <p><span class="math display">\[
 p(y | k, p)= \binom{y - 1}{y-k}(1 -p)^{y - k}p^k
 \]</span></p>
-<p>If you, like me, find it hard to remember whether <span class="math inline">\(y\)</span> starts at <span class="math inline">\(0\)</span>, <span class="math inline">\(1\)</span>, or <span class="math inline">\(k\)</span>, try to think twice about the definition of the variable. But how? First, recall we aim to have <span class="math inline">\(k\)</span> successes. And success is one of the two possible outcomes of a trial, so the number of trials can never be smaller than the number of successes. Thus, we can be confident to say that <span class="math inline">\(y \ge k\)</span>.</p>
-<p>But this is not the only way of defining the negative binomial distribution, there are plenty of options! One of the most interesting, and the one you see in <a href="https://docs.pymc.io/api/distributions/discrete.html#pymc3.distributions.discrete.NegativeBinomial">PyMC3</a>, the library we use in Bambi for the backend, is as a continuous mixture. The negative binomial distribution describes a Poisson random variable whose rate is also a random variable (not a fixed constant!) following a gamma distribution. Or in other words, conditional on a gamma-distributed variable <span class="math inline">\(\mu\)</span>, the variable <span class="math inline">\(Y\)</span> has a Poisson distribution with mean <span class="math inline">\(\mu\)</span>.</p>
+<p>where <span class="math inline">\(0 \le p \le 1\)</span> is the probability of success in each Bernoulli trial, <span class="math inline">\(k &gt; 0\)</span>, usually integer, <span class="math inline">\(y \in \{k, k + 1, \cdots\}\)</span> and <span class="math inline">\(Y\)</span> is the number of trials until the <span class="math inline">\(k\)</span>-th success.</p>
+<p>In this case, since we are modeling the number of <em>trials</em> until the <span class="math inline">\(k\)</span>-th success, <span class="math inline">\(y\)</span> starts at <span class="math inline">\(k\)</span> and can be any integer greater than or equal to <span class="math inline">\(k\)</span>. If instead we want to model the number of <em>failures</em> until the <span class="math inline">\(k\)</span>-th success, we can use the same definition but <span class="math inline">\(Y\)</span> represents failures and starts at <span class="math inline">\(0\)</span> and there’s a slightly different pmf:</p>
+<p><span class="math display">\[
+p(y | k, p)= \binom{y + k - 1}{k-1}(1 -p)^{y}p^k
+\]</span></p>
+<p>In this case, <span class="math inline">\(y\)</span> starts at <span class="math inline">\(0\)</span> and can be any integer greater than or equal to <span class="math inline">\(0\)</span>. When modeling failures, <span class="math inline">\(y\)</span> starts at 0, when modeling trials, <span class="math inline">\(y\)</span> starts at <span class="math inline">\(k\)</span>.</p>
+<p>These are not the only ways of defining the negative binomial distribution, there are plenty of options! One of the most interesting, and the one you see in <a href="https://www.pymc.io/projects/docs/en/stable/api/distributions/generated/pymc.NegativeBinomial.html">PyMC</a>, the library we use in Bambi for the backend, is as a continuous mixture. The negative binomial distribution describes a Poisson random variable whose rate is also a random variable (not a fixed constant!) following a gamma distribution. Or in other words, conditional on a gamma-distributed variable <span class="math inline">\(\mu\)</span>, the variable <span class="math inline">\(Y\)</span> has a Poisson distribution with mean <span class="math inline">\(\mu\)</span>.</p>
 <p>Under this alternative definition, the pmf is</p>
 <p><span class="math display">\[
 \displaystyle p(y | k, \alpha) = \binom{y + \alpha - 1}{y} \left(\frac{\alpha}{\mu + \alpha}\right)^\alpha\left(\frac{\mu}{\mu + \alpha}\right)^y
@@ -564,7 +564,7 @@ p(y | k, p)= \binom{y - 1}{y-k}(1 -p)^{y - k}p^k
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>warnings.simplefilter(action<span class="op">=</span><span class="st">'ignore'</span>, category<span class="op">=</span><span class="pp">FutureWarning</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>In SciPy, the definition of the negative binomial distribution differs a little from the one in our introduction. They define <span class="math inline">\(Y\)</span> = Number of failures until k successes and then <span class="math inline">\(y\)</span> starts at 0. In the following plot, we have the probability of observing <span class="math inline">\(y\)</span> failures before we see <span class="math inline">\(k=3\)</span> successes.</p>
+<p>SciPy uses the number of <em>failures</em> until <span class="math inline">\(k\)</span> successes definition, therefore <span class="math inline">\(y\)</span> starts at 0. In the following plot, we have the probability of observing <span class="math inline">\(y\)</span> failures before we see <span class="math inline">\(k=3\)</span> successes.</p>
 <div id="cell-9" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">30</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> <span class="dv">3</span></span>
@@ -600,7 +600,7 @@ p(y | k, p)= \binom{y - 1}{y-k}(1 -p)^{y - k}p^k
 0.15624999999999992</code></pre>
 </div>
 </div>
-<p>Finally, if one wants to show this probability mass function as if we are following the first definition of negative binomial distribution we introduced, we just need to shift the whole thing to the right by adding <span class="math inline">\(k\)</span> to the <span class="math inline">\(y\)</span> values.</p>
+<p>To change the definition to the number of <em>trials</em> until <span class="math inline">\(k\)</span> successes, we just need to shift the whole thing to the right by adding <span class="math inline">\(k\)</span> to the <span class="math inline">\(y\)</span> values.</p>
 <div id="cell-14" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -634,7 +634,7 @@ g(\mu_i) = \log\left(\frac{\mu_i}{k + \mu_i}\right) = \log\left(\frac{k}{\mu_i} 
 <h2 class="anchored" data-anchor-id="load-and-explore-students-data">Load and explore Students data</h2>
 <p>This example is based on this <a href="https://stats.idre.ucla.edu/r/dae/negative-binomial-regression/">UCLA example</a>.</p>
 <p>School administrators study the attendance behavior of high school juniors at two schools. Predictors of the <strong>number of days of absence</strong> include the <strong>type of program</strong> in which the student is enrolled and a <strong>standardized test in math</strong>. We have attendance data on 314 high school juniors.</p>
-<p>The variables of insterest in the dataset are</p>
+<p>The variables of interest in the dataset are</p>
 <ul>
 <li>daysabs: The number of days of absence. It is our response variable.</li>
 <li>progr: The type of program. Can be one of ‘General’, ‘Academic’, or ‘Vocational’.</li>
@@ -832,7 +832,7 @@ Name: count, dtype: int64</code></pre>
 </ul>
 <p>We also know that when <span class="math inline">\(n\)</span> is large and <span class="math inline">\(p\)</span> is small, the Binomial distribution can be approximated with a Poisson distribution with <span class="math inline">\(\lambda = n * p\)</span>. We don’t know exactly <span class="math inline">\(n\)</span> in this scenario, but we know it is around 180, and we do know that <span class="math inline">\(p\)</span> is small because you can’t skip classes all the time. So both modeling approaches should give similar results.</p>
 <p>But then, why negative binomial? Can’t we just use a Poisson likelihood?</p>
-<p>Yes, we can. However, using a Poisson likelihood implies that the mean is equal to the variance, and that is usually an unrealistic assumption. If it turns out the variance is either substantially smaller or greater than the mean, the Poisson regression model results in a poor fit. Alternatively, if we use a negative binomial likelihood, the variance is not forced to be equal to the mean, and there’s more flexibility to handle a given dataset, and consequently, the fit tends to better.</p>
+<p>Yes, we can. However, using a Poisson likelihood implies that the mean is equal to the variance, and that is usually an unrealistic assumption. If it turns out the variance is either substantially smaller or greater than the mean, the Poisson regression model results in a poor fit. Alternatively, if we use a negative binomial likelihood, the variance is not forced to be equal to the mean, and there’s more flexibility to handle a given dataset, and consequently, the fit tends to be better.</p>
 <section id="model-1" class="level3">
 <h3 class="anchored" data-anchor-id="model-1">Model 1</h3>
 <p><span class="math display">\[
@@ -874,7 +874,7 @@ Name: count, dtype: int64</code></pre>
 <p>So, for example, the first model for a student under the Vocational program reduces to <span class="math display">\[
 \log(\mathbb{E}[Y_i]) = \beta_3 + \beta_4 \text{Math\_std}_i
 \]</span></p>
-<p>And one last thing to note is we’ve decided not to inclide an intercept term, that’s why you don’t see any <span class="math inline">\(\beta_0\)</span> above. This choice allows us to represent the effect of each program directly with <span class="math inline">\(\beta_1\)</span>, <span class="math inline">\(\beta_2\)</span>, and <span class="math inline">\(\beta_3\)</span>.</p>
+<p>And one last thing to note is we’ve decided not to include an intercept term, that’s why you don’t see any <span class="math inline">\(\beta_0\)</span> above. This choice allows us to represent the effect of each program directly with <span class="math inline">\(\beta_1\)</span>, <span class="math inline">\(\beta_2\)</span>, and <span class="math inline">\(\beta_3\)</span>.</p>
 </section>
 </section>
 <section id="model-fit" class="level2">
@@ -886,25 +886,20 @@ Name: count, dtype: int64</code></pre>
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>model_additive <span class="op">=</span> bmb.Model(<span class="st">"daysabs ~ 0 + prog + scale(math)"</span>, data, family<span class="op">=</span><span class="st">"negativebinomial"</span>)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>idata_additive <span class="op">=</span> model_additive.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [alpha, prog, scale(math)]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"da92930f19f1410eadcc61e357d9669b","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"1267bec653e942c99de6e253c8fa8948","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 3 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1 seconds.</code></pre>
 </div>
 </div>
 </section>
@@ -915,25 +910,20 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>model_interaction <span class="op">=</span> bmb.Model(<span class="st">"daysabs ~ 0 + prog + scale(math) + prog:scale(math)"</span>, data, family<span class="op">=</span><span class="st">"negativebinomial"</span>)</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>idata_interaction <span class="op">=</span> model_interaction.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"94d81704090d476cadec4f42e8ceb1f0","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"17c2e4695b57425aa79516e42c0fcc4c","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 3 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.</code></pre>
 </div>
 </div>
 </section>
@@ -965,62 +955,62 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">alpha</td>
-<td>1.019</td>
-<td>0.105</td>
-<td>0.842</td>
-<td>1.234</td>
+<td>1.020</td>
+<td>0.104</td>
+<td>0.819</td>
+<td>1.211</td>
 <td>0.002</td>
 <td>0.001</td>
-<td>2575.0</td>
-<td>1621.0</td>
+<td>4558.0</td>
+<td>3393.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">prog[Academic]</td>
-<td>1.889</td>
-<td>0.088</td>
-<td>1.719</td>
-<td>2.045</td>
-<td>0.002</td>
+<td>1.888</td>
+<td>0.083</td>
+<td>1.737</td>
+<td>2.044</td>
 <td>0.001</td>
-<td>2702.0</td>
-<td>1253.0</td>
+<td>0.001</td>
+<td>5597.0</td>
+<td>3513.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">prog[General]</td>
-<td>2.337</td>
+<td>2.340</td>
 <td>0.165</td>
 <td>2.028</td>
-<td>2.643</td>
-<td>0.003</td>
+<td>2.651</td>
 <td>0.002</td>
-<td>2429.0</td>
-<td>1531.0</td>
+<td>0.002</td>
+<td>6092.0</td>
+<td>3322.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">prog[Vocational]</td>
-<td>1.047</td>
+<td>1.049</td>
 <td>0.117</td>
-<td>0.818</td>
-<td>1.254</td>
+<td>0.837</td>
+<td>1.272</td>
 <td>0.002</td>
-<td>0.002</td>
-<td>2346.0</td>
-<td>1468.0</td>
+<td>0.001</td>
+<td>4895.0</td>
+<td>2808.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">scale(math)</td>
-<td>-0.151</td>
+<td>-0.150</td>
 <td>0.064</td>
-<td>-0.270</td>
-<td>-0.031</td>
+<td>-0.261</td>
+<td>-0.023</td>
 <td>0.001</td>
 <td>0.001</td>
-<td>2970.0</td>
-<td>1670.0</td>
+<td>4579.0</td>
+<td>3433.0</td>
 <td>1.0</td>
 </tr>
 </tbody>
@@ -1054,85 +1044,85 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <tr class="odd">
 <td data-quarto-table-cell-role="th">alpha</td>
 <td>1.016</td>
-<td>0.104</td>
-<td>0.812</td>
-<td>1.205</td>
+<td>0.103</td>
+<td>0.833</td>
+<td>1.217</td>
 <td>0.002</td>
-<td>0.002</td>
-<td>2366.0</td>
-<td>1715.0</td>
+<td>0.001</td>
+<td>4598.0</td>
+<td>3093.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">prog[Academic]</td>
-<td>1.875</td>
-<td>0.085</td>
-<td>1.713</td>
-<td>2.032</td>
-<td>0.002</td>
+<td>1.880</td>
+<td>0.087</td>
+<td>1.720</td>
+<td>2.045</td>
 <td>0.001</td>
-<td>2641.0</td>
-<td>1545.0</td>
+<td>0.001</td>
+<td>4763.0</td>
+<td>3075.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">prog[General]</td>
-<td>2.341</td>
-<td>0.172</td>
-<td>2.021</td>
-<td>2.654</td>
-<td>0.004</td>
+<td>2.342</td>
+<td>0.170</td>
+<td>2.047</td>
+<td>2.682</td>
 <td>0.003</td>
-<td>2072.0</td>
-<td>1124.0</td>
+<td>0.002</td>
+<td>4540.0</td>
+<td>3075.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">prog[Vocational]</td>
-<td>0.994</td>
-<td>0.124</td>
-<td>0.774</td>
-<td>1.241</td>
-<td>0.003</td>
+<td>0.986</td>
+<td>0.127</td>
+<td>0.756</td>
+<td>1.227</td>
 <td>0.002</td>
-<td>1962.0</td>
-<td>1661.0</td>
+<td>0.001</td>
+<td>4663.0</td>
+<td>3392.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">prog:scale(math)[General]</td>
-<td>0.012</td>
+<td>0.008</td>
 <td>0.170</td>
-<td>-0.322</td>
-<td>0.312</td>
-<td>0.004</td>
+<td>-0.304</td>
+<td>0.331</td>
 <td>0.003</td>
-<td>1949.0</td>
-<td>1664.0</td>
+<td>0.002</td>
+<td>4118.0</td>
+<td>3218.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">prog:scale(math)[Vocational]</td>
-<td>0.193</td>
-<td>0.164</td>
-<td>-0.123</td>
-<td>0.490</td>
-<td>0.004</td>
+<td>0.194</td>
+<td>0.162</td>
+<td>-0.112</td>
+<td>0.496</td>
 <td>0.003</td>
-<td>1830.0</td>
-<td>1593.0</td>
+<td>0.002</td>
+<td>4006.0</td>
+<td>3399.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">scale(math)</td>
-<td>-0.195</td>
+<td>-0.191</td>
 <td>0.081</td>
-<td>-0.335</td>
-<td>-0.036</td>
-<td>0.002</td>
+<td>-0.346</td>
+<td>-0.043</td>
 <td>0.001</td>
-<td>1737.0</td>
-<td>1545.0</td>
+<td>0.001</td>
+<td>3984.0</td>
+<td>2941.0</td>
 <td>1.0</td>
 </tr>
 </tbody>
@@ -1234,19 +1224,19 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Sat May 25 2024
+<pre><code>Last updated: Tue Feb 25 2025
 
 Python implementation: CPython
 Python version       : 3.11.9
-IPython version      : 8.24.0
+IPython version      : 8.27.0
 
-pandas    : 2.2.2
+matplotlib: 3.9.2
+pandas    : 2.2.3
+bambi     : 0.15.0
 numpy     : 1.26.4
-arviz     : 0.18.0
-matplotlib: 3.8.4
-bambi     : 0.13.1.dev37+g2a54df76.d20240525
+arviz     : 0.19.0
 
-Watermark: 2.4.3
+Watermark: 2.5.0
 </code></pre>
 </div>
 </div>
