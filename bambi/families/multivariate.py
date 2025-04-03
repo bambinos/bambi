@@ -35,7 +35,7 @@ class Multinomial(MultivariateFamily):
         mean = mean.assign_coords({response_levels_dim_complete: levels_complete})
         return mean
 
-    def posterior_predictive(self, model, posterior, **kwargs):
+    def posterior_predictive(self, model, posterior, random_seed, **kwargs):
         data = kwargs["data"]
         if data is None:
             y = model.response_component.term.data
@@ -47,7 +47,9 @@ class Multinomial(MultivariateFamily):
         # Prepend 'draw' and 'chain' dimensions
         trials = trials[np.newaxis, np.newaxis, :]
         dont_reshape = ["n"]
-        return super().posterior_predictive(model, posterior, n=trials, dont_reshape=dont_reshape)
+        return super().posterior_predictive(
+            model, posterior, n=trials, dont_reshape=dont_reshape, random_seed=random_seed
+        )
 
     def log_likelihood(self, model, posterior, data, **kwargs):
         if data is None:
@@ -99,7 +101,7 @@ class Multinomial(MultivariateFamily):
 class DirichletMultinomial(MultivariateFamily):
     SUPPORTED_LINKS = {"a": ["log"]}
 
-    def posterior_predictive(self, model, posterior, **kwargs):
+    def posterior_predictive(self, model, posterior, random_seed, **kwargs):
         data = kwargs["data"]
         if data is None:
             y = model.response_component.term.data
@@ -111,7 +113,9 @@ class DirichletMultinomial(MultivariateFamily):
         # Prepend 'draw' and 'chain' dimensions
         trials = trials[np.newaxis, np.newaxis, :]
         dont_reshape = ["n"]
-        return super().posterior_predictive(model, posterior, n=trials, dont_reshape=dont_reshape)
+        return super().posterior_predictive(
+            model, posterior, n=trials, dont_reshape=dont_reshape, random_seed=random_seed
+        )
 
     def log_likelihood(self, model, posterior, data, **kwargs):
         if data is None:
