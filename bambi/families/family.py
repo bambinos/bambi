@@ -118,7 +118,7 @@ class Family:
         priors = {k: v for k, v in priors.items() if k in self.auxiliary_parameters}
         self.default_priors.update(priors)
 
-    def posterior_predictive(self, model, posterior, **kwargs):
+    def posterior_predictive(self, model, posterior, random_seed, **kwargs):
         """Get draws from the posterior predictive distribution
 
         This function works for almost all the families. It grabs the draws for the parameters
@@ -134,6 +134,8 @@ class Family:
             The xarray dataset that contains the draws for all the parameters in the posterior.
             It must contain the parameters that are needed in the distribution of the response, or
             the parameters that allow to derive them.
+        random_seed : int, RandomState or Generator, optional
+            Seed for the random number generator.
         kwargs :
             Parameters that are used to get draws but do not appear in the posterior object or
             other configuration parameters.
@@ -158,7 +160,7 @@ class Family:
                 pm.Truncated.dist(response_dist.dist(**kwargs), lower=lower, upper=upper)
             )
         else:
-            output_array = pm.draw(response_dist.dist(**kwargs))
+            output_array = pm.draw(response_dist.dist(**kwargs), random_seed=random_seed)
 
         return xr.DataArray(output_array, coords=coords)
 
