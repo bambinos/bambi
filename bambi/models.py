@@ -11,6 +11,7 @@ import pymc as pm
 import pandas as pd
 
 from arviz.plots import plot_posterior
+from arviz import r2_score, r2_samples
 
 from bambi.backend import PyMCModel
 from bambi.defaults import get_builtin_family
@@ -891,6 +892,50 @@ class Model:
             return None
         else:
             return idata
+
+    def r2_score(self, idata, summary=True):
+        """R² for Bayesian regression models.
+
+        The R², or coefficient of determination, is defined as the proportion of variance
+        in the data that is explained by the model. It is computed as the variance of the
+        predicted values divided by the variance of the predicted values plus the variance
+        of the residuals. For details of the Bayesian R² see [1]_.
+
+        Parameters
+        ----------
+        idata : InferenceData
+            The `InferenceData` instance returned by `.fit()`. It should contain the
+            `posterior_predictive` group, otherwise it will be computed and added to `idata`.
+        summary : bool
+            If `True`, it returns a summary of the Bayesian R². Otherwise, it returns the
+            posterior samples of the Bayesian R².
+
+        Returns
+        -------
+        Pandas Series with the following indices:
+        r2: mean value for the Bayesian R²
+        r2_std: standard deviation of the Bayesian R².
+
+        References
+        ----------
+        .. [1] Gelman et al. *R-squared for Bayesian regression models*.
+            The American Statistician. 73(3) (2019). https://doi.org/10.1080/00031305.2018.1549100
+            preprint http://www.stat.columbia.edu/~gelman/research/published/bayes_R2_v3.pdf.
+        """
+        response_name = self.response_component.term.name
+        observed_data = idata.observed_data.get(response_name).to_dict().get("data")
+
+        if "posterior_predictive" not in idata.groups():
+            self.predict(idata, kind="response", inplace=True)
+
+        predicted_data = idata.posterior_predictive.stack(sample=("chain", "draw"))[
+            response_name
+        ].values.T
+
+        if summary:
+            return r2_score(observed_data, predicted_data)
+        else:
+            return r2_samples(observed_data, predicted_data)
 
     def compute_log_likelihood(self, idata, data=None, inplace=True):
         """Compute the model's log-likelihood
