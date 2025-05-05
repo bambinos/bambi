@@ -32,6 +32,7 @@ Specification of model class
 | [plot_priors](#bambi.Model.plot_priors) | Samples from the prior distribution and plots its marginals. |
 | [predict](#bambi.Model.predict) | Predict method for Bambi models |
 | [prior_predictive](#bambi.Model.prior_predictive) | Generate samples from the prior predictive distribution. |
+| [r2_score](#bambi.Model.r2_score) | R² for Bayesian regression models. |
 | [set_alias](#bambi.Model.set_alias) | Set aliases for the terms and auxiliary parameters in the model |
 | [set_priors](#bambi.Model.set_priors) | Set priors for one or more existing terms |
 
@@ -220,6 +221,38 @@ Generate samples from the prior predictive distribution.
 | Type          | Description                                                                             |
 |---------------|-----------------------------------------------------------------------------------------|
 | InferenceData | `InferenceData` object with the groups `prior`, `prior_predictive` and `observed_data`. |
+
+### r2_score { #bambi.Model.r2_score }
+
+`Model.r2_score(self, idata, summary=True)`
+
+R² for Bayesian regression models.
+
+The R², or coefficient of determination, is defined as the proportion of variance
+in the data that is explained by the model. It is computed as the variance of the
+predicted values divided by the variance of the predicted values plus the variance
+of the residuals. For details of the Bayesian R² see [1]_.
+
+#### Parameters
+
+| Name      | Type          | Description                                                                                                                                                | Default    |
+|-----------|---------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| `idata`   | InferenceData | The `InferenceData` instance returned by `.fit()`. It should contain the `posterior_predictive` group, otherwise it will be computed and added to `idata`. | _required_ |
+| `summary` | bool          | If `True`, it returns a summary of the Bayesian R². Otherwise, it returns the posterior samples of the Bayesian R².                                        | `True`     |
+
+#### Returns
+
+| Type                                      | Description   |
+|-------------------------------------------|---------------|
+| Pandas Series with the following indices: |               |
+| mean value for the Bayesian R²            |               |
+| standard deviation of the Bayesian R².    |               |
+
+#### References
+
+.. [1] Gelman et al. *R-squared for Bayesian regression models*.
+    The American Statistician. 73(3) (2019). https://doi.org/10.1080/00031305.2018.1549100
+    preprint http://www.stat.columbia.edu/~gelman/research/published/bayes_R2_v3.pdf.
 
 ### set_alias { #bambi.Model.set_alias }
 

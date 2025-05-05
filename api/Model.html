@@ -320,6 +320,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#bambi.Model.plot_priors" id="toc-bambi.Model.plot_priors" class="nav-link" data-scroll-target="#bambi.Model.plot_priors">plot_priors</a></li>
   <li><a href="#bambi.Model.predict" id="toc-bambi.Model.predict" class="nav-link" data-scroll-target="#bambi.Model.predict">predict</a></li>
   <li><a href="#bambi.Model.prior_predictive" id="toc-bambi.Model.prior_predictive" class="nav-link" data-scroll-target="#bambi.Model.prior_predictive">prior_predictive</a></li>
+  <li><a href="#bambi.Model.r2_score" id="toc-bambi.Model.r2_score" class="nav-link" data-scroll-target="#bambi.Model.r2_score">r2_score</a></li>
   <li><a href="#bambi.Model.set_alias" id="toc-bambi.Model.set_alias" class="nav-link" data-scroll-target="#bambi.Model.set_alias">set_alias</a></li>
   <li><a href="#bambi.Model.set_priors" id="toc-bambi.Model.set_priors" class="nav-link" data-scroll-target="#bambi.Model.set_priors">set_priors</a></li>
   </ul></li>
@@ -469,10 +470,14 @@ ul.task-list li input[type="checkbox"] {
 <td>Generate samples from the prior predictive distribution.</td>
 </tr>
 <tr class="even">
+<td><a href="#bambi.Model.r2_score">r2_score</a></td>
+<td>R² for Bayesian regression models.</td>
+</tr>
+<tr class="odd">
 <td><a href="#bambi.Model.set_alias">set_alias</a></td>
 <td>Set aliases for the terms and auxiliary parameters in the model</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a href="#bambi.Model.set_priors">set_priors</a></td>
 <td>Set priors for one or more existing terms</td>
 </tr>
@@ -1058,12 +1063,80 @@ ul.task-list li input[type="checkbox"] {
 </table>
 </section>
 </section>
+<section id="bambi.Model.r2_score" class="level3">
+<h3 class="anchored" data-anchor-id="bambi.Model.r2_score">r2_score</h3>
+<p><code>Model.r2_score(self, idata, summary=True)</code></p>
+<p>R² for Bayesian regression models.</p>
+<p>The R², or coefficient of determination, is defined as the proportion of variance in the data that is explained by the model. It is computed as the variance of the predicted values divided by the variance of the predicted values plus the variance of the residuals. For details of the Bayesian R² see [1]_.</p>
+<section id="parameters-7" class="level4">
+<h4 class="anchored" data-anchor-id="parameters-7">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 5%">
+<col style="width: 7%">
+<col style="width: 80%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>idata</code></td>
+<td>InferenceData</td>
+<td>The <code>InferenceData</code> instance returned by <code>.fit()</code>. It should contain the <code>posterior_predictive</code> group, otherwise it will be computed and added to <code>idata</code>.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td><code>summary</code></td>
+<td>bool</td>
+<td>If <code>True</code>, it returns a summary of the Bayesian R². Otherwise, it returns the posterior samples of the Bayesian R².</td>
+<td><code>True</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-7" class="level4">
+<h4 class="anchored" data-anchor-id="returns-7">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Pandas Series with the following indices:</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>mean value for the Bayesian R²</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>standard deviation of the Bayesian R².</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="references" class="level4">
+<h4 class="anchored" data-anchor-id="references">References</h4>
+<p>.. [1] Gelman et al.&nbsp;<em>R-squared for Bayesian regression models</em>. The American Statistician. 73(3) (2019). https://doi.org/10.1080/00031305.2018.1549100 preprint http://www.stat.columbia.edu/~gelman/research/published/bayes_R2_v3.pdf.</p>
+</section>
+</section>
 <section id="bambi.Model.set_alias" class="level3">
 <h3 class="anchored" data-anchor-id="bambi.Model.set_alias">set_alias</h3>
 <p><code>Model.set_alias(self, aliases)</code></p>
 <p>Set aliases for the terms and auxiliary parameters in the model</p>
-<section id="parameters-7" class="level4">
-<h4 class="anchored" data-anchor-id="parameters-7">Parameters</h4>
+<section id="parameters-8" class="level4">
+<h4 class="anchored" data-anchor-id="parameters-8">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 9%">
@@ -1089,8 +1162,8 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="returns-7" class="level4">
-<h4 class="anchored" data-anchor-id="returns-7">Returns</h4>
+<section id="returns-8" class="level4">
+<h4 class="anchored" data-anchor-id="returns-8">Returns</h4>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -1111,8 +1184,8 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="bambi.Model.set_priors">set_priors</h3>
 <p><code>Model.set_priors(self, priors=None, common=None, group_specific=None)</code></p>
 <p>Set priors for one or more existing terms</p>
-<section id="parameters-8" class="level4">
-<h4 class="anchored" data-anchor-id="parameters-8">Parameters</h4>
+<section id="parameters-9" class="level4">
+<h4 class="anchored" data-anchor-id="parameters-9">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 8%">
@@ -1150,8 +1223,8 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="returns-8" class="level4">
-<h4 class="anchored" data-anchor-id="returns-8">Returns</h4>
+<section id="returns-9" class="level4">
+<h4 class="anchored" data-anchor-id="returns-9">Returns</h4>
 <table class="caption-top table">
 <thead>
 <tr class="header">
