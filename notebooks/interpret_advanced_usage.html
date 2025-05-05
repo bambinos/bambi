@@ -588,7 +588,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </section>
 <section id="create-a-grid-of-data" class="level2">
 <h2 class="anchored" data-anchor-id="create-a-grid-of-data">Create a grid of data</h2>
-<p><code>data_grid</code> allows you to create a pairwise grid, also known as a cross-join or cartesian product, of data using the covariates passed to the <code>conditional</code> and the optional <code>variable</code> parameter. Covariates not passed to <code>conditional</code>, but are terms in the Bambi model, are set to typical values (e.g., mean or mode). If you are coming from R, this function is partially inspired from the <a href="https://modelr.tidyverse.org/reference/data_grid.html">data_grid</a> function in {modelr}.</p>
+<p><code>data_grid</code> allows you to create a pairwise grid, also known as a cross-join or cartesian product, of data using the covariates passed to the <code>conditional</code> and the optional <code>variable</code> parameter. Covariates not passed to <code>conditional</code>, but are terms in the Bambi model, are set to typical values (e.g., mean or mode). If you are coming from R, this function is partially inspired from the <a href="https://modelr.tidyverse.org/reference/data_grid.html">data_grid</a> function in the R package <a href="https://modelr.tidyverse.org/index.html">modelr</a>.</p>
 <p>There are two ways to create a pairwise grid of data:</p>
 <ol type="1">
 <li>user-provided values are passed as a dictionary to <code>conditional</code> where the keys are the names of the covariates and the values are the values to use in the grid.</li>
