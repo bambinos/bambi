@@ -137,13 +137,13 @@ If you use Bambi and want to cite it please use
 
 ```bibtex
 @article{Capretto2022,
- title={Bambi: A Simple Interface for Fitting Bayesian Linear Models in Python},
+ title={Bambi: A Simple Interface for Fitting {Bayesian} Linear Models in {Python}},
  volume={103},
  url={https://www.jstatsoft.org/index.php/jss/article/view/v103i15},
  doi={10.18637/jss.v103.i15},
  number={15},
  journal={Journal of Statistical Software},
- author={Capretto, Tomás and Piho, Camen and Kumar, Ravin and Westfall, Jacob and Yarkoni, Tal and Martin, Osvaldo A},
+ author={Capretto, Tom\'{a}s and Piho, Camen and Kumar, Ravin and Westfall, Jacob and Yarkoni, Tal and Martin, Osvaldo A},
  year={2022},
  pages={1–29}
 }
