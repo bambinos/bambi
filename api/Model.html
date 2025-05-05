@@ -921,7 +921,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="bambi.Model.predict" class="level3">
 <h3 class="anchored" data-anchor-id="bambi.Model.predict">predict</h3>
-<p><code>Model.predict(self, idata, kind='response_params', data=None, inplace=True, include_group_specific=True, sample_new_groups=False)</code></p>
+<p><code>Model.predict(self, idata, kind='response_params', data=None, inplace=True, include_group_specific=True, sample_new_groups=False, random_seed=None)</code></p>
 <p>Predict method for Bambi models</p>
 <p>Obtains in-sample and out-of-sample predictions from a fitted Bambi model.</p>
 <section id="parameters-5" class="level4">
@@ -929,8 +929,8 @@ ul.task-list li input[type="checkbox"] {
 <table class="caption-top table">
 <colgroup>
 <col style="width: 4%">
-<col style="width: 4%">
-<col style="width: 86%">
+<col style="width: 6%">
+<col style="width: 85%">
 <col style="width: 3%">
 </colgroup>
 <thead>
@@ -963,7 +963,7 @@ ul.task-list li input[type="checkbox"] {
 <tr class="even">
 <td><code>inplace</code></td>
 <td>bool</td>
-<td>If <code>True</code> it will modify <code>idata</code> in-place. Otherwise, it will return a copy of <code>idata</code> with the predictions added. If <code>kind="response_params"</code>, a new variable with the name of the parent parameter, e.g.&nbsp;<code>"mu"</code> and <code>"sigma" for a Gaussian likelihood, or</code>“p”<code>for a Bernoulli likelihood, is added to the</code>posterior<code>group. If</code>kind=“response”<code>, it appends a</code>posterior_predictive<code>group to</code>idata<code>. If any of these already exist, it will be overwritten. |</code>True<code>| |</code>include_group_specific<code>| bool                     | Determines if predictions incorporate group-specific effects. If</code>False<code>, predictions are made with common effects only (i.e. group specific are set to zero). Defaults to</code>True<code>.                                                                                                                                                                                                                                                                                   |</code>True<code>| |</code>sample_new_groups<code>| bool                     | Specifies if it is allowed to obtain predictions for new groups of group-specific terms. When</code>True<code>, each posterior sample for the new groups is drawn from the posterior draws of a randomly selected existing group. Since different groups may be selected at each draw, the end result represents the variation across existing groups. The method implemented is quivalent to</code>sample_new_levels=“uncertainty”<code>in brms.                                       |</code>False`</td>
+<td>If <code>True</code> it will modify <code>idata</code> in-place. Otherwise, it will return a copy of <code>idata</code> with the predictions added. If <code>kind="response_params"</code>, a new variable with the name of the parent parameter, e.g.&nbsp;<code>"mu"</code> and <code>"sigma" for a Gaussian likelihood, or</code>“p”<code>for a Bernoulli likelihood, is added to the</code>posterior<code>group. If</code>kind=“response”<code>, it appends a</code>posterior_predictive<code>group to</code>idata<code>. If any of these already exist, it will be overwritten. |</code>True<code>| |</code>include_group_specific<code>| bool                            | Determines if predictions incorporate group-specific effects. If</code>False<code>, predictions are made with common effects only (i.e. group specific are set to zero). Defaults to</code>True<code>.                                                                                                                                                                                                                                                                                   |</code>True<code>| |</code>sample_new_groups<code>| bool                            | Specifies if it is allowed to obtain predictions for new groups of group-specific terms. When</code>True<code>, each posterior sample for the new groups is drawn from the posterior draws of a randomly selected existing group. Since different groups may be selected at each draw, the end result represents the variation across existing groups. The method implemented is equivalent to</code>sample_new_levels=“uncertainty”<code>in brms.                                      |</code>False<code>| |</code>random_seed<code>| (int, RandomState or Generator) | Seed for the random number generator.                                                                                                                                                                                                                                                                                                                                                                                                                                |</code>None`</td>
 <td></td>
 </tr>
 </tbody>

@@ -73,7 +73,7 @@ This method uses `pm.logp()`.
 
 ### posterior_predictive { #bambi.Family.posterior_predictive }
 
-`Family.posterior_predictive(self, model, posterior, **kwargs)`
+`Family.posterior_predictive(self, model, posterior, random_seed, **kwargs)`
 
 Get draws from the posterior predictive distribution
 
@@ -84,11 +84,12 @@ parameters that are not available in `posterior`.
 
 #### Parameters
 
-| Name        | Type        | Description                                                                                                                                                                                                          | Default    |
-|-------------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| `model`     | bambi.Model | The model                                                                                                                                                                                                            | _required_ |
-| `posterior` | xr.Dataset  | The xarray dataset that contains the draws for all the parameters in the posterior. It must contain the parameters that are needed in the distribution of the response, or the parameters that allow to derive them. | _required_ |
-| `kwargs`    |             | Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the 'n' in binomial models and multinomial models.                                  | `{}`       |
+| Name          | Type                            | Description                                                                                                                                                                                                          | Default    |
+|---------------|---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| `model`       | bambi.Model                     | The model                                                                                                                                                                                                            | _required_ |
+| `posterior`   | xr.Dataset                      | The xarray dataset that contains the draws for all the parameters in the posterior. It must contain the parameters that are needed in the distribution of the response, or the parameters that allow to derive them. | _required_ |
+| `random_seed` | (int, RandomState or Generator) | Seed for the random number generator.                                                                                                                                                                                | _required_ |
+| `kwargs`      |                                 | Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the 'n' in binomial models and multinomial models.                                  | `{}`       |
 
 #### Returns
 

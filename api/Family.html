@@ -528,7 +528,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="bambi.Family.posterior_predictive" class="level3">
 <h3 class="anchored" data-anchor-id="bambi.Family.posterior_predictive">posterior_predictive</h3>
-<p><code>Family.posterior_predictive(self, model, posterior, **kwargs)</code></p>
+<p><code>Family.posterior_predictive(self, model, posterior, random_seed, **kwargs)</code></p>
 <p>Get draws from the posterior predictive distribution</p>
 <p>This function works for almost all the families. It grabs the draws for the parameters needed in the response distribution, and then gets samples from the posterior predictive distribution using <code>pm.draw()</code>. It won’t work when the response distribution requires parameters that are not available in <code>posterior</code>.</p>
 <section id="parameters-2" class="level4">
@@ -536,8 +536,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <table class="caption-top table">
 <colgroup>
 <col style="width: 5%">
-<col style="width: 5%">
-<col style="width: 84%">
+<col style="width: 12%">
+<col style="width: 78%">
 <col style="width: 4%">
 </colgroup>
 <thead>
@@ -562,6 +562,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td><em>required</em></td>
 </tr>
 <tr class="odd">
+<td><code>random_seed</code></td>
+<td>(int, RandomState or Generator)</td>
+<td>Seed for the random number generator.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
 <td><code>kwargs</code></td>
 <td></td>
 <td>Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the ‘n’ in binomial models and multinomial models.</td>
