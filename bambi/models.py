@@ -802,6 +802,7 @@ class Model:
         inplace=True,
         include_group_specific=True,
         sample_new_groups=False,
+        random_seed=None,
     ):
         """Predict method for Bambi models
 
@@ -837,7 +838,9 @@ class Model:
             When `True`, each posterior sample for the new groups is drawn from the posterior
             draws of a randomly selected existing group. Since different groups may be selected at
             each draw, the end result represents the variation across existing groups.
-            The method implemented is quivalent to `sample_new_levels="uncertainty"` in brms.
+            The method implemented is equivalent to `sample_new_levels="uncertainty"` in brms.
+        random_seed : int, RandomState or Generator, optional
+            Seed for the random number generator.
 
         Returns
         -------
@@ -871,7 +874,11 @@ class Model:
         # Only if requested predict the predictive distribution
         if kind == "response":
             response_aliased_name = get_aliased_name(self.response_component.term)
-            required_kwargs = {"model": self, "posterior": idata.posterior}
+            required_kwargs = {
+                "model": self,
+                "posterior": idata.posterior,
+                "random_seed": random_seed,
+            }
             optional_kwargs = {"data": data}
 
             posterior_predictive = self.family.posterior_predictive(

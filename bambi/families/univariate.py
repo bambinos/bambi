@@ -12,7 +12,7 @@ class UnivariateFamily(Family):
 
 
 class BinomialBaseFamily(UnivariateFamily):
-    def posterior_predictive(self, model, posterior, **kwargs):
+    def posterior_predictive(self, model, posterior, random_seed, **kwargs):
         data = kwargs["data"]
         if data is None:
             trials = model.response_component.term.data[:, 1]
@@ -20,7 +20,7 @@ class BinomialBaseFamily(UnivariateFamily):
             trials = model.response_component.response.evaluate_new_data(data).astype(int)
         # Prepend 'draw' and 'chain' dimensions
         trials = trials[np.newaxis, np.newaxis, :]
-        return super().posterior_predictive(model, posterior, n=trials)
+        return super().posterior_predictive(model, posterior, n=trials, random_seed=random_seed)
 
     def log_likelihood(self, model, posterior, data, **kwargs):
         if data is None:
