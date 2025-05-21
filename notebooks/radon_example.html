@@ -532,7 +532,7 @@ window.Quarto = {
 </header>
 
 
-<p>In this notebook we want to revisit the classical hierarchical linear regression model based on the dataset of the <em>Radon Contamination</em> by Gelman and Hill. In particular, we want to show how easy is to port the <a href="https://docs.pymc.io/en/v3/">PyMC</a> models, presented in the very complete article <a href="https://docs.pymc.io/projects/examples/en/latest/case_studies/multilevel_modeling.html">A Primer on Bayesian Methods for Multilevel Modeling</a>, to <a href="https://bambinos.github.io/bambi/notebooks/">Bambi</a> using the more concise formula specification for the models.</p>
+<p>In this notebook we want to revisit the classical hierarchical linear regression model based on the dataset of the <em>Radon Contamination</em> by Gelman and Hill. In particular, we want to show how easy is to port the <a href="https://www.pymc.io/">PyMC</a> models, presented in the very complete article <a href="https://www.pymc.io/projects/examples/en/latest/generalized_linear_models/multilevel_modeling.html">A Primer on Bayesian Methods for Multilevel Modeling</a>, to <a href="https://bambinos.github.io/bambi/notebooks/">Bambi</a> using the more concise formula specification for the models.</p>
 <p>This example has been ported from PyMC by Juan Orduz (<a href="https://github.com/juanitorduz">@juanitorduz</a>) and Bambi developers.</p>
 <section id="prepare-notebook" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-notebook">Prepare Notebook</h2>
@@ -812,7 +812,7 @@ window.Quarto = {
 </section>
 <section id="preprocess-data" class="level2">
 <h2 class="anchored" data-anchor-id="preprocess-data">Preprocess Data</h2>
-<p>We are going to preprocess the data as done in the article <a href="https://docs.pymc.io/projects/examples/en/latest/case_studies/multilevel_modeling.html">A Primer on Bayesian Methods for Multilevel Modeling</a>.</p>
+<p>We are going to preprocess the data as done in the article <a href="https://www.pymc.io/projects/examples/en/latest/generalized_linear_models/multilevel_modeling.html">A Primer on Bayesian Methods for Multilevel Modeling</a>.</p>
 <div id="cell-10" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Strip spaces from column names</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>radon_df.columns <span class="op">=</span> radon_df.columns.<span class="bu">map</span>(<span class="bu">str</span>.strip)</span>

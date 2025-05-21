@@ -924,7 +924,7 @@ NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]</code></pre>
 There were 6 divergences after tuning. Increase `target_accept` or reparameterize.</code></pre>
 </div>
 </div>
-<p>Sometimes, there can be several <a href="https://www.pymc.io/projects/docs/en/v3.11.4/pymc-examples/examples/diagnostics_and_criticism/Diagnosing_biased_Inference_with_Divergences.html">divergences</a> when fitting a hierarchical model. What can we do in that case?</p>
+<p>Sometimes, there can be several <a href="https://www.pymc.io/projects/examples/en/latest/diagnostics_and_criticism/Diagnosing_biased_Inference_with_Divergences.html">divergences</a> when fitting a hierarchical model. What can we do in that case?</p>
 <p>One thing we could try is increasing <code>target_accept</code>. But if there are many divergences, that suggests a problem with the underlying model. Let’s take a look at the prior predictive distribution to see whether our priors are too informative or too wide.</p>
 <p>The <code>Model</code> instance has a method called <code>prior_predictive()</code> that generates samples from the prior predictive distribution. It returns an <code>InferenceData</code> object that contains the values of the prior predictive distribution.</p>
 <div id="cell-26" class="cell" data-execution_count="11">

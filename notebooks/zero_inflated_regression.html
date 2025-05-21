@@ -491,11 +491,11 @@ window.Quarto = {
    
   <ul>
   <li><a href="#zero-inflated-outcomes" id="toc-zero-inflated-outcomes" class="nav-link active" data-scroll-target="#zero-inflated-outcomes">Zero inflated outcomes</a></li>
-  <li><a href="#zero-inflated-poisson" id="toc-zero-inflated-poisson" class="nav-link" data-scroll-target="#zero-inflated-poisson">Zero inflated poisson</a>
+  <li><a href="#zero-inflated-poisson" id="toc-zero-inflated-poisson" class="nav-link" data-scroll-target="#zero-inflated-poisson">Zero inflated Poisson</a>
   <ul class="collapse">
   <li><a href="#zip-regression-model" id="toc-zip-regression-model" class="nav-link" data-scroll-target="#zip-regression-model">ZIP regression model</a></li>
   </ul></li>
-  <li><a href="#hurdle-poisson" id="toc-hurdle-poisson" class="nav-link" data-scroll-target="#hurdle-poisson">Hurdle poisson</a>
+  <li><a href="#hurdle-poisson" id="toc-hurdle-poisson" class="nav-link" data-scroll-target="#hurdle-poisson">Hurdle Poisson</a>
   <ul class="collapse">
   <li><a href="#hurdle-regression-model" id="toc-hurdle-regression-model" class="nav-link" data-scroll-target="#hurdle-regression-model">Hurdle regression model</a></li>
   </ul></li>
@@ -546,7 +546,7 @@ window.Quarto = {
 <p>There are two popular classes of models for modeling zero-inflated data: (1) ZIP, and (2) hurdle Poisson. First, the ZIP model is described and how to implement it in Bambi is outlined. Subsequently, the hurdle Poisson model and how to implement it is outlined thereafter.</p>
 </section>
 <section id="zero-inflated-poisson" class="level2">
-<h2 class="anchored" data-anchor-id="zero-inflated-poisson">Zero inflated poisson</h2>
+<h2 class="anchored" data-anchor-id="zero-inflated-poisson">Zero inflated Poisson</h2>
 <p>To model zero-inflated outcomes, the ZIP model uses a distribution that mixes two data generating processes. The first process generates zeros, and the second process uses a Poisson distribution to generate counts (of which some may be zero). The result of this mixture is a distribution that can be described as</p>
 <p><span class="math display">\[P(Y=0) = (1 - \psi) + \psi e^{-\mu}\]</span></p>
 <p><span class="math display">\[P(Y=y_i) = \psi \frac{e^{-\mu} \mu_{i}^y}{y_{i}!} \ \text{for} \ y_i = 1, 2, 3,...,n\]</span></p>
@@ -1078,7 +1078,7 @@ Default computed for unspecified variable: camper, child, livebait</code></pre>
 </section>
 </section>
 <section id="hurdle-poisson" class="level2">
-<h2 class="anchored" data-anchor-id="hurdle-poisson">Hurdle poisson</h2>
+<h2 class="anchored" data-anchor-id="hurdle-poisson">Hurdle Poisson</h2>
 <p>Both ZIP and hurdle models both use two processes to generate data. The two models differ in their conceptualization of how the zeros are generated. In <span class="math inline">\(\text{ZIPoisson}\)</span>, the zeroes can come from any of the processes, while in the hurdle Poisson they come only from one of the processes. Thus, a hurdle model assumes zero and positive values are generated from two independent processes. In the hurdle model, there are two components: (1) a “structural” process such as a binary model for modeling whether the response variable is zero or not, and (2) a process using a truncated model such as a truncated Poisson for modeling the counts. The result of these two components is a distribution that can be described as</p>
 <p><span class="math display">\[P(Y=0) = 1 - \psi\]</span></p>
 <p><span class="math display">\[P(Y=y_i) = \psi \frac{e^{-\mu_i}\mu_{i}^{y_i} / y_i!}{1 - e^{-\mu_i}} \ \text{for} \ y_i = 1, 2, 3,...,n\]</span></p>
