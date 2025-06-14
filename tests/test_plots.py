@@ -446,20 +446,16 @@ class TestPredictions:
         # Test that the plot works with a non-formulae transformation
         plot_predictions(model, idata, "x1")
 
-    def test_same_variable_conditional_and_group(self):
-        # Create test data with categorical variable
-        rng = np.random.default_rng(1234)
-        levels = list("ABC")
-        df = pd.DataFrame({"y": rng.normal(size=100), "factor": rng.choice(levels, size=100)})
+    def test_same_variable_conditional_and_group(self, mtcars):
+        model, idata = mtcars
 
-        model = bmb.Model("y ~ factor", data=df)
-        idata = model.fit(tune=100, draws=100, random_seed=1234)
-
+        # Plot predictions where a categorical variable is passed to both
+        # `conditional` and as the `group` variable
         plot_predictions(
             model=model,
             idata=idata,
-            conditional="factor",
-            subplot_kwargs={"group": "factor"}
+            conditional="am",
+            subplot_kwargs={"group": "am"}
         )
 
 
