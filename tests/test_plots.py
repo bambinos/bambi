@@ -196,7 +196,7 @@ def formulae_transform():
 @pytest.fixture(scope="module")
 def nonformulae_transform():
     """
-    A model with a non-formulae transformation on a term. 
+    A model with a non-formulae transformation on a term.
     """
     np.random.seed(0)
     x1 = np.random.uniform(1, 50, 50)
@@ -433,8 +433,8 @@ class TestPredictions:
     def test_categorical_response(self, food_choice, covariates):
         model, idata = food_choice
         plot_predictions(model, idata, covariates)
-    
-    
+
+
     def test_term_transformations(self, formulae_transform, nonformulae_transform):
         model, idata = formulae_transform
 
@@ -442,9 +442,21 @@ class TestPredictions:
         plot_predictions(model, idata, ["x2", "x1"])
 
         model, idata = nonformulae_transform
-    
+
         # Test that the plot works with a non-formulae transformation
         plot_predictions(model, idata, "x1")
+
+    def test_same_variable_conditional_and_group(self, mtcars):
+        model, idata = mtcars
+
+        # Plot predictions where a categorical variable is passed to both
+        # `conditional` and as the `group` variable
+        plot_predictions(
+            model=model,
+            idata=idata,
+            conditional="am",
+            subplot_kwargs={"group": "am"}
+        )
 
 
 class TestComparison:

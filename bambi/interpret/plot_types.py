@@ -217,11 +217,21 @@ def plot_categoric(covariates: Covariates, plot_data: pd.DataFrame, legend: bool
             ax.vlines(idxs_main, y_hat_bounds[0], y_hat_bounds[1], color="C0")
     elif "group" in covariates and not "panel" in covariates:
         ax = axes[0]
-        for i, clr in enumerate(colors):
-            idx = (plot_data[color] == clr).to_numpy()
-            idxs = idxs_main + colors_offset[i]
-            ax.scatter(idxs, y_hat_mean[idx], color=f"C{i}")
-            ax.vlines(idxs, y_hat_bounds[0][idx], y_hat_bounds[1][idx], color=f"C{i}")
+        if main == color:
+            # When main and group are the same variable, each color corresponds to one main level
+            for i, clr in enumerate(colors):
+                idx = (plot_data[color] == clr).to_numpy()
+                # Find which main level this color corresponds to
+                main_level_idx = np.where(main_levels == clr)[0][0]
+                idxs = main_level_idx + colors_offset[i]
+                ax.scatter(idxs, y_hat_mean[idx], color=f"C{i}")
+                ax.vlines(idxs, y_hat_bounds[0][idx], y_hat_bounds[1][idx], color=f"C{i}")
+        else:
+            for i, clr in enumerate(colors):
+                idx = (plot_data[color] == clr).to_numpy()
+                idxs = idxs_main + colors_offset[i]
+                ax.scatter(idxs, y_hat_mean[idx], color=f"C{i}")
+                ax.vlines(idxs, y_hat_bounds[0][idx], y_hat_bounds[1][idx], color=f"C{i}")
     elif not "group" in covariates and "panel" in covariates:
         for ax, pnl in zip(axes.ravel(), panels):
             idx = (plot_data[panel] == pnl).to_numpy()
@@ -229,13 +239,34 @@ def plot_categoric(covariates: Covariates, plot_data: pd.DataFrame, legend: bool
             ax.vlines(idxs_main, y_hat_bounds[0][idx], y_hat_bounds[1][idx])
             ax.set(title=f"{panel} = {pnl}")
     elif "group" in covariates and "panel" in covariates:
-        if color == panel:
+        if main == color == panel:
+            # When main, group and panel are all the same variable
+            for i, (ax, pnl) in enumerate(zip(axes.ravel(), panels)):
+                idx = (plot_data[panel] == pnl).to_numpy()
+                # Find which main level this panel corresponds to
+                main_level_idx = np.where(main_levels == pnl)[0][0]
+                idxs = main_level_idx
+                ax.scatter(idxs, y_hat_mean[idx], color=f"C{i}")
+                ax.vlines(idxs, y_hat_bounds[0][idx], y_hat_bounds[1][idx], color=f"C{i}")
+                ax.set(title=f"{panel} = {pnl}")
+        elif color == panel:
             for i, (ax, pnl) in enumerate(zip(axes.ravel(), panels)):
                 idx = (plot_data[panel] == pnl).to_numpy()
                 idxs = idxs_main + colors_offset[i]
                 ax.scatter(idxs, y_hat_mean[idx], color=f"C{i}")
                 ax.vlines(idxs, y_hat_bounds[0][idx], y_hat_bounds[1][idx], color=f"C{i}")
                 ax.set(title=f"{panel} = {pnl}")
+        elif main == color:
+            # When main and group are the same variable
+            for ax, pnl in zip(axes.ravel(), panels):
+                for i, clr in enumerate(colors):
+                    idx = ((plot_data[panel] == pnl) & (plot_data[color] == clr)).to_numpy()
+                    # Find which main level this color corresponds to
+                    main_level_idx = np.where(main_levels == clr)[0][0]
+                    idxs = main_level_idx + colors_offset[i]
+                    ax.scatter(idxs, y_hat_mean[idx], color=f"C{i}")
+                    ax.vlines(idxs, y_hat_bounds[0][idx], y_hat_bounds[1][idx], color=f"C{i}")
+                    ax.set(title=f"{panel} = {pnl}")
         else:
             for ax, pnl in zip(axes.ravel(), panels):
                 for i, clr in enumerate(colors):
