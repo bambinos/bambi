@@ -510,7 +510,7 @@ window.Quarto = {
 </header>
 
 
-<p>This example has been lifted from the <a href="https://docs.pymc.io/notebooks/GLM-robust.html">PyMC Docs</a>, and adapted to for Bambi by Tyler James Burch (<a href="https://github.com/tjburch">@tjburch</a> on GitHub).</p>
+<p>This example has been lifted from the <a href="https://www.pymc.io/projects/examples/en/latest/generalized_linear_models/GLM-robust.html">PyMC Docs</a>, and adapted to for Bambi by Tyler James Burch (<a href="https://github.com/tjburch">@tjburch</a> on GitHub).</p>
 <p>Many toy datasets circumvent problems that practitioners run into with real data. Specifically, the assumption of normality can be easily violated by outliers, which can cause havoc in traditional linear regression. One way to navigate this is through <em>robust linear regression</em>, outlined in this example.</p>
 <p>First load modules and set the RNG for reproducibility.</p>
 <div id="6eb36093" class="cell" data-execution_count="1">
@@ -813,7 +813,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 <p>As we can see, the tails of the Student T are much larger, which means values far from the mean are more likely when compared to the normal distribution.</p>
-<p>The T distribution is specified by a number of degrees of freedom (<span class="math inline">\(\nu\)</span>). In <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.standard_t.html"><code>numpy.random.standard_t</code></a> this is the parameter <code>df</code>, in the <a href="https://docs.pymc.io/api/distributions/continuous.html#pymc3.distributions.continuous.StudentT">pymc T distribution</a>, it’s <code>nu</code>. It is constrained to real numbers greater than 0. As the degrees of freedom increase, the probability in the tails Student T distribution decrease. In the limit of <span class="math inline">\(\nu \rightarrow + \infty\)</span>, the Student T distribution is a normal distribution. Below, the T distribution is plotted for various <span class="math inline">\(\nu\)</span>.</p>
+<p>The T distribution is specified by a number of degrees of freedom (<span class="math inline">\(\nu\)</span>). In <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.standard_t.html"><code>numpy.random.standard_t</code></a> this is the parameter <code>df</code>, in the <a href="https://www.pymc.io/projects/docs/en/stable/api/distributions/generated/pymc.StudentT.html">pymc T distribution</a>, it’s <code>nu</code>. It is constrained to real numbers greater than 0. As the degrees of freedom increase, the probability in the tails Student T distribution decrease. In the limit of <span class="math inline">\(\nu \rightarrow + \infty\)</span>, the Student T distribution is a normal distribution. Below, the T distribution is plotted for various <span class="math inline">\(\nu\)</span>.</p>
 <div id="c51f3e1a" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>bins <span class="op">=</span> np.arange(<span class="op">-</span><span class="dv">8</span>,<span class="dv">8</span>,<span class="fl">0.15</span>)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ndof <span class="kw">in</span> [<span class="fl">0.1</span>, <span class="dv">1</span>, <span class="dv">10</span>]:</span>
