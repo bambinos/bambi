@@ -56,7 +56,7 @@ class Model:
     priors : dict
         Optional specification of priors for one or more terms. A dictionary where the keys are
         the names of terms in the model, "common," or "group_specific" and the values are
-        instances of class `Prior`. If priors are unset, uses automatic priors inspired by
+        instances of class `Prior`. If priors are unset, use automatic priors inspired by
         the R rstanarm library.
     link : str or Dict[str, str]
         The name of the link function to use. Valid names are `"cloglog"`, `"identity"`,
