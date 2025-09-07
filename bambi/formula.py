@@ -36,7 +36,7 @@ class Formula:
         Returns
         -------
         additionals : Sequence[str]
-            If all formulas match the required format, it return them.
+            If all formulas match the required format, it returns them.
         """
         for additional in additionals:
             self.check_additional(additional)

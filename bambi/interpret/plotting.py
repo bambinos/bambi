@@ -153,7 +153,7 @@ def plot_predictions(
     ValueError
         If `conditional` and `average_by` are both `None`.
         If length of `conditional` is greater than 3 and `average_by` is `None`.
-        If main covariate is not numeric or categoric.
+        If main covariate is not numeric or categorical.
     """
     if conditional is None and average_by is None:
         raise ValueError("Must specify at least one of 'conditional' or 'average_by'.")
