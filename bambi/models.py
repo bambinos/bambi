@@ -826,7 +826,7 @@ class Model:
         inplace : bool
             If `True` it will modify `idata` in-place. Otherwise, it will return a copy of
             `idata` with the predictions added. If `kind="response_params"`, a new variable
-            with the name of the parent parameter, e.g. `"mu"` and `"sigma" for a Gaussian
+            with the name of the parent parameter, e.g. `"mu"` and `"sigma"` for a Gaussian
             likelihood, or `"p"` for a Bernoulli likelihood, is added to the `posterior` group.
             If `kind="response"`, it appends a `posterior_predictive` group to `idata`. If
             any of these already exist, it will be overwritten.
@@ -958,7 +958,7 @@ class Model:
             the model's log-likelihood function is evaluated.
             If omitted, the original dataset is used.
         inplace : bool
-            If True` it will modify `idata` in-place. Otherwise, it will return a copy of
+            If `True` it will modify `idata` in-place. Otherwise, it will return a copy of
             `idata` with the `log_likelihood` group added.
 
         Returns
