@@ -377,7 +377,7 @@ ul.task-list li input[type="checkbox"] {
 <tr class="even">
 <td><code>priors</code></td>
 <td>dict</td>
-<td>Optional specification of priors for one or more terms. A dictionary where the keys are the names of terms in the model, “common,” or “group_specific” and the values are instances of class <code>Prior</code>. If priors are unset, uses automatic priors inspired by the R rstanarm library.</td>
+<td>Optional specification of priors for one or more terms. A dictionary where the keys are the names of terms in the model, “common,” or “group_specific” and the values are instances of class <code>Prior</code>. If priors are unset, use automatic priors inspired by the R rstanarm library.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
@@ -544,8 +544,8 @@ ul.task-list li input[type="checkbox"] {
 <tr class="odd">
 <td><code>inplace</code></td>
 <td>bool</td>
-<td>If True<code>it will modify</code>idata<code>in-place. Otherwise, it will return a copy of</code>idata<code>with the</code>log_likelihood<code>group added.                                                |</code>True`</td>
-<td></td>
+<td>If <code>True</code> it will modify <code>idata</code> in-place. Otherwise, it will return a copy of <code>idata</code> with the <code>log_likelihood</code> group added.</td>
+<td><code>True</code></td>
 </tr>
 </tbody>
 </table>
@@ -968,8 +968,26 @@ ul.task-list li input[type="checkbox"] {
 <tr class="even">
 <td><code>inplace</code></td>
 <td>bool</td>
-<td>If <code>True</code> it will modify <code>idata</code> in-place. Otherwise, it will return a copy of <code>idata</code> with the predictions added. If <code>kind="response_params"</code>, a new variable with the name of the parent parameter, e.g.&nbsp;<code>"mu"</code> and <code>"sigma" for a Gaussian likelihood, or</code>“p”<code>for a Bernoulli likelihood, is added to the</code>posterior<code>group. If</code>kind=“response”<code>, it appends a</code>posterior_predictive<code>group to</code>idata<code>. If any of these already exist, it will be overwritten. |</code>True<code>| |</code>include_group_specific<code>| bool                            | Determines if predictions incorporate group-specific effects. If</code>False<code>, predictions are made with common effects only (i.e. group specific are set to zero). Defaults to</code>True<code>.                                                                                                                                                                                                                                                                                   |</code>True<code>| |</code>sample_new_groups<code>| bool                            | Specifies if it is allowed to obtain predictions for new groups of group-specific terms. When</code>True<code>, each posterior sample for the new groups is drawn from the posterior draws of a randomly selected existing group. Since different groups may be selected at each draw, the end result represents the variation across existing groups. The method implemented is equivalent to</code>sample_new_levels=“uncertainty”<code>in brms.                                      |</code>False<code>| |</code>random_seed<code>| (int, RandomState or Generator) | Seed for the random number generator.                                                                                                                                                                                                                                                                                                                                                                                                                                |</code>None`</td>
-<td></td>
+<td>If <code>True</code> it will modify <code>idata</code> in-place. Otherwise, it will return a copy of <code>idata</code> with the predictions added. If <code>kind="response_params"</code>, a new variable with the name of the parent parameter, e.g.&nbsp;<code>"mu"</code> and <code>"sigma"</code> for a Gaussian likelihood, or <code>"p"</code> for a Bernoulli likelihood, is added to the <code>posterior</code> group. If <code>kind="response"</code>, it appends a <code>posterior_predictive</code> group to <code>idata</code>. If any of these already exist, it will be overwritten.</td>
+<td><code>True</code></td>
+</tr>
+<tr class="odd">
+<td><code>include_group_specific</code></td>
+<td>bool</td>
+<td>Determines if predictions incorporate group-specific effects. If <code>False</code>, predictions are made with common effects only (i.e.&nbsp;group specific are set to zero). Defaults to <code>True</code>.</td>
+<td><code>True</code></td>
+</tr>
+<tr class="even">
+<td><code>sample_new_groups</code></td>
+<td>bool</td>
+<td>Specifies if it is allowed to obtain predictions for new groups of group-specific terms. When <code>True</code>, each posterior sample for the new groups is drawn from the posterior draws of a randomly selected existing group. Since different groups may be selected at each draw, the end result represents the variation across existing groups. The method implemented is equivalent to <code>sample_new_levels="uncertainty"</code> in brms.</td>
+<td><code>False</code></td>
+</tr>
+<tr class="odd">
+<td><code>random_seed</code></td>
+<td>(int, RandomState or Generator)</td>
+<td>Seed for the random number generator.</td>
+<td><code>None</code></td>
 </tr>
 </tbody>
 </table>
