@@ -465,7 +465,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#specify-model-and-examine-priors" id="toc-specify-model-and-examine-priors" class="nav-link" data-scroll-target="#specify-model-and-examine-priors">Specify model and examine priors</a></li>
   <li><a href="#examine-the-model-results" id="toc-examine-the-model-results" class="nav-link" data-scroll-target="#examine-the-model-results">Examine the model results</a></li>
   <li><a href="#summarize-effects-on-partial-correlation-scale" id="toc-summarize-effects-on-partial-correlation-scale" class="nav-link" data-scroll-target="#summarize-effects-on-partial-correlation-scale">Summarize effects on partial correlation scale</a></li>
-  <li><a href="#relative-importance-which-predictors-have-the-strongest-effects-defined-in-terms-of-squared-partial-correlation" id="toc-relative-importance-which-predictors-have-the-strongest-effects-defined-in-terms-of-squared-partial-correlation" class="nav-link" data-scroll-target="#relative-importance-which-predictors-have-the-strongest-effects-defined-in-terms-of-squared-partial-correlation">Relative importance: Which predictors have the strongest effects (defined in terms of squared partial correlation?</a></li>
+  <li><a href="#relative-importance-which-predictors-have-the-strongest-effects-defined-in-terms-of-squared-partial-correlation" id="toc-relative-importance-which-predictors-have-the-strongest-effects-defined-in-terms-of-squared-partial-correlation" class="nav-link" data-scroll-target="#relative-importance-which-predictors-have-the-strongest-effects-defined-in-terms-of-squared-partial-correlation">Relative importance: Which predictors have the strongest effects (defined in terms of squared partial correlation)?</a></li>
   <li><a href="#posterior-predictive" id="toc-posterior-predictive" class="nav-link" data-scroll-target="#posterior-predictive">Posterior Predictive</a></li>
   </ul>
 </nav>
@@ -1366,7 +1366,7 @@ Data variables:
 </div>
 </section>
 <section id="relative-importance-which-predictors-have-the-strongest-effects-defined-in-terms-of-squared-partial-correlation" class="level2">
-<h2 class="anchored" data-anchor-id="relative-importance-which-predictors-have-the-strongest-effects-defined-in-terms-of-squared-partial-correlation">Relative importance: Which predictors have the strongest effects (defined in terms of squared partial correlation?</h2>
+<h2 class="anchored" data-anchor-id="relative-importance-which-predictors-have-the-strongest-effects-defined-in-terms-of-squared-partial-correlation">Relative importance: Which predictors have the strongest effects (defined in terms of squared partial correlation)?</h2>
 <p>We just take the square of the partial correlation coefficients, so it’s easy to get posteriors on that scale too:</p>
 <div id="cell-41" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>_, ax <span class="op">=</span> plt.subplots()</span>
@@ -1415,7 +1415,7 @@ Data variables:
 <pre><code>-0.17083046946181768</code></pre>
 </div>
 </div>
-<p>which explains why ony looking at the marginal posteriors (i.e.&nbsp;assuming independence) is not the best approach here.</p>
+<p>which explains why only looking at the marginal posteriors (i.e.&nbsp;assuming independence) is not the best approach here.</p>
 <p>For each predictor, what is the probability that it has the largest squared partial correlation?</p>
 <div id="cell-51" class="cell" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>pc_df <span class="op">=</span> pcorr_samples.to_dataframe()</span>

@@ -834,8 +834,8 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <section id="adding-predictors" class="level3">
 <h3 class="anchored" data-anchor-id="adding-predictors">Adding predictors</h3>
 <p>In the cumulative model described above, adding predictors was explicitly left out. In this section, it is described how predictors are added to ordinal cumulative models. When adding predictor variables, what we would like is for any predictor, as it increases, predictions are moved progressively (increased) through the categories in sequence. A linear regression is formed for <span class="math inline">\(Z\)</span> by adding a predictor term <span class="math inline">\(\eta\)</span></p>
-<p><span class="math display">\[\eta = \beta_1 x_1 + \beta_2 x_2 +, . . ., \beta_n x_n\]</span></p>
-<p>Notice how similar this looks to an ordinary linear model. However, there is no intercept or error term. This is because the intercept is replaced by the threshold <span class="math inline">\(\tau\)</span> and the error term <span class="math inline">\(\epsilon\)</span> is added seperately to obtain</p>
+<p><span class="math display">\[\eta = \beta_1 x_1 + \beta_2 x_2 + ... + \beta_n x_n\]</span></p>
+<p>Notice how similar this looks to an ordinary linear model. However, there is no intercept or error term. This is because the intercept is replaced by the threshold <span class="math inline">\(\tau\)</span> and the error term <span class="math inline">\(\epsilon\)</span> is added separately to obtain</p>
 <p><span class="math display">\[Z = \eta + \epsilon\]</span></p>
 <p>Putting the predictor term together with the thresholds and cumulative distribution function, we obtain the probability of <span class="math inline">\(Y\)</span> being equal to a category <span class="math inline">\(k\)</span> as</p>
 <p><span class="math display">\[Pr(Y = k | \eta) = F(\tau_k - \eta) - F(\tau_{k-1} - \eta)\]</span></p>

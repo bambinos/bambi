@@ -581,8 +581,8 @@ window.Quarto = {
 <h3 class="anchored" data-anchor-id="zip-regression-model">ZIP regression model</h3>
 <p>The equations above only describe the ZIP distribution. However, predictors can be added to make this a regression model. Suppose we have a response variable <span class="math inline">\(Y\)</span>, which represents the number of events that occur during a time period, and <span class="math inline">\(p\)</span> predictors <span class="math inline">\(X_1, X_2, ..., X_p\)</span>. We can model the parameters of the ZIP distribution as a linear combination of the predictors.</p>
 <p><span class="math display">\[Y_i \sim \text{ZIPoisson}(\mu_i, \psi_i)\]</span></p>
-<p><span class="math display">\[g(\mu_i) = \beta_0 + \beta_1 X_{1i}+,...,+\beta_p X_{pi}\]</span></p>
-<p><span class="math display">\[h(\psi_i) = \alpha_0 + \alpha_1 X_{1i}+,...,+\alpha_p X_{pi}\]</span></p>
+<p><span class="math display">\[g(\mu_i) = \beta_0 + \beta_1 X_{1i} + ... + \beta_p X_{pi}\]</span></p>
+<p><span class="math display">\[h(\psi_i) = \alpha_0 + \alpha_1 X_{1i} + ... + \alpha_p X_{pi}\]</span></p>
 <p>where <span class="math inline">\(g\)</span> and <span class="math inline">\(h\)</span> are the link functions for each parameter. Bambi, by default, uses the log link for <span class="math inline">\(g\)</span> and the logit link for <span class="math inline">\(h\)</span>. Notice how there are two linear models and two link functions: one for each parameter in the <span class="math inline">\(\text{ZIPoisson}\)</span>. The parameters of the linear model differ, because any predictor such as <span class="math inline">\(X\)</span> may be associated differently with each part of the mixture. Actually, you don’t even need to use the same predictors in both linear models—but this beyond the scope of this notebook.</p>
 <section id="the-fish-dataset" class="level4">
 <h4 class="anchored" data-anchor-id="the-fish-dataset">The fish dataset</h4>
