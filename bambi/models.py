@@ -235,7 +235,7 @@ class Model:
         omit_offsets=True,
         include_mean=None,
         include_response_params=False,
-        inference_method="mcmc",
+        inference_method="pymc",
         init="auto",
         n_init=50000,
         chains=None,
@@ -265,16 +265,13 @@ class Model:
             Include parameters of the response distribution in the output. These usually take more
             space than other parameters as there's one of them per observation. Defaults to `False`.
         inference_method : str
-            The method to use for fitting the model. By default, `"mcmc"`. This automatically
+            The method to use for fitting the model. By default, `"pymc"`. This automatically
             assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
-            variables and Metropolis for non-binary discrete ones. Alternatively, `"vi"`, in
-            which case the model will be fitted using variational inference as implemented in PyMC
-            using the `fit` function.
-            Finally, `"laplace"`, in which case a Laplace approximation is used and is not
+            variables and Metropolis for non-binary discrete ones. NUTS implementations include
+            'pymc', 'nutpie', 'blackjax', and 'numpyro'. Alternatively, `"vi"`, in which case the
+            model will be fitted using variational inference as implemented in PyMC using the `fit`
+            function. Finally, `"laplace"`, in which case a Laplace approximation is used and is not
             recommended other than for pedagogical use.
-            To get a list of JAX based inference methods, call
-            `bmb.inference_methods.names['bayeux']`. This will return a dictionary of the
-            available methods such as `blackjax_nuts`, `numpyro_nuts`, among others.
         init : str
             Initialization method. Defaults to `"auto"`. The available methods are:
             * auto: Use `"jitter+adapt_diag"` and if this method fails it uses `"adapt_diag"`.
