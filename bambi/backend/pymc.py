@@ -1,6 +1,5 @@
 import functools
 import logging
-import operator
 import traceback
 import warnings
 from copy import deepcopy
@@ -9,12 +8,9 @@ from importlib.metadata import version
 import numpy as np
 import pymc as pm
 import pytensor.tensor as pt
-import xarray as xr
-from pymc.backends.arviz import coords_and_dims_for_inferencedata, find_observations
 from pymc.util import get_default_varnames
 from pytensor.tensor.special import softmax
 
-from bambi.backend.inference_methods import inference_methods
 from bambi.backend.links import (
     arctan_2,
     cloglog,
@@ -34,6 +30,16 @@ _log = logging.getLogger("bambi")
 
 
 __version__ = version("bambi")
+
+
+_SUPPORTED_METHODS = {"pymc", "numpyro", "blackjax", "nutpie", "vi", "laplace"}
+_DEPRECATION_MAP = {
+    "mcmc": "pymc",
+    "nuts_numpyro": "numpyro",
+    "numpyro_nuts": "numpyro",
+    "nuts_blackjax": "blackjax",
+    "blackjax_nuts": "blackjax",
+}
 
 
 class PyMCModel:
@@ -60,8 +66,6 @@ class PyMCModel:
         self.spec = None
         self.components = {}
         self.response_component = None
-        self.bayeux_methods = inference_methods.names["bayeux"]
-        self.pymc_methods = inference_methods.names["pymc"]
 
     def build(self, spec):
         """Compile the PyMC model from an abstract model specification
@@ -105,7 +109,7 @@ class PyMCModel:
         discard_tuned_samples=True,
         omit_offsets=True,
         include_response_params=False,
-        inference_method="mcmc",
+        inference_method="pymc",
         init="auto",
         n_init=50000,
         chains=None,
@@ -116,23 +120,33 @@ class PyMCModel:
         """Run PyMC sampler."""
         inference_method = inference_method.lower()
 
-        if inference_method == "nuts_numpyro":
-            inference_method = "numpyro_nuts"
+        if inference_method in _DEPRECATION_MAP:
+            new_method = _DEPRECATION_MAP[inference_method]
             warnings.warn(
-                "'nuts_numpyro' has been replaced by 'numpyro_nuts' and will be "
-                "removed in a future release",
+                f"'{inference_method}' has been replaced by '{new_method}' and will be "
+                "removed in a future release.",
                 category=FutureWarning,
             )
-        elif inference_method == "nuts_blackjax":
-            inference_method = "blackjax_nuts"
-            warnings.warn(
-                "'nuts_blackjax' has been replaced by 'blackjax_nuts' and will "
-                "be removed in a future release",
-                category=FutureWarning,
+            inference_method = new_method
+
+        # 2. Validate the method
+        if inference_method not in _SUPPORTED_METHODS:
+            # Use sorted() for a predictable, user-friendly error message
+            supported = ", ".join(sorted(_SUPPORTED_METHODS))
+            raise ValueError(
+                f"'{inference_method}' is not a supported inference method. "
+                f"Must be one of: {supported}"
             )
 
+        # Ensure the appropriate dependencies are installed for the selected inference method
+        self._check_dependencies(inference_method)
+
         # NOTE: Methods return different types of objects (idata, approximation, and dictionary)
-        if inference_method in (self.pymc_methods["mcmc"] + self.bayeux_methods["mcmc"]):
+        if inference_method == "vi":
+            result = self._run_vi(random_seed, **kwargs)
+        elif inference_method == "laplace":
+            result = self._run_laplace(draws, omit_offsets, include_response_params)
+        else:
             result = self._run_mcmc(
                 draws,
                 tune,
@@ -147,12 +161,6 @@ class PyMCModel:
                 inference_method,
                 **kwargs,
             )
-        elif inference_method in self.pymc_methods["vi"]:
-            result = self._run_vi(random_seed, **kwargs)
-        elif inference_method == "laplace":
-            result = self._run_laplace(draws, omit_offsets, include_response_params)
-        else:
-            raise NotImplementedError(f"'{inference_method}' method has not been implemented")
 
         self.fit = True
         return result
@@ -195,131 +203,62 @@ class PyMCModel:
         sampler_backend="mcmc",
         **kwargs,
     ):
-        if sampler_backend in self.pymc_methods["mcmc"]:
-            # Don't include the parameters of the likelihood, which are deterministics.
-            # They can take lot of space in the trace and increase RAM requirements.
-            vars_to_sample = get_default_varnames(
-                self.model.unobserved_value_vars, include_transformed=False
-            )
-            vars_to_sample = [variable.name for variable in vars_to_sample]
+        # Don't include the parameters of the likelihood, which are deterministics.
+        # They can take lot of space in the trace and increase RAM requirements.
+        vars_to_sample = get_default_varnames(
+            self.model.unobserved_value_vars, include_transformed=False
+        )
+        vars_to_sample = [variable.name for variable in vars_to_sample]
 
-            for name, variable in self.model.named_vars.items():
-                is_likelihood_param = name in self.spec.family.likelihood.params
-                is_deterministic = variable in self.model.deterministics
-                if is_likelihood_param and is_deterministic:
-                    vars_to_sample.remove(name)
+        for name, variable in self.model.named_vars.items():
+            is_likelihood_param = name in self.spec.family.likelihood.params
+            is_deterministic = variable in self.model.deterministics
+            if is_likelihood_param and is_deterministic:
+                vars_to_sample.remove(name)
 
-            with self.model:
-                try:
+        with self.model:
+            try:
+                idata = pm.sample(
+                    draws=draws,
+                    tune=tune,
+                    discard_tuned_samples=discard_tuned_samples,
+                    init=init,
+                    n_init=n_init,
+                    chains=chains,
+                    cores=cores,
+                    random_seed=random_seed,
+                    var_names=vars_to_sample,
+                    nuts_sampler=sampler_backend,
+                    **kwargs,
+                )
+            except (RuntimeError, ValueError):
+                if "ValueError: Mass matrix contains" in traceback.format_exc() and init == "auto":
+                    _log.info(
+                        "\nThe default initialization using init='auto' has failed, trying to "
+                        "recover by switching to init='adapt_diag'",
+                    )
                     idata = pm.sample(
                         draws=draws,
                         tune=tune,
                         discard_tuned_samples=discard_tuned_samples,
-                        init=init,
+                        init="adapt_diag",
                         n_init=n_init,
                         chains=chains,
                         cores=cores,
                         random_seed=random_seed,
                         var_names=vars_to_sample,
+                        nuts_sampler=sampler_backend,
                         **kwargs,
                     )
-                except (RuntimeError, ValueError):
-                    if (
-                        "ValueError: Mass matrix contains" in traceback.format_exc()
-                        and init == "auto"
-                    ):
-                        _log.info(
-                            "\nThe default initialization using init='auto' has failed, trying to "
-                            "recover by switching to init='adapt_diag'",
-                        )
-                        idata = pm.sample(
-                            draws=draws,
-                            tune=tune,
-                            discard_tuned_samples=discard_tuned_samples,
-                            init="adapt_diag",
-                            n_init=n_init,
-                            chains=chains,
-                            cores=cores,
-                            random_seed=random_seed,
-                            var_names=vars_to_sample,
-                            **kwargs,
-                        )
-                    else:
-                        raise
-                idata_from = "pymc"
-        elif sampler_backend in self.bayeux_methods["mcmc"]:
-            import bayeux as bx  # pylint: disable=import-outside-toplevel
-            import jax  # pylint: disable=import-outside-toplevel
+                else:
+                    raise
 
-            # pylint: disable=import-outside-toplevel
-            from pymc.sampling.parallel import (
-                _cpu_count,
-            )
-
-            # handle case where cores and chains are not provided
-            if cores is None:
-                cores = min(4, _cpu_count())
-            if chains is None:
-                chains = max(2, cores)
-
-            # Set the seed for reproducibility if provided
-            if random_seed is not None:
-                if not isinstance(random_seed, int):
-                    random_seed = random_seed[0]
-                np.random.seed(random_seed)
-
-            jax_seed = jax.random.PRNGKey(np.random.randint(2**31 - 1))
-
-            bx_model = bx.Model.from_pymc(self.model)
-            # pylint: disable=no-member
-            bx_sampler = operator.attrgetter(sampler_backend)(bx_model.mcmc)
-
-            # We pass 'draws', 'tune', 'chains', and 'cores' because they can be used by some
-            # samplers. Since those are keyword arguments of `Model.fit()`, they would not
-            # be passed in the `kwargs` dict.
-            idata = bx_sampler(
-                seed=jax_seed,
-                draws=draws,
-                tune=tune,
-                chains=chains,
-                cores=cores,
-                **kwargs,
-            )
-            idata_from = "bayeux"
-        else:
-            raise ValueError(
-                f"sampler_backend value {sampler_backend} is not valid. Please choose one of"
-                f" {self.pymc_methods['mcmc'] + self.bayeux_methods['mcmc']}"
-            )
-
-        idata = self._clean_results(idata, omit_offsets, include_response_params, idata_from)
+        idata = self._clean_results(idata, omit_offsets, include_response_params)
         return idata
 
-    def _clean_results(self, idata, omit_offsets, include_response_params, idata_from):
+    def _clean_results(self, idata, omit_offsets, include_response_params):
         # Before doing anything, make sure we compute deterministics.
         # But, don't include those determinisics for parameters of the likelihood.
-        if idata_from == "bayeux":
-            # Create the dataset from scratch to guarantee dim names, coord names, and values
-            # are the ones we expect and we don't create any issues downstream.
-            idata.posterior = create_posterior_bayeux(idata.posterior, self.model)
-
-            # Create the dataset for the "observed_data" group because it does not come with bayeux
-            idata.add_groups({"observed_data": create_observed_data_bayeux(self.model)})
-            idata.observed_data.attrs = idata.posterior.attrs
-
-            var_names = [
-                v.name
-                for v in self.model.deterministics
-                if v.name not in self.spec.family.likelihood.params
-            ]
-
-            idata.posterior = pm.compute_deterministics(
-                idata.posterior,
-                var_names=var_names,
-                model=self.model,
-                merge_dataset=True,
-                progressbar=False,
-            )
 
         for group in idata.groups():
             getattr(idata, group).attrs["modeling_interface"] = "bambi"
@@ -422,7 +361,9 @@ class PyMCModel:
 
             for m in maps:
                 if pm.util.is_transformed_name(m):
-                    n_maps.pop(pm.util.get_untransformed_name(m))
+                    untransformed_name = pm.util.get_untransformed_name(m)
+                    if untransformed_name in n_maps:
+                        n_maps.pop(untransformed_name)
 
             hessian = pm.find_hessian(n_maps)
 
@@ -435,8 +376,29 @@ class PyMCModel:
         samples = np.random.multivariate_normal(modes, cov, size=draws)
 
         idata = _posterior_samples_to_idata(samples, self.model)
-        idata = self._clean_results(idata, omit_offsets, include_response_params, idata_from="pymc")
+        idata = self._clean_results(idata, omit_offsets, include_response_params)
         return idata
+
+    def _check_dependencies(self, inference_method):
+        """Dependency checking given the selected inference method."""
+        required_packages = {
+            "numpyro": ["numpyro", "jax"],
+            "blackjax": ["blackjax", "jax"],
+            "nutpie": ["nutpie"],
+        }
+
+        if inference_method in required_packages:
+            missing = []
+            for package in required_packages[inference_method]:
+                try:
+                    __import__(package)
+                except ImportError:
+                    missing.append(package)
+
+            if missing:
+                raise ImportError(
+                    f"'{inference_method}' requires package(s): {', '.join(missing)}. "
+                )
 
     @property
     def constant_components(self):
@@ -485,75 +447,3 @@ def _posterior_samples_to_idata(samples, model):
 
     idata = pm.to_inference_data(pm.backends.base.MultiTrace([strace]), model=model)
     return idata
-
-
-def create_posterior_bayeux(posterior, pm_model):
-    # This function is used to create a xr.Dataset that holds the posterior draws when doing
-    # inference via bayeux.
-    # bayeux does not keep any information about coords and dims, but Bambi may rely on that in
-    # the future, so we need them.
-    # It's not only painful to modify dims and coords of an existing xarray object, but it's also
-    # impossible sometimes. For that reason, it's simply better to create a Dataset from scratch.
-
-    # Query the mapping between variables and dims from the PyMC model
-    vars_to_dims = pm_model.named_vars_to_dims
-
-    # Get the variable names in the posterior Dataset
-    data_vars_names = list(posterior.data_vars)
-
-    # Query the coords as passed to the PyMC model
-    coords = pm_model.coords.copy()
-
-    # Add 'chain' and 'draw'
-    coords["chain"] = np.array(posterior["chain"])
-    coords["draw"] = np.array(posterior["draw"])
-
-    # Get the dims for each data var
-    data_vars_dims = {}
-    for data_var_name in data_vars_names:
-        if data_var_name in vars_to_dims:
-            data_vars_dims[data_var_name] = ["chain", "draw"] + list(vars_to_dims[data_var_name])
-        else:
-            data_vars_dims[data_var_name] = ["chain", "draw"]
-
-    # Create dictionary with data var dims and values (as required by xr.Dataset)
-    # https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html
-    data_vars_values = {}
-    for data_var_name, data_var_dims in data_vars_dims.items():
-        data_vars_values[data_var_name] = (
-            data_var_dims,
-            posterior[data_var_name].to_numpy(),
-        )
-
-    # Get coords
-    dims_in_use = set(dim for dims in data_vars_dims.values() for dim in dims)
-    coords_in_use = {coord_name: np.array(coords[coord_name]) for coord_name in dims_in_use}
-
-    return xr.Dataset(data_vars=data_vars_values, coords=coords_in_use, attrs=posterior.attrs)
-
-
-def create_observed_data_bayeux(pm_model):
-    # Query observation dict from PyMC
-    observations = find_observations(pm_model)
-
-    # Query coords and dims from PyMC
-    coords, dims = coords_and_dims_for_inferencedata(pm_model)
-
-    # Out of all dims, keep those associated with observations
-    dims = {name: dims[name] for name in observations}
-
-    # Create a flat list of dim names
-    dim_names = []
-    for dim_name in dims.values():
-        dim_names.extend(dim_name)
-
-    # Out of all coords, keep those associated with observations
-    coords = {name: coords[name] for name in dim_names}
-
-    # Create dictionary with data var dims and values (as required by xr.Dataset)
-    # https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html
-    data_vars_values = {}
-    for name, values in observations.items():
-        data_vars_values[name] = (dims[name], values)
-
-    return xr.Dataset(data_vars=data_vars_values, coords=coords)
