@@ -15,12 +15,42 @@ pagetitle: "Changelog"
 
 ### Deprecation
 
+## 0.15.0
+
+### New features
+
+* Add default priors for binomial and bernoulli families with logit link (#830)
+* Add horseshoe prior (#836)
+* Handle multivariate responses with HSGP (#856)
+
+### Maintenance and fixes
+
+* Change the JAX random number generator key for 32 bit systems (#833)
+* Change `rename` to `replace` in `pre-render.py` (#843)
+* Fix out of sample prediction for multivariate families. It would not work for tables where the
+number of rows was different from the one used to fit the model (#847)
+* Check variables before trying to access them in posterior predictive sampling (#851)
+* Pass kwargs to nutpie + create env.yml file (#855)
+
+### Documentation
+
+* Fix typos and incomplete doc strings (#765)
+* Clarify elpd differences interepretation (#825)
+* Fix the contributing readme link (#837)
+* Add example using `offset` (#842)
+* Fix model formula in negative binomial notebook (#859)
+* Fix formatting in t-test examples (#861)
+* Fix issue 812 Broken link (#862)
+* Update repository documentation files (#865)
+
+### Deprecation
+
 ## 0.14.0
 
 ### New features
 
-* Add configuration facilities to Bambi (#745) 
-* Interpet submodule now outputs informative messages when computing default values (#745) 
+* Add configuration facilities to Bambi (#745)
+* Interpet submodule now outputs informative messages when computing default values (#745)
 * Bambi supports weighted responses (#761)
 * Bambi supports constrained responses (#764)
 * Implement `compute_log_likelihood()` method to compute the log likelihood on a model (#769)
