@@ -308,10 +308,8 @@ class Model:
 
         Returns
         -------
-        An ArviZ `InferenceData` instance if inference_method is  `"mcmc"` (default),
-        "laplace", or one of the MCMC methods in
-        `bmb.inference_methods.names['bayeux']['mcmc]`.
-        An `Approximation` object if  `"vi"`.
+        An ArviZ `InferenceData` instance if `inference_method` is `"pymc"`, `"nutpie"`,
+        `"blackjax"`, `"numpyro"`, or "laplace". An `Approximation` object if  `"vi"`.
         """
         method = kwargs.pop("method", None)
         if method is not None:
