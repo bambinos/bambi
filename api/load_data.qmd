@@ -1,6 +1,8 @@
 # load_data { #bambi.load_data }
 
-`data.load_data(dataset=None, data_home=None)`
+```python
+load_data(dataset=None, data_home=None)
+```
 
 Load a dataset.
 
@@ -10,15 +12,15 @@ The directory to save can also be set with the environment variable `BAMBI_HOME`
 The checksum of the dataset is checked against a hardcoded value to watch for data corruption.
 Run `bmb.clear_data_home()` to clear the data directory.
 
-## Parameters
+## Parameters {.doc-section .doc-section-parameters}
 
-| Name        | Type   | Description                   | Default   |
-|-------------|--------|-------------------------------|-----------|
-| `dataset`   |        | Name of dataset to load.      | `None`    |
-| `data_home` |        | Where to save remote datasets | `None`    |
+| Name      | Type   | Description                   | Default   |
+|-----------|--------|-------------------------------|-----------|
+| dataset   |        | Name of dataset to load.      | `None`    |
+| data_home |        | Where to save remote datasets | `None`    |
 
-## Returns
+## Returns {.doc-section .doc-section-returns}
 
-| Type             | Description   |
-|------------------|---------------|
-| pandas.DataFrame |               |
+| Name   | Type             | Description   |
+|--------|------------------|---------------|
+|        | pandas.DataFrame |               |

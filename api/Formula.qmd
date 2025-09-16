@@ -1,6 +1,8 @@
 # Formula { #bambi.Formula }
 
-`Formula(self, formula, *additionals)`
+```python
+Formula(formula, *additionals)
+```
 
 Model formula
 
@@ -8,12 +10,12 @@ Allows to describe a model with multiple formulas. The first formula describes t
 variable and its predictors. The following formulas describe predictors for other parameters
 of the likelihood function, allowing distributional models.
 
-## Parameters
+## Parameters {.doc-section .doc-section-parameters}
 
-| Name           | Type   | Description                                                                         | Default    |
-|----------------|--------|-------------------------------------------------------------------------------------|------------|
-| `formula`      | str    | A model description written using the formula syntax from the `formulae` library.   | _required_ |
-| `*additionals` | str    | Additional formulas that describe model parameters rather than a response variable. | `()`       |
+| Name         | Type   | Description                                                                         | Default    |
+|--------------|--------|-------------------------------------------------------------------------------------|------------|
+| formula      | str    | A model description written using the formula syntax from the `formulae` library.   | _required_ |
+| *additionals | str    | Additional formulas that describe model parameters rather than a response variable. | `()`       |
 
 ## Methods
 
@@ -25,49 +27,55 @@ of the likelihood function, allowing distributional models.
 
 ### check_additional { #bambi.Formula.check_additional }
 
-`Formula.check_additional(self, additional)`
+```python
+Formula.check_additional(additional)
+```
 
 Check if an additional formula matches the expected format
 
-#### Parameters
+#### Parameters {.doc-section .doc-section-parameters}
 
-| Name         | Type   | Description                                       | Default    |
-|--------------|--------|---------------------------------------------------|------------|
-| `additional` | str    | A model formula that describes a model parameter. | _required_ |
+| Name       | Type   | Description                                       | Default    |
+|------------|--------|---------------------------------------------------|------------|
+| additional | str    | A model formula that describes a model parameter. | _required_ |
 
-#### Raises
+#### Raises {.doc-section .doc-section-raises}
 
-| Type       | Description                                      |
-|------------|--------------------------------------------------|
-| ValueError | If the formula does not contain a response term. |
-| ValueError | If the response term is not a plain name.        |
+| Name   | Type       | Description                                      |
+|--------|------------|--------------------------------------------------|
+|        | ValueError | If the formula does not contain a response term. |
+|        | ValueError | If the response term is not a plain name.        |
 
 ### check_additionals { #bambi.Formula.check_additionals }
 
-`Formula.check_additionals(self, additionals)`
+```python
+Formula.check_additionals(additionals)
+```
 
 Check if the additional formulas match the expected format
 
-#### Parameters
+#### Parameters {.doc-section .doc-section-parameters}
 
-| Name          | Type            | Description                                                                    | Default    |
-|---------------|-----------------|--------------------------------------------------------------------------------|------------|
-| `additionals` | Sequence\[str\] | Model formulas that describe model parameters rather than a response variable. | _required_ |
+| Name        | Type            | Description                                                                    | Default    |
+|-------------|-----------------|--------------------------------------------------------------------------------|------------|
+| additionals | Sequence\[str\] | Model formulas that describe model parameters rather than a response variable. | _required_ |
 
-#### Returns
+#### Returns {.doc-section .doc-section-returns}
 
-| Type            | Description                                                 |
-|-----------------|-------------------------------------------------------------|
-| Sequence\[str\] | If all formulas match the required format, it returns them. |
+| Name        | Type            | Description                                                 |
+|-------------|-----------------|-------------------------------------------------------------|
+| additionals | Sequence\[str\] | If all formulas match the required format, it returns them. |
 
 ### get_all_formulas { #bambi.Formula.get_all_formulas }
 
-`Formula.get_all_formulas(self)`
+```python
+Formula.get_all_formulas()
+```
 
 Get all the model formulas
 
-#### Returns
+#### Returns {.doc-section .doc-section-returns}
 
-| Type   | Description                       |
-|--------|-----------------------------------|
-| list   | All the formulas in the instance. |
+| Name   | Type   | Description                       |
+|--------|--------|-----------------------------------|
+|        | list   | All the formulas in the instance. |

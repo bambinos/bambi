@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.57">
+<meta name="generator" content="quarto-1.7.32">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -32,15 +67,16 @@ ul.task-list li input[type="checkbox"] {
 <link href="../api/Formula.html" rel="next">
 <link href="../api/index.html" rel="prev">
 <link href="../logos/favicon.png" rel="icon" type="image/png">
-<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-c4f3a08e70260739b56dd0d8f062e40f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -73,7 +109,7 @@ ul.task-list li input[type="checkbox"] {
 <link rel="stylesheet" href="../styles.css">
 </head>
 
-<body class="nav-sidebar floating nav-fixed">
+<body class="nav-sidebar floating nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -329,20 +365,33 @@ ul.task-list li input[type="checkbox"] {
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../api/Model.html">Model</a></li><li class="breadcrumb-item"><a href="../api/Model.html">Model</a></li></ol></nav></header>
 
 
 
 
 <section id="bambi.Model" class="level1">
 <h1>Model</h1>
-<p><code>Model(self, formula, data, family='gaussian', priors=None, link=None, categorical=None, potentials=None, dropna=False, auto_scale=True, noncentered=True, center_predictors=True, extra_namespace=None)</code></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Model(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    formula,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    data,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">'gaussian'</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    priors<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    link<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    categorical<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    potentials<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    dropna<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    auto_scale<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    noncentered<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    center_predictors<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    extra_namespace<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Specification of model class</p>
-<section id="parameters" class="level2">
-<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 3%">
+<col style="width: 2%">
 <col style="width: 4%">
 <col style="width: 90%">
 <col style="width: 2%">
@@ -357,73 +406,73 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>formula</code></td>
+<td>formula</td>
 <td>str or bambi.formula.Formula</td>
 <td>A model description written using the formula syntax from the <code>formulae</code> library.</td>
 <td><em>required</em></td>
 </tr>
 <tr class="even">
-<td><code>data</code></td>
+<td>data</td>
 <td>pandas.DataFrame</td>
 <td>A pandas dataframe containing the data on which the model will be fit, with column names matching variables defined in the formula.</td>
 <td><em>required</em></td>
 </tr>
 <tr class="odd">
-<td><code>family</code></td>
+<td>family</td>
 <td>str or bambi.families.Family</td>
 <td>A specification of the model family (analogous to the family object in R). Either a string, or an instance of class <code>bambi.families.Family</code>. If a string is passed, a family with the corresponding name must be defined in the defaults loaded at <code>Model</code> initialization. Valid pre-defined families are <code>"bernoulli"</code>, <code>"beta"</code>, <code>"binomial"</code>, <code>"categorical"</code>, <code>"gamma"</code>, <code>"gaussian"</code>, <code>"negativebinomial"</code>, <code>"poisson"</code>, <code>"t"</code>, and <code>"wald"</code>. Defaults to <code>"gaussian"</code>.</td>
 <td><code>'gaussian'</code></td>
 </tr>
 <tr class="even">
-<td><code>priors</code></td>
+<td>priors</td>
 <td>dict</td>
 <td>Optional specification of priors for one or more terms. A dictionary where the keys are the names of terms in the model, “common,” or “group_specific” and the values are instances of class <code>Prior</code>. If priors are unset, use automatic priors inspired by the R rstanarm library.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>link</code></td>
+<td>link</td>
 <td>str or Dict[str, str]</td>
 <td>The name of the link function to use. Valid names are <code>"cloglog"</code>, <code>"identity"</code>, <code>"inverse_squared"</code>, <code>"inverse"</code>, <code>"log"</code>, <code>"logit"</code>, <code>"probit"</code>, and <code>"softmax"</code>. Not all the link functions can be used with all the families. If a dictionary, keys are the names of the target parameters and the values are the names of the link functions.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>categorical</code></td>
+<td>categorical</td>
 <td>str or list</td>
 <td>The names of any variables to treat as categorical. Can be either a single variable name, or a list of names. If categorical is <code>None</code>, the data type of the columns in the <code>data</code> will be used to infer handling. In cases where numeric columns are to be treated as categorical (e.g., group specific factors coded as numerical IDs), explicitly passing variable names via this argument is recommended.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>potentials</code></td>
+<td>potentials</td>
 <td>A list of 2-tuples.</td>
 <td>Optional specification of potentials. A potential is an arbitrary expression added to the likelihood, this is generally useful to add constrains to models, that are difficult to express otherwise. The first term of a 2-tuple is the name of a variable in the model, the second a lambda function expressing the desired constraint. If a constraint involves n variables, you can pass n 2-tuples or pass a tuple which first element is a n-tuple and second element is a lambda function with n arguments. The number and order of the lambda function has to match the number and order of the variables names.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>dropna</code></td>
+<td>dropna</td>
 <td>bool</td>
 <td>When <code>True</code>, rows with any missing values in either the predictors or outcome are automatically dropped from the dataset in a listwise manner.</td>
 <td><code>False</code></td>
 </tr>
 <tr class="odd">
-<td><code>auto_scale</code></td>
+<td>auto_scale</td>
 <td>bool</td>
 <td>If <code>True</code> (default), priors are automatically rescaled to the data (to be weakly informative) any time default priors are used. Note that any priors explicitly set by the user will always take precedence over default priors.</td>
 <td><code>True</code></td>
 </tr>
 <tr class="even">
-<td><code>noncentered</code></td>
+<td>noncentered</td>
 <td>bool</td>
 <td>If <code>True</code> (default), uses a non-centered parameterization for normal hyperpriors on grouped parameters. If <code>False</code>, naive (centered) parameterization is used.</td>
 <td><code>True</code></td>
 </tr>
 <tr class="odd">
-<td><code>center_predictors</code></td>
+<td>center_predictors</td>
 <td>bool</td>
 <td>If <code>True</code> (default), and if there is an intercept in the common terms, the data is centered by subtracting the mean. The centering is undone after sampling to provide the actual intercept in all distributional components that have an intercept. Note that this changes the interpretation of the prior on the intercept because it refers to the intercept of the centered data.</td>
 <td><code>True</code></td>
 </tr>
 <tr class="even">
-<td><code>extra_namespace</code></td>
+<td>extra_namespace</td>
 <td>dict</td>
 <td>Additional user supplied variables with transformations or data to include in the environment where the formula is evaluated. Defaults to <code>None</code>.</td>
 <td><code>None</code></td>
@@ -485,20 +534,22 @@ ul.task-list li input[type="checkbox"] {
 </table>
 <section id="bambi.Model.build" class="level3">
 <h3 class="anchored" data-anchor-id="bambi.Model.build">build</h3>
-<p><code>Model.build(self)</code></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>Model.build()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Set up the model for sampling/fitting</p>
 <p>Creates an instance of the underlying PyMC model and adds all the necessary terms to it.</p>
-<section id="returns" class="level4">
-<h4 class="anchored" data-anchor-id="returns">Returns</h4>
+<section id="returns" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
 <table class="caption-top table">
 <thead>
 <tr class="header">
+<th>Name</th>
 <th>Type</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td></td>
 <td><code>None</code>.</td>
 <td></td>
 </tr>
@@ -508,16 +559,16 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="bambi.Model.compute_log_likelihood" class="level3">
 <h3 class="anchored" data-anchor-id="bambi.Model.compute_log_likelihood">compute_log_likelihood</h3>
-<p><code>Model.compute_log_likelihood(self, idata, data=None, inplace=True)</code></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>Model.compute_log_likelihood(idata, data<span class="op">=</span><span class="va">None</span>, inplace<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Compute the model’s log-likelihood</p>
 <p>NOTE: This is a new feature and it may not work in all cases.</p>
-<section id="parameters-1" class="level4">
-<h4 class="anchored" data-anchor-id="parameters-1">Parameters</h4>
+<section id="parameters-1" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 4%">
 <col style="width: 11%">
-<col style="width: 77%">
+<col style="width: 78%">
 <col style="width: 5%">
 </colgroup>
 <thead>
@@ -530,19 +581,19 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>idata</code></td>
+<td>idata</td>
 <td>InferenceData</td>
 <td>The <code>InferenceData</code> instance returned by <code>.fit()</code>.</td>
 <td><em>required</em></td>
 </tr>
 <tr class="even">
-<td><code>data</code></td>
+<td>data</td>
 <td>pandas.DataFrame or None</td>
 <td>An optional data frame with values for the predictors and the response on which the model’s log-likelihood function is evaluated. If omitted, the original dataset is used.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>inplace</code></td>
+<td>inplace</td>
 <td>bool</td>
 <td>If <code>True</code> it will modify <code>idata</code> in-place. Otherwise, it will return a copy of <code>idata</code> with the <code>log_likelihood</code> group added.</td>
 <td><code>True</code></td>
@@ -550,17 +601,19 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="returns-1" class="level4">
-<h4 class="anchored" data-anchor-id="returns-1">Returns</h4>
+<section id="returns-1" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
 <table class="caption-top table">
 <thead>
 <tr class="header">
+<th>Name</th>
 <th>Type</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td></td>
 <td>InferenceData or None</td>
 <td></td>
 </tr>
@@ -570,10 +623,24 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="bambi.Model.fit" class="level3">
 <h3 class="anchored" data-anchor-id="bambi.Model.fit">fit</h3>
-<p><code>Model.fit(self, draws=1000, tune=1000, discard_tuned_samples=True, omit_offsets=True, include_mean=None, include_response_params=False, inference_method='mcmc', init='auto', n_init=50000, chains=None, cores=None, random_seed=None, **kwargs)</code></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>Model.fit(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">1000</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    tune<span class="op">=</span><span class="dv">1000</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    discard_tuned_samples<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    omit_offsets<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    include_mean<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    include_response_params<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    inference_method<span class="op">=</span><span class="st">'pymc'</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    init<span class="op">=</span><span class="st">'auto'</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    n_init<span class="op">=</span><span class="dv">50000</span>,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    chains<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    cores<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>kwargs,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Fit the model using PyMC</p>
-<section id="parameters-2" class="level4">
-<h4 class="anchored" data-anchor-id="parameters-2">Parameters</h4>
+<section id="parameters-2" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 1%">
@@ -591,79 +658,79 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>draws</code></td>
+<td>draws</td>
 <td></td>
 <td>The number of samples to draw from the posterior distribution. Defaults to 1000.</td>
 <td><code>1000</code></td>
 </tr>
 <tr class="even">
-<td><code>tune</code></td>
+<td>tune</td>
 <td>int</td>
 <td>Number of iterations to tune. Defaults to 1000. Samplers adjust the step sizes, scalings or similar during tuning. These tuning samples are be drawn in addition to the number specified in the <code>draws</code> argument, and will be discarded unless <code>discard_tuned_samples</code> is set to <code>False</code>.</td>
 <td><code>1000</code></td>
 </tr>
 <tr class="odd">
-<td><code>discard_tuned_samples</code></td>
+<td>discard_tuned_samples</td>
 <td>bool</td>
 <td>Whether to discard posterior samples of the tune interval. Defaults to <code>True</code>.</td>
 <td><code>True</code></td>
 </tr>
 <tr class="even">
-<td><code>omit_offsets</code></td>
+<td>omit_offsets</td>
 <td>bool</td>
 <td>Omits offset terms in the <code>InferenceData</code> object returned when the model includes group specific effects. Defaults to <code>True</code>.</td>
 <td><code>True</code></td>
 </tr>
 <tr class="odd">
-<td><code>include_mean</code></td>
+<td>include_mean</td>
 <td>bool</td>
 <td>Deprecated. Use <code>include_response_params</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>include_response_params</code></td>
+<td>include_response_params</td>
 <td>bool</td>
 <td>Include parameters of the response distribution in the output. These usually take more space than other parameters as there’s one of them per observation. Defaults to <code>False</code>.</td>
 <td><code>False</code></td>
 </tr>
 <tr class="odd">
-<td><code>inference_method</code></td>
+<td>inference_method</td>
 <td>str</td>
-<td>The method to use for fitting the model. By default, <code>"mcmc"</code>. This automatically assigns a MCMC method best suited for each kind of variables, like NUTS for continuous variables and Metropolis for non-binary discrete ones. Alternatively, <code>"vi"</code>, in which case the model will be fitted using variational inference as implemented in PyMC using the <code>fit</code> function. Finally, <code>"laplace"</code>, in which case a Laplace approximation is used and is not recommended other than for pedagogical use. To get a list of JAX based inference methods, call <code>bmb.inference_methods.names['bayeux']</code>. This will return a dictionary of the available methods such as <code>blackjax_nuts</code>, <code>numpyro_nuts</code>, among others.</td>
-<td><code>'mcmc'</code></td>
+<td>The method to use for fitting the model. By default, <code>"pymc"</code>. This automatically assigns a MCMC method best suited for each kind of variables, like NUTS for continuous variables and Metropolis for non-binary discrete ones. NUTS implementations include <code>"pymc"</code>, <code>"nutpie"</code>, <code>"blackjax"</code>, and <code>"numpyro"</code>. Alternatively, <code>"vi"</code>, in which case the model will be fitted using variational inference as implemented in PyMC using the <code>fit</code> function. Finally, <code>"laplace"</code>, in which case a Laplace approximation is used and is not recommended other than for pedagogical use.</td>
+<td><code>'pymc'</code></td>
 </tr>
 <tr class="even">
-<td><code>init</code></td>
+<td>init</td>
 <td>str</td>
 <td>Initialization method. Defaults to <code>"auto"</code>. The available methods are: * auto: Use <code>"jitter+adapt_diag"</code> and if this method fails it uses <code>"adapt_diag"</code>. * adapt_diag: Start with a identity mass matrix and then adapt a diagonal based on the variance of the tuning samples. All chains use the test value (usually the prior mean) as starting point. * jitter+adapt_diag: Same as <code>"adapt_diag"</code>, but use test value plus a uniform jitter in [-1, 1] as starting point in each chain. * advi+adapt_diag: Run ADVI and then adapt the resulting diagonal mass matrix based on the sample variance of the tuning samples. * advi+adapt_diag_grad: Run ADVI and then adapt the resulting diagonal mass matrix based on the variance of the gradients during tuning. This is <strong>experimental</strong> and might be removed in a future release. * advi: Run ADVI to estimate posterior mean and diagonal mass matrix. * advi_map: Initialize ADVI with MAP and use MAP as starting point. * map: Use the MAP as starting point. This is strongly discouraged. * adapt_full: Adapt a dense mass matrix using the sample covariances. All chains use the test value (usually the prior mean) as starting point. * jitter+adapt_full: Same as <code>"adapt_full"</code>, but use test value plus a uniform jitter in [-1, 1] as starting point in each chain.</td>
 <td><code>'auto'</code></td>
 </tr>
 <tr class="odd">
-<td><code>n_init</code></td>
+<td>n_init</td>
 <td>int</td>
 <td>Number of initialization iterations. Only works for <code>"advi"</code> init methods.</td>
 <td><code>50000</code></td>
 </tr>
 <tr class="even">
-<td><code>chains</code></td>
+<td>chains</td>
 <td>int</td>
 <td>The number of chains to sample. Running independent chains is important for some convergence statistics and can also reveal multiple modes in the posterior. If <code>None</code>, then set to either <code>cores</code> or 2, whichever is larger.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>cores</code></td>
+<td>cores</td>
 <td>int</td>
 <td>The number of chains to run in parallel. If <code>None</code>, it is equal to the number of CPUs in the system unless there are more than 4 CPUs, in which case it is set to 4.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>random_seed</code></td>
+<td>random_seed</td>
 <td>int or list of ints</td>
 <td>A list is accepted if cores is greater than one.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>**kwargs</code></td>
+<td>**kwargs</td>
 <td></td>
 <td>For other kwargs see the documentation for <code>PyMC.sample()</code>.</td>
 <td><code>{}</code></td>
@@ -671,34 +738,30 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="returns-2" class="level4">
-<h4 class="anchored" data-anchor-id="returns-2">Returns</h4>
+<section id="returns-2" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-2">Returns</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 84%">
-<col style="width: 15%">
+<col style="width: 7%">
+<col style="width: 79%">
+<col style="width: 13%">
 </colgroup>
 <thead>
 <tr class="header">
+<th>Name</th>
 <th>Type</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>An ArviZ <code>InferenceData</code> instance if inference_method is <code>"mcmc"</code> (default),</td>
+<td></td>
+<td>An ArviZ <code>InferenceData</code> instance if <code>inference_method</code> is <code>\"pymc\"</code>, <code>\"nutpie\"</code>,</td>
 <td></td>
 </tr>
 <tr class="even">
-<td>“laplace”, or one of the MCMC methods in</td>
 <td></td>
-</tr>
-<tr class="odd">
-<td><code>bmb.inference_methods.names\['bayeux'\]\['mcmc\]</code>.</td>
-<td></td>
-</tr>
-<tr class="even">
-<td>An <code>Approximation</code> object if <code>"vi"</code>.</td>
+<td><code>\"blackjax\"</code>, <code>\"numpyro\"</code>, or "laplace". An <code>Approximation</code> object if <code>\"vi\"</code>.</td>
 <td></td>
 </tr>
 </tbody>
@@ -707,15 +770,15 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="bambi.Model.graph" class="level3">
 <h3 class="anchored" data-anchor-id="bambi.Model.graph">graph</h3>
-<p><code>Model.graph(self, formatting='plain', name=None, figsize=None, dpi=300, fmt='png')</code></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>Model.graph(formatting<span class="op">=</span><span class="st">'plain'</span>, name<span class="op">=</span><span class="va">None</span>, figsize<span class="op">=</span><span class="va">None</span>, dpi<span class="op">=</span><span class="dv">300</span>, fmt<span class="op">=</span><span class="st">'png'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Produce a graphviz Digraph from a built Bambi model.</p>
 <p>Requires graphviz, which may be installed most easily with <code>conda install -c conda-forge python-graphviz</code></p>
 <p>Alternatively, you may install the <code>graphviz</code> binaries yourself, and then <code>pip install graphviz</code> to get the python bindings. See http://graphviz.readthedocs.io/en/stable/manual.html for more information.</p>
-<section id="parameters-3" class="level4">
-<h4 class="anchored" data-anchor-id="parameters-3">Parameters</h4>
+<section id="parameters-3" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-3">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 4%">
+<col style="width: 3%">
 <col style="width: 2%">
 <col style="width: 89%">
 <col style="width: 3%">
@@ -730,31 +793,31 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>formatting</code></td>
+<td>formatting</td>
 <td>str</td>
 <td>One of <code>"plain"</code> or <code>"plain_with_params"</code>. Defaults to <code>"plain"</code>.</td>
 <td><code>'plain'</code></td>
 </tr>
 <tr class="even">
-<td><code>name</code></td>
+<td>name</td>
 <td>str</td>
 <td>Name of the figure to save. Defaults to <code>None</code>, no figure is saved.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>figsize</code></td>
+<td>figsize</td>
 <td>tuple</td>
 <td>Maximum width and height of figure in inches. Defaults to <code>None</code>, the figure size is set automatically. If defined and the drawing is larger than the given size, the drawing is uniformly scaled down so that it fits within the given size. Only works if <code>name</code> is not <code>None</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>dpi</code></td>
+<td>dpi</td>
 <td>int</td>
 <td>Point per inch of the figure to save. Defaults to 300. Only works if <code>name</code> is not <code>None</code>.</td>
 <td><code>300</code></td>
 </tr>
 <tr class="odd">
-<td><code>fmt</code></td>
+<td>fmt</td>
 <td>str</td>
 <td>Format of the figure to save. Defaults to <code>"png"</code>. Only works if <code>name</code> is not <code>None</code>.</td>
 <td><code>'png'</code></td>
@@ -762,25 +825,27 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="returns-3" class="level4">
-<h4 class="anchored" data-anchor-id="returns-3">Returns</h4>
+<section id="returns-3" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-3">Returns</h4>
 <table class="caption-top table">
 <thead>
 <tr class="header">
+<th>Name</th>
 <th>Type</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td></td>
 <td>graphviz.Digraph</td>
 <td>The graph</td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="example" class="level4">
-<h4 class="anchored" data-anchor-id="example">Example</h4>
+<section id="example" class="level4 doc-section doc-section-example">
+<h4 class="doc-section doc-section-example anchored" data-anchor-id="example">Example</h4>
 <blockquote class="blockquote">
 <blockquote class="blockquote">
 <blockquote class="blockquote">
@@ -799,13 +864,28 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="bambi.Model.plot_priors" class="level3">
 <h3 class="anchored" data-anchor-id="bambi.Model.plot_priors">plot_priors</h3>
-<p><code>Model.plot_priors(self, draws=5000, var_names=None, random_seed=None, figsize=None, textsize=None, hdi_prob=None, round_to=2, point_estimate='mean', kind='kde', bins=None, omit_offsets=True, omit_group_specific=True, ax=None, **kwargs)</code></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Model.plot_priors(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">5000</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    figsize<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    textsize<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    hdi_prob<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    round_to<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    point_estimate<span class="op">=</span><span class="st">'mean'</span>,</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">'kde'</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    bins<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    omit_offsets<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    omit_group_specific<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    ax<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>kwargs,</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Samples from the prior distribution and plots its marginals.</p>
-<section id="parameters-4" class="level4">
-<h4 class="anchored" data-anchor-id="parameters-4">Parameters</h4>
+<section id="parameters-4" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-4">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 7%">
+<col style="width: 6%">
 <col style="width: 16%">
 <col style="width: 73%">
 <col style="width: 3%">
@@ -820,85 +900,85 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>draws</code></td>
+<td>draws</td>
 <td>int</td>
 <td>Number of draws to sample from the prior predictive distribution. Defaults to 5000.</td>
 <td><code>5000</code></td>
 </tr>
 <tr class="even">
-<td><code>var_names</code></td>
+<td>var_names</td>
 <td>str or list</td>
 <td>A list of names of variables for which to compute the prior predictive distribution. Defaults to <code>None</code> which means to include both observed and unobserved RVs.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>random_seed</code></td>
+<td>random_seed</td>
 <td>int</td>
 <td>Seed for the random number generator.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>figsize</code></td>
+<td>figsize</td>
 <td>tuple</td>
 <td>Figure size. If <code>None</code> it will be defined automatically.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>textsize</code></td>
+<td>textsize</td>
 <td>float</td>
 <td>Text size scaling factor for labels, titles and lines. If <code>None</code> it will be autoscaled based on <code>figsize</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>hdi_prob</code></td>
+<td>hdi_prob</td>
 <td>float or str</td>
 <td>Plots highest density interval for chosen percentage of density. Use <code>"hide"</code> to hide the highest density interval. Defaults to 0.94.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>round_to</code></td>
+<td>round_to</td>
 <td>int</td>
 <td>Controls formatting of floats. Defaults to 2 or the integer part, whichever is bigger.</td>
 <td><code>2</code></td>
 </tr>
 <tr class="even">
-<td><code>point_estimate</code></td>
+<td>point_estimate</td>
 <td>str</td>
 <td>Plot point estimate per variable. Values should be <code>"mean"</code>, <code>"median"</code>, <code>"mode"</code> or <code>None</code>. Defaults to <code>"auto"</code> i.e.&nbsp;it falls back to default set in ArviZ’s rcParams.</td>
 <td><code>'mean'</code></td>
 </tr>
 <tr class="odd">
-<td><code>kind</code></td>
+<td>kind</td>
 <td>str</td>
 <td>Type of plot to display (<code>"kde"</code> or <code>"hist"</code>) For discrete variables this argument is ignored and a histogram is always used.</td>
 <td><code>'kde'</code></td>
 </tr>
 <tr class="even">
-<td><code>bins</code></td>
+<td>bins</td>
 <td>integer or sequence or auto</td>
 <td>Controls the number of bins, accepts the same keywords <code>matplotlib.pyplot.hist()</code> does. Only works if <code>kind == "hist"</code>. If <code>None</code> (default) it will use <code>"auto"</code> for continuous variables and <code>range(xmin, xmax + 1)</code> for discrete variables.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>omit_offsets</code></td>
+<td>omit_offsets</td>
 <td>bool</td>
 <td>Whether to omit offset terms in the plot. Defaults to <code>True</code>.</td>
 <td><code>True</code></td>
 </tr>
 <tr class="even">
-<td><code>omit_group_specific</code></td>
+<td>omit_group_specific</td>
 <td>bool</td>
 <td>Whether to omit group specific effects in the plot. Defaults to <code>True</code>.</td>
 <td><code>True</code></td>
 </tr>
 <tr class="odd">
-<td><code>ax</code></td>
+<td>ax</td>
 <td>numpy array-like of matplotlib axes or bokeh figures</td>
 <td>A 2D array of locations into which to plot the densities. If not supplied, ArviZ will create its own array of plot areas (and return it).</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>**kwargs</code></td>
+<td>**kwargs</td>
 <td></td>
 <td>Passed as-is to <code>matplotlib.pyplot.hist()</code> or <code>matplotlib.pyplot.plot()</code> function depending on the value of <code>kind</code>.</td>
 <td><code>{}</code></td>
@@ -906,17 +986,19 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="returns-4" class="level4">
-<h4 class="anchored" data-anchor-id="returns-4">Returns</h4>
+<section id="returns-4" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-4">Returns</h4>
 <table class="caption-top table">
 <thead>
 <tr class="header">
+<th>Name</th>
 <th>Type</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td>axes</td>
 <td>matplotlib axes.</td>
 <td></td>
 </tr>
@@ -926,11 +1008,19 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="bambi.Model.predict" class="level3">
 <h3 class="anchored" data-anchor-id="bambi.Model.predict">predict</h3>
-<p><code>Model.predict(self, idata, kind='response_params', data=None, inplace=True, include_group_specific=True, sample_new_groups=False, random_seed=None)</code></p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Model.predict(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    idata,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">'response_params'</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    inplace<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    include_group_specific<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    sample_new_groups<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Predict method for Bambi models</p>
 <p>Obtains in-sample and out-of-sample predictions from a fitted Bambi model.</p>
-<section id="parameters-5" class="level4">
-<h4 class="anchored" data-anchor-id="parameters-5">Parameters</h4>
+<section id="parameters-5" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-5">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 4%">
@@ -948,43 +1038,43 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>idata</code></td>
+<td>idata</td>
 <td>InferenceData</td>
 <td>The <code>InferenceData</code> instance returned by <code>.fit()</code>.</td>
 <td><em>required</em></td>
 </tr>
 <tr class="even">
-<td><code>kind</code></td>
+<td>kind</td>
 <td>str</td>
 <td>Indicates the type of prediction required. Can be <code>"response_params"</code> or <code>"response"</code>. The first returns draws from the posterior distribution of the likelihood parameters, while the latter returns the draws from the posterior predictive distribution (i.e.&nbsp;the posterior probability distribution for a new observation) in addition to the posterior distribution. Defaults to <code>"response_params"</code>.</td>
 <td><code>'response_params'</code></td>
 </tr>
 <tr class="odd">
-<td><code>data</code></td>
+<td>data</td>
 <td>pandas.DataFrame or None</td>
 <td>An optional data frame with values for the predictors that are used to obtain out-of-sample predictions. If omitted, the original dataset is used.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>inplace</code></td>
+<td>inplace</td>
 <td>bool</td>
 <td>If <code>True</code> it will modify <code>idata</code> in-place. Otherwise, it will return a copy of <code>idata</code> with the predictions added. If <code>kind="response_params"</code>, a new variable with the name of the parent parameter, e.g.&nbsp;<code>"mu"</code> and <code>"sigma"</code> for a Gaussian likelihood, or <code>"p"</code> for a Bernoulli likelihood, is added to the <code>posterior</code> group. If <code>kind="response"</code>, it appends a <code>posterior_predictive</code> group to <code>idata</code>. If any of these already exist, it will be overwritten.</td>
 <td><code>True</code></td>
 </tr>
 <tr class="odd">
-<td><code>include_group_specific</code></td>
+<td>include_group_specific</td>
 <td>bool</td>
 <td>Determines if predictions incorporate group-specific effects. If <code>False</code>, predictions are made with common effects only (i.e.&nbsp;group specific are set to zero). Defaults to <code>True</code>.</td>
 <td><code>True</code></td>
 </tr>
 <tr class="even">
-<td><code>sample_new_groups</code></td>
+<td>sample_new_groups</td>
 <td>bool</td>
 <td>Specifies if it is allowed to obtain predictions for new groups of group-specific terms. When <code>True</code>, each posterior sample for the new groups is drawn from the posterior draws of a randomly selected existing group. Since different groups may be selected at each draw, the end result represents the variation across existing groups. The method implemented is equivalent to <code>sample_new_levels="uncertainty"</code> in brms.</td>
 <td><code>False</code></td>
 </tr>
 <tr class="odd">
-<td><code>random_seed</code></td>
+<td>random_seed</td>
 <td>(int, RandomState or Generator)</td>
 <td>Seed for the random number generator.</td>
 <td><code>None</code></td>
@@ -992,17 +1082,19 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="returns-5" class="level4">
-<h4 class="anchored" data-anchor-id="returns-5">Returns</h4>
+<section id="returns-5" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-5">Returns</h4>
 <table class="caption-top table">
 <thead>
 <tr class="header">
+<th>Name</th>
 <th>Type</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td></td>
 <td>InferenceData or None</td>
 <td></td>
 </tr>
@@ -1012,13 +1104,18 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="bambi.Model.prior_predictive" class="level3">
 <h3 class="anchored" data-anchor-id="bambi.Model.prior_predictive">prior_predictive</h3>
-<p><code>Model.prior_predictive(self, draws=500, var_names=None, omit_offsets=True, random_seed=None)</code></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Model.prior_predictive(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">500</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    omit_offsets<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Generate samples from the prior predictive distribution.</p>
-<section id="parameters-6" class="level4">
-<h4 class="anchored" data-anchor-id="parameters-6">Parameters</h4>
+<section id="parameters-6" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-6">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 8%">
+<col style="width: 7%">
 <col style="width: 6%">
 <col style="width: 79%">
 <col style="width: 5%">
@@ -1033,25 +1130,25 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>draws</code></td>
+<td>draws</td>
 <td>int</td>
 <td>Number of draws to sample from the prior predictive distribution. Defaults to 500.</td>
 <td><code>500</code></td>
 </tr>
 <tr class="even">
-<td><code>var_names</code></td>
+<td>var_names</td>
 <td>str or list</td>
 <td>A list of names of variables for which to compute the prior predictive distribution. Defaults to <code>None</code> which means both observed and unobserved RVs.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>omit_offsets</code></td>
+<td>omit_offsets</td>
 <td>bool</td>
 <td>Whether to omit offset terms in the plot. Defaults to <code>True</code>.</td>
 <td><code>True</code></td>
 </tr>
 <tr class="even">
-<td><code>random_seed</code></td>
+<td>random_seed</td>
 <td>int</td>
 <td>Seed for the random number generator.</td>
 <td><code>None</code></td>
@@ -1059,21 +1156,24 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="returns-6" class="level4">
-<h4 class="anchored" data-anchor-id="returns-6">Returns</h4>
+<section id="returns-6" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-6">Returns</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 14%">
-<col style="width: 85%">
+<col style="width: 7%">
+<col style="width: 13%">
+<col style="width: 79%">
 </colgroup>
 <thead>
 <tr class="header">
+<th>Name</th>
 <th>Type</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td></td>
 <td>InferenceData</td>
 <td><code>InferenceData</code> object with the groups <code>prior</code>, <code>prior_predictive</code> and <code>observed_data</code>.</td>
 </tr>
@@ -1083,16 +1183,16 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="bambi.Model.r2_score" class="level3">
 <h3 class="anchored" data-anchor-id="bambi.Model.r2_score">r2_score</h3>
-<p><code>Model.r2_score(self, idata, summary=True)</code></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>Model.r2_score(idata, summary<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>R² for Bayesian regression models.</p>
 <p>The R², or coefficient of determination, is defined as the proportion of variance in the data that is explained by the model. It is computed as the variance of the predicted values divided by the variance of the predicted values plus the variance of the residuals. For details of the Bayesian R² see [1]_.</p>
-<section id="parameters-7" class="level4">
-<h4 class="anchored" data-anchor-id="parameters-7">Parameters</h4>
+<section id="parameters-7" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-7">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 5%">
+<col style="width: 4%">
 <col style="width: 7%">
-<col style="width: 80%">
+<col style="width: 81%">
 <col style="width: 6%">
 </colgroup>
 <thead>
@@ -1105,13 +1205,13 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>idata</code></td>
+<td>idata</td>
 <td>InferenceData</td>
 <td>The <code>InferenceData</code> instance returned by <code>.fit()</code>. It should contain the <code>posterior_predictive</code> group, otherwise it will be computed and added to <code>idata</code>.</td>
 <td><em>required</em></td>
 </tr>
 <tr class="even">
-<td><code>summary</code></td>
+<td>summary</td>
 <td>bool</td>
 <td>If <code>True</code>, it returns a summary of the Bayesian R². Otherwise, it returns the posterior samples of the Bayesian R².</td>
 <td><code>True</code></td>
@@ -1119,47 +1219,51 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="returns-7" class="level4">
-<h4 class="anchored" data-anchor-id="returns-7">Returns</h4>
+<section id="returns-7" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-7">Returns</h4>
 <table class="caption-top table">
 <thead>
 <tr class="header">
+<th>Name</th>
 <th>Type</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td></td>
 <td>Pandas Series with the following indices:</td>
 <td></td>
 </tr>
 <tr class="even">
+<td>r2</td>
 <td>mean value for the Bayesian R²</td>
 <td></td>
 </tr>
 <tr class="odd">
+<td>r2_std</td>
 <td>standard deviation of the Bayesian R².</td>
 <td></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="references" class="level4">
-<h4 class="anchored" data-anchor-id="references">References</h4>
+<section id="references" class="level4 doc-section doc-section-references">
+<h4 class="doc-section doc-section-references anchored" data-anchor-id="references">References</h4>
 <p>.. [1] Gelman et al.&nbsp;<em>R-squared for Bayesian regression models</em>. The American Statistician. 73(3) (2019). https://doi.org/10.1080/00031305.2018.1549100 preprint http://www.stat.columbia.edu/~gelman/research/published/bayes_R2_v3.pdf.</p>
 </section>
 </section>
 <section id="bambi.Model.set_alias" class="level3">
 <h3 class="anchored" data-anchor-id="bambi.Model.set_alias">set_alias</h3>
-<p><code>Model.set_alias(self, aliases)</code></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>Model.set_alias(aliases)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Set aliases for the terms and auxiliary parameters in the model</p>
-<section id="parameters-8" class="level4">
-<h4 class="anchored" data-anchor-id="parameters-8">Parameters</h4>
+<section id="parameters-8" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-8">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 9%">
+<col style="width: 7%">
 <col style="width: 6%">
-<col style="width: 73%">
+<col style="width: 74%">
 <col style="width: 10%">
 </colgroup>
 <thead>
@@ -1172,7 +1276,7 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>aliases</code></td>
+<td>aliases</td>
 <td>dict</td>
 <td>A dictionary where key represents the original term name and the value is the alias.</td>
 <td><em>required</em></td>
@@ -1180,17 +1284,19 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="returns-8" class="level4">
-<h4 class="anchored" data-anchor-id="returns-8">Returns</h4>
+<section id="returns-8" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-8">Returns</h4>
 <table class="caption-top table">
 <thead>
 <tr class="header">
+<th>Name</th>
 <th>Type</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td></td>
 <td><code>None</code>.</td>
 <td></td>
 </tr>
@@ -1200,15 +1306,15 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="bambi.Model.set_priors" class="level3">
 <h3 class="anchored" data-anchor-id="bambi.Model.set_priors">set_priors</h3>
-<p><code>Model.set_priors(self, priors=None, common=None, group_specific=None)</code></p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>Model.set_priors(priors<span class="op">=</span><span class="va">None</span>, common<span class="op">=</span><span class="va">None</span>, group_specific<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Set priors for one or more existing terms</p>
-<section id="parameters-9" class="level4">
-<h4 class="anchored" data-anchor-id="parameters-9">Parameters</h4>
+<section id="parameters-9" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-9">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 8%">
+<col style="width: 7%">
 <col style="width: 9%">
-<col style="width: 77%">
+<col style="width: 78%">
 <col style="width: 4%">
 </colgroup>
 <thead>
@@ -1221,19 +1327,19 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>priors</code></td>
+<td>priors</td>
 <td>dict</td>
 <td>Dictionary of priors to update. Keys are names of terms to update; values are the new priors (either a <code>Prior</code> instance, or an int or float that scales the default priors).</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td><code>common</code></td>
+<td>common</td>
 <td>Prior, int, or float</td>
 <td>A prior specification to apply to all common terms included in the model.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td><code>group_specific</code></td>
+<td>group_specific</td>
 <td>Prior, int, or float</td>
 <td>A prior specification to apply to all group specific terms included in the model.</td>
 <td><code>None</code></td>
@@ -1241,17 +1347,19 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="returns-9" class="level4">
-<h4 class="anchored" data-anchor-id="returns-9">Returns</h4>
+<section id="returns-9" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-9">Returns</h4>
 <table class="caption-top table">
 <thead>
 <tr class="header">
+<th>Name</th>
 <th>Type</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td></td>
 <td><code>None</code>.</td>
 <td></td>
 </tr>
@@ -1266,239 +1374,242 @@ ul.task-list li input[type="checkbox"] {
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
-window.document.addEventListener("DOMContentLoaded", function (event) {
-  const toggleBodyColorMode = (bsSheetEl) => {
-    const mode = bsSheetEl.getAttribute("data-mode");
-    const bodyEl = window.document.querySelector("body");
-    if (mode === "dark") {
-      bodyEl.classList.add("quarto-dark");
-      bodyEl.classList.remove("quarto-light");
-    } else {
-      bodyEl.classList.add("quarto-light");
-      bodyEl.classList.remove("quarto-dark");
-    }
-  }
-  const toggleBodyColorPrimary = () => {
-    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
-    if (bsSheetEl) {
-      toggleBodyColorMode(bsSheetEl);
-    }
-  }
-  toggleBodyColorPrimary();  
-  const icon = "";
-  const anchorJS = new window.AnchorJS();
-  anchorJS.options = {
-    placement: 'right',
-    icon: icon
-  };
-  anchorJS.add('.anchored');
-  const isCodeAnnotation = (el) => {
-    for (const clz of el.classList) {
-      if (clz.startsWith('code-annotation-')) {                     
-        return true;
-      }
-    }
-    return false;
-  }
-  const onCopySuccess = function(e) {
-    // button target
-    const button = e.trigger;
-    // don't keep focus
-    button.blur();
-    // flash "checked"
-    button.classList.add('code-copy-button-checked');
-    var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
-    let tooltip;
-    if (window.bootstrap) {
-      button.setAttribute("data-bs-toggle", "tooltip");
-      button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
-      tooltip = new bootstrap.Tooltip(button, 
-        { trigger: "manual", 
-          customClass: "code-copy-button-tooltip",
-          offset: [0, -8]});
-      tooltip.show();    
-    }
-    setTimeout(function() {
-      if (tooltip) {
-        tooltip.hide();
-        button.removeAttribute("data-bs-title");
-        button.removeAttribute("data-bs-toggle");
-        button.removeAttribute("data-bs-placement");
-      }
-      button.setAttribute("title", currentTitle);
-      button.classList.remove('code-copy-button-checked');
-    }, 1000);
-    // clear code selection
-    e.clearSelection();
-  }
-  const getTextToCopy = function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-  }
-  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-    text: getTextToCopy
-  });
-  clipboard.on('success', onCopySuccess);
-  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    // For code content inside modals, clipBoardJS needs to be initialized with a container option
-    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
-    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-      text: getTextToCopy,
-      container: window.document.getElementById('quarto-embedded-source-code-modal')
-    });
-    clipboardModal.on('success', onCopySuccess);
-  }
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-    var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp('/' + window.location.host + '/');
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-    }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-        // undo the damage that might have been done by quarto-nav.js in the case of
-        // links that we want to consider external
-        if (link.dataset.originalHref !== undefined) {
-          link.href = link.dataset.originalHref;
-        }
-      }
-    }
-  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-    const config = {
-      allowHTML: true,
-      maxWidth: 500,
-      delay: 100,
-      arrow: false,
-      appendTo: function(el) {
-          return el.parentElement;
-      },
-      interactive: true,
-      interactiveBorder: 10,
-      theme: 'quarto',
-      placement: 'bottom-start',
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
     };
-    if (contentFn) {
-      config.content = contentFn;
-    }
-    if (onTriggerFn) {
-      config.onTrigger = onTriggerFn;
-    }
-    if (onUntriggerFn) {
-      config.onUntrigger = onUntriggerFn;
-    }
-    window.tippy(el, config); 
-  }
-  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-  for (var i=0; i<noterefs.length; i++) {
-    const ref = noterefs[i];
-    tippyHover(ref, function() {
-      // use id or data attribute instead here
-      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-      try { href = new URL(href).hash; } catch {}
-      const id = href.replace(/^#\/?/, "");
-      const note = window.document.getElementById(id);
-      if (note) {
-        return note.innerHTML;
-      } else {
-        return "";
-      }
-    });
-  }
-  const xrefs = window.document.querySelectorAll('a.quarto-xref');
-  const processXRef = (id, note) => {
-    // Strip column container classes
-    const stripColumnClz = (el) => {
-      el.classList.remove("page-full", "page-columns");
-      if (el.children) {
-        for (const child of el.children) {
-          stripColumnClz(child);
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
         }
       }
+      return false;
     }
-    stripColumnClz(note)
-    if (id === null || id.startsWith('sec-')) {
-      // Special case sections, only their first couple elements
-      const container = document.createElement("div");
-      if (note.children && note.children.length > 2) {
-        container.appendChild(note.children[0].cloneNode(true));
-        for (let i = 1; i < note.children.length; i++) {
-          const child = note.children[i];
-          if (child.tagName === "P" && child.innerText === "") {
-            continue;
-          } else {
-            container.appendChild(child.cloneNode(true));
-            break;
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
           }
         }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(container);
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
         }
-        return container.innerHTML
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
       } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
         if (window.Quarto?.typesetMath) {
           window.Quarto.typesetMath(note);
         }
-        return note.innerHTML;
-      }
-    } else {
-      // Remove any anchor links if they are present
-      const anchorLink = note.querySelector('a.anchorjs-link');
-      if (anchorLink) {
-        anchorLink.remove();
-      }
-      if (window.Quarto?.typesetMath) {
-        window.Quarto.typesetMath(note);
-      }
-      // TODO in 1.5, we should make sure this works without a callout special case
-      if (note.classList.contains("callout")) {
-        return note.outerHTML;
-      } else {
-        return note.innerHTML;
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
       }
     }
-  }
-  for (var i=0; i<xrefs.length; i++) {
-    const xref = xrefs[i];
-    tippyHover(xref, undefined, function(instance) {
-      instance.disable();
-      let url = xref.getAttribute('href');
-      let hash = undefined; 
-      if (url.startsWith('#')) {
-        hash = url;
-      } else {
-        try { hash = new URL(url).hash; } catch {}
-      }
-      if (hash) {
-        const id = hash.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note !== null) {
-          try {
-            const html = processXRef(id, note.cloneNode(true));
-            instance.setContent(html);
-          } finally {
-            instance.enable();
-            instance.show();
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
           }
         } else {
-          // See if we can fetch this
-          fetch(url.split('#')[0])
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
           .then(res => res.text())
           .then(html => {
             const parser = new DOMParser();
             const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.getElementById(id);
+            const note = htmlDoc.querySelector('main.content');
             if (note !== null) {
-              const html = processXRef(id, note);
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
               instance.setContent(html);
             } 
           }).finally(() => {
@@ -1506,185 +1617,161 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             instance.show();
           });
         }
-      } else {
-        // See if we can fetch a full url (with no hash to target)
-        // This is a special case and we should probably do some content thinning / targeting
-        fetch(url)
-        .then(res => res.text())
-        .then(html => {
-          const parser = new DOMParser();
-          const htmlDoc = parser.parseFromString(html, "text/html");
-          const note = htmlDoc.querySelector('main.content');
-          if (note !== null) {
-            // This should only happen for chapter cross references
-            // (since there is no id in the URL)
-            // remove the first header
-            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-              note.children[0].remove();
-            }
-            const html = processXRef(null, note);
-            instance.setContent(html);
-          } 
-        }).finally(() => {
-          instance.enable();
-          instance.show();
-        });
-      }
-    }, function(instance) {
-    });
-  }
-      let selectedAnnoteEl;
-      const selectorForAnnotation = ( cell, annotation) => {
-        let cellAttr = 'data-code-cell="' + cell + '"';
-        let lineAttr = 'data-code-annotation="' +  annotation + '"';
-        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-        return selector;
-      }
-      const selectCodeLines = (annoteEl) => {
-        const doc = window.document;
-        const targetCell = annoteEl.getAttribute("data-target-cell");
-        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-        const lineIds = lines.map((line) => {
-          return targetCell + "-" + line;
-        })
-        let top = null;
-        let height = null;
-        let parent = null;
-        if (lineIds.length > 0) {
-            //compute the position of the single el (top and bottom and make a div)
-            const el = window.document.getElementById(lineIds[0]);
-            top = el.offsetTop;
-            height = el.offsetHeight;
-            parent = el.parentElement.parentElement;
-          if (lineIds.length > 1) {
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-            height = bottom - top;
-          }
-          if (top !== null && height !== null && parent !== null) {
-            // cook up a div (if necessary) and position it 
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            div.style.top = top - 2 + "px";
-            div.style.height = height + 4 + "px";
-            div.style.left = 0;
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            gutterDiv.style.top = top - 2 + "px";
-            gutterDiv.style.height = height + 4 + "px";
-          }
-          selectedAnnoteEl = annoteEl;
-        }
-      };
-      const unselectCodeLines = () => {
-        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-        elementsIds.forEach((elId) => {
-          const div = window.document.getElementById(elId);
-          if (div) {
-            div.remove();
-          }
-        });
-        selectedAnnoteEl = undefined;
-      };
-        // Handle positioning of the toggle
-    window.addEventListener(
-      "resize",
-      throttle(() => {
-        elRect = undefined;
-        if (selectedAnnoteEl) {
-          selectCodeLines(selectedAnnoteEl);
-        }
-      }, 10)
-    );
-    function throttle(fn, ms) {
-    let throttle = false;
-    let timer;
-      return (...args) => {
-        if(!throttle) { // first call gets through
-            fn.apply(this, args);
-            throttle = true;
-        } else { // all the others get throttled
-            if(timer) clearTimeout(timer); // cancel #2
-            timer = setTimeout(() => {
-              fn.apply(this, args);
-              timer = throttle = false;
-            }, ms);
-        }
-      };
-    }
-      // Attach click handler to the DT
-      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-      for (const annoteDlNode of annoteDls) {
-        annoteDlNode.addEventListener('click', (event) => {
-          const clickedEl = event.target;
-          if (clickedEl !== selectedAnnoteEl) {
-            unselectCodeLines();
-            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-            if (activeEl) {
-              activeEl.classList.remove('code-annotation-active');
-            }
-            selectCodeLines(clickedEl);
-            clickedEl.classList.add('code-annotation-active');
-          } else {
-            // Unselect the line
-            unselectCodeLines();
-            clickedEl.classList.remove('code-annotation-active');
-          }
-        });
-      }
-  const findCites = (el) => {
-    const parentEl = el.parentElement;
-    if (parentEl) {
-      const cites = parentEl.dataset.cites;
-      if (cites) {
-        return {
-          el,
-          cites: cites.split(' ')
-        };
-      } else {
-        return findCites(el.parentElement)
-      }
-    } else {
-      return undefined;
-    }
-  };
-  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-  for (var i=0; i<bibliorefs.length; i++) {
-    const ref = bibliorefs[i];
-    const citeInfo = findCites(ref);
-    if (citeInfo) {
-      tippyHover(citeInfo.el, function() {
-        var popup = window.document.createElement('div');
-        citeInfo.cites.forEach(function(cite) {
-          var citeDiv = window.document.createElement('div');
-          citeDiv.classList.add('hanging-indent');
-          citeDiv.classList.add('csl-entry');
-          var biblioDiv = window.document.getElementById('ref-' + cite);
-          if (biblioDiv) {
-            citeDiv.innerHTML = biblioDiv.innerHTML;
-          }
-          popup.appendChild(citeDiv);
-        });
-        return popup.innerHTML;
+      }, function(instance) {
       });
     }
-  }
-});
-</script>
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../api/index.html" class="pagination-link" aria-label="Function reference">
