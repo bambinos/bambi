@@ -120,6 +120,7 @@ class PyMCModel:
         """Run PyMC sampler."""
         inference_method = inference_method.lower()
 
+        # Handle deprecated inference methods
         if inference_method in _DEPRECATION_MAP:
             new_method = _DEPRECATION_MAP[inference_method]
             warnings.warn(
@@ -129,7 +130,7 @@ class PyMCModel:
             )
             inference_method = new_method
 
-        # 2. Validate the method
+        # Validate the inference method
         if inference_method not in _SUPPORTED_METHODS:
             # Use sorted() for a predictable, user-friendly error message
             supported = ", ".join(sorted(_SUPPORTED_METHODS))
@@ -143,22 +144,26 @@ class PyMCModel:
 
         # NOTE: Methods return different types of objects (idata, approximation, and dictionary)
         if inference_method == "vi":
-            result = self._run_vi(random_seed, **kwargs)
+            result = self._run_vi(random_seed=random_seed, **kwargs)
         elif inference_method == "laplace":
-            result = self._run_laplace(draws, omit_offsets, include_response_params)
+            result = self._run_laplace(
+                draws=draws,
+                omit_offsets=omit_offsets,
+                include_response_params=include_response_params,
+            )
         else:
             result = self._run_mcmc(
-                draws,
-                tune,
-                discard_tuned_samples,
-                omit_offsets,
-                include_response_params,
-                init,
-                n_init,
-                chains,
-                cores,
-                random_seed,
-                inference_method,
+                draws=draws,
+                tune=tune,
+                discard_tuned_samples=discard_tuned_samples,
+                omit_offsets=omit_offsets,
+                include_response_params=include_response_params,
+                init=init,
+                n_init=n_init,
+                chains=chains,
+                cores=cores,
+                random_seed=random_seed,
+                sampler_backend=inference_method,
                 **kwargs,
             )
 
@@ -190,17 +195,17 @@ class PyMCModel:
 
     def _run_mcmc(
         self,
-        draws=1000,
-        tune=1000,
-        discard_tuned_samples=True,
-        omit_offsets=True,
-        include_response_params=False,
-        init="auto",
-        n_init=50000,
-        chains=None,
-        cores=None,
-        random_seed=None,
-        sampler_backend="mcmc",
+        draws,
+        tune,
+        discard_tuned_samples,
+        omit_offsets,
+        include_response_params,
+        init,
+        n_init,
+        chains,
+        cores,
+        random_seed,
+        sampler_backend,
         **kwargs,
     ):
         # Don't include the parameters of the likelihood, which are deterministics.
@@ -329,10 +334,8 @@ class PyMCModel:
     def _run_laplace(self, draws, omit_offsets, include_response_params):
         """Fit a model using a Laplace approximation.
 
-        Mainly for pedagogical use, provides reasonable results for approximately
-        Gaussian posteriors. The approximation can be very poor for some models
-        like hierarchical ones. Use `mcmc`, `vi`, or JAX based MCMC methods
-        for better approximations.
+        Mainly for pedagogical use, provides reasonable results for approximately Gaussian
+        posteriors. The approximation can be very poor for some models  like hierarchical ones.
 
         Parameters
         ----------
