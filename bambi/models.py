@@ -268,10 +268,10 @@ class Model:
             The method to use for fitting the model. By default, `"pymc"`. This automatically
             assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
             variables and Metropolis for non-binary discrete ones. NUTS implementations include
-            'pymc', 'nutpie', 'blackjax', and 'numpyro'. Alternatively, `"vi"`, in which case the
-            model will be fitted using variational inference as implemented in PyMC using the `fit`
-            function. Finally, `"laplace"`, in which case a Laplace approximation is used and is not
-            recommended other than for pedagogical use.
+            `"pymc"`, `"nutpie"`, `"blackjax"`, and `"numpyro"`. Alternatively, `"vi"`, in which
+            case the model will be fitted using variational inference as implemented in PyMC using
+            the `fit` function. Finally, `"laplace"`, in which case a Laplace approximation is used
+            and is not recommended other than for pedagogical use.
         init : str
             Initialization method. Defaults to `"auto"`. The available methods are:
             * auto: Use `"jitter+adapt_diag"` and if this method fails it uses `"adapt_diag"`.
