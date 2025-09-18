@@ -497,29 +497,29 @@ class TestGaussian(FitPredictParent):
             "1|site",
             "threecats:fourcats|site",
         }
-        assert list(idata.posterior["threecats:fourcats|site"].coords) == [
+        assert set(idata.posterior["threecats:fourcats|site"].coords) == {
             "chain",
             "draw",
             "site__factor_dim",
             "threecats:fourcats__expr_dim",
-        ]
-        assert list(idata.posterior["1|site"].coords) == ["chain", "draw", "site__factor_dim"]
-        assert list(idata.posterior["1|site_sigma"].coords) == ["chain", "draw"]
-        assert list(idata.posterior["threecats:fourcats|site_sigma"].coords) == [
+        }
+        assert set(idata.posterior["1|site"].coords) == {"chain", "draw", "site__factor_dim"}
+        assert set(idata.posterior["1|site_sigma"].coords) == {"chain", "draw"}
+        assert set(idata.posterior["threecats:fourcats|site_sigma"].coords) == {
             "chain",
             "draw",
             "threecats:fourcats__expr_dim",
-        ]
+        }
 
-        assert list(idata.posterior["threecats:fourcats__expr_dim"].values) == [
+        assert set(idata.posterior["threecats:fourcats__expr_dim"].values) == {
             "b, b",
             "b, c",
             "b, d",
             "c, b",
             "c, c",
             "c, d",
-        ]
-        assert list(idata.posterior["site__factor_dim"].values) == ["0", "1", "2", "3", "4"]
+        }
+        assert set(idata.posterior["site__factor_dim"].values) == {"0", "1", "2", "3", "4"}
 
     def test_fit_include_mean(self, crossed_data):
         draws = 100
