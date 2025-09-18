@@ -191,12 +191,8 @@ def test_model_terms_levels():
     model = bmb.Model("y ~ x + z + time + (time|subject)", data)
     parent_component = model.components[model.family.likelihood.parent]
     assert parent_component.terms["z"].levels == ["Group 2", "Group 3"]
-    assert parent_component.terms["1|subject"].groups == [
-        f"Subject {x}" for x in range(1, 6)
-    ]
-    assert parent_component.terms["time|subject"].groups == [
-        f"Subject {x}" for x in range(1, 6)
-    ]
+    assert parent_component.terms["1|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
+    assert parent_component.terms["time|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
 
 
 def test_model_term_classes():
