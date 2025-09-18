@@ -316,19 +316,16 @@ def test_multiple_hsgp_and_by(data_1d_multiple_groups):
     idata = model.fit(tune=400, draws=200, target_accept=0.9)
 
     bmb.interpret.plot_predictions(
-        model, 
-        idata, 
-        conditional="x1", 
+        model,
+        idata,
+        conditional="x1",
         subplot_kwargs={"main": "x1", "group": "fac2", "panel": "fac2"},
-    );
+    )
 
     bmb.interpret.plot_predictions(
-        model, 
-        idata, 
-        conditional={
-            "x1": np.linspace(0, 1, num=100),
-            "fac2": ["a", "b", "c"]
-        }, 
+        model,
+        idata,
+        conditional={"x1": np.linspace(0, 1, num=100), "fac2": ["a", "b", "c"]},
         legend=False,
         subplot_kwargs={"main": "x1", "group": "fac2", "panel": "fac2"},
-    );
+    )

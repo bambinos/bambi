@@ -186,9 +186,9 @@ def formulae_transform():
     np.random.seed(0)
     x1 = np.random.normal(size=100)
     x2 = np.random.normal(size=100)
-    y = 2 + 3*x1 + 1.5*x1**2 + 2*x2 + np.random.normal(scale=1, size=100)
-    data = pd.DataFrame({'x1': x1, "x2": x2, 'y': y})
-    model = bmb.Model('y ~ poly(x1, 2) + x2', data)
+    y = 2 + 3 * x1 + 1.5 * x1**2 + 2 * x2 + np.random.normal(scale=1, size=100)
+    data = pd.DataFrame({"x1": x1, "x2": x2, "y": y})
+    model = bmb.Model("y ~ poly(x1, 2) + x2", data)
     idata = model.fit(tune=500, draws=500, random_seed=1234)
     return model, idata
 
@@ -202,9 +202,9 @@ def nonformulae_transform():
     x1 = np.random.uniform(1, 50, 50)
     noise = np.random.normal(0, 1, 50)
     y = 3 * np.log(x1) + noise
-    data = pd.DataFrame({'x1': x1, 'y': y})
+    data = pd.DataFrame({"x1": x1, "y": y})
 
-    model = bmb.Model('y ~ np.log(x1)', data)
+    model = bmb.Model("y ~ np.log(x1)", data)
     idata = model.fit(tune=500, draws=500, random_seed=1234)
     return model, idata
 
@@ -434,7 +434,6 @@ class TestPredictions:
         model, idata = food_choice
         plot_predictions(model, idata, covariates)
 
-
     def test_term_transformations(self, formulae_transform, nonformulae_transform):
         model, idata = formulae_transform
 
@@ -451,12 +450,7 @@ class TestPredictions:
 
         # Plot predictions where a categorical variable is passed to both
         # `conditional` and as the `group` variable
-        plot_predictions(
-            model=model,
-            idata=idata,
-            conditional="am",
-            subplot_kwargs={"group": "am"}
-        )
+        plot_predictions(model=model, idata=idata, conditional="am", subplot_kwargs={"group": "am"})
 
 
 class TestComparison:
