@@ -76,7 +76,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-c4f3a08e70260739b56dd0d8f062e40f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-24b2bc59dfb44dcacae2ef3892b980b7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -1184,7 +1184,7 @@ NUTS: [sigma, weeks, smoking_status, weeks|patient_sigma, weeks|patient_offset]<
 </div>
 </div>
 </div>
-<p>Although identical data was used for both patients, the variability increased consideribly for patient 176. However, the mean predictions for both patients appear to be almost identical. Now, lets construct a new patient with different clinical data and see how the predictions change. We will select 10 time of follow up visits at random, and set the <code>smoking_status = "Currently smokes"</code>.</p>
+<p>Although identical data was used for both patients, the variability increased consideribly for patient 176. However, the mean predictions for both patients appear to be almost identical. Now, let’s construct a new patient with different clinical data and see how the predictions change. We will select 10 times of follow up visits at random, and set the <code>smoking_status = "Currently smokes"</code>.</p>
 <div id="cell-30" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>new_data.loc[new_data[<span class="st">"patient"</span>] <span class="op">==</span> <span class="dv">176</span>, <span class="st">"smoking_status"</span>] <span class="op">=</span> <span class="st">"Currently smokes"</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>weeks <span class="op">=</span> np.random.choice(<span class="bu">sorted</span>(model.data.weeks.unique()), size<span class="op">=</span><span class="dv">10</span>)</span>

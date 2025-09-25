@@ -76,7 +76,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-c4f3a08e70260739b56dd0d8f062e40f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-24b2bc59dfb44dcacae2ef3892b980b7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -1204,7 +1204,7 @@ g for PlanetX: -6.18 to -5.90 meters (True: -6.0 m)
 Initial velocity: 19.79 to 20.43 meters per second (True: 20 m/s)</code></pre>
 </div>
 </div>
-<p>We can see that we’re pretty close to recovering most the parameters, but the fit isn’t great. Plotting the posteriors for <span class="math inline">\(g\)</span> agsint the true values,</p>
+<p>We can see that we’re pretty close to recovering most the parameters, but the fit isn’t great. Plotting the posteriors for <span class="math inline">\(g\)</span> against the true values,</p>
 <div id="cell-37" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>earth_posterior <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> planet_fit.posterior[<span class="st">"I(Time ** 2):Planet"</span>].sel({<span class="st">"I(Time ** 2):Planet_dim"</span>: <span class="st">"Earth"</span>})</span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>planetx_posterior <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> planet_fit.posterior[<span class="st">"I(Time ** 2):Planet"</span>].sel({<span class="st">"I(Time ** 2):Planet_dim"</span>: <span class="st">"PlanetX"</span>})</span>
@@ -1228,7 +1228,7 @@ Initial velocity: 19.79 to 20.43 meters per second (True: 20 m/s)</code></pre>
 <p>The fit seems to work, more or less, but certainly could be improved.</p>
 <section id="adding-a-prior" class="level3">
 <h3 class="anchored" data-anchor-id="adding-a-prior">Adding a prior</h3>
-<p>But, we can do better! We have a <a href="https://en.wikipedia.org/wiki/Gravity_of_Earth">very good idea of the acceleration due to gravity on Earth</a> and <a href="https://en.wikipedia.org/wiki/Gravity_of_Mars">Mars</a>, so why not use that information? From an experimental standpoint, we can consider these throws from a calibration mindset, allowing us to get some information on the resolution of our detector, and our throwing apparatus. The model will spend considerably less time trying pin down those parameters, and will better explore other parameters with already good values of the <span class="math inline">\(g\)</span> terms locked in.</p>
+<p>But, we can do better! We have a <a href="https://en.wikipedia.org/wiki/Gravity_of_Earth">very good idea of the acceleration due to gravity on Earth</a> and <a href="https://en.wikipedia.org/wiki/Gravity_of_Mars">Mars</a>, so why not use that information? From an experimental standpoint, we can consider these throws from a calibration mindset, allowing us to get some information on the resolution of our detector, and our throwing apparatus. The model will spend considerably less time trying to pin down those parameters, and will better explore other parameters with already good values of the <span class="math inline">\(g\)</span> terms locked in.</p>
 <p>For Earth, at the extremes, <span class="math inline">\(g\)</span> takes values as low as 9.78 <span class="math inline">\(m\)</span>/<span class="math inline">\(s^2\)</span> (at the Equator) up to 9.83 (at the Poles). So we can add a very strong prior,</p>
 <p><span class="math display">\[
 g_{\text{Earth}} \sim \text{Normal}(-9.81, 0.025)

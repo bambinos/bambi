@@ -76,7 +76,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-c4f3a08e70260739b56dd0d8f062e40f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-24b2bc59dfb44dcacae2ef3892b980b7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -881,7 +881,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>There are many a priori reasons to think houses with basement has higher radon levels. From geochemistry to composition of building materials to poor ventilation. We can split the distribution of <code>log(radon + 0.1)</code> per <code>floor</code> to see if we are able to see that difference in our data.</p>
+<p>There are many a priori reasons to think houses with a basement have higher radon levels. From geochemistry to composition of building materials to poor ventilation. We can split the distribution of <code>log(radon + 0.1)</code> per <code>floor</code> to see if we are able to see that difference in our data.</p>
 <div id="cell-17" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>_, ax <span class="op">=</span> plt.subplots()</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>sns.histplot(</span>
@@ -1120,7 +1120,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 </div>
-<p>From the posterior plot and the summary, we can see the mean radon level is considerably higher in the Basement than in the Floor level. This reflects what we originally saw in the initial data exploration. In addition, sice we have more measurements in the Basement, the uncertainty in its posterior is smaller than the uncertainty in the posterior for the Floor level.</p>
+<p>From the posterior plot and the summary, we can see the mean radon level is considerably higher in the Basement than in the Floor level. This reflects what we originally saw in the initial data exploration. In addition, since we have more measurements in the Basement, the uncertainty in its posterior is smaller than the uncertainty in the posterior for the Floor level.</p>
 <p>We can compare the mean of the posterior distribution of the <code>floor</code> terms to the sample mean. This is going to be useful to understand the meaning of <strong>complete pooling</strong>.</p>
 <div id="cell-42" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>_, ax <span class="op">=</span> plt.subplots()</span>
@@ -3476,7 +3476,7 @@ b_{jk} \sim \text{Normal}(0, \sigma_{b_j})
 <li>The first <code>0</code> tells we don’t want a global intercept.</li>
 <li><code>floor</code> is <span class="math inline">\(\beta_j\)</span>. It says we want to include an effect for each floor level. Since there’s no global intercept, a coefficient for each level is included.</li>
 <li>The <code>0</code> in <code>(0 + floor|county)</code> means we don’t want county-specific intercept. We need to explicitly turn it off as we did with the regular intercept.</li>
-<li><code>floor|county</code> is <span class="math inline">\(b_{jk}\)</span>, the county-specific floor coefficients. Again, since there’s no varying intercepot for the counties, this includes coefficients for both floor levels.</li>
+<li><code>floor|county</code> is <span class="math inline">\(b_{jk}\)</span>, the county-specific floor coefficients. Again, since there’s no varying intercept for the counties, this includes coefficients for both floor levels.</li>
 </ul>
 <div id="cell-103" class="cell" data-execution_count="39">
 <div class="sourceCode cell-code" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>varying_intercept_slope_priors <span class="op">=</span> {</span>
