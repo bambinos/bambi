@@ -12,19 +12,8 @@ from bambi.interpret.helpers import data_grid, select_draws
 from bambi.interpret.utils import get_model_covariates
 
 
-CHAINS = 4
-TUNE = 500
+CHAINS = 2
 DRAWS = 500
-
-
-@pytest.fixture(scope="module")
-def mtcars():
-    "Model with common level effects only"
-    data = bmb.load_data("mtcars")
-    data["am"] = pd.Categorical(data["am"], categories=[0, 1], ordered=True)
-    model = bmb.Model("mpg ~ hp * drat * am", data)
-    idata = model.fit(tune=TUNE, draws=DRAWS, chains=CHAINS, random_seed=1234)
-    return model, idata
 
 
 # -------------------------------------------------------------------
@@ -50,8 +39,8 @@ def mtcars():
     ],
     ids=["defaults", "defaults_and_user_passed", "user_passed"],
 )
-def test_data_grid_no_effect(request, mtcars, conditional):
-    model, idata = mtcars
+def test_data_grid_no_effect(request, mtcars_fixture, conditional):
+    model, _ = mtcars_fixture
     grid = data_grid(model, conditional)
 
     id = request.node.name
@@ -66,8 +55,8 @@ def test_data_grid_no_effect(request, mtcars, conditional):
         assert grid.columns.tolist() == ["hp", "drat", "am"]
 
 
-def test_data_grid_no_effect_kwargs(request, mtcars):
-    model, idata = mtcars
+def test_data_grid_no_effect_kwargs(request, mtcars_fixture):
+    model, _ = mtcars_fixture
     grid = data_grid(model, ["hp", "drat"], num=10)
 
     assert grid.shape == (100, 3)
@@ -86,8 +75,8 @@ def test_data_grid_no_effect_kwargs(request, mtcars):
     ],
     ids=["defaults", "user_passed", "defaults_and_user_passed"],
 )
-def test_data_grid_comparisons(request, mtcars, conditional, variable):
-    model, idata = mtcars
+def test_data_grid_comparisons(request, mtcars_fixture, conditional, variable):
+    model, _ = mtcars_fixture
     grid = data_grid(model, conditional, variable=variable, effect_type="comparisons")
 
     id = request.node.name
@@ -118,8 +107,8 @@ def test_data_grid_comparisons(request, mtcars, conditional, variable):
     ],
     ids=["defaults", "user_passed", "defaults_and_user_passed"],
 )
-def test_data_grid_slopes(request, mtcars, conditional, variable):
-    model, idata = mtcars
+def test_data_grid_slopes(request, mtcars_fixture, conditional, variable):
+    model, _ = mtcars_fixture
     grid = data_grid(model, conditional, variable=variable, effect_type="slopes")
 
     id = request.node.name
@@ -141,8 +130,8 @@ def test_data_grid_slopes(request, mtcars, conditional, variable):
 @pytest.mark.parametrize(
     "effect_type, eps", [("comparisons", 1), ("slopes", 1e-2)], ids=["comparisons", "slopes"]
 )
-def test_data_grid_eps(request, mtcars, effect_type, eps):
-    model, idata = mtcars
+def test_data_grid_eps(request, mtcars_fixture, effect_type, eps):
+    model, _ = mtcars_fixture
     grid = data_grid(model, ["drat", "am"], "hp", effect_type, eps=eps)
     unit_difference = np.unique(np.abs(np.diff(grid["hp"])))
 
@@ -175,8 +164,8 @@ def test_data_grid_eps(request, mtcars, effect_type, eps):
     ],
     ids=["1", "2", "3"],
 )
-def test_select_draws_no_effect(request, mtcars, condition):
-    model, idata = mtcars
+def test_select_draws_no_effect(request, mtcars_fixture, condition):
+    model, idata = mtcars_fixture
 
     conditional = {"hp": np.linspace(50, 350, 7), "drat": [2.5, 3.5], "am": [0, 1]}
     grid = data_grid(model, conditional)

@@ -1,72 +1,38 @@
 import pytest
 
 import bambi as bmb
-import numpy as np
-import pandas as pd
 
 
-@pytest.fixture(scope="module")
-def my_data():
-    return bmb.load_data("my_data")
-
-
-@pytest.fixture(scope="module")
-def anes():
-    return bmb.load_data("ANES")
-
-
-@pytest.fixture(scope="module")
-def data_100():
-    size = 100
-    rng = np.random.default_rng(121195)
-    data = pd.DataFrame(
-        {
-            "n1": rng.normal(size=size),
-            "n2": rng.normal(size=size),
-            "n3": rng.normal(size=size),
-            "b0": rng.binomial(n=1, p=0.5, size=size),
-            "b1": rng.choice(["a", "b"], size=size),
-            "count1": rng.poisson(lam=2, size=size),
-            "count2": rng.poisson(lam=2, size=size),
-            "cat1": rng.choice(list("MNOP"), size=size),
-            "cat2": rng.choice(list("FGHIJK"), size=size),
-        }
-    )
-    return data
-
-
-def test_non_distributional_model(my_data):
+def test_non_distributional_model(data_random_n100, mock_pymc_sample):
     # Plain model
-    formula = bmb.Formula("y ~ x")
-    model = bmb.Model(formula, my_data)
-    idata = model.fit(tune=100, draws=100)
+    model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
+    idata = model.fit(chains=2)
     model.predict(idata)
-
     assert list(idata.posterior.coords) == ["chain", "draw", "__obs__"]
-    assert set(idata.posterior.data_vars) == {"Intercept", "x", "mu", "sigma"}
+    assert set(idata.posterior.data_vars) == {"Intercept", "continuous2", "mu", "sigma"}
     assert list(idata.posterior["mu"].coords) == ["chain", "draw", "__obs__"]
 
     # Model with alises
-    model.set_alias({"Intercept": "a", "x": "b", "sigma": "s", "y": "response"})
-    idata = model.fit(tune=100, draws=100)
+    model.set_alias({"Intercept": "a", "continuous2": "b", "sigma": "s", "continuous1": "response"})
+    idata = model.fit(chains=2)
     model.predict(idata)
     assert list(idata.posterior.coords) == ["chain", "draw", "__obs__"]
     assert set(idata.posterior.data_vars) == {"a", "b", "mu", "s"}
     assert list(idata.posterior["mu"].coords) == ["chain", "draw", "__obs__"]
 
 
-def test_distributional_model(my_data):
-    formula = bmb.Formula("y ~ x", "sigma ~ x")
-    model = bmb.Model(formula, my_data)
-    idata = model.fit(tune=100, draws=100)
+def test_distributional_model(data_random_n100, mock_pymc_sample):
+    formula = bmb.Formula("continuous1 ~ continuous2", "sigma ~ continuous2")
+    model = bmb.Model(formula, data_random_n100)
+    idata = model.fit(chains=2)
     model.predict(idata)
 
     assert list(idata.posterior.coords) == ["chain", "draw", "__obs__"]
     assert set(idata.posterior.data_vars) == {
         "Intercept",
-        "x",
+        "continuous2",
         "sigma_Intercept",
-        "sigma_x",
+        "sigma_continuous2",
         "sigma",
         "mu",
     }
@@ -74,12 +40,12 @@ def test_distributional_model(my_data):
     assert list(idata.posterior["sigma"].coords) == ["chain", "draw", "__obs__"]
 
     aliases = {
-        "y": "response",
-        "mu": {"Intercept": "mu_a", "x": "mu_b"},
-        "sigma": {"Intercept": "sigma_a", "x": "sigma_b", "sigma": "s"},
+        "continuous1": "response",
+        "mu": {"Intercept": "mu_a", "continuous2": "mu_b"},
+        "sigma": {"Intercept": "sigma_a", "continuous2": "sigma_b", "sigma": "s"},
     }
     model.set_alias(aliases)
-    idata = model.fit(tune=100, draws=100)
+    idata = model.fit(chains=2)
     model.predict(idata)
 
     assert list(idata.posterior.coords) == ["chain", "draw", "__obs__"]
@@ -95,9 +61,9 @@ def test_distributional_model(my_data):
     assert list(idata.posterior["s"].coords) == ["chain", "draw", "__obs__"]
 
 
-def test_non_distributional_model_with_categories(anes):
-    model = bmb.Model("vote[clinton] ~ age + age:party_id", anes, family="bernoulli")
-    idata = model.fit(tune=100, draws=100)
+def test_non_distributional_model_with_categories(data_anes, mock_pymc_sample):
+    model = bmb.Model("vote[clinton] ~ age + age:party_id", data_anes, family="bernoulli")
+    idata = model.fit(chains=2)
     model.predict(idata)
     assert list(idata.posterior.coords) == ["chain", "draw", "age:party_id_dim", "__obs__"]
     assert set(idata.posterior.data_vars) == {"Intercept", "age", "age:party_id", "p"}
@@ -106,7 +72,7 @@ def test_non_distributional_model_with_categories(anes):
     assert set(idata.posterior["age:party_id_dim"].values) == {"independent", "republican"}
 
     model.set_alias({"age": "β", "Intercept": "α", "age:party_id": "γ", "vote": "y"})
-    idata = model.fit(tune=100, draws=100)
+    idata = model.fit(chains=2)
     model.predict(idata)
     assert list(idata.posterior.coords) == ["chain", "draw", "γ_dim", "__obs__"]
     assert set(idata.posterior.data_vars) == {"α", "β", "γ", "p"}
@@ -116,7 +82,7 @@ def test_non_distributional_model_with_categories(anes):
 
     # Same as before, but also put an alias for 'p'
     model.set_alias({"age": "β", "Intercept": "α", "age:party_id": "γ", "vote": "y", "p": "mean"})
-    idata = model.fit(tune=100, draws=100)
+    idata = model.fit(chains=2)
     model.predict(idata)
     assert list(idata.posterior.coords) == ["chain", "draw", "γ_dim", "__obs__"]
     assert set(idata.posterior.data_vars) == {"α", "β", "γ", "mean"}
@@ -125,17 +91,17 @@ def test_non_distributional_model_with_categories(anes):
     assert set(idata.posterior["γ_dim"].values) == {"independent", "republican"}
 
 
-def test_alias_equal_to_name(my_data):
-    model = bmb.Model("y ~ 1 + x", my_data)
+def test_alias_equal_to_name(data_random_n100, mock_pymc_sample):
+    model = bmb.Model("continuous1 ~ 1 + continuous2", data_random_n100)
     model.set_alias({"sigma": "sigma"})
-    idata = model.fit(tune=100, draws=100)
-    set(idata.posterior.data_vars) == {"Intercept", "x", "sigma"}
+    idata = model.fit(chains=2)
+    set(idata.posterior.data_vars) == {"Intercept", "continuous2", "sigma"}
 
 
-def test_set_alias_warnings(my_data):
+def test_set_alias_warnings(data_random_n100, mock_pymc_sample):
     # Create a model to use aliases on
-    formula = bmb.Formula("y ~ x")
-    model = bmb.Model(formula, my_data)
+    formula = bmb.Formula("continuous1 ~ continuous2")
+    model = bmb.Model(formula, data_random_n100)
 
     # Define cases that throw the various warnings
     test_cases = [
@@ -161,14 +127,13 @@ def test_set_alias_warnings(my_data):
         assert str(record[0].message) == expected_warning
 
 
-# FIXME: Move somewhere
-def test_set_alias(data_100):
-    model = bmb.Model("n1 ~ n2 + (n2|cat1)", data_100)
+def test_set_alias(data_random_n100, mock_pymc_sample):
+    model = bmb.Model("continuous1 ~ continuous2 + (continuous2|categorical1)", data_random_n100)
     aliases = {
         "Intercept": "α",
-        "n2": "β",
-        "1|cat1": "α_group",
-        "n2|cat1": "β_group",
+        "continuous2": "β",
+        "1|categorical1": "α_group",
+        "continuous2|categorical1": "β_group",
         "sigma": "σ",
     }
     model.set_alias(aliases)

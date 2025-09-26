@@ -1,11 +1,12 @@
 import pathlib
 import re
 
+import pytest
 import bambi as bmb
 import numpy as np
 import pandas as pd
 
-import pytest
+from helpers import assert_ip_dlogp
 
 
 DATA_DIR = pathlib.Path(__file__).parent.resolve() / "data"
@@ -36,9 +37,11 @@ def data_2d_multiple_groups():
     return pd.read_csv(DATA_DIR / "hsgp_2d_multiple_groups.csv")
 
 
-def test_minimal_1d_fits(data_1d_single_group):
+def test_minimal_1d_fits(data_1d_single_group, mock_pymc_sample):
     model = bmb.Model("y ~ 0 + hsgp(x, c=1.5, m=10)", data_1d_single_group)
-    idata = model.fit(tune=500, draws=500, chains=2, random_seed=1234)
+    model.build()
+    assert_ip_dlogp(model)
+    model.fit(tune=500, draws=500, chains=2, random_seed=1234)
 
 
 def test_required_params(data_1d_single_group):
@@ -271,8 +274,10 @@ def test_bad_prior(data_1d_single_group):
         bmb.Model("y ~ 0 + hsgp(x, m=10, c=2)", data_1d_single_group, priors=priors)
 
 
-def test_minimal_1d_predicts(data_1d_single_group):
+def test_minimal_1d_predicts(data_1d_single_group, mock_pymc_sample):
     model = bmb.Model("y ~ 0 + hsgp(x, c=1.5, m=10)", data_1d_single_group)
+    model.build()
+    assert_ip_dlogp(model)
     idata = model.fit(tune=500, draws=500, chains=2, random_seed=1234)
 
     new_data = pd.DataFrame({"x": np.linspace(0, 5, num=10)})
@@ -302,18 +307,16 @@ def test_minimal_1d_predicts(data_1d_single_group):
     assert new_idata.posterior_predictive["y"].to_numpy().shape == (2, 500, 10)
 
 
-def test_multiple_hsgp_and_by(data_1d_multiple_groups):
+def test_multiple_hsgp_and_by(data_1d_multiple_groups, mock_pymc_sample):
     rng = np.random.default_rng(1234)
     df = data_1d_multiple_groups.copy()
     df["fac2"] = rng.choice(["a", "b", "c"], size=df.shape[0])
 
     formula = "y ~ 1 + x0 + hsgp(x1, by=fac, m=10, c=2) + hsgp(x1, by=fac2, m=10, c=2)"
-    model = bmb.Model(
-        formula=formula,
-        data=df,
-        categorical=["fac"],
-    )
-    idata = model.fit(tune=400, draws=200, target_accept=0.9)
+    model = bmb.Model(formula=formula, data=df, categorical=["fac"])
+    model.build()
+    assert_ip_dlogp(model)
+    idata = model.fit(tune=400, draws=200, chains=2, target_accept=0.9)
 
     bmb.interpret.plot_predictions(
         model,
