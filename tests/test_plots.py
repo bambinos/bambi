@@ -1,22 +1,11 @@
-from os.path import dirname, join
-
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 import pytest
 
 import bambi as bmb
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
 from bambi.interpret import plot_comparisons, plot_predictions, plot_slopes
-
-
-@pytest.fixture(scope="module")
-def mtcars():
-    "Model with common level effects only"
-    data = bmb.load_data("mtcars")
-    data["am"] = pd.Categorical(data["am"], categories=[0, 1], ordered=True)
-    model = bmb.Model("mpg ~ hp * drat * am", data)
-    idata = model.fit(tune=500, draws=500, random_seed=1234)
-    return model, idata
 
 
 @pytest.fixture(scope="module")
@@ -24,7 +13,7 @@ def sleep_study():
     "Model with common and group specific effects"
     data = bmb.load_data("sleepstudy")
     model = bmb.Model("Reaction ~ 1 + Days + (Days | Subject)", data)
-    idata = model.fit(tune=500, draws=500, random_seed=1234)
+    idata = model.fit(tune=500, draws=200, chains=2, random_seed=1234)
     return model, idata
 
 
@@ -174,7 +163,7 @@ def food_choice():
     )
 
     model = bmb.Model("choice ~ length + sex", data, family="categorical")
-    idata = model.fit(tune=500, draws=500, random_seed=1234)
+    idata = model.fit(tune=500, draws=200, chains=2, random_seed=1234)
     return model, idata
 
 
@@ -186,10 +175,10 @@ def formulae_transform():
     np.random.seed(0)
     x1 = np.random.normal(size=100)
     x2 = np.random.normal(size=100)
-    y = 2 + 3*x1 + 1.5*x1**2 + 2*x2 + np.random.normal(scale=1, size=100)
-    data = pd.DataFrame({'x1': x1, "x2": x2, 'y': y})
-    model = bmb.Model('y ~ poly(x1, 2) + x2', data)
-    idata = model.fit(tune=500, draws=500, random_seed=1234)
+    y = 2 + 3 * x1 + 1.5 * x1**2 + 2 * x2 + np.random.normal(scale=1, size=100)
+    data = pd.DataFrame({"x1": x1, "x2": x2, "y": y})
+    model = bmb.Model("y ~ poly(x1, 2) + x2", data)
+    idata = model.fit(tune=500, draws=200, chains=2, random_seed=1234)
     return model, idata
 
 
@@ -202,10 +191,9 @@ def nonformulae_transform():
     x1 = np.random.uniform(1, 50, 50)
     noise = np.random.normal(0, 1, 50)
     y = 3 * np.log(x1) + noise
-    data = pd.DataFrame({'x1': x1, 'y': y})
-
-    model = bmb.Model('y ~ np.log(x1)', data)
-    idata = model.fit(tune=500, draws=500, random_seed=1234)
+    data = pd.DataFrame({"x1": x1, "y": y})
+    model = bmb.Model("y ~ np.log(x1)", data)
+    idata = model.fit(tune=500, draws=200, chains=2, random_seed=1234)
     return model, idata
 
 
@@ -222,15 +210,15 @@ class TestCommon:
     """
 
     @pytest.mark.parametrize("pps", [False, True])
-    def test_use_hdi(self, mtcars, pps):
-        model, idata = mtcars
+    def test_use_hdi(self, mtcars_fixture, pps):
+        model, idata = mtcars_fixture
         plot_comparisons(model, idata, "hp", "am", use_hdi=False)
         plot_predictions(model, idata, ["hp", "cyl", "gear"], pps=pps, use_hdi=False)
         plot_slopes(model, idata, "hp", "am", use_hdi=False)
 
     @pytest.mark.parametrize("pps", [False, True])
-    def test_hdi_prob(self, mtcars, pps):
-        model, idata = mtcars
+    def test_hdi_prob(self, mtcars_fixture, pps):
+        model, idata = mtcars_fixture
         plot_comparisons(model, idata, "am", "hp", prob=0.8)
         plot_predictions(model, idata, ["hp", "cyl", "gear"], pps=pps, prob=0.8)
         plot_slopes(model, idata, "hp", "am", prob=0.8)
@@ -250,15 +238,15 @@ class TestCommon:
             plot_slopes(model, idata, "hp", "am", prob=0.1)
 
     @pytest.mark.parametrize("pps", [False, True])
-    def test_legend(self, mtcars, pps):
-        model, idata = mtcars
+    def test_legend(self, mtcars_fixture, pps):
+        model, idata = mtcars_fixture
         plot_comparisons(model, idata, "am", "hp", legend=False)
         plot_predictions(model, idata, ["hp"], pps=pps, legend=False)
         plot_slopes(model, idata, "hp", "am", legend=False)
 
     @pytest.mark.parametrize("pps", [False, True])
-    def test_ax(self, mtcars, pps):
-        model, idata = mtcars
+    def test_ax(self, mtcars_fixture, pps):
+        model, idata = mtcars_fixture
         fig, ax = plt.subplots()
         fig_r, ax_r = plot_comparisons(model, idata, "am", "hp", ax=ax)
 
@@ -297,8 +285,8 @@ class TestPredictions:
             ["gear"],  # Using list
         ),
     )
-    def test_basic(self, mtcars, covariates, pps):
-        model, idata = mtcars
+    def test_basic(self, mtcars_fixture, covariates, pps):
+        model, idata = mtcars_fixture
         plot_predictions(model, idata, covariates, pps=pps)
 
     @pytest.mark.parametrize("pps", [False, True])
@@ -311,16 +299,16 @@ class TestPredictions:
             ["gear", "cyl"],  # Main: categorical. Group: categorical
         ),
     )
-    def test_with_groups(self, mtcars, covariates, pps):
-        model, idata = mtcars
+    def test_with_groups(self, mtcars_fixture, covariates, pps):
+        model, idata = mtcars_fixture
         plot_predictions(model, idata, covariates, pps=pps)
 
     @pytest.mark.parametrize("pps", [False, True])
     @pytest.mark.parametrize(
         "covariates", (["hp", "cyl", "gear"], ["cyl", "hp", "gear"], ["cyl", "gear", "hp"])
     )
-    def test_with_group_and_panel(self, mtcars, covariates, pps):
-        model, idata = mtcars
+    def test_with_group_and_panel(self, mtcars_fixture, covariates, pps):
+        model, idata = mtcars_fixture
         plot_predictions(model, idata, covariates, pps=pps)
 
     @pytest.mark.parametrize("pps", [False, True])
@@ -331,13 +319,13 @@ class TestPredictions:
             ({"hp": 150, "am": 1, "drat": [3, 4, 5]}),
         ],
     )
-    def test_with_user_values(self, mtcars, conditional, pps):
-        model, idata = mtcars
+    def test_with_user_values(self, mtcars_fixture, conditional, pps):
+        model, idata = mtcars_fixture
         plot_predictions(model, idata, conditional=conditional, pps=pps)
 
     @pytest.mark.parametrize("average_by", ["am", "drat", ["am", "drat"]])
-    def test_average_by(self, mtcars, average_by):
-        model, idata = mtcars
+    def test_average_by(self, mtcars_fixture, average_by):
+        model, idata = mtcars_fixture
 
         # grid of values with average_by
         plot_predictions(model, idata, ["hp", "am", "drat"], average_by)
@@ -346,8 +334,8 @@ class TestPredictions:
         plot_predictions(model, idata, None, average_by)
 
     @pytest.mark.parametrize("pps", [False, True])
-    def test_fig_kwargs(self, mtcars, pps):
-        model, idata = mtcars
+    def test_fig_kwargs(self, mtcars_fixture, pps):
+        model, idata = mtcars_fixture
         plot_predictions(
             model,
             idata,
@@ -357,8 +345,8 @@ class TestPredictions:
         )
 
     @pytest.mark.parametrize("pps", [False, True])
-    def test_subplot_kwargs(self, mtcars, pps):
-        model, idata = mtcars
+    def test_subplot_kwargs(self, mtcars_fixture, pps):
+        model, idata = mtcars_fixture
         plot_predictions(
             model,
             idata,
@@ -376,8 +364,8 @@ class TestPredictions:
             {"mpg": np.log, "hp": np.log},
         ),
     )
-    def test_transforms(self, mtcars, transforms, pps):
-        model, idata = mtcars
+    def test_transforms(self, mtcars_fixture, transforms, pps):
+        model, idata = mtcars_fixture
         plot_predictions(model, idata, ["hp"], pps=pps, transforms=transforms)
 
     @pytest.mark.parametrize("pps", [False, True])
@@ -434,7 +422,6 @@ class TestPredictions:
         model, idata = food_choice
         plot_predictions(model, idata, covariates)
 
-
     def test_term_transformations(self, formulae_transform, nonformulae_transform):
         model, idata = formulae_transform
 
@@ -446,17 +433,12 @@ class TestPredictions:
         # Test that the plot works with a non-formulae transformation
         plot_predictions(model, idata, "x1")
 
-    def test_same_variable_conditional_and_group(self, mtcars):
-        model, idata = mtcars
+    def test_same_variable_conditional_and_group(self, mtcars_fixture):
+        model, idata = mtcars_fixture
 
         # Plot predictions where a categorical variable is passed to both
         # `conditional` and as the `group` variable
-        plot_predictions(
-            model=model,
-            idata=idata,
-            conditional="am",
-            subplot_kwargs={"group": "am"}
-        )
+        plot_predictions(model=model, idata=idata, conditional="am", subplot_kwargs={"group": "am"})
 
 
 class TestComparison:
@@ -469,8 +451,8 @@ class TestComparison:
         "contrast, conditional",
         [("hp", "am"), ("am", "hp")],  # numeric & categorical  # categorical & numeric
     )
-    def test_basic(self, mtcars, contrast, conditional):
-        model, idata = mtcars
+    def test_basic(self, mtcars_fixture, contrast, conditional):
+        model, idata = mtcars_fixture
         plot_comparisons(model, idata, contrast, conditional)
 
     @pytest.mark.parametrize(
@@ -480,8 +462,8 @@ class TestComparison:
             ("hp", ["drat", "am"]),  # numeric & [numeric, categorical]
         ],
     )
-    def test_with_groups(self, mtcars, contrast, conditional):
-        model, idata = mtcars
+    def test_with_groups(self, mtcars_fixture, contrast, conditional):
+        model, idata = mtcars_fixture
         plot_comparisons(model, idata, contrast, conditional)
 
     @pytest.mark.parametrize(
@@ -491,16 +473,16 @@ class TestComparison:
             ({"hp": [110, 175]}, {"am": [0, 1], "drat": [3, 4, 5]}),  # user provided values
         ],
     )
-    def test_with_user_values(self, mtcars, contrast, conditional):
-        model, idata = mtcars
+    def test_with_user_values(self, mtcars_fixture, contrast, conditional):
+        model, idata = mtcars_fixture
         plot_comparisons(model, idata, contrast, conditional)
 
     @pytest.mark.parametrize(
         "contrast, conditional, subplot_kwargs",
         [("drat", ["hp", "am"], {"main": "hp", "group": "am", "panel": "am"})],
     )
-    def test_subplot_kwargs(self, mtcars, contrast, conditional, subplot_kwargs):
-        model, idata = mtcars
+    def test_subplot_kwargs(self, mtcars_fixture, contrast, conditional, subplot_kwargs):
+        model, idata = mtcars_fixture
         plot_comparisons(model, idata, contrast, conditional, subplot_kwargs=subplot_kwargs)
 
     @pytest.mark.parametrize(
@@ -510,13 +492,13 @@ class TestComparison:
             ("drat", ["hp", "am"], {"mpg": np.log}),  # transform response
         ],
     )
-    def test_transforms(self, mtcars, contrast, conditional, transforms):
-        model, idata = mtcars
+    def test_transforms(self, mtcars_fixture, contrast, conditional, transforms):
+        model, idata = mtcars_fixture
         plot_comparisons(model, idata, contrast, conditional, transforms=transforms)
 
     @pytest.mark.parametrize("average_by", ["am", "drat", ["am", "drat"]])
-    def test_average_by(self, mtcars, average_by):
-        model, idata = mtcars
+    def test_average_by(self, mtcars_fixture, average_by):
+        model, idata = mtcars_fixture
 
         # grid of values with average_by
         plot_comparisons(model, idata, "hp", ["am", "drat"], average_by)
@@ -564,8 +546,8 @@ class TestSlopes:
         "wrt, conditional",
         [("hp", "am"), ("am", "hp")],  # numeric & categorical  # categorical & numeric
     )
-    def test_basic(self, mtcars, wrt, conditional):
-        model, idata = mtcars
+    def test_basic(self, mtcars_fixture, wrt, conditional):
+        model, idata = mtcars_fixture
         plot_slopes(model, idata, wrt, conditional)
 
     @pytest.mark.parametrize(
@@ -575,8 +557,8 @@ class TestSlopes:
             ("hp", ["drat", "am"]),  # numeric & [numeric, categorical]
         ],
     )
-    def test_with_groups(self, mtcars, wrt, conditional):
-        model, idata = mtcars
+    def test_with_groups(self, mtcars_fixture, wrt, conditional):
+        model, idata = mtcars_fixture
         plot_slopes(model, idata, wrt, conditional)
 
     @pytest.mark.parametrize(
@@ -592,22 +574,22 @@ class TestSlopes:
             ),  # multiple 'wrt' values
         ],
     )
-    def test_with_user_values(self, mtcars, wrt, conditional, average_by):
-        model, idata = mtcars
+    def test_with_user_values(self, mtcars_fixture, wrt, conditional, average_by):
+        model, idata = mtcars_fixture
         # need to average by if greater than 1 value is passed with 'wrt'
         plot_slopes(model, idata, wrt, conditional, average_by=average_by)
 
     @pytest.mark.parametrize("slope", ["dydx", "dyex", "eyex", "eydx"])
-    def test_elasticity(self, mtcars, slope):
-        model, idata = mtcars
+    def test_elasticity(self, mtcars_fixture, slope):
+        model, idata = mtcars_fixture
         plot_slopes(model, idata, "hp", "drat", slope=slope)
 
     @pytest.mark.parametrize(
         "wrt, conditional, subplot_kwargs",
         [("drat", ["hp", "am"], {"main": "hp", "group": "am", "panel": "am"})],
     )
-    def test_subplot_kwargs(self, mtcars, wrt, conditional, subplot_kwargs):
-        model, idata = mtcars
+    def test_subplot_kwargs(self, mtcars_fixture, wrt, conditional, subplot_kwargs):
+        model, idata = mtcars_fixture
         plot_slopes(model, idata, wrt, conditional, subplot_kwargs=subplot_kwargs)
 
     @pytest.mark.parametrize(
@@ -617,13 +599,13 @@ class TestSlopes:
             ("drat", ["hp", "am"], {"mpg": np.log}),  # transform response
         ],
     )
-    def test_transforms(self, mtcars, wrt, conditional, transforms):
-        model, idata = mtcars
+    def test_transforms(self, mtcars_fixture, wrt, conditional, transforms):
+        model, idata = mtcars_fixture
         plot_slopes(model, idata, wrt, conditional, transforms=transforms)
 
     @pytest.mark.parametrize("average_by", ["am", "drat", ["am", "drat"]])
-    def test_average_by(self, mtcars, average_by):
-        model, idata = mtcars
+    def test_average_by(self, mtcars_fixture, average_by):
+        model, idata = mtcars_fixture
 
         # grid of values with average_by
         plot_slopes(model, idata, "hp", ["am", "drat"], average_by)

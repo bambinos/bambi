@@ -1,79 +1,27 @@
 import logging
-
-from functools import reduce
-from operator import add
-from os.path import dirname, join
+import pathlib
 
 import arviz as az
+import bambi as bmb
 import numpy as np
 import pandas as pd
 import pymc as pm
 import pytest
 
+from bambi.terms import CommonTerm, GroupSpecificTerm
 from formulae import design_matrices
 
-import bambi as bmb
-from bambi.terms import CommonTerm, GroupSpecificTerm
-
-
-@pytest.fixture(scope="module")
-def data_numeric_xy():
-    rng = np.random.default_rng(121195)
-    data = pd.DataFrame(
-        {
-            "y": rng.normal(size=100),
-            "x": rng.normal(size=100),
-        }
-    )
-    return data
-
-
-@pytest.fixture(scope="module")
-def diabetes_data():
-    data_dir = join(dirname(__file__), "data")
-    data = pd.read_csv(join(data_dir, "diabetes.txt"), sep="\t")
-    data["age_grp"] = 0
-    data.loc[data["AGE"] > 40, "age_grp"] = 1
-    data.loc[data["AGE"] > 60, "age_grp"] = 2
-    return data
-
-
-@pytest.fixture(scope="module")
-def crossed_data():
-    """
-    Group specific effects:
-    10 subjects, 12 items, 5 sites
-    Subjects crossed with items, nested in sites
-    Items crossed with sites
-
-    Common effects:
-    A continuous predictor, a numeric dummy, and a three-level category
-    (levels a,b,c)
-
-    Structure:
-    Subjects nested in dummy (e.g., gender), crossed with threecats
-    Items crossed with dummy, nested in threecats
-    Sites partially crossed with dummy (4/5 see a single dummy, 1/5 sees both
-    dummies)
-    Sites crossed with threecats
-    """
-    data_dir = join(dirname(__file__), "data")
-    data = pd.read_csv(join(data_dir, "crossed_random.csv"))
-    return data
+from helpers import assert_ip_dlogp
 
 
 @pytest.fixture(scope="module")
 def init_data():
-    """
-    Data used to test initialization method
-    """
-    data_dir = join(dirname(__file__), "data")
-    data = pd.read_csv(join(data_dir, "obs.csv"))
-    return data
+    """Data used to test initialization method"""
+    return pd.read_csv(pathlib.Path(__file__).parent / "data" / "obs.csv")
 
 
-def test_term_init(diabetes_data):
-    design = design_matrices("BMI", diabetes_data)
+def test_term_init(data_diabetes):
+    design = design_matrices("BMI", data_diabetes)
     term = design.common.terms["BMI"]
     term = CommonTerm(term, prior=None)
     assert term.name == "BMI"
@@ -82,13 +30,13 @@ def test_term_init(diabetes_data):
     assert term.data.shape == (442,)
 
 
-def test_distribute_group_specific_effect_over(diabetes_data):
-    # 163 unique levels of BMI in diabetes_data
+def test_distribute_group_specific_effect_over(data_diabetes):
+    # 163 unique levels of BMI in data_diabetes
     # With intercept
-    model = bmb.Model("BP ~ (C(age_grp)|BMI)", diabetes_data)
+    model = bmb.Model("BP ~ (C(age_grp)|BMI)", data_diabetes)
 
     # Treatment encoding because of the intercept
-    levels = sorted(list(diabetes_data["age_grp"].unique()))[1:]
+    levels = sorted(list(data_diabetes["age_grp"].unique()))[1:]
     levels = [str(level) for level in levels]
     parent_component = model.components[model.family.likelihood.parent]
     assert "C(age_grp)|BMI" in parent_component.terms
@@ -102,7 +50,7 @@ def test_distribute_group_specific_effect_over(diabetes_data):
     assert parent_component.terms["C(age_grp)|BMI"].data.shape == (442, 326)
 
     # Without intercept. Reference level is not removed.
-    model = bmb.Model("BP ~ (0 + C(age_grp)|BMI)", diabetes_data)
+    model = bmb.Model("BP ~ (0 + C(age_grp)|BMI)", data_diabetes)
     parent_component = model.components[model.family.likelihood.parent]
     assert "C(age_grp)|BMI" in parent_component.terms
     assert not "1|BMI" in parent_component.terms
@@ -114,8 +62,8 @@ def test_model_init_bad_data():
         bmb.Model("y ~ x", {"x": 1})
 
 
-def test_unbuilt_model(diabetes_data):
-    model = bmb.Model("Y ~ AGE", data=diabetes_data)
+def test_unbuilt_model(data_diabetes):
+    model = bmb.Model("Y ~ AGE", data=data_diabetes)
     with pytest.raises(ValueError):
         model._check_built()
 
@@ -144,16 +92,16 @@ def test_model_no_response():
         bmb.Model("x", pd.DataFrame({"x": [1]}))
 
 
-def test_model_term_names_property(diabetes_data):
-    model = bmb.Model("BMI ~ age_grp + BP + S1", diabetes_data)
+def test_model_term_names_property(data_diabetes):
+    model = bmb.Model("BMI ~ age_grp + BP + S1", data_diabetes)
     parent_component = model.components[model.family.likelihood.parent]
     assert parent_component.intercept_term.name == "Intercept"
     assert set(parent_component.common_terms) == {"age_grp", "BP", "S1"}
 
 
-def test_model_term_names_property_interaction(crossed_data):
-    crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
-    model = bmb.Model("Y ~ threecats*fourcats", crossed_data)
+def test_model_term_names_property_interaction(data_crossed):
+    data_crossed["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
+    model = bmb.Model("Y ~ threecats*fourcats", data_crossed)
     parent_component = model.components[model.family.likelihood.parent]
     assert parent_component.intercept_term.name == "Intercept"
     assert set(parent_component.common_terms) == {
@@ -163,9 +111,9 @@ def test_model_term_names_property_interaction(crossed_data):
     }
 
 
-def test_model_terms_levels_interaction(crossed_data):
-    crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
-    model = bmb.Model("Y ~ threecats*fourcats", crossed_data)
+def test_model_terms_levels_interaction(data_crossed):
+    data_crossed["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
+    model = bmb.Model("Y ~ threecats*fourcats", data_crossed)
 
     assert model.components[model.family.likelihood.parent].terms["threecats:fourcats"].levels == [
         "b, b",
@@ -183,20 +131,16 @@ def test_model_terms_levels():
         {
             "y": rng.normal(size=50),
             "x": rng.normal(size=50),
-            "z": reduce(add, [[f"Group {x}"] * 10 for x in ["1", "2", "3", "1", "2"]]),
+            "z": np.repeat([f"Group {x}" for x in ["1", "2", "3", "1", "2"]], 10),
             "time": list(range(1, 11)) * 5,
-            "subject": reduce(add, [[f"Subject {x}"] * 10 for x in range(1, 6)]),
+            "subject": np.repeat([f"Subject {x}" for x in range(1, 6)], 10),
         }
     )
     model = bmb.Model("y ~ x + z + time + (time|subject)", data)
     parent_component = model.components[model.family.likelihood.parent]
     assert parent_component.terms["z"].levels == ["Group 2", "Group 3"]
-    assert parent_component.terms["1|subject"].groups == [
-        f"Subject {x}" for x in range(1, 6)
-    ]
-    assert parent_component.terms["time|subject"].groups == [
-        f"Subject {x}" for x in range(1, 6)
-    ]
+    assert parent_component.terms["1|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
+    assert parent_component.terms["time|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
 
 
 def test_model_term_classes():
@@ -223,15 +167,17 @@ def test_model_term_classes():
     assert parent_component.terms["g"].categorical
 
 
-def test_one_shot_formula_fit(diabetes_data):
-    model = bmb.Model("S3 ~ S1 + S2", diabetes_data)
-    model.fit(tune=100, draws=100)
+def test_one_shot_formula_fit(data_diabetes, mock_pymc_sample):
+    model = bmb.Model("S3 ~ S1 + S2", data_diabetes)
+    model.build()
+    assert_ip_dlogp(model)
+    model.fit(chains=2)
     named_vars = model.backend.model.named_vars
     targets = ["S3", "S1", "Intercept"]
     assert len(set(named_vars.keys()) & set(targets)) == 3
 
 
-def test_categorical_term():
+def test_categorical_term(mock_pymc_sample):
     rng = np.random.default_rng(121195)
     data = pd.DataFrame(
         {
@@ -243,7 +189,9 @@ def test_categorical_term():
         }
     )
     model = bmb.Model("y ~ x1 + x2 + g1 + (g1|g2) + (x2|g2)", data)
-    fitted = model.fit(tune=100, draws=100)
+    model.build()
+    assert_ip_dlogp(model)
+    fitted = model.fit(chains=2)
     df = az.summary(fitted)
     names = {
         "Intercept",
@@ -267,54 +215,38 @@ def test_categorical_term():
     assert set(df.index) == names
 
 
-def test_omit_offsets_false():
-    rng = np.random.default_rng(121195)
-    data = pd.DataFrame(
-        {
-            "y": rng.normal(size=100),
-            "x1": rng.normal(size=100),
-            "g1": ["a"] * 50 + ["b"] * 50,
-        }
-    )
-    model = bmb.Model("y ~ x1 + (x1|g1)", data)
-    fitted = model.fit(tune=100, draws=100, omit_offsets=False)
-    offsets = [var for var in fitted.posterior.var() if var.endswith("_offset")]
-    assert offsets == ["1|g1_offset", "x1|g1_offset"]
+def test_omit_offsets_false(data_random_n100, mock_pymc_sample):
+    model = bmb.Model("continuous1 ~ continuous2 + (continuous2|binary_cat)", data_random_n100)
+    model.build()
+    assert_ip_dlogp(model)
+    idata = model.fit(chains=2, omit_offsets=False)
+    offsets = [var for var in idata.posterior.var() if var.endswith("_offset")]
+    assert offsets == ["1|binary_cat_offset", "continuous2|binary_cat_offset"]
 
 
-def test_omit_offsets_true():
-    rng = np.random.default_rng(121195)
-    data = pd.DataFrame(
-        {
-            "y": rng.normal(size=100),
-            "x1": rng.normal(size=100),
-            "g1": ["a"] * 50 + ["b"] * 50,
-        }
-    )
-    model = bmb.Model("y ~ x1 + (x1|g1)", data)
-    fitted = model.fit(tune=100, draws=100, omit_offsets=True)
-    offsets = [var for var in fitted.posterior.var() if var.endswith("_offset")]
+def test_omit_offsets_true(data_random_n100, mock_pymc_sample):
+    model = bmb.Model("continuous1 ~ continuous2 + (continuous2|binary_cat)", data_random_n100)
+    idata = model.fit(chains=2, omit_offsets=True)
+    model.build()
+    assert_ip_dlogp(model)
+    offsets = [var for var in idata.posterior.var() if var.endswith("_offset")]
     assert not offsets
 
 
-def test_hyperprior_on_common_effect():
-    rng = np.random.default_rng(121195)
-    data = pd.DataFrame(
-        {
-            "y": rng.normal(size=100),
-            "x1": rng.normal(size=100),
-            "g1": ["a"] * 50 + ["b"] * 50,
-        }
-    )
+def test_hyperprior_on_common_effect(data_random_n100):
     slope = bmb.Prior("Normal", mu=0, sd=bmb.Prior("HalfCauchy", beta=2))
 
-    priors = {"x1": slope}
+    priors = {"continuous2": slope}
     with pytest.raises(ValueError):
-        bmb.Model("y ~ x1 + (x1|g1)", data, priors=priors)
+        bmb.Model(
+            "continuous1 ~ continuous2 + (continuous2|binary_cat)", data_random_n100, priors=priors
+        )
 
     priors = {"common": slope}
     with pytest.raises(ValueError):
-        bmb.Model("y ~ x1 + (x1|g1)", data, priors=priors)
+        bmb.Model(
+            "continuous1 ~ continuous2 + (continuous2|binary_cat)", data_random_n100, priors=priors
+        )
 
 
 @pytest.mark.parametrize(
@@ -336,16 +268,7 @@ def test_automatic_priors(family):
     bmb.Model("x ~ 0", obs, family=family)
 
 
-def test_links():
-    rng = np.random.default_rng(121195)
-    data = pd.DataFrame(
-        {
-            "g": rng.choice([0, 1], size=100),
-            "y": rng.integers(3, 10, size=100),
-            "x": rng.integers(3, 10, size=100),
-        }
-    )
-
+def test_links(data_random_n100):
     FAMILIES = {
         "asymmetriclaplace": ["identity", "log", "inverse"],
         "bernoulli": ["identity", "logit", "probit", "cloglog"],
@@ -360,21 +283,14 @@ def test_links():
     for family, links in FAMILIES.items():
         for link in links:
             if family == "bernoulli":
-                bmb.Model("g ~ x", data, family=family, link=link)
+                formula = "binary_num ~ continuous2"
             else:
-                bmb.Model("y ~ x", data, family=family, link=link)
+                formula = "count2 ~ continuous2"
+            bmb.Model(formula, data_random_n100, family=family, link=link)
 
 
-def test_bad_links():
+def test_bad_links(data_random_n100):
     """Passes names of links that are not suitable for the family."""
-    rng = np.random.default_rng(121195)
-    data = pd.DataFrame(
-        {
-            "g": rng.choice([0, 1], size=100),
-            "y": rng.integers(3, 10, size=100),
-            "x": rng.integers(3, 10, size=100),
-        }
-    )
     FAMILIES = {
         "bernoulli": ["inverse", "inverse_squared", "log"],
         "beta": ["inverse", "inverse_squared", "log"],
@@ -390,10 +306,10 @@ def test_bad_links():
         for link in links:
             with pytest.raises(ValueError):
                 if family == "bernoulli":
-                    formula = "g ~ x"
+                    formula = "binary_num ~ continuous2"
                 else:
-                    formula = "y ~ x"
-                bmb.Model(formula, data, family=family, link=link)
+                    formula = "count2 ~ continuous2"
+                bmb.Model(formula, data_random_n100, family=family, link=link)
 
 
 def test_constant_terms():
@@ -413,22 +329,14 @@ def test_constant_terms():
         bmb.Model("y ~ 0 + z", data)
 
 
-def test_1d_group_specific():
-    rng = np.random.default_rng(121195)
-    data = pd.DataFrame(
-        {
-            "y": rng.normal(size=40),
-            "x": rng.choice(["A", "B"], size=40),
-            "g": ["A", "B", "C", "D"] * 10,
-        }
-    )
+def test_1d_group_specific(data_random_n100):
     # Since there's 1|g, there's only one column for x|g
-    # We need to ensure x|g is of shape (40,) and not of shape (40, 1)
-    # We do so by checking the mean is (40, ) because shape of x|g still returns (40, 1)
+    # We need to ensure x|g is of shape (100,) and not of shape (100, 1)
+    # We do so by checking the mean is (100, ) because shape of x|g still returns (100, 1)
     # The difference is that we do .squeeze() on it after creation.
-    model = bmb.Model("y ~ (x|g)", data)
+    model = bmb.Model("continuous1 ~ (binary_cat|categorical1)", data_random_n100)
     model.build()
-    assert model.backend.components["mu"].output.shape.eval() == (40,)
+    assert model.backend.components["mu"].output.shape.eval() == (100,)
 
 
 def test_data_is_copied():
@@ -461,7 +369,7 @@ def test_response_is_truncated():
     assert dm.response_component.term.is_truncated is True
 
 
-def test_custom_likelihood_function():
+def test_custom_likelihood_function(mock_pymc_sample):
     df = pd.DataFrame({"y": [1, 2, 3, 4, 5], "x": [1, 1, 2, 2, 3]})
 
     def CustomGaussian(*args, **kwargs):
@@ -473,7 +381,9 @@ def test_custom_likelihood_function():
     )
     family = bmb.Family("custom_gaussian", likelihood, "identity")
     model = bmb.Model("y ~ x", df, family=family, priors={"sigma": sigma_prior})
-    _ = model.fit(tune=100, draws=100)
+    model.build()
+    assert_ip_dlogp(model)
+    model.fit(chains=2)
     assert model.backend.model.observed_RVs[0].str_repr() == "y ~ Normal(mu, sigma)"
 
 
@@ -487,30 +397,30 @@ def test_extra_namespace():
     assert (np.asarray(term.levels) == data["veh_body"].unique()).all()
 
 
-def test_drop_na(crossed_data, caplog):
-    crossed_data_missing = crossed_data.copy()
-    crossed_data_missing.loc[0, "Y"] = np.nan
-    crossed_data_missing.loc[1, "continuous"] = np.nan
-    crossed_data_missing.loc[2, "threecats"] = np.nan
+def test_drop_na(data_crossed, caplog):
+    data_crossed_missing = data_crossed.copy()
+    data_crossed_missing.loc[0, "Y"] = np.nan
+    data_crossed_missing.loc[1, "continuous"] = np.nan
+    data_crossed_missing.loc[2, "threecats"] = np.nan
 
     with caplog.at_level(logging.INFO):
-        bmb.Model("Y ~ continuous + threecats", crossed_data_missing, dropna=True)
+        bmb.Model("Y ~ continuous + threecats", data_crossed_missing, dropna=True)
         assert "Automatically removing 3/120 rows from the dataset." in caplog.text
 
     with pytest.raises(ValueError, match="'data' contains 3 incomplete rows"):
-        bmb.Model("Y ~ continuous + threecats", crossed_data_missing)
+        bmb.Model("Y ~ continuous + threecats", data_crossed_missing)
 
 
-def test_plot_priors(crossed_data):
-    model = bmb.Model("Y ~ 0 + threecats", crossed_data)
+def test_plot_priors(data_crossed):
+    model = bmb.Model("Y ~ 0 + threecats", data_crossed)
     with pytest.raises(ValueError, match="Model is not built yet"):
         model.plot_priors()
     model.build()
     model.plot_priors()
 
 
-def test_model_graph(crossed_data):
-    model = bmb.Model("Y ~ 0 + threecats", crossed_data)
+def test_model_graph(data_crossed):
+    model = bmb.Model("Y ~ 0 + threecats", data_crossed)
     with pytest.raises(ValueError, match="Model is not built yet"):
         model.graph()
     model.build()
@@ -553,7 +463,7 @@ def test_init_fallback(init_data, caplog):
         assert "Initializing NUTS using adapt_diag..." in caplog.text
 
 
-def test_2d_response_no_shape():
+def test_2d_response_no_shape(mock_pymc_sample):
     """
     This tests whether a model where there's a single linear predictor and a response with
     response.ndim > 1 works well, without Bambi causing any shape problems.
@@ -581,4 +491,6 @@ def test_2d_response_no_shape():
     )
 
     model = bmb.Model("prop(y, n) ~ x", data, family=family)
-    model.fit(draws=10, tune=10)
+    model.build()
+    assert_ip_dlogp(model)
+    model.fit(chains=2)

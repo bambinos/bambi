@@ -108,7 +108,7 @@ def test_constrained():
     x = np.array([-3, -2, -1, 0, 0, 0, 1, 1, 2, 3])
     lower = -5
     upper = 4.5
-   
+
     # Arguments and expected outcomes
     iterable = {
         "lower": (lower, None, lower),
@@ -127,7 +127,6 @@ def test_constrained():
     with pytest.raises(ValueError, match="'lb' must be None or scalar."):
         constrained(x, np.array([lower, lower]))
 
-    
     with pytest.raises(ValueError, match="'ub' must be None or scalar."):
         constrained(x, ub=np.array([upper, upper]))
 
@@ -137,7 +136,7 @@ def test_weighted():
     weights = 1 + rng.poisson(lam=3, size=100)
     weights_wrong = rng.normal(size=100)
     y = rng.exponential(scale=3, size=100)
-    
+
     out = weighted(y, weights)
     assert out.shape == (100, 2)
     assert (out[:, 0] == y).all()

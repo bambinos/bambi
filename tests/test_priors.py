@@ -1,22 +1,10 @@
-from os.path import dirname, join
 import pytest
 
+import bambi as bmb
 import numpy as np
 import pymc as pm
 import pandas as pd
 from scipy import special
-
-import bambi as bmb
-
-
-@pytest.fixture(scope="module")
-def diabetes_data():
-    data_dir = join(dirname(__file__), "data")
-    data = pd.read_csv(join(data_dir, "diabetes.txt"), sep="\t")
-    data["age_grp"] = 0
-    data.loc[data["AGE"] > 40, "age_grp"] = 1
-    data.loc[data["AGE"] > 60, "age_grp"] = 2
-    return data
 
 
 def test_prior_class():
@@ -77,30 +65,27 @@ def test_family_class():
         assert hasattr(family, name)
 
 
-def test_family_bad_priors():
-    rng = np.random.default_rng(121195)
-    data = pd.DataFrame(
-        {
-            "y": rng.normal(size=100),
-            "x": rng.normal(size=100),
-            "g": rng.choice(["A", "B"], size=100),
-        }
-    )
+def test_family_bad_priors(data_random_n100):
     likelihood = bmb.Likelihood("Normal", params=["mu", "sigma"], parent="mu")
     family = bmb.Family("MyNormal", likelihood, "identity")
     # Required prior is missing
     with pytest.raises(ValueError, match="The component 'sigma' needs a prior."):
-        bmb.Model("y ~ x", data, family=family)
+        bmb.Model("continuous1 ~ continuous2", data_random_n100, family=family)
 
     # bmb.Prior is not a prior
     with pytest.raises(ValueError, match="'Whatever' is not a valid prior."):
-        bmb.Model("y ~ x", data, family=family, priors={"sigma": "Whatever"})
+        bmb.Model(
+            "continuous1 ~ continuous2",
+            data_random_n100,
+            family=family,
+            priors={"sigma": "Whatever"},
+        )
 
 
-def test_auto_scale(diabetes_data):
+def test_auto_scale(data_diabetes):
     # By default, should scale everything except custom bmb.Prior() objects
     priors = {"BP": bmb.Prior("Cauchy", alpha=1, beta=17.5)}
-    model = bmb.Model("BMI ~ S1 + S2 + BP", diabetes_data, priors=priors)
+    model = bmb.Model("BMI ~ S1 + S2 + BP", data_diabetes, priors=priors)
     parent_component = model.components[model.family.likelihood.parent]
     p1 = parent_component.terms["S1"].prior
     p2 = parent_component.terms["S2"].prior
@@ -113,7 +98,7 @@ def test_auto_scale(diabetes_data):
 
     # With auto_scale off, custom priors are considered.
     priors = {"BP": bmb.Prior("Cauchy", alpha=1, beta=17.5)}
-    model = bmb.Model("BMI ~ S1 + S2 + BP", diabetes_data, priors=priors, auto_scale=False)
+    model = bmb.Model("BMI ~ S1 + S2 + BP", data_diabetes, priors=priors, auto_scale=False)
     parent_component = model.components[model.family.likelihood.parent]
     p2_off = parent_component.terms["S2"].prior
     p3_off = parent_component.terms["BP"].prior
@@ -152,22 +137,13 @@ def test_family_link_unsupported():
         family.link = "Empty"
 
 
-def test_custom_link():
-    rng = np.random.default_rng(121195)
+def test_custom_link(data_random_n100):
     likelihood = bmb.Likelihood("Bernoulli", parent="p")
     link = bmb.Link(
         "my_logit", link=special.expit, linkinv=special.logit, linkinv_backend=pm.math.sigmoid
     )
     family = bmb.Family("bernoulli", likelihood, link)
-
-    data = pd.DataFrame(
-        {
-            "y": [0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
-            "x1": rng.uniform(size=10),
-            "x2": rng.uniform(size=10),
-        }
-    )
-    model = bmb.Model("y ~ x1 + x2", data, family=family)
+    model = bmb.Model("binary_num ~ continuous1 + continuous2", data_random_n100, family=family)
     model.build()
 
 
@@ -184,102 +160,85 @@ def test_family_bad_type():
         bmb.Model("y ~ x", data, family={"family": "gaussian"})
 
 
-def test_set_priors():
+def test_set_priors(data_random_n100):
     # NOTE I'm not sure if this test is OK. 'prior' and 'gp_prior' still point to the same
     #      object and that's why the `.auto_scale` attribute is updated in both..
-    rng = np.random.default_rng(121195)
-    data = pd.DataFrame(
-        {
-            "y": rng.normal(size=100),
-            "x": rng.normal(size=100),
-            "g": rng.choice(["A", "B"], size=100),
-        }
-    )
-    model = bmb.Model("y ~ x + (1|g)", data)
+    model = bmb.Model("continuous1 ~ continuous2 + (1|categorical1)", data_random_n100)
     prior = bmb.Prior("Uniform", lower=0, upper=50)
     gp_prior = bmb.Prior("Normal", mu=0, sigma=bmb.Prior("Normal", mu=0, sigma=1))
 
     # Common
     model.set_priors(common=prior)
-    assert model.components[model.family.likelihood.parent].terms["x"].prior == prior
+    assert model.components[model.family.likelihood.parent].terms["continuous2"].prior == prior
 
     # Group-specific
     with pytest.raises(ValueError, match="must have hyperpriors"):
         model.set_priors(group_specific=prior)
 
     model.set_priors(group_specific=gp_prior)
-    assert model.components[model.family.likelihood.parent].terms["1|g"].prior == gp_prior
+    assert (
+        model.components[model.family.likelihood.parent].terms["1|categorical1"].prior == gp_prior
+    )
 
     # By name
-    model = bmb.Model("y ~ x + (1|g)", data)
+    model = bmb.Model("continuous1 ~ continuous2 + (1|categorical1)", data_random_n100)
     model.set_priors(priors={"Intercept": prior})
-    model.set_priors(priors={"x": prior})
-    model.set_priors(priors={"1|g": gp_prior})
+    model.set_priors(priors={"continuous2": prior})
+    model.set_priors(priors={"1|categorical1": gp_prior})
     parent_component = model.components[model.family.likelihood.parent]
     assert parent_component.terms["Intercept"].prior == prior
-    assert parent_component.terms["x"].prior == prior
-    assert parent_component.terms["1|g"].prior == gp_prior
+    assert parent_component.terms["continuous2"].prior == prior
+    assert parent_component.terms["1|categorical1"].prior == gp_prior
 
 
-def test_set_prior_unexisting_term():
-    rng = np.random.default_rng(121195)
-    data = pd.DataFrame(
-        {
-            "y": rng.normal(size=100),
-            "x": rng.normal(size=100),
-        }
-    )
+def test_set_prior_unexisting_term(data_random_n100):
     prior = bmb.Prior("Uniform", lower=0, upper=50)
-    model = bmb.Model("y ~ x", data)
+    model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
     with pytest.raises(KeyError):
         model.set_priors(priors={"z": prior})
 
 
-def test_response_prior():
-    rng = np.random.default_rng(121195)
-    data = pd.DataFrame({"y": rng.integers(3, 10, size=50), "x": rng.normal(size=50)})
-
+def test_response_prior(data_random_n100):
     priors = {"sigma": bmb.Prior("Uniform", lower=0, upper=50)}
-    model = bmb.Model("y ~ x", data, priors=priors)
+    model = bmb.Model("count2 ~ continuous1", data_random_n100, priors=priors)
     priors["sigma"].auto_scale = False  # the one in the model is set to False
     assert model.constant_components["sigma"].prior == priors["sigma"]
 
     priors = {"alpha": bmb.Prior("Uniform", lower=1, upper=20)}
-    model = bmb.Model("y ~ x", data, family="negativebinomial", priors=priors)
+    model = bmb.Model(
+        "count2 ~ continuous1", data_random_n100, family="negativebinomial", priors=priors
+    )
     priors["alpha"].auto_scale = False
     assert model.constant_components["alpha"].prior == priors["alpha"]
 
     priors = {"alpha": bmb.Prior("Uniform", lower=0, upper=50)}
-    model = bmb.Model("y ~ x", data, family="gamma", priors=priors)
+    model = bmb.Model("count2 ~ continuous1", data_random_n100, family="gamma", priors=priors)
     priors["alpha"].auto_scale = False
     assert model.constant_components["alpha"].prior == priors["alpha"]
 
     priors = {"alpha": bmb.Prior("Uniform", lower=0, upper=50)}
-    model = bmb.Model("y ~ x", data, family="gamma", priors=priors)
+    model = bmb.Model("count2 ~ continuous1", data_random_n100, family="gamma", priors=priors)
     priors["alpha"].auto_scale = False
     assert model.constant_components["alpha"].prior == priors["alpha"]
 
 
-def test_set_response_prior():
-    rng = np.random.default_rng(121195)
-    data = pd.DataFrame({"y": rng.integers(3, 10, size=50), "x": rng.normal(size=50)})
-
+def test_set_response_prior(data_random_n100):
     priors = {"sigma": bmb.Prior("Uniform", lower=0, upper=50)}
-    model = bmb.Model("y ~ x", data)
+    model = bmb.Model("count2 ~ continuous1", data_random_n100)
     model.set_priors(priors)
     assert model.constant_components["sigma"].prior == bmb.Prior(
         "Uniform", False, lower=0, upper=50
     )
 
     priors = {"alpha": bmb.Prior("Uniform", lower=1, upper=20)}
-    model = bmb.Model("y ~ x", data, family="negativebinomial")
+    model = bmb.Model("count2 ~ continuous1", data_random_n100, family="negativebinomial")
     model.set_priors(priors)
     assert model.constant_components["alpha"].prior == bmb.Prior(
         "Uniform", False, lower=1, upper=20
     )
 
     priors = {"alpha": bmb.Prior("Uniform", lower=0, upper=50)}
-    model = bmb.Model("y ~ x", data, family="gamma")
+    model = bmb.Model("count2 ~ continuous1", data_random_n100, family="gamma")
     model.set_priors(priors)
     assert model.constant_components["alpha"].prior == bmb.Prior(
         "Uniform", False, lower=0, upper=50
@@ -325,40 +284,34 @@ def test_prior_shape():
     assert parent_component.terms["q:s"].prior.args["sigma"].shape == (12,)
 
 
-def test_set_priors_but_intercept():
-    rng = np.random.default_rng(121195)
-    df = pd.DataFrame(
-        {
-            "y": [0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
-            "z": rng.normal(size=10),
-            "x1": rng.uniform(size=10),
-            "x2": rng.uniform(size=10),
-            "g": ["A"] * 5 + ["B"] * 5,
-        }
+def test_set_priors_but_intercept(data_random_n100):
+    priors = {
+        "continuous1": bmb.Prior("TruncatedNormal", sigma=1, mu=0, lower=0),
+        "continuous2": bmb.Prior("TruncatedNormal", sigma=1, mu=0, upper=0),
+    }
+    bmb.Model(
+        "binary_num ~ continuous1 + continuous2",
+        data_random_n100,
+        family="bernoulli",
+        priors=priors,
     )
 
     priors = {
-        "x1": bmb.Prior("TruncatedNormal", sigma=1, mu=0, lower=0),
-        "x2": bmb.Prior("TruncatedNormal", sigma=1, mu=0, upper=0),
+        "continuous2": bmb.Prior("StudentT", mu=0, nu=4, lam=1),
+        "continuous3": bmb.Prior("StudentT", mu=0, nu=8, lam=2),
     }
-
-    bmb.Model("y ~ x1 + x2", df, family="bernoulli", priors=priors)
-
-    priors = {
-        "x1": bmb.Prior("StudentT", mu=0, nu=4, lam=1),
-        "x2": bmb.Prior("StudentT", mu=0, nu=8, lam=2),
-    }
-
-    bmb.Model("z ~ x1 + x2 + (1|g)", df, priors=priors)
+    bmb.Model(
+        "continuous1 ~ continuous2 + continuous3 + (1|categorical1)",
+        data_random_n100,
+        priors=priors,
+    )
 
 
-def test_custom_prior():
+def test_custom_prior(data_random_n100):
     def CustomPrior(name, *args, dims=None, **kwargs):
         return pm.Normal(name, *args, dims=dims, **kwargs)
 
-    data = bmb.load_data("my_data")
-
-    priors = {"x": bmb.Prior("CustomPrior", mu=0, sigma=5, dist=CustomPrior)}
-    model = bmb.Model("y ~ x", data, priors=priors)
+    priors = {"continuous2": bmb.Prior("CustomPrior", mu=0, sigma=5, dist=CustomPrior)}
+    model = bmb.Model("continuous1 ~ continuous2", data_random_n100, priors=priors)
     model.build()
-    assert model.backend.model.free_RVs[-1].str_repr() == "x ~ Normal(0, 5)"
+    assert model.backend.model.free_RVs[-1].str_repr() == "continuous2 ~ Normal(0, 5)"
