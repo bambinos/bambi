@@ -48,7 +48,7 @@ data = bmb.load_data("sleepstudy")
 
 # See first rows
 data.head()
- 
+
 # Initialize the fixed effects only model
 model = bmb.Model('Reaction ~ Days', data)
 
@@ -64,7 +64,7 @@ az.summary(results)
 # Use ArviZ to plot the results
 az.plot_trace(results)
 ```
-``` 
+```
    Reaction  Days  Subject
 0  249.5600     0      308
 1  258.7047     1      308
@@ -121,7 +121,7 @@ model = bmb.Model("g['Yes'] ~ x1 + x2", data, family="bernoulli")
 fitted = model.fit()
 ```
 
-After this, we can evaluate the model as before. 
+After this, we can evaluate the model as before.
 
 ### More
 

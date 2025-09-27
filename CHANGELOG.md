@@ -86,7 +86,7 @@ This is the first version of Bambi that is released with a Governance structure.
 * Add `"kidney"` dataset (#697)
 * Add `interpret` submodule (#684, #695, #699, #701, #732, #736)
     * Implements `comparisons`, `predictions`, `slopes`, `plot_comparisons`, `plot_predictions`, and `plot_slopes`
-* Support censored families 
+* Support censored families
 
 ### Maintenance and fixes
 
@@ -135,7 +135,7 @@ This is the first version of Bambi that is released with a Governance structure.
 
 ### New features
 
-* Add support for Gaussian Processes via the HSGP approximation (#632) 
+* Add support for Gaussian Processes via the HSGP approximation (#632)
 * Add new families: `"zero_inflated_poisson"`, `"zero_inflated_binomial"`, and `"zero_inflated_negativebinomial"` (#654)
 * Add new families: `"beta_binomial"` and `"dirichlet_multinomial"` (#659)
 * Allow `plot_cap()` to show predictions at the observation level (#668)
@@ -247,7 +247,7 @@ This is the first version of Bambi that is released with a Governance structure.
 -  Add Plot Conditional Adjusted Predictions `plot_cap` (#517)
 
 ### Maintenance and fixes
--  Group specific terms now work with numeric of multiple columns (#516) 
+-  Group specific terms now work with numeric of multiple columns (#516)
 
 ## 0.8.0
 

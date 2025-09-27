@@ -1,0 +1,52 @@
+name: Run CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "bambi/**"
+      - "tests/**"
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "bambi/**"
+      - "tests/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pixi-env: ["py311", "py312", "py313"]
+
+    name: CI on ${{ matrix.pixi-env }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: prefix-dev/setup-pixi@v0.8.10
+        with:
+          pixi-version: v0.48.0
+          environments: ${{ matrix.pixi-env }}
+
+      - name: Run pre-commit checks
+        run: pixi run -e ${{ matrix.pixi-env }} pre-commit run --all
+
+      - name: Run pylint
+        run: pixi run -e ${{ matrix.pixi-env }} pylint bambi
+
+      - name: Run tests with Coverage
+        run: pixi run -e ${{ matrix.pixi-env }} pytest -vv --cov=bambi --cov-report=term --cov-report=xml tests
+
+      - name: Check Coverage Report
+        run: pixi run -e ${{ matrix.pixi-env }} coverage report -m
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          env_vars: OS,PYTHON
+          name: codecov-umbrella
+          fail_ci_if_error: false

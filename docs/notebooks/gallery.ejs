@@ -14,8 +14,8 @@
     <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
       <small class="card-text inline-block">
         <a href="<%- tile.href %>" class="listing-title"><%= tile.title %></a>
-        <% if (tile.code) { %> 
-        <a href="<%- tile.code %>" title="View source code" 
+        <% if (tile.code) { %>
+        <a href="<%- tile.code %>" title="View source code"
           class="source-code card-text float-end inline-block">
           <i class="bi-code-slash"></i>
         </a>
@@ -29,10 +29,10 @@
         <img src="<%- tile.thumbnail %>" alt="<%- tile.description %>" class="card-img-top"/>
       </a>
     </div>
-    <% if (tile.publicationdate) { %> 
+    <% if (tile.publicationdate) { %>
       <b class="listing-publicationdate"><%= tile.publicationdate %></b>
     <% } %>
-    
+
   </div>
 <% } %>
 
