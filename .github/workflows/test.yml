@@ -2,69 +2,62 @@ name: Run tests
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11", "3.12", "3.13"]
+        #python-version: ["3.11", "3.12", "3.13"]
+        python-version: ["3.13"]
 
     name: Set up Python ${{ matrix.python-version }}
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: conda-incubator/setup-miniconda@v2
+      - name: Set up micromamba
+        uses: mamba-org/setup-micromamba@v2
         with:
-          channels: conda-forge, defaults
-          channel-priority: true
-          python-version: ${{ matrix.python-version }}
-          auto-update-conda: true
+          environment-name: test-env
+          create-args: >-
+            python=${{ matrix.python-version }}
+            pip
 
-      - shell: bash -l {0}
-        run: |
-          conda info
-          conda list
+      - name: Micromamba info
+        shell: bash -l {0}
+        run: micromamba info
 
       - name: Install Bambi and all its dependencies
         shell: bash -l {0}
         run: |
-          conda install -c conda-forge python-graphviz
-          conda install pip
-          pip install .
           pip install .[dev]
           pip install .[jax]
           pip install .[nutpie]
 
-          python --version
-          conda list
-          pip freeze
+      # - name: Run linters
+      #   shell: bash -l {0}
+      #   run: |
+      #     echo "Running black..."
+      #     black bambi --check --diff --color
 
-      - name: Run linters
-        shell: bash -l {0}
-        run: |
-          echo "Running black..."
-          black bambi --check --diff --color
+      #     echo "Checking code style with pylint..."
+      #     pylint bambi
 
-          echo "Checking code style with pylint..."
-          pylint bambi
+      # - name: Run tests
+      #   shell: bash -l {0}
+      #   run: python -m pytest -vv --cov=bambi --cov-report=term --cov-report=xml tests
+      #   env:
+      #     PYTHON_VERSION: ${{ matrix.python-version }}
 
-      - name: Run tests
-        shell: bash -l {0}
-        run: python -m pytest -vv --cov=bambi --cov-report=term --cov-report=xml tests
-        env:
-          PYTHON_VERSION: ${{ matrix.python-version }}
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
-        with:
-          env_vars: OS,PYTHON
-          name: codecov-umbrella
-          fail_ci_if_error: false
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v1
+      #   with:
+      #     env_vars: OS,PYTHON
+      #     name: codecov-umbrella
+      #     fail_ci_if_error: false

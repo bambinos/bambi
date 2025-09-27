@@ -326,20 +326,26 @@ class DistributionalComponent:
 
             draws = u[aliased_term_name]
 
-            if len(to_stack_dims) == 2:  # univariate response
+            to_stack_dims_len = len(to_stack_dims)
+            assert 2 <= to_stack_dims_len <= 3
+
+            if to_stack_dims_len == 2:  # univariate response
                 offset = 0
-            elif len(to_stack_dims) == 3:  # multivariate response
+            else:  # multivariate response
                 offset = 1
 
-            if len(draws.coords) == 3 + offset:  # numeric
+            coords_len = len(draws.coords)
+            assert 3 + offset <= coords_len <= 4 + offset
+
+            if coords_len == 3 + offset: # numeric
                 u_columns = draws.to_numpy()
-            elif len(draws.coords) == 4 + offset:  # categoric
+            else: # categoric
                 u_columns = draws.stack(column=(factor_dim, expr_dim)).to_numpy()
 
             u_arrays.append(u_columns)
 
         u_dims = ["chain", "draw", "__variables__"]
-        if len(to_stack_dims) == 3:
+        if to_stack_dims_len == 3:
             u_dims.insert(2, to_stack_dims[-1])
 
         u = np.concatenate(u_arrays, axis=-1)
@@ -357,10 +363,9 @@ class DistributionalComponent:
         seq_draw = np.arange(draw_n)
         seq_chain = np.arange(chain_n)
 
-        if len(to_stack_dims) == 2:  # univariate response
-            is_univariate = True
-        elif len(to_stack_dims) == 3:  # multivariate response
-            is_univariate = False
+        to_stack_dims_len = len(to_stack_dims)
+        assert 2 <= to_stack_dims <= 3
+        is_univariate = to_stack_dims_len == 2
 
         for factor in factors_with_new_levels:
             term_names = self.group_specific_groups[factor]
@@ -386,18 +391,21 @@ class DistributionalComponent:
                     factor_idxs[factor] = factor_sampled_idxs
 
                 draws_original = posterior[aliased_term_name].to_numpy()
+                draws_original_ndim = draws_original.ndim
 
                 if is_univariate:
-                    # Numeric predictors
+                    assert 3 <= draws_original_ndim <= 4
+
                     if draws_original.ndim == 3:
+                        # Numeric predictors
                         draws_new_group = draws_original[:, seq_draw, factor_sampled_idxs]
                         coords = {
                             "chain": seq_chain,
                             "draw": seq_draw,
                             factor_dim: ["__NEW_FACTOR_GROUP__"],
                         }
-                    # Categoric predictors
-                    elif draws_original.ndim == 4:
+                    else:
+                        # Categoric predictors
                         draws_new_group = draws_original[:, seq_draw, :, factor_sampled_idxs]
                         # Don't know why, but the previous indexing swaps axes, we fix it
                         draws_new_group = np.swapaxes(draws_new_group, 0, 1)
@@ -409,8 +417,10 @@ class DistributionalComponent:
                             factor_dim: ["__NEW_FACTOR_GROUP__"],
                         }
                 else:
+                    assert 4 <= draws_original_ndim <= 5
                     response_dim = to_stack_dims[-1]
-                    if draws_original.ndim == 4:
+
+                    if draws_original_ndim == 4:
                         draws_new_group = draws_original[:, seq_draw, :, factor_sampled_idxs]
                         draws_new_group = np.swapaxes(draws_new_group, 0, 1)
                         coords = {
@@ -419,7 +429,7 @@ class DistributionalComponent:
                             response_dim: posterior.coords[response_dim].to_numpy(),
                             factor_dim: ["__NEW_FACTOR_GROUP__"],
                         }
-                    elif draws_original.ndim == 5:
+                    else:
                         draws_new_group = draws_original[:, seq_draw, :, :, factor_sampled_idxs]
                         draws_new_group = np.swapaxes(draws_new_group, 0, 1)
                         expr_levels = posterior.coords[expr_dim].to_numpy()

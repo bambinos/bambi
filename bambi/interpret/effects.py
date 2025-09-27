@@ -195,6 +195,7 @@ class PredictiveDifferences:
 
         return pairwise_variables
 
+    # pylint: disable=possibly-used-before-assignment
     def get_slope_estimate(
         self,
         predictive_difference: xr.DataArray,
@@ -204,9 +205,7 @@ class PredictiveDifferences:
         eps: float,
         wrt_x: xr.DataArray,
     ) -> xr.DataArray:
-        """
-        Computes the slope estimate for 'dydx', 'dyex', 'eyex', 'eydx'.
-        """
+        """Computes the slope estimate for 'dydx', 'dyex', 'eyex', 'eydx'."""
         predictive_difference = (predictive_difference / eps).rename(self.response.name_target)
 
         if slope in ("eyex", "dyex"):

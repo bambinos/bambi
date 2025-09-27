@@ -353,6 +353,8 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
             if shape != (groups_n, variables_n):
                 raise ValueError("2D sequences must be of shape (groups_n, variables_n)")
             output = value
+        else:
+            raise ValueError(f"Wrong shape: {shape}")
         return output
 
 
