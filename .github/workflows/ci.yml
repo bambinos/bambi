@@ -1,4 +1,4 @@
-name: Run tests
+name: Run CI
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
       matrix:
         pixi-env: ["py311", "py312", "py313"]
 
-    name: Test on ${{ matrix.pixi-env }}
+    name: CI on ${{ matrix.pixi-env }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v5
@@ -32,6 +32,12 @@ jobs:
           cache: true
           pixi-version: v0.48.0
           environments: ${{ matrix.pixi-env }}
+
+      - name: Run pre-commit checks
+        run: pixi run -e ${{ matrix.pixi-env }} pre-commit run --all
+
+      - name: Run pylint
+        run: pixi run -e ${{ matrix.pixi-env }} pylint bambi
 
       - name: Run tests with Coverage
         run: pixi run -e ${{ matrix.pixi-env }} pytest -vv --cov=bambi --cov-report=term --cov-report=xml tests
@@ -45,13 +51,3 @@ jobs:
           env_vars: OS,PYTHON
           name: codecov-umbrella
           fail_ci_if_error: false
-
-
-      # - name: Run linters
-      #   shell: bash -l {0}
-      #   run: |
-      #     echo "Running black..."
-      #     black bambi --check --diff --color
-
-      #     echo "Checking code style with pylint..."
-      #     pylint bambi
