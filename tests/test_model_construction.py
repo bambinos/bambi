@@ -1,12 +1,12 @@
 import logging
 import pathlib
 
+import pytest
 import arviz as az
 import bambi as bmb
 import numpy as np
 import pandas as pd
 import pymc as pm
-import pytest
 
 from bambi.terms import CommonTerm, GroupSpecificTerm
 from formulae import design_matrices
@@ -172,9 +172,9 @@ def test_one_shot_formula_fit(data_diabetes, mock_pymc_sample):
     model.build()
     assert_ip_dlogp(model)
     model.fit(chains=2)
-    named_vars = model.backend.model.named_vars
-    targets = ["S3", "S1", "Intercept"]
-    assert len(set(named_vars.keys()) & set(targets)) == 3
+    named_vars = set(model.backend.model.named_vars)
+    targets = {"S3", "S1", "Intercept"}
+    assert len(named_vars & targets) == 3
 
 
 def test_categorical_term(mock_pymc_sample):
@@ -220,8 +220,8 @@ def test_omit_offsets_false(data_random_n100, mock_pymc_sample):
     model.build()
     assert_ip_dlogp(model)
     idata = model.fit(chains=2, omit_offsets=False)
-    offsets = [var for var in idata.posterior.var() if var.endswith("_offset")]
-    assert offsets == ["1|binary_cat_offset", "continuous2|binary_cat_offset"]
+    offsets = set(var for var in idata.posterior.data_vars if var.endswith("_offset"))
+    assert offsets == {"1|binary_cat_offset", "continuous2|binary_cat_offset"}
 
 
 def test_omit_offsets_true(data_random_n100, mock_pymc_sample):
