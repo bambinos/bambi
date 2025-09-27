@@ -11,32 +11,31 @@ on:
       - synchronize
 
 jobs:
-  build:
+  build-dics:
+    if: github.repository == 'bambinos/bambi'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v6
         with:
           python-version: "3.13"
 
-      - name: Install quartodoc and griffe
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install quartodoc==0.11.1
+      - name: Install quartodoc
+        run: python -m pip install quartodoc==0.11.1
 
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
         with:
           version: 1.7.32 # since this is my local version, we could change it
 
-      - name: Build docs
+      - name: Build documentation
         shell: bash
         run: |
           python -m quartodoc build --config docs/_quarto.yml
