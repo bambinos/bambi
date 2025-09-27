@@ -51,7 +51,7 @@ class ResponseInfo:
     """
 
     name: str
-    target: Union[str, None] = None
+    target: str | None = None
     lower_bound: float = 0.03
     upper_bound: float = 0.97
     name_target: str = field(init=False)
@@ -233,7 +233,7 @@ class PredictiveDifferences:
         response_transforms: dict,
         comparison_type: str = "diff",
         slope: str = "dydx",
-        eps: Union[float, None] = None,
+        eps: float | None = None,
         prob: float = 0.94,
     ):
         """Obtain the effect ('comparisons' or 'slopes') estimate and uncertainty
@@ -401,15 +401,15 @@ class PredictiveDifferences:
 
         return self.summary_df
 
-    def average_by(self, variable: Union[bool, str]) -> pd.DataFrame:
+    def average_by(self, variable: bool | str) -> pd.DataFrame:
         """Uses the original 'summary_df' to perform a marginal (if 'variable=True')
         or group by average if covariate(s) are passed
 
         Parameters
         ----------
-        variable : Union[bool, str]
-            If 'True', then average over all covariates. If a string
-            is passed, then a group by average is performed.
+        variable : bool or str
+            If `True`, then average over all covariates.
+            If a string is passed, then a group by average is performed.
 
         Returns
         -------
@@ -435,14 +435,14 @@ class PredictiveDifferences:
 def predictions(
     model: Model,
     idata: az.InferenceData,
-    conditional: Union[str, dict, list, None] = None,
-    average_by: Union[str, list, bool, None] = None,
+    conditional: str | dict | list | None = None,
+    average_by: str | list | bool | None = None,
     target: str = "mean",
     pps: bool = False,
     use_hdi: bool = True,
-    prob=None,
-    transforms=None,
-    sample_new_groups=False,
+    prob: float | None = None,
+    transforms: dict | None = None,
+    sample_new_groups: bool = False,
 ) -> pd.DataFrame:
     """Compute Conditional Adjusted Predictions
 
@@ -588,13 +588,13 @@ def predictions(
 def comparisons(
     model: Model,
     idata: az.InferenceData,
-    contrast: Union[str, dict],
-    conditional: Union[str, dict, list, None] = None,
-    average_by: Union[str, list, bool, None] = None,
+    contrast: str | dict,
+    conditional: str | dict | list | None = None,
+    average_by: str | list | bool | None = None,
     comparison_type: str = "diff",
     use_hdi: bool = True,
-    prob: Union[float, None] = None,
-    transforms: Union[dict, None] = None,
+    prob: float | None = None,
+    transforms: dict | None = None,
     sample_new_groups: bool = False,
 ) -> pd.DataFrame:
     """Compute Conditional Adjusted Comparisons
@@ -739,14 +739,14 @@ def comparisons(
 def slopes(
     model: Model,
     idata: az.InferenceData,
-    wrt: Union[str, dict],
-    conditional: Union[str, dict, list, None] = None,
-    average_by: Union[str, list, bool, None] = None,
+    wrt: str | dict,
+    conditional: str | dict | list | None = None,
+    average_by: str | list | bool | None = None,
     eps: float = 1e-4,
     slope: str = "dydx",
     use_hdi: bool = True,
-    prob: Union[float, None] = None,
-    transforms: Union[dict, None] = None,
+    prob: float | None = None,
+    transforms: dict | None = None,
     sample_new_groups: bool = False,
 ) -> pd.DataFrame:
     """Compute Conditional Adjusted Slopes

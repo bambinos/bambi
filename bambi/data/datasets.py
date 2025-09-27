@@ -212,12 +212,12 @@ def get_data_home(data_home=None):
     return data_home
 
 
-def clear_data_home(data_home=None):
+def clear_data_home(data_home: str | None = None):
     """Delete all the content of the data home cache.
 
     Parameters
     ----------
-    data_home: str
+    data_home: str or None, optional
         The path to Bambi data dir. By default a folder named `"bambi_data"` in the user home
         folder.
     """
@@ -239,7 +239,7 @@ def _sha256(path):
     return sha256hash.hexdigest()
 
 
-def load_data(dataset=None, data_home=None):
+def load_data(dataset: str | None = None, data_home: str | None = None):
     """Load a dataset.
 
     Run with no parameters to get a list of all available data sets.

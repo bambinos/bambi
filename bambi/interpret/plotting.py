@@ -1,10 +1,9 @@
-from typing import Union
-
 import arviz as az
-from arviz.plots.backends.matplotlib import create_axes_grid
-from arviz.plots.plot_utils import default_grid
 import numpy as np
 import pandas as pd
+
+from arviz.plots.backends.matplotlib import create_axes_grid
+from arviz.plots.plot_utils import default_grid
 from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype
 
 from bambi.models import Model
@@ -18,7 +17,7 @@ def _plot_differences(
     model: Model,
     conditional_info: ConditionalInfo,
     summary_df: pd.DataFrame,
-    average_by: Union[str, list, None] = None,
+    average_by: str | list | None = None,
     transforms=None,
     legend: bool = True,
     ax=None,
@@ -83,8 +82,8 @@ def _plot_differences(
 def plot_predictions(
     model: Model,
     idata: az.InferenceData,
-    conditional: Union[str, list, dict, None] = None,
-    average_by: Union[str, list, None] = None,
+    conditional: str | list | dict | None = None,
+    average_by: str | list | None = None,
     target: str = "mean",
     sample_new_groups: bool = False,
     pps: bool = False,
@@ -241,9 +240,9 @@ def plot_predictions(
 def plot_comparisons(
     model: Model,
     idata: az.InferenceData,
-    contrast: Union[str, dict, list],
-    conditional: Union[str, dict, list, None] = None,
-    average_by: Union[str, list, None] = None,
+    contrast: str | dict | list,
+    conditional: str | dict | list | None = None,
+    average_by: str | list | None = None,
     comparison_type: str = "diff",
     sample_new_groups: bool = False,
     use_hdi: bool = True,
@@ -383,9 +382,9 @@ def plot_comparisons(
 def plot_slopes(
     model: Model,
     idata: az.InferenceData,
-    wrt: Union[str, dict],
-    conditional: Union[str, dict, list, None] = None,
-    average_by: Union[str, list] = None,
+    wrt: str | dict,
+    conditional: str | dict | list | None = None,
+    average_by: str | list = None,
     eps: float = 1e-4,
     slope: str = "dydx",
     sample_new_groups: bool = False,
