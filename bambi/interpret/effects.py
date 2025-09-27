@@ -470,7 +470,7 @@ def predictions(
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable `az.rcParam["stats.hdi_prob"]` affects this default.
+        Changing the global variable `az.rcParam["stats.ci_prob"]` affects this default.
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
         name of the variables, and the values are functions to be applied. Defaults to `None`.
@@ -505,7 +505,7 @@ def predictions(
     transforms = transforms if transforms is not None else {}
 
     if prob is None:
-        prob = az.rcParams["stats.hdi_prob"]
+        prob = az.rcParams["stats.ci_prob"]
     if not 0 < prob < 1:
         raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
@@ -682,7 +682,7 @@ def comparisons(
         raise ValueError("'comparison_type' must be 'diff' or 'ratio'")
 
     if prob is None:
-        prob = az.rcParams["stats.hdi_prob"]
+        prob = az.rcParams["stats.ci_prob"]
     if not 0 < prob < 1:
         raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
@@ -784,7 +784,7 @@ def slopes(
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable `az.rcParams["stats.hdi_prob"]` affects this default.
+        Changing the global variable `az.rcParams["stats.ci_prob"]` affects this default.
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
         name of the variables, and the values are functions to be applied. Defaults to `None`.
@@ -842,7 +842,7 @@ def slopes(
         raise ValueError("'slope' must be one of ('dydx', 'dyex', 'eyex', 'eydx')")
 
     if prob is None:
-        prob = az.rcParams["stats.hdi_prob"]
+        prob = az.rcParams["stats.ci_prob"]
     if not 0 < prob < 1:
         raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 

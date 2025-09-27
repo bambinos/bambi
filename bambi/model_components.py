@@ -337,9 +337,9 @@ class DistributionalComponent:
             coords_len = len(draws.coords)
             assert 3 + offset <= coords_len <= 4 + offset
 
-            if coords_len == 3 + offset: # numeric
+            if coords_len == 3 + offset:  # numeric
                 u_columns = draws.to_numpy()
-            else: # categoric
+            else:  # categoric
                 u_columns = draws.stack(column=(factor_dim, expr_dim)).to_numpy()
 
             u_arrays.append(u_columns)
@@ -364,7 +364,7 @@ class DistributionalComponent:
         seq_chain = np.arange(chain_n)
 
         to_stack_dims_len = len(to_stack_dims)
-        assert 2 <= to_stack_dims <= 3
+        assert 2 <= to_stack_dims_len <= 3
         is_univariate = to_stack_dims_len == 2
 
         for factor in factors_with_new_levels:

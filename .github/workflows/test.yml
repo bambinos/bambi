@@ -2,43 +2,50 @@ name: Run tests
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+    paths:
+      - "bambi/**"
+      - "tests/**"
   pull_request:
-    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "bambi/**"
+      - "tests/**"
 
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        #python-version: ["3.11", "3.12", "3.13"]
-        python-version: ["3.13"]
+        #python-version: ["py311", "py312", "py313"]
+        pixi-env: ["py313"]
 
-    name: Set up Python ${{ matrix.python-version }}
+    name: Test on ${{ matrix.pixi-env }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@v2
+      - uses: prefix-dev/setup-pixi@v0.8.10
         with:
-          environment-name: test-env
-          create-args: >-
-            python=${{ matrix.python-version }}
-            pip
+          pixi-version: v0.48.0
+          environments: ${{ matrix.pixi-env }}
 
-      - name: Micromamba info
-        shell: bash -l {0}
-        run: micromamba info
+      - name: Run tests with Coverage
+        run: pixi run -e ${{ matrix.pixi-env }} pytest tests/test_aliases.py -vv --cov=bambi --cov-report=term --cov-report=xml tests
 
-      - name: Install Bambi and all its dependencies
-        shell: bash -l {0}
-        run: |
-          pip install .[dev]
-          pip install .[jax]
-          pip install .[nutpie]
+      - name: Check Coverage Report
+        run: pixi run -e ${{ matrix.pixi-env }} coverage report -m
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          env_vars: OS,PYTHON
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
 
       # - name: Run linters
       #   shell: bash -l {0}
@@ -48,16 +55,3 @@ jobs:
 
       #     echo "Checking code style with pylint..."
       #     pylint bambi
-
-      # - name: Run tests
-      #   shell: bash -l {0}
-      #   run: python -m pytest -vv --cov=bambi --cov-report=term --cov-report=xml tests
-      #   env:
-      #     PYTHON_VERSION: ${{ matrix.python-version }}
-
-      # - name: Upload coverage to Codecov
-      #   uses: codecov/codecov-action@v1
-      #   with:
-      #     env_vars: OS,PYTHON
-      #     name: codecov-umbrella
-      #     fail_ci_if_error: false

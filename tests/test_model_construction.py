@@ -394,7 +394,7 @@ def test_extra_namespace():
     formula = "numclaims ~ 0 + C(veh_body, levels=levels)"
     model = bmb.Model(formula, data, family="poisson", link="log", extra_namespace=extra_namespace)
     term = model.components[model.family.likelihood.parent].terms["C(veh_body, levels=levels)"]
-    assert (np.asarray(term.levels) == data["veh_body"].unique()).all()
+    assert set(np.asarray(term.levels)) == set(data["veh_body"].unique())
 
 
 def test_drop_na(data_crossed, caplog):

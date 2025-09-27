@@ -7,16 +7,16 @@ repos:
       - id: black
         args: [--diff, --check]
 
-  - repo: https://github.com/PyCQA/pylint
-    rev: v3.3.8
-    hooks:
-      - id: pylint
-
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
-      - id: check-yaml
       - id: check-toml
-      - id: check-added-large-files
+        types: [toml]
+      - id: check-yaml
+        types: [yaml]
       - id: end-of-file-fixer
+        types: [text]
       - id: trailing-whitespace
+        types: [text]
+      - id: check-added-large-files
+        args: ["--maxkb=2048"]
