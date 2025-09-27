@@ -308,8 +308,9 @@ class Model:
 
         Returns
         -------
-        An ArviZ `InferenceData` instance if `inference_method` is `"pymc"`, `"nutpie"`,
-        `"blackjax"`, `"numpyro"`, or "laplace". An `Approximation` object if  `"vi"`.
+        `az.InferenceData` or `Approximation`
+            It returns an `az.InferenceData` if `inference_method` is `"pymc"`, `"nutpie"`,
+            `"blackjax"`, `"numpyro"`, or `"laplace"`, and an `Approximation` object if  `"vi"`.
         """
         method = kwargs.pop("method", None)
         if method is not None:
@@ -360,17 +361,13 @@ class Model:
         """Set up the model for sampling/fitting
 
         Creates an instance of the underlying PyMC model and adds all the necessary terms to it.
-
-        Returns
-        -------
-        `None`.
         """
         self.backend = PyMCModel()
         self.backend.build(self)
         self.built = True
 
     def set_priors(self, priors=None, common=None, group_specific=None):
-        """Set priors for one or more existing terms
+        """Set priors for one or more existing terms.
 
         Parameters
         ----------
@@ -381,10 +378,6 @@ class Model:
             A prior specification to apply to all common terms included in the model.
         group_specific : Prior, int, or float
             A prior specification to apply to all group specific terms included in the model.
-
-        Returns
-        -------
-        `None`.
         """
         kwargs = dict(zip(["priors", "common", "group_specific"], [priors, common, group_specific]))
         self._added_priors.update(kwargs)
@@ -1080,15 +1073,13 @@ class Model:
         graphviz.Digraph
             The graph
 
-        Example
+        Examples
         --------
-        >>> model = Model("y ~ x + (1|z)")
-        >>> model.build()
-        >>> model.graph()
-
-        >>> model = Model("y ~ x + (1|z)")
-        >>> model.fit()
-        >>> model.graph()
+        ```python
+        model = Model("y ~ x + (1|z)")
+        model.fit()
+        model.graph()
+        ```
         """
         self._check_built()
 

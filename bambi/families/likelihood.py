@@ -31,10 +31,6 @@ DISTRIBUTIONS = {
 class Likelihood:
     """Representation of a Likelihood function for a Bambi model
 
-    Notes:
-    * `parent` must be in `params`
-    * `parent` is inferred from the `name` if it is a known name
-
     Parameters
     ----------
     name : str
@@ -44,8 +40,13 @@ class Likelihood:
     parent : str
         Optional specification of the name of the mean parameter in the likelihood.
         This is the parameter whose transformation is modeled by the linear predictor.
-    dist : pymc.distributions.distribution.DistributionMeta or callable
+    dist : pymc.Distribution or callable
         Optional custom PyMC distribution that will be used to compute the likelihood.
+
+    Notes
+    -----
+    * `parent` must be in `params`
+    * `parent` is inferred from the `name` if it is a known name
     """
 
     DISTRIBUTIONS = DISTRIBUTIONS

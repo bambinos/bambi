@@ -51,7 +51,7 @@ class ResponseInfo:
     """
 
     name: str
-    target: Union[str, None] = None
+    target: str | None = None
     lower_bound: float = 0.03
     upper_bound: float = 0.97
     name_target: str = field(init=False)
@@ -195,6 +195,7 @@ class PredictiveDifferences:
 
         return pairwise_variables
 
+    # pylint: disable=possibly-used-before-assignment
     def get_slope_estimate(
         self,
         predictive_difference: xr.DataArray,
@@ -204,9 +205,7 @@ class PredictiveDifferences:
         eps: float,
         wrt_x: xr.DataArray,
     ) -> xr.DataArray:
-        """
-        Computes the slope estimate for 'dydx', 'dyex', 'eyex', 'eydx'.
-        """
+        """Computes the slope estimate for 'dydx', 'dyex', 'eyex', 'eydx'."""
         predictive_difference = (predictive_difference / eps).rename(self.response.name_target)
 
         if slope in ("eyex", "dyex"):
@@ -234,7 +233,7 @@ class PredictiveDifferences:
         response_transforms: dict,
         comparison_type: str = "diff",
         slope: str = "dydx",
-        eps: Union[float, None] = None,
+        eps: float | None = None,
         prob: float = 0.94,
     ):
         """Obtain the effect ('comparisons' or 'slopes') estimate and uncertainty
@@ -402,15 +401,15 @@ class PredictiveDifferences:
 
         return self.summary_df
 
-    def average_by(self, variable: Union[bool, str]) -> pd.DataFrame:
+    def average_by(self, variable: bool | str) -> pd.DataFrame:
         """Uses the original 'summary_df' to perform a marginal (if 'variable=True')
         or group by average if covariate(s) are passed
 
         Parameters
         ----------
-        variable : Union[bool, str]
-            If 'True', then average over all covariates. If a string
-            is passed, then a group by average is performed.
+        variable : bool or str
+            If `True`, then average over all covariates.
+            If a string is passed, then a group by average is performed.
 
         Returns
         -------
@@ -436,14 +435,14 @@ class PredictiveDifferences:
 def predictions(
     model: Model,
     idata: az.InferenceData,
-    conditional: Union[str, dict, list, None] = None,
-    average_by: Union[str, list, bool, None] = None,
+    conditional: str | dict | list | None = None,
+    average_by: str | list | bool | None = None,
     target: str = "mean",
     pps: bool = False,
     use_hdi: bool = True,
-    prob=None,
-    transforms=None,
-    sample_new_groups=False,
+    prob: float | None = None,
+    transforms: dict | None = None,
+    sample_new_groups: bool = False,
 ) -> pd.DataFrame:
     """Compute Conditional Adjusted Predictions
 
@@ -471,7 +470,7 @@ def predictions(
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable `az.rcParam["stats.hdi_prob"]` affects this default.
+        Changing the global variable `az.rcParam["stats.ci_prob"]` affects this default.
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
         name of the variables, and the values are functions to be applied. Defaults to `None`.
@@ -506,7 +505,7 @@ def predictions(
     transforms = transforms if transforms is not None else {}
 
     if prob is None:
-        prob = az.rcParams["stats.hdi_prob"]
+        prob = az.rcParams["stats.ci_prob"]
     if not 0 < prob < 1:
         raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
@@ -589,13 +588,13 @@ def predictions(
 def comparisons(
     model: Model,
     idata: az.InferenceData,
-    contrast: Union[str, dict],
-    conditional: Union[str, dict, list, None] = None,
-    average_by: Union[str, list, bool, None] = None,
+    contrast: str | dict,
+    conditional: str | dict | list | None = None,
+    average_by: str | list | bool | None = None,
     comparison_type: str = "diff",
     use_hdi: bool = True,
-    prob: Union[float, None] = None,
-    transforms: Union[dict, None] = None,
+    prob: float | None = None,
+    transforms: dict | None = None,
     sample_new_groups: bool = False,
 ) -> pd.DataFrame:
     """Compute Conditional Adjusted Comparisons
@@ -683,7 +682,7 @@ def comparisons(
         raise ValueError("'comparison_type' must be 'diff' or 'ratio'")
 
     if prob is None:
-        prob = az.rcParams["stats.hdi_prob"]
+        prob = az.rcParams["stats.ci_prob"]
     if not 0 < prob < 1:
         raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
@@ -740,14 +739,14 @@ def comparisons(
 def slopes(
     model: Model,
     idata: az.InferenceData,
-    wrt: Union[str, dict],
-    conditional: Union[str, dict, list, None] = None,
-    average_by: Union[str, list, bool, None] = None,
+    wrt: str | dict,
+    conditional: str | dict | list | None = None,
+    average_by: str | list | bool | None = None,
     eps: float = 1e-4,
     slope: str = "dydx",
     use_hdi: bool = True,
-    prob: Union[float, None] = None,
-    transforms: Union[dict, None] = None,
+    prob: float | None = None,
+    transforms: dict | None = None,
     sample_new_groups: bool = False,
 ) -> pd.DataFrame:
     """Compute Conditional Adjusted Slopes
@@ -785,7 +784,7 @@ def slopes(
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable `az.rcParams["stats.hdi_prob"]` affects this default.
+        Changing the global variable `az.rcParams["stats.ci_prob"]` affects this default.
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
         name of the variables, and the values are functions to be applied. Defaults to `None`.
@@ -843,7 +842,7 @@ def slopes(
         raise ValueError("'slope' must be one of ('dydx', 'dyex', 'eyex', 'eydx')")
 
     if prob is None:
-        prob = az.rcParams["stats.hdi_prob"]
+        prob = az.rcParams["stats.ci_prob"]
     if not 0 < prob < 1:
         raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 

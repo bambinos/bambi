@@ -1,5 +1,5 @@
-import numpy as np
 import pytensor
+import numpy as np
 
 
 class Prior:
@@ -12,11 +12,11 @@ class Prior:
         (e.g., `"Normal"`, `"Bernoulli"`, etc.)
     auto_scale: bool
         Whether to adjust the parameters of the prior or use them as passed. Default to `True`.
-    kwargs : dict
-        Optional keywords specifying the parameters of the named distribution.
     dist : pymc.distributions.distribution.DistributionMeta or callable
         A callable that returns a valid PyMC distribution. The signature must contain `name`,
         `dims`, and `shape`, as well as its own keyworded arguments.
+    kwargs : dict
+        Optional keywords specifying the parameters of the named distribution.
     """
 
     def __init__(self, name, auto_scale=True, dist=None, **kwargs):

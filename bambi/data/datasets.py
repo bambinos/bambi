@@ -113,8 +113,8 @@ Subject
         url="https://figshare.com/ndownloader/files/38737026",
         checksum="3e1844b6da435f910b10899e18188568f7d789c715a286c9c6c2ca23833ee7ac",
         description="""
-This dataset contains the hourly and daily count of rental bikes between 
-years 2011 and 2012 in Capital bikeshare system with the corresponding weather and seasonal 
+This dataset contains the hourly and daily count of rental bikes between
+years 2011 and 2012 in Capital bikeshare system with the corresponding weather and seasonal
 information.
 
 - instant: record index
@@ -131,9 +131,9 @@ information.
     * 2: Mist + Cloudy, Mist + Broken clouds, Mist + Few clouds, Mist
     * 3: Light Snow, Light Rain + Thunderstorm + Scattered clouds, Light Rain + Scattered clouds
     * 4: Heavy Rain + Ice Pallets + Thunderstorm + Mist, Snow + Fog
-- temperature : Normalized temperature in Celsius. 
+- temperature : Normalized temperature in Celsius.
     The values are derived via (t-t_min)/(t_max-t_min), t_min=-8, t_max=+39 (only in hourly scale)
-- atemp: Normalized feeling temperature in Celsius. 
+- atemp: Normalized feeling temperature in Celsius.
     The values are derived via (t-t_min)/(t_max-t_min), t_min=-16, t_max=+50 (only in hourly scale)
 - humidty: Normalized humidity. The values are divided to 100 (max)
 - windspeed: Normalized wind speed. The values are divided to 67 (max)
@@ -150,7 +150,7 @@ Original source: https://archive.ics.uci.edu/ml/datasets/bike+sharing+dataset
         checksum="c802190c43e02246da9c6c9c3f13a58f076cc6b77922f4d9766a3c6bdb1b52bd",
         description="""
 The data was extracted from the 1974 Motor Trend US magazine, and comprises fuel consumption and 10
-aspects of automobile design and performance for 32 automobiles (1973--74 models). 
+aspects of automobile design and performance for 32 automobiles (1973--74 models).
 The following is a description of the variables:
 
 * mpg: Miles/(US) gallon
@@ -170,9 +170,9 @@ The following is a description of the variables:
         url="https://figshare.com/ndownloader/files/41645361",
         checksum="46e49372b4e8c3044dca0ffbb4eb2244f56d7398746802e351baac6c12625564",
         description="""
-It describes the first and second recurrence times of infection in kidney patients together with 
+It describes the first and second recurrence times of infection in kidney patients together with
 information on risk variables such as age, sex, and disease type.
-This dataset is taken from McGilchrist and Aisbett (1991). 
+This dataset is taken from McGilchrist and Aisbett (1991).
 
 * time: Days to first or second recurrence of the infection, or the time of censoring
 * censored: Indicates censoring status. 0 indicates no censoring and 1 indicates right censoring
@@ -212,12 +212,12 @@ def get_data_home(data_home=None):
     return data_home
 
 
-def clear_data_home(data_home=None):
+def clear_data_home(data_home: str | None = None):
     """Delete all the content of the data home cache.
 
     Parameters
     ----------
-    data_home: str
+    data_home: str or None, optional
         The path to Bambi data dir. By default a folder named `"bambi_data"` in the user home
         folder.
     """
@@ -239,7 +239,7 @@ def _sha256(path):
     return sha256hash.hexdigest()
 
 
-def load_data(dataset=None, data_home=None):
+def load_data(dataset: str | None = None, data_home: str | None = None):
     """Load a dataset.
 
     Run with no parameters to get a list of all available data sets.

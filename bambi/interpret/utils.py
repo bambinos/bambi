@@ -168,11 +168,7 @@ class ConditionalInfo:
         """
         covariate_kinds = ("main", "group", "panel")
 
-        if not isinstance(self.conditional, dict):
-            self.conditional = listify(self.conditional)
-            covariate_names = self.conditional
-            self.user_passed = False
-        elif isinstance(self.conditional, dict):
+        if isinstance(self.conditional, dict):
             covariate_names = list(self.conditional.keys())
             for key, value in self.conditional.items():
                 if not isinstance(value, (list, np.ndarray)):
@@ -181,6 +177,10 @@ class ConditionalInfo:
             # sort values b/c of matplotlib plotting behavior when calling `plot_categorical`
             self.conditional = {key: sorted(value) for key, value in self.conditional.items()}
             self.user_passed = True
+        else:
+            self.conditional = listify(self.conditional)
+            covariate_names = self.conditional
+            self.user_passed = False
 
         self.covariates = dict(zip(covariate_kinds, self.conditional))
 
@@ -266,6 +266,7 @@ def get_model_covariates(model: Model) -> np.ndarray:
     return np.unique(flatten_covariates)
 
 
+# pylint: disable=possibly-used-before-assignment
 def get_covariates(covariates: dict) -> Covariates:
     """
     Obtain the main, group, and panel covariates from the user's
@@ -281,6 +282,7 @@ def get_covariates(covariates: dict) -> Covariates:
         # assign main, group, panel based on the number of variables
         # passed by the user in their conditional dict
         length = len(covariates.keys())
+        assert 1 <= length <= 3
         if length == 1:
             main = covariates.keys()
             group = None
@@ -288,7 +290,7 @@ def get_covariates(covariates: dict) -> Covariates:
         elif length == 2:
             main, group = covariates.keys()
             panel = None
-        elif length == 3:
+        else:
             main, group, panel = covariates.keys()
 
     return Covariates(main, group, panel)
