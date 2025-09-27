@@ -18,8 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        #python-version: ["py311", "py312", "py313"]
-        pixi-env: ["py313"]
+        pixi-env: ["py311", "py312", "py313"]
 
     name: Test on ${{ matrix.pixi-env }}
     steps:
