@@ -43,7 +43,7 @@ jobs:
           touch docs/_site/.nojekyll
 
       - name: Publish to GitHub
-        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags') # Only from main or a tag
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags')
         uses: quarto-dev/quarto-actions/publish@v2
         with:
           target: gh-pages
@@ -52,3 +52,10 @@ jobs:
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+# NOTES
+# 1. The job runs only in the bambinos/bambi repository. It does not make sense to do it elsewhere.
+# 2. The rendered webpage is published ONLY when the job was triggered by:
+#   - A commit to main
+#   - A tagged release
