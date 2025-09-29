@@ -139,10 +139,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../faq.html"> 
-<span class="menu-text">FAQ</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link" href="../changelog.html"> 
 <span class="menu-text">Changelog</span></a>
   </li>  
@@ -347,6 +343,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#bambi.Likelihood" id="toc-bambi.Likelihood" class="nav-link active" data-scroll-target="#bambi.Likelihood">Likelihood</a>
   <ul class="collapse">
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -361,14 +358,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>Likelihood</h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Likelihood(name, params<span class="op">=</span><span class="va">None</span>, parent<span class="op">=</span><span class="va">None</span>, dist<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Representation of a Likelihood function for a Bambi model</p>
-<p>Notes: * <code>parent</code> must be in <code>params</code> * <code>parent</code> is inferred from the <code>name</code> if it is a known name</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 3%">
-<col style="width: 26%">
-<col style="width: 65%">
+<col style="width: 14%">
+<col style="width: 75%">
 <col style="width: 5%">
 </colgroup>
 <thead>
@@ -400,12 +396,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>dist</td>
-<td>pymc.distributions.distribution.DistributionMeta or callable</td>
+<td>pymc.Distribution or callable</td>
 <td>Optional custom PyMC distribution that will be used to compute the likelihood.</td>
 <td><code>None</code></td>
 </tr>
 </tbody>
 </table>
+</section>
+<section id="notes" class="level2 doc-section doc-section-notes">
+<h2 class="doc-section doc-section-notes anchored" data-anchor-id="notes">Notes</h2>
+<ul>
+<li><code>parent</code> must be in <code>params</code></li>
+<li><code>parent</code> is inferred from the <code>name</code> if it is a known name</li>
+</ul>
 
 
 </section>
@@ -830,7 +833,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>© Copyright 2024, The developers of Bambi.</p>
+<p>© Copyright 2025, The developers of Bambi.</p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

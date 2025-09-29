@@ -172,10 +172,6 @@ window.Quarto = {
 <span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../faq.html"> 
-<span class="menu-text">FAQ</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link" href="../changelog.html"> 
 <span class="menu-text">Changelog</span></a>
   </li>  
@@ -226,12 +222,6 @@ window.Quarto = {
           </a> 
       </div>
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Comparison of two means (T-test)</span></a>
-  </div>
-</li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">
@@ -600,10 +590,10 @@ window.Quarto = {
 </ul>
 <p>First, a logistic regression model with no interactions is fit to the data. Subsequently, to demonstrate the benefits of <code>plot_slopes</code> in interpreting interactions, we will fit a logistic regression model with an interaction term.</p>
 <div id="cell-8" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">"http://www.stat.columbia.edu/~gelman/arm/examples/arsenic/wells.dat"</span>, sep<span class="op">=</span><span class="st">" "</span>)</span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">"https://vincentarelbundock.github.io/Rdatasets/csv/carData/Wells.csv"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"switch"</span>] <span class="op">=</span> pd.Categorical(data[<span class="st">"switch"</span>])</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"dist100"</span>] <span class="op">=</span> data[<span class="st">"dist"</span>] <span class="op">/</span> <span class="dv">100</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"educ4"</span>] <span class="op">=</span> data[<span class="st">"educ"</span>] <span class="op">/</span> <span class="dv">4</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"dist100"</span>] <span class="op">=</span> data[<span class="st">"distance"</span>] <span class="op">/</span> <span class="dv">100</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"educ4"</span>] <span class="op">=</span> data[<span class="st">"education"</span>] <span class="op">/</span> <span class="dv">4</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
 <div>
@@ -613,63 +603,69 @@ window.Quarto = {
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">rownames</th>
 <th data-quarto-table-cell-role="th">switch</th>
 <th data-quarto-table-cell-role="th">arsenic</th>
-<th data-quarto-table-cell-role="th">dist</th>
-<th data-quarto-table-cell-role="th">assoc</th>
-<th data-quarto-table-cell-role="th">educ</th>
+<th data-quarto-table-cell-role="th">distance</th>
+<th data-quarto-table-cell-role="th">education</th>
+<th data-quarto-table-cell-role="th">association</th>
 <th data-quarto-table-cell-role="th">dist100</th>
 <th data-quarto-table-cell-role="th">educ4</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">1</td>
+<td data-quarto-table-cell-role="th">0</td>
 <td>1</td>
+<td>yes</td>
 <td>2.36</td>
-<td>16.826000</td>
+<td>16.826</td>
 <td>0</td>
-<td>0</td>
+<td>no</td>
 <td>0.16826</td>
 <td>0.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">2</td>
-<td>1</td>
+<td data-quarto-table-cell-role="th">1</td>
+<td>2</td>
+<td>yes</td>
 <td>0.71</td>
-<td>47.321999</td>
+<td>47.322</td>
 <td>0</td>
-<td>0</td>
+<td>no</td>
 <td>0.47322</td>
 <td>0.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">3</td>
-<td>0</td>
+<td data-quarto-table-cell-role="th">2</td>
+<td>3</td>
+<td>no</td>
 <td>2.07</td>
-<td>20.966999</td>
-<td>0</td>
+<td>20.967</td>
 <td>10</td>
+<td>no</td>
 <td>0.20967</td>
 <td>2.5</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">4</td>
-<td>1</td>
+<td data-quarto-table-cell-role="th">3</td>
+<td>4</td>
+<td>yes</td>
 <td>1.15</td>
-<td>21.486000</td>
-<td>0</td>
+<td>21.486</td>
 <td>12</td>
+<td>no</td>
 <td>0.21486</td>
 <td>3.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">5</td>
-<td>1</td>
+<td data-quarto-table-cell-role="th">4</td>
+<td>5</td>
+<td>yes</td>
 <td>1.10</td>
-<td>40.874001</td>
-<td>1</td>
+<td>40.874</td>
 <td>14</td>
+<td>yes</td>
 <td>0.40874</td>
 <td>3.5</td>
 </tr>
@@ -693,25 +689,21 @@ window.Quarto = {
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    chains<span class="op">=</span><span class="dv">4</span></span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Modeling the probability that switch==0
-Auto-assigning NUTS sampler...
+<pre><code>Modeling the probability that switch==no
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"101f64f53aac4d8e95c4bf0ec36a7b2e","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"e6731c93d6314862b2760592ed6589de","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 10 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 6 seconds.</code></pre>
 </div>
 </div>
 <section id="user-provided-values" class="level3">
@@ -744,9 +736,9 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    well_idata,</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    wrt<span class="op">=</span>{<span class="st">"arsenic"</span>: <span class="fl">1.5</span>},</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"dist100"</span>: [<span class="fl">0.20</span>, <span class="fl">0.50</span>, <span class="fl">0.80</span>], </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"dist100"</span>: [<span class="fl">0.20</span>, <span class="fl">0.50</span>, <span class="fl">0.80</span>],</span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"educ4"</span>: [<span class="fl">1.00</span>, <span class="fl">1.20</span>, <span class="fl">2.00</span>]</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    }</span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="5">
 <div>
@@ -774,9 +766,9 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <td>(1.5, 1.5001)</td>
 <td>0.2</td>
 <td>1.0</td>
-<td>-0.110797</td>
-<td>-0.128775</td>
-<td>-0.092806</td>
+<td>-0.110501</td>
+<td>-0.128753</td>
+<td>-0.092899</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
@@ -785,9 +777,9 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <td>(1.5, 1.5001)</td>
 <td>0.2</td>
 <td>1.2</td>
-<td>-0.109867</td>
-<td>-0.126725</td>
-<td>-0.091065</td>
+<td>-0.109584</td>
+<td>-0.127565</td>
+<td>-0.092048</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
@@ -796,9 +788,9 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <td>(1.5, 1.5001)</td>
 <td>0.2</td>
 <td>2.0</td>
-<td>-0.105618</td>
-<td>-0.122685</td>
-<td>-0.088383</td>
+<td>-0.105399</td>
+<td>-0.123199</td>
+<td>-0.088894</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
@@ -807,9 +799,9 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <td>(1.5, 1.5001)</td>
 <td>0.5</td>
 <td>1.0</td>
-<td>-0.116087</td>
-<td>-0.134965</td>
-<td>-0.096843</td>
+<td>-0.115731</td>
+<td>-0.135337</td>
+<td>-0.097521</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
@@ -818,9 +810,9 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <td>(1.5, 1.5001)</td>
 <td>0.5</td>
 <td>1.2</td>
-<td>-0.115632</td>
-<td>-0.134562</td>
-<td>-0.096543</td>
+<td>-0.115280</td>
+<td>-0.134801</td>
+<td>-0.097199</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">5</td>
@@ -829,9 +821,9 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <td>(1.5, 1.5001)</td>
 <td>0.5</td>
 <td>2.0</td>
-<td>-0.113140</td>
-<td>-0.130448</td>
-<td>-0.093209</td>
+<td>-0.112818</td>
+<td>-0.131913</td>
+<td>-0.095104</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">6</td>
@@ -840,9 +832,9 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <td>(1.5, 1.5001)</td>
 <td>0.8</td>
 <td>1.0</td>
-<td>-0.117262</td>
-<td>-0.136850</td>
-<td>-0.098549</td>
+<td>-0.116923</td>
+<td>-0.136423</td>
+<td>-0.098302</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">7</td>
@@ -851,9 +843,9 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <td>(1.5, 1.5001)</td>
 <td>0.8</td>
 <td>1.2</td>
-<td>-0.117347</td>
+<td>-0.117001</td>
 <td>-0.136475</td>
-<td>-0.098044</td>
+<td>-0.098365</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">8</td>
@@ -862,9 +854,9 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <td>(1.5, 1.5001)</td>
 <td>0.8</td>
 <td>2.0</td>
-<td>-0.116957</td>
-<td>-0.135079</td>
-<td>-0.096476</td>
+<td>-0.116597</td>
+<td>-0.135591</td>
+<td>-0.097564</td>
 </tr>
 </tbody>
 </table>
@@ -915,9 +907,9 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <td>(1.5, 1.5001)</td>
 <td>0.2</td>
 <td>1.0</td>
-<td>-0.110797</td>
-<td>-0.128775</td>
-<td>-0.092806</td>
+<td>-0.110501</td>
+<td>-0.128753</td>
+<td>-0.092899</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
@@ -926,9 +918,9 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <td>(2.0, 2.0001)</td>
 <td>0.2</td>
 <td>1.0</td>
-<td>-0.109867</td>
-<td>-0.126725</td>
-<td>-0.091065</td>
+<td>-0.109584</td>
+<td>-0.127565</td>
+<td>-0.092048</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
@@ -937,9 +929,9 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <td>(2.5, 2.5001)</td>
 <td>0.2</td>
 <td>1.0</td>
-<td>-0.105618</td>
-<td>-0.122685</td>
-<td>-0.088383</td>
+<td>-0.105399</td>
+<td>-0.123199</td>
+<td>-0.088894</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
@@ -948,9 +940,9 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <td>(1.5, 1.5001)</td>
 <td>0.2</td>
 <td>1.2</td>
-<td>-0.116087</td>
-<td>-0.134965</td>
-<td>-0.096843</td>
+<td>-0.115731</td>
+<td>-0.135337</td>
+<td>-0.097521</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
@@ -959,9 +951,9 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <td>(2.0, 2.0001)</td>
 <td>0.2</td>
 <td>1.2</td>
-<td>-0.115632</td>
-<td>-0.134562</td>
-<td>-0.096543</td>
+<td>-0.115280</td>
+<td>-0.134801</td>
+<td>-0.097199</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">5</td>
@@ -970,9 +962,9 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <td>(2.5, 2.5001)</td>
 <td>0.2</td>
 <td>1.2</td>
-<td>-0.113140</td>
-<td>-0.130448</td>
-<td>-0.093209</td>
+<td>-0.112818</td>
+<td>-0.131913</td>
+<td>-0.095104</td>
 </tr>
 </tbody>
 </table>
@@ -1000,25 +992,21 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    chains<span class="op">=</span><span class="dv">4</span></span>
 <span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Modeling the probability that switch==0
-Auto-assigning NUTS sampler...
+<pre><code>Modeling the probability that switch==no
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"1ab962ebdd2b4fff8a0a716be8fef636","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"1c5784ebf2ca4c1484331abf257ac4a0","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 500 tune and 500 draw iterations (2_000 + 2_000 draws total) took 13 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 500 tune and 500 draw iterations (2_000 + 2_000 draws total) took 6 seconds.</code></pre>
 </div>
 </div>
 <div id="cell-20" class="cell" data-execution_count="8">
@@ -1046,74 +1034,74 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Intercept</td>
-<td>-0.100</td>
-<td>0.126</td>
-<td>-0.308</td>
-<td>0.155</td>
-<td>0.004</td>
+<td>-0.089</td>
+<td>0.121</td>
+<td>-0.304</td>
+<td>0.151</td>
 <td>0.003</td>
-<td>1249.0</td>
-<td>1350.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">arsenic</td>
-<td>-0.396</td>
-<td>0.064</td>
-<td>-0.505</td>
-<td>-0.267</td>
 <td>0.002</td>
-<td>0.001</td>
-<td>1051.0</td>
-<td>938.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">arsenic:educ4</td>
-<td>-0.079</td>
-<td>0.045</td>
-<td>-0.162</td>
-<td>0.006</td>
-<td>0.001</td>
-<td>0.001</td>
-<td>1072.0</td>
-<td>1160.0</td>
+<td>1260.0</td>
+<td>1151.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">dist100</td>
-<td>1.321</td>
-<td>0.181</td>
-<td>1.011</td>
-<td>1.681</td>
+<td>1.317</td>
+<td>0.174</td>
+<td>0.977</td>
+<td>1.623</td>
 <td>0.005</td>
 <td>0.004</td>
-<td>1105.0</td>
-<td>1101.0</td>
+<td>1103.0</td>
+<td>1217.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">dist100:educ4</td>
-<td>-0.331</td>
-<td>0.109</td>
-<td>-0.539</td>
-<td>-0.133</td>
-<td>0.003</td>
+<td data-quarto-table-cell-role="th">arsenic</td>
+<td>-0.402</td>
+<td>0.061</td>
+<td>-0.517</td>
+<td>-0.295</td>
 <td>0.002</td>
-<td>1072.0</td>
-<td>1056.0</td>
+<td>0.001</td>
+<td>919.0</td>
+<td>1021.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">educ4</td>
-<td>0.101</td>
-<td>0.082</td>
-<td>-0.054</td>
-<td>0.251</td>
+<td>0.095</td>
+<td>0.078</td>
+<td>-0.050</td>
+<td>0.235</td>
+<td>0.002</td>
+<td>0.002</td>
+<td>1075.0</td>
+<td>1137.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">dist100:educ4</td>
+<td>-0.328</td>
+<td>0.107</td>
+<td>-0.528</td>
+<td>-0.124</td>
 <td>0.003</td>
 <td>0.002</td>
-<td>1049.0</td>
-<td>1062.0</td>
+<td>1102.0</td>
+<td>1074.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">arsenic:educ4</td>
+<td>-0.076</td>
+<td>0.043</td>
+<td>-0.156</td>
+<td>0.004</td>
+<td>0.001</td>
+<td>0.001</td>
+<td>932.0</td>
+<td>897.0</td>
 <td>1.0</td>
 </tr>
 </tbody>
@@ -1220,9 +1208,9 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <td>(2.36, 2.3601)</td>
 <td>0.16826</td>
 <td>0.00</td>
-<td>-0.083830</td>
-<td>-0.103303</td>
-<td>-0.059619</td>
+<td>-0.084990</td>
+<td>-0.106553</td>
+<td>-0.065591</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
@@ -1231,9 +1219,9 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <td>(0.71, 0.7101)</td>
 <td>0.47322</td>
 <td>0.00</td>
-<td>-0.097236</td>
-<td>-0.125494</td>
-<td>-0.069691</td>
+<td>-0.098632</td>
+<td>-0.124283</td>
+<td>-0.071685</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
@@ -1242,9 +1230,9 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <td>(2.07, 2.0701)</td>
 <td>0.20967</td>
 <td>2.50</td>
-<td>-0.117659</td>
-<td>-0.141282</td>
-<td>-0.093521</td>
+<td>-0.117251</td>
+<td>-0.139517</td>
+<td>-0.093123</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
@@ -1253,9 +1241,9 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <td>(1.15, 1.1501)</td>
 <td>0.21486</td>
 <td>3.00</td>
-<td>-0.150092</td>
-<td>-0.188730</td>
-<td>-0.101029</td>
+<td>-0.149083</td>
+<td>-0.191299</td>
+<td>-0.107007</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
@@ -1264,9 +1252,9 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <td>(1.1, 1.1001)</td>
 <td>0.40874</td>
 <td>3.50</td>
-<td>-0.160705</td>
-<td>-0.211825</td>
-<td>-0.101781</td>
+<td>-0.159316</td>
+<td>-0.210319</td>
+<td>-0.104427</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">5</td>
@@ -1275,8 +1263,8 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <td>(3.9, 3.9001)</td>
 <td>0.69518</td>
 <td>2.25</td>
-<td>-0.073752</td>
-<td>-0.080340</td>
+<td>-0.073841</td>
+<td>-0.080303</td>
 <td>-0.067324</td>
 </tr>
 <tr class="odd">
@@ -1286,9 +1274,9 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <td>(2.97, 2.9701000000000004)</td>
 <td>0.80711</td>
 <td>1.00</td>
-<td>-0.108058</td>
-<td>-0.123407</td>
-<td>-0.092499</td>
+<td>-0.108545</td>
+<td>-0.124233</td>
+<td>-0.094288</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">7</td>
@@ -1297,9 +1285,9 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <td>(3.24, 3.2401000000000004)</td>
 <td>0.55146</td>
 <td>2.50</td>
-<td>-0.087782</td>
-<td>-0.097920</td>
-<td>-0.077981</td>
+<td>-0.087756</td>
+<td>-0.097813</td>
+<td>-0.077389</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">8</td>
@@ -1308,9 +1296,9 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <td>(3.28, 3.2801)</td>
 <td>0.52647</td>
 <td>0.00</td>
-<td>-0.086990</td>
-<td>-0.106773</td>
-<td>-0.065548</td>
+<td>-0.088006</td>
+<td>-0.106682</td>
+<td>-0.067846</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">9</td>
@@ -1319,9 +1307,9 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <td>(2.52, 2.5201000000000002)</td>
 <td>0.75072</td>
 <td>0.00</td>
-<td>-0.098481</td>
-<td>-0.125366</td>
-<td>-0.066855</td>
+<td>-0.099874</td>
+<td>-0.128025</td>
+<td>-0.073512</td>
 </tr>
 </tbody>
 </table>
@@ -1339,113 +1327,124 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">rownames</th>
 <th data-quarto-table-cell-role="th">switch</th>
 <th data-quarto-table-cell-role="th">arsenic</th>
-<th data-quarto-table-cell-role="th">dist</th>
-<th data-quarto-table-cell-role="th">assoc</th>
-<th data-quarto-table-cell-role="th">educ</th>
+<th data-quarto-table-cell-role="th">distance</th>
+<th data-quarto-table-cell-role="th">education</th>
+<th data-quarto-table-cell-role="th">association</th>
 <th data-quarto-table-cell-role="th">dist100</th>
 <th data-quarto-table-cell-role="th">educ4</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">1</td>
+<td data-quarto-table-cell-role="th">0</td>
 <td>1</td>
+<td>yes</td>
 <td>2.36</td>
-<td>16.826000</td>
+<td>16.826</td>
 <td>0</td>
-<td>0</td>
+<td>no</td>
 <td>0.16826</td>
 <td>0.00</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">2</td>
-<td>1</td>
+<td data-quarto-table-cell-role="th">1</td>
+<td>2</td>
+<td>yes</td>
 <td>0.71</td>
-<td>47.321999</td>
+<td>47.322</td>
 <td>0</td>
-<td>0</td>
+<td>no</td>
 <td>0.47322</td>
 <td>0.00</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">3</td>
-<td>0</td>
+<td data-quarto-table-cell-role="th">2</td>
+<td>3</td>
+<td>no</td>
 <td>2.07</td>
-<td>20.966999</td>
-<td>0</td>
+<td>20.967</td>
 <td>10</td>
+<td>no</td>
 <td>0.20967</td>
 <td>2.50</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">4</td>
-<td>1</td>
+<td data-quarto-table-cell-role="th">3</td>
+<td>4</td>
+<td>yes</td>
 <td>1.15</td>
-<td>21.486000</td>
-<td>0</td>
+<td>21.486</td>
 <td>12</td>
+<td>no</td>
 <td>0.21486</td>
 <td>3.00</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">5</td>
-<td>1</td>
+<td data-quarto-table-cell-role="th">4</td>
+<td>5</td>
+<td>yes</td>
 <td>1.10</td>
-<td>40.874001</td>
-<td>1</td>
+<td>40.874</td>
 <td>14</td>
+<td>yes</td>
 <td>0.40874</td>
 <td>3.50</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">6</td>
-<td>1</td>
+<td data-quarto-table-cell-role="th">5</td>
+<td>6</td>
+<td>yes</td>
 <td>3.90</td>
-<td>69.517998</td>
-<td>1</td>
+<td>69.518</td>
 <td>9</td>
+<td>yes</td>
 <td>0.69518</td>
 <td>2.25</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">7</td>
-<td>1</td>
+<td data-quarto-table-cell-role="th">6</td>
+<td>7</td>
+<td>yes</td>
 <td>2.97</td>
-<td>80.710999</td>
-<td>1</td>
+<td>80.711</td>
 <td>4</td>
+<td>yes</td>
 <td>0.80711</td>
 <td>1.00</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">8</td>
-<td>1</td>
+<td data-quarto-table-cell-role="th">7</td>
+<td>8</td>
+<td>yes</td>
 <td>3.24</td>
-<td>55.146000</td>
-<td>0</td>
+<td>55.146</td>
 <td>10</td>
+<td>no</td>
 <td>0.55146</td>
 <td>2.50</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">9</td>
-<td>1</td>
+<td data-quarto-table-cell-role="th">8</td>
+<td>9</td>
+<td>yes</td>
 <td>3.28</td>
-<td>52.646999</td>
-<td>1</td>
+<td>52.647</td>
 <td>0</td>
+<td>yes</td>
 <td>0.52647</td>
 <td>0.00</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">10</td>
-<td>1</td>
+<td data-quarto-table-cell-role="th">9</td>
+<td>10</td>
+<td>yes</td>
 <td>2.52</td>
-<td>75.071999</td>
-<td>1</td>
+<td>75.072</td>
 <td>0</td>
+<td>yes</td>
 <td>0.75072</td>
 <td>0.00</td>
 </tr>
@@ -1487,9 +1486,9 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <td data-quarto-table-cell-role="th">0</td>
 <td>arsenic</td>
 <td>dydx</td>
-<td>-0.110844</td>
-<td>-0.134169</td>
-<td>-0.086302</td>
+<td>-0.111296</td>
+<td>-0.134928</td>
+<td>-0.089245</td>
 </tr>
 </tbody>
 </table>
@@ -1501,9 +1500,9 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <div id="cell-34" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>unit_level[[<span class="st">"estimate"</span>, <span class="st">"lower_3.0%"</span>, <span class="st">"upper_97.0%"</span>]].mean()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="15">
-<pre><code>estimate      -0.110844
-lower_3.0%    -0.134169
-upper_97.0%   -0.086302
+<pre><code>estimate      -0.111296
+lower_3.0%    -0.134928
+upper_97.0%   -0.089245
 dtype: float64</code></pre>
 </div>
 </div>
@@ -1542,162 +1541,162 @@ dtype: float64</code></pre>
 <td>arsenic</td>
 <td>dydx</td>
 <td>0.00</td>
-<td>-0.091847</td>
-<td>-0.116890</td>
-<td>-0.064127</td>
+<td>-0.093169</td>
+<td>-0.118536</td>
+<td>-0.068794</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
 <td>arsenic</td>
 <td>dydx</td>
 <td>0.25</td>
-<td>-0.101129</td>
-<td>-0.125250</td>
-<td>-0.075227</td>
+<td>-0.102358</td>
+<td>-0.127127</td>
+<td>-0.080085</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
 <td>arsenic</td>
 <td>dydx</td>
 <td>0.50</td>
-<td>-0.101583</td>
-<td>-0.121680</td>
-<td>-0.081013</td>
+<td>-0.102548</td>
+<td>-0.123101</td>
+<td>-0.083896</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
 <td>arsenic</td>
 <td>dydx</td>
 <td>0.75</td>
-<td>-0.105501</td>
-<td>-0.123085</td>
-<td>-0.086949</td>
+<td>-0.106255</td>
+<td>-0.124590</td>
+<td>-0.089088</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
 <td>arsenic</td>
 <td>dydx</td>
 <td>1.00</td>
-<td>-0.110082</td>
-<td>-0.127725</td>
-<td>-0.092328</td>
+<td>-0.110657</td>
+<td>-0.128600</td>
+<td>-0.094565</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">5</td>
 <td>arsenic</td>
 <td>dydx</td>
 <td>1.25</td>
-<td>-0.111864</td>
-<td>-0.128894</td>
-<td>-0.094192</td>
+<td>-0.112242</td>
+<td>-0.129444</td>
+<td>-0.096226</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">6</td>
 <td>arsenic</td>
 <td>dydx</td>
 <td>1.50</td>
-<td>-0.114416</td>
-<td>-0.132123</td>
-<td>-0.095338</td>
+<td>-0.114621</td>
+<td>-0.132190</td>
+<td>-0.096798</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">7</td>
 <td>arsenic</td>
 <td>dydx</td>
 <td>1.75</td>
-<td>-0.122075</td>
-<td>-0.143268</td>
-<td>-0.100941</td>
+<td>-0.122119</td>
+<td>-0.143431</td>
+<td>-0.102749</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">8</td>
 <td>arsenic</td>
 <td>dydx</td>
 <td>2.00</td>
-<td>-0.124711</td>
-<td>-0.149062</td>
-<td>-0.101160</td>
+<td>-0.124580</td>
+<td>-0.148935</td>
+<td>-0.103232</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">9</td>
 <td>arsenic</td>
 <td>dydx</td>
 <td>2.25</td>
-<td>-0.124916</td>
-<td>-0.150870</td>
-<td>-0.099147</td>
+<td>-0.124640</td>
+<td>-0.150726</td>
+<td>-0.101126</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">10</td>
 <td>arsenic</td>
 <td>dydx</td>
 <td>2.50</td>
-<td>-0.130269</td>
-<td>-0.160280</td>
-<td>-0.100108</td>
+<td>-0.129838</td>
+<td>-0.160267</td>
+<td>-0.102663</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">11</td>
 <td>arsenic</td>
 <td>dydx</td>
 <td>2.75</td>
-<td>-0.136928</td>
-<td>-0.169772</td>
-<td>-0.100540</td>
+<td>-0.136295</td>
+<td>-0.171705</td>
+<td>-0.105108</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">12</td>
 <td>arsenic</td>
 <td>dydx</td>
 <td>3.00</td>
-<td>-0.135619</td>
-<td>-0.171182</td>
-<td>-0.096698</td>
+<td>-0.134872</td>
+<td>-0.172066</td>
+<td>-0.100304</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">13</td>
 <td>arsenic</td>
 <td>dydx</td>
 <td>3.25</td>
-<td>-0.156415</td>
-<td>-0.203887</td>
-<td>-0.105919</td>
+<td>-0.155237</td>
+<td>-0.203619</td>
+<td>-0.109965</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">14</td>
 <td>arsenic</td>
 <td>dydx</td>
 <td>3.50</td>
-<td>-0.142054</td>
-<td>-0.186528</td>
-<td>-0.095787</td>
+<td>-0.141038</td>
+<td>-0.185914</td>
+<td>-0.098660</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">15</td>
 <td>arsenic</td>
 <td>dydx</td>
 <td>3.75</td>
-<td>-0.137817</td>
-<td>-0.183458</td>
-<td>-0.092731</td>
+<td>-0.136778</td>
+<td>-0.180398</td>
+<td>-0.093146</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">16</td>
 <td>arsenic</td>
 <td>dydx</td>
 <td>4.00</td>
-<td>-0.137608</td>
-<td>-0.187025</td>
-<td>-0.087608</td>
+<td>-0.136485</td>
+<td>-0.183766</td>
+<td>-0.088661</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">17</td>
 <td>arsenic</td>
 <td>dydx</td>
 <td>4.25</td>
-<td>-0.176076</td>
-<td>-0.249957</td>
-<td>-0.106476</td>
+<td>-0.173986</td>
+<td>-0.238259</td>
+<td>-0.101553</td>
 </tr>
 </tbody>
 </table>
@@ -1738,9 +1737,9 @@ dtype: float64</code></pre>
 <td>dydx</td>
 <td>0.00</td>
 <td>0.00591</td>
-<td>-0.085353</td>
-<td>-0.106906</td>
-<td>-0.058374</td>
+<td>-0.086666</td>
+<td>-0.111418</td>
+<td>-0.065328</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
@@ -1748,9 +1747,9 @@ dtype: float64</code></pre>
 <td>dydx</td>
 <td>0.00</td>
 <td>0.02409</td>
-<td>-0.095671</td>
-<td>-0.122071</td>
-<td>-0.063162</td>
+<td>-0.097186</td>
+<td>-0.126608</td>
+<td>-0.070509</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
@@ -1758,9 +1757,9 @@ dtype: float64</code></pre>
 <td>dydx</td>
 <td>0.00</td>
 <td>0.02454</td>
-<td>-0.056419</td>
-<td>-0.065869</td>
-<td>-0.046909</td>
+<td>-0.056941</td>
+<td>-0.065824</td>
+<td>-0.048077</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
@@ -1768,9 +1767,9 @@ dtype: float64</code></pre>
 <td>dydx</td>
 <td>0.00</td>
 <td>0.02791</td>
-<td>-0.097036</td>
-<td>-0.124305</td>
-<td>-0.064259</td>
+<td>-0.098558</td>
+<td>-0.128713</td>
+<td>-0.071843</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
@@ -1778,9 +1777,9 @@ dtype: float64</code></pre>
 <td>dydx</td>
 <td>0.00</td>
 <td>0.03252</td>
-<td>-0.075905</td>
-<td>-0.094201</td>
-<td>-0.055535</td>
+<td>-0.076908</td>
+<td>-0.095927</td>
+<td>-0.059296</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">...</td>
@@ -1798,9 +1797,9 @@ dtype: float64</code></pre>
 <td>dydx</td>
 <td>4.00</td>
 <td>1.13727</td>
-<td>-0.069666</td>
-<td>-0.095900</td>
-<td>-0.047386</td>
+<td>-0.070091</td>
+<td>-0.094592</td>
+<td>-0.047360</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">2993</td>
@@ -1808,9 +1807,9 @@ dtype: float64</code></pre>
 <td>dydx</td>
 <td>4.00</td>
 <td>1.14418</td>
-<td>-0.124765</td>
-<td>-0.177566</td>
-<td>-0.078547</td>
+<td>-0.124489</td>
+<td>-0.171069</td>
+<td>-0.072770</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2994</td>
@@ -1818,9 +1817,9 @@ dtype: float64</code></pre>
 <td>dydx</td>
 <td>4.00</td>
 <td>1.25308</td>
-<td>-0.155919</td>
-<td>-0.225351</td>
-<td>-0.091734</td>
+<td>-0.154913</td>
+<td>-0.213946</td>
+<td>-0.082722</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">2995</td>
@@ -1828,9 +1827,9 @@ dtype: float64</code></pre>
 <td>dydx</td>
 <td>4.00</td>
 <td>1.67025</td>
-<td>-0.160505</td>
-<td>-0.230657</td>
-<td>-0.084599</td>
+<td>-0.159513</td>
+<td>-0.229822</td>
+<td>-0.088553</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2996</td>
@@ -1838,9 +1837,9 @@ dtype: float64</code></pre>
 <td>dydx</td>
 <td>4.25</td>
 <td>0.29633</td>
-<td>-0.176076</td>
-<td>-0.249957</td>
-<td>-0.106476</td>
+<td>-0.173986</td>
+<td>-0.238259</td>
+<td>-0.101553</td>
 </tr>
 </tbody>
 </table>
@@ -1914,9 +1913,9 @@ dtype: float64</code></pre>
 <td data-quarto-table-cell-role="th">0</td>
 <td>arsenic</td>
 <td>eyex</td>
-<td>-0.522681</td>
-<td>-0.653823</td>
-<td>-0.390103</td>
+<td>-0.524636</td>
+<td>-0.654336</td>
+<td>-0.402812</td>
 </tr>
 </tbody>
 </table>
@@ -1953,9 +1952,9 @@ dtype: float64</code></pre>
 <td data-quarto-table-cell-role="th">0</td>
 <td>arsenic</td>
 <td>eydx</td>
-<td>-0.285539</td>
-<td>-0.352966</td>
-<td>-0.217926</td>
+<td>-0.286488</td>
+<td>-0.352557</td>
+<td>-0.223956</td>
 </tr>
 </tbody>
 </table>
@@ -1992,9 +1991,9 @@ dtype: float64</code></pre>
 <td data-quarto-table-cell-role="th">0</td>
 <td>arsenic</td>
 <td>dyex</td>
-<td>-0.16691</td>
-<td>-0.200171</td>
-<td>-0.132009</td>
+<td>-0.167628</td>
+<td>-0.201262</td>
+<td>-0.136</td>
 </tr>
 </tbody>
 </table>
@@ -2029,13 +2028,13 @@ dtype: float64</code></pre>
 <section id="categorical-covariates" class="level3">
 <h3 class="anchored" data-anchor-id="categorical-covariates">Categorical covariates</h3>
 <p>As mentioned in the <em>computing slopes</em> section, if you pass a variable with a string or categorical data type, the <code>comparisons</code> function will be called to compute the expected difference in group means. Here, we fit the same interaction model as above, albeit, by specifying <code>educ4</code> as an ordinal data type.</p>
-<div id="cell-47" class="cell" data-execution_count="23">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">"http://www.stat.columbia.edu/~gelman/arm/examples/arsenic/wells.dat"</span>, sep<span class="op">=</span><span class="st">" "</span>)</span>
+<div id="cell-47" class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">"https://vincentarelbundock.github.io/Rdatasets/csv/carData/Wells.csv"</span>)</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"switch"</span>] <span class="op">=</span> pd.Categorical(data[<span class="st">"switch"</span>])</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"dist100"</span>] <span class="op">=</span> data[<span class="st">"dist"</span>] <span class="op">/</span> <span class="dv">100</span></span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"educ4"</span>] <span class="op">=</span> pd.Categorical(data[<span class="st">"educ"</span>] <span class="op">/</span> <span class="dv">4</span>, ordered<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"dist100"</span>] <span class="op">=</span> data[<span class="st">"distance"</span>] <span class="op">/</span> <span class="dv">100</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"educ4"</span>] <span class="op">=</span> pd.Categorical(data[<span class="st">"education"</span>] <span class="op">/</span> <span class="dv">4</span>, ordered<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-48" class="cell" data-execution_count="24">
+<div id="cell-48" class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>well_model_interact <span class="op">=</span> bmb.Model(</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"switch ~ dist100 + arsenic + educ4 + dist100:educ4 + arsenic:educ4"</span>,</span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    data,</span>
@@ -2043,34 +2042,30 @@ dtype: float64</code></pre>
 <span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>well_idata_interact <span class="op">=</span> well_model_interact.fit(</span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">1000</span>, </span>
-<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>    target_accept<span class="op">=</span><span class="fl">0.95</span>, </span>
-<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="dv">1234</span>, </span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">1000</span>,</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>    target_accept<span class="op">=</span><span class="fl">0.95</span>,</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="dv">1234</span>,</span>
 <span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>    chains<span class="op">=</span><span class="dv">4</span></span>
 <span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Modeling the probability that switch==0
-Auto-assigning NUTS sampler...
+<pre><code>Modeling the probability that switch==no
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"9a46f28e7c474860b3f3d3ebef7f37c8","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"c2dc9b046ed2418592ada1e509874438","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 449 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 36 seconds.</code></pre>
 </div>
 </div>
-<div id="cell-49" class="cell" data-execution_count="25">
+<div id="cell-49" class="cell" data-execution_count="26">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -2088,7 +2083,7 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 </div>
 </div>
 <p>As the model was fit with <code>educ4</code> as a categorical data type, Bambi recognized this, and calls <code>comparisons</code> to compute the differences between each level of <code>educ4</code>. As <code>educ4</code> contains many category levels, a covariate must be passed to <code>average_by</code> in order to perform plotting. Below, we can see this plot is equivalent to <code>plot_comparisons</code>.</p>
-<div id="cell-51" class="cell" data-execution_count="26">
+<div id="cell-51" class="cell" data-execution_count="27">
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_comparisons(</span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -2106,7 +2101,7 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 </div>
 </div>
 <p>However, computing the predictive difference between each <code>educ4</code> level may not be desired. Thus, in <code>plot_slopes</code>, as in <code>plot_comparisons</code>, if <code>wrt</code> is a categorical or string data type, it is possible to specify the <code>wrt</code> values. For example, if we wanted to compute the expected difference in probability of switching wells for when <code>educ4</code> is <span class="math inline">\(4\)</span> versus <span class="math inline">\(1\)</span> conditional on a range of <code>dist100</code> and <code>arsenic</code> values, we would pass the following dictionary in the code block below. Please refer to the <a href="https://bambinos.github.io/bambi/notebooks/plot_comparisons.html">comparisons</a> documentation for more details.</p>
-<div id="cell-53" class="cell" data-execution_count="27">
+<div id="cell-53" class="cell" data-execution_count="28">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -2123,22 +2118,22 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 </div>
 </div>
 </div>
-<div id="cell-54" class="cell" data-execution_count="28">
+<div id="cell-54" class="cell" data-execution_count="29">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Sat May 25 2024
+<pre><code>Last updated: Sun Sep 28 2025
 
 Python implementation: CPython
-Python version       : 3.11.9
-IPython version      : 8.24.0
+Python version       : 3.13.7
+IPython version      : 9.4.0
 
-numpy : 1.26.4
-pandas: 2.2.2
-arviz : 0.18.0
-bambi : 0.13.1.dev37+g2a54df76.d20240525
+arviz : 0.22.0
+pandas: 2.3.2
+numpy : 2.3.3
+bambi : 0.14.1.dev58+gb25742785.d20250928
 
-Watermark: 2.4.3
+Watermark: 2.5.0
 </code></pre>
 </div>
 </div>
@@ -2566,7 +2561,7 @@ Watermark: 2.4.3
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>© Copyright 2024, The developers of Bambi.</p>
+<p>© Copyright 2025, The developers of Bambi.</p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

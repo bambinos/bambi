@@ -172,10 +172,6 @@ window.Quarto = {
 <span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../faq.html"> 
-<span class="menu-text">FAQ</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link" href="../changelog.html"> 
 <span class="menu-text">Changelog</span></a>
   </li>  
@@ -226,12 +222,6 @@ window.Quarto = {
           </a> 
       </div>
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Comparison of two means (T-test)</span></a>
-  </div>
-</li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">
@@ -535,19 +525,18 @@ window.Quarto = {
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="cell-3" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-darkgrid"</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>SEED <span class="op">=</span> <span class="dv">7355608</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-darkgrid"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>SEED <span class="op">=</span> <span class="dv">121195</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="load-and-examine-american-national-election-studies-anes-data" class="level2">
 <h2 class="anchored" data-anchor-id="load-and-examine-american-national-election-studies-anes-data">Load and examine American National Election Studies (ANES) data</h2>
 <p>These data are from the 2016 pilot study. The full study consisted of 1200 people, but here we’ve selected the subset of 487 people who responded to a question about whether they would vote for Hillary Clinton or Donald Trump.</p>
-<div id="cell-5" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> bmb.load_data(<span class="st">"ANES"</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="3">
+<div id="cell-4" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> bmb.load_data(<span class="st">"ANES"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
 <div>
 
 
@@ -599,9 +588,9 @@ window.Quarto = {
 </div>
 <p>Our outcome variable is <code>vote</code>, which gives peoples’ responses to the following question prompt:</p>
 <p><em>“If the 2016 presidential election were between Hillary Clinton for the Democrats and Donald Trump for the Republicans, would you vote for Hillary Clinton, Donald Trump, someone else, or probably not vote?”</em></p>
-<div id="cell-7" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"vote"</span>].value_counts()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="4">
+<div id="cell-6" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"vote"</span>].value_counts()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
 <pre><code>vote
 clinton         215
 trump           158
@@ -611,9 +600,9 @@ Name: count, dtype: int64</code></pre>
 </div>
 <p>The two predictors we’ll examine are a respondent’s <code>age</code> and their political party affiliation, <code>party_id</code>, which is their response to the following question prompt:</p>
 <p><em>“Generally speaking, do you usually think of yourself as a Republican, a Democrat, an independent, or what?”</em></p>
-<div id="cell-9" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"party_id"</span>].value_counts()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="5">
+<div id="cell-8" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"party_id"</span>].value_counts()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
 <pre><code>party_id
 democrat       186
 independent    138
@@ -622,28 +611,28 @@ Name: count, dtype: int64</code></pre>
 </div>
 </div>
 <p>These two predictors are somewhat correlated, but not all that much:</p>
-<div id="cell-11" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">4</span>), sharey<span class="op">=</span><span class="va">True</span>, constrained_layout<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>key <span class="op">=</span> <span class="bu">dict</span>(<span class="bu">zip</span>(data[<span class="st">"party_id"</span>].unique(), <span class="bu">range</span>(<span class="dv">3</span>)))</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label, df <span class="kw">in</span> data.groupby(<span class="st">"party_id"</span>):</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    ax[key[label]].hist(df[<span class="st">"age"</span>])</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    ax[key[label]].set_xlim([<span class="dv">18</span>, <span class="dv">90</span>])</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    ax[key[label]].set_xlabel(<span class="st">"Age"</span>)</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    ax[key[label]].set_ylabel(<span class="st">"Frequency"</span>)</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    ax[key[label]].set_title(label)</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    ax[key[label]].axvline(df[<span class="st">"age"</span>].mean(), color<span class="op">=</span><span class="st">"C1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-10" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">4</span>), sharey<span class="op">=</span><span class="va">True</span>, constrained_layout<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>key <span class="op">=</span> <span class="bu">dict</span>(<span class="bu">zip</span>(data[<span class="st">"party_id"</span>].unique(), <span class="bu">range</span>(<span class="dv">3</span>)))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label, df <span class="kw">in</span> data.groupby(<span class="st">"party_id"</span>):</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    ax[key[label]].hist(df[<span class="st">"age"</span>])</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    ax[key[label]].set_xlim([<span class="dv">18</span>, <span class="dv">90</span>])</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    ax[key[label]].set_xlabel(<span class="st">"Age"</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    ax[key[label]].set_ylabel(<span class="st">"Frequency"</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    ax[key[label]].set_title(label)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    ax[key[label]].axvline(df[<span class="st">"age"</span>].mean(), color<span class="op">=</span><span class="st">"C1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="logistic_regression_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="logistic_regression_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>We can get a pretty clear idea of how party identification is related to voting intentions by just looking at a contingency table for these two variables:</p>
-<div id="cell-13" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>pd.crosstab(data[<span class="st">"vote"</span>], data[<span class="st">"party_id"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="7">
+<div id="cell-12" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>pd.crosstab(data[<span class="st">"vote"</span>], data[<span class="st">"party_id"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
 <div>
 
 
@@ -692,10 +681,10 @@ Name: count, dtype: int64</code></pre>
 <section id="build-clinton_model" class="level2">
 <h2 class="anchored" data-anchor-id="build-clinton_model">Build <code>clinton_model</code></h2>
 <p>To keep this simple, let’s look at only the data from people who indicated that they would vote for either Clinton or Trump, and we’ll model the probability of voting for Clinton.</p>
-<div id="cell-17" class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>clinton_data <span class="op">=</span> data.loc[data[<span class="st">"vote"</span>].isin([<span class="st">"clinton"</span>, <span class="st">"trump"</span>]), :]</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>clinton_data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="8">
+<div id="cell-16" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>clinton_data <span class="op">=</span> data.loc[data[<span class="st">"vote"</span>].isin([<span class="st">"clinton"</span>, <span class="st">"trump"</span>]), :]</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>clinton_data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
 <div>
 
 
@@ -795,37 +784,33 @@ Y =
 <p>Specifying and fitting the model is simple. Bambi is good and doesn’t ask us to translate all the math to code. We just need to specify our model using the formula syntax and pass the correct <code>family</code> argument. Notice the (optional) syntax that we use on the left-hand-side of the formula: We say <code>vote[clinton]</code> to instruct Bambi that we wish the model the probability that <code>vote=='clinton'</code>, rather than the probability that <code>vote=='trump'</code>. If we leave this unspecified, Bambi will just pick one of the events to model, but will inform you which one it picked when you build the model (and again when you look at model summaries).</p>
 <p>On the right-hand-side of the formula we use <code>party_id + party_id:age</code> to instruct Bambi that we want to use <code>party_id</code> and the interaction between <code>party_id</code> and <code>age</code> as the explanatory variables in the model.</p>
 <!--When fitting models using the `pymc3` backend, the default estimation strategy is to start with an identity mass matrix, but add uniform jitter in [-1, 1] and then adapt a diagonal based on the variance of the tuning draws. This generally works quite well, but occasionally it can fails. That's what was happening for this particular data set and model, so below we disable the `jitter+adapt_diag` initialization by changing from `init='auto'` (the default) to `init=adapt_diag`, which tells the `pymc3` backend to drop the jitter step.-->
-<div id="cell-20" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>clinton_model <span class="op">=</span> bmb.Model(<span class="st">"vote['clinton'] ~ party_id + party_id:age"</span>, clinton_data, family<span class="op">=</span><span class="st">"bernoulli"</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>clinton_fitted <span class="op">=</span> clinton_model.fit(</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">2000</span>, target_accept<span class="op">=</span><span class="fl">0.85</span>, random_seed<span class="op">=</span>SEED, idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-19" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>clinton_model <span class="op">=</span> bmb.Model(<span class="st">"vote['clinton'] ~ party_id + party_id:age"</span>, clinton_data, family<span class="op">=</span><span class="st">"bernoulli"</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>clinton_fitted <span class="op">=</span> clinton_model.fit(</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">2000</span>, target_accept<span class="op">=</span><span class="fl">0.85</span>, random_seed<span class="op">=</span>SEED, idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Modeling the probability that vote==clinton
-Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [Intercept, party_id, party_id:age]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"9bff94e514f44220a8bea7feed04be52","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"527959339e0543398a9ce5fa96e8e0e8","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 21 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 5 seconds.</code></pre>
 </div>
 </div>
 <p>We can print the model object to see information about the response distribution, the link function and the priors.</p>
-<div id="cell-22" class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>clinton_model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="10">
+<div id="cell-21" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>clinton_model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
 <pre><code>       Formula: vote['clinton'] ~ party_id + party_id:age
         Family: bernoulli
           Link: p = logit
@@ -844,33 +829,33 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 <p>Under the hood, Bambi selected Gaussian priors for all the parameters in the model. By construction, all the priors, except the one for <code>Intercept</code>, are centered around 0, which is consistent with the desired weakly informative behavior. The standard deviation is specific to each parameter.</p>
 <p>Some more info about these default priors can be found in <a href="https://arxiv.org/abs/1702.01201">this technical paper</a>.</p>
 <p>We can also call <code>clinton_model.plot_priors()</code> to visualize the sensitive default priors Bambi has chosen for us.</p>
-<div id="cell-24" class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>clinton_model.plot_priors()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-23" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>clinton_model.plot_priors()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Sampling: [Intercept, party_id, party_id:age]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="logistic_regression_files/figure-html/cell-12-output-2.png" class="img-fluid figure-img"></p>
+<p><img src="logistic_regression_files/figure-html/cell-11-output-2.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Now let’s check out the results! We get traceplots and density estimates for the posteriors with <code>az.plot_trace()</code> and a summary of the posteriors with <code>az.summary()</code>.</p>
-<div id="cell-26" class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(clinton_fitted, compact<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-25" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(clinton_fitted, compact<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="logistic_regression_files/figure-html/cell-13-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="logistic_regression_files/figure-html/cell-12-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<div id="cell-27" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>az.summary(clinton_fitted)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="13">
+<div id="cell-26" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>az.summary(clinton_fitted)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
 <div>
 
 
@@ -892,38 +877,38 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Intercept</td>
-<td>1.392</td>
-<td>0.553</td>
-<td>0.378</td>
-<td>2.451</td>
+<td>1.395</td>
+<td>0.569</td>
+<td>0.329</td>
+<td>2.466</td>
 <td>0.007</td>
-<td>0.005</td>
-<td>6778.0</td>
-<td>5131.0</td>
+<td>0.006</td>
+<td>6654.0</td>
+<td>5499.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">party_id[independent]</td>
-<td>-0.046</td>
-<td>0.650</td>
-<td>-1.221</td>
-<td>1.173</td>
+<td>-0.037</td>
+<td>0.652</td>
+<td>-1.189</td>
+<td>1.235</td>
 <td>0.008</td>
 <td>0.008</td>
-<td>6081.0</td>
-<td>4477.0</td>
+<td>5920.0</td>
+<td>4701.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">party_id[republican]</td>
-<td>-0.603</td>
-<td>0.814</td>
-<td>-2.142</td>
-<td>0.933</td>
+<td>-0.615</td>
+<td>0.818</td>
+<td>-2.205</td>
+<td>0.881</td>
+<td>0.011</td>
 <td>0.010</td>
-<td>0.008</td>
-<td>6336.0</td>
-<td>5269.0</td>
+<td>5579.0</td>
+<td>5042.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
@@ -931,35 +916,35 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 <td>0.018</td>
 <td>0.012</td>
 <td>-0.004</td>
-<td>0.042</td>
+<td>0.043</td>
 <td>0.000</td>
 <td>0.000</td>
-<td>6588.0</td>
-<td>5188.0</td>
+<td>6209.0</td>
+<td>4699.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">party_id:age[independent]</td>
-<td>-0.032</td>
-<td>0.010</td>
+<td>-0.033</td>
+<td>0.011</td>
 <td>-0.052</td>
-<td>-0.014</td>
+<td>-0.013</td>
 <td>0.000</td>
 <td>0.000</td>
-<td>6877.0</td>
-<td>4836.0</td>
+<td>6277.0</td>
+<td>5047.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">party_id:age[republican]</td>
 <td>-0.082</td>
 <td>0.024</td>
-<td>-0.127</td>
-<td>-0.038</td>
+<td>-0.128</td>
+<td>-0.039</td>
 <td>0.000</td>
 <td>0.000</td>
-<td>5677.0</td>
-<td>5113.0</td>
+<td>5360.0</td>
+<td>3984.0</td>
 <td>1.0</td>
 </tr>
 </tbody>
@@ -976,15 +961,15 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 <section id="separation-plot" class="level3">
 <h3 class="anchored" data-anchor-id="separation-plot">Separation plot</h3>
 <p>There is a way of assessing the performance of a model with binary outcomes (such as logistic regression) in a visual way called <a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-5907.2011.00525.x">separation plot</a>. In a separation plot, the model’s predictions are averaged, ordered and represented as consecutive vertical lines. These vertical lines are colored according to the class indicated by their corresponding observed value, in this case light blue indicates class 0 (<code>vote == 'Trump'</code>) and blue represents class 1 (<code>vote =='Clinton'</code>). We can use the ArviZ’ implementation of the separation plot, but first we have to obtain the model’s predictions.</p>
-<div id="cell-29" class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>clinton_model.predict(clinton_fitted, kind<span class="op">=</span><span class="st">"response"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-28" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>clinton_model.predict(clinton_fitted, kind<span class="op">=</span><span class="st">"response"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-30" class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> az.plot_separation(clinton_fitted, y<span class="op">=</span><span class="st">"vote"</span>, figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">0.5</span>))<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-29" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> az.plot_separation(clinton_fitted, y<span class="op">=</span><span class="st">"vote"</span>, figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">0.5</span>))<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="logistic_regression_files/figure-html/cell-16-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="logistic_regression_files/figure-html/cell-15-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -995,17 +980,21 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 <section id="hat-kappa-parameter" class="level2">
 <h2 class="anchored" data-anchor-id="hat-kappa-parameter"><span class="math inline">\(\hat \kappa\)</span> parameter</h2>
 <p>We can also use ArviZ to compute <a href="https://arxiv.org/abs/1507.04544">LOO</a> and find influential observations using the estimated <span class="math inline">\(\hat \kappa\)</span> parameter value.</p>
-<div id="cell-33" class="cell" data-execution_count="16">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># compute pointwise LOO</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>loo <span class="op">=</span> az.loo(clinton_fitted, pointwise<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-32" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># compute pointwise LOO</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>loo <span class="op">=</span> az.loo(clinton_fitted, pointwise<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-34" class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot kappa values</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>az.plot_khat(loo.pareto_k)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-33" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot kappa values</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>az.plot_khat(loo.pareto_k)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/arviz/plots/khatplot.py:184: FutureWarning: support for DataArrays will be deprecated, please use ELPDData.The reason for this, is that we need to know the numbers of drawssampled from the posterior
+  warnings.warn(</code></pre>
+</div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="logistic_regression_files/figure-html/cell-18-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="logistic_regression_files/figure-html/cell-17-output-2.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -1013,7 +1002,7 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 <p>A first look at the khat plot shows that most observations’ <span class="math inline">\(\hat \kappa\)</span> values are grouped together in a range that goes up to roughly 0.2. Above that value, we observe some dispersion and a few points that stand out by having the highest <span class="math inline">\(\hat \kappa\)</span> values.</p>
 <p>An observation is influential in the sense that if we refit the data by first removing that observation from the data set, the fitted result will be more different than if we do the same for a non influential observation. Clearly the level of influence of observations can vary continuously. An observation can be influential either because it is an outlier (a measurement error, a data entry error, etc) or because the model is not flexible enough to capture the observation. The approximations used to compute LOO are no longer reliable for <span class="math inline">\(\hat \kappa &gt; 0.7\)</span>.</p>
 <p>Let us first take a look at the observation with the highest <span class="math inline">\(\hat \kappa\)</span>.</p>
-<div id="cell-36" class="cell" data-execution_count="18">
+<div id="cell-35" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> az.plot_khat(loo.pareto_k.values.ravel())</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>sorted_kappas <span class="op">=</span> np.sort(loo.pareto_k.values.ravel())</span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1025,17 +1014,21 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 <span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> influential_observations:</span>
 <span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> loo.pareto_k.values[x]</span>
 <span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    ax.text(x, y <span class="op">+</span> <span class="fl">0.01</span>, <span class="bu">str</span>(x), ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"baseline"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/arviz/plots/khatplot.py:167: FutureWarning: support for arrays will be deprecated, please use ELPDData.The reason for this, is that we need to know the numbers of drawssampled from the posterior
+  warnings.warn(</code></pre>
+</div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="logistic_regression_files/figure-html/cell-19-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="logistic_regression_files/figure-html/cell-18-output-2.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<div id="cell-37" class="cell" data-execution_count="19">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>clinton_data.reset_index()[loo.pareto_k.values <span class="op">&gt;=</span> threshold]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="19">
+<div id="cell-36" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>clinton_data.reset_index()[loo.pareto_k.values <span class="op">&gt;=</span> threshold]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="18">
 <div>
 
 
@@ -1066,28 +1059,32 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 <p>This observation corresponds to a 95 year old Republican party member that voted for Trump.</p>
 <!-- If this observation doesn't appear unusual to you right now, the model's difficulty in prediciting with that observation will definitely make sense in the next section. -->
 <p>Let us take a look at six observations with the highest <span class="math inline">\(\hat \kappa\)</span> values.</p>
-<div id="cell-39" class="cell" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> az.plot_khat(loo.pareto_k)</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co"># find observation where the kappa value exceeds the threshold</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>threshold <span class="op">=</span> sorted_kappas[<span class="op">-</span><span class="dv">6</span>:].<span class="bu">min</span>()</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>ax.axhline(threshold, ls<span class="op">=</span><span class="st">"--"</span>, color<span class="op">=</span><span class="st">"orange"</span>)</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>influential_observations <span class="op">=</span> clinton_data.reset_index()[loo.pareto_k.values <span class="op">&gt;=</span> threshold].index</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> influential_observations:</span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> loo.pareto_k.values[x]</span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    ax.text(x, y <span class="op">+</span> <span class="fl">0.01</span>, <span class="bu">str</span>(x), ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"baseline"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-38" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> az.plot_khat(loo.pareto_k)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="co"># find observation where the kappa value exceeds the threshold</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>threshold <span class="op">=</span> sorted_kappas[<span class="op">-</span><span class="dv">6</span>:].<span class="bu">min</span>()</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>ax.axhline(threshold, ls<span class="op">=</span><span class="st">"--"</span>, color<span class="op">=</span><span class="st">"orange"</span>)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>influential_observations <span class="op">=</span> clinton_data.reset_index()[loo.pareto_k.values <span class="op">&gt;=</span> threshold].index</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> influential_observations:</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> loo.pareto_k.values[x]</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>    ax.text(x, y <span class="op">+</span> <span class="fl">0.01</span>, <span class="bu">str</span>(x), ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"baseline"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/arviz/plots/khatplot.py:184: FutureWarning: support for DataArrays will be deprecated, please use ELPDData.The reason for this, is that we need to know the numbers of drawssampled from the posterior
+  warnings.warn(</code></pre>
+</div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="logistic_regression_files/figure-html/cell-21-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="logistic_regression_files/figure-html/cell-20-output-2.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<div id="cell-40" class="cell" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>clinton_data.reset_index()[loo.pareto_k.values<span class="op">&gt;=</span>threshold]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="21">
+<div id="cell-39" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>clinton_data.reset_index()[loo.pareto_k.values<span class="op">&gt;=</span>threshold]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="20">
 <div>
 
 
@@ -1110,24 +1107,24 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 <td>republican</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">45</td>
-<td>46</td>
-<td>trump</td>
-<td>75</td>
-<td>democrat</td>
-</tr>
-<tr class="odd">
 <td data-quarto-table-cell-role="th">58</td>
 <td>64</td>
 <td>trump</td>
 <td>84</td>
 <td>republican</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td data-quarto-table-cell-role="th">62</td>
 <td>68</td>
 <td>trump</td>
 <td>91</td>
+<td>republican</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">87</td>
+<td>95</td>
+<td>trump</td>
+<td>80</td>
 <td>republican</td>
 </tr>
 <tr class="odd">
@@ -1151,9 +1148,9 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 </div>
 </div>
 <p>Observations number 34, 58, 62, and 191 correspond to individuals in under represented age groups in the data set. The rest correspond to Republican party members that voted for Clinton. Let us check how many observations we have of individuals older than 80 years old.</p>
-<div id="cell-42" class="cell" data-execution_count="22">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>clinton_data[clinton_data.age <span class="op">&gt;</span> <span class="dv">80</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="22">
+<div id="cell-41" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>clinton_data[clinton_data.age <span class="op">&gt;</span> <span class="dv">80</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="21">
 <div>
 
 
@@ -1216,9 +1213,9 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 </div>
 </div>
 <p>Let us check how many observations there are of Republicans who voted for Clinton</p>
-<div id="cell-44" class="cell" data-execution_count="23">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>clinton_data[(clinton_data.vote <span class="op">==</span><span class="st">'clinton'</span>) <span class="op">&amp;</span> (clinton_data.party_id <span class="op">==</span> <span class="st">'republican'</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="23">
+<div id="cell-43" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>clinton_data[(clinton_data.vote <span class="op">==</span><span class="st">'clinton'</span>) <span class="op">&amp;</span> (clinton_data.party_id <span class="op">==</span> <span class="st">'republican'</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="22">
 <div>
 
 
@@ -1270,32 +1267,32 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 </div>
 <p>There are only two observations for individuals older than 80 years old and five observations for individuals of the Republican party that vote for Clinton. The fact that the model finds it difficult to predict for these observations is related to model uncertainty, due to a scarce number of observations that exhibit these characteristics.</p>
 <p>Let us repeat the separation plot, this time marking the observations we have analyzed. This plot will show us how the model predicted these particular observations.</p>
-<div id="cell-46" class="cell" data-execution_count="24">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.patheffects <span class="im">as</span> pe</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> az.plot_separation(clinton_fitted, y<span class="op">=</span><span class="st">"vote"</span>, figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="fl">0.5</span>))</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> np.random.uniform(<span class="fl">0.1</span>, <span class="fl">0.5</span>, size<span class="op">=</span><span class="bu">len</span>(influential_observations))</span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x, y <span class="kw">in</span> <span class="bu">zip</span>(influential_observations, y):</span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> <span class="bu">str</span>(x)</span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> x <span class="op">/</span> <span class="bu">len</span>(clinton_data)</span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>    ax.scatter(x, y, marker<span class="op">=</span><span class="st">"+"</span>, s<span class="op">=</span><span class="dv">50</span>, color<span class="op">=</span><span class="st">"red"</span>, zorder<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>    ax.text(</span>
-<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>        x, y <span class="op">+</span> <span class="fl">0.1</span>, text, color<span class="op">=</span><span class="st">"white"</span>, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"bottom"</span>,</span>
-<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>        path_effects<span class="op">=</span>[pe.withStroke(linewidth<span class="op">=</span><span class="dv">2</span>, foreground<span class="op">=</span><span class="st">"black"</span>)]</span>
-<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-45" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.patheffects <span class="im">as</span> pe</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> az.plot_separation(clinton_fitted, y<span class="op">=</span><span class="st">"vote"</span>, figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="fl">0.5</span>))</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> np.random.uniform(<span class="fl">0.1</span>, <span class="fl">0.5</span>, size<span class="op">=</span><span class="bu">len</span>(influential_observations))</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x, y <span class="kw">in</span> <span class="bu">zip</span>(influential_observations, y):</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> <span class="bu">str</span>(x)</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> x <span class="op">/</span> <span class="bu">len</span>(clinton_data)</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>    ax.scatter(x, y, marker<span class="op">=</span><span class="st">"+"</span>, s<span class="op">=</span><span class="dv">50</span>, color<span class="op">=</span><span class="st">"red"</span>, zorder<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>    ax.text(</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>        x, y <span class="op">+</span> <span class="fl">0.1</span>, text, color<span class="op">=</span><span class="st">"white"</span>, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"bottom"</span>,</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>        path_effects<span class="op">=</span>[pe.withStroke(linewidth<span class="op">=</span><span class="dv">2</span>, foreground<span class="op">=</span><span class="st">"black"</span>)]</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="logistic_regression_files/figure-html/cell-25-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="logistic_regression_files/figure-html/cell-24-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<div id="cell-47" class="cell" data-execution_count="25">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>clinton_data.reset_index()[loo.pareto_k.values<span class="op">&gt;=</span>threshold]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="25">
+<div id="cell-46" class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>clinton_data.reset_index()[loo.pareto_k.values<span class="op">&gt;=</span>threshold]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="24">
 <div>
 
 
@@ -1318,24 +1315,24 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 <td>republican</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">45</td>
-<td>46</td>
-<td>trump</td>
-<td>75</td>
-<td>democrat</td>
-</tr>
-<tr class="odd">
 <td data-quarto-table-cell-role="th">58</td>
 <td>64</td>
 <td>trump</td>
 <td>84</td>
 <td>republican</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td data-quarto-table-cell-role="th">62</td>
 <td>68</td>
 <td>trump</td>
 <td>91</td>
+<td>republican</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">87</td>
+<td>95</td>
+<td>trump</td>
+<td>80</td>
 <td>republican</td>
 </tr>
 <tr class="odd">
@@ -1363,65 +1360,65 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 <section id="run-inference" class="level2">
 <h2 class="anchored" data-anchor-id="run-inference">Run Inference</h2>
 <p>Grab the posteriors samples of the <code>age</code> slopes for the three <code>party_id</code> categories.</p>
-<div id="cell-51" class="cell" data-execution_count="26">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>parties <span class="op">=</span> [<span class="st">"democrat"</span>, <span class="st">"independent"</span>, <span class="st">"republican"</span>]</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>dem, ind, rep <span class="op">=</span> [clinton_fitted.posterior[<span class="st">"party_id:age"</span>].sel({<span class="st">"party_id:age_dim"</span>:party}) <span class="cf">for</span> party <span class="kw">in</span> parties]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-50" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>parties <span class="op">=</span> [<span class="st">"democrat"</span>, <span class="st">"independent"</span>, <span class="st">"republican"</span>]</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>dem, ind, rep <span class="op">=</span> [clinton_fitted.posterior[<span class="st">"party_id:age"</span>].sel({<span class="st">"party_id:age_dim"</span>:party}) <span class="cf">for</span> party <span class="kw">in</span> parties]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Plot the marginal posteriors for the <code>age</code> slopes for the three political affiliations.</p>
-<div id="cell-53" class="cell" data-execution_count="27">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>_, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> idx, x <span class="kw">in</span> <span class="bu">enumerate</span>([dem, ind, rep]):</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    az.plot_dist(x, label<span class="op">=</span>x[<span class="st">"party_id:age_dim"</span>].item(), plot_kwargs<span class="op">=</span>{<span class="st">"color"</span>: <span class="ss">f"C</span><span class="sc">{</span>idx<span class="sc">}</span><span class="ss">"</span>}, ax<span class="op">=</span>ax)</span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>ax.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-52" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>_, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> idx, x <span class="kw">in</span> <span class="bu">enumerate</span>([dem, ind, rep]):</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    az.plot_dist(x, label<span class="op">=</span>x[<span class="st">"party_id:age_dim"</span>].item(), plot_kwargs<span class="op">=</span>{<span class="st">"color"</span>: <span class="ss">f"C</span><span class="sc">{</span>idx<span class="sc">}</span><span class="ss">"</span>}, ax<span class="op">=</span>ax)</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>ax.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="logistic_regression_files/figure-html/cell-28-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="logistic_regression_files/figure-html/cell-27-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Now, using the joint posterior, we can answer our questions in terms of probabilities.</p>
 <p>What is the probability that the Democrat slope is greater than the Republican slope?</p>
-<div id="cell-55" class="cell" data-execution_count="28">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>(dem <span class="op">&gt;</span> rep).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="28">
+<div id="cell-54" class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>(dem <span class="op">&gt;</span> rep).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="27">
 <pre><code>1.0</code></pre>
 </div>
 </div>
 <p>Probability that the Democrat slope is greater than the Independent slope?</p>
-<div id="cell-57" class="cell" data-execution_count="29">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>(dem <span class="op">&gt;</span> ind).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="29">
+<div id="cell-56" class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>(dem <span class="op">&gt;</span> ind).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="28">
 <pre><code>1.0</code></pre>
 </div>
 </div>
 <p>Probability that the Independent slope is greater than the Republican slope?</p>
-<div id="cell-59" class="cell" data-execution_count="30">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>(ind <span class="op">&gt;</span> rep).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="30">
-<pre><code>0.9795</code></pre>
+<div id="cell-58" class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>(ind <span class="op">&gt;</span> rep).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="29">
+<pre><code>0.97775</code></pre>
 </div>
 </div>
 <p>Probability that the Democrat slope is greater than 0?</p>
-<div id="cell-61" class="cell" data-execution_count="31">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>(dem <span class="op">&gt;</span> <span class="dv">0</span>).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="31">
-<pre><code>0.93775</code></pre>
+<div id="cell-60" class="cell" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>(dem <span class="op">&gt;</span> <span class="dv">0</span>).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="30">
+<pre><code>0.935875</code></pre>
 </div>
 </div>
 <p>Probability that the Republican slope is less than 0?</p>
-<div id="cell-63" class="cell" data-execution_count="32">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>(rep <span class="op">&lt;</span> <span class="dv">0</span>).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="32">
-<pre><code>0.999875</code></pre>
+<div id="cell-62" class="cell" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>(rep <span class="op">&lt;</span> <span class="dv">0</span>).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="31">
+<pre><code>1.0</code></pre>
 </div>
 </div>
 <p>Probability that the Independent slope is less than 0?</p>
-<div id="cell-65" class="cell" data-execution_count="33">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>(ind <span class="op">&lt;</span> <span class="dv">0</span>).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="33">
-<pre><code>0.999625</code></pre>
+<div id="cell-64" class="cell" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>(ind <span class="op">&lt;</span> <span class="dv">0</span>).mean().item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="32">
+<pre><code>0.99975</code></pre>
 </div>
 </div>
 <p>If we look at the plot of the marginal posteriors, we may be suspicious that, for example, the probability that Democrat slope is greater than the Republican slope is 0.998 (almost 1!), given the overlap between the blue and green density functions. However, we can’t answer such a question using the marginal posteriors only, as shown in the plot. Since Democrat and Republican slopes (<span class="math inline">\(\beta_3\)</span> and <span class="math inline">\(\beta_5\)</span>, respectively) are random variables, we need to use their joint distribution to answer probability questions that involve both of them. The fact that logical comparisons (e.g.&nbsp;<code>&gt;</code> in <code>dem &gt; ind</code>) are performed elementwise ensures we’re using samples from the joint posterior as we should. We also note that when the question involves only one of the random variables, it is fine to use the marginal distribution (e.g.&nbsp;<code>(rep &lt; 0).mean()</code>).</p>
@@ -1430,14 +1427,14 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 <section id="spaghetti-plot-of-model-predictions" class="level2">
 <h2 class="anchored" data-anchor-id="spaghetti-plot-of-model-predictions">Spaghetti plot of model predictions</h2>
 <p>Here we make use of the <code>Model.predict()</code> method to predict the probability of voting for Clinton for an out-of-sample dataset that we create.</p>
-<div id="cell-69" class="cell" data-execution_count="34">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>age <span class="op">=</span> np.arange(<span class="dv">18</span>, <span class="dv">91</span>)</span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"age"</span>: np.tile(age, <span class="dv">3</span>),</span>
-<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"party_id"</span>: np.repeat([<span class="st">"democrat"</span>, <span class="st">"republican"</span>, <span class="st">"independent"</span>], <span class="bu">len</span>(age))</span>
-<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>new_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="34">
+<div id="cell-68" class="cell" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>age <span class="op">=</span> np.arange(<span class="dv">18</span>, <span class="dv">91</span>)</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"age"</span>: np.tile(age, <span class="dv">3</span>),</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"party_id"</span>: np.repeat([<span class="st">"democrat"</span>, <span class="st">"republican"</span>, <span class="st">"independent"</span>], <span class="bu">len</span>(age))</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>new_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="33">
 <div>
 
 
@@ -1513,34 +1510,30 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 </div>
 </div>
 <p>Obtain predictions for the new dataset. By default, Bambi is going to obtain a posterior distribution for the mean probability of voting for Clinton. These values are stored as the <code>"p"</code> variable in <code>clinton_fitted.posterior</code>.</p>
+<div id="cell-70" class="cell" data-execution_count="34">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>clinton_model.predict(clinton_fitted, data<span class="op">=</span>new_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <div id="cell-71" class="cell" data-execution_count="35">
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>clinton_model.predict(clinton_fitted, data<span class="op">=</span>new_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="cell-72" class="cell" data-execution_count="36">
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select a sample of posterior values for the mean probability of voting for Clinton</span></span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>vote_posterior <span class="op">=</span> az.extract_dataset(clinton_fitted, num_samples<span class="op">=</span><span class="dv">2000</span>)[<span class="st">"p"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>/tmp/ipykernel_13027/1918123043.py:2: FutureWarning: extract_dataset has been deprecated, please use extract
-  vote_posterior = az.extract_dataset(clinton_fitted, num_samples=2000)["p"]</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select a sample of posterior values for the mean probability of voting for Clinton</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>vote_posterior <span class="op">=</span> az.extract(clinton_fitted, num_samples<span class="op">=</span><span class="dv">2000</span>)[<span class="st">"p"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Make the plot!</p>
-<div id="cell-74" class="cell" data-execution_count="37">
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>_, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">5</span>))</span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, party <span class="kw">in</span> <span class="bu">enumerate</span>([<span class="st">"democrat"</span>, <span class="st">"republican"</span>, <span class="st">"independent"</span>]):</span>
-<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Which rows in new_data correspond to party?</span></span>
-<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> new_data.index[new_data[<span class="st">"party_id"</span>] <span class="op">==</span> party].tolist()</span>
-<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>    ax.plot(age, vote_posterior[idx], alpha<span class="op">=</span><span class="fl">0.04</span>, color<span class="op">=</span><span class="ss">f"C</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"P(vote='clinton' | age)"</span>)</span>
-<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Age"</span>, fontsize<span class="op">=</span><span class="dv">15</span>)</span>
-<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="dv">0</span>, <span class="dv">1</span>)</span>
-<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">18</span>, <span class="dv">90</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-73" class="cell" data-execution_count="36">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>_, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">5</span>))</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, party <span class="kw">in</span> <span class="bu">enumerate</span>([<span class="st">"democrat"</span>, <span class="st">"republican"</span>, <span class="st">"independent"</span>]):</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Which rows in new_data correspond to party?</span></span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> new_data.index[new_data[<span class="st">"party_id"</span>] <span class="op">==</span> party].tolist()</span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>    ax.plot(age, vote_posterior[idx], alpha<span class="op">=</span><span class="fl">0.04</span>, color<span class="op">=</span><span class="ss">f"C</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"P(vote='clinton' | age)"</span>)</span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Age"</span>, fontsize<span class="op">=</span><span class="dv">15</span>)</span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">18</span>, <span class="dv">90</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="logistic_regression_files/figure-html/cell-38-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="logistic_regression_files/figure-html/cell-37-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -1549,23 +1542,23 @@ NUTS: [Intercept, party_id, party_id:age]</code></pre>
 <p>According to our logistic model, the mean probability of voting for Clinton is almost always 0.8 or greater for Democrats no matter the age (blue line). Also, the older the person, the closer the mean probability of voting Clinton to 1.</p>
 <p>On the other hand, Republicans have a non-zero probability of voting for Clinton when they are young, but it tends to zero for older persons (green line). We can also note the high variability of P(vote = ‘Clinton’) for young Republicans. This reflects our high uncertainty when estimating this probability and it is due to the small amount of Republicans in that age range plus there are only 5 Republicans out of 97 voting for Clinton in the dataset.</p>
 <p>Finally, the mean probability of voting Clinton for the independents is around 0.7 for the youngest and decreases towards 0.2 as they get older (orange line). Since the spread of the lines is similar along all the ages, we can conclude our uncertainty in this estimate is similar for all the age groups.</p>
-<div id="cell-76" class="cell" data-execution_count="38">
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-75" class="cell" data-execution_count="37">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Thu Aug 15 2024
+<pre><code>Last updated: Sun Sep 28 2025
 
 Python implementation: CPython
-Python version       : 3.11.9
-IPython version      : 8.24.0
+Python version       : 3.13.7
+IPython version      : 9.4.0
 
-matplotlib: 3.8.4
-bambi     : 0.14.1.dev12+g64e57423.d20240730
-arviz     : 0.18.0
-pandas    : 2.2.2
-numpy     : 1.26.4
+matplotlib: 3.10.6
+pandas    : 2.3.2
+bambi     : 0.14.1.dev57+g7b2bb342c.d20250928
+arviz     : 0.22.0
+numpy     : 2.3.3
 
-Watermark: 2.4.3
+Watermark: 2.5.0
 </code></pre>
 </div>
 </div>
@@ -1992,7 +1985,7 @@ Watermark: 2.4.3
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>© Copyright 2024, The developers of Bambi.</p>
+<p>© Copyright 2025, The developers of Bambi.</p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

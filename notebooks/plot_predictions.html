@@ -172,10 +172,6 @@ window.Quarto = {
 <span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../faq.html"> 
-<span class="menu-text">FAQ</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link" href="../changelog.html"> 
 <span class="menu-text">Changelog</span></a>
   </li>  
@@ -226,12 +222,6 @@ window.Quarto = {
           </a> 
       </div>
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Comparison of two means (T-test)</span></a>
-  </div>
-</li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">
@@ -603,24 +593,20 @@ window.Quarto = {
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"mpg ~ 0 + hp * wt + cyl + gear"</span>, data)</span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(draws<span class="op">=</span><span class="dv">1000</span>, target_accept<span class="op">=</span><span class="fl">0.95</span>, random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
+<pre><code>Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"10e8fedc9e9346e19ae7d544f79f5a61","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"427c56fdea7e406f90bc70bcd0affc02","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 147 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 13 seconds.</code></pre>
 </div>
 </div>
 <p>We can print the Bambi model object to obtain the model components. Below, we see that the Gaussian linear model uses an identity link function that results in no transformation of the linear predictor to the mean of the outcome variable, and the distrbution of the likelihood is Gaussian.</p>
@@ -690,9 +676,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>high</td>
 <td>A</td>
 <td>3.21725</td>
-<td>21.753967</td>
-<td>15.879149</td>
-<td>28.467278</td>
+<td>21.810412</td>
+<td>15.363036</td>
+<td>27.695004</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
@@ -700,9 +686,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>high</td>
 <td>A</td>
 <td>3.21725</td>
-<td>21.626621</td>
-<td>15.401400</td>
-<td>28.073208</td>
+<td>21.728002</td>
+<td>14.799208</td>
+<td>27.695061</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
@@ -710,9 +696,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>high</td>
 <td>A</td>
 <td>3.21725</td>
-<td>21.380708</td>
-<td>15.193230</td>
-<td>27.758124</td>
+<td>21.470226</td>
+<td>15.192043</td>
+<td>27.603438</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
@@ -720,9 +706,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>high</td>
 <td>A</td>
 <td>3.21725</td>
-<td>21.220707</td>
-<td>15.203868</td>
-<td>27.537716</td>
+<td>21.251466</td>
+<td>14.876009</td>
+<td>26.865749</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
@@ -730,9 +716,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>high</td>
 <td>A</td>
 <td>3.21725</td>
-<td>21.016281</td>
-<td>15.097675</td>
-<td>27.076450</td>
+<td>21.117730</td>
+<td>15.416268</td>
+<td>27.389751</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">5</td>
@@ -740,9 +726,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>high</td>
 <td>A</td>
 <td>3.21725</td>
-<td>20.824757</td>
-<td>15.074355</td>
-<td>26.626349</td>
+<td>20.818311</td>
+<td>15.323215</td>
+<td>26.810713</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">6</td>
@@ -750,9 +736,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>high</td>
 <td>A</td>
 <td>3.21725</td>
-<td>20.597090</td>
-<td>14.910748</td>
-<td>26.088777</td>
+<td>20.619549</td>
+<td>14.916622</td>
+<td>26.441445</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">7</td>
@@ -760,9 +746,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>high</td>
 <td>A</td>
 <td>3.21725</td>
-<td>20.307775</td>
-<td>14.679274</td>
-<td>25.904986</td>
+<td>20.464403</td>
+<td>14.924356</td>
+<td>26.002963</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">8</td>
@@ -770,9 +756,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>high</td>
 <td>A</td>
 <td>3.21725</td>
-<td>20.240255</td>
-<td>14.765620</td>
-<td>25.693768</td>
+<td>20.229962</td>
+<td>15.119724</td>
+<td>25.877523</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">9</td>
@@ -780,9 +766,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>high</td>
 <td>A</td>
 <td>3.21725</td>
-<td>19.970688</td>
-<td>14.348661</td>
-<td>25.422012</td>
+<td>20.093819</td>
+<td>14.936911</td>
+<td>25.902589</td>
 </tr>
 </tbody>
 </table>
@@ -881,9 +867,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>1.5</td>
 <td>high</td>
 <td>A</td>
-<td>26.566766</td>
-<td>21.969808</td>
-<td>30.943151</td>
+<td>26.610587</td>
+<td>22.075256</td>
+<td>31.146191</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
@@ -891,9 +877,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>1.5</td>
 <td>low</td>
 <td>A</td>
-<td>27.329344</td>
-<td>23.732834</td>
-<td>31.023226</td>
+<td>27.251230</td>
+<td>23.419253</td>
+<td>30.830434</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
@@ -901,9 +887,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>1.5</td>
 <td>medium</td>
 <td>A</td>
-<td>25.571809</td>
-<td>21.451557</td>
-<td>29.660434</td>
+<td>25.529368</td>
+<td>20.970476</td>
+<td>29.644434</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
@@ -911,9 +897,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>3.5</td>
 <td>high</td>
 <td>A</td>
-<td>19.050509</td>
-<td>15.782297</td>
-<td>22.263920</td>
+<td>19.101229</td>
+<td>15.885756</td>
+<td>22.376434</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
@@ -921,9 +907,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>3.5</td>
 <td>low</td>
 <td>A</td>
-<td>19.813088</td>
-<td>16.472862</td>
-<td>23.414660</td>
+<td>19.741872</td>
+<td>16.273313</td>
+<td>23.045604</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">5</td>
@@ -931,9 +917,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>3.5</td>
 <td>medium</td>
 <td>A</td>
-<td>18.055552</td>
-<td>15.632819</td>
-<td>20.474585</td>
+<td>18.020010</td>
+<td>15.563794</td>
+<td>20.537324</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">6</td>
@@ -941,9 +927,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>1.5</td>
 <td>high</td>
 <td>A</td>
-<td>25.300803</td>
-<td>21.208498</td>
-<td>29.449365</td>
+<td>25.333773</td>
+<td>21.137923</td>
+<td>29.513798</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">7</td>
@@ -951,9 +937,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>1.5</td>
 <td>low</td>
 <td>A</td>
-<td>26.063382</td>
-<td>21.954223</td>
-<td>29.802325</td>
+<td>25.974416</td>
+<td>21.920817</td>
+<td>29.976438</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">8</td>
@@ -961,9 +947,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>1.5</td>
 <td>medium</td>
 <td>A</td>
-<td>24.305846</td>
-<td>20.088821</td>
-<td>28.257285</td>
+<td>24.252554</td>
+<td>19.666425</td>
+<td>28.194181</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">9</td>
@@ -971,9 +957,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>3.5</td>
 <td>high</td>
 <td>A</td>
-<td>18.441151</td>
-<td>15.569090</td>
-<td>20.982979</td>
+<td>18.484655</td>
+<td>15.674754</td>
+<td>21.087136</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">10</td>
@@ -981,9 +967,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>3.5</td>
 <td>low</td>
 <td>A</td>
-<td>19.203729</td>
-<td>15.518468</td>
-<td>22.845879</td>
+<td>19.125298</td>
+<td>15.718574</td>
+<td>22.846968</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">11</td>
@@ -991,9 +977,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>3.5</td>
 <td>medium</td>
 <td>A</td>
-<td>17.446194</td>
-<td>14.967520</td>
-<td>19.927605</td>
+<td>17.403436</td>
+<td>15.073683</td>
+<td>20.079422</td>
 </tr>
 </tbody>
 </table>
@@ -1038,9 +1024,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>B</td>
 <td>110</td>
 <td>2.620</td>
-<td>22.233743</td>
-<td>20.121823</td>
-<td>24.395500</td>
+<td>22.264986</td>
+<td>20.077966</td>
+<td>24.325617</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
@@ -1048,9 +1034,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>B</td>
 <td>110</td>
 <td>2.875</td>
-<td>21.317279</td>
-<td>19.250855</td>
-<td>23.284851</td>
+<td>21.349633</td>
+<td>19.300573</td>
+<td>23.263729</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
@@ -1058,9 +1044,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>B</td>
 <td>93</td>
 <td>2.320</td>
-<td>25.916714</td>
-<td>24.242191</td>
-<td>27.574153</td>
+<td>25.918932</td>
+<td>24.225028</td>
+<td>27.517733</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
@@ -1068,9 +1054,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>A</td>
 <td>110</td>
 <td>3.215</td>
-<td>18.775156</td>
-<td>16.444976</td>
-<td>21.276683</td>
+<td>18.734764</td>
+<td>16.213729</td>
+<td>21.265602</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
@@ -1078,9 +1064,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <td>A</td>
 <td>175</td>
 <td>3.440</td>
-<td>16.917035</td>
-<td>15.219165</td>
-<td>18.653843</td>
+<td>16.940081</td>
+<td>15.228838</td>
+<td>18.599391</td>
 </tr>
 </tbody>
 </table>
@@ -1175,9 +1161,9 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">0</td>
-<td>20.06417</td>
-<td>17.895285</td>
-<td>22.250253</td>
+<td>20.076678</td>
+<td>17.900002</td>
+<td>22.221902</td>
 </tr>
 </tbody>
 </table>
@@ -1230,24 +1216,20 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">1000</span>, target_accept<span class="op">=</span><span class="fl">0.95</span>, random_seed<span class="op">=</span><span class="dv">1234</span>, chains<span class="op">=</span><span class="dv">4</span></span>
 <span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
+<pre><code>Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"bbe857d7b90f46b2a7f9317415057a1e","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"8a41306b0994443a8a8b27c70c5545c3","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 15 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.</code></pre>
 </div>
 </div>
 <p>This model utilizes a log link function and a negative binomial distribution for the likelihood. Also note that this model also contains an interaction <code>prog:sale(math)</code>.</p>
@@ -1345,24 +1327,20 @@ NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
 <span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>, init<span class="op">=</span><span class="st">"adapt_diag"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Modeling the probability that certified_fresh==1
-Auto-assigning NUTS sampler...
 Initializing NUTS using adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [length, style, length:style]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"abd79afa6d174a718a4671ba4f594f51","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"7073ab77d0e3404baad500272661ef2d","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1686 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 374 seconds.</code></pre>
 </div>
 </div>
 <p>The logistic regression model uses a logit link function and a Bernoulli likelihood. Therefore, the link scale is the log-odds of a successful response and the response scale is the probability of a successful response.</p>
@@ -1425,25 +1403,21 @@ NUTS: [length, style, length:style]</code></pre>
 <span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(formula, data_gamma, family<span class="op">=</span><span class="st">"gamma"</span>)</span>
 <span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
+<pre><code>Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [Intercept, x, alpha_Intercept, alpha_x]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"eb9f4a6dab334426b2c228f24b424dea","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"3792802aecbf4732b40231acfec7affa","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 18 seconds.
-There were 8 divergences after tuning. Increase `target_accept` or reparameterize.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 3 seconds.
+There were 9 divergences after tuning. Increase `target_accept` or reparameterize.</code></pre>
 </div>
 </div>
 <div id="cell-52" class="cell" data-execution_count="25">
@@ -1499,18 +1473,18 @@ There were 8 divergences after tuning. Increase `target_accept` or reparameteriz
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Fri Aug 16 2024
+<pre><code>Last updated: Sun Sep 28 2025
 
 Python implementation: CPython
-Python version       : 3.11.9
-IPython version      : 8.24.0
+Python version       : 3.13.7
+IPython version      : 9.4.0
 
-matplotlib: 3.8.4
-bambi     : 0.14.1.dev12+g64e57423.d20240730
-numpy     : 1.26.4
-pandas    : 2.2.2
+pandas    : 2.3.2
+numpy     : 2.3.3
+matplotlib: 3.10.6
+bambi     : 0.14.1.dev58+gb25742785.d20250928
 
-Watermark: 2.4.3
+Watermark: 2.5.0
 </code></pre>
 </div>
 </div>
@@ -1937,7 +1911,7 @@ Watermark: 2.4.3
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>© Copyright 2024, The developers of Bambi.</p>
+<p>© Copyright 2025, The developers of Bambi.</p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

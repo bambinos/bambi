@@ -172,10 +172,6 @@ window.Quarto = {
 <span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../faq.html"> 
-<span class="menu-text">FAQ</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link" href="../changelog.html"> 
 <span class="menu-text">Changelog</span></a>
   </li>  
@@ -199,7 +195,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/t-test.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/splines_cherry_blossoms.html">Regression splines (Cherry blossom example)</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/ESCS_multiple_regression.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/splines_cherry_blossoms.html">Regression splines (Cherry blossom example)</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -226,12 +222,6 @@ window.Quarto = {
           </a> 
       </div>
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Comparison of two means (T-test)</span></a>
-  </div>
-</li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">
@@ -507,7 +497,7 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/t-test.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/splines_cherry_blossoms.html">Regression splines (Cherry blossom example)</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/ESCS_multiple_regression.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/splines_cherry_blossoms.html">Regression splines (Cherry blossom example)</a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title">Regression splines (Cherry blossom example)</h1>
 </div>
@@ -532,20 +522,19 @@ window.Quarto = {
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="cell-3" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-darkgrid"</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>SEED <span class="op">=</span> <span class="dv">7355608</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-darkgrid"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>SEED <span class="op">=</span> <span class="dv">1211</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="load-cherry-blossom-data" class="level2">
 <h2 class="anchored" data-anchor-id="load-cherry-blossom-data">Load Cherry Blossom data</h2>
 <p>Richard McElreath popularized the Cherry Blossom dataset in the second edition of his excellent book <a href="https://xcelab.net/rm/statistical-rethinking/">Statistical Rethinking</a>. This data represents the day in the year when the first bloom is observed for Japanese cherry blossoms between years 801 and 2015. In his book, Richard McElreath uses this dataset to introduce Basis Splines, or B-Splines in short.</p>
 <p>Here we use Bambi to fit a linear model using B-Splines with the Cherry Blossom data. This dataset can be loaded with Bambi as follows:</p>
-<div id="cell-5" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> bmb.load_data(<span class="st">"cherry_blossoms"</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="3">
+<div id="cell-4" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> bmb.load_data(<span class="st">"cherry_blossoms"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
 <div>
 
 
@@ -657,10 +646,10 @@ window.Quarto = {
 </div>
 </div>
 <p>The variable we are interested in modeling is <code>"doy"</code>, which stands for Day of Year. Also notice this variable contains several missing value which are discarded next.</p>
-<div id="cell-7" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data.dropna(subset<span class="op">=</span>[<span class="st">"doy"</span>]).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>data.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="4">
+<div id="cell-6" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data.dropna(subset<span class="op">=</span>[<span class="st">"doy"</span>]).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>data.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
 <pre><code>(827, 5)</code></pre>
 </div>
 </div>
@@ -668,22 +657,22 @@ window.Quarto = {
 <section id="explore-the-data" class="level2">
 <h2 class="anchored" data-anchor-id="explore-the-data">Explore the data</h2>
 <p>Let’s get started by creating a scatterplot to explore the values of <code>"doy"</code> for each year in the dataset.</p>
-<div id="cell-9" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We create a function because this plot is going to be used again later</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_scatter(data, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>)):</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    _, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>figsize)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    ax.scatter(data[<span class="st">"year"</span>], data[<span class="st">"doy"</span>], alpha<span class="op">=</span><span class="fl">0.4</span>, s<span class="op">=</span><span class="dv">30</span>)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="st">"Day of the first bloom per year"</span>)</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="st">"Year"</span>)</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    ax.set_ylabel(<span class="st">"Days of the first bloom"</span>)</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ax</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-8" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We create a function because this plot is going to be used again later</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_scatter(data, ax, color<span class="op">=</span><span class="st">"C0"</span>):</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    ax.scatter(data[<span class="st">"year"</span>], data[<span class="st">"doy"</span>], alpha<span class="op">=</span><span class="fl">0.4</span>, s<span class="op">=</span><span class="dv">30</span>, color<span class="op">=</span>color)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="st">"Day of the first bloom per year"</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="st">"Year"</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    ax.set_ylabel(<span class="st">"Days of the first bloom"</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ax</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-10" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>plot_scatter(data)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-9" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>plot_scatter(data, ax<span class="op">=</span>ax)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="splines_cherry_blossoms_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="splines_cherry_blossoms_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -694,23 +683,24 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="determine-knots">Determine knots</h2>
 <p>The spline will have 15 knots. These knots are the boundaries of the basis functions. These knots split the range of the <code>"year"</code> variable into 16 contiguous sections. The basis functions make up a piecewise continuous polynomial, and so they are enforced to meet at the knots. We use the default degree for each piecewise polynomial, which is 3. The result is known as a <strong>cubic spline</strong>.</p>
 <p>Because of using quantiles and not having observations for all the years in the time window under study, the knots are distributed unevenly over the range of <code>"year"</code> in such a way that the same proportion of values fall between each section.</p>
+<div id="cell-12" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>num_knots <span class="op">=</span> <span class="dv">15</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>knots <span class="op">=</span> np.quantile(data[<span class="st">"year"</span>], np.linspace(<span class="dv">0</span>, <span class="dv">1</span>, num_knots))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <div id="cell-13" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>num_knots <span class="op">=</span> <span class="dv">15</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>knots <span class="op">=</span> np.quantile(data[<span class="st">"year"</span>], np.linspace(<span class="dv">0</span>, <span class="dv">1</span>, num_knots))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_knots(knots, ax):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> knot <span class="kw">in</span> knots:</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        ax.axvline(knot, color<span class="op">=</span><span class="st">"0.1"</span>, alpha<span class="op">=</span><span class="fl">0.4</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ax</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="cell-14" class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_knots(knots, ax):</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> knot <span class="kw">in</span> knots:</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>        ax.axvline(knot, color<span class="op">=</span><span class="st">"0.1"</span>, alpha<span class="op">=</span><span class="fl">0.4</span>)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ax</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="cell-15" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> plot_scatter(data)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>plot_knots(knots, ax)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>plot_scatter(data, ax<span class="op">=</span>ax)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>plot_knots(knots, ax)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="splines_cherry_blossoms_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="splines_cherry_blossoms_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -738,22 +728,22 @@ w_j &amp; \sim \text{Normal}(0, 10)\\
 \end{aligned}
 \]</span></p>
 <p>where <span class="math inline">\(j\)</span> indexes each of the contiguous sections given by the knots</p>
-<div id="cell-18" class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We only pass the internal knots to the `bs()` function.</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>iknots <span class="op">=</span> knots[<span class="dv">1</span>:<span class="op">-</span><span class="dv">1</span>]</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Define dictionary of priors</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Intercept"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">100</span>, sigma<span class="op">=</span><span class="dv">10</span>),</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"common"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">10</span>), </span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"Exponential"</span>, lam<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model</span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co"># The intercept=True means the basis also spans the intercept, as originally done in the book example.</span></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"doy ~ bs(year, knots=iknots, intercept=True)"</span>, data, priors<span class="op">=</span>priors)</span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="10">
+<div id="cell-17" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We only pass the internal knots to the `bs()` function.</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>iknots <span class="op">=</span> knots[<span class="dv">1</span>:<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Define dictionary of priors</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Intercept"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">100</span>, sigma<span class="op">=</span><span class="dv">10</span>),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"common"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">10</span>), </span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"Exponential"</span>, lam<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co"># The intercept=True means the basis also spans the intercept, as originally done in the book example.</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"doy ~ bs(year, knots=iknots, intercept=True)"</span>, data, priors<span class="op">=</span>priors)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
 <pre><code>       Formula: doy ~ bs(year, knots=iknots, intercept=True)
         Family: gaussian
           Link: mu = identity
@@ -769,31 +759,31 @@ w_j &amp; \sim \text{Normal}(0, 10)\\
 </div>
 </div>
 <p>Let’s create a function to plot each of the basis functions in the model.</p>
-<div id="cell-20" class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_spline_basis(basis, year, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>)):</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> (</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>        pd.DataFrame(basis)</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>        .assign(year<span class="op">=</span>year)</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>        .melt(<span class="st">"year"</span>, var_name<span class="op">=</span><span class="st">"basis_idx"</span>, value_name<span class="op">=</span><span class="st">"value"</span>)</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    _, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>figsize)</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> idx <span class="kw">in</span> df.basis_idx.unique():</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>        d <span class="op">=</span> df[df.basis_idx <span class="op">==</span> idx]</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>        ax.plot(d[<span class="st">"year"</span>], d[<span class="st">"value"</span>])</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ax</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-19" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_spline_basis(basis, year, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>)):</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> (</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>        pd.DataFrame(basis)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>        .assign(year<span class="op">=</span>year)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>        .melt(<span class="st">"year"</span>, var_name<span class="op">=</span><span class="st">"basis_idx"</span>, value_name<span class="op">=</span><span class="st">"value"</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    _, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>figsize)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> idx <span class="kw">in</span> df.basis_idx.unique():</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        d <span class="op">=</span> df[df.basis_idx <span class="op">==</span> idx]</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>        ax.plot(d[<span class="st">"year"</span>], d[<span class="st">"value"</span>])</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ax</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Below, we create a chart to visualize the b-spline basis. The overlap between the functions means that, at any given point in time, the regression function is influenced by more than one basis function. For example, if we look at the year 1200, we can see the regression line is going to be influenced mostly by the violet and brown functions, and to a lesser extent by the green and cyan ones. In summary, this is what enables us to capture local patterns in a smooth fashion.</p>
-<div id="cell-22" class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> model.components[<span class="st">"mu"</span>].design.common[<span class="st">"bs(year, knots=iknots, intercept=True)"</span>]</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> plot_spline_basis(B, data[<span class="st">"year"</span>].values)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>plot_knots(knots, ax)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-21" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> model.components[<span class="st">"mu"</span>].design.common[<span class="st">"bs(year, knots=iknots, intercept=True)"</span>]</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> plot_spline_basis(B, data[<span class="st">"year"</span>].values)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>plot_knots(knots, ax)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="splines_cherry_blossoms_files/figure-html/cell-13-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="splines_cherry_blossoms_files/figure-html/cell-12-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -802,38 +792,39 @@ w_j &amp; \sim \text{Normal}(0, 10)\\
 <section id="fit-model" class="level2">
 <h2 class="anchored" data-anchor-id="fit-model">Fit model</h2>
 <p>Now we fit the model. In Bambi, it is as easy as calling the <code>.fit()</code> method on the <code>Model</code> instance.</p>
-<div id="cell-25" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The seed is to make results reproducible</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(random_seed<span class="op">=</span>SEED, idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-24" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The seed is to make results reproducible</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(random_seed<span class="op">=</span>SEED, idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [sigma, Intercept, bs(year, knots=iknots, intercept=True)]</code></pre>
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [sigma, Intercept, bs(year, knots=iknots, intercept=True)]
+/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pymc/step_methods/hmc/quadpotential.py:316: RuntimeWarning: overflow encountered in dot
+  return 0.5 * np.dot(x, v_out)</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"363e1030d9134431b43eeff6d127dd59","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"ab17f985789c4355abb67a9c04bcf3f3","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+<div class="cell-output cell-output-stderr">
+<pre><code>/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pymc/step_methods/hmc/quadpotential.py:316: RuntimeWarning: overflow encountered in dot
+  return 0.5 * np.dot(x, v_out)</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 10 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 4 seconds.</code></pre>
 </div>
 </div>
 </section>
 <section id="analisys-of-the-results" class="level2">
 <h2 class="anchored" data-anchor-id="analisys-of-the-results">Analisys of the results</h2>
 <p>It is always good to use <code>az.summary()</code> to verify parameter estimates as well as effective sample sizes and R hat values. In this case, the main goal is not to interpret the coefficients of the basis spline, but analyze the <code>ess</code> and <code>r_hat</code> diagnostics. In first place, effective sample sizes don’t look impressively high. Most of them are between 300 and 700, which is low compared to the 2000 draws obtained. The only exception is the residual standard deviation <code>sigma</code>. Finally, the <code>r_hat</code> diagnostic is not always 1 for all the parameters, indicating there may be some issues with the mix of the chains.</p>
-<div id="cell-28" class="cell" data-execution_count="14">
+<div id="cell-27" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>az.summary(idata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="14">
+<div class="cell-output cell-output-display" data-execution_count="13">
 <div>
 
 
@@ -854,232 +845,232 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Intercept</td>
-<td>103.644</td>
-<td>2.419</td>
-<td>99.691</td>
-<td>108.377</td>
-<td>0.115</td>
-<td>0.082</td>
-<td>446.0</td>
-<td>723.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[0]</td>
-<td>-3.262</td>
-<td>3.909</td>
-<td>-10.682</td>
-<td>3.781</td>
-<td>0.136</td>
-<td>0.097</td>
-<td>824.0</td>
-<td>1250.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[1]</td>
-<td>-1.213</td>
-<td>4.016</td>
-<td>-8.644</td>
-<td>6.428</td>
-<td>0.132</td>
-<td>0.094</td>
-<td>918.0</td>
-<td>1337.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[2]</td>
-<td>-1.296</td>
-<td>3.574</td>
-<td>-7.878</td>
-<td>5.467</td>
-<td>0.127</td>
-<td>0.090</td>
-<td>795.0</td>
-<td>1190.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[3]</td>
-<td>4.549</td>
-<td>2.968</td>
-<td>-1.297</td>
-<td>9.678</td>
-<td>0.122</td>
-<td>0.086</td>
-<td>597.0</td>
-<td>954.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[4]</td>
-<td>-1.137</td>
-<td>2.894</td>
-<td>-6.794</td>
-<td>4.092</td>
-<td>0.120</td>
-<td>0.085</td>
-<td>577.0</td>
-<td>892.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[5]</td>
-<td>3.997</td>
-<td>2.957</td>
-<td>-1.706</td>
-<td>9.342</td>
-<td>0.119</td>
-<td>0.084</td>
-<td>622.0</td>
-<td>897.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[6]</td>
-<td>-5.603</td>
-<td>2.911</td>
-<td>-10.905</td>
-<td>-0.138</td>
-<td>0.121</td>
-<td>0.086</td>
-<td>578.0</td>
-<td>861.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[7]</td>
-<td>7.542</td>
-<td>2.870</td>
-<td>2.339</td>
-<td>12.969</td>
-<td>0.120</td>
-<td>0.085</td>
-<td>573.0</td>
-<td>811.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[8]</td>
-<td>-1.304</td>
-<td>2.956</td>
-<td>-7.137</td>
-<td>3.645</td>
-<td>0.119</td>
-<td>0.084</td>
-<td>624.0</td>
-<td>1208.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[9]</td>
-<td>2.753</td>
-<td>2.991</td>
-<td>-2.551</td>
-<td>8.544</td>
-<td>0.126</td>
-<td>0.089</td>
-<td>576.0</td>
-<td>1070.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[10]</td>
-<td>4.337</td>
-<td>2.961</td>
-<td>-1.121</td>
-<td>9.648</td>
-<td>0.117</td>
-<td>0.083</td>
-<td>640.0</td>
-<td>1054.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[11]</td>
-<td>-0.459</td>
-<td>2.897</td>
-<td>-6.121</td>
-<td>4.573</td>
-<td>0.117</td>
-<td>0.083</td>
-<td>615.0</td>
-<td>981.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[12]</td>
-<td>5.253</td>
-<td>2.977</td>
-<td>-0.125</td>
-<td>10.722</td>
-<td>0.119</td>
-<td>0.084</td>
-<td>639.0</td>
-<td>794.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[13]</td>
-<td>0.454</td>
-<td>3.055</td>
-<td>-5.468</td>
-<td>6.024</td>
-<td>0.123</td>
-<td>0.087</td>
-<td>620.0</td>
-<td>1035.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[14]</td>
-<td>-1.123</td>
-<td>3.330</td>
-<td>-7.470</td>
-<td>4.998</td>
-<td>0.128</td>
-<td>0.091</td>
-<td>683.0</td>
-<td>969.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[15]</td>
-<td>-7.222</td>
-<td>3.397</td>
-<td>-13.694</td>
-<td>-1.375</td>
-<td>0.121</td>
-<td>0.085</td>
-<td>794.0</td>
-<td>1080.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[16]</td>
-<td>-8.025</td>
-<td>3.295</td>
-<td>-13.911</td>
-<td>-1.816</td>
-<td>0.119</td>
-<td>0.085</td>
-<td>764.0</td>
-<td>980.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
 <td data-quarto-table-cell-role="th">sigma</td>
-<td>5.944</td>
-<td>0.147</td>
-<td>5.673</td>
-<td>6.220</td>
-<td>0.003</td>
+<td>5.945</td>
+<td>0.143</td>
+<td>5.679</td>
+<td>6.214</td>
 <td>0.002</td>
-<td>2904.0</td>
-<td>1417.0</td>
-<td>1.0</td>
+<td>0.002</td>
+<td>5191.0</td>
+<td>2573.0</td>
+<td>1.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Intercept</td>
+<td>103.517</td>
+<td>2.415</td>
+<td>99.013</td>
+<td>107.954</td>
+<td>0.093</td>
+<td>0.051</td>
+<td>678.0</td>
+<td>1071.0</td>
+<td>1.01</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[0]</td>
+<td>-3.201</td>
+<td>3.938</td>
+<td>-10.260</td>
+<td>4.459</td>
+<td>0.099</td>
+<td>0.055</td>
+<td>1567.0</td>
+<td>2156.0</td>
+<td>1.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[1]</td>
+<td>-1.007</td>
+<td>3.853</td>
+<td>-8.336</td>
+<td>5.898</td>
+<td>0.103</td>
+<td>0.056</td>
+<td>1388.0</td>
+<td>2209.0</td>
+<td>1.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[2]</td>
+<td>-1.247</td>
+<td>3.573</td>
+<td>-7.605</td>
+<td>5.914</td>
+<td>0.098</td>
+<td>0.051</td>
+<td>1348.0</td>
+<td>2223.0</td>
+<td>1.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[3]</td>
+<td>4.671</td>
+<td>2.905</td>
+<td>-0.852</td>
+<td>9.815</td>
+<td>0.095</td>
+<td>0.048</td>
+<td>938.0</td>
+<td>1913.0</td>
+<td>1.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[4]</td>
+<td>-1.001</td>
+<td>2.952</td>
+<td>-6.262</td>
+<td>4.728</td>
+<td>0.099</td>
+<td>0.049</td>
+<td>898.0</td>
+<td>1775.0</td>
+<td>1.01</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[5]</td>
+<td>4.131</td>
+<td>2.971</td>
+<td>-1.446</td>
+<td>9.511</td>
+<td>0.095</td>
+<td>0.048</td>
+<td>977.0</td>
+<td>1683.0</td>
+<td>1.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[6]</td>
+<td>-5.484</td>
+<td>2.869</td>
+<td>-10.626</td>
+<td>-0.004</td>
+<td>0.096</td>
+<td>0.047</td>
+<td>905.0</td>
+<td>1815.0</td>
+<td>1.01</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[7]</td>
+<td>7.672</td>
+<td>2.860</td>
+<td>2.385</td>
+<td>13.065</td>
+<td>0.095</td>
+<td>0.049</td>
+<td>898.0</td>
+<td>1501.0</td>
+<td>1.01</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[8]</td>
+<td>-1.171</td>
+<td>2.920</td>
+<td>-6.539</td>
+<td>4.302</td>
+<td>0.097</td>
+<td>0.049</td>
+<td>912.0</td>
+<td>1623.0</td>
+<td>1.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[9]</td>
+<td>2.882</td>
+<td>2.930</td>
+<td>-2.502</td>
+<td>8.495</td>
+<td>0.092</td>
+<td>0.045</td>
+<td>1009.0</td>
+<td>1911.0</td>
+<td>1.01</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[10]</td>
+<td>4.494</td>
+<td>2.978</td>
+<td>-0.774</td>
+<td>10.295</td>
+<td>0.096</td>
+<td>0.048</td>
+<td>957.0</td>
+<td>1819.0</td>
+<td>1.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[11]</td>
+<td>-0.340</td>
+<td>2.903</td>
+<td>-5.678</td>
+<td>5.113</td>
+<td>0.094</td>
+<td>0.047</td>
+<td>954.0</td>
+<td>1758.0</td>
+<td>1.01</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[12]</td>
+<td>5.399</td>
+<td>2.957</td>
+<td>-0.550</td>
+<td>10.582</td>
+<td>0.098</td>
+<td>0.047</td>
+<td>920.0</td>
+<td>2016.0</td>
+<td>1.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[13]</td>
+<td>0.554</td>
+<td>3.050</td>
+<td>-4.988</td>
+<td>6.484</td>
+<td>0.095</td>
+<td>0.051</td>
+<td>1034.0</td>
+<td>2152.0</td>
+<td>1.01</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[14]</td>
+<td>-0.960</td>
+<td>3.378</td>
+<td>-7.379</td>
+<td>5.364</td>
+<td>0.107</td>
+<td>0.053</td>
+<td>997.0</td>
+<td>1963.0</td>
+<td>1.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[15]</td>
+<td>-7.103</td>
+<td>3.439</td>
+<td>-13.379</td>
+<td>-0.408</td>
+<td>0.091</td>
+<td>0.051</td>
+<td>1430.0</td>
+<td>2339.0</td>
+<td>1.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots, intercept=True)[16]</td>
+<td>-7.789</td>
+<td>3.268</td>
+<td>-14.206</td>
+<td>-1.863</td>
+<td>0.094</td>
+<td>0.053</td>
+<td>1200.0</td>
+<td>1920.0</td>
+<td>1.00</td>
 </tr>
 </tbody>
 </table>
@@ -1088,18 +1079,18 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 <p>We can also use <code>az.plot_trace()</code> to visualize the marginal posteriors and the sampling paths. These traces show a stationary random pattern. If these paths were not random stationary, we would be concerned about the convergence of the chains.</p>
-<div id="cell-30" class="cell" data-execution_count="15">
+<div id="cell-29" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(idata)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="splines_cherry_blossoms_files/figure-html/cell-16-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="splines_cherry_blossoms_files/figure-html/cell-15-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Now we can visualize the fitted basis functions. In addition, we include a thicker black line that represents the dot product between <span class="math inline">\(B\)</span> and <span class="math inline">\(w\)</span>. This is the contribution of the b-spline to the linear predictor in the model.</p>
-<div id="cell-32" class="cell" data-execution_count="16">
+<div id="cell-31" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>posterior_stacked <span class="op">=</span> az.extract(idata)</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>wp <span class="op">=</span> posterior_stacked[<span class="st">"bs(year, knots=iknots, intercept=True)"</span>].mean(<span class="st">"sample"</span>).values</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1109,7 +1100,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="splines_cherry_blossoms_files/figure-html/cell-17-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="splines_cherry_blossoms_files/figure-html/cell-16-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -1118,48 +1109,29 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <section id="plot-predictions-and-credible-bands" class="level2">
 <h2 class="anchored" data-anchor-id="plot-predictions-and-credible-bands">Plot predictions and credible bands</h2>
 <p>Let’s create a function to plot the predicted mean value as well as credible bands for it.</p>
-<div id="cell-34" class="cell" data-execution_count="17">
+<div id="cell-33" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_predictions(data, idata, model):</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create a test dataset with observations spanning the whole range of year</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    new_data <span class="op">=</span> pd.DataFrame({<span class="st">"year"</span>: np.linspace(data.year.<span class="bu">min</span>(), data.year.<span class="bu">max</span>(), num<span class="op">=</span><span class="dv">500</span>)})</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Predict the day of first blossom</span></span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    model.predict(idata, data<span class="op">=</span>new_data)</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    posterior_stacked <span class="op">=</span>  az.extract_dataset(idata)</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Extract these predictions</span></span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    y_hat <span class="op">=</span> posterior_stacked[<span class="st">"mu"</span>]</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    _, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot predictions</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    bmb.interpret.plot_predictions(model, idata, conditional<span class="op">=</span><span class="st">"year"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot obserevd data</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    plot_scatter(data, ax, color<span class="op">=</span><span class="st">"0.4"</span>)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add knots</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    plot_knots(knots, ax)</span>
 <span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compute the mean of the predictions, plotted as a single line.</span></span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    y_hat_mean <span class="op">=</span> y_hat.mean(<span class="st">"sample"</span>)</span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compute 94% credible intervals for the predictions, plotted as bands</span></span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    hdi_data <span class="op">=</span> np.quantile(y_hat, [<span class="fl">0.03</span>, <span class="fl">0.97</span>], axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot obserevd data</span></span>
-<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>    ax <span class="op">=</span> plot_scatter(data)</span>
-<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot predicted line</span></span>
-<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>    ax.plot(new_data[<span class="st">"year"</span>], y_hat_mean, color<span class="op">=</span><span class="st">"firebrick"</span>)</span>
-<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot credibility bands</span></span>
-<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>    ax.fill_between(new_data[<span class="st">"year"</span>], hdi_data[<span class="dv">0</span>], hdi_data[<span class="dv">1</span>], alpha<span class="op">=</span><span class="fl">0.4</span>, color<span class="op">=</span><span class="st">"firebrick"</span>)</span>
-<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add knots</span></span>
-<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>    plot_knots(knots, ax)</span>
-<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ax</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ax</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-35" class="cell" data-execution_count="18">
+<div id="cell-34" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>plot_predictions(data, idata, model)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/tmp/ipykernel_46679/4286558085.py:8: FutureWarning: extract_dataset has been deprecated, please use extract
-  posterior_stacked =  az.extract_dataset(idata)</code></pre>
+<pre><code>Default computed for conditional variable: year</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="splines_cherry_blossoms_files/figure-html/cell-19-output-2.png" class="img-fluid figure-img"></p>
+<p><img src="splines_cherry_blossoms_files/figure-html/cell-18-output-2.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -1173,67 +1145,68 @@ We recommend running at least 4 chains for robust computation of convergence dia
 \]</span></p>
 <p>where <span class="math inline">\(\mathbf{y}\)</span> is the response column vector of shape <span class="math inline">\((n, 1)\)</span>. <span class="math inline">\(\mathbf{X}\)</span> is the <strong>design matrix</strong> that contains the values of the predictors for all the observations, of shape <span class="math inline">\((n, p)\)</span>. And <span class="math inline">\(\boldsymbol{\beta}\)</span> is the column vector of regression coefficients of shape <span class="math inline">\((n, 1)\)</span>.</p>
 <p>Because it’s not something that you’re supposed to consult regularly, Bambi does not expose the design matrix. However, with a some knowledge of the internals, it is possible to have access to it:</p>
-<div id="cell-39" class="cell" data-execution_count="19">
+<div id="cell-38" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>np.<span class="bu">round</span>(model.components[<span class="st">"mu"</span>].design.common.design_matrix, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="19">
+<div class="cell-output cell-output-display" data-execution_count="18">
 <pre><code>array([[1.   , 1.   , 0.   , ..., 0.   , 0.   , 0.   ],
        [1.   , 0.96 , 0.039, ..., 0.   , 0.   , 0.   ],
        [1.   , 0.767, 0.221, ..., 0.   , 0.   , 0.   ],
        ...,
        [1.   , 0.   , 0.   , ..., 0.002, 0.097, 0.902],
        [1.   , 0.   , 0.   , ..., 0.   , 0.05 , 0.95 ],
-       [1.   , 0.   , 0.   , ..., 0.   , 0.   , 1.   ]])</code></pre>
+       [1.   , 0.   , 0.   , ..., 0.   , 0.   , 1.   ]], shape=(827, 18))</code></pre>
 </div>
 </div>
 <p>Let’s have a look at its shape:</p>
-<div id="cell-41" class="cell" data-execution_count="20">
+<div id="cell-40" class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>model.components[<span class="st">"mu"</span>].design.common.design_matrix.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="20">
+<div class="cell-output cell-output-display" data-execution_count="19">
 <pre><code>(827, 18)</code></pre>
 </div>
 </div>
 <p>827 is the number of years we have data for, and 18 is the number of predictors/coefficients in the model. We have the first column of ones due to the <code>Intercept</code> term. Then, there are sixteen columns associated with the the basis functions. And finally, one extra column because we used <code>span_intercept=True</code> when calling the function <code>bs()</code> in the model formula.</p>
 <p>Now we could compute the rank of the design matrix to check whether all the columns are linearly independent.</p>
-<div id="cell-44" class="cell" data-execution_count="21">
+<div id="cell-43" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>np.linalg.matrix_rank(model.components[<span class="st">"mu"</span>].design.common.design_matrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="21">
-<pre><code>17</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="20">
+<pre><code>np.int64(17)</code></pre>
 </div>
 </div>
 <p>Since <span class="math inline">\(\text{rank}(\mathbf{X})\)</span> is smaller than the number of columns, we conclude the columns in <span class="math inline">\(\mathbf{X}\)</span> are not linearly independent.</p>
 <p>If we have a second look at our code, we are going to figure out we’re spanning the intercept <strong>twice</strong>. The first time with the intercept term itself, and the second time in the spline basis.</p>
 <p>This would have been a huge problem in a maximum likelihod estimation approach – we would have obtained an error instead of some parameter estimates. However, since we are doing Bayesian modeling, our priors ensured we obtain our regularized parameter estimates and everything seemed to work pretty well.</p>
 <p>Nevertheless, we can still do better. Why would we want to span the intercept twice? Let’s create and fit the model again, this time without spanning the intercept in the spline basis.</p>
-<div id="cell-46" class="cell" data-execution_count="22">
+<div id="cell-45" class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Note we use the same priors</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>model_new <span class="op">=</span> bmb.Model(<span class="st">"doy ~ bs(year, knots=iknots)"</span>, data, priors<span class="op">=</span>priors)</span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>idata_new <span class="op">=</span> model_new.fit(random_seed<span class="op">=</span>SEED, idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [sigma, Intercept, bs(year, knots=iknots)]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"721fb755c0bf4420920ddfe1cd41ddf4","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"b6349e835c5a44b498e35f7a8c51e391","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+<div class="cell-output cell-output-stderr">
+<pre><code>/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pymc/step_methods/hmc/quadpotential.py:316: RuntimeWarning: overflow encountered in dot
+  return 0.5 * np.dot(x, v_out)
+/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pymc/step_methods/hmc/quadpotential.py:316: RuntimeWarning: overflow encountered in dot
+  return 0.5 * np.dot(x, v_out)</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 9 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 4 seconds.</code></pre>
 </div>
 </div>
 <p>And let’s have a look at the summary</p>
-<div id="cell-48" class="cell" data-execution_count="23">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>az.summary(idata_new)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="23">
+<div id="cell-47" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>az.summary(idata_new)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="22">
 <div>
 
 
@@ -1254,219 +1227,219 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Intercept</td>
-<td>102.358</td>
-<td>1.889</td>
-<td>98.707</td>
-<td>105.711</td>
-<td>0.084</td>
-<td>0.060</td>
-<td>505.0</td>
-<td>779.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[0]</td>
-<td>-0.875</td>
-<td>3.832</td>
-<td>-7.709</td>
-<td>6.539</td>
-<td>0.135</td>
-<td>0.096</td>
-<td>807.0</td>
-<td>1356.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[1]</td>
-<td>0.430</td>
-<td>2.954</td>
-<td>-4.934</td>
-<td>6.052</td>
-<td>0.083</td>
-<td>0.065</td>
-<td>1284.0</td>
-<td>1460.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[2]</td>
-<td>5.714</td>
-<td>2.604</td>
-<td>0.465</td>
-<td>10.248</td>
-<td>0.097</td>
-<td>0.069</td>
-<td>720.0</td>
-<td>1266.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[3]</td>
-<td>0.226</td>
-<td>2.446</td>
-<td>-4.181</td>
-<td>4.810</td>
-<td>0.092</td>
-<td>0.065</td>
-<td>708.0</td>
-<td>1168.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[4]</td>
-<td>5.279</td>
-<td>2.590</td>
-<td>0.500</td>
-<td>10.089</td>
-<td>0.093</td>
-<td>0.066</td>
-<td>777.0</td>
-<td>1304.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[5]</td>
-<td>-4.341</td>
-<td>2.412</td>
-<td>-8.440</td>
-<td>0.732</td>
-<td>0.089</td>
-<td>0.063</td>
-<td>736.0</td>
-<td>1127.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[6]</td>
-<td>8.796</td>
-<td>2.421</td>
-<td>4.549</td>
-<td>13.533</td>
-<td>0.088</td>
-<td>0.062</td>
-<td>753.0</td>
-<td>1246.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[7]</td>
-<td>0.029</td>
-<td>2.521</td>
-<td>-4.922</td>
-<td>4.602</td>
-<td>0.093</td>
-<td>0.066</td>
-<td>732.0</td>
-<td>1119.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[8]</td>
-<td>4.004</td>
-<td>2.551</td>
-<td>-0.700</td>
-<td>8.912</td>
-<td>0.091</td>
-<td>0.064</td>
-<td>790.0</td>
-<td>1119.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[9]</td>
-<td>5.651</td>
-<td>2.563</td>
-<td>1.126</td>
-<td>10.653</td>
-<td>0.092</td>
-<td>0.065</td>
-<td>773.0</td>
-<td>1350.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[10]</td>
-<td>0.860</td>
-<td>2.508</td>
-<td>-3.605</td>
-<td>5.611</td>
-<td>0.091</td>
-<td>0.065</td>
-<td>756.0</td>
-<td>1174.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[11]</td>
-<td>6.501</td>
-<td>2.544</td>
-<td>1.390</td>
-<td>10.852</td>
-<td>0.091</td>
-<td>0.064</td>
-<td>783.0</td>
-<td>1127.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[12]</td>
-<td>1.716</td>
-<td>2.622</td>
-<td>-3.177</td>
-<td>6.699</td>
-<td>0.091</td>
-<td>0.065</td>
-<td>824.0</td>
-<td>1266.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[13]</td>
-<td>0.118</td>
-<td>2.980</td>
-<td>-5.096</td>
-<td>5.831</td>
-<td>0.095</td>
-<td>0.067</td>
-<td>974.0</td>
-<td>1329.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[14]</td>
-<td>-5.901</td>
-<td>3.032</td>
-<td>-11.364</td>
-<td>-0.319</td>
-<td>0.092</td>
-<td>0.065</td>
-<td>1087.0</td>
-<td>1447.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[15]</td>
-<td>-6.734</td>
-<td>2.977</td>
-<td>-12.309</td>
-<td>-1.337</td>
-<td>0.101</td>
-<td>0.071</td>
-<td>883.0</td>
-<td>1399.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
 <td data-quarto-table-cell-role="th">sigma</td>
-<td>5.941</td>
-<td>0.152</td>
-<td>5.657</td>
-<td>6.219</td>
-<td>0.003</td>
+<td>5.944</td>
+<td>0.146</td>
+<td>5.678</td>
+<td>6.223</td>
 <td>0.002</td>
-<td>2631.0</td>
-<td>1420.0</td>
+<td>0.002</td>
+<td>5205.0</td>
+<td>2754.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Intercept</td>
+<td>102.481</td>
+<td>1.958</td>
+<td>98.864</td>
+<td>106.156</td>
+<td>0.066</td>
+<td>0.038</td>
+<td>886.0</td>
+<td>1140.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[0]</td>
+<td>-1.005</td>
+<td>3.845</td>
+<td>-7.781</td>
+<td>6.678</td>
+<td>0.106</td>
+<td>0.056</td>
+<td>1331.0</td>
+<td>2202.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[1]</td>
+<td>0.237</td>
+<td>3.063</td>
+<td>-5.655</td>
+<td>5.894</td>
+<td>0.064</td>
+<td>0.044</td>
+<td>2323.0</td>
+<td>2457.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[2]</td>
+<td>5.568</td>
+<td>2.645</td>
+<td>0.889</td>
+<td>10.726</td>
+<td>0.076</td>
+<td>0.042</td>
+<td>1218.0</td>
+<td>2096.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[3]</td>
+<td>0.098</td>
+<td>2.512</td>
+<td>-4.427</td>
+<td>4.916</td>
+<td>0.068</td>
+<td>0.037</td>
+<td>1383.0</td>
+<td>2106.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[4]</td>
+<td>5.160</td>
+<td>2.627</td>
+<td>0.506</td>
+<td>10.334</td>
+<td>0.071</td>
+<td>0.040</td>
+<td>1371.0</td>
+<td>2298.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[5]</td>
+<td>-4.453</td>
+<td>2.468</td>
+<td>-9.016</td>
+<td>0.188</td>
+<td>0.070</td>
+<td>0.040</td>
+<td>1242.0</td>
+<td>2158.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[6]</td>
+<td>8.683</td>
+<td>2.484</td>
+<td>4.287</td>
+<td>13.661</td>
+<td>0.071</td>
+<td>0.037</td>
+<td>1230.0</td>
+<td>2204.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[7]</td>
+<td>-0.109</td>
+<td>2.588</td>
+<td>-4.866</td>
+<td>4.812</td>
+<td>0.068</td>
+<td>0.039</td>
+<td>1457.0</td>
+<td>2383.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[8]</td>
+<td>3.891</td>
+<td>2.598</td>
+<td>-0.796</td>
+<td>8.867</td>
+<td>0.071</td>
+<td>0.042</td>
+<td>1348.0</td>
+<td>2164.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[9]</td>
+<td>5.529</td>
+<td>2.617</td>
+<td>0.771</td>
+<td>10.455</td>
+<td>0.070</td>
+<td>0.038</td>
+<td>1381.0</td>
+<td>2213.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[10]</td>
+<td>0.734</td>
+<td>2.585</td>
+<td>-4.193</td>
+<td>5.559</td>
+<td>0.072</td>
+<td>0.040</td>
+<td>1277.0</td>
+<td>1848.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[11]</td>
+<td>6.411</td>
+<td>2.594</td>
+<td>1.472</td>
+<td>11.259</td>
+<td>0.069</td>
+<td>0.037</td>
+<td>1423.0</td>
+<td>2536.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[12]</td>
+<td>1.627</td>
+<td>2.709</td>
+<td>-3.243</td>
+<td>7.153</td>
+<td>0.073</td>
+<td>0.042</td>
+<td>1385.0</td>
+<td>1844.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[13]</td>
+<td>0.007</td>
+<td>3.025</td>
+<td>-5.346</td>
+<td>6.000</td>
+<td>0.074</td>
+<td>0.046</td>
+<td>1681.0</td>
+<td>2513.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[14]</td>
+<td>-6.078</td>
+<td>3.111</td>
+<td>-11.481</td>
+<td>0.258</td>
+<td>0.074</td>
+<td>0.043</td>
+<td>1770.0</td>
+<td>2634.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">bs(year, knots=iknots)[15]</td>
+<td>-6.885</td>
+<td>2.994</td>
+<td>-12.649</td>
+<td>-1.385</td>
+<td>0.075</td>
+<td>0.040</td>
+<td>1593.0</td>
+<td>2212.0</td>
 <td>1.0</td>
 </tr>
 </tbody>
@@ -1482,40 +1455,39 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <li>r_hat coefficeints are still 1.</li>
 </ul>
 <p>We can also compare the sampling times:</p>
+<div id="cell-49" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>idata.posterior.sampling_time</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="23">
+<pre><code>4.114790439605713</code></pre>
+</div>
+</div>
 <div id="cell-50" class="cell" data-execution_count="24">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>idata.posterior.sampling_time</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>idata_new.posterior.sampling_time</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="24">
-<pre><code>9.64709210395813</code></pre>
-</div>
-</div>
-<div id="cell-51" class="cell" data-execution_count="25">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>idata_new.posterior.sampling_time</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="25">
-<pre><code>9.324542045593262</code></pre>
+<pre><code>3.744837760925293</code></pre>
 </div>
 </div>
 <p>Sampling times are similar in this particular example. But in general, we expect the sampler to run faster when there aren’t structural dependencies in the design matrix.</p>
 <p>And what about predictions?</p>
-<div id="cell-54" class="cell" data-execution_count="26">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>plot_predictions(data, idata_new, model_new)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-53" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>plot_predictions(data, idata_new, model_new)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/tmp/ipykernel_46679/4286558085.py:8: FutureWarning: extract_dataset has been deprecated, please use extract
-  posterior_stacked =  az.extract_dataset(idata)</code></pre>
+<pre><code>Default computed for conditional variable: year</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="splines_cherry_blossoms_files/figure-html/cell-27-output-2.png" class="img-fluid figure-img"></p>
+<p><img src="splines_cherry_blossoms_files/figure-html/cell-26-output-2.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>And model comparison?</p>
-<div id="cell-56" class="cell" data-execution_count="27">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>models_dict <span class="op">=</span> {<span class="st">"Original"</span>: idata, <span class="st">"New"</span>: idata_new}</span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>df_compare <span class="op">=</span> az.compare(models_dict)</span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>df_compare</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="27">
+<div id="cell-55" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>models_dict <span class="op">=</span> {<span class="st">"Original"</span>: idata, <span class="st">"New"</span>: idata_new}</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>df_compare <span class="op">=</span> az.compare(models_dict)</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>df_compare</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="26">
 <div>
 
 
@@ -1538,11 +1510,11 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <tr class="odd">
 <td data-quarto-table-cell-role="th">New</td>
 <td>0</td>
-<td>-2657.850604</td>
-<td>15.926137</td>
+<td>-2657.791787</td>
+<td>15.910946</td>
 <td>0.000000</td>
 <td>1.0</td>
-<td>21.193558</td>
+<td>21.175981</td>
 <td>0.000000</td>
 <td>False</td>
 <td>log</td>
@@ -1550,12 +1522,12 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <tr class="even">
 <td data-quarto-table-cell-role="th">Original</td>
 <td>1</td>
-<td>-2658.586671</td>
-<td>16.913997</td>
-<td>0.736068</td>
+<td>-2658.242689</td>
+<td>16.526185</td>
+<td>0.450902</td>
 <td>0.0</td>
-<td>21.192815</td>
-<td>0.549973</td>
+<td>21.170011</td>
+<td>0.579431</td>
 <td>False</td>
 <td>log</td>
 </tr>
@@ -1565,25 +1537,39 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 </div>
-<div id="cell-57" class="cell" data-execution_count="28">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>az.plot_compare(df_compare, insample_dev<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-56" class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>az.plot_compare(df_compare, insample_dev<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="splines_cherry_blossoms_files/figure-html/cell-29-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="splines_cherry_blossoms_files/figure-html/cell-28-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Finally let’s check influential points according to the k-hat value</p>
+<div id="cell-58" class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute pointwise LOO</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>loo_1 <span class="op">=</span> az.loo(idata, pointwise<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>loo_2 <span class="op">=</span> az.loo(idata_new, pointwise<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <div id="cell-59" class="cell" data-execution_count="29">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute pointwise LOO</span></span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>loo_1 <span class="op">=</span> az.loo(idata, pointwise<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>loo_2 <span class="op">=</span> az.loo(idata_new, pointwise<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot kappa values</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>az.plot_khat(loo_1.pareto_k)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/arviz/plots/khatplot.py:184: FutureWarning: support for DataArrays will be deprecated, please use ELPDData.The reason for this, is that we need to know the numbers of drawssampled from the posterior
+  warnings.warn(</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="splines_cherry_blossoms_files/figure-html/cell-30-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 <div id="cell-60" class="cell" data-execution_count="30">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot kappa values</span></span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>az.plot_khat(loo_1.pareto_k)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>az.plot_khat(loo_2.pareto_k)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1592,37 +1578,27 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 </div>
-<div id="cell-61" class="cell" data-execution_count="31">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>az.plot_khat(loo_2.pareto_k)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="splines_cherry_blossoms_files/figure-html/cell-32-output-1.png" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
 </section>
 <section id="final-comments" class="level2">
 <h2 class="anchored" data-anchor-id="final-comments">Final comments</h2>
 <p>Another option could have been to use stronger priors on the coefficients associated with the spline functions. For example, the example written in PyMC uses <span class="math inline">\(\text{Normal}(0, 3)\)</span> priors on them instead of <span class="math inline">\(\text{Normal}(0, 10)\)</span>.</p>
-<div id="cell-63" class="cell" data-execution_count="32">
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-62" class="cell" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Sun May 26 2024
+<pre><code>Last updated: Sun Sep 28 2025
 
 Python implementation: CPython
-Python version       : 3.11.9
-IPython version      : 8.24.0
+Python version       : 3.13.7
+IPython version      : 9.4.0
 
-pandas    : 2.2.2
-bambi     : 0.13.1.dev39+gb7d6a6cb
-numpy     : 1.26.4
-arviz     : 0.18.0
-matplotlib: 3.8.4
+matplotlib: 3.10.6
+bambi     : 0.14.1.dev58+gb25742785.d20250928
+numpy     : 2.3.3
+arviz     : 0.22.0
+pandas    : 2.3.2
 
-Watermark: 2.4.3
+Watermark: 2.5.0
 </code></pre>
 </div>
 </div>
@@ -2049,7 +2025,7 @@ Watermark: 2.4.3
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>© Copyright 2024, The developers of Bambi.</p>
+<p>© Copyright 2025, The developers of Bambi.</p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

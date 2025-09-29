@@ -49,7 +49,7 @@ Specification of model class
 | [prior_predictive](#bambi.Model.prior_predictive) | Generate samples from the prior predictive distribution. |
 | [r2_score](#bambi.Model.r2_score) | R² for Bayesian regression models. |
 | [set_alias](#bambi.Model.set_alias) | Set aliases for the terms and auxiliary parameters in the model |
-| [set_priors](#bambi.Model.set_priors) | Set priors for one or more existing terms |
+| [set_priors](#bambi.Model.set_priors) | Set priors for one or more existing terms. |
 
 ### build { #bambi.Model.build }
 
@@ -60,12 +60,6 @@ Model.build()
 Set up the model for sampling/fitting
 
 Creates an instance of the underlying PyMC model and adds all the necessary terms to it.
-
-#### Returns {.doc-section .doc-section-returns}
-
-| Name   | Type    | Description   |
-|--------|---------|---------------|
-|        | `None`. |               |
 
 ### compute_log_likelihood { #bambi.Model.compute_log_likelihood }
 
@@ -133,10 +127,9 @@ Fit the model using PyMC
 
 #### Returns {.doc-section .doc-section-returns}
 
-| Name   | Type                                                                                   | Description   |
-|--------|----------------------------------------------------------------------------------------|---------------|
-|        | An ArviZ `InferenceData` instance if `inference_method` is `\"pymc\"`, `\"nutpie\"`,   |               |
-|        | `\"blackjax\"`, `\"numpyro\"`, or \"laplace\". An `Approximation` object if  `\"vi\"`. |               |
+| Name   | Type                                  | Description                                                                                                                                                          |
+|--------|---------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | `az.InferenceData` or `Approximation` | It returns an `az.InferenceData` if `inference_method` is `"pymc"`, `"nutpie"`, `"blackjax"`, `"numpyro"`, or `"laplace"`, and an `Approximation` object if  `"vi"`. |
 
 ### graph { #bambi.Model.graph }
 
@@ -169,15 +162,13 @@ See http://graphviz.readthedocs.io/en/stable/manual.html for more information.
 |--------|------------------|---------------|
 |        | graphviz.Digraph | The graph     |
 
-#### Example {.doc-section .doc-section-example}
+#### Examples {.doc-section .doc-section-examples}
 
->>> model = Model("y ~ x + (1|z)")
->>> model.build()
->>> model.graph()
-
->>> model = Model("y ~ x + (1|z)")
->>> model.fit()
->>> model.graph()
+```python
+model = Model("y ~ x + (1|z)")
+model.fit()
+model.graph()
+```
 
 ### plot_priors { #bambi.Model.plot_priors }
 
@@ -351,7 +342,7 @@ Set aliases for the terms and auxiliary parameters in the model
 Model.set_priors(priors=None, common=None, group_specific=None)
 ```
 
-Set priors for one or more existing terms
+Set priors for one or more existing terms.
 
 #### Parameters {.doc-section .doc-section-parameters}
 
@@ -360,9 +351,3 @@ Set priors for one or more existing terms
 | priors         | dict                 | Dictionary of priors to update. Keys are names of terms to update; values are the new priors (either a `Prior` instance, or an int or float that scales the default priors). | `None`    |
 | common         | Prior, int, or float | A prior specification to apply to all common terms included in the model.                                                                                                    | `None`    |
 | group_specific | Prior, int, or float | A prior specification to apply to all group specific terms included in the model.                                                                                            | `None`    |
-
-#### Returns {.doc-section .doc-section-returns}
-
-| Name   | Type    | Description   |
-|--------|---------|---------------|
-|        | `None`. |               |

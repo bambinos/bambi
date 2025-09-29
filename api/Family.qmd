@@ -8,33 +8,33 @@ A specification of model family
 
 ## Parameters {.doc-section .doc-section-parameters}
 
-| Name       | Type                                          | Description                                                                                                                                                                                                                                                                     | Default    |
-|------------|-----------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| name       | str                                           | The name of the family. It can be any string.                                                                                                                                                                                                                                   | _required_ |
-| likelihood | Likelihood                                    | A `bambi.families.Likelihood` instance specifying the model likelihood function.                                                                                                                                                                                                | _required_ |
-| link       | Union\[str, Dict\[str, Union\[str, Link\]\]\] | The link function that's used for every parameter in the likelihood function. Keys are the names of the parameters and values are the link functions. These can be a `str` with a name or a `bambi.families.Link` instance. The link function transforms the linear predictors. | _required_ |
+| Name       | Type                            | Description                                                                                                                                                                                                                                                                     | Default    |
+|------------|---------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| name       | str                             | The name of the family. It can be any string.                                                                                                                                                                                                                                   | _required_ |
+| likelihood | Likelihood                      | A `bambi.families.Likelihood` instance specifying the model likelihood function.                                                                                                                                                                                                | _required_ |
+| link       | str or dict\[str, str or Link\] | The link function that's used for every parameter in the likelihood function. Keys are the names of the parameters and values are the link functions. These can be a `str` with a name or a `bambi.families.Link` instance. The link function transforms the linear predictors. | _required_ |
 
 ## Examples {.doc-section .doc-section-examples}
 
 ```python
->>> import bambi as bmb
+import bambi as bmb
 ```
 
 Replicate the Gaussian built-in family.
 
 ```python
->>> sigma_prior = bmb.Prior("HalfNormal", sigma=1)
->>> likelihood = bmb.Likelihood("Gaussian", params=["mu", "sigma"], parent="mu")
->>> family = bmb.Family("gaussian", likelihood, "identity")
->>> bmb.Model("y ~ x", data, family=family, priors={"sigma": sigma_prior})
+sigma_prior = bmb.Prior("HalfNormal", sigma=1)
+likelihood = bmb.Likelihood("Gaussian", params=["mu", "sigma"], parent="mu")
+family = bmb.Family("gaussian", likelihood, "identity")
+bmb.Model("y ~ x", data, family=family, priors={"sigma": sigma_prior})
 ```
 
 Replicate the Bernoulli built-in family.
 
 ```python
->>> likelihood = bmb.Likelihood("Bernoulli", parent="p")
->>> family = bmb.Family("bernoulli", likelihood, "logit")
->>> bmb.Model("y ~ x", data, family=family)
+likelihood = bmb.Likelihood("Bernoulli", parent="p")
+family = bmb.Family("bernoulli", likelihood, "logit")
+bmb.Model("y ~ x", data, family=family)
 ```
 
 ## Attributes

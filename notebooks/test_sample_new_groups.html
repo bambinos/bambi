@@ -105,6 +105,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
 
 <link rel="stylesheet" href="../styles.css">
@@ -138,10 +139,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li class="nav-item">
     <a class="nav-link" href="../notebooks/index.html"> 
 <span class="menu-text">Examples</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../faq.html"> 
-<span class="menu-text">FAQ</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../changelog.html"> 
@@ -178,11 +175,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <p><strong>NOTE</strong> This notebook is not part of the documentation. It’s not meant to be in the webpage. It’s something I wrote when I was testing the new functionality and I think it’s nice to have it handy.</p>
 <div id="cell-1" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="cell-2" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> bmb.load_data(<span class="st">"sleepstudy"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -264,40 +260,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-5" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [Reaction_sigma, Intercept, Days, 1|Subject_sigma, 1|Subject_offset, Days|Subject_sigma, Days|Subject_offset]</code></pre>
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [sigma, Intercept, Days, 1|Subject_sigma, 1|Subject_offset, Days|Subject_sigma, Days|Subject_offset]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"862019c9e33b4cf18f6acc16c95cd34e","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:15&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 15 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 5 seconds.</code></pre>
 </div>
 </div>
 <div id="cell-6" class="cell" data-execution_count="6">
@@ -446,14 +422,14 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 </div>
-<div id="cell-7" class="cell" data-execution_count="7">
+<div id="cell-7" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> model.predict(idata, data<span class="op">=</span>df_new, inplace<span class="op">=</span><span class="va">False</span>, sample_new_groups<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>reaction_draws <span class="op">=</span> p.posterior[<span class="st">"Reaction_mean"</span>]</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>reaction_draws <span class="op">=</span> p.posterior[<span class="st">"mu"</span>]</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>mean <span class="op">=</span> reaction_draws.mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>)).to_numpy()</span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>bounds <span class="op">=</span> reaction_draws.quantile((<span class="fl">0.025</span>, <span class="fl">0.975</span>), (<span class="st">"chain"</span>, <span class="st">"draw"</span>)).to_numpy()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-8" class="cell" data-execution_count="8">
+<div id="cell-8" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">4</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].scatter(df_new.iloc[<span class="dv">10</span>:][<span class="st">"Days"</span>], df_new.iloc[<span class="dv">10</span>:][<span class="st">"Reaction"</span>])</span>
@@ -473,11 +449,11 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 <hr>
-<div id="cell-10" class="cell" data-execution_count="9">
+<div id="cell-10" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">"../../tests/data/crossed_random.csv"</span>)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"subj"</span>] <span class="op">=</span> data[<span class="st">"subj"</span>].astype(<span class="bu">str</span>)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="9">
+<div class="cell-output cell-output-display" data-execution_count="12">
 <div>
 
 
@@ -557,11 +533,11 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 </div>
-<div id="cell-11" class="cell" data-execution_count="10">
+<div id="cell-11" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>formula <span class="op">=</span> <span class="st">"Y ~ 0 + threecats + (0 + threecats | subj)"</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(formula, data)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="10">
+<div class="cell-output cell-output-display" data-execution_count="13">
 <pre><code>       Formula: Y ~ 0 + threecats + (0 + threecats | subj)
         Family: gaussian
           Link: mu = identity
@@ -578,46 +554,27 @@ We recommend running at least 4 chains for robust computation of convergence dia
             sigma ~ HalfStudentT(nu: 4.0, sigma: 5.8759)</code></pre>
 </div>
 </div>
-<div id="cell-12" class="cell" data-execution_count="11">
+<div id="cell-12" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [Y_sigma, threecats, threecats|subj_sigma, threecats|subj_offset]</code></pre>
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [sigma, threecats, threecats|subj_sigma, threecats|subj_offset]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"8a60022ea97640dc99517601576a288e","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
 </div>
 <div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:08&lt;00:00 Sampling 2 chains, 0 divergences]
-    </div>
-    
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 8 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 4 seconds.
+There was 1 divergence after tuning. Increase `target_accept` or reparameterize.</code></pre>
 </div>
 </div>
-<div id="cell-13" class="cell" data-execution_count="12">
+<div id="cell-13" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> pd.DataFrame(</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    {</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"threecats"</span>: [<span class="st">"a"</span>, <span class="st">"a"</span>],</span>
@@ -625,7 +582,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    }</span>
 <span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>new_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="12">
+<div class="cell-output cell-output-display" data-execution_count="15">
 <div>
 
 
@@ -654,14 +611,14 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 </div>
-<div id="cell-14" class="cell" data-execution_count="13">
+<div id="cell-14" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="op">=</span> model.predict(idata, data<span class="op">=</span>new_data, inplace<span class="op">=</span><span class="va">False</span>, sample_new_groups<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-15" class="cell" data-execution_count="14">
+<div id="cell-15" class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">9</span>), sharex<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>y1_grs <span class="op">=</span> p1.posterior[<span class="st">"Y_mean"</span>].sel(Y_obs<span class="op">=</span><span class="dv">0</span>).to_numpy().flatten()</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>y2_grs <span class="op">=</span> p1.posterior[<span class="st">"Y_mean"</span>].sel(Y_obs<span class="op">=</span><span class="dv">1</span>).to_numpy().flatten()</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>y1_grs <span class="op">=</span> p1.posterior[<span class="st">"mu"</span>].sel(__obs__<span class="op">=</span><span class="dv">0</span>).to_numpy().flatten()</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>y2_grs <span class="op">=</span> p1.posterior[<span class="st">"mu"</span>].sel(__obs__<span class="op">=</span><span class="dv">1</span>).to_numpy().flatten()</span>
 <span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].hist(y1_grs, bins<span class="op">=</span><span class="dv">20</span>)<span class="op">;</span></span>
 <span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].hist(y2_grs, bins<span class="op">=</span><span class="dv">20</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -674,7 +631,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 <hr>
-<div id="cell-17" class="cell" data-execution_count="15">
+<div id="cell-17" class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>inhaler <span class="op">=</span> pd.read_csv(<span class="st">"../../tests/data/inhaler.csv"</span>)</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>inhaler[<span class="st">"rating"</span>] <span class="op">=</span> pd.Categorical(inhaler[<span class="st">"rating"</span>], categories<span class="op">=</span>[<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>])</span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>inhaler[<span class="st">"treat"</span>] <span class="op">=</span> pd.Categorical(inhaler[<span class="st">"treat"</span>])</span>
@@ -683,48 +640,127 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"rating ~ 1 + period + treat + (1 + treat|subject)"</span>, inhaler, family<span class="op">=</span><span class="st">"categorical"</span></span>
 <span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(tune<span class="op">=</span><span class="dv">200</span>, draws<span class="op">=</span><span class="dv">200</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Only 200 samples in chain.
-Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [Intercept, period, treat, 1|subject_sigma, 1|subject_offset, treat|subject_sigma, treat|subject_offset]</code></pre>
-</div>
-<div class="cell-output cell-output-display">
+<div class="cell-output cell-output-error">
+<div class="ansi-escaped-output">
+<pre><span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">AssertionError</span>                            Traceback (most recent call last)
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/compile/function/types.py:1039</span>, in <span class="ansi-cyan-fg">Function.__call__</span><span class="ansi-blue-fg">(self, output_subset, *args, **kwargs)</span>
+<span class="ansi-green-fg">   1038</span> <span style="font-weight:bold;color:rgb(0,135,0)">try</span>:
+<span class="ansi-green-fg">-&gt; </span><span class="ansi-green-fg">1039</span>     outputs = <span class="ansi-yellow-bg">vm</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span> <span style="font-weight:bold;color:rgb(0,135,0)">if</span> output_subset <span style="font-weight:bold;color:rgb(175,0,255)">is</span> <span style="font-weight:bold;color:rgb(0,135,0)">None</span> <span style="font-weight:bold;color:rgb(0,135,0)">else</span> vm(output_subset=output_subset)
+<span class="ansi-green-fg">   1040</span> <span style="font-weight:bold;color:rgb(0,135,0)">except</span> <span style="font-weight:bold;color:rgb(215,95,95)">Exception</span>:
 
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
-</div>
-<div class="cell-output cell-output-display">
+<span class="ansi-red-fg">AssertionError</span>: Could not broadcast dimensions. Broadcasting is only allowed along axes that have a statically known length 1. Use `specify_broadcastable` to inform PyTensor of a known shape.
 
-    <div>
-      <progress value="800" class="" max="800" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [800/800 00:11&lt;00:00 Sampling 2 chains, 1 divergences]
-    </div>
-    
+During handling of the above exception, another exception occurred:
+
+<span class="ansi-red-fg">AssertionError</span>                            Traceback (most recent call last)
+<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[22]</span><span class="ansi-green-fg">, line 8</span>
+<span class="ansi-green-fg">      3</span> inhaler[<span class="ansi-yellow-fg">"</span><span class="ansi-yellow-fg">treat</span><span class="ansi-yellow-fg">"</span>] = pd.Categorical(inhaler[<span class="ansi-yellow-fg">"</span><span class="ansi-yellow-fg">treat</span><span class="ansi-yellow-fg">"</span>])
+<span class="ansi-green-fg">      5</span> model = bmb.Model(
+<span class="ansi-green-fg">      6</span>     <span class="ansi-yellow-fg">"</span><span class="ansi-yellow-fg">rating ~ 1 + period + treat + (1 + treat|subject)</span><span class="ansi-yellow-fg">"</span>, inhaler, family=<span class="ansi-yellow-fg">"</span><span class="ansi-yellow-fg">categorical</span><span class="ansi-yellow-fg">"</span>
+<span class="ansi-green-fg">      7</span> )
+<span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">8</span> idata = <span class="ansi-yellow-bg">model</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">fit</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">tune</span><span class="ansi-yellow-bg">=</span><span class="ansi-green-fg ansi-yellow-bg">200</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">draws</span><span class="ansi-yellow-bg">=</span><span class="ansi-green-fg ansi-yellow-bg">200</span><span class="ansi-yellow-bg">)</span>
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/oss/bambinos/bambi/bambi/models.py:327</span>, in <span class="ansi-cyan-fg">Model.fit</span><span class="ansi-blue-fg">(self, draws, tune, discard_tuned_samples, omit_offsets, include_mean, include_response_params, inference_method, init, n_init, chains, cores, random_seed, **kwargs)</span>
+<span class="ansi-green-fg">    324</span>         inference_method = method
+<span class="ansi-green-fg">    326</span> <span style="font-weight:bold;color:rgb(0,135,0)">if</span> <span style="font-weight:bold;color:rgb(175,0,255)">not</span> <span style="color:rgb(0,135,0)">self</span>.built:
+<span class="ansi-green-fg">--&gt; </span><span class="ansi-green-fg">327</span>     <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">build</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-fg">    329</span> <span style="font-style:italic;color:rgb(95,135,135)"># Tell user which event is being modeled</span>
+<span class="ansi-green-fg">    330</span> <span style="font-weight:bold;color:rgb(0,135,0)">if</span> <span style="color:rgb(0,135,0)">isinstance</span>(<span style="color:rgb(0,135,0)">self</span>.family, univariate.Bernoulli):
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/oss/bambinos/bambi/bambi/models.py:366</span>, in <span class="ansi-cyan-fg">Model.build</span><span class="ansi-blue-fg">(self)</span>
+<span class="ansi-green-fg">    361</span> <span style="font-style:italic" class="ansi-yellow-fg">"""Set up the model for sampling/fitting</span>
+<span class="ansi-green-fg">    362</span> 
+<span class="ansi-green-fg">    363</span> <span style="font-style:italic" class="ansi-yellow-fg">Creates an instance of the underlying PyMC model and adds all the necessary terms to it.</span>
+<span class="ansi-green-fg">    364</span> <span style="font-style:italic" class="ansi-yellow-fg">"""</span>
+<span class="ansi-green-fg">    365</span> <span style="color:rgb(0,135,0)">self</span>.backend = PyMCModel()
+<span class="ansi-green-fg">--&gt; </span><span class="ansi-green-fg">366</span> <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">backend</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">build</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-fg">    367</span> <span style="color:rgb(0,135,0)">self</span>.built = <span style="font-weight:bold;color:rgb(0,135,0)">True</span>
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/oss/bambinos/bambi/bambi/backend/pymc.py:94</span>, in <span class="ansi-cyan-fg">PyMCModel.build</span><span class="ansi-blue-fg">(self, spec)</span>
+<span class="ansi-green-fg">     92</span> <span style="font-weight:bold;color:rgb(0,135,0)">for</span> name, component <span style="font-weight:bold;color:rgb(175,0,255)">in</span> spec.distributional_components.items():
+<span class="ansi-green-fg">     93</span>     <span style="color:rgb(0,135,0)">self</span>.components[name] = DistributionalComponent(component)
+<span class="ansi-green-fg">---&gt; </span><span class="ansi-green-fg">94</span>     <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">components</span><span class="ansi-yellow-bg">[</span><span class="ansi-yellow-bg">name</span><span class="ansi-yellow-bg">]</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">build</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">spec</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-fg">     96</span> <span style="font-style:italic;color:rgb(95,135,135)"># Add response</span>
+<span class="ansi-green-fg">     97</span> <span style="color:rgb(0,135,0)">self</span>.response_component = ResponseComponent(spec.response_component)
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/oss/bambinos/bambi/bambi/backend/model_components.py:57</span>, in <span class="ansi-cyan-fg">DistributionalComponent.build</span><span class="ansi-blue-fg">(self, pymc_backend, bmb_model)</span>
+<span class="ansi-green-fg">     55</span> <span style="color:rgb(0,135,0)">self</span>.build_common_terms(pymc_backend, bmb_model)
+<span class="ansi-green-fg">     56</span> <span style="color:rgb(0,135,0)">self</span>.build_hsgp_terms(bmb_model, pymc_backend)
+<span class="ansi-green-fg">---&gt; </span><span class="ansi-green-fg">57</span> <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">build_group_specific_terms</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">pymc_backend</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">bmb_model</span><span class="ansi-yellow-bg">)</span>
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/oss/bambinos/bambi/bambi/backend/model_components.py:141</span>, in <span class="ansi-cyan-fg">DistributionalComponent.build_group_specific_terms</span><span class="ansi-blue-fg">(self, pymc_backend, bmb_model)</span>
+<span class="ansi-green-fg">    138</span>         pymc_backend.model.add_coords({name: values})
+<span class="ansi-green-fg">    140</span> <span style="font-style:italic;color:rgb(95,135,135)"># Build</span>
+<span class="ansi-green-fg">--&gt; </span><span class="ansi-green-fg">141</span> coef, predictor = <span class="ansi-yellow-bg">group_specific_term</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">build</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">bmb_model</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-fg">    143</span> <span style="font-style:italic;color:rgb(95,135,135)"># Add to the linear predictor</span>
+<span class="ansi-green-fg">    144</span> <span style="font-style:italic;color:rgb(95,135,135)"># The loop through predictor columns is not the most beautiful alternative.</span>
+<span class="ansi-green-fg">    145</span> <span style="font-style:italic;color:rgb(95,135,135)"># But it's the fastest. Doing matrix multiplication, pm.math.dot(data, coef), is slower.</span>
+<span class="ansi-green-fg">    146</span> <span style="font-weight:bold;color:rgb(0,135,0)">if</span> predictor.ndim &gt; <span class="ansi-green-fg">1</span>:
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/oss/bambinos/bambi/bambi/backend/terms.py:117</span>, in <span class="ansi-cyan-fg">GroupSpecificTerm.build</span><span class="ansi-blue-fg">(self, spec)</span>
+<span class="ansi-green-fg">    112</span> coef = <span style="color:rgb(0,135,0)">self</span>.build_distribution(<span style="color:rgb(0,135,0)">self</span>.term.prior, label, dims=dims, **kwargs)
+<span class="ansi-green-fg">    114</span> <span style="font-style:italic;color:rgb(95,135,135)"># Squeeze ensures we don't have a shape of (n, 1) when we mean (n, )</span>
+<span class="ansi-green-fg">    115</span> <span style="font-style:italic;color:rgb(95,135,135)"># This happens with categorical predictors with two levels and intercept.</span>
+<span class="ansi-green-fg">    116</span> <span style="font-style:italic;color:rgb(95,135,135)"># See https://github.com/pymc-devs/pymc/issues/7246</span>
+<span class="ansi-green-fg">--&gt; </span><span class="ansi-green-fg">117</span> <span style="font-weight:bold;color:rgb(0,135,0)">if</span> <span style="color:rgb(0,135,0)">len</span>(<span class="ansi-yellow-bg">coef</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">shape</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">eval</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span>) == <span class="ansi-green-fg">2</span> <span style="font-weight:bold;color:rgb(175,0,255)">and</span> coef.shape.eval()[-<span class="ansi-green-fg">1</span>] == <span class="ansi-green-fg">1</span>:
+<span class="ansi-green-fg">    118</span>     coef = pt.specify_broadcastable(coef, <span class="ansi-green-fg">1</span>).squeeze()
+<span class="ansi-green-fg">    119</span> coef = coef[<span style="color:rgb(0,135,0)">self</span>.term.group_index]
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/basic.py:662</span>, in <span class="ansi-cyan-fg">Variable.eval</span><span class="ansi-blue-fg">(self, inputs_to_values, **kwargs)</span>
+<span class="ansi-green-fg">    656</span>         warnings.warn(
+<span class="ansi-green-fg">    657</span>             <span class="ansi-yellow-fg">"</span><span class="ansi-yellow-fg">Keyword arguments could not be used to create a cache key for the underlying variable. </span><span class="ansi-yellow-fg">"</span>
+<span class="ansi-green-fg">    658</span>             <span class="ansi-yellow-fg">f</span><span class="ansi-yellow-fg">"</span><span class="ansi-yellow-fg">A function will be recompiled on every call with such keyword arguments.</span><span style="font-weight:bold;color:rgb(175,95,0)">\n</span><span style="font-weight:bold;color:rgb(175,95,135)">{</span>exc<span style="font-weight:bold;color:rgb(175,95,135)">}</span><span class="ansi-yellow-fg">"</span>
+<span class="ansi-green-fg">    659</span>         )
+<span class="ansi-green-fg">    661</span> args = [parsed_inputs_to_values[param] <span style="font-weight:bold;color:rgb(0,135,0)">for</span> param <span style="font-weight:bold;color:rgb(175,0,255)">in</span> inputs]
+<span class="ansi-green-fg">--&gt; </span><span class="ansi-green-fg">662</span> <span style="font-weight:bold;color:rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">fn</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">*</span><span class="ansi-yellow-bg">args</span><span class="ansi-yellow-bg">)</span>
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/compile/function/types.py:1049</span>, in <span class="ansi-cyan-fg">Function.__call__</span><span class="ansi-blue-fg">(self, output_subset, *args, **kwargs)</span>
+<span class="ansi-green-fg">   1047</span>     <span style="font-weight:bold;color:rgb(0,135,0)">if</span> <span style="color:rgb(0,135,0)">hasattr</span>(<span style="color:rgb(0,135,0)">self</span>.vm, <span class="ansi-yellow-fg">"</span><span class="ansi-yellow-fg">thunks</span><span class="ansi-yellow-fg">"</span>):
+<span class="ansi-green-fg">   1048</span>         thunk = <span style="color:rgb(0,135,0)">self</span>.vm.thunks[<span style="color:rgb(0,135,0)">self</span>.vm.position_of_error]
+<span class="ansi-green-fg">-&gt; </span><span class="ansi-green-fg">1049</span>     <span class="ansi-yellow-bg">raise_with_op</span><span class="ansi-yellow-bg">(</span>
+<span class="ansi-green-fg">   1050</span> <span class="ansi-yellow-bg">        </span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">maker</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">fgraph</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">   1051</span> <span class="ansi-yellow-bg">        </span><span class="ansi-yellow-bg">node</span><span class="ansi-yellow-bg">=</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">vm</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">nodes</span><span class="ansi-yellow-bg">[</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">vm</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">position_of_error</span><span class="ansi-yellow-bg">]</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">   1052</span> <span class="ansi-yellow-bg">        </span><span class="ansi-yellow-bg">thunk</span><span class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">thunk</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">   1053</span> <span class="ansi-yellow-bg">        </span><span class="ansi-yellow-bg">storage_map</span><span class="ansi-yellow-bg">=</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">getattr</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">vm</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-fg ansi-yellow-bg">"</span><span class="ansi-yellow-fg ansi-yellow-bg">storage_map</span><span class="ansi-yellow-fg ansi-yellow-bg">"</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span style="font-weight:bold;color:rgb(0,135,0)" class="ansi-yellow-bg">None</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">   1054</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-fg">   1055</span> <span style="font-weight:bold;color:rgb(0,135,0)">else</span>:
+<span class="ansi-green-fg">   1056</span>     <span style="font-style:italic;color:rgb(95,135,135)"># old-style linkers raise their own exceptions</span>
+<span class="ansi-green-fg">   1057</span>     <span style="font-weight:bold;color:rgb(0,135,0)">raise</span>
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/link/utils.py:526</span>, in <span class="ansi-cyan-fg">raise_with_op</span><span class="ansi-blue-fg">(fgraph, node, thunk, exc_info, storage_map)</span>
+<span class="ansi-green-fg">    521</span>     warnings.warn(
+<span class="ansi-green-fg">    522</span>         <span class="ansi-yellow-fg">f</span><span class="ansi-yellow-fg">"</span><span style="font-weight:bold;color:rgb(175,95,135)">{</span>exc_type<span style="font-weight:bold;color:rgb(175,95,135)">}</span><span class="ansi-yellow-fg"> error does not allow us to add an extra error message</span><span class="ansi-yellow-fg">"</span>
+<span class="ansi-green-fg">    523</span>     )
+<span class="ansi-green-fg">    524</span>     <span style="font-style:italic;color:rgb(95,135,135)"># Some exception need extra parameter in inputs. So forget the</span>
+<span class="ansi-green-fg">    525</span>     <span style="font-style:italic;color:rgb(95,135,135)"># extra long error message in that case.</span>
+<span class="ansi-green-fg">--&gt; </span><span class="ansi-green-fg">526</span> <span style="font-weight:bold;color:rgb(0,135,0)">raise</span> exc_value.with_traceback(exc_trace)
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/compile/function/types.py:1039</span>, in <span class="ansi-cyan-fg">Function.__call__</span><span class="ansi-blue-fg">(self, output_subset, *args, **kwargs)</span>
+<span class="ansi-green-fg">   1037</span>     t0_fn = time.perf_counter()
+<span class="ansi-green-fg">   1038</span> <span style="font-weight:bold;color:rgb(0,135,0)">try</span>:
+<span class="ansi-green-fg">-&gt; </span><span class="ansi-green-fg">1039</span>     outputs = <span class="ansi-yellow-bg">vm</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span> <span style="font-weight:bold;color:rgb(0,135,0)">if</span> output_subset <span style="font-weight:bold;color:rgb(175,0,255)">is</span> <span style="font-weight:bold;color:rgb(0,135,0)">None</span> <span style="font-weight:bold;color:rgb(0,135,0)">else</span> vm(output_subset=output_subset)
+<span class="ansi-green-fg">   1040</span> <span style="font-weight:bold;color:rgb(0,135,0)">except</span> <span style="font-weight:bold;color:rgb(215,95,95)">Exception</span>:
+<span class="ansi-green-fg">   1041</span>     <span style="color:rgb(0,135,0)">self</span>._restore_defaults()
+
+<span class="ansi-red-fg">AssertionError</span>: Could not broadcast dimensions. Broadcasting is only allowed along axes that have a statically known length 1. Use `specify_broadcastable` to inform PyTensor of a known shape.
+Apply node that caused the error: Assert{msg='Could not broadcast dimensi...'}(rating_reduced_dim, ScalarFromTensor.0)
+Toposort index: 2
+Inputs types: [TensorType(int64, shape=()), ScalarType(bool)]
+Inputs shapes: [(), ()]
+Inputs strides: [(), ()]
+Inputs values: [array(3), np.False_]
+Outputs clients: [[MakeVector{dtype='int64'}(subject__factor_dim, treat__expr_dim, Assert{msg='Could not broadcast dimensi...'}.0)]]
+
+HINT: Re-running with most PyTensor optimizations disabled could provide a back-trace showing when this node was created. This can be done by setting the PyTensor flag 'optimizer=fast_compile'. If that does not work, PyTensor optimizations can be disabled with 'optimizer=None'.
+HINT: Use the PyTensor flag `exception_verbosity=high` for a debug print-out and storage map footprint of this Apply node.</pre>
 </div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 200 tune and 200 draw iterations (400 + 400 draws total) took 12 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
-<div id="cell-18" class="cell" data-execution_count="16">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>df_new <span class="op">=</span> inhaler.head(<span class="dv">2</span>).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>df_new[<span class="st">"subject"</span>] <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">999</span>]</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>df_new</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-18" class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>df_new <span class="op">=</span> inhaler.head(<span class="dv">2</span>).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>df_new[<span class="st">"subject"</span>] <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">999</span>]</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>df_new</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="16">
 <div>
 
@@ -764,16 +800,16 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 <div id="cell-19" class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> model.predict(idata, data<span class="op">=</span>df_new, inplace<span class="op">=</span><span class="va">False</span>, sample_new_groups<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> model.predict(idata, data<span class="op">=</span>df_new, inplace<span class="op">=</span><span class="va">False</span>, sample_new_groups<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-20" class="cell" data-execution_count="18">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">9</span>))</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>bins <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">20</span>)</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, ax <span class="kw">in</span> <span class="bu">enumerate</span>(axes.ravel()):</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> p.posterior[<span class="st">"rating_mean"</span>].sel({<span class="st">"rating_dim"</span>: <span class="ss">f'</span><span class="sc">{</span>i <span class="op">+</span> <span class="dv">1</span><span class="sc">}</span><span class="ss">'</span>}).to_numpy()</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    ax.hist(x[..., <span class="dv">0</span>].flatten(), bins<span class="op">=</span>bins, histtype<span class="op">=</span><span class="st">"step"</span>, color<span class="op">=</span><span class="st">"C0"</span>)</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    ax.hist(x[..., <span class="dv">1</span>].flatten(), bins<span class="op">=</span>bins, histtype<span class="op">=</span><span class="st">"step"</span>, color<span class="op">=</span><span class="st">"C1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-20" class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">9</span>))</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>bins <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">20</span>)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, ax <span class="kw">in</span> <span class="bu">enumerate</span>(axes.ravel()):</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> p.posterior[<span class="st">"p"</span>].sel({<span class="st">"rating_dim"</span>: <span class="ss">f'</span><span class="sc">{</span>i <span class="op">+</span> <span class="dv">1</span><span class="sc">}</span><span class="ss">'</span>}).to_numpy()</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    ax.hist(x[..., <span class="dv">0</span>].flatten(), bins<span class="op">=</span>bins, histtype<span class="op">=</span><span class="st">"step"</span>, color<span class="op">=</span><span class="st">"C0"</span>)</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    ax.hist(x[..., <span class="dv">1</span>].flatten(), bins<span class="op">=</span>bins, histtype<span class="op">=</span><span class="st">"step"</span>, color<span class="op">=</span><span class="st">"C1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1192,7 +1228,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>© Copyright 2024, The developers of Bambi.</p>
+<p>© Copyright 2025, The developers of Bambi.</p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

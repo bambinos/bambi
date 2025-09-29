@@ -172,10 +172,6 @@ window.Quarto = {
 <span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../faq.html"> 
-<span class="menu-text">FAQ</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link" href="../changelog.html"> 
 <span class="menu-text">Changelog</span></a>
   </li>  
@@ -199,7 +195,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/t-test.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/polynomial_regression.html">Polynomial Regression</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/ESCS_multiple_regression.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/polynomial_regression.html">Polynomial Regression</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -226,12 +222,6 @@ window.Quarto = {
           </a> 
       </div>
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Comparison of two means (T-test)</span></a>
-  </div>
-</li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">
@@ -504,7 +494,7 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/t-test.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/polynomial_regression.html">Polynomial Regression</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/ESCS_multiple_regression.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/polynomial_regression.html">Polynomial Regression</a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title">Polynomial Regression</h1>
 </div>
@@ -525,19 +515,17 @@ window.Quarto = {
 
 <p>This example has been contributed by Tyler James Burch (<a href="https://github.com/tjburch">@tjburch</a> on GitHub).</p>
 <div id="cell-2" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"arviz-darkgrid"</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>SEED <span class="op">=</span> <span class="dv">1234</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="cell-3" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Temporary fix to make outputs cleaner</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">"ignore"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>SEED <span class="op">=</span> <span class="dv">1234</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-darkgrid"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">"ignore"</span>) <span class="co"># Temporary fix to make outputs cleaner</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>This example will discuss polynomial regression using Bambi. Unlike many other examples shown, there aren’t specific polynomial methods or families implemented in Bambi, most of the interesting behavior for polynomial regression occurs within the formula definition. Regardless, there are some nuances that are useful to be aware of.</p>
 <p>This example uses the kinematic equations from classical mechanics as a backdrop. Specifically, an object in motion experiencing constant acceleration can be described by the following:</p>
@@ -548,54 +536,49 @@ window.Quarto = {
 <p>First, we’ll consider a simple falling ball, released from 50 meters. In this situation, <span class="math inline">\(v_0 = 0\)</span> <span class="math inline">\(m\)</span>/<span class="math inline">\(s\)</span>, <span class="math inline">\(x_0 = 50\)</span> <span class="math inline">\(m\)</span> and <span class="math inline">\(a = g\)</span>, the acceleration due to gravity, <span class="math inline">\(-9.81\)</span> <span class="math inline">\(m\)</span>/<span class="math inline">\(s^2\)</span>. So dropping out the <span class="math inline">\(v_0 t\)</span> component, the equation takes the form:</p>
 <p><span class="math display">\[x_f = \frac{1}{2} g t^2 + x_0\]</span></p>
 <p>We’ll start by simulating data for the first 2 seconds of motion. We will also assume some measurement error with a gaussian distribution of <span class="math inline">\(\sigma = 0.3\)</span>.</p>
-<div id="cell-5" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> <span class="op">-</span><span class="fl">9.81</span>  <span class="co"># acceleration due to gravity (m/s^2)</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">100</span>)  <span class="co"># time in seconds</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>inital_height <span class="op">=</span> <span class="dv">50</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>x_falling <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> g <span class="op">*</span> t<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> inital_height</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(SEED)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>noise <span class="op">=</span> rng.normal(<span class="dv">0</span>, <span class="fl">0.3</span>, x_falling.shape)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>x_obs_falling <span class="op">=</span> x_falling <span class="op">+</span> noise</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>df_falling <span class="op">=</span> pd.DataFrame({<span class="st">"t"</span>: t, <span class="st">"x"</span>: x_obs_falling})</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>ax.scatter(t, x_obs_falling, label<span class="op">=</span><span class="st">"Observed Displacement"</span>, color<span class="op">=</span><span class="st">"C0"</span>)</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>ax.plot(t, x_falling, label<span class="op">=</span><span class="st">"True Function"</span>, color<span class="op">=</span><span class="st">"C1"</span>)</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Time (s)"</span>, ylabel<span class="op">=</span><span class="st">"Displacement (m)"</span>)</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-4" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> <span class="op">-</span><span class="fl">9.81</span>  <span class="co"># acceleration due to gravity (m/s^2)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">100</span>)  <span class="co"># time in seconds</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>inital_height <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>x_falling <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> g <span class="op">*</span> t<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> inital_height</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(SEED)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>noise <span class="op">=</span> rng.normal(<span class="dv">0</span>, <span class="fl">0.3</span>, x_falling.shape)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>x_obs_falling <span class="op">=</span> x_falling <span class="op">+</span> noise</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>df_falling <span class="op">=</span> pd.DataFrame({<span class="st">"t"</span>: t, <span class="st">"x"</span>: x_obs_falling})</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>ax.scatter(t, x_obs_falling, label<span class="op">=</span><span class="st">"Observed Displacement"</span>, color<span class="op">=</span><span class="st">"C0"</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>ax.plot(t, x_falling, label<span class="op">=</span><span class="st">"True Function"</span>, color<span class="op">=</span><span class="st">"C1"</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Time (s)"</span>, ylabel<span class="op">=</span><span class="st">"Displacement (m)"</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="polynomial_regression_files/figure-html/cell-4-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="polynomial_regression_files/figure-html/cell-3-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Casting the equation <span class="math inline">\(x_f = \frac{1}{2} g t^2 + x_0\)</span> into a regression context, we let time (<span class="math inline">\(t\)</span>) be the independent variable, and final location (<span class="math inline">\(x_f\)</span>) be the response/dependent variable. This allows our coefficients to be proportional to <span class="math inline">\(g\)</span> and <span class="math inline">\(x_0\)</span>. The intercept, <span class="math inline">\(\beta_0\)</span> corresponds exactly to <span class="math inline">\(x_0\)</span>. Letting <span class="math inline">\(\beta_1 = \frac{1}{2} g\)</span> then gives <span class="math inline">\(g = 2\beta_1\)</span> when <span class="math inline">\(x_1 = t^2\)</span>, meaning we”re doing <em>polynomial regression</em>. We can put this into Bambi via the following, optionally including the <code>+ 1</code> to emphasize that we choose to include the coefficient.</p>
-<div id="cell-7" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>model_falling <span class="op">=</span> bmb.Model(<span class="st">"x ~ I(t**2) + 1"</span>, df_falling)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>results_falling <span class="op">=</span> model_falling.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}, random_seed<span class="op">=</span>SEED)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-6" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>model_falling <span class="op">=</span> bmb.Model(<span class="st">"x ~ I(t**2) + 1"</span>, df_falling)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>results_falling <span class="op">=</span> model_falling.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}, random_seed<span class="op">=</span>SEED)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [sigma, Intercept, I(t ** 2)]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"5e82dc2476764c599d2805ff19bbdc95","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"dc3a20dafa184c1789a0e962593ab64f","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 2 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1 seconds.</code></pre>
 </div>
 </div>
 <p>The term <code>I(t**2)</code> indicates to evaluate inside the <code>I</code>. For including <em>just the <span class="math inline">\(t^2\)</span> term</em>, you can express it any of the following ways:</p>
@@ -605,72 +588,62 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <li>Square the data directly, and pass it as a new column</li>
 </ul>
 <p>To verify, we”ll fit the other two versions as well.</p>
-<div id="cell-9" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>model_falling_variation1 <span class="op">=</span> bmb.Model(</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"x ~ {t**2} + 1"</span>,  <span class="co"># Using {t**2} syntax</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    df_falling</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>results_variation1 <span class="op">=</span> model_falling_variation1.fit(random_seed<span class="op">=</span>SEED)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>model_falling_variation2 <span class="op">=</span> bmb.Model(</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"x ~ tsquared + 1"</span>,  <span class="co"># Using data with the t variable squared</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    df_falling.assign(tsquared<span class="op">=</span>t<span class="op">**</span><span class="dv">2</span>)  <span class="co"># Creating the tsquared variable for use in the formula</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>results_variation2 <span class="op">=</span> model_falling_variation2.fit(random_seed<span class="op">=</span>SEED)</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"I{t**2} coefficient: "</span>, <span class="bu">round</span>(results_falling.posterior[<span class="st">"I(t ** 2)"</span>].values.mean(), <span class="dv">4</span>))</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"{t**2} coefficient: "</span>, <span class="bu">round</span>(results_variation1.posterior[<span class="st">"I(t ** 2)"</span>].values.mean(), <span class="dv">4</span>))</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"tsquared coefficient: "</span>, <span class="bu">round</span>(results_variation2.posterior[<span class="st">"tsquared"</span>].values.mean(), <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-8" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>model_falling_variation1 <span class="op">=</span> bmb.Model(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"x ~ {t**2} + 1"</span>,  <span class="co"># Using {t**2} syntax</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    df_falling</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>results_variation1 <span class="op">=</span> model_falling_variation1.fit(random_seed<span class="op">=</span>SEED)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>model_falling_variation2 <span class="op">=</span> bmb.Model(</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"x ~ tsquared + 1"</span>,  <span class="co"># Using data with the t variable squared</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    df_falling.assign(tsquared<span class="op">=</span>t<span class="op">**</span><span class="dv">2</span>)  <span class="co"># Creating the tsquared variable for use in the formula</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>results_variation2 <span class="op">=</span> model_falling_variation2.fit(random_seed<span class="op">=</span>SEED)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"I{t**2} coefficient: "</span>, <span class="bu">round</span>(results_falling.posterior[<span class="st">"I(t ** 2)"</span>].values.mean(), <span class="dv">4</span>))</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"{t**2} coefficient: "</span>, <span class="bu">round</span>(results_variation1.posterior[<span class="st">"I(t ** 2)"</span>].values.mean(), <span class="dv">4</span>))</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"tsquared coefficient: "</span>, <span class="bu">round</span>(results_variation2.posterior[<span class="st">"tsquared"</span>].values.mean(), <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [sigma, Intercept, I(t ** 2)]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"f67f3d6e5183408996428273d9b6ddf7","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"f71d4dbed75340f0ad2419fcd4521d94","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 2 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics
-Auto-assigning NUTS sampler...
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1 seconds.
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [sigma, Intercept, tsquared]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"0b1369057abb424e9797e827aae34a4b","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"47fd5e464b184957b5c8cf10c6bbf108","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 2 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1 seconds.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>I{t**2} coefficient:  -4.8471
-{t**2} coefficient:  -4.8471
-tsquared coefficient:  -4.8471</code></pre>
+<pre><code>I{t**2} coefficient:  -4.8476
+{t**2} coefficient:  -4.8476
+tsquared coefficient:  -4.8476</code></pre>
 </div>
 </div>
 <p>Each of these provides identical results, giving -4.9, which is <span class="math inline">\(g/2\)</span>. This makes the acceleration exactly the <span class="math inline">\(-9.81\)</span> <span class="math inline">\(m\)</span>/<span class="math inline">\(s^2\)</span> acceleration that generated the data. Looking at our model summary,</p>
-<div id="cell-11" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>az.summary(results_falling)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="6">
+<div id="cell-10" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>az.summary(results_falling)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
 <div>
 
 
@@ -691,39 +664,39 @@ tsquared coefficient:  -4.8471</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">I(t ** 2)</td>
-<td>-4.847</td>
-<td>0.028</td>
-<td>-4.901</td>
-<td>-4.798</td>
+<td data-quarto-table-cell-role="th">sigma</td>
+<td>0.336</td>
+<td>0.025</td>
+<td>0.289</td>
+<td>0.381</td>
 <td>0.000</td>
 <td>0.000</td>
-<td>3127.0</td>
-<td>1408.0</td>
+<td>5977.0</td>
+<td>2861.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">Intercept</td>
 <td>49.961</td>
 <td>0.051</td>
-<td>49.854</td>
-<td>50.050</td>
+<td>49.870</td>
+<td>50.058</td>
 <td>0.001</td>
 <td>0.001</td>
-<td>3125.0</td>
-<td>1233.0</td>
+<td>5997.0</td>
+<td>3145.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">sigma</td>
-<td>0.336</td>
-<td>0.024</td>
-<td>0.293</td>
-<td>0.383</td>
+<td data-quarto-table-cell-role="th">I(t ** 2)</td>
+<td>-4.848</td>
+<td>0.028</td>
+<td>-4.899</td>
+<td>-4.799</td>
 <td>0.000</td>
 <td>0.000</td>
-<td>2550.0</td>
-<td>1595.0</td>
+<td>5704.0</td>
+<td>2844.0</td>
 <td>1.0</td>
 </tr>
 </tbody>
@@ -740,25 +713,25 @@ tsquared coefficient:  -4.8471</code></pre>
 <p><span class="math display">\[
 t = \sqrt{2x_0 / g}
 \]</span></p>
-<div id="cell-13" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>calculated_x0 <span class="op">=</span> results_falling.posterior[<span class="st">"Intercept"</span>].values.mean()</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>calculated_g <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> results_falling.posterior[<span class="st">"I(t ** 2)"</span>].values.mean()</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>calculated_land <span class="op">=</span> np.sqrt(<span class="dv">2</span> <span class="op">*</span> calculated_x0 <span class="op">/</span> calculated_g)</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The ball will land at </span><span class="sc">{</span><span class="bu">round</span>(calculated_land, <span class="dv">2</span>)<span class="sc">}</span><span class="ss"> seconds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-12" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>calculated_x0 <span class="op">=</span> results_falling.posterior[<span class="st">"Intercept"</span>].values.mean()</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>calculated_g <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> results_falling.posterior[<span class="st">"I(t ** 2)"</span>].values.mean()</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>calculated_land <span class="op">=</span> np.sqrt(<span class="dv">2</span> <span class="op">*</span> calculated_x0 <span class="op">/</span> calculated_g)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The ball will land at </span><span class="sc">{</span><span class="bu">round</span>(calculated_land, <span class="dv">2</span>)<span class="sc">}</span><span class="ss"> seconds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>The ball will land at 3.21 seconds</code></pre>
 </div>
 </div>
 <p>Or if we want to account for our measurement error and use the full posterior,</p>
-<div id="cell-15" class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>calculated_x0_posterior <span class="op">=</span> results_falling.posterior[<span class="st">"Intercept"</span>].values</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>calculated_g_posterior <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> results_falling.posterior[<span class="st">"I(t ** 2)"</span>].values</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>calculated_land_posterior <span class="op">=</span> np.sqrt(<span class="dv">2</span> <span class="op">*</span> calculated_x0_posterior <span class="op">/</span> calculated_g_posterior)</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>lower_est <span class="op">=</span> <span class="bu">round</span>(np.quantile(calculated_land_posterior, <span class="fl">0.025</span>), <span class="dv">2</span>)  </span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>upper_est <span class="op">=</span> <span class="bu">round</span>(np.quantile(calculated_land_posterior, <span class="fl">0.975</span>), <span class="dv">2</span>)</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The ball landing will be measured between </span><span class="sc">{</span>lower_est<span class="sc">}</span><span class="ss"> and </span><span class="sc">{</span>upper_est<span class="sc">}</span><span class="ss"> seconds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-14" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>calculated_x0_posterior <span class="op">=</span> results_falling.posterior[<span class="st">"Intercept"</span>].values</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>calculated_g_posterior <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> results_falling.posterior[<span class="st">"I(t ** 2)"</span>].values</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>calculated_land_posterior <span class="op">=</span> np.sqrt(<span class="dv">2</span> <span class="op">*</span> calculated_x0_posterior <span class="op">/</span> calculated_g_posterior)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>lower_est <span class="op">=</span> <span class="bu">round</span>(np.quantile(calculated_land_posterior, <span class="fl">0.025</span>), <span class="dv">2</span>)  </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>upper_est <span class="op">=</span> <span class="bu">round</span>(np.quantile(calculated_land_posterior, <span class="fl">0.975</span>), <span class="dv">2</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The ball landing will be measured between </span><span class="sc">{</span>lower_est<span class="sc">}</span><span class="ss"> and </span><span class="sc">{</span>upper_est<span class="sc">}</span><span class="ss"> seconds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>The ball landing will be measured between 3.19 and 3.23 seconds</code></pre>
+<pre><code>The ball landing will be measured between 3.2 and 3.23 seconds</code></pre>
 </div>
 </div>
 </section>
@@ -767,25 +740,25 @@ t = \sqrt{2x_0 / g}
 <p>Next, instead of a ball strictly falling, instead imagine one thrown straight upward. In this case, we add the initial velocity back into the equation.</p>
 <p><span class="math display">\[x_f = \frac{1}{2} g t^2 + v_0 t + x_0\]</span></p>
 <p>We will envision the ball tossed upward, starting at 1.5 meters above ground level. It will be tossed at 7 m/s upward. It will also stop when hitting the ground.</p>
-<div id="cell-17" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>v0 <span class="op">=</span> <span class="dv">7</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>x0 <span class="op">=</span> <span class="fl">1.5</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>x_projectile <span class="op">=</span> (<span class="dv">1</span><span class="op">/</span><span class="dv">2</span>) <span class="op">*</span> g <span class="op">*</span> t<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> v0 <span class="op">*</span> t <span class="op">+</span> x0</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>noise <span class="op">=</span> rng.normal(<span class="dv">0</span>, <span class="fl">0.2</span>, x_projectile.shape)</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>x_obs_projectile <span class="op">=</span> x_projectile <span class="op">+</span> noise</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>df_projectile <span class="op">=</span> pd.DataFrame({<span class="st">"t"</span>: t, <span class="st">"tsq"</span>: t<span class="op">**</span><span class="dv">2</span>, <span class="st">"x"</span>: x_obs_projectile, <span class="st">"x_true"</span>: x_projectile})</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>df_projectile <span class="op">=</span> df_projectile[df_projectile[<span class="st">"x"</span>] <span class="op">&gt;=</span> <span class="dv">0</span>]</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>ax.scatter(df_projectile.t, df_projectile.x, label<span class="op">=</span><span class="st">"Observed Displacement"</span>, color<span class="op">=</span><span class="st">"C0"</span>)</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>ax.plot(df_projectile.t, df_projectile.x_true, label<span class="op">=</span><span class="st">'True Function'</span>, color<span class="op">=</span><span class="st">"C1"</span>)</span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Time (s)"</span>, ylabel<span class="op">=</span><span class="st">"Displacement (m)"</span>, ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="va">None</span>))</span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-16" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>v0 <span class="op">=</span> <span class="dv">7</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>x0 <span class="op">=</span> <span class="fl">1.5</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>x_projectile <span class="op">=</span> (<span class="dv">1</span><span class="op">/</span><span class="dv">2</span>) <span class="op">*</span> g <span class="op">*</span> t<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> v0 <span class="op">*</span> t <span class="op">+</span> x0</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>noise <span class="op">=</span> rng.normal(<span class="dv">0</span>, <span class="fl">0.2</span>, x_projectile.shape)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>x_obs_projectile <span class="op">=</span> x_projectile <span class="op">+</span> noise</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>df_projectile <span class="op">=</span> pd.DataFrame({<span class="st">"t"</span>: t, <span class="st">"tsq"</span>: t<span class="op">**</span><span class="dv">2</span>, <span class="st">"x"</span>: x_obs_projectile, <span class="st">"x_true"</span>: x_projectile})</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>df_projectile <span class="op">=</span> df_projectile[df_projectile[<span class="st">"x"</span>] <span class="op">&gt;=</span> <span class="dv">0</span>]</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>ax.scatter(df_projectile.t, df_projectile.x, label<span class="op">=</span><span class="st">"Observed Displacement"</span>, color<span class="op">=</span><span class="st">"C0"</span>)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>ax.plot(df_projectile.t, df_projectile.x_true, label<span class="op">=</span><span class="st">'True Function'</span>, color<span class="op">=</span><span class="st">"C1"</span>)</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Time (s)"</span>, ylabel<span class="op">=</span><span class="st">"Displacement (m)"</span>, ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="va">None</span>))</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="polynomial_regression_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="polynomial_regression_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -793,34 +766,29 @@ t = \sqrt{2x_0 / g}
 <p>Modeling this using Bambi, we must include the linear term on time to capture the inital velocity. We’ll do the following regression,</p>
 <p><span class="math display">\[x_f = \beta_0 + \beta_1 t + \beta_2 t^2\]</span></p>
 <p>Which then maps the solved coefficents to the following: <span class="math inline">\(\beta_0 = x_0\)</span>, <span class="math inline">\(\beta_1 = v_0\)</span>, and <span class="math inline">\(\beta_2 = \frac{g}{2}\)</span>.</p>
-<div id="cell-19" class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>model_projectile_all_terms <span class="op">=</span> bmb.Model(<span class="st">"x ~ I(t**2) + t + 1"</span>, df_projectile)</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>fit_projectile_all_terms <span class="op">=</span> model_projectile_all_terms.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}, target_accept<span class="op">=</span><span class="fl">0.9</span>, random_seed<span class="op">=</span>SEED)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-18" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>model_projectile_all_terms <span class="op">=</span> bmb.Model(<span class="st">"x ~ I(t**2) + t + 1"</span>, df_projectile)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>fit_projectile_all_terms <span class="op">=</span> model_projectile_all_terms.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}, target_accept<span class="op">=</span><span class="fl">0.9</span>, random_seed<span class="op">=</span>SEED)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [sigma, Intercept, I(t ** 2), t]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"f89236e53dd74a6dbfe69e36a95f2bd9","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"34d86262d8484668887e38c1fe3e043c","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 8 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.</code></pre>
 </div>
 </div>
-<div id="cell-20" class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>az.summary(fit_projectile_all_terms)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="11">
+<div id="cell-19" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>az.summary(fit_projectile_all_terms)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
 <div>
 
 
@@ -841,30 +809,6 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">I(t ** 2)</td>
-<td>-4.871</td>
-<td>0.114</td>
-<td>-5.090</td>
-<td>-4.665</td>
-<td>0.004</td>
-<td>0.003</td>
-<td>890.0</td>
-<td>936.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">Intercept</td>
-<td>1.560</td>
-<td>0.064</td>
-<td>1.442</td>
-<td>1.679</td>
-<td>0.002</td>
-<td>0.001</td>
-<td>1093.0</td>
-<td>1099.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
 <td data-quarto-table-cell-role="th">sigma</td>
 <td>0.202</td>
 <td>0.017</td>
@@ -872,20 +816,44 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <td>0.234</td>
 <td>0.000</td>
 <td>0.000</td>
-<td>1195.0</td>
-<td>1102.0</td>
+<td>2723.0</td>
+<td>2328.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Intercept</td>
+<td>1.561</td>
+<td>0.066</td>
+<td>1.441</td>
+<td>1.687</td>
+<td>0.001</td>
+<td>0.001</td>
+<td>2058.0</td>
+<td>2550.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">I(t ** 2)</td>
+<td>-4.867</td>
+<td>0.114</td>
+<td>-5.079</td>
+<td>-4.649</td>
+<td>0.003</td>
+<td>0.002</td>
+<td>1667.0</td>
+<td>1966.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">t</td>
-<td>6.913</td>
-<td>0.188</td>
-<td>6.565</td>
-<td>7.257</td>
-<td>0.006</td>
-<td>0.004</td>
-<td>897.0</td>
-<td>916.0</td>
+<td>6.909</td>
+<td>0.189</td>
+<td>6.553</td>
+<td>7.262</td>
+<td>0.005</td>
+<td>0.003</td>
+<td>1694.0</td>
+<td>2039.0</td>
 <td>1.0</td>
 </tr>
 </tbody>
@@ -894,45 +862,40 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 </div>
-<div id="cell-21" class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>hdi <span class="op">=</span> az.hdi(fit_projectile_all_terms.posterior, hdi_prob<span class="op">=</span><span class="fl">0.95</span>)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Initial height: </span><span class="sc">{</span>hdi[<span class="st">'Intercept'</span>]<span class="sc">.</span>sel(hdi<span class="op">=</span><span class="st">'lower'</span>)<span class="sc">:.2f}</span><span class="ss"> to </span><span class="sc">{</span>hdi[<span class="st">'Intercept'</span>]<span class="sc">.</span>sel(hdi<span class="op">=</span><span class="st">'higher'</span>)<span class="sc">:.2f}</span><span class="ss"> meters (True: </span><span class="sc">{</span>x0<span class="sc">}</span><span class="ss"> m)"</span>)</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Initial velocity: </span><span class="sc">{</span>hdi[<span class="st">'t'</span>]<span class="sc">.</span>sel(hdi<span class="op">=</span><span class="st">'lower'</span>)<span class="sc">:.2f}</span><span class="ss"> to </span><span class="sc">{</span>hdi[<span class="st">'t'</span>]<span class="sc">.</span>sel(hdi<span class="op">=</span><span class="st">'higher'</span>)<span class="sc">:.2f}</span><span class="ss"> meters per second (True: </span><span class="sc">{</span>v0<span class="sc">}</span><span class="ss"> m/s)"</span>)</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Acceleration: </span><span class="sc">{</span><span class="dv">2</span><span class="op">*</span>hdi[<span class="st">'I(t ** 2)'</span>]<span class="sc">.</span>sel(hdi<span class="op">=</span><span class="st">'lower'</span>)<span class="sc">:.2f}</span><span class="ss"> to </span><span class="sc">{</span><span class="dv">2</span><span class="op">*</span>hdi[<span class="st">'I(t ** 2)'</span>]<span class="sc">.</span>sel(hdi<span class="op">=</span><span class="st">'higher'</span>)<span class="sc">:.2f}</span><span class="ss"> meters per second squared (True: </span><span class="sc">{</span>g<span class="sc">}</span><span class="ss"> m/s^2)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-20" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>hdi <span class="op">=</span> az.hdi(fit_projectile_all_terms.posterior, hdi_prob<span class="op">=</span><span class="fl">0.95</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Initial height: </span><span class="sc">{</span>hdi[<span class="st">'Intercept'</span>]<span class="sc">.</span>sel(hdi<span class="op">=</span><span class="st">'lower'</span>)<span class="sc">:.2f}</span><span class="ss"> to </span><span class="sc">{</span>hdi[<span class="st">'Intercept'</span>]<span class="sc">.</span>sel(hdi<span class="op">=</span><span class="st">'higher'</span>)<span class="sc">:.2f}</span><span class="ss"> meters (True: </span><span class="sc">{</span>x0<span class="sc">}</span><span class="ss"> m)"</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Initial velocity: </span><span class="sc">{</span>hdi[<span class="st">'t'</span>]<span class="sc">.</span>sel(hdi<span class="op">=</span><span class="st">'lower'</span>)<span class="sc">:.2f}</span><span class="ss"> to </span><span class="sc">{</span>hdi[<span class="st">'t'</span>]<span class="sc">.</span>sel(hdi<span class="op">=</span><span class="st">'higher'</span>)<span class="sc">:.2f}</span><span class="ss"> meters per second (True: </span><span class="sc">{</span>v0<span class="sc">}</span><span class="ss"> m/s)"</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Acceleration: </span><span class="sc">{</span><span class="dv">2</span><span class="op">*</span>hdi[<span class="st">'I(t ** 2)'</span>]<span class="sc">.</span>sel(hdi<span class="op">=</span><span class="st">'lower'</span>)<span class="sc">:.2f}</span><span class="ss"> to </span><span class="sc">{</span><span class="dv">2</span><span class="op">*</span>hdi[<span class="st">'I(t ** 2)'</span>]<span class="sc">.</span>sel(hdi<span class="op">=</span><span class="st">'higher'</span>)<span class="sc">:.2f}</span><span class="ss"> meters per second squared (True: </span><span class="sc">{</span>g<span class="sc">}</span><span class="ss"> m/s^2)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Initial height: 1.44 to 1.68 meters (True: 1.5 m)
-Initial velocity: 6.53 to 7.26 meters per second (True: 7 m/s)
-Acceleration: -10.17 to -9.30 meters per second squared (True: -9.81 m/s^2)</code></pre>
+<pre><code>Initial height: 1.43 to 1.69 meters (True: 1.5 m)
+Initial velocity: 6.54 to 7.28 meters per second (True: 7 m/s)
+Acceleration: -10.16 to -9.27 meters per second squared (True: -9.81 m/s^2)</code></pre>
 </div>
 </div>
 <p>We once again are able to recover all our input parameters.</p>
 <p>In addition to directly calculating all terms, to include all polynomial terms up to a given degree you can use the <code>poly</code> keyword. We don’t do that in this notebook for two reasons. First, by default it orthogonalizes the terms making it ill-suited to this example since the coefficients have physical meaning. For more information on the orthogonalization, please see the <a href="https://bambinos.github.io/bambi/notebooks/orthogonal_polynomial_reg.html">orthogonal polynomial notebook</a>. The orthogonalization process can be disabled by the <code>raw</code> argument of <code>poly</code>, but we still elect not to use it because in later examples we decide to use different effects on the <span class="math inline">\(t\)</span> term vs the <span class="math inline">\(t^2\)</span> term, and doing so is not easy when using <code>poly</code>. However, just to show that the results match when using the <code>raw = True</code> argument, we’ll fit the same model as above.</p>
-<div id="cell-23" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>model_poly_raw <span class="op">=</span> bmb.Model(<span class="st">"x ~ poly(t, 2, raw=True)"</span>, df_projectile)</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>fit_poly_raw <span class="op">=</span> model_poly_raw.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}, random_seed<span class="op">=</span>SEED)</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>az.summary(fit_poly_raw)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-22" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>model_poly_raw <span class="op">=</span> bmb.Model(<span class="st">"x ~ poly(t, 2, raw=True)"</span>, df_projectile)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>fit_poly_raw <span class="op">=</span> model_poly_raw.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}, random_seed<span class="op">=</span>SEED)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>az.summary(fit_poly_raw)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [sigma, Intercept, poly(t, 2, raw=True)]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"b6d772a7c05a4757881ba566d9947103","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"da31c098659f477fa909267ec3e3d860","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 7 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="13">
+<div class="cell-output cell-output-display" data-execution_count="12">
 <div>
 
 
@@ -953,51 +916,51 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Intercept</td>
-<td>1.562</td>
-<td>0.064</td>
-<td>1.446</td>
-<td>1.686</td>
-<td>0.002</td>
-<td>0.001</td>
-<td>1220.0</td>
-<td>1319.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">poly(t, 2, raw=True)[0]</td>
-<td>6.910</td>
-<td>0.183</td>
-<td>6.538</td>
-<td>7.237</td>
-<td>0.006</td>
-<td>0.004</td>
-<td>977.0</td>
-<td>1077.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">poly(t, 2, raw=True)[1]</td>
-<td>-4.869</td>
-<td>0.110</td>
-<td>-5.084</td>
-<td>-4.670</td>
-<td>0.003</td>
-<td>0.002</td>
-<td>1004.0</td>
-<td>1184.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
 <td data-quarto-table-cell-role="th">sigma</td>
-<td>0.202</td>
+<td>0.201</td>
 <td>0.017</td>
-<td>0.171</td>
+<td>0.172</td>
 <td>0.234</td>
 <td>0.000</td>
 <td>0.000</td>
-<td>1399.0</td>
-<td>1215.0</td>
+<td>3066.0</td>
+<td>2205.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Intercept</td>
+<td>1.561</td>
+<td>0.067</td>
+<td>1.437</td>
+<td>1.682</td>
+<td>0.001</td>
+<td>0.001</td>
+<td>2535.0</td>
+<td>2154.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">poly(t, 2, raw=True)[0]</td>
+<td>6.911</td>
+<td>0.196</td>
+<td>6.556</td>
+<td>7.280</td>
+<td>0.004</td>
+<td>0.004</td>
+<td>2092.0</td>
+<td>2075.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">poly(t, 2, raw=True)[1]</td>
+<td>-4.870</td>
+<td>0.118</td>
+<td>-5.095</td>
+<td>-4.653</td>
+<td>0.003</td>
+<td>0.002</td>
+<td>2059.0</td>
+<td>2166.0</td>
 <td>1.0</td>
 </tr>
 </tbody>
@@ -1012,48 +975,48 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <h2 class="anchored" data-anchor-id="measuring-gravity-on-a-new-planet">Measuring gravity on a new planet</h2>
 <p>In the next example, you’ve been recruited to join the space program as a research scientist, looking to directly measure the gravity on a new planet, PlanetX. You don’t know anything about this planet or it’s safety, so you have time for one, and only one, throw of a ball. However, you’ve perfected your throwing mechanics, and can achieve the same initial velocity wherever you are. To baseline, you make a toss on planet Earth, warm up your spacecraft and stop at Mars to make a toss, then travel far away, and make a toss on PlanetX.</p>
 <p>First we simulate data for this experiment.</p>
-<div id="cell-26" class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> simulate_throw(v0, g, noise_std, time_step<span class="op">=</span><span class="fl">0.25</span>, max_time<span class="op">=</span><span class="dv">10</span>, seed<span class="op">=</span><span class="dv">1234</span>):</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    rng <span class="op">=</span> np.random.default_rng(seed)</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    times <span class="op">=</span> np.arange(<span class="dv">0</span>, max_time, time_step)</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    heights <span class="op">=</span> v0 <span class="op">*</span> times <span class="op">-</span> <span class="fl">0.5</span> <span class="op">*</span> g <span class="op">*</span> times<span class="op">**</span><span class="dv">2</span></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    heights_with_noise <span class="op">=</span> heights <span class="op">+</span> rng.normal(<span class="dv">0</span>, noise_std, <span class="bu">len</span>(times))    </span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    valid_indices <span class="op">=</span> heights_with_noise <span class="op">&gt;=</span> <span class="dv">0</span></span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> times[valid_indices], heights_with_noise[valid_indices], heights[valid_indices]</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the parameters</span></span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>v0 <span class="op">=</span> <span class="dv">20</span>  <span class="co"># Initial velocity (m/s)</span></span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>g_planets <span class="op">=</span> {<span class="st">"Earth"</span>: <span class="fl">9.81</span>, <span class="st">"Mars"</span>: <span class="fl">3.72</span>, <span class="st">"PlanetX"</span>: <span class="fl">6.0</span>}  <span class="co"># Gravitational acceleration (m/s^2)</span></span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>noise_std <span class="op">=</span> <span class="fl">1.5</span>  <span class="co"># Standard deviation for noise</span></span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate data</span></span>
-<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>records <span class="op">=</span> []</span>
-<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> planet, g <span class="kw">in</span> g_planets.items():</span>
-<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>    times, heights, heights_true <span class="op">=</span> simulate_throw(v0, g, noise_std)</span>
-<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> time, height, height_true <span class="kw">in</span> <span class="bu">zip</span>(times, heights, heights_true):</span>
-<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>        records.append([planet, time, height, height_true])</span>
-<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to a DataFrame</span></span>
-<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame(records, columns<span class="op">=</span>[<span class="st">"Planet"</span>, <span class="st">"Time"</span>, <span class="st">"Height"</span>, <span class="st">"Height_true"</span>])</span>
-<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"Planet"</span>] <span class="op">=</span> df[<span class="st">"Planet"</span>].astype(<span class="st">"category"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-25" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> simulate_throw(v0, g, noise_std, time_step<span class="op">=</span><span class="fl">0.25</span>, max_time<span class="op">=</span><span class="dv">10</span>, seed<span class="op">=</span><span class="dv">1234</span>):</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    rng <span class="op">=</span> np.random.default_rng(seed)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    times <span class="op">=</span> np.arange(<span class="dv">0</span>, max_time, time_step)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    heights <span class="op">=</span> v0 <span class="op">*</span> times <span class="op">-</span> <span class="fl">0.5</span> <span class="op">*</span> g <span class="op">*</span> times<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    heights_with_noise <span class="op">=</span> heights <span class="op">+</span> rng.normal(<span class="dv">0</span>, noise_std, <span class="bu">len</span>(times))    </span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    valid_indices <span class="op">=</span> heights_with_noise <span class="op">&gt;=</span> <span class="dv">0</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> times[valid_indices], heights_with_noise[valid_indices], heights[valid_indices]</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the parameters</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>v0 <span class="op">=</span> <span class="dv">20</span>  <span class="co"># Initial velocity (m/s)</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>g_planets <span class="op">=</span> {<span class="st">"Earth"</span>: <span class="fl">9.81</span>, <span class="st">"Mars"</span>: <span class="fl">3.72</span>, <span class="st">"PlanetX"</span>: <span class="fl">6.0</span>}  <span class="co"># Gravitational acceleration (m/s^2)</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>noise_std <span class="op">=</span> <span class="fl">1.5</span>  <span class="co"># Standard deviation for noise</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate data</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>records <span class="op">=</span> []</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> planet, g <span class="kw">in</span> g_planets.items():</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>    times, heights, heights_true <span class="op">=</span> simulate_throw(v0, g, noise_std)</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> time, height, height_true <span class="kw">in</span> <span class="bu">zip</span>(times, heights, heights_true):</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>        records.append([planet, time, height, height_true])</span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to a DataFrame</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame(records, columns<span class="op">=</span>[<span class="st">"Planet"</span>, <span class="st">"Time"</span>, <span class="st">"Height"</span>, <span class="st">"Height_true"</span>])</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"Planet"</span>] <span class="op">=</span> df[<span class="st">"Planet"</span>].astype(<span class="st">"category"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>And drawing those trajectories,</p>
-<div id="cell-28" class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, planet <span class="kw">in</span> <span class="bu">enumerate</span>(df[<span class="st">"Planet"</span>].cat.categories):</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    subset <span class="op">=</span> df[df[<span class="st">"Planet"</span>] <span class="op">==</span> planet]</span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    ax.plot(subset[<span class="st">"Time"</span>], subset[<span class="st">"Height_true"</span>], alpha<span class="op">=</span><span class="fl">0.7</span>, color<span class="op">=</span><span class="ss">f"C</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    ax.scatter(subset[<span class="st">"Time"</span>], subset[<span class="st">"Height"</span>], alpha<span class="op">=</span><span class="fl">0.7</span>, label<span class="op">=</span>planet, color<span class="op">=</span><span class="ss">f"C</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(</span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    xlabel<span class="op">=</span><span class="st">"Time (seconds)"</span>, ylabel<span class="op">=</span><span class="st">"Height (meters)"</span>, title<span class="op">=</span><span class="st">"Trajectory Comparison"</span>, ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="va">None</span>)</span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>ax.legend(title<span class="op">=</span><span class="st">"Planet"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-27" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, planet <span class="kw">in</span> <span class="bu">enumerate</span>(df[<span class="st">"Planet"</span>].cat.categories):</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    subset <span class="op">=</span> df[df[<span class="st">"Planet"</span>] <span class="op">==</span> planet]</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    ax.plot(subset[<span class="st">"Time"</span>], subset[<span class="st">"Height_true"</span>], alpha<span class="op">=</span><span class="fl">0.7</span>, color<span class="op">=</span><span class="ss">f"C</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    ax.scatter(subset[<span class="st">"Time"</span>], subset[<span class="st">"Height"</span>], alpha<span class="op">=</span><span class="fl">0.7</span>, label<span class="op">=</span>planet, color<span class="op">=</span><span class="ss">f"C</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    xlabel<span class="op">=</span><span class="st">"Time (seconds)"</span>, ylabel<span class="op">=</span><span class="st">"Height (meters)"</span>, title<span class="op">=</span><span class="st">"Trajectory Comparison"</span>, ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="va">None</span>)</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>ax.legend(title<span class="op">=</span><span class="st">"Planet"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="polynomial_regression_files/figure-html/cell-16-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="polynomial_regression_files/figure-html/cell-15-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -1066,45 +1029,99 @@ h = \frac{1}{2} g_{p} t^2 + v_{0} t
 <p>In Bambi, we’ll do the following:</p>
 <p><code>Height ~ I(Time**2):Planet + Time + 0</code></p>
 <p>which corresponds one-to-one with the above formula. The intercept is eliminated since we start from <span class="math inline">\(x=0\)</span>.</p>
-<div id="cell-30" class="cell" data-execution_count="16">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>planet_model <span class="op">=</span> bmb.Model(<span class="st">"Height ~ I(Time**2):Planet + Time + 0"</span>, df)</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>planet_model.build()</span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>planet_model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="16">
+<div id="cell-29" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>planet_model <span class="op">=</span> bmb.Model(<span class="st">"Height ~ I(Time**2):Planet + Time + 0"</span>, df)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>planet_model.build()</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>planet_model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>ERROR (pytensor.graph.rewriting.basic): Rewrite failure due to: random_make_inplace
+ERROR (pytensor.graph.rewriting.basic): node: t_rv{"(),(),()-&gt;()"}(*0-&lt;RandomGeneratorType&gt;, *1-&lt;NoneTypeT&gt;, *2-&lt;Scalar(float64, shape=())&gt;, 0.0, *3-&lt;Scalar(float64, shape=())&gt;)
+ERROR (pytensor.graph.rewriting.basic): TRACEBACK:
+ERROR (pytensor.graph.rewriting.basic): Traceback (most recent call last):
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1933, in process_node
+    replacements = node_rewriter.transform(fgraph, node)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1086, in transform
+    return self.fn(fgraph, node)
+           ~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/rewriting/basic.py", line 50, in random_make_inplace
+    new_outputs = new_op.make_node(*node.inputs).outputs
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/op.py", line 368, in make_node
+    size = normalize_size_param(size)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/utils.py", line 190, in normalize_size_param
+    shape = cast(as_tensor_variable(shape, ndim=1, dtype="int64"), "int64")
+                 ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/__init__.py", line 50, in as_tensor_variable
+    return _as_tensor_variable(x, name, ndim, **kwargs)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/functools.py", line 934, in wrapper
+    return dispatch(args[0].__class__)(*args, **kw)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/basic.py", line 113, in _as_tensor_Variable
+    raise TypeError(
+        f"Tensor type field must be a TensorType; found {type(x.type)}."
+    )
+TypeError: Tensor type field must be a TensorType; found &lt;class 'pytensor.tensor.type_other.NoneTypeT'&gt;.
+
+ERROR (pytensor.graph.rewriting.basic): Rewrite failure due to: random_make_inplace
+ERROR (pytensor.graph.rewriting.basic): node: t_rv{"(),(),()-&gt;()"}(*0-&lt;RandomGeneratorType&gt;, *1-&lt;NoneTypeT&gt;, *2-&lt;Scalar(float64, shape=())&gt;, 0.0, *3-&lt;Scalar(float64, shape=())&gt;)
+ERROR (pytensor.graph.rewriting.basic): TRACEBACK:
+ERROR (pytensor.graph.rewriting.basic): Traceback (most recent call last):
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1933, in process_node
+    replacements = node_rewriter.transform(fgraph, node)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1086, in transform
+    return self.fn(fgraph, node)
+           ~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/rewriting/basic.py", line 50, in random_make_inplace
+    new_outputs = new_op.make_node(*node.inputs).outputs
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/op.py", line 368, in make_node
+    size = normalize_size_param(size)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/utils.py", line 190, in normalize_size_param
+    shape = cast(as_tensor_variable(shape, ndim=1, dtype="int64"), "int64")
+                 ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/__init__.py", line 50, in as_tensor_variable
+    return _as_tensor_variable(x, name, ndim, **kwargs)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/functools.py", line 934, in wrapper
+    return dispatch(args[0].__class__)(*args, **kw)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/basic.py", line 113, in _as_tensor_Variable
+    raise TypeError(
+        f"Tensor type field must be a TensorType; found {type(x.type)}."
+    )
+TypeError: Tensor type field must be a TensorType; found &lt;class 'pytensor.tensor.type_other.NoneTypeT'&gt;.
+</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="15">
 <div>
 <figure class="figure">
-<p><img src="polynomial_regression_files/figure-html/cell-17-output-1.svg" class="img-fluid figure-img"></p>
+<p><img src="polynomial_regression_files/figure-html/cell-16-output-2.svg" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<div id="cell-31" class="cell" data-execution_count="17">
+<div id="cell-30" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>planet_fit <span class="op">=</span> planet_model.fit(chains<span class="op">=</span><span class="dv">4</span>, idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}, random_seed<span class="op">=</span>SEED)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 2 jobs)
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [sigma, I(Time ** 2):Planet, Time]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"15195024cf0f4eafb29b999fda56d655","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"fb63c312519e443b921d24a22e5711ed","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 13 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.</code></pre>
 </div>
 </div>
 <p>The model has fit. Let’s look at how we did recovering the simulated parameters.</p>
-<div id="cell-33" class="cell" data-execution_count="18">
+<div id="cell-32" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>az.summary(planet_fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="18">
+<div class="cell-output cell-output-display" data-execution_count="17">
 <div>
 
 
@@ -1125,63 +1142,63 @@ NUTS: [sigma, I(Time ** 2):Planet, Time]</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">I(Time ** 2):Planet[Earth]</td>
-<td>-4.995</td>
-<td>0.076</td>
-<td>-5.139</td>
-<td>-4.855</td>
-<td>0.002</td>
-<td>0.001</td>
-<td>1659.0</td>
-<td>1779.0</td>
+<td data-quarto-table-cell-role="th">sigma</td>
+<td>1.759</td>
+<td>0.147</td>
+<td>1.498</td>
+<td>2.044</td>
+<td>0.003</td>
+<td>0.003</td>
+<td>2054.0</td>
+<td>1938.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
+<td data-quarto-table-cell-role="th">I(Time ** 2):Planet[Earth]</td>
+<td>-4.998</td>
+<td>0.075</td>
+<td>-5.145</td>
+<td>-4.865</td>
+<td>0.002</td>
+<td>0.001</td>
+<td>1833.0</td>
+<td>2431.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
 <td data-quarto-table-cell-role="th">I(Time ** 2):Planet[Mars]</td>
-<td>-1.883</td>
+<td>-1.884</td>
 <td>0.022</td>
-<td>-1.926</td>
-<td>-1.843</td>
+<td>-1.925</td>
+<td>-1.844</td>
 <td>0.001</td>
 <td>0.000</td>
-<td>1229.0</td>
-<td>1533.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">I(Time ** 2):Planet[PlanetX]</td>
-<td>-3.016</td>
-<td>0.036</td>
-<td>-3.083</td>
-<td>-2.949</td>
-<td>0.001</td>
-<td>0.001</td>
-<td>1352.0</td>
-<td>1739.0</td>
+<td>1428.0</td>
+<td>1763.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">Time</td>
-<td>20.123</td>
-<td>0.165</td>
-<td>19.812</td>
-<td>20.429</td>
-<td>0.005</td>
-<td>0.003</td>
-<td>1235.0</td>
-<td>1703.0</td>
+<td data-quarto-table-cell-role="th">I(Time ** 2):Planet[PlanetX]</td>
+<td>-3.017</td>
+<td>0.036</td>
+<td>-3.087</td>
+<td>-2.953</td>
+<td>0.001</td>
+<td>0.001</td>
+<td>1519.0</td>
+<td>1729.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">sigma</td>
-<td>1.756</td>
-<td>0.144</td>
-<td>1.516</td>
-<td>2.043</td>
+<td data-quarto-table-cell-role="th">Time</td>
+<td>20.128</td>
+<td>0.166</td>
+<td>19.827</td>
+<td>20.449</td>
+<td>0.004</td>
 <td>0.003</td>
-<td>0.002</td>
-<td>1806.0</td>
-<td>2076.0</td>
+<td>1393.0</td>
+<td>1714.0</td>
 <td>1.0</td>
 </tr>
 </tbody>
@@ -1191,21 +1208,21 @@ NUTS: [sigma, I(Time ** 2):Planet, Time]</code></pre>
 </div>
 </div>
 <p>Getting the gravities back to the physical value,</p>
-<div id="cell-35" class="cell" data-execution_count="19">
+<div id="cell-34" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>hdi <span class="op">=</span> az.hdi(planet_fit.posterior, hdi_prob<span class="op">=</span><span class="fl">0.95</span>)</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"g for Earth: </span><span class="sc">{</span><span class="dv">2</span><span class="op">*</span>hdi[<span class="st">'I(Time ** 2):Planet'</span>]<span class="sc">.</span>sel({<span class="st">'I(Time ** 2):Planet_dim'</span>:<span class="st">'Earth'</span>, <span class="st">'hdi'</span>:<span class="st">'lower'</span>})<span class="sc">:.2f}</span><span class="ss"> to </span><span class="sc">{</span><span class="dv">2</span><span class="op">*</span>hdi[<span class="st">'I(Time ** 2):Planet'</span>]<span class="sc">.</span>sel({<span class="st">'I(Time ** 2):Planet_dim'</span>:<span class="st">'Earth'</span>, <span class="st">'hdi'</span>:<span class="st">'higher'</span>})<span class="sc">:.2f}</span><span class="ss"> meters (True: -9.81 m)"</span>)</span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"g for Mars: </span><span class="sc">{</span><span class="dv">2</span><span class="op">*</span>hdi[<span class="st">'I(Time ** 2):Planet'</span>]<span class="sc">.</span>sel({<span class="st">'I(Time ** 2):Planet_dim'</span>:<span class="st">'Mars'</span>, <span class="st">'hdi'</span>:<span class="st">'lower'</span>})<span class="sc">:.2f}</span><span class="ss"> to </span><span class="sc">{</span><span class="dv">2</span><span class="op">*</span>hdi[<span class="st">'I(Time ** 2):Planet'</span>]<span class="sc">.</span>sel({<span class="st">'I(Time ** 2):Planet_dim'</span>:<span class="st">'Mars'</span>, <span class="st">'hdi'</span>:<span class="st">'higher'</span>})<span class="sc">:.2f}</span><span class="ss"> meters (True: -3.72 m)"</span>)</span>
 <span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"g for PlanetX: </span><span class="sc">{</span><span class="dv">2</span><span class="op">*</span>hdi[<span class="st">'I(Time ** 2):Planet'</span>]<span class="sc">.</span>sel({<span class="st">'I(Time ** 2):Planet_dim'</span>:<span class="st">'PlanetX'</span>, <span class="st">'hdi'</span>:<span class="st">'lower'</span>})<span class="sc">:.2f}</span><span class="ss"> to </span><span class="sc">{</span><span class="dv">2</span><span class="op">*</span>hdi[<span class="st">'I(Time ** 2):Planet'</span>]<span class="sc">.</span>sel({<span class="st">'I(Time ** 2):Planet_dim'</span>:<span class="st">'PlanetX'</span>, <span class="st">'hdi'</span>:<span class="st">'higher'</span>})<span class="sc">:.2f}</span><span class="ss"> meters (True: -6.0 m)"</span>)</span>
 <span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Initial velocity: </span><span class="sc">{</span>hdi[<span class="st">'Time'</span>]<span class="sc">.</span>sel(hdi<span class="op">=</span><span class="st">'lower'</span>)<span class="sc">:.2f}</span><span class="ss"> to </span><span class="sc">{</span>hdi[<span class="st">'Time'</span>]<span class="sc">.</span>sel(hdi<span class="op">=</span><span class="st">'higher'</span>)<span class="sc">:.2f}</span><span class="ss"> meters per second (True: 20 m/s)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>g for Earth: -10.30 to -9.70 meters (True: -9.81 m)
+<pre><code>g for Earth: -10.29 to -9.71 meters (True: -9.81 m)
 g for Mars: -3.85 to -3.68 meters (True: -3.72 m)
 g for PlanetX: -6.18 to -5.90 meters (True: -6.0 m)
-Initial velocity: 19.79 to 20.43 meters per second (True: 20 m/s)</code></pre>
+Initial velocity: 19.80 to 20.45 meters per second (True: 20 m/s)</code></pre>
 </div>
 </div>
 <p>We can see that we’re pretty close to recovering most the parameters, but the fit isn’t great. Plotting the posteriors for <span class="math inline">\(g\)</span> against the true values,</p>
-<div id="cell-37" class="cell" data-execution_count="20">
+<div id="cell-36" class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>earth_posterior <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> planet_fit.posterior[<span class="st">"I(Time ** 2):Planet"</span>].sel({<span class="st">"I(Time ** 2):Planet_dim"</span>: <span class="st">"Earth"</span>})</span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>planetx_posterior <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> planet_fit.posterior[<span class="st">"I(Time ** 2):Planet"</span>].sel({<span class="st">"I(Time ** 2):Planet_dim"</span>: <span class="st">"PlanetX"</span>})</span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>mars_posterior <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> planet_fit.posterior[<span class="st">"I(Time ** 2):Planet"</span>].sel({<span class="st">"I(Time ** 2):Planet_dim"</span>: <span class="st">"Mars"</span>}) </span>
@@ -1220,7 +1237,7 @@ Initial velocity: 19.79 to 20.43 meters per second (True: 20 m/s)</code></pre>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="polynomial_regression_files/figure-html/cell-21-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="polynomial_regression_files/figure-html/cell-20-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -1243,7 +1260,7 @@ g_{\text{PlanetX}} \sim \text{Normal}(\frac{-9.81 - 3.72}{2}, 3) = \text{Normal}
 \]</span></p>
 <p>Since these correspond to <span class="math inline">\(g/2\)</span>, we’ll divide all values by 2 when putting them into Bambi. Additionally, we know the balls landed eventually, so <span class="math inline">\(g\)</span> <em>must be</em> negative. We’ll truncate the upper limit of the distribution at 0.</p>
 <p>Now, for defining this in Bambi, the term of interest is <code>I(Time ** 2):Planet</code>. Often, you set one prior that applies to all groups, however, if you want to set each group individually, you can pass a list to the <code>bmb.Prior</code> definition. <a href="https://github.com/bambinos/bambi/issues/778">The broadcasting rules from PyMC apply here</a>, so it could equivalently take a numpy array. You’ll notice that the priors are passed alphabetically by group name.</p>
-<div id="cell-39" class="cell" data-execution_count="21">
+<div id="cell-38" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"I(Time ** 2):Planet"</span>: bmb.Prior(</span>
@@ -1273,7 +1290,7 @@ g_{\text{PlanetX}} \sim \text{Normal}(\frac{-9.81 - 3.72}{2}, 3) = \text{Normal}
 <div class="cell-output cell-output-stderr">
 <pre><code>Sampling: [Height, I(Time ** 2):Planet, Time, sigma]</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="21">
+<div class="cell-output cell-output-display" data-execution_count="20">
 <div>
 
 
@@ -1289,39 +1306,39 @@ g_{\text{PlanetX}} \sim \text{Normal}(\frac{-9.81 - 3.72}{2}, 3) = \text{Normal}
 </thead>
 <tbody>
 <tr class="odd">
+<td data-quarto-table-cell-role="th">sigma</td>
+<td>14.466</td>
+<td>13.809</td>
+<td>0.025</td>
+<td>36.595</td>
+</tr>
+<tr class="even">
 <td data-quarto-table-cell-role="th">I(Time ** 2):Planet[Earth]</td>
 <td>-4.905</td>
 <td>0.012</td>
-<td>-4.927</td>
-<td>-4.881</td>
+<td>-4.928</td>
+<td>-4.883</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td data-quarto-table-cell-role="th">I(Time ** 2):Planet[Mars]</td>
 <td>-1.860</td>
 <td>0.010</td>
-<td>-1.875</td>
-<td>-1.839</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">I(Time ** 2):Planet[PlanetX]</td>
-<td>-3.407</td>
-<td>1.440</td>
-<td>-6.275</td>
-<td>-0.874</td>
+<td>-1.880</td>
+<td>-1.841</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">Time</td>
-<td>-0.552</td>
-<td>15.200</td>
-<td>-23.585</td>
-<td>30.847</td>
+<td data-quarto-table-cell-role="th">I(Time ** 2):Planet[PlanetX]</td>
+<td>-3.622</td>
+<td>1.509</td>
+<td>-6.360</td>
+<td>-0.915</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">mu[0]</td>
-<td>-0.445</td>
-<td>3.800</td>
-<td>-6.203</td>
-<td>7.405</td>
+<td data-quarto-table-cell-role="th">Time</td>
+<td>0.520</td>
+<td>14.788</td>
+<td>-26.565</td>
+<td>27.992</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">...</td>
@@ -1331,39 +1348,39 @@ g_{\text{PlanetX}} \sim \text{Normal}(\frac{-9.81 - 3.72}{2}, 3) = \text{Normal}
 <td>...</td>
 </tr>
 <tr class="odd">
+<td data-quarto-table-cell-role="th">mu[76]</td>
+<td>-106.703</td>
+<td>93.046</td>
+<td>-269.417</td>
+<td>66.054</td>
+</tr>
+<tr class="even">
 <td data-quarto-table-cell-role="th">mu[77]</td>
-<td>-115.814</td>
-<td>100.895</td>
-<td>-286.910</td>
-<td>72.314</td>
+<td>-116.760</td>
+<td>98.348</td>
+<td>-290.948</td>
+<td>61.963</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td data-quarto-table-cell-role="th">mu[78]</td>
-<td>-125.960</td>
-<td>106.379</td>
-<td>-309.774</td>
-<td>69.448</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">mu[79]</td>
-<td>-136.532</td>
-<td>111.989</td>
-<td>-330.351</td>
-<td>68.152</td>
+<td>-127.270</td>
+<td>103.780</td>
+<td>-314.577</td>
+<td>58.189</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">mu[80]</td>
-<td>-147.529</td>
-<td>117.726</td>
-<td>-351.004</td>
-<td>67.998</td>
+<td data-quarto-table-cell-role="th">mu[79]</td>
+<td>-138.232</td>
+<td>109.346</td>
+<td>-338.301</td>
+<td>53.774</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">sigma</td>
-<td>14.737</td>
-<td>13.655</td>
-<td>0.044</td>
-<td>37.748</td>
+<td data-quarto-table-cell-role="th">mu[80]</td>
+<td>-149.647</td>
+<td>115.049</td>
+<td>-358.999</td>
+<td>55.671</td>
 </tr>
 </tbody>
 </table>
@@ -1374,34 +1391,30 @@ g_{\text{PlanetX}} \sim \text{Normal}(\frac{-9.81 - 3.72}{2}, 3) = \text{Normal}
 </div>
 <p>Here we’ve sampled the prior predictive and can see that our priors are correctly specified to the associated planets.</p>
 <p>Next we fit the model.</p>
-<div id="cell-41" class="cell" data-execution_count="22">
+<div id="cell-40" class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>planet_fit_with_prior <span class="op">=</span> planet_model_with_prior.fit(chains<span class="op">=</span><span class="dv">4</span>, idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}, random_seed<span class="op">=</span>SEED)</span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>az.summary(planet_fit_with_prior)</span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>planet_model_with_prior.predict(planet_fit_with_prior, kind<span class="op">=</span><span class="st">"pps"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 2 jobs)
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [sigma, I(Time ** 2):Planet, Time]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"50d73a4e720b4375a28795b6a42e03f2","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"e89a9496529c4c00972205bbe3fb23f9","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 17 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 3 seconds.</code></pre>
 </div>
 </div>
-<div id="cell-42" class="cell" data-execution_count="23">
+<div id="cell-41" class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>az.summary(planet_fit_with_prior)[<span class="dv">0</span>:<span class="dv">5</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="23">
+<div class="cell-output cell-output-display" data-execution_count="22">
 <div>
 
 
@@ -1422,63 +1435,63 @@ NUTS: [sigma, I(Time ** 2):Planet, Time]</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
+<td data-quarto-table-cell-role="th">sigma</td>
+<td>1.759</td>
+<td>0.142</td>
+<td>1.495</td>
+<td>2.024</td>
+<td>0.002</td>
+<td>0.002</td>
+<td>3333.0</td>
+<td>2373.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
 <td data-quarto-table-cell-role="th">I(Time ** 2):Planet[Earth]</td>
 <td>-4.907</td>
 <td>0.012</td>
-<td>-4.928</td>
+<td>-4.929</td>
 <td>-4.884</td>
 <td>0.000</td>
 <td>0.000</td>
-<td>4359.0</td>
-<td>3199.0</td>
+<td>4360.0</td>
+<td>2943.0</td>
 <td>1.0</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td data-quarto-table-cell-role="th">I(Time ** 2):Planet[Mars]</td>
 <td>-1.862</td>
-<td>0.008</td>
-<td>-1.878</td>
-<td>-1.846</td>
+<td>0.009</td>
+<td>-1.879</td>
+<td>-1.847</td>
 <td>0.000</td>
 <td>0.000</td>
-<td>2657.0</td>
-<td>2611.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">I(Time ** 2):Planet[PlanetX]</td>
-<td>-2.985</td>
-<td>0.022</td>
-<td>-3.026</td>
-<td>-2.944</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>3121.0</td>
-<td>2938.0</td>
+<td>2054.0</td>
+<td>2614.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">Time</td>
-<td>19.958</td>
-<td>0.074</td>
-<td>19.830</td>
-<td>20.105</td>
-<td>0.001</td>
-<td>0.001</td>
-<td>2514.0</td>
-<td>2572.0</td>
+<td data-quarto-table-cell-role="th">I(Time ** 2):Planet[PlanetX]</td>
+<td>-2.985</td>
+<td>0.023</td>
+<td>-3.025</td>
+<td>-2.940</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>2282.0</td>
+<td>2772.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">sigma</td>
-<td>1.753</td>
-<td>0.140</td>
-<td>1.508</td>
-<td>2.027</td>
+<td data-quarto-table-cell-role="th">Time</td>
+<td>19.960</td>
+<td>0.075</td>
+<td>19.827</td>
+<td>20.103</td>
 <td>0.002</td>
-<td>0.002</td>
-<td>3667.0</td>
-<td>3010.0</td>
+<td>0.001</td>
+<td>2025.0</td>
+<td>2249.0</td>
 <td>1.0</td>
 </tr>
 </tbody>
@@ -1489,7 +1502,7 @@ NUTS: [sigma, I(Time ** 2):Planet, Time]</code></pre>
 </div>
 <p>We see some improvements here! Off the cuff, these look better, you’ll notice the <span class="math inline">\(v_0\)</span> coefficient on <code>Time</code> covers the true value of 20 m/s.</p>
 <p>Now taking a look at the effects before and after adding the prior on the gravities,</p>
-<div id="cell-44" class="cell" data-execution_count="24">
+<div id="cell-43" class="cell" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>earth_posterior_2 <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span>  planet_fit_with_prior.posterior[<span class="st">"I(Time ** 2):Planet"</span>].sel({<span class="st">"I(Time ** 2):Planet_dim"</span>: <span class="st">"Earth"</span>})</span>
 <span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>mars_posterior_2 <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> planet_fit_with_prior.posterior[<span class="st">"I(Time ** 2):Planet"</span>].sel({<span class="st">"I(Time ** 2):Planet_dim"</span>: <span class="st">"Mars"</span>})</span>
 <span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>planetx_posterior_2 <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> planet_fit_with_prior.posterior[<span class="st">"I(Time ** 2):Planet"</span>].sel({<span class="st">"I(Time ** 2):Planet_dim"</span>: <span class="st">"PlanetX"</span>})</span>
@@ -1511,29 +1524,29 @@ NUTS: [sigma, I(Time ** 2):Planet, Time]</code></pre>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="polynomial_regression_files/figure-html/cell-25-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="polynomial_regression_files/figure-html/cell-24-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Adding the prior gives smaller uncertainties for Earth and Mars by design, however, we can see the estimate for PlanetX has also considerably improved by injecting our knowledge into the model.</p>
-<div id="cell-46" class="cell" data-execution_count="25">
+<div id="cell-45" class="cell" data-execution_count="24">
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Sun May 26 2024
+<pre><code>Last updated: Sun Sep 28 2025
 
 Python implementation: CPython
-Python version       : 3.11.9
-IPython version      : 8.24.0
+Python version       : 3.13.7
+IPython version      : 9.4.0
 
-pandas    : 2.2.2
-numpy     : 1.26.4
-arviz     : 0.18.0
-matplotlib: 3.8.4
-bambi     : 0.13.1.dev39+gb7d6a6cb
+bambi     : 0.14.1.dev58+gb25742785.d20250928
+numpy     : 2.3.3
+arviz     : 0.22.0
+pandas    : 2.3.2
+matplotlib: 3.10.6
 
-Watermark: 2.4.3
+Watermark: 2.5.0
 </code></pre>
 </div>
 </div>
@@ -1961,7 +1974,7 @@ Watermark: 2.4.3
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>© Copyright 2024, The developers of Bambi.</p>
+<p>© Copyright 2025, The developers of Bambi.</p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

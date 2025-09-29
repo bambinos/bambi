@@ -172,10 +172,6 @@ window.Quarto = {
 <span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../faq.html"> 
-<span class="menu-text">FAQ</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link" href="../changelog.html"> 
 <span class="menu-text">Changelog</span></a>
   </li>  
@@ -199,7 +195,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/t-test.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/Strack_RRR_re_analysis.html">Bayesian Workflow (Strack RRR Analysis Replication)</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/ESCS_multiple_regression.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/Strack_RRR_re_analysis.html">Bayesian Workflow (Strack RRR Analysis Replication)</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -226,12 +222,6 @@ window.Quarto = {
           </a> 
       </div>
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Comparison of two means (T-test)</span></a>
-  </div>
-</li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">
@@ -504,7 +494,7 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/t-test.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/Strack_RRR_re_analysis.html">Bayesian Workflow (Strack RRR Analysis Replication)</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/ESCS_multiple_regression.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/Strack_RRR_re_analysis.html">Bayesian Workflow (Strack RRR Analysis Replication)</a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title">Bayesian Workflow (Strack RRR Analysis Replication)</h1>
 </div>
@@ -525,15 +515,12 @@ window.Quarto = {
 
 <div id="cell-2" class="cell" data-scrolled="true" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> glob <span class="im">import</span> glob</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> os.path <span class="im">import</span> basename</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="cell-3" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-darkgrid"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-darkgrid"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>In this Jupyter notebook, we do a Bayesian reanalysis of the data reported in the <a href="https://doi.org/10.1177/1745691616674458">recent registered replication report</a> (RRR) of a famous study by Strack, Martin &amp; Stepper (1988). The original Strack et al.&nbsp;study tested a <em>facial feedback hypothesis</em> arguing that emotional responses are, in part, driven by facial expressions (rather than expressions always following from emotions). Strack and colleagues reported that participants rated cartoons as more funny when the participants held a pen in their teeth (unknowingly inducing a smile) than when they held a pen between their lips (unknowingly inducing a pout). The article has been cited over 1,400 times, and has been enormously influential in popularizing the view that affective experiences and outward expressions of affective experiences can both influence each other (instead of the relationship being a one-way street from experience to expression). In 2016, a Registered Replication Report led by Wagenmakers and colleagues attempted to replicate Study 1 from Strack, Martin, &amp; Stepper (1988) in 17 independent experiments comprising over 2,500 participants. The RRR reported no evidence in support of the effect.</p>
 <p>Because the emphasis here is on fitting models in Bambi, we spend very little time on quality control and data exploration; our goal is simply to show how one can replicate and extend the primary analysis reported in the RRR in a few lines of Bambi code.</p>
@@ -541,32 +528,32 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="reading-in-the-data">Reading in the data</h2>
 <p>The data for the RRR of Strack, Martin, &amp; Stepper (henceforth <em>SMS</em>) is available as a set of CSV files from the project’s repository on the Open Science Framework. For the sake of completeness, we’ll show how to go from the raw CSV to the “long” data format that Bambi can use.</p>
 <p>One slightly annoying thing about these 17 CSV files–each of which represents a different replication site–is that they don’t all contain exactly the same columns. Some labs added a column or two at the end (mostly for notes). To keep things simple, we’ll just truncate each dataset to only the first 22 columns. Because the variable names are structured in a bit of a confusing way, we’ll also just drop the first two rows in each file, and manually set the column names for all 22 variables. Once we’ve done that, we can simply concatenate all of the 17 datasets along the row axis to create one big dataset.</p>
-<div id="cell-6" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>DL_PATH <span class="op">=</span> <span class="st">'data/facial_feedback/*csv'</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>dfs <span class="op">=</span> []</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>columns <span class="op">=</span> [<span class="st">'subject'</span>, <span class="st">'cond_id'</span>, <span class="st">'condition'</span>, <span class="st">'correct_c1'</span>, <span class="st">'correct_c2'</span>, <span class="st">'correct_c3'</span>, <span class="st">'correct_c4'</span>,</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>           <span class="st">'correct_total'</span>, <span class="st">'rating_t1'</span>, <span class="st">'rating_t2'</span>, <span class="st">'rating_c1'</span>, <span class="st">'rating_c2'</span>, <span class="st">'rating_c3'</span>,</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>           <span class="st">'rating_c4'</span>, <span class="st">'self_perf'</span>, <span class="st">'comprehension'</span>, <span class="st">'awareness'</span>, <span class="st">'transcript'</span>, <span class="st">'age'</span>, <span class="st">'gender'</span>,</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>           <span class="st">'student'</span>, <span class="st">'occupation'</span>]</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>count <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> idx, study <span class="kw">in</span> <span class="bu">enumerate</span>(glob(DL_PATH)):</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> pd.read_csv(study, encoding<span class="op">=</span><span class="st">'latin1'</span>, skiprows<span class="op">=</span><span class="dv">2</span>, header<span class="op">=</span><span class="va">None</span>, index_col<span class="op">=</span><span class="va">False</span>).iloc[:, :<span class="dv">22</span>]</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    data.columns <span class="op">=</span> columns</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add study name</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    data[<span class="st">'study'</span>] <span class="op">=</span> idx</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Some sites used the same subject id numbering schemes, so prepend with study to create unique ids.</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Note that if we don't do this, Bambi would have no way of distinguishing two subjects who share</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># the same id, which would hose our results.</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    data[<span class="st">'uid'</span>] <span class="op">=</span> data[<span class="st">'subject'</span>].astype(<span class="bu">float</span>) <span class="op">+</span> count</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    dfs.append(data)</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.concat(dfs, axis<span class="op">=</span><span class="dv">0</span>).<span class="bu">apply</span>(pd.to_numeric,  errors<span class="op">=</span><span class="st">'coerce'</span>, axis<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-5" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>DL_PATH <span class="op">=</span> <span class="st">'data/facial_feedback/*csv'</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>dfs <span class="op">=</span> []</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>columns <span class="op">=</span> [<span class="st">'subject'</span>, <span class="st">'cond_id'</span>, <span class="st">'condition'</span>, <span class="st">'correct_c1'</span>, <span class="st">'correct_c2'</span>, <span class="st">'correct_c3'</span>, <span class="st">'correct_c4'</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>           <span class="st">'correct_total'</span>, <span class="st">'rating_t1'</span>, <span class="st">'rating_t2'</span>, <span class="st">'rating_c1'</span>, <span class="st">'rating_c2'</span>, <span class="st">'rating_c3'</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>           <span class="st">'rating_c4'</span>, <span class="st">'self_perf'</span>, <span class="st">'comprehension'</span>, <span class="st">'awareness'</span>, <span class="st">'transcript'</span>, <span class="st">'age'</span>, <span class="st">'gender'</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>           <span class="st">'student'</span>, <span class="st">'occupation'</span>]</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>count <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> idx, study <span class="kw">in</span> <span class="bu">enumerate</span>(glob(DL_PATH)):</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> pd.read_csv(study, encoding<span class="op">=</span><span class="st">'latin1'</span>, skiprows<span class="op">=</span><span class="dv">2</span>, header<span class="op">=</span><span class="va">None</span>, index_col<span class="op">=</span><span class="va">False</span>).iloc[:, :<span class="dv">22</span>]</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    data.columns <span class="op">=</span> columns</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add study name</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    data[<span class="st">'study'</span>] <span class="op">=</span> idx</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Some sites used the same subject id numbering schemes, so prepend with study to create unique ids.</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Note that if we don't do this, Bambi would have no way of distinguishing two subjects who share</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># the same id, which would hose our results.</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    data[<span class="st">'uid'</span>] <span class="op">=</span> data[<span class="st">'subject'</span>].astype(<span class="bu">float</span>) <span class="op">+</span> count</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    dfs.append(data)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.concat(dfs, axis<span class="op">=</span><span class="dv">0</span>).<span class="bu">apply</span>(pd.to_numeric,  errors<span class="op">=</span><span class="st">'coerce'</span>, axis<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Let’s see what the first few rows look like…</p>
-<div id="cell-8" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="4">
+<div id="cell-7" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
 <div>
 
 
@@ -606,17 +593,17 @@ window.Quarto = {
 <td>1.0</td>
 <td>1.0</td>
 <td>1.0</td>
-<td>1.0</td>
-<td>4.0</td>
-<td>7.0</td>
-<td>2.0</td>
+<td>0.0</td>
+<td>3.0</td>
+<td>3.0</td>
+<td>5.0</td>
 <td>...</td>
 <td>5.0</td>
 <td>1.0</td>
 <td>0.0</td>
 <td>NaN</td>
-<td>22.0</td>
-<td>1.0</td>
+<td>21.0</td>
+<td>0.0</td>
 <td>1.0</td>
 <td>NaN</td>
 <td>0.0</td>
@@ -626,20 +613,20 @@ window.Quarto = {
 <td data-quarto-table-cell-role="th">1</td>
 <td>2.0</td>
 <td>2.0</td>
-<td>0.0</td>
 <td>1.0</td>
 <td>1.0</td>
 <td>1.0</td>
 <td>1.0</td>
-<td>4.0</td>
-<td>7.0</td>
-<td>6.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>9.0</td>
+<td>8.0</td>
 <td>...</td>
 <td>5.0</td>
 <td>1.0</td>
 <td>0.0</td>
 <td>NaN</td>
-<td>20.0</td>
+<td>21.0</td>
 <td>0.0</td>
 <td>1.0</td>
 <td>NaN</td>
@@ -650,21 +637,21 @@ window.Quarto = {
 <td data-quarto-table-cell-role="th">2</td>
 <td>3.0</td>
 <td>3.0</td>
-<td>1.0</td>
-<td>1.0</td>
-<td>1.0</td>
-<td>1.0</td>
 <td>0.0</td>
-<td>3.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
 <td>4.0</td>
-<td>7.0</td>
+<td>6.0</td>
+<td>9.0</td>
 <td>...</td>
-<td>4.0</td>
+<td>7.0</td>
 <td>1.0</td>
 <td>0.0</td>
 <td>NaN</td>
-<td>20.0</td>
-<td>0.0</td>
+<td>21.0</td>
+<td>1.0</td>
 <td>1.0</td>
 <td>NaN</td>
 <td>0.0</td>
@@ -680,14 +667,14 @@ window.Quarto = {
 <td>1.0</td>
 <td>1.0</td>
 <td>4.0</td>
-<td>6.0</td>
-<td>3.0</td>
+<td>9.0</td>
+<td>9.0</td>
 <td>...</td>
-<td>2.0</td>
+<td>3.0</td>
 <td>1.0</td>
 <td>0.0</td>
 <td>NaN</td>
-<td>20.0</td>
+<td>21.0</td>
 <td>0.0</td>
 <td>1.0</td>
 <td>NaN</td>
@@ -704,15 +691,15 @@ window.Quarto = {
 <td>1.0</td>
 <td>1.0</td>
 <td>4.0</td>
-<td>7.0</td>
-<td>6.0</td>
-<td>...</td>
 <td>5.0</td>
-<td>1.0</td>
+<td>8.0</td>
+<td>...</td>
+<td>4.0</td>
+<td>0.0</td>
 <td>0.0</td>
 <td>NaN</td>
-<td>20.0</td>
-<td>1.0</td>
+<td>18.0</td>
+<td>0.0</td>
 <td>1.0</td>
 <td>NaN</td>
 <td>0.0</td>
@@ -729,17 +716,17 @@ window.Quarto = {
 <section id="reshaping-the-data" class="level2">
 <h2 class="anchored" data-anchor-id="reshaping-the-data">Reshaping the data</h2>
 <p>At this point we have our data in a pandas DataFrame with shape of (2612, 24). Unfortunately, we can’t use the data in this form. We’ll need to (a) conduct some basic quality control, and (b) “melt” the dataset–currently in so-called “wide” format, with each subject in a separate row–into long format, where each row is a single trial. Fortunately, we can do this easily in pandas:</p>
-<div id="cell-10" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only subjects who (i) respond appropriately on all trials,</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (ii) understand the cartoons, and (iii) don't report any awareness</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># of the hypothesis or underlying theory.</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>valid <span class="op">=</span> data.query(<span class="st">'correct_total==4 and comprehension==1 and awareness==0'</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="bu">long</span> <span class="op">=</span> pd.melt(valid, [<span class="st">'uid'</span>, <span class="st">'condition'</span>, <span class="st">'gender'</span>, <span class="st">'age'</span>, <span class="st">'study'</span>, <span class="st">'self_perf'</span>],</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>               [<span class="st">'rating_c1'</span>, <span class="st">'rating_c2'</span>, <span class="st">'rating_c3'</span>, <span class="st">'rating_c4'</span>], var_name<span class="op">=</span><span class="st">'stimulus'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-9" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only subjects who (i) respond appropriately on all trials,</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (ii) understand the cartoons, and (iii) don't report any awareness</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># of the hypothesis or underlying theory.</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>valid <span class="op">=</span> data.query(<span class="st">'correct_total==4 and comprehension==1 and awareness==0'</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="bu">long</span> <span class="op">=</span> pd.melt(valid, [<span class="st">'uid'</span>, <span class="st">'condition'</span>, <span class="st">'gender'</span>, <span class="st">'age'</span>, <span class="st">'study'</span>, <span class="st">'self_perf'</span>],</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>               [<span class="st">'rating_c1'</span>, <span class="st">'rating_c2'</span>, <span class="st">'rating_c3'</span>, <span class="st">'rating_c4'</span>], var_name<span class="op">=</span><span class="st">'stimulus'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-11" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">long</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="6">
+<div id="cell-10" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">long</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
 <div>
 
 
@@ -760,58 +747,58 @@ window.Quarto = {
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">0</td>
-<td>1.0</td>
+<td>3.0</td>
 <td>0.0</td>
 <td>1.0</td>
-<td>22.0</td>
+<td>21.0</td>
 <td>0.0</td>
-<td>5.0</td>
+<td>7.0</td>
 <td>rating_c1</td>
 <td>2.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
-<td>2.0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>20.0</td>
-<td>0.0</td>
-<td>5.0</td>
-<td>rating_c1</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
 <td>4.0</td>
 <td>1.0</td>
 <td>0.0</td>
-<td>20.0</td>
+<td>21.0</td>
 <td>0.0</td>
-<td>2.0</td>
+<td>3.0</td>
 <td>rating_c1</td>
-<td>8.0</td>
+<td>9.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>6.0</td>
+<td>1.0</td>
+<td>0.0</td>
+<td>19.0</td>
+<td>0.0</td>
+<td>4.0</td>
+<td>rating_c1</td>
+<td>0.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
-<td>5.0</td>
-<td>0.0</td>
+<td>8.0</td>
 <td>1.0</td>
-<td>20.0</td>
 <td>0.0</td>
-<td>5.0</td>
+<td>21.0</td>
+<td>0.0</td>
+<td>9.0</td>
 <td>rating_c1</td>
-<td>6.0</td>
+<td>4.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
-<td>7.0</td>
-<td>1.0</td>
-<td>1.0</td>
-<td>20.0</td>
+<td>9.0</td>
 <td>0.0</td>
-<td>6.0</td>
+<td>1.0</td>
+<td>21.0</td>
+<td>0.0</td>
+<td>9.0</td>
 <td>rating_c1</td>
-<td>2.0</td>
+<td>0.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">...</td>
@@ -826,58 +813,58 @@ window.Quarto = {
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">6935</td>
-<td>145.0</td>
+<td>181.0</td>
+<td>1.0</td>
 <td>0.0</td>
-<td>0.0</td>
-<td>20.0</td>
+<td>19.0</td>
 <td>16.0</td>
-<td>NaN</td>
+<td>6.0</td>
 <td>rating_c4</td>
-<td>3.0</td>
+<td>6.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">6936</td>
-<td>146.0</td>
-<td>1.0</td>
-<td>1.0</td>
+<td>182.0</td>
+<td>0.0</td>
+<td>0.0</td>
 <td>19.0</td>
 <td>16.0</td>
-<td>NaN</td>
+<td>1.0</td>
 <td>rating_c4</td>
-<td>5.0</td>
+<td>4.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">6937</td>
-<td>150.0</td>
+<td>183.0</td>
 <td>1.0</td>
 <td>0.0</td>
-<td>20.0</td>
+<td>18.0</td>
 <td>16.0</td>
-<td>NaN</td>
+<td>9.0</td>
 <td>rating_c4</td>
-<td>8.0</td>
+<td>7.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">6938</td>
-<td>151.0</td>
+<td>184.0</td>
 <td>0.0</td>
 <td>0.0</td>
-<td>20.0</td>
+<td>19.0</td>
 <td>16.0</td>
-<td>NaN</td>
+<td>8.0</td>
 <td>rating_c4</td>
-<td>1.0</td>
+<td>3.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">6939</td>
-<td>152.0</td>
+<td>187.0</td>
 <td>1.0</td>
 <td>0.0</td>
-<td>21.0</td>
+<td>19.0</td>
 <td>16.0</td>
-<td>NaN</td>
+<td>5.0</td>
 <td>rating_c4</td>
-<td>6.0</td>
+<td>2.0</td>
 </tr>
 </tbody>
 </table>
@@ -897,39 +884,33 @@ window.Quarto = {
 <li>A group specific intercept for each of the 1,728 subjects in the ‘long’ dataset. (There were 2,576 subjects in the original dataset, but about 25% were excluded for various reasons, and we’re further excluding all subjects who lack complete data. As an exercise, you can try relaxing some of these criteria and re-fitting the models, though you’ll probably find that it makes no meaningful difference to the results.)</li>
 </ul>
 <p>We’ll create a Bambi model, fit it, and store the results in a new object–which we can then interrogate in various ways.</p>
-<div id="cell-13" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize the model, passing in the dataset we want to use.</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"value ~ condition + (1|uid)"</span>, <span class="bu">long</span>, dropna<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Set a custom prior on group specific factor variances—just for illustration</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>group_specific_sd <span class="op">=</span> bmb.Prior(<span class="st">"HalfNormal"</span>, sigma<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>group_specific_prior <span class="op">=</span> bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span>group_specific_sd)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>model.set_priors(group_specific<span class="op">=</span>group_specific_prior)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the model, drawing 1,000 MCMC draws per chain</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model.fit(draws<span class="op">=</span><span class="dv">1000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-12" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize the model, passing in the dataset we want to use.</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"value ~ condition + (1|uid)"</span>, <span class="bu">long</span>, dropna<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Set a custom prior on group specific factor variances—just for illustration</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>group_specific_sd <span class="op">=</span> bmb.Prior(<span class="st">"HalfNormal"</span>, sigma<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>group_specific_prior <span class="op">=</span> bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span>group_specific_sd)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>model.set_priors(group_specific<span class="op">=</span>group_specific_prior)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the model, drawing 1,000 MCMC draws per chain</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model.fit(draws<span class="op">=</span><span class="dv">1000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Automatically removing 9/6940 rows from the dataset.
-Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [sigma, Intercept, condition, 1|uid_sigma, 1|uid_offset]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"e3f3115c1e694bbfa68896dfb5b47e34","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"9dd9b19c36664befb855924b86c5dc72","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 23 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics
-The rhat statistic is larger than 1.01 for some parameters. This indicates problems during sampling. See https://arxiv.org/abs/1903.08008 for details</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 9 seconds.</code></pre>
 </div>
 </div>
 <p>Notice that, in Bambi, the common and group specific effects are specified in the same formula. This is the same convention used by other similar packages like <a href="https://CRAN.R-project.org/package=brms">brms</a>.</p>
@@ -937,38 +918,38 @@ The rhat statistic is larger than 1.01 for some parameters. This indicates probl
 <section id="inspecting-results" class="level2">
 <h2 class="anchored" data-anchor-id="inspecting-results">Inspecting results</h2>
 <p>We can plot the prior distributions for all parameters with a call to the <code>plot_priors()</code> method.</p>
-<div id="cell-16" class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>model.plot_priors()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-15" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>model.plot_priors()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Sampling: [1|uid_sigma, Intercept, condition, sigma]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Strack_RRR_re_analysis_files/figure-html/cell-9-output-2.png" class="img-fluid figure-img"></p>
+<p><img src="Strack_RRR_re_analysis_files/figure-html/cell-8-output-2.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>And we can easily get the posterior distributions with <code>az.plot_trace()</code>. We can select a subset of the parameters with the <code>var_names</code> arguments, like in the following cell. Or alternative by negating variables like <code>var_names="~1|uid"</code>.</p>
-<div id="cell-18" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    results,</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"Intercept"</span>, <span class="st">"condition"</span>, <span class="st">"sigma"</span>, <span class="st">"1|uid_sigma"</span>],</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    compact<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-17" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    results,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"Intercept"</span>, <span class="st">"condition"</span>, <span class="st">"sigma"</span>, <span class="st">"1|uid_sigma"</span>],</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    compact<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Strack_RRR_re_analysis_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="Strack_RRR_re_analysis_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>If we want a numerical summary of the results, we just pass the results object to <code>az.summary()</code>. By default, summary shows the mean, standard deviation, and 94% highest density interval for the posterior. Summary also includes the Monte Carlo standard error, the effective sample size and the R-hat statistic.</p>
-<div id="cell-20" class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>az.summary(results, var_names<span class="op">=</span>[<span class="st">'Intercept'</span>, <span class="st">'condition'</span>, <span class="st">'sigma'</span>, <span class="st">'1|uid_sigma'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="10">
+<div id="cell-19" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>az.summary(results, var_names<span class="op">=</span>[<span class="st">'Intercept'</span>, <span class="st">'condition'</span>, <span class="st">'sigma'</span>, <span class="st">'1|uid_sigma'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
 <div>
 
 
@@ -991,49 +972,49 @@ The rhat statistic is larger than 1.01 for some parameters. This indicates probl
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Intercept</td>
 <td>4.563</td>
-<td>0.046</td>
-<td>4.476</td>
-<td>4.649</td>
+<td>0.047</td>
+<td>4.478</td>
+<td>4.650</td>
 <td>0.001</td>
 <td>0.001</td>
-<td>1625.0</td>
-<td>1491.0</td>
+<td>5176.0</td>
+<td>3494.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">condition</td>
 <td>-0.030</td>
-<td>0.059</td>
-<td>-0.138</td>
-<td>0.087</td>
+<td>0.060</td>
+<td>-0.147</td>
+<td>0.076</td>
 <td>0.001</td>
 <td>0.001</td>
-<td>2346.0</td>
-<td>1297.0</td>
+<td>5942.0</td>
+<td>2962.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">sigma</td>
 <td>2.401</td>
 <td>0.020</td>
-<td>2.365</td>
+<td>2.362</td>
 <td>2.439</td>
 <td>0.000</td>
 <td>0.000</td>
-<td>2800.0</td>
-<td>1520.0</td>
+<td>5439.0</td>
+<td>2764.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1|uid_sigma</td>
 <td>0.305</td>
 <td>0.045</td>
-<td>0.219</td>
-<td>0.389</td>
-<td>0.002</td>
+<td>0.217</td>
+<td>0.388</td>
 <td>0.001</td>
-<td>694.0</td>
-<td>1123.0</td>
+<td>0.001</td>
+<td>1518.0</td>
+<td>2202.0</td>
 <td>1.0</td>
 </tr>
 </tbody>
@@ -1051,59 +1032,53 @@ The rhat statistic is larger than 1.01 for some parameters. This indicates probl
 <p>Second, our model also fails to explicitly model variation in cartoon ratings that should properly be attributed to the 4 stimuli. In principle, our estimate of the common effect of condition could change somewhat once we correctly account for stimulus variability (though in practice, the net effect is almost always to <em>reduce</em> effects, not increase them–so in this case, it’s very unlikely that adding group specific stimulus effects will produce a meaningful effect of condition). So we’ll deal with this by adding specific intercepts for the 4 stimuli. We’ll model the stimuli as group specific effect, rather than common, because it wouldn’t make sense to think of these particular cartoons as exhausting the universe of stimuli we care about (i.e., we wouldn’t really care about the facial-feedback effect if we knew that it only applied to 4 specific Far Side cartoons, and no other stimuli).</p>
 <p>Lastly, just for fun, we can throw in some additional covariates, since they’re readily available in the dataset, and may be of interest even if they don’t directly inform the core hypothesis. Specifically, we’ll add common effects of gender and age to the model, which will let us estimate the degree to which participants’ ratings of the cartoons varies as a function of these background variables.</p>
 <p>Once we’ve done all that, we end up with a model that’s in a good position to answer the question we care about–namely, whether the smiling/pouting manipulation has an effect on cartoon ratings that generalizes across the subjects, studies, and stimuli found in the RRR dataset.</p>
-<div id="cell-22" class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"value ~ condition + age + gender + (1|uid) + (condition|study) + (condition|stimulus)"</span>,</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">long</span>,</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    dropna<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>group_specific_sd <span class="op">=</span> bmb.Prior(<span class="st">"HalfNormal"</span>, sigma<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>group_specific_prior <span class="op">=</span> bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span>group_specific_sd)</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>model.set_priors(group_specific<span class="op">=</span>group_specific_prior)</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Not we use 2000 samples for tuning and increase the taget_accept to 0.99.</span></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co"># The default values result in divergences.</span></span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model.fit(draws<span class="op">=</span><span class="dv">1000</span>, tune<span class="op">=</span><span class="dv">2000</span>, target_accept<span class="op">=</span><span class="fl">0.99</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-21" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"value ~ condition + age + gender + (1|uid) + (condition|study) + (condition|stimulus)"</span>,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">long</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    dropna<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>group_specific_sd <span class="op">=</span> bmb.Prior(<span class="st">"HalfNormal"</span>, sigma<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>group_specific_prior <span class="op">=</span> bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span>group_specific_sd)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>model.set_priors(group_specific<span class="op">=</span>group_specific_prior)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Not we use 2000 samples for tuning and increase the taget_accept to 0.99.</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co"># The default values result in divergences.</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model.fit(draws<span class="op">=</span><span class="dv">1000</span>, tune<span class="op">=</span><span class="dv">2000</span>, target_accept<span class="op">=</span><span class="fl">0.99</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Automatically removing 33/6940 rows from the dataset.
-Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [sigma, Intercept, condition, age, gender, 1|uid_sigma, 1|uid_offset, 1|study_sigma, 1|study_offset, condition|study_sigma, condition|study_offset, 1|stimulus_sigma, 1|stimulus_offset, condition|stimulus_sigma, condition|stimulus_offset]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"97bda9593809427c9bd422e5892a7ab5","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"445f882fa34943428ebf4821f7e045d4","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws total) took 1575 seconds.
-There were 2 divergences after tuning. Increase `target_accept` or reparameterize.
-We recommend running at least 4 chains for robust computation of convergence diagnostics
-The rhat statistic is larger than 1.01 for some parameters. This indicates problems during sampling. See https://arxiv.org/abs/1903.08008 for details</code></pre>
+<pre><code>Sampling 4 chains for 2_000 tune and 1_000 draw iterations (8_000 + 4_000 draws total) took 445 seconds.
+There was 1 divergence after tuning. Increase `target_accept` or reparameterize.</code></pre>
 </div>
 </div>
-<div id="cell-23" class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    results, </span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">'Intercept'</span>, <span class="st">'age'</span>, <span class="st">'gender'</span>, <span class="st">'condition'</span>, <span class="st">'sigma'</span>, </span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">'1|study'</span>, <span class="st">'1|stimulus'</span>, <span class="st">'condition|study'</span>, <span class="st">'condition|stimulus'</span>,</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">'1|study_sigma'</span>, <span class="st">'1|stimulus_sigma'</span>, <span class="st">'condition|study_sigma'</span>, </span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    ],</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    compact<span class="op">=</span><span class="va">True</span></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-22" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    results,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">'Intercept'</span>, <span class="st">'age'</span>, <span class="st">'gender'</span>, <span class="st">'condition'</span>, <span class="st">'sigma'</span>,</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">'1|study'</span>, <span class="st">'1|stimulus'</span>, <span class="st">'condition|study'</span>, <span class="st">'condition|stimulus'</span>,</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">'1|study_sigma'</span>, <span class="st">'1|stimulus_sigma'</span>, <span class="st">'condition|study_sigma'</span>,</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    compact<span class="op">=</span><span class="va">True</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Strack_RRR_re_analysis_files/figure-html/cell-13-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="Strack_RRR_re_analysis_files/figure-html/cell-12-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -1117,22 +1092,21 @@ The rhat statistic is larger than 1.01 for some parameters. This indicates probl
 <li>Older people seem to rate cartoons as being (a little bit) funnier.</li>
 <li>The variation across sites is surprisingly small–in terms of both the group specific intercepts (<code>1|study</code>) and the group specific slopes (<code>condition|study</code>). In other words, the constitution of the sample, the gender of the experimenter, or any of the hundreds of others of between-site differences that one might conceivably have expected to matter, don’t really seem to make much of a difference to participants’ ratings of the cartoons.</li>
 </ul>
-<div id="cell-25" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-24" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Sun May 26 2024
+<pre><code>Last updated: Sun Sep 28 2025
 
 Python implementation: CPython
-Python version       : 3.11.9
-IPython version      : 8.24.0
+Python version       : 3.13.7
+IPython version      : 9.4.0
 
-arviz : 0.18.0
-pandas: 2.2.2
-numpy : 1.26.4
-bambi : 0.13.1.dev39+gb7d6a6cb
+bambi : 0.14.1.dev58+gb25742785.d20250928
+arviz : 0.22.0
+pandas: 2.3.2
 
-Watermark: 2.4.3
+Watermark: 2.5.0
 </code></pre>
 </div>
 </div>
@@ -1559,7 +1533,7 @@ Watermark: 2.4.3
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>© Copyright 2024, The developers of Bambi.</p>
+<p>© Copyright 2025, The developers of Bambi.</p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

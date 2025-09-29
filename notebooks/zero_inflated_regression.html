@@ -172,10 +172,6 @@ window.Quarto = {
 <span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../faq.html"> 
-<span class="menu-text">FAQ</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link" href="../changelog.html"> 
 <span class="menu-text">Changelog</span></a>
   </li>  
@@ -226,12 +222,6 @@ window.Quarto = {
           </a> 
       </div>
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Comparison of two means (T-test)</span></a>
-  </div>
-</li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">
@@ -528,18 +518,19 @@ window.Quarto = {
 
 
 <div id="cell-1" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.lines <span class="im">import</span> Line2D</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.stats <span class="im">as</span> stats</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>warnings.simplefilter(action<span class="op">=</span><span class="st">'ignore'</span>, category<span class="op">=</span><span class="pp">FutureWarning</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.stats <span class="im">as</span> stats</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.lines <span class="im">import</span> Line2D</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>warnings.simplefilter(action<span class="op">=</span><span class="st">'ignore'</span>, category<span class="op">=</span><span class="pp">FutureWarning</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>In this notebook, we will describe zero inflated outcomes and why the data generating process behind these outcomes requires a special class of generalized linear models: zero-inflated Poisson (ZIP) and hurdle Poisson. Subsequently, we will describe and implement each model using a set of zero-inflated data from ecology. Along the way, we will also use the <code>interpret</code> sub-package to interpret the predictions and parameters of the models.</p>
 <section id="zero-inflated-outcomes" class="level2">
@@ -689,24 +680,20 @@ window.Quarto = {
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    chains<span class="op">=</span><span class="dv">4</span></span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 2 jobs)
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [psi, Intercept, livebait, camper, persons, child]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"d5145d7efb7a4799951878a58db6acd1","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"96def1a3ca554514b7c08f800532557a","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 20 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 3 seconds.</code></pre>
 </div>
 </div>
 <p>Lets take a look at the model components. Why is there only one linear model and link function defined for <span class="math inline">\(\mu\)</span>. Where is the linear model and link function for <span class="math inline">\(\psi\)</span>? By default, the “main” (or first) formula is defined for the parent parameter; in this case <span class="math inline">\(\mu\)</span>. Since we didn’t pass an additional formula for the non-parent parameter <span class="math inline">\(\psi\)</span>, <span class="math inline">\(\psi\)</span> was never modeled as a function of the predictors as explained above. If we want to model both <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\psi\)</span> as a function of the predictor, we need to expicitly pass two formulas.</p>
@@ -752,24 +739,20 @@ NUTS: [psi, Intercept, livebait, camper, persons, child]</code></pre>
 <span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    chains<span class="op">=</span><span class="dv">4</span></span>
 <span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 2 jobs)
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [Intercept, livebait, camper, persons, child, psi_Intercept, psi_livebait, psi_camper, psi_persons, psi_child]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"b81499bb34d14a22a9113802a219bf08","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"41ab7cf19f4748f58404579cdfa88d5a","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 33 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 5 seconds.</code></pre>
 </div>
 </div>
 <div id="cell-17" class="cell" data-execution_count="9">
@@ -841,122 +824,122 @@ NUTS: [Intercept, livebait, camper, persons, child, psi_Intercept, psi_livebait,
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Intercept</td>
-<td>-1.571</td>
-<td>0.310</td>
-<td>-2.130</td>
-<td>-0.972</td>
+<td>-1.585</td>
+<td>0.306</td>
+<td>-2.148</td>
+<td>-0.990</td>
 <td>0.005</td>
-<td>0.004</td>
-<td>3826.0</td>
-<td>3061.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">camper[1]</td>
-<td>0.263</td>
-<td>0.096</td>
-<td>0.085</td>
-<td>0.440</td>
-<td>0.001</td>
-<td>0.001</td>
-<td>4945.0</td>
-<td>2708.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">child</td>
-<td>-0.796</td>
-<td>0.094</td>
-<td>-0.971</td>
-<td>-0.625</td>
-<td>0.001</td>
-<td>0.001</td>
-<td>4007.0</td>
-<td>3480.0</td>
+<td>0.005</td>
+<td>3836.0</td>
+<td>3067.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">livebait[1]</td>
-<td>1.608</td>
-<td>0.268</td>
-<td>1.133</td>
-<td>2.141</td>
+<td>1.618</td>
+<td>0.271</td>
+<td>1.128</td>
+<td>2.130</td>
 <td>0.004</td>
-<td>0.003</td>
-<td>4350.0</td>
-<td>3330.0</td>
+<td>0.004</td>
+<td>4427.0</td>
+<td>3020.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">persons</td>
-<td>0.615</td>
-<td>0.045</td>
-<td>0.533</td>
-<td>0.700</td>
+<td data-quarto-table-cell-role="th">camper[1]</td>
+<td>0.265</td>
+<td>0.099</td>
+<td>0.079</td>
+<td>0.448</td>
 <td>0.001</td>
-<td>0.000</td>
-<td>4979.0</td>
-<td>3290.0</td>
+<td>0.002</td>
+<td>5863.0</td>
+<td>2983.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">persons</td>
+<td>0.616</td>
+<td>0.047</td>
+<td>0.531</td>
+<td>0.704</td>
+<td>0.001</td>
+<td>0.001</td>
+<td>4157.0</td>
+<td>2759.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">child</td>
+<td>-0.801</td>
+<td>0.097</td>
+<td>-0.982</td>
+<td>-0.621</td>
+<td>0.002</td>
+<td>0.001</td>
+<td>3854.0</td>
+<td>3250.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">psi_Intercept</td>
-<td>-1.442</td>
-<td>0.832</td>
-<td>-2.978</td>
-<td>0.126</td>
+<td>-1.437</td>
+<td>0.794</td>
+<td>-2.857</td>
+<td>0.083</td>
 <td>0.013</td>
-<td>0.009</td>
-<td>4156.0</td>
-<td>3034.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">psi_camper[1]</td>
-<td>0.844</td>
-<td>0.328</td>
-<td>0.226</td>
-<td>1.450</td>
-<td>0.004</td>
-<td>0.003</td>
-<td>6631.0</td>
-<td>3075.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">psi_child</td>
-<td>-1.891</td>
-<td>0.306</td>
-<td>-2.467</td>
-<td>-1.305</td>
-<td>0.005</td>
-<td>0.004</td>
-<td>3872.0</td>
-<td>3070.0</td>
+<td>0.011</td>
+<td>3822.0</td>
+<td>3183.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">psi_livebait[1]</td>
-<td>-0.197</td>
-<td>0.689</td>
-<td>-1.490</td>
-<td>1.078</td>
+<td>-0.195</td>
+<td>0.667</td>
+<td>-1.409</td>
+<td>1.084</td>
+<td>0.010</td>
 <td>0.011</td>
-<td>0.011</td>
-<td>4177.0</td>
-<td>2772.0</td>
+<td>4384.0</td>
+<td>3141.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
+<td data-quarto-table-cell-role="th">psi_camper[1]</td>
+<td>0.842</td>
+<td>0.328</td>
+<td>0.179</td>
+<td>1.408</td>
+<td>0.005</td>
+<td>0.006</td>
+<td>4972.0</td>
+<td>2830.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
 <td data-quarto-table-cell-role="th">psi_persons</td>
-<td>0.914</td>
-<td>0.193</td>
-<td>0.575</td>
-<td>1.297</td>
+<td>0.915</td>
+<td>0.194</td>
+<td>0.553</td>
+<td>1.273</td>
 <td>0.003</td>
-<td>0.002</td>
-<td>4081.0</td>
-<td>3110.0</td>
+<td>0.003</td>
+<td>4209.0</td>
+<td>2872.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">psi_child</td>
+<td>-1.893</td>
+<td>0.303</td>
+<td>-2.460</td>
+<td>-1.323</td>
+<td>0.005</td>
+<td>0.004</td>
+<td>4060.0</td>
+<td>3533.0</td>
 <td>1.0</td>
 </tr>
 </tbody>
@@ -1135,24 +1118,20 @@ Default computed for unspecified variable: camper, child, livebait</code></pre>
 <span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    chains<span class="op">=</span><span class="dv">4</span></span>
 <span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 2 jobs)
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [Intercept, livebait, camper, persons, child, psi_Intercept, psi_livebait, psi_camper, psi_persons, psi_child]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"106a80a965074584bc59a9e83c1a1624","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"846d185b0f01432f849ef4ffc8a26dc2","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 42 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 5 seconds.</code></pre>
 </div>
 </div>
 <div id="cell-34" class="cell" data-execution_count="17">
@@ -1223,122 +1202,122 @@ NUTS: [Intercept, livebait, camper, persons, child, psi_Intercept, psi_livebait,
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Intercept</td>
-<td>-1.615</td>
-<td>0.363</td>
-<td>-2.278</td>
-<td>-0.915</td>
+<td>-1.614</td>
+<td>0.361</td>
+<td>-2.300</td>
+<td>-0.943</td>
 <td>0.006</td>
-<td>0.005</td>
-<td>3832.0</td>
-<td>2121.0</td>
+<td>0.006</td>
+<td>3901.0</td>
+<td>2829.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
+<td data-quarto-table-cell-role="th">livebait[1]</td>
+<td>1.657</td>
+<td>0.332</td>
+<td>1.067</td>
+<td>2.304</td>
+<td>0.005</td>
+<td>0.006</td>
+<td>4551.0</td>
+<td>2620.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
 <td data-quarto-table-cell-role="th">camper[1]</td>
-<td>0.271</td>
-<td>0.100</td>
-<td>0.073</td>
+<td>0.270</td>
+<td>0.099</td>
+<td>0.076</td>
 <td>0.449</td>
 <td>0.001</td>
+<td>0.002</td>
+<td>5652.0</td>
+<td>2655.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">persons</td>
+<td>0.612</td>
+<td>0.045</td>
+<td>0.527</td>
+<td>0.695</td>
 <td>0.001</td>
-<td>6843.0</td>
-<td>2934.0</td>
+<td>0.001</td>
+<td>4422.0</td>
+<td>2556.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">child</td>
 <td>-0.791</td>
-<td>0.094</td>
-<td>-0.970</td>
-<td>-0.618</td>
+<td>0.098</td>
+<td>-0.977</td>
+<td>-0.609</td>
 <td>0.001</td>
 <td>0.001</td>
-<td>4371.0</td>
-<td>3006.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">livebait[1]</td>
-<td>1.661</td>
-<td>0.329</td>
-<td>1.031</td>
-<td>2.273</td>
-<td>0.005</td>
-<td>0.004</td>
-<td>4149.0</td>
-<td>1871.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">persons</td>
-<td>0.610</td>
-<td>0.045</td>
-<td>0.533</td>
-<td>0.700</td>
-<td>0.001</td>
-<td>0.000</td>
-<td>4848.0</td>
-<td>3196.0</td>
+<td>4396.0</td>
+<td>3053.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">psi_Intercept</td>
-<td>-2.780</td>
-<td>0.583</td>
-<td>-3.906</td>
-<td>-1.715</td>
+<td>-2.793</td>
+<td>0.586</td>
+<td>-3.940</td>
+<td>-1.739</td>
 <td>0.008</td>
-<td>0.006</td>
-<td>4929.0</td>
-<td>3258.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">psi_camper[1]</td>
-<td>0.849</td>
-<td>0.298</td>
-<td>0.283</td>
-<td>1.378</td>
-<td>0.004</td>
-<td>0.003</td>
-<td>5523.0</td>
-<td>2855.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">psi_child</td>
-<td>-2.003</td>
-<td>0.282</td>
-<td>-2.555</td>
-<td>-1.517</td>
-<td>0.004</td>
-<td>0.003</td>
-<td>4021.0</td>
-<td>3183.0</td>
+<td>0.008</td>
+<td>5258.0</td>
+<td>3247.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">psi_livebait[1]</td>
-<td>0.764</td>
-<td>0.427</td>
-<td>-0.067</td>
-<td>1.557</td>
-<td>0.006</td>
+<td>0.779</td>
+<td>0.439</td>
+<td>0.010</td>
+<td>1.646</td>
 <td>0.005</td>
-<td>5721.0</td>
-<td>2779.0</td>
+<td>0.008</td>
+<td>6921.0</td>
+<td>2841.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
+<td data-quarto-table-cell-role="th">psi_camper[1]</td>
+<td>0.850</td>
+<td>0.303</td>
+<td>0.255</td>
+<td>1.383</td>
+<td>0.004</td>
+<td>0.005</td>
+<td>5325.0</td>
+<td>3033.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
 <td data-quarto-table-cell-role="th">psi_persons</td>
-<td>1.040</td>
-<td>0.183</td>
-<td>0.719</td>
-<td>1.396</td>
+<td>1.042</td>
+<td>0.178</td>
+<td>0.711</td>
+<td>1.376</td>
 <td>0.003</td>
-<td>0.002</td>
-<td>3852.0</td>
-<td>3007.0</td>
+<td>0.003</td>
+<td>3965.0</td>
+<td>2976.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">psi_child</td>
+<td>-2.009</td>
+<td>0.279</td>
+<td>-2.517</td>
+<td>-1.456</td>
+<td>0.004</td>
+<td>0.005</td>
+<td>4025.0</td>
+<td>3216.0</td>
 <td>1.0</td>
 </tr>
 </tbody>
@@ -1379,21 +1358,21 @@ NUTS: [Intercept, livebait, camper, persons, child, psi_Intercept, psi_livebait,
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Sun May 26 2024
+<pre><code>Last updated: Sun Sep 28 2025
 
 Python implementation: CPython
-Python version       : 3.11.9
-IPython version      : 8.24.0
+Python version       : 3.13.7
+IPython version      : 9.4.0
 
-arviz     : 0.18.0
-scipy     : 1.13.0
+bambi     : 0.14.1.dev58+gb25742785.d20250928
+arviz     : 0.22.0
+matplotlib: 3.10.6
+pandas    : 2.3.2
+scipy     : 1.16.2
 seaborn   : 0.13.2
-bambi     : 0.13.1.dev39+gb7d6a6cb
-numpy     : 1.26.4
-matplotlib: 3.8.4
-pandas    : 2.2.2
+numpy     : 2.3.3
 
-Watermark: 2.4.3
+Watermark: 2.5.0
 </code></pre>
 </div>
 </div>
@@ -1820,7 +1799,7 @@ Watermark: 2.4.3
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>© Copyright 2024, The developers of Bambi.</p>
+<p>© Copyright 2025, The developers of Bambi.</p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

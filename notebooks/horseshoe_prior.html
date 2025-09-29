@@ -170,10 +170,6 @@ window.Quarto = {
 <span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../faq.html"> 
-<span class="menu-text">FAQ</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link" href="../changelog.html"> 
 <span class="menu-text">Changelog</span></a>
   </li>  
@@ -223,15 +219,11 @@ window.Quarto = {
 
 
 <p>In this example, we will use the Horseshoe Prior (Carvalho et al., 2009) to model a large number of variables, with only a few slopes being significantly different from zero.</p>
-<div id="cell-2" class="cell" data-execution_count="13">
+<div id="cell-2" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pymc <span class="im">as</span> pm</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytensor.tensor <span class="im">as</span> pt</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Here is what we did:</p>
 <ul>
@@ -249,7 +241,7 @@ window.Quarto = {
 <p><span class="math display">\[\lambda_j \sim C^+(0,1)\]</span></p>
 <p><span class="math display">\[\tau \sim T^+(df=3)\]</span></p>
 <p><span class="math display">\[\sigma^2 \sim N^+(0,1)\]</span></p>
-<div id="cell-4" class="cell" data-execution_count="14">
+<div id="cell-4" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>D <span class="op">=</span> <span class="dv">50</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>D0 <span class="op">=</span> <span class="dv">5</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -265,26 +257,27 @@ window.Quarto = {
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">100</span></span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> rng.normal(size<span class="op">=</span>(N, D))</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>SIGMA <span class="op">=</span> <span class="fl">1.</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate the data</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> INTERCEPT <span class="op">+</span> X.dot(COEF) <span class="op">+</span> rng.normal(<span class="dv">0</span>, SIGMA, size<span class="op">=</span>N)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>SIGMA <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate the data</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> INTERCEPT <span class="op">+</span> X.dot(COEF) <span class="op">+</span> rng.normal(<span class="dv">0</span>, SIGMA, size<span class="op">=</span>N)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Here we create the dataframe and the term name for the set of variables, to define the formula.</p>
-<div id="cell-6" class="cell" data-execution_count="15">
+<div id="cell-6" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame(X)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df.columns <span class="op">=</span> [<span class="ss">f"x</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(X.shape[<span class="dv">1</span>])]</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"y"</span>] <span class="op">=</span> y</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-7" class="cell" data-execution_count="16">
+<div id="cell-7" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>term_name <span class="op">=</span> <span class="st">"c("</span> <span class="op">+</span> <span class="st">", "</span>.join([<span class="ss">f"x</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(X.shape[<span class="dv">1</span>])]) <span class="op">+</span> <span class="st">")"</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>formula <span class="op">=</span> <span class="ss">f"y ~ </span><span class="sc">{</span>term_name<span class="sc">}</span><span class="ss">"</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>formula</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="16">
+<div class="cell-output cell-output-display" data-execution_count="4">
 <pre><code>'y ~ c(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31, x32, x33, x34, x35, x36, x37, x38, x39, x40, x41, x42, x43, x44, x45, x46, x47, x48, x49)'</code></pre>
 </div>
 </div>
 <p>Finally, we call the Horseshoe prior and create the model</p>
-<div id="cell-9" class="cell" data-execution_count="17">
+<div id="cell-9" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    term_name: bmb.Prior(<span class="st">"Horseshoe"</span>),</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>}</span>
@@ -293,102 +286,431 @@ window.Quarto = {
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>model.build()</span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="17">
+<div class="cell-output cell-output-stderr">
+<pre><code>ERROR (pytensor.graph.rewriting.basic): Rewrite failure due to: random_make_inplace
+ERROR (pytensor.graph.rewriting.basic): node: t_rv{"(),(),()-&gt;()"}(*0-&lt;RandomGeneratorType&gt;, *1-&lt;NoneTypeT&gt;, *2-&lt;Scalar(float64, shape=())&gt;, 0.0, *3-&lt;Scalar(float64, shape=())&gt;)
+ERROR (pytensor.graph.rewriting.basic): TRACEBACK:
+ERROR (pytensor.graph.rewriting.basic): Traceback (most recent call last):
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1933, in process_node
+    replacements = node_rewriter.transform(fgraph, node)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1086, in transform
+    return self.fn(fgraph, node)
+           ~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/rewriting/basic.py", line 50, in random_make_inplace
+    new_outputs = new_op.make_node(*node.inputs).outputs
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/op.py", line 368, in make_node
+    size = normalize_size_param(size)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/utils.py", line 190, in normalize_size_param
+    shape = cast(as_tensor_variable(shape, ndim=1, dtype="int64"), "int64")
+                 ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/__init__.py", line 50, in as_tensor_variable
+    return _as_tensor_variable(x, name, ndim, **kwargs)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/functools.py", line 934, in wrapper
+    return dispatch(args[0].__class__)(*args, **kw)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/basic.py", line 113, in _as_tensor_Variable
+    raise TypeError(
+        f"Tensor type field must be a TensorType; found {type(x.type)}."
+    )
+TypeError: Tensor type field must be a TensorType; found &lt;class 'pytensor.tensor.type_other.NoneTypeT'&gt;.
+
+ERROR (pytensor.graph.rewriting.basic): Rewrite failure due to: random_make_inplace
+ERROR (pytensor.graph.rewriting.basic): node: t_rv{"(),(),()-&gt;()"}(*0-&lt;RandomGeneratorType&gt;, *1-&lt;NoneTypeT&gt;, *2-&lt;Scalar(int8, shape=())&gt;, 0.0, *3-&lt;Scalar(float32, shape=())&gt;)
+ERROR (pytensor.graph.rewriting.basic): TRACEBACK:
+ERROR (pytensor.graph.rewriting.basic): Traceback (most recent call last):
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1933, in process_node
+    replacements = node_rewriter.transform(fgraph, node)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1086, in transform
+    return self.fn(fgraph, node)
+           ~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/rewriting/basic.py", line 50, in random_make_inplace
+    new_outputs = new_op.make_node(*node.inputs).outputs
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/op.py", line 368, in make_node
+    size = normalize_size_param(size)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/utils.py", line 190, in normalize_size_param
+    shape = cast(as_tensor_variable(shape, ndim=1, dtype="int64"), "int64")
+                 ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/__init__.py", line 50, in as_tensor_variable
+    return _as_tensor_variable(x, name, ndim, **kwargs)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/functools.py", line 934, in wrapper
+    return dispatch(args[0].__class__)(*args, **kw)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/basic.py", line 113, in _as_tensor_Variable
+    raise TypeError(
+        f"Tensor type field must be a TensorType; found {type(x.type)}."
+    )
+TypeError: Tensor type field must be a TensorType; found &lt;class 'pytensor.tensor.type_other.NoneTypeT'&gt;.
+
+ERROR (pytensor.graph.rewriting.basic): Rewrite failure due to: random_make_inplace
+ERROR (pytensor.graph.rewriting.basic): node: t_rv{"(),(),()-&gt;()"}(*0-&lt;RandomGeneratorType&gt;, *1-&lt;NoneTypeT&gt;, *2-&lt;Scalar(int8, shape=())&gt;, 0.0, *3-&lt;Scalar(float32, shape=())&gt;)
+ERROR (pytensor.graph.rewriting.basic): TRACEBACK:
+ERROR (pytensor.graph.rewriting.basic): Traceback (most recent call last):
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1933, in process_node
+    replacements = node_rewriter.transform(fgraph, node)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1086, in transform
+    return self.fn(fgraph, node)
+           ~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/rewriting/basic.py", line 50, in random_make_inplace
+    new_outputs = new_op.make_node(*node.inputs).outputs
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/op.py", line 368, in make_node
+    size = normalize_size_param(size)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/utils.py", line 190, in normalize_size_param
+    shape = cast(as_tensor_variable(shape, ndim=1, dtype="int64"), "int64")
+                 ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/__init__.py", line 50, in as_tensor_variable
+    return _as_tensor_variable(x, name, ndim, **kwargs)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/functools.py", line 934, in wrapper
+    return dispatch(args[0].__class__)(*args, **kw)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/basic.py", line 113, in _as_tensor_Variable
+    raise TypeError(
+        f"Tensor type field must be a TensorType; found {type(x.type)}."
+    )
+TypeError: Tensor type field must be a TensorType; found &lt;class 'pytensor.tensor.type_other.NoneTypeT'&gt;.
+
+ERROR (pytensor.graph.rewriting.basic): Rewrite failure due to: random_make_inplace
+ERROR (pytensor.graph.rewriting.basic): node: t_rv{"(),(),()-&gt;()"}(*0-&lt;RandomGeneratorType&gt;, *1-&lt;NoneTypeT&gt;, *2-&lt;Scalar(int8, shape=())&gt;, 0.0, *3-&lt;Scalar(float32, shape=())&gt;)
+ERROR (pytensor.graph.rewriting.basic): TRACEBACK:
+ERROR (pytensor.graph.rewriting.basic): Traceback (most recent call last):
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1933, in process_node
+    replacements = node_rewriter.transform(fgraph, node)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1086, in transform
+    return self.fn(fgraph, node)
+           ~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/rewriting/basic.py", line 50, in random_make_inplace
+    new_outputs = new_op.make_node(*node.inputs).outputs
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/op.py", line 368, in make_node
+    size = normalize_size_param(size)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/utils.py", line 190, in normalize_size_param
+    shape = cast(as_tensor_variable(shape, ndim=1, dtype="int64"), "int64")
+                 ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/__init__.py", line 50, in as_tensor_variable
+    return _as_tensor_variable(x, name, ndim, **kwargs)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/functools.py", line 934, in wrapper
+    return dispatch(args[0].__class__)(*args, **kw)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/basic.py", line 113, in _as_tensor_Variable
+    raise TypeError(
+        f"Tensor type field must be a TensorType; found {type(x.type)}."
+    )
+TypeError: Tensor type field must be a TensorType; found &lt;class 'pytensor.tensor.type_other.NoneTypeT'&gt;.
+
+ERROR (pytensor.graph.rewriting.basic): Rewrite failure due to: random_make_inplace
+ERROR (pytensor.graph.rewriting.basic): node: t_rv{"(),(),()-&gt;()"}(*0-&lt;RandomGeneratorType&gt;, *1-&lt;NoneTypeT&gt;, *2-&lt;Scalar(float64, shape=())&gt;, 0.0, *3-&lt;Scalar(float64, shape=())&gt;)
+ERROR (pytensor.graph.rewriting.basic): TRACEBACK:
+ERROR (pytensor.graph.rewriting.basic): Traceback (most recent call last):
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1933, in process_node
+    replacements = node_rewriter.transform(fgraph, node)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1086, in transform
+    return self.fn(fgraph, node)
+           ~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/rewriting/basic.py", line 50, in random_make_inplace
+    new_outputs = new_op.make_node(*node.inputs).outputs
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/op.py", line 368, in make_node
+    size = normalize_size_param(size)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/utils.py", line 190, in normalize_size_param
+    shape = cast(as_tensor_variable(shape, ndim=1, dtype="int64"), "int64")
+                 ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/__init__.py", line 50, in as_tensor_variable
+    return _as_tensor_variable(x, name, ndim, **kwargs)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/functools.py", line 934, in wrapper
+    return dispatch(args[0].__class__)(*args, **kw)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/basic.py", line 113, in _as_tensor_Variable
+    raise TypeError(
+        f"Tensor type field must be a TensorType; found {type(x.type)}."
+    )
+TypeError: Tensor type field must be a TensorType; found &lt;class 'pytensor.tensor.type_other.NoneTypeT'&gt;.
+
+ERROR (pytensor.graph.rewriting.basic): Rewrite failure due to: random_make_inplace
+ERROR (pytensor.graph.rewriting.basic): node: t_rv{"(),(),()-&gt;()"}(*0-&lt;RandomGeneratorType&gt;, *1-&lt;NoneTypeT&gt;, *2-&lt;Scalar(int8, shape=())&gt;, 0.0, *3-&lt;Scalar(float32, shape=())&gt;)
+ERROR (pytensor.graph.rewriting.basic): TRACEBACK:
+ERROR (pytensor.graph.rewriting.basic): Traceback (most recent call last):
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1933, in process_node
+    replacements = node_rewriter.transform(fgraph, node)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1086, in transform
+    return self.fn(fgraph, node)
+           ~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/rewriting/basic.py", line 50, in random_make_inplace
+    new_outputs = new_op.make_node(*node.inputs).outputs
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/op.py", line 368, in make_node
+    size = normalize_size_param(size)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/utils.py", line 190, in normalize_size_param
+    shape = cast(as_tensor_variable(shape, ndim=1, dtype="int64"), "int64")
+                 ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/__init__.py", line 50, in as_tensor_variable
+    return _as_tensor_variable(x, name, ndim, **kwargs)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/functools.py", line 934, in wrapper
+    return dispatch(args[0].__class__)(*args, **kw)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/basic.py", line 113, in _as_tensor_Variable
+    raise TypeError(
+        f"Tensor type field must be a TensorType; found {type(x.type)}."
+    )
+TypeError: Tensor type field must be a TensorType; found &lt;class 'pytensor.tensor.type_other.NoneTypeT'&gt;.
+</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="5">
 <div>
 <figure class="figure">
-<p><img src="horseshoe_prior_files/figure-html/cell-6-output-1.svg" class="img-fluid figure-img"></p>
+<p><img src="horseshoe_prior_files/figure-html/cell-6-output-2.svg" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<div id="cell-10" class="cell" data-execution_count="18">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(target_accept <span class="op">=</span> <span class="fl">0.95</span>, chains<span class="op">=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-10" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(target_accept <span class="op">=</span> <span class="fl">0.95</span>, chains<span class="op">=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
+<pre><code>Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [sigma, Intercept, predictors_tau, predictors_lam, predictors_raw]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"1939127c06ab47b69b9e5051e3500949","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"c3158e4316fc4302ab3cae26f85b2ed0","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 444 seconds.
-There were 64 divergences after tuning. Increase `target_accept` or reparameterize.
-Chain 0 reached the maximum tree depth. Increase `max_treedepth`, increase `target_accept` or reparameterize.
-Chain 1 reached the maximum tree depth. Increase `max_treedepth`, increase `target_accept` or reparameterize.
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 97 seconds.
+There were 107 divergences after tuning. Increase `target_accept` or reparameterize.
 We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
-<div id="cell-11" class="cell" data-execution_count="19">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    term_name: bmb.Prior(<span class="st">"Horseshoe"</span>, tau_nu <span class="op">=</span> <span class="dv">3</span>, lam_nu <span class="op">=</span> <span class="dv">3</span>),</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(formula, df, priors<span class="op">=</span>priors)</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>model.set_alias({term_name: <span class="st">"predictors"</span>})</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>model.build()</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="19">
+<div id="cell-11" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    term_name: bmb.Prior(<span class="st">"Horseshoe"</span>, tau_nu <span class="op">=</span> <span class="dv">3</span>, lam_nu <span class="op">=</span> <span class="dv">3</span>),</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(formula, df, priors<span class="op">=</span>priors)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>model.set_alias({term_name: <span class="st">"predictors"</span>})</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>model.build()</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>ERROR (pytensor.graph.rewriting.basic): Rewrite failure due to: random_make_inplace
+ERROR (pytensor.graph.rewriting.basic): node: t_rv{"(),(),()-&gt;()"}(*0-&lt;RandomGeneratorType&gt;, *1-&lt;NoneTypeT&gt;, *2-&lt;Scalar(float64, shape=())&gt;, 0.0, *3-&lt;Scalar(float64, shape=())&gt;)
+ERROR (pytensor.graph.rewriting.basic): TRACEBACK:
+ERROR (pytensor.graph.rewriting.basic): Traceback (most recent call last):
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1933, in process_node
+    replacements = node_rewriter.transform(fgraph, node)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1086, in transform
+    return self.fn(fgraph, node)
+           ~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/rewriting/basic.py", line 50, in random_make_inplace
+    new_outputs = new_op.make_node(*node.inputs).outputs
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/op.py", line 368, in make_node
+    size = normalize_size_param(size)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/utils.py", line 190, in normalize_size_param
+    shape = cast(as_tensor_variable(shape, ndim=1, dtype="int64"), "int64")
+                 ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/__init__.py", line 50, in as_tensor_variable
+    return _as_tensor_variable(x, name, ndim, **kwargs)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/functools.py", line 934, in wrapper
+    return dispatch(args[0].__class__)(*args, **kw)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/basic.py", line 113, in _as_tensor_Variable
+    raise TypeError(
+        f"Tensor type field must be a TensorType; found {type(x.type)}."
+    )
+TypeError: Tensor type field must be a TensorType; found &lt;class 'pytensor.tensor.type_other.NoneTypeT'&gt;.
+
+ERROR (pytensor.graph.rewriting.basic): Rewrite failure due to: random_make_inplace
+ERROR (pytensor.graph.rewriting.basic): node: t_rv{"(),(),()-&gt;()"}(*0-&lt;RandomGeneratorType&gt;, *1-&lt;NoneTypeT&gt;, *2-&lt;Scalar(float64, shape=())&gt;, 0.0, *3-&lt;Scalar(float32, shape=())&gt;)
+ERROR (pytensor.graph.rewriting.basic): TRACEBACK:
+ERROR (pytensor.graph.rewriting.basic): Traceback (most recent call last):
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1933, in process_node
+    replacements = node_rewriter.transform(fgraph, node)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1086, in transform
+    return self.fn(fgraph, node)
+           ~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/rewriting/basic.py", line 50, in random_make_inplace
+    new_outputs = new_op.make_node(*node.inputs).outputs
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/op.py", line 368, in make_node
+    size = normalize_size_param(size)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/utils.py", line 190, in normalize_size_param
+    shape = cast(as_tensor_variable(shape, ndim=1, dtype="int64"), "int64")
+                 ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/__init__.py", line 50, in as_tensor_variable
+    return _as_tensor_variable(x, name, ndim, **kwargs)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/functools.py", line 934, in wrapper
+    return dispatch(args[0].__class__)(*args, **kw)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/basic.py", line 113, in _as_tensor_Variable
+    raise TypeError(
+        f"Tensor type field must be a TensorType; found {type(x.type)}."
+    )
+TypeError: Tensor type field must be a TensorType; found &lt;class 'pytensor.tensor.type_other.NoneTypeT'&gt;.
+
+ERROR (pytensor.graph.rewriting.basic): Rewrite failure due to: random_make_inplace
+ERROR (pytensor.graph.rewriting.basic): node: t_rv{"(),(),()-&gt;()"}(*0-&lt;RandomGeneratorType&gt;, *1-&lt;NoneTypeT&gt;, *2-&lt;Scalar(float64, shape=())&gt;, 0.0, *3-&lt;Scalar(float32, shape=())&gt;)
+ERROR (pytensor.graph.rewriting.basic): TRACEBACK:
+ERROR (pytensor.graph.rewriting.basic): Traceback (most recent call last):
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1933, in process_node
+    replacements = node_rewriter.transform(fgraph, node)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1086, in transform
+    return self.fn(fgraph, node)
+           ~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/rewriting/basic.py", line 50, in random_make_inplace
+    new_outputs = new_op.make_node(*node.inputs).outputs
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/op.py", line 368, in make_node
+    size = normalize_size_param(size)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/utils.py", line 190, in normalize_size_param
+    shape = cast(as_tensor_variable(shape, ndim=1, dtype="int64"), "int64")
+                 ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/__init__.py", line 50, in as_tensor_variable
+    return _as_tensor_variable(x, name, ndim, **kwargs)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/functools.py", line 934, in wrapper
+    return dispatch(args[0].__class__)(*args, **kw)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/basic.py", line 113, in _as_tensor_Variable
+    raise TypeError(
+        f"Tensor type field must be a TensorType; found {type(x.type)}."
+    )
+TypeError: Tensor type field must be a TensorType; found &lt;class 'pytensor.tensor.type_other.NoneTypeT'&gt;.
+
+ERROR (pytensor.graph.rewriting.basic): Rewrite failure due to: random_make_inplace
+ERROR (pytensor.graph.rewriting.basic): node: t_rv{"(),(),()-&gt;()"}(*0-&lt;RandomGeneratorType&gt;, *1-&lt;NoneTypeT&gt;, *2-&lt;Scalar(float64, shape=())&gt;, 0.0, *3-&lt;Scalar(float32, shape=())&gt;)
+ERROR (pytensor.graph.rewriting.basic): TRACEBACK:
+ERROR (pytensor.graph.rewriting.basic): Traceback (most recent call last):
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1933, in process_node
+    replacements = node_rewriter.transform(fgraph, node)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1086, in transform
+    return self.fn(fgraph, node)
+           ~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/rewriting/basic.py", line 50, in random_make_inplace
+    new_outputs = new_op.make_node(*node.inputs).outputs
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/op.py", line 368, in make_node
+    size = normalize_size_param(size)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/utils.py", line 190, in normalize_size_param
+    shape = cast(as_tensor_variable(shape, ndim=1, dtype="int64"), "int64")
+                 ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/__init__.py", line 50, in as_tensor_variable
+    return _as_tensor_variable(x, name, ndim, **kwargs)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/functools.py", line 934, in wrapper
+    return dispatch(args[0].__class__)(*args, **kw)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/basic.py", line 113, in _as_tensor_Variable
+    raise TypeError(
+        f"Tensor type field must be a TensorType; found {type(x.type)}."
+    )
+TypeError: Tensor type field must be a TensorType; found &lt;class 'pytensor.tensor.type_other.NoneTypeT'&gt;.
+
+ERROR (pytensor.graph.rewriting.basic): Rewrite failure due to: random_make_inplace
+ERROR (pytensor.graph.rewriting.basic): node: t_rv{"(),(),()-&gt;()"}(*0-&lt;RandomGeneratorType&gt;, *1-&lt;NoneTypeT&gt;, *2-&lt;Scalar(float64, shape=())&gt;, 0.0, *3-&lt;Scalar(float64, shape=())&gt;)
+ERROR (pytensor.graph.rewriting.basic): TRACEBACK:
+ERROR (pytensor.graph.rewriting.basic): Traceback (most recent call last):
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1933, in process_node
+    replacements = node_rewriter.transform(fgraph, node)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1086, in transform
+    return self.fn(fgraph, node)
+           ~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/rewriting/basic.py", line 50, in random_make_inplace
+    new_outputs = new_op.make_node(*node.inputs).outputs
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/op.py", line 368, in make_node
+    size = normalize_size_param(size)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/utils.py", line 190, in normalize_size_param
+    shape = cast(as_tensor_variable(shape, ndim=1, dtype="int64"), "int64")
+                 ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/__init__.py", line 50, in as_tensor_variable
+    return _as_tensor_variable(x, name, ndim, **kwargs)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/functools.py", line 934, in wrapper
+    return dispatch(args[0].__class__)(*args, **kw)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/basic.py", line 113, in _as_tensor_Variable
+    raise TypeError(
+        f"Tensor type field must be a TensorType; found {type(x.type)}."
+    )
+TypeError: Tensor type field must be a TensorType; found &lt;class 'pytensor.tensor.type_other.NoneTypeT'&gt;.
+
+ERROR (pytensor.graph.rewriting.basic): Rewrite failure due to: random_make_inplace
+ERROR (pytensor.graph.rewriting.basic): node: t_rv{"(),(),()-&gt;()"}(*0-&lt;RandomGeneratorType&gt;, *1-&lt;NoneTypeT&gt;, *2-&lt;Scalar(float64, shape=())&gt;, 0.0, *3-&lt;Scalar(float32, shape=())&gt;)
+ERROR (pytensor.graph.rewriting.basic): TRACEBACK:
+ERROR (pytensor.graph.rewriting.basic): Traceback (most recent call last):
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1933, in process_node
+    replacements = node_rewriter.transform(fgraph, node)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1086, in transform
+    return self.fn(fgraph, node)
+           ~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/rewriting/basic.py", line 50, in random_make_inplace
+    new_outputs = new_op.make_node(*node.inputs).outputs
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/op.py", line 368, in make_node
+    size = normalize_size_param(size)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/utils.py", line 190, in normalize_size_param
+    shape = cast(as_tensor_variable(shape, ndim=1, dtype="int64"), "int64")
+                 ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/__init__.py", line 50, in as_tensor_variable
+    return _as_tensor_variable(x, name, ndim, **kwargs)
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/functools.py", line 934, in wrapper
+    return dispatch(args[0].__class__)(*args, **kw)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/basic.py", line 113, in _as_tensor_Variable
+    raise TypeError(
+        f"Tensor type field must be a TensorType; found {type(x.type)}."
+    )
+TypeError: Tensor type field must be a TensorType; found &lt;class 'pytensor.tensor.type_other.NoneTypeT'&gt;.
+</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="7">
 <div>
 <figure class="figure">
-<p><img src="horseshoe_prior_files/figure-html/cell-8-output-1.svg" class="img-fluid figure-img"></p>
+<p><img src="horseshoe_prior_files/figure-html/cell-8-output-2.svg" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<div id="cell-12" class="cell" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(target_accept <span class="op">=</span> <span class="fl">0.97</span>, chains<span class="op">=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-12" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(target_accept<span class="op">=</span><span class="fl">0.97</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [sigma, Intercept, predictors_tau, predictors_lam, predictors_raw]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"b0b4f67884bd4607a15224df17c185f8","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"14399e3f24154c0ab0a5e6b1698fd9fe","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 293 seconds.
-There were 29 divergences after tuning. Increase `target_accept` or reparameterize.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 81 seconds.
+There were 57 divergences after tuning. Increase `target_accept` or reparameterize.</code></pre>
 </div>
 </div>
-<div id="cell-13" class="cell" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>ax, <span class="op">=</span> az.plot_forest(</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"predictors"</span>], </span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    coords<span class="op">=</span>{<span class="st">"predictors_dim"</span>: <span class="bu">range</span>(D0)},</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">'ridgeplot'</span>,</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    ridgeplot_truncate<span class="op">=</span><span class="va">False</span>, </span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    ridgeplot_alpha<span class="op">=</span><span class="fl">0.5</span>,</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    hdi_prob<span class="op">=</span><span class="fl">0.95</span>, </span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    combined<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>)</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>ax.scatter(COEF[:D0][::<span class="op">-</span><span class="dv">1</span>], ax.get_yticks(), c<span class="op">=</span><span class="st">'C1'</span>, label<span class="op">=</span><span class="st">"Actual value"</span>)<span class="op">;</span></span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="vs">r"</span><span class="dv">$\b</span><span class="vs">eta_i</span><span class="dv">$</span><span class="vs">"</span>)<span class="op">;</span></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(bottom<span class="op">=</span><span class="va">None</span>, top<span class="op">=</span><span class="fl">1.55</span> <span class="op">*</span> ax.get_yticks().<span class="bu">max</span>())</span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>ax.set_yticklabels(<span class="bu">range</span>(D0)[::<span class="op">-</span><span class="dv">1</span>])<span class="op">;</span></span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="vs">r"</span><span class="dv">$</span><span class="vs">i</span><span class="dv">$</span><span class="vs">"</span>)<span class="op">;</span></span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>ax.legend(loc<span class="op">=</span><span class="st">'upper center'</span>)<span class="op">;</span></span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Posterior distribution of nonzero coefficients"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-13" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>ax, <span class="op">=</span> az.plot_forest(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"predictors"</span>], </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    coords<span class="op">=</span>{<span class="st">"predictors_dim"</span>: <span class="bu">range</span>(D0)},</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">'ridgeplot'</span>,</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    ridgeplot_truncate<span class="op">=</span><span class="va">False</span>, </span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    ridgeplot_alpha<span class="op">=</span><span class="fl">0.5</span>,</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    hdi_prob<span class="op">=</span><span class="fl">0.95</span>, </span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    combined<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>)</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>ax.scatter(COEF[:D0][::<span class="op">-</span><span class="dv">1</span>], ax.get_yticks(), c<span class="op">=</span><span class="st">'C1'</span>, label<span class="op">=</span><span class="st">"Actual value"</span>)<span class="op">;</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="vs">r"</span><span class="dv">$\b</span><span class="vs">eta_i</span><span class="dv">$</span><span class="vs">"</span>)<span class="op">;</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(bottom<span class="op">=</span><span class="va">None</span>, top<span class="op">=</span><span class="fl">1.55</span> <span class="op">*</span> ax.get_yticks().<span class="bu">max</span>())</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>ax.set_yticklabels(<span class="bu">range</span>(D0)[::<span class="op">-</span><span class="dv">1</span>])<span class="op">;</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="vs">r"</span><span class="dv">$</span><span class="vs">i</span><span class="dv">$</span><span class="vs">"</span>)<span class="op">;</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>ax.legend(loc<span class="op">=</span><span class="st">'upper center'</span>)<span class="op">;</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Posterior distribution of nonzero coefficients"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -397,25 +719,22 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </div>
 </div>
-<div id="cell-14" class="cell" data-execution_count="22">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-14" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Thu Aug 22 2024
+<pre><code>Last updated: Sun Sep 28 2025
 
 Python implementation: CPython
-Python version       : 3.11.9
-IPython version      : 8.24.0
+Python version       : 3.13.7
+IPython version      : 9.4.0
 
-pandas    : 2.2.2
-numpy     : 1.26.4
-bambi     : 0.14.1.dev12+g64e57423.d20240730
-arviz     : 0.18.0
-matplotlib: 3.8.4
-pymc      : 5.16.1
-pytensor  : 2.23.0
+numpy : 2.3.3
+arviz : 0.22.0
+pandas: 2.3.2
+bambi : 0.14.1.dev57+g7b2bb342c.d20250928
 
-Watermark: 2.4.3
+Watermark: 2.5.0
 </code></pre>
 </div>
 </div>
@@ -829,7 +1148,7 @@ Watermark: 2.4.3
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>© Copyright 2024, The developers of Bambi.</p>
+<p>© Copyright 2025, The developers of Bambi.</p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

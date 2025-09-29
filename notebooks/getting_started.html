@@ -170,10 +170,6 @@ window.Quarto = {
 <span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../faq.html"> 
-<span class="menu-text">FAQ</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link" href="../changelog.html"> 
 <span class="menu-text">Changelog</span></a>
   </li>  
@@ -249,7 +245,7 @@ window.Quarto = {
 </header>
 
 
-<p>Bambi requires a working Python interpreter (3.10+). We recommend installing Python and key numerical libraries using the <a href="https://www.anaconda.com/products/individual">Anaconda Distribution</a>, which has one-click installers available on all major platforms.</p>
+<p>Bambi requires a working Python interpreter (3.11+). We recommend installing Python and key numerical libraries using the <a href="https://www.anaconda.com/products/individual">Anaconda Distribution</a>, which has one-click installers available on all major platforms.</p>
 <p>Assuming a standard Python environment is installed on your machine (including pip), Bambi itself can be installed in one line using pip:</p>
 <pre><code>pip install bambi</code></pre>
 <p>Alternatively, if you want the bleeding edge version of the package, you can install from GitHub:</p>
@@ -542,7 +538,7 @@ window.Quarto = {
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of rows with missing values</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>data.isna().<span class="bu">any</span>(axis<span class="op">=</span><span class="dv">1</span>).<span class="bu">sum</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="6">
-<pre><code>401</code></pre>
+<pre><code>np.int64(401)</code></pre>
 </div>
 </div>
 <p>We pass <code>dropna=True</code> to tell Bambi to drop rows containing missing values. The number of rows dropped is different from the number of rows with missing values because Bambi only considers columns involved in the model.</p>
@@ -595,12 +591,12 @@ window.Quarto = {
             sigma ~ HalfStudentT(nu: 4.0, sigma: 2.4186)</code></pre>
 </div>
 </div>
-<div id="cell-17" class="cell" data-execution_count="9">
+<div id="cell-17" class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Multiple, complex group specific effects with both</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"># group specific slopes and group specific intercepts</span></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>bmb.Model(</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"value ~ condition + age + gender + (1|uid) + (condition|study) + (condition|stimulus)"</span>, </span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    data, </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"value ~ condition + age + gender + (1|uid) + (condition|study) + (condition|stimulus)"</span>,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    data,</span>
 <span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    dropna<span class="op">=</span><span class="va">True</span></span>
 <span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -645,25 +641,20 @@ window.Quarto = {
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Automatically removing 33/6940 rows from the dataset.
-Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [sigma, Intercept, condition, age, gender, 1|uid_sigma, 1|uid_offset]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"6810d054e7f3419485a758d89055f61c","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"647d272434604a9fba63fb7a60a71634","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 49 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 6 seconds.</code></pre>
 </div>
 </div>
 <p>The above code obtains 1,000 draws (the default value) and return them as an <code>InferenceData</code> instance.</p>
@@ -677,7 +668,7 @@ Tip
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>InferenceData is a rich data structure to store and manipulate data such as posterior samples, prior/posterior predictive samples, observations, etc. It is based on <a href="https://docs.xarray.dev/en/stable/">xarray</a>, a library offering N-dimensional labeled arrays (you can think of it as a generalization of both Numpy arrays and Pandas dataframes). To learn how to perform common operations with InferenceData, like indexing, selection etc please check <a href="https://python.arviz.org/en/latest/getting_started/WorkingWithInferenceData.html">this</a> and for details of the InferenceData Schema see this <a href="https://python.arviz.org/en/latest/schema/schema.html">specification</a>.</p>
+<p><code>InferenceData</code> is a rich data structure to store and manipulate data such as posterior samples, prior/posterior predictive samples, observations, etc. It is based on <a href="https://docs.xarray.dev/en/stable/">xarray</a>, a library offering N-dimensional labeled arrays (you can think of it as a generalization of both Numpy arrays and Pandas dataframes). To learn how to perform common operations with InferenceData, like indexing, selection etc please check <a href="https://python.arviz.org/en/latest/getting_started/WorkingWithInferenceData.html">this</a> and for details of the InferenceData Schema see this <a href="https://python.arviz.org/en/latest/schema/schema.html">specification</a>.</p>
 </div>
 </div>
 <p>In this case, the <code>fit()</code> method accepts optional keyword arguments to pass onto PyMC’s <code>sample()</code> method, so any methods accepted by <code>sample()</code> can be specified here. We can also explicitly set the number of draws via the <code>draws</code> argument. For example, if we call <code>fit(draws=2000, chains=2)</code>, the PyMC sampler will sample two chains in parallel, drawing 2,000 draws for each one. We could also specify starting parameter values, the step function to use, and so on (for full details, see the <a href="https://www.pymc.io/projects/docs/en/stable/api/generated/pymc.sample.html#pymc.sample">PyMC documentation</a>).</p>
@@ -791,25 +782,20 @@ Tip
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Modeling the probability that admit==1
-Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [Intercept, gre, gpa, rank]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"1aabea14f627409e9b41b90e327f9731","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"15dfc3021eb040d7b6dbc2acc8c1e5f1","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 36 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 3 seconds.</code></pre>
 </div>
 </div>
 <p>If no <code>link</code> argument is explicitly set (see below), the canonical link function (or an otherwise sensible default) will be used.</p>
@@ -1042,25 +1028,20 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div id="cell-39" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [Intercept, scale(gre), gpa, rank]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"48ac4283cd0744c6a277ab22cf235bbe","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"49584995d047415cb35b491f7298216c","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 5 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.</code></pre>
 </div>
 </div>
 <p>The above example produces results identical to simply setting <code>family='bernoulli'</code>.</p>
@@ -1112,50 +1093,50 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Intercept</td>
-<td>-2.125</td>
-<td>1.153</td>
-<td>-4.117</td>
-<td>0.110</td>
-<td>0.023</td>
+<td>-2.143</td>
+<td>1.163</td>
+<td>-4.316</td>
+<td>0.022</td>
+<td>0.018</td>
 <td>0.017</td>
-<td>2528.0</td>
-<td>1716.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">gpa</td>
-<td>0.785</td>
-<td>0.327</td>
-<td>0.173</td>
-<td>1.402</td>
-<td>0.007</td>
-<td>0.005</td>
-<td>2503.0</td>
-<td>1817.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">rank</td>
-<td>-0.567</td>
-<td>0.125</td>
-<td>-0.787</td>
-<td>-0.329</td>
-<td>0.003</td>
-<td>0.002</td>
-<td>1801.0</td>
-<td>1473.0</td>
+<td>4361.0</td>
+<td>3518.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">scale(gre)</td>
-<td>0.268</td>
-<td>0.132</td>
-<td>0.011</td>
-<td>0.498</td>
-<td>0.003</td>
+<td>0.269</td>
+<td>0.130</td>
+<td>0.031</td>
+<td>0.517</td>
 <td>0.002</td>
-<td>2480.0</td>
-<td>1526.0</td>
+<td>0.002</td>
+<td>4202.0</td>
+<td>3233.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">gpa</td>
+<td>0.789</td>
+<td>0.331</td>
+<td>0.181</td>
+<td>1.402</td>
+<td>0.005</td>
+<td>0.005</td>
+<td>3973.0</td>
+<td>3343.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">rank</td>
+<td>-0.564</td>
+<td>0.128</td>
+<td>-0.807</td>
+<td>-0.333</td>
+<td>0.002</td>
+<td>0.002</td>
+<td>5091.0</td>
+<td>3216.0</td>
 <td>1.0</td>
 </tr>
 </tbody>
@@ -1169,7 +1150,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># show the names of all variables stored in the InferenceData object</span></span>
 <span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(results.posterior.data_vars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="20">
-<pre><code>['Intercept', 'gpa', 'rank', 'scale(gre)']</code></pre>
+<pre><code>['Intercept', 'scale(gre)', 'gpa', 'rank']</code></pre>
 </div>
 </div>
 <p>You can find detailed, worked examples of fitting Bambi models and working with the results in the example notebooks <a href="https://bambinos.github.io/bambi/notebooks/">here</a>.</p>
@@ -1188,7 +1169,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="cell-output cell-output-display cell-output-markdown" data-execution_count="22">
 <p><span class="math display">\[
             \begin{array}{rcl}
-            \text{Intercept} &amp;\sim &amp; \operatorname{Normal}(0,~23.4)\\\text{scale(gre)} &amp;\sim &amp; \operatorname{Normal}(0,~2.5)\\\text{gpa} &amp;\sim &amp; \operatorname{Normal}(0,~6.58)\\\text{rank} &amp;\sim &amp; \operatorname{Normal}(0,~2.65)\\\text{p} &amp;\sim &amp; \operatorname{Deterministic}(f(\text{rank},~\text{gpa},~\text{scale(gre)},~\text{Intercept}))\\\text{admit} &amp;\sim &amp; \operatorname{Bernoulli}(\text{p})
+            \text{Intercept} &amp;\sim &amp; \operatorname{Normal}(0,~23.4)\\\text{scale(gre)} &amp;\sim &amp; \operatorname{Normal}(0,~2.5)\\\text{gpa} &amp;\sim &amp; \operatorname{Normal}(0,~6.58)\\\text{rank} &amp;\sim &amp; \operatorname{Normal}(0,~2.65)\\\text{p} &amp;\sim &amp; \operatorname{Deterministic}(f(\text{Intercept},~\text{rank},~\text{gpa},~\text{scale(gre)}))\\\text{admit} &amp;\sim &amp; \operatorname{Bernoulli}(\text{p})
             \end{array}
             \]</span></p>
 </div>
@@ -1206,26 +1187,27 @@ We recommend running at least 4 chains for robust computation of convergence dia
  scale(gre) ~ Normal(0, 2.5),
  gpa ~ Normal(0, 6.58),
  rank ~ Normal(0, 2.65),
- p ~ Deterministic(f(rank, gpa, scale(gre), Intercept))]</code></pre>
+ p ~ Deterministic(f(Intercept, rank, gpa, scale(gre)))]</code></pre>
 </div>
 </div>
 <div id="cell-52" class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Sun May 26 2024
+<pre><code>Last updated: Sun Sep 28 2025
 
 Python implementation: CPython
-Python version       : 3.11.9
-IPython version      : 8.24.0
+Python version       : 3.13.7
+IPython version      : 9.4.0
 
-arviz : 0.18.0
-pandas: 2.2.2
-numpy : 1.26.4
-scipy : 1.13.0
-bambi : 0.13.1.dev39+gb7d6a6cb
+arviz : 0.22.0
+pandas: 2.3.2
+numpy : 2.3.3
+pymc  : 3.9.2+2907.g7a3db78e6
+bambi : 0.14.1.dev57+g7b2bb342c.d20250928
+scipy : 1.16.2
 
-Watermark: 2.4.3
+Watermark: 2.5.0
 </code></pre>
 </div>
 </div>
@@ -1640,7 +1622,7 @@ Watermark: 2.4.3
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>© Copyright 2024, The developers of Bambi.</p>
+<p>© Copyright 2025, The developers of Bambi.</p>
 </div>
     <div class="nav-footer-right">
       &nbsp;
