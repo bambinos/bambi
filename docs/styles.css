@@ -48,8 +48,9 @@
 }
 
 #quarto-header {
-  border: 1px solid #dee2e6;
+  border-bottom: 1px solid #dee2e6;
   background-color: #FFFFFF;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
 }
 
 #quarto-header nav {
@@ -70,8 +71,36 @@
   font-size: 20px;
 }
 
-.nav-item .nav-link.active {
-  border-bottom: var(--bs-default) 2px solid;
+/* Navbar links animation */
+.nav-item .nav-link {
+  position: relative;
+  text-decoration: none;
+}
+
+/* Create the animated underline */
+.nav-item .nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 100%;
+  height: 3px;
+  background-color: var(--bs-default);
+
+  /* Start collapsed at center */
+  transform: translateX(-50%) scaleX(0);
+  transform-origin: center;
+  transition: transform 0.3s ease;
+}
+
+/* Animate underline on hover */
+.nav-item .nav-link:hover::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+/* Keep underline visible for the active link */
+.nav-item .nav-link.active::after {
+  transform: translateX(-50%) scaleX(1);
 }
 
 .navbar {
@@ -85,7 +114,15 @@
 }
 
 .navbar-logo {
-    max-height: 82px;
+  max-height: 82px;
+}
+
+.navbar-brand img {
+  transition: transform 0.2s ease;
+}
+
+.navbar-brand:hover img {
+  transform: scale(1.04);
 }
 
 div.sidebar-item-container .active {
@@ -97,6 +134,10 @@ div.sidebar-item-container .active {
 .sidebar nav[role=doc-toc] ul>li>a.active, .sidebar nav[role=doc-toc] ul>li>ul>li>a.active {
   color: var(--bambi-green) !important;
   border-left: 2px solid var(--bambi-green);
+}
+
+.sidebar nav[role=doc-toc] ul>li>a:hover, .sidebar nav[role=doc-toc] ul>li>ul>li>a:hover {
+    color: var(--bambi-green-clearer) !important;
 }
 
 .sidebar nav[role=doc-toc]>ul a {
@@ -136,20 +177,20 @@ div.sidebar-item-container .active {
     body.docked .page-columns {
         display: grid;
         gap: 0;
-        grid-template-columns: 
-            [screen-start] 1.5em 
+        grid-template-columns:
+            [screen-start] 1.5em
             [screen-start-inset] 4fr /*Changed from 5fr to 4fr*/
-            [page-start] minmax(25px, 50px) 
-            [page-start-inset] minmax(50px, 150px) 
-            [body-start-outset] minmax(25px, 50px) 
-            [body-start] 1.5em 
-            [body-content-start] minmax(500px, calc(800px - 3em)) 
-            [body-content-end] 1.5em 
-            [body-end] minmax(25px, 50px) 
-            [body-end-outset] minmax(50px, 150px) 
-            [page-end-inset] minmax(25px, 50px) 
+            [page-start] minmax(25px, 50px)
+            [page-start-inset] minmax(50px, 150px)
+            [body-start-outset] minmax(25px, 50px)
+            [body-start] 1.5em
+            [body-content-start] minmax(500px, calc(800px - 3em))
+            [body-content-end] 1.5em
+            [body-end] minmax(25px, 50px)
+            [body-end-outset] minmax(50px, 150px)
+            [page-end-inset] minmax(25px, 50px)
             [page-end] 4fr /*Changed from 5fr to 4fr*/
-            [screen-end-inset] 1.5em 
+            [screen-end-inset] 1.5em
             [screen-end];
     }
 }
@@ -157,9 +198,16 @@ div.sidebar-item-container .active {
 a {
     color: var(--bambi-green);
 }
+
 a:hover {
     color: var(--bambi-green-darker);
 }
+
+.sidebar-navigation li a:hover {
+    text-decoration: none;
+    color: var(--bambi-green-clearer);
+}
+
 
 /*Remove top and bottom padding from navbar image*/
 .navbar-brand {
@@ -188,15 +236,15 @@ a:hover {
 
 /*Add hover effect to card*/
 .card {
-  transition: 
-    .3s transform cubic-bezier(.155, 1.105, .295, 1.12), 
+  transition:
+    .3s transform cubic-bezier(.155, 1.105, .295, 1.12),
     .3s box-shadow,
     .3s -webkit-transform cubic-bezier(.155,1.105,.295,1.12);
 }
 
 .card:hover{
-  transform: scale(1.02);
-  box-shadow: 0 10px 20px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
+  transform: scale(1.01);
+  box-shadow: 0 6px 14px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
 }
 
 /*Make the entire card clickable*/

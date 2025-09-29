@@ -20,7 +20,7 @@ website:
   page-navigation: true
   favicon: "logos/favicon.png"
   page-footer:
-    center: © Copyright 2024, The developers of Bambi.
+    center: © Copyright 2025, The developers of Bambi.
   navbar:
     title: false
     background: light
@@ -35,8 +35,8 @@ website:
         href: api/index.html
       - text: Examples
         href: notebooks/index.qmd
-      - text: FAQ
-        file: faq.qmd
+      # - text: FAQ # PAUSED UNTIL IT GETS BETTER
+      #   file: faq.qmd
       - text: Changelog
         file: changelog.qmd
       - text: Contact
@@ -54,7 +54,7 @@ website:
         - notebooks/index.qmd
         - section: Linear regression models
           contents:
-            - notebooks/t-test.ipynb
+            # - notebooks/t-test.ipynb The example is broken
             - notebooks/ESCS_multiple_regression.ipynb
             - notebooks/splines_cherry_blossoms.ipynb
             - notebooks/multi-level_regression.ipynb
@@ -99,6 +99,7 @@ website:
               - notebooks/alternative_samplers.ipynb
 
 quartodoc:
+  parser: numpy
   style: pkgdown
   dir: api
   package: bambi # the name used to import the package
@@ -140,12 +141,6 @@ quartodoc:
 # Tell quarto to read the generated sidebar
 metadata-files:
   - api/_sidebar.yml
-
-# filters:
-#   - interlinks
-
-# interlinks:
-#   sources: {}
 
 # profile:
 #   default: latest
