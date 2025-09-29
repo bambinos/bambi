@@ -125,7 +125,7 @@ def plot_predictions(
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable `az.rcParam["stats.hdi_prob"]` affects this default.
+        Changing the global variable `az.rcParam["stats.ci_prob"]` affects this default.
     legend : bool, optional
         Whether to automatically include a legend in the plot. Defaults to `True`.
     transforms : dict, optional
@@ -280,7 +280,7 @@ def plot_comparisons(
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable `az.rcParam["stats.hdi_prob"]` affects this default.
+        Changing the global variable `az.rcParam["stats.ci_prob"]` affects this default.
     legend : bool, optional
         Whether to automatically include a legend in the plot. Defaults to `True`.
     transforms : dict, optional
@@ -437,7 +437,7 @@ def plot_slopes(
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable `az.rcParam["stats.hdi_prob"]` affects this default.
+        Changing the global variable `az.rcParam["stats.ci_prob"]` affects this default.
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
         name of the variables, and the values are functions to be applied. Defaults to `None`.

@@ -157,6 +157,7 @@ def plot_numeric(
     return axes
 
 
+# pylint: disable=possibly-used-before-assignment
 def plot_categoric(covariates: Covariates, plot_data: pd.DataFrame, legend: bool = True, axes=None):
     """Plotting of categorical data types
 

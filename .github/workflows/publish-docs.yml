@@ -11,32 +11,31 @@ on:
       - synchronize
 
 jobs:
-  build:
+  build-dics:
+    if: github.repository == 'bambinos/bambi'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v6
         with:
           python-version: "3.13"
 
-      - name: Install quartodoc and griffe
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install quartodoc==0.11.1
+      - name: Install quartodoc
+        run: python -m pip install quartodoc==0.11.1
 
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
         with:
           version: 1.7.32 # since this is my local version, we could change it
 
-      - name: Build docs
+      - name: Build documentation
         shell: bash
         run: |
           python -m quartodoc build --config docs/_quarto.yml
@@ -44,7 +43,7 @@ jobs:
           touch docs/_site/.nojekyll
 
       - name: Publish to GitHub
-        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags') # Only from main or a tag
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags')
         uses: quarto-dev/quarto-actions/publish@v2
         with:
           target: gh-pages
@@ -53,3 +52,10 @@ jobs:
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+# NOTES
+# 1. The job runs only in the bambinos/bambi repository. It does not make sense to do it elsewhere.
+# 2. The rendered webpage is published ONLY when the job was triggered by:
+#   - A commit to main
+#   - A tagged release
