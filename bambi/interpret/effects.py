@@ -1,7 +1,7 @@
 # pylint: disable=ungrouped-imports
 from dataclasses import dataclass, field
 import itertools
-from typing import Dict, Union
+from typing import Dict
 
 import arviz as az
 import numpy as np
