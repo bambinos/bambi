@@ -645,7 +645,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>The variable we are interested in modeling is <code>"doy"</code>, which stands for Day of Year. Also notice this variable contains several missing value which are discarded next.</p>
+<p>The variable we are interested in modeling is <code>"doy"</code>, which stands for Day of Year. Also notice this variable contains several missing values which are discarded next.</p>
 <div id="cell-6" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data.dropna(subset<span class="op">=</span>[<span class="st">"doy"</span>]).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>data.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1144,7 +1144,7 @@ NUTS: [sigma, Intercept, bs(year, knots=iknots, intercept=True)]
 \mathbf{y} = \mathbf{X}\boldsymbol{\beta}
 \]</span></p>
 <p>where <span class="math inline">\(\mathbf{y}\)</span> is the response column vector of shape <span class="math inline">\((n, 1)\)</span>. <span class="math inline">\(\mathbf{X}\)</span> is the <strong>design matrix</strong> that contains the values of the predictors for all the observations, of shape <span class="math inline">\((n, p)\)</span>. And <span class="math inline">\(\boldsymbol{\beta}\)</span> is the column vector of regression coefficients of shape <span class="math inline">\((n, 1)\)</span>.</p>
-<p>Because it’s not something that you’re supposed to consult regularly, Bambi does not expose the design matrix. However, with a some knowledge of the internals, it is possible to have access to it:</p>
+<p>Because it’s not something that you’re supposed to consult regularly, Bambi does not expose the design matrix. However, with some knowledge of the internals, it is possible to have access to it:</p>
 <div id="cell-38" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>np.<span class="bu">round</span>(model.components[<span class="st">"mu"</span>].design.common.design_matrix, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="18">

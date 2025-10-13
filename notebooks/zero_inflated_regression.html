@@ -696,7 +696,7 @@ NUTS: [psi, Intercept, livebait, camper, persons, child]</code></pre>
 <pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 3 seconds.</code></pre>
 </div>
 </div>
-<p>Lets take a look at the model components. Why is there only one linear model and link function defined for <span class="math inline">\(\mu\)</span>. Where is the linear model and link function for <span class="math inline">\(\psi\)</span>? By default, the “main” (or first) formula is defined for the parent parameter; in this case <span class="math inline">\(\mu\)</span>. Since we didn’t pass an additional formula for the non-parent parameter <span class="math inline">\(\psi\)</span>, <span class="math inline">\(\psi\)</span> was never modeled as a function of the predictors as explained above. If we want to model both <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\psi\)</span> as a function of the predictor, we need to expicitly pass two formulas.</p>
+<p>Let’s take a look at the model components. Why is there only one linear model and link function defined for <span class="math inline">\(\mu\)</span>. Where is the linear model and link function for <span class="math inline">\(\psi\)</span>? By default, the “main” (or first) formula is defined for the parent parameter; in this case <span class="math inline">\(\mu\)</span>. Since we didn’t pass an additional formula for the non-parent parameter <span class="math inline">\(\psi\)</span>, <span class="math inline">\(\psi\)</span> was never modeled as a function of the predictors as explained above. If we want to model both <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\psi\)</span> as a function of the predictor, we need to expicitly pass two formulas.</p>
 <div id="cell-15" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>zip_model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="7">
@@ -990,7 +990,7 @@ Default computed for unspecified variable: camper, child, livebait</code></pre>
 </section>
 <section id="posterior-predictive-distribution" class="level4">
 <h4 class="anchored" data-anchor-id="posterior-predictive-distribution">Posterior predictive distribution</h4>
-<p>Lastly, lets plot the posterior predictive distribution against the observed data to see how well the model fits the data. To plot the samples, a utility function is defined below to assist in the plotting of discrete values.</p>
+<p>Lastly, let’s plot the posterior predictive distribution against the observed data to see how well the model fits the data. To plot the samples, a utility function is defined below to assist in the plotting of discrete values.</p>
 <div id="cell-26" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> adjust_lightness(color, amount<span class="op">=</span><span class="fl">0.5</span>):</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> matplotlib.colors <span class="im">as</span> mc</span>

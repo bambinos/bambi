@@ -1380,7 +1380,7 @@ Default computed for conditional variable: horsepower</code></pre>
 </div>
 </div>
 </div>
-<p>Looking at this plot with the 68% and 95% CIs shown, the fit looks <em>okay</em>. Most notably, at about 160 hp, then the data diverge from the fit pretty drastically. The fit at low hp values isn’t particularly good either, there’s quite a bit that falls outside of our 95% CI. This can be accented pretty heavily by looking at the the residuals from the mean of the model.</p>
+<p>Looking at this plot with the 68% and 95% CIs shown, the fit looks <em>okay</em>. Most notably, at about 160 hp, then the data diverge from the fit pretty drastically. The fit at low hp values isn’t particularly good either, there’s quite a bit that falls outside of our 95% CI. This can be accented pretty heavily by looking at the residuals from the mean of the model.</p>
 <div id="47a65748" class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>predicted_mpg <span class="op">=</span> mpg_hp_linear_fit.posterior[<span class="st">"mu"</span>].mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>))</span>
 <span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>residuals <span class="op">=</span> df_mpg[<span class="st">"mpg"</span>] <span class="op">-</span> predicted_mpg</span>

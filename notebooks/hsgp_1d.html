@@ -794,7 +794,7 @@ NUTS: [sigma, hsgp(x, m=10, c=2, centered=True)_sigma, hsgp(x, m=10, c=2, center
 </section>
 <section id="how-does-hsgp-work" class="level2">
 <h2 class="anchored" data-anchor-id="how-does-hsgp-work">How does <code>hsgp()</code> work?</h2>
-<p><code>hsgp()</code> is a transformation that is available in the namespace where the model formula is evaluated. In plain english, <code>hsgp()</code> is like a function you can use in your model formulas. You don’t need to worry about the details, Bambi knows how to handle them.But if still you want to see the actual code, you can have a look at the implementation of the <code>HSGP</code> class in <a href="https://github.com/bambinos/bambi/blob/main/bambi/transformations.py">bambi/transformations.py</a>.</p>
+<p><code>hsgp()</code> is a transformation that is available in the namespace where the model formula is evaluated. In plain English, <code>hsgp()</code> is like a function you can use in your model formulas. You don’t need to worry about the details, Bambi knows how to handle them. But if still you want to see the actual code, you can have a look at the implementation of the <code>HSGP</code> class in <a href="https://github.com/bambinos/bambi/blob/main/bambi/transformations.py">bambi/transformations.py</a>.</p>
 <p>What users do need to care about is the arguments the <code>hsgp()</code> transformation support. There are a bunch of arguments that can be passed after the variable number of non-keyword arguments representing the variables of the HSGP contribution. Below is a brief overview of these arguments and their respective descriptions.</p>
 <ul>
 <li><code>m</code>: The number of basis vectors</li>
@@ -804,7 +804,7 @@ NUTS: [sigma, hsgp(x, m=10, c=2, centered=True)_sigma, hsgp(x, m=10, c=2, center
 <li><code>cov</code>: This argument specifies the name of the covariance function to be used. The default value is <code>"ExpQuad"</code>.</li>
 <li><code>share_cov</code>: Determines whether the same covariance function is shared across all groups. This argument is relevant only when by is not <code>None</code> and the default value is <code>True</code>.</li>
 <li><code>scale</code>: When set to <code>True</code>, the predictors are be rescaled such that the largest Euclidean distance between two points is 1. This adjustment often improves the sampling speed and convergence.</li>
-<li><code>iso</code>: Determines whether to use an isotropic or non-isotropic Gaussian Process. With an isotropic GP, the same level of smoothing is applied to all predictors, while a anisotropic GP allows different levels of smoothing for individual predictors. Note that this argument is ignored if only one predictor is provided. The default value is <code>True</code>.</li>
+<li><code>iso</code>: Determines whether to use an isotropic or anisotropic (non-isotropic) Gaussian Process. With an isotropic GP, the same level of smoothing is applied to all predictors, while an anisotropic GP allows different levels of smoothing for individual predictors. Note that this argument is ignored if only one predictor is provided. The default value is <code>True</code>.</li>
 <li><code>drop_first</code>: Whether to exclude the first basis vector or not. The default value is <code>False</code>.</li>
 <li><code>centered</code>: Whether to use the centered or the non-centered parametrization. Defaults to <code>False</code>.</li>
 </ul>

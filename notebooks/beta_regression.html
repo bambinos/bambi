@@ -631,10 +631,10 @@ NUTS: [kappa, Intercept]
 </div>
 </div>
 <p>The model fit, but clearly these parameters are not the ones that we used above. For Beta regression, we use a linear model for the mean, so we use the <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> formulation. To link the two, we use</p>
-<p><span class="math inline">\(\alpha = \mu \kappa\)</span></p>
-<p><span class="math inline">\(\beta = (1-\mu)\kappa\)</span></p>
+<p><span class="math display">\[\alpha = \mu \kappa\]</span></p>
+<p><span class="math display">\[\beta = (1-\mu)\kappa\]</span></p>
 <p>and <span class="math inline">\(\kappa\)</span> is a function of the mean and variance,</p>
-<p><span class="math inline">\(\kappa = \frac{\mu(1-\mu)}{\sigma^2} - 1\)</span></p>
+<p><span class="math display">\[\kappa = \frac{\mu(1-\mu)}{\sigma^2} - 1\]</span></p>
 <p>Rather than <span class="math inline">\(\sigma\)</span>, you’ll note Bambi returns <span class="math inline">\(\kappa\)</span>. We’ll define a function to retrieve our original parameters.</p>
 <div id="38cd51f1" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mukappa_to_alphabeta(mu, kappa):</span>

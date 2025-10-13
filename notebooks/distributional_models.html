@@ -526,7 +526,7 @@ window.Quarto = {
 </div>
 <p>For most regression models, a function of the mean (aka the location parameter) of the response distribution is defined as a linear function of certain predictors, while the remaining parameters are considered auxiliary. For instance, if the response is a Gaussian, we model <span class="math inline">\(\mu\)</span> as a combination of predictors and <span class="math inline">\(\sigma\)</span> is estimated from the data, but assumed to be constant for all observations.</p>
 <p>Instead, with distributional models we can specify predictor terms for all parameters of the response distribution. This can be useful, for example, to model heteroskedasticity, i.e.&nbsp;unequal variance. In this notebook we are going to do exactly that.</p>
-<p>To better understand distributional models, let’s begin fitting a non-distributional models. We are going to model the following syntetic dataset. And we are going to use a Gamma response with a <code>log</code> link function.</p>
+<p>To better understand distributional models, let’s begin fitting a non-distributional models. We are going to model the following synthetic dataset. And we are going to use a Gamma response with a <code>log</code> link function.</p>
 <div id="cell-4" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">121195</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">200</span></span>
@@ -712,7 +712,7 @@ NUTS: [Intercept, x, alpha_Intercept, alpha_x]</code></pre>
 </div>
 </div>
 </div>
-<p>This is nice statistical art and a good insight into what the model is actully doing. But at this point you may be wondering how results looks like and more important how different they are from <code>model_constant</code>. Let’s plot the mean and predictions as we did before, but for both models.</p>
+<p>This is nice statistical art and a good insight into what the model is actually doing. But at this point you may be wondering how the results look like, and more importantly, how different they are from <code>model_constant</code>. Let’s plot the mean and predictions as we did before, but for both models.</p>
 <div id="cell-22" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>model_varying.predict(idata_varying, kind<span class="op">=</span><span class="st">"response_params"</span>, data<span class="op">=</span>new_data)</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>model_varying.predict(idata_varying, kind<span class="op">=</span><span class="st">"response"</span>, data<span class="op">=</span>new_data)</span>
@@ -746,8 +746,8 @@ NUTS: [Intercept, x, alpha_Intercept, alpha_x]</code></pre>
 </div>
 </div>
 </div>
-<p>We can see that mean is virtually the same for both model but the predictions are not, in particular for larger values of the predictiors.</p>
-<p>We can also check that the models actually looks different under the LOO metric, with a slight preference for the varying model.</p>
+<p>We can see that mean is virtually the same for both models but the predictions are not, in particular for larger values of the predictiors.</p>
+<p>We can also check that the models actually look different under the LOO metric, with a slight preference for the varying model.</p>
 <div id="cell-25" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>az.compare({<span class="st">"constant"</span>: idata_constant, <span class="st">"varying"</span>: idata_varying})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="14">
