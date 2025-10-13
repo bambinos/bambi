@@ -10,7 +10,7 @@ class Formula:
 
     Allows to describe a model with multiple formulas. The first formula describes the response
     variable and its predictors. The following formulas describe predictors for other parameters
-    of the likelihood function, allowing distributional models.
+    of the response distribution, allowing distributional models.
 
     Parameters
     ----------
@@ -30,12 +30,12 @@ class Formula:
 
         Parameters
         ----------
-        additionals : Sequence[str]
+        additionals : sequence of str
             Model formulas that describe model parameters rather than a response variable.
 
         Returns
         -------
-        additionals : Sequence[str]
+        additionals : sequence of str
             If all formulas match the required format, it returns them.
         """
         for additional in additionals:
@@ -63,9 +63,9 @@ class Formula:
         if response is None:
             raise ValueError("Additional formulas must contain a response name.")
 
-        # The response is a name, not a function call for example
+        # The response is a name, not a function call, for example
         if not isinstance(response.term.components[0], fm.terms.variable.Variable):
-            raise ValueError("The response must be a name.")
+            raise ValueError("The response must be a name")
 
         self.additionals_lhs.append(response.term.name)
 
@@ -97,7 +97,7 @@ def formula_has_intercept(formula: str) -> bool:
 
 
 def check_ordinal_formula(formula: Formula) -> Formula:
-    """Check if a supplied formula can be used with an ordinal model
+    """Check if a supplied formula can be used with an ordinal model.
 
     Ordinal models have the following constrains (for the moment):
     * A single formula must be passed. This is because Bambi does not support

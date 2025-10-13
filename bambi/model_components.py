@@ -20,7 +20,7 @@ class ConstantComponent:
     ----------
     name : str
         The name of the component. For example "sigma", "alpha", or "kappa".
-    priors : bambi.priors.Prior
+    priors : bambi.Prior
         The prior distribution for the parameter.
     spec : bambi.Model
         The Bambi model.
@@ -41,10 +41,10 @@ class DistributionalComponent:
 
     Parameters
     ----------
-    name: str
+    name : str
         The name of the component
     design : formulae.DesignMatrices
-        The object with all the required design matrices and information about the model terms.
+        The object with all the required design matrices and information about the model terms
     priors : dict
         A dictionary where keys are term names and values are their priors.
     spec : bambi.Model
@@ -115,12 +115,12 @@ class DistributionalComponent:
             term.prior = prepare_prior(term.prior, kind, self.spec.auto_scale)
 
     def update_priors(self, priors):
-        """Update priors
+        """Update priors.
 
         Parameters
         ----------
         priors : dict
-            Names are terms, values a priors.
+            Names are terms, values are priors
         """
         for name, value in priors.items():
             self.terms[name].prior = value
