@@ -173,8 +173,7 @@ def create_differences_data(
     Parameters
     ----------
     condition_info : ConditionalInfo
-        Information about the conditional argument passed into the plot
-        function.
+        Information about the conditional argument passed into the plot  function.
     variable_info : VariableInfo
         Information about the variable of interest. This is `contrast` for
         'comparisons' and `wrt` for 'slopes'.
@@ -202,8 +201,7 @@ def create_predictions_data(condition_info: ConditionalInfo) -> pd.DataFrame:
     Parameters
     ----------
     condition_info : ConditionalInfo
-        Information about the conditional argument passed into the plot
-        function.
+        Information about the conditional argument passed into the plot function.
 
     Returns
     -------

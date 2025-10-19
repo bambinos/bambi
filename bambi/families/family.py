@@ -1,5 +1,3 @@
-from typing import Dict, Union
-
 import numpy as np
 import pymc as pm
 import xarray as xr
@@ -17,7 +15,7 @@ class Family:
         The name of the family. It can be any string.
     likelihood : Likelihood
         A `bambi.families.Likelihood` instance specifying the model likelihood function.
-    link : str or dict[str, str or Link]
+    link : str or dict of str to (str or Link)
         The link function that's used for every parameter in the likelihood function.
         Keys are the names of the parameters and values are the link functions.
         These can be a `str` with a name or a `bambi.families.Link` instance.
@@ -60,7 +58,7 @@ class Family:
         "tan_2",
     ]
 
-    def __init__(self, name, likelihood, link: Union[str, Dict[str, Union[str, Link]]]):
+    def __init__(self, name, likelihood, link: str | dict[str, str | Link]):
         self.name = name
         self.likelihood = likelihood
         self.link = link
@@ -143,7 +141,7 @@ class Family:
             the parameters that allow to derive them.
         random_seed : int, RandomState or Generator, optional
             Seed for the random number generator.
-        kwargs :
+        kwargs : dict
             Parameters that are used to get draws but do not appear in the posterior object or
             other configuration parameters.
             For instance, the 'n' in binomial models and multinomial models.
@@ -184,7 +182,10 @@ class Family:
             The xarray dataset that contains the draws for all the parameters in the posterior.
             It must contain the parameters that are needed in the distribution of the response, or
             the parameters that allow to derive them.
-        kwargs :
+        data : pandas.DataFrame or None
+            A data frame with values for the predictors and the response on which the model's
+            log-likelihood function is evaluated. If omitted, the original dataset is used.
+        kwargs : dict
             Parameters that are used to get draws but do not appear in the posterior object or
             other configuration parameters.
             For instance, the 'n' in binomial models and multinomial models.

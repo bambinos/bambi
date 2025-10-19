@@ -12,9 +12,9 @@ from bambi.utils import get_aliased_name, is_hsgp_term
 class ConstantComponent:
     """Constant model components
 
-    This is a component for a target parameter that has no predictors. This could be seen as
-    an intercept-only model for that parameter. For example, this is the case for sigma when
-    a non-distributional Normal linear regression model is used.
+    Represents a parameter of the response distribution that is constant for all observations.
+    It is equivalent to an intercept-only model for that parameter.
+    For example, this describes sigma in a homoskedastic gaussian linear regression model.
 
     Parameters
     ----------
@@ -42,15 +42,15 @@ class DistributionalComponent:
     Parameters
     ----------
     name : str
-        The name of the component
+        The name of the component.
     design : formulae.DesignMatrices
-        The object with all the required design matrices and information about the model terms
+        The object with all the required design matrices and information about the model terms.
     priors : dict
         A dictionary where keys are term names and values are their priors.
     spec : bambi.Model
         The Bambi model
     is_parent : bool
-        Whether it's the parent parameter or not
+        Whether it's the parent parameter.
     """
 
     def __init__(self, name, design, priors, spec, is_parent):

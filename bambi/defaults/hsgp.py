@@ -1,5 +1,4 @@
-"""This module contains the default priors for the parameters of different covariance kernels
-that can be used in HSGP terms."""
+"""Default priors for parameters of covariance kernels in HSGP terms."""
 
 # fmt: off
 HSGP_COV_PARAMS_DEFAULT_PRIORS = {

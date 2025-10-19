@@ -189,7 +189,7 @@ Biometrics, 47(2), 461-466
 }
 
 
-def get_data_home(data_home=None):
+def get_data_home(data_home: str | None = None):
     """Return the path of the Bambi data dir.
 
     This folder is used to avoid downloading the data several times.
@@ -201,7 +201,7 @@ def get_data_home(data_home=None):
 
     Parameters
     ----------
-    data_home: str
+    data_home :  str or None, optional
         The path to Bambi data dir.
     """
     if data_home is None:
@@ -218,8 +218,8 @@ def clear_data_home(data_home: str | None = None):
     Parameters
     ----------
     data_home: str or None, optional
-        The path to Bambi data dir. By default a folder named `"bambi_data"` in the user home
-        folder.
+        The path to Bambi data dir.
+        By default a folder named `"bambi_data"` in the user home folder.
     """
     data_home = get_data_home(data_home)
     shutil.rmtree(data_home)
@@ -250,14 +250,14 @@ def load_data(dataset: str | None = None, data_home: str | None = None):
 
     Parameters
     ----------
-    dataset: str
+    dataset : str or None, optional
         Name of dataset to load.
-    data_home: str, optional
-        Where to save remote datasets
+    data_home : str or None, optional
+        Where to save remote datasets.
 
     Returns
     -------
-    pandas.DataFrame
+    pandas.DataFrame or str
     """
     home_dir = get_data_home(data_home=data_home)
 
@@ -274,19 +274,29 @@ def load_data(dataset: str | None = None, data_home: str | None = None):
                     f"({datafile.checksum}), file may be corrupted. Run `bambi.clear_data_home()` "
                     "and try again, or please open an issue."
                 )
+
         return pd.read_csv(file_path)
-    else:
-        if dataset is None:
-            return _list_datasets(home_dir)
-        else:
-            raise ValueError(
-                f"Dataset {dataset} not found! "
-                f"The following are available:\n{_list_datasets(home_dir)}"
-            )
+
+    if dataset is None:
+        return _list_datasets(home_dir)
+
+    raise ValueError(
+        f"Dataset {dataset} not found! " f"The following are available:\n{_list_datasets(home_dir)}"
+    )
 
 
 def _list_datasets(home_dir):
-    """Get a string representation of all available datasets with descriptions."""
+    """Get a string representation of all available datasets with descriptions.
+
+    Parameters
+    ----------
+    home_dir : str
+        Name of the home directoy.
+
+    Returns
+    -------
+    str
+    """
     lines = []
     for filename, resource in itertools.chain(DATASETS.items()):
         file_path = os.path.join(home_dir, filename)
