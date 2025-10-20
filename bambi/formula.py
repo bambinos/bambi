@@ -10,7 +10,7 @@ class Formula:
 
     Allows to describe a model with multiple formulas. The first formula describes the response
     variable and its predictors. The following formulas describe predictors for other parameters
-    of the likelihood function, allowing distributional models.
+    of the response distribution, allowing distributional models.
 
     Parameters
     ----------
@@ -30,12 +30,12 @@ class Formula:
 
         Parameters
         ----------
-        additionals : Sequence[str]
+        additionals : sequence of str
             Model formulas that describe model parameters rather than a response variable.
 
         Returns
         -------
-        additionals : Sequence[str]
+        additionals : sequence of str
             If all formulas match the required format, it returns them.
         """
         for additional in additionals:
@@ -63,9 +63,9 @@ class Formula:
         if response is None:
             raise ValueError("Additional formulas must contain a response name.")
 
-        # The response is a name, not a function call for example
+        # The response is a name, not a function call, for example
         if not isinstance(response.term.components[0], fm.terms.variable.Variable):
-            raise ValueError("The response must be a name.")
+            raise ValueError("The response must be a name")
 
         self.additionals_lhs.append(response.term.name)
 
@@ -74,7 +74,7 @@ class Formula:
 
         Returns
         -------
-        list
+        list of str
             All the formulas in the instance.
         """
         return [self.main] + list(self.additionals)
@@ -91,19 +91,19 @@ class Formula:
 
 
 def formula_has_intercept(formula: str) -> bool:
-    """Determines if a model formula results in a model with intercept."""
+    """Determines if a model formula describes a model with an intercept."""
     description = fm.model_description(formula)
     return any(isinstance(term, fm.terms.Intercept) for term in description.terms)
 
 
 def check_ordinal_formula(formula: Formula) -> Formula:
-    """Check if a supplied formula can be used with an ordinal model
+    """Check if a supplied formula can be used with an ordinal model.
 
     Ordinal models have the following constrains (for the moment):
-    * A single formula must be passed. This is because Bambi does not support
-    modeling the thresholds as a function of predictors.
-    * The intercept is omitted. This is to avoid non-identifiability issues
-    between the intercept and the thresholds.
+    * A single formula must be passed. This is because Bambi does not support  modeling the
+    thresholds as a function of predictors.
+    * The intercept is omitted. This is to avoid non-identifiability issues between the intercept
+    and the thresholds.
     """
     if len(formula.additionals) > 0:
         raise ValueError("Ordinal families don't accept multiple formulas")

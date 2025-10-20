@@ -12,15 +12,15 @@ from bambi.utils import get_aliased_name, is_hsgp_term
 class ConstantComponent:
     """Constant model components
 
-    This is a component for a target parameter that has no predictors. This could be seen as
-    an intercept-only model for that parameter. For example, this is the case for sigma when
-    a non-distributional Normal linear regression model is used.
+    Represents a parameter of the response distribution that is constant for all observations.
+    It is equivalent to an intercept-only model for that parameter.
+    For example, this describes sigma in a homoskedastic gaussian linear regression model.
 
     Parameters
     ----------
     name : str
         The name of the component. For example "sigma", "alpha", or "kappa".
-    priors : bambi.priors.Prior
+    priors : bambi.Prior
         The prior distribution for the parameter.
     spec : bambi.Model
         The Bambi model.
@@ -41,8 +41,8 @@ class DistributionalComponent:
 
     Parameters
     ----------
-    name: str
-        The name of the component
+    name : str
+        The name of the component.
     design : formulae.DesignMatrices
         The object with all the required design matrices and information about the model terms.
     priors : dict
@@ -50,7 +50,7 @@ class DistributionalComponent:
     spec : bambi.Model
         The Bambi model
     is_parent : bool
-        Whether it's the parent parameter or not
+        Whether it's the parent parameter.
     """
 
     def __init__(self, name, design, priors, spec, is_parent):
@@ -115,12 +115,12 @@ class DistributionalComponent:
             term.prior = prepare_prior(term.prior, kind, self.spec.auto_scale)
 
     def update_priors(self, priors):
-        """Update priors
+        """Update priors.
 
         Parameters
         ----------
         priors : dict
-            Names are terms, values a priors.
+            Names are terms, values are priors
         """
         for name, value in priors.items():
             self.terms[name].prior = value
