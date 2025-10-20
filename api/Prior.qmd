@@ -8,12 +8,12 @@ Abstract specification of a term prior
 
 ## Parameters {.doc-section .doc-section-parameters}
 
-| Name       | Type                                                         | Description                                                                                                                                        | Default    |
-|------------|--------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| name       | str                                                          | Name of prior distribution. Must be the name of a PyMC distribution (e.g., `"Normal"`, `"Bernoulli"`, etc.)                                        | _required_ |
-| auto_scale |                                                              | Whether to adjust the parameters of the prior or use them as passed. Default to `True`.                                                            | `True`     |
-| dist       | pymc.distributions.distribution.DistributionMeta or callable | A callable that returns a valid PyMC distribution. The signature must contain `name`, `dims`, and `shape`, as well as its own keyworded arguments. | `None`     |
-| kwargs     | dict                                                         | Optional keywords specifying the parameters of the named distribution.                                                                             | `{}`       |
+| Name       | Type                                  | Description                                                                                                                                        | Default    |
+|------------|---------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| name       | str                                   | Name of prior distribution. Must be the name of a PyMC distribution (e.g., `"Normal"`, `"Bernoulli"`, etc.)                                        | _required_ |
+| auto_scale | bool                                  | Whether to adjust the parameters of the prior or use them as passed. Default to `True`.                                                            | `True`     |
+| dist       | pymc.Distribution or callable or None | A callable that returns a valid PyMC distribution. The signature must contain `name`, `dims`, and `shape`, as well as its own keyworded arguments. | `None`     |
+| kwargs     | dict                                  | Optional keywords specifying the parameters of the named distribution.                                                                             | `{}`       |
 
 ## Methods
 

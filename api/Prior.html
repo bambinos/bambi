@@ -142,18 +142,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../changelog.html"> 
 <span class="menu-text">Changelog</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../contact.html"> 
-<span class="menu-text">Contact</span></a>
-  </li>  
-  <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/bambinos/bambi"> <i class="bi bi-github" role="img">
-</i> 
-<span class="menu-text"></span></a>
-  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
+    <a href="https://github.com/bambinos/bambi" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
 </div>
       </div> <!-- /container-fluid -->
     </nav>
@@ -366,8 +358,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <table class="caption-top table">
 <colgroup>
 <col style="width: 5%">
-<col style="width: 26%">
-<col style="width: 63%">
+<col style="width: 18%">
+<col style="width: 70%">
 <col style="width: 5%">
 </colgroup>
 <thead>
@@ -387,13 +379,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>auto_scale</td>
-<td></td>
+<td>bool</td>
 <td>Whether to adjust the parameters of the prior or use them as passed. Default to <code>True</code>.</td>
 <td><code>True</code></td>
 </tr>
 <tr class="odd">
 <td>dist</td>
-<td>pymc.distributions.distribution.DistributionMeta or callable</td>
+<td>pymc.Distribution or callable or None</td>
 <td>A callable that returns a valid PyMC distribution. The signature must contain <code>name</code>, <code>dims</code>, and <code>shape</code>, as well as its own keyworded arguments.</td>
 <td><code>None</code></td>
 </tr>

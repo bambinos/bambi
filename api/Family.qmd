@@ -8,11 +8,11 @@ A specification of model family
 
 ## Parameters {.doc-section .doc-section-parameters}
 
-| Name       | Type                            | Description                                                                                                                                                                                                                                                                     | Default    |
-|------------|---------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| name       | str                             | The name of the family. It can be any string.                                                                                                                                                                                                                                   | _required_ |
-| likelihood | Likelihood                      | A `bambi.families.Likelihood` instance specifying the model likelihood function.                                                                                                                                                                                                | _required_ |
-| link       | str or dict\[str, str or Link\] | The link function that's used for every parameter in the likelihood function. Keys are the names of the parameters and values are the link functions. These can be a `str` with a name or a `bambi.families.Link` instance. The link function transforms the linear predictors. | _required_ |
+| Name       | Type                                | Description                                                                                                                                                                                                                                                                     | Default    |
+|------------|-------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| name       | str                                 | The name of the family. It can be any string.                                                                                                                                                                                                                                   | _required_ |
+| likelihood | Likelihood                          | A `bambi.families.Likelihood` instance specifying the model likelihood function.                                                                                                                                                                                                | _required_ |
+| link       | str or dict of str to (str or Link) | The link function that's used for every parameter in the likelihood function. Keys are the names of the parameters and values are the link functions. These can be a `str` with a name or a `bambi.families.Link` instance. The link function transforms the linear predictors. | _required_ |
 
 ## Examples {.doc-section .doc-section-examples}
 
@@ -63,11 +63,12 @@ This method uses `pm.logp()`.
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name      | Type        | Description                                                                                                                                                                                                          | Default    |
-|-----------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| model     | bambi.Model | The model                                                                                                                                                                                                            | _required_ |
-| posterior | xr.Dataset  | The xarray dataset that contains the draws for all the parameters in the posterior. It must contain the parameters that are needed in the distribution of the response, or the parameters that allow to derive them. | _required_ |
-| kwargs    |             | Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the 'n' in binomial models and multinomial models.                                  | `{}`       |
+| Name      | Type                 | Description                                                                                                                                                                                                          | Default    |
+|-----------|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| model     | bambi.Model          | The model                                                                                                                                                                                                            | _required_ |
+| posterior | xr.Dataset           | The xarray dataset that contains the draws for all the parameters in the posterior. It must contain the parameters that are needed in the distribution of the response, or the parameters that allow to derive them. | _required_ |
+| data      | pd.DataFrame or None | A data frame with values for the predictors and the response on which the model's log-likelihood function is evaluated. If omitted, the original dataset is used.                                                    | _required_ |
+| kwargs    | dict                 | Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the 'n' in binomial models and multinomial models.                                  | `{}`       |
 
 #### Returns {.doc-section .doc-section-returns}
 
@@ -95,7 +96,7 @@ parameters that are not available in `posterior`.
 | model       | bambi.Model                     | The model                                                                                                                                                                                                            | _required_ |
 | posterior   | xr.Dataset                      | The xarray dataset that contains the draws for all the parameters in the posterior. It must contain the parameters that are needed in the distribution of the response, or the parameters that allow to derive them. | _required_ |
 | random_seed | (int, RandomState or Generator) | Seed for the random number generator.                                                                                                                                                                                | _required_ |
-| kwargs      |                                 | Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the 'n' in binomial models and multinomial models.                                  | `{}`       |
+| kwargs      | dict                            | Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the 'n' in binomial models and multinomial models.                                  | `{}`       |
 
 #### Returns {.doc-section .doc-section-returns}
 

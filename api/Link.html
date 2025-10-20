@@ -142,18 +142,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../changelog.html"> 
 <span class="menu-text">Changelog</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../contact.html"> 
-<span class="menu-text">Contact</span></a>
-  </li>  
-  <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/bambinos/bambi"> <i class="bi bi-github" role="img">
-</i> 
-<span class="menu-text"></span></a>
-  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
+    <a href="https://github.com/bambinos/bambi" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
 </div>
       </div> <!-- /container-fluid -->
     </nav>
@@ -364,8 +356,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <table class="caption-top table">
 <colgroup>
 <col style="width: 6%">
-<col style="width: 3%">
-<col style="width: 85%">
+<col style="width: 6%">
+<col style="width: 83%">
 <col style="width: 4%">
 </colgroup>
 <thead>
@@ -385,19 +377,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>link</td>
-<td>function</td>
+<td>function or None</td>
 <td>A function that maps the response to the linear predictor. Known as the :math:<code>g</code> function in GLM jargon. Does not need to be specified when <code>name</code> is a known name.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td>linkinv</td>
-<td>function</td>
+<td>function or None</td>
 <td>A function that maps the linear predictor to the response. Known as the :math:<code>g^{-1}</code> function in GLM jargon. Does not need to be specified when <code>name</code> is a known name.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td>linkinv_backend</td>
-<td>function</td>
+<td>function or None</td>
 <td>Same than <code>linkinv</code> but must be something that works with PyMC backend (i.e.&nbsp;it must work with PyTensor tensors). Does not need to be specified when <code>name</code> is a known name.</td>
 <td><code>None</code></td>
 </tr>

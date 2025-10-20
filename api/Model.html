@@ -142,18 +142,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../changelog.html"> 
 <span class="menu-text">Changelog</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../contact.html"> 
-<span class="menu-text">Contact</span></a>
-  </li>  
-  <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/bambinos/bambi"> <i class="bi bi-github" role="img">
-</i> 
-<span class="menu-text"></span></a>
-  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
+    <a href="https://github.com/bambinos/bambi" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
 </div>
       </div> <!-- /container-fluid -->
     </nav>
@@ -409,7 +401,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>data</td>
-<td>pandas.DataFrame</td>
+<td>pd.DataFrame</td>
 <td>A pandas dataframe containing the data on which the model will be fit, with column names matching variables defined in the formula.</td>
 <td><em>required</em></td>
 </tr>
@@ -427,26 +419,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td>link</td>
-<td>str or Dict[str, str]</td>
+<td>str or dict of str to str</td>
 <td>The name of the link function to use. Valid names are <code>"cloglog"</code>, <code>"identity"</code>, <code>"inverse_squared"</code>, <code>"inverse"</code>, <code>"log"</code>, <code>"logit"</code>, <code>"probit"</code>, and <code>"softmax"</code>. Not all the link functions can be used with all the families. If a dictionary, keys are the names of the target parameters and the values are the names of the link functions.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td>categorical</td>
-<td>str or list</td>
+<td>str or list of str</td>
 <td>The names of any variables to treat as categorical. Can be either a single variable name, or a list of names. If categorical is <code>None</code>, the data type of the columns in the <code>data</code> will be used to infer handling. In cases where numeric columns are to be treated as categorical (e.g., group specific factors coded as numerical IDs), explicitly passing variable names via this argument is recommended.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td>potentials</td>
-<td>A list of 2-tuples.</td>
+<td>A list of 2-tuples</td>
 <td>Optional specification of potentials. A potential is an arbitrary expression added to the likelihood, this is generally useful to add constrains to models, that are difficult to express otherwise. The first term of a 2-tuple is the name of a variable in the model, the second a lambda function expressing the desired constraint. If a constraint involves n variables, you can pass n 2-tuples or pass a tuple which first element is a n-tuple and second element is a lambda function with n arguments. The number and order of the lambda function has to match the number and order of the variables names.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td>dropna</td>
 <td>bool</td>
-<td>When <code>True</code>, rows with any missing values in either the predictors or outcome are automatically dropped from the dataset in a listwise manner.</td>
+<td>When <code>True</code>, rows with any missing values in either the predictors or outcome are automatically dropped from t, optionalhe dataset in a listwise manner.</td>
 <td><code>False</code></td>
 </tr>
 <tr class="odd">
@@ -544,8 +536,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <table class="caption-top table">
 <colgroup>
 <col style="width: 4%">
-<col style="width: 11%">
-<col style="width: 78%">
+<col style="width: 10%">
+<col style="width: 80%">
 <col style="width: 5%">
 </colgroup>
 <thead>
@@ -565,7 +557,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>data</td>
-<td>pandas.DataFrame or None</td>
+<td>pd.DataFrame or None</td>
 <td>An optional data frame with values for the predictors and the response on which the model’s log-likelihood function is evaluated. If omitted, the original dataset is used.</td>
 <td><code>None</code></td>
 </tr>
@@ -636,7 +628,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>draws</td>
-<td></td>
+<td>int</td>
 <td>The number of samples to draw from the posterior distribution. Defaults to 1000.</td>
 <td><code>1000</code></td>
 </tr>
@@ -708,7 +700,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td>**kwargs</td>
-<td></td>
+<td>dict</td>
 <td>For other kwargs see the documentation for <code>PyMC.sample()</code>.</td>
 <td><code>{}</code></td>
 </tr>
@@ -868,7 +860,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>var_names</td>
-<td>str or list</td>
+<td>str or list of str</td>
 <td>A list of names of variables for which to compute the prior predictive distribution. Defaults to <code>None</code> which means to include both observed and unobserved RVs.</td>
 <td><code>None</code></td>
 </tr>
@@ -916,7 +908,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>bins</td>
-<td>integer or sequence or auto</td>
+<td>(int, sequence, auto or None)</td>
 <td>Controls the number of bins, accepts the same keywords <code>matplotlib.pyplot.hist()</code> does. Only works if <code>kind == "hist"</code>. If <code>None</code> (default) it will use <code>"auto"</code> for continuous variables and <code>range(xmin, xmax + 1)</code> for discrete variables.</td>
 <td><code>None</code></td>
 </tr>
@@ -940,7 +932,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>**kwargs</td>
-<td></td>
+<td>dict</td>
 <td>Passed as-is to <code>matplotlib.pyplot.hist()</code> or <code>matplotlib.pyplot.plot()</code> function depending on the value of <code>kind</code>.</td>
 <td><code>{}</code></td>
 </tr>
@@ -1012,7 +1004,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td>data</td>
-<td>pandas.DataFrame or None</td>
+<td>pd.DataFrame or None</td>
 <td>An optional data frame with values for the predictors that are used to obtain out-of-sample predictions. If omitted, the original dataset is used.</td>
 <td><code>None</code></td>
 </tr>
@@ -1076,9 +1068,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-6">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 7%">
 <col style="width: 6%">
-<col style="width: 79%">
+<col style="width: 12%">
+<col style="width: 74%">
 <col style="width: 5%">
 </colgroup>
 <thead>
@@ -1098,7 +1090,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>var_names</td>
-<td>str or list</td>
+<td>str, list of str or None</td>
 <td>A list of names of variables for which to compute the prior predictive distribution. Defaults to <code>None</code> which means both observed and unobserved RVs.</td>
 <td><code>None</code></td>
 </tr>
@@ -1110,7 +1102,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>random_seed</td>
-<td>int</td>
+<td>int or None</td>
 <td>Seed for the random number generator.</td>
 <td><code>None</code></td>
 </tr>
@@ -1183,6 +1175,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="returns-6" class="level4 doc-section doc-section-returns">
 <h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-6">Returns</h4>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 5%">
+<col style="width: 10%">
+<col style="width: 83%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>Name</th>
@@ -1193,18 +1190,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td></td>
-<td>Pandas Series with the following indices:</td>
-<td></td>
-</tr>
-<tr class="even">
-<td>r2</td>
-<td>mean value for the Bayesian R²</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td>r2_std</td>
-<td>standard deviation of the Bayesian R².</td>
-<td></td>
+<td>pandas.Series</td>
+<td>A series with the following indices: r2: mean value for the Bayesian R² r2_std: standard deviation of the Bayesian R².</td>
 </tr>
 </tbody>
 </table>
@@ -1223,9 +1210,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <table class="caption-top table">
 <colgroup>
 <col style="width: 7%">
-<col style="width: 6%">
-<col style="width: 74%">
-<col style="width: 10%">
+<col style="width: 15%">
+<col style="width: 67%">
+<col style="width: 9%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -1238,7 +1225,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>aliases</td>
-<td>dict</td>
+<td>dict of str to str</td>
 <td>A dictionary where key represents the original term name and the value is the alias.</td>
 <td><em>required</em></td>
 </tr>
@@ -1258,7 +1245,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td></td>
-<td><code>None</code>.</td>
+<td><code>None</code></td>
 <td></td>
 </tr>
 </tbody>
@@ -1273,9 +1260,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-9">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 7%">
-<col style="width: 9%">
-<col style="width: 78%">
+<col style="width: 6%">
+<col style="width: 12%">
+<col style="width: 75%">
 <col style="width: 4%">
 </colgroup>
 <thead>
@@ -1289,19 +1276,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>priors</td>
-<td>dict</td>
+<td>dict or None</td>
 <td>Dictionary of priors to update. Keys are names of terms to update; values are the new priors (either a <code>Prior</code> instance, or an int or float that scales the default priors).</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td>common</td>
-<td>Prior, int, or float</td>
+<td>(Prior, int, float or None)</td>
 <td>A prior specification to apply to all common terms included in the model.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td>group_specific</td>
-<td>Prior, int, or float</td>
+<td>(Prior, int, float or None)</td>
 <td>A prior specification to apply to all group specific terms included in the model.</td>
 <td><code>None</code></td>
 </tr>

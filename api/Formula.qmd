@@ -8,7 +8,7 @@ Model formula
 
 Allows to describe a model with multiple formulas. The first formula describes the response
 variable and its predictors. The following formulas describe predictors for other parameters
-of the likelihood function, allowing distributional models.
+of the response distribution, allowing distributional models.
 
 ## Parameters {.doc-section .doc-section-parameters}
 
@@ -58,13 +58,13 @@ Check if the additional formulas match the expected format
 
 | Name        | Type            | Description                                                                    | Default    |
 |-------------|-----------------|--------------------------------------------------------------------------------|------------|
-| additionals | Sequence\[str\] | Model formulas that describe model parameters rather than a response variable. | _required_ |
+| additionals | sequence of str | Model formulas that describe model parameters rather than a response variable. | _required_ |
 
 #### Returns {.doc-section .doc-section-returns}
 
 | Name        | Type            | Description                                                 |
 |-------------|-----------------|-------------------------------------------------------------|
-| additionals | Sequence\[str\] | If all formulas match the required format, it returns them. |
+| additionals | sequence of str | If all formulas match the required format, it returns them. |
 
 ### get_all_formulas { #bambi.Formula.get_all_formulas }
 
@@ -76,6 +76,6 @@ Get all the model formulas
 
 #### Returns {.doc-section .doc-section-returns}
 
-| Name   | Type   | Description                       |
-|--------|--------|-----------------------------------|
-|        | list   | All the formulas in the instance. |
+| Name   | Type        | Description                       |
+|--------|-------------|-----------------------------------|
+|        | list of str | All the formulas in the instance. |

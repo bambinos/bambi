@@ -142,18 +142,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../changelog.html"> 
 <span class="menu-text">Changelog</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../contact.html"> 
-<span class="menu-text">Contact</span></a>
-  </li>  
-  <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/bambinos/bambi"> <i class="bi bi-github" role="img">
-</i> 
-<span class="menu-text"></span></a>
-  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
+    <a href="https://github.com/bambinos/bambi" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
 </div>
       </div> <!-- /container-fluid -->
     </nav>
@@ -370,8 +362,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <table class="caption-top table">
 <colgroup>
 <col style="width: 3%">
-<col style="width: 10%">
-<col style="width: 82%">
+<col style="width: 11%">
+<col style="width: 81%">
 <col style="width: 3%">
 </colgroup>
 <thead>
@@ -397,7 +389,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td>link</td>
-<td>str or dict[str, str or Link]</td>
+<td>str or dict of str to (str or Link)</td>
 <td>The link function that’s used for every parameter in the likelihood function. Keys are the names of the parameters and values are the link functions. These can be a <code>str</code> with a name or a <code>bambi.families.Link</code> instance. The link function transforms the linear predictors.</td>
 <td><em>required</em></td>
 </tr>
@@ -468,8 +460,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <table class="caption-top table">
 <colgroup>
 <col style="width: 4%">
-<col style="width: 5%">
-<col style="width: 85%">
+<col style="width: 8%">
+<col style="width: 82%">
 <col style="width: 4%">
 </colgroup>
 <thead>
@@ -494,8 +486,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td><em>required</em></td>
 </tr>
 <tr class="odd">
+<td>data</td>
+<td>pd.DataFrame or None</td>
+<td>A data frame with values for the predictors and the response on which the model’s log-likelihood function is evaluated. If omitted, the original dataset is used.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
 <td>kwargs</td>
-<td></td>
+<td>dict</td>
 <td>Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the ‘n’ in binomial models and multinomial models.</td>
 <td><code>{}</code></td>
 </tr>
@@ -570,7 +568,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>kwargs</td>
-<td></td>
+<td>dict</td>
 <td>Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the ‘n’ in binomial models and multinomial models.</td>
 <td><code>{}</code></td>
 </tr>

@@ -142,18 +142,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../changelog.html"> 
 <span class="menu-text">Changelog</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../contact.html"> 
-<span class="menu-text">Contact</span></a>
-  </li>  
-  <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/bambinos/bambi"> <i class="bi bi-github" role="img">
-</i> 
-<span class="menu-text"></span></a>
-  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
+    <a href="https://github.com/bambinos/bambi" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
 </div>
       </div> <!-- /container-fluid -->
     </nav>
@@ -363,7 +355,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>Formula</h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Formula(formula, <span class="op">*</span>additionals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Model formula</p>
-<p>Allows to describe a model with multiple formulas. The first formula describes the response variable and its predictors. The following formulas describe predictors for other parameters of the likelihood function, allowing distributional models.</p>
+<p>Allows to describe a model with multiple formulas. The first formula describes the response variable and its predictors. The following formulas describe predictors for other parameters of the response distribution, allowing distributional models.</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
@@ -506,7 +498,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>additionals</td>
-<td>Sequence[str]</td>
+<td>sequence of str</td>
 <td>Model formulas that describe model parameters rather than a response variable.</td>
 <td><em>required</em></td>
 </tr>
@@ -531,7 +523,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>additionals</td>
-<td>Sequence[str]</td>
+<td>sequence of str</td>
 <td>If all formulas match the required format, it returns them.</td>
 </tr>
 </tbody>
@@ -555,7 +547,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td></td>
-<td>list</td>
+<td>list of str</td>
 <td>All the formulas in the instance.</td>
 </tr>
 </tbody>
