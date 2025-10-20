@@ -43,34 +43,34 @@ class Model:
     ----------
     formula : str or bambi.formula.Formula
         A model description written using the formula syntax from the `formulae` library.
-    data : pandas.DataFrame
+    data : pd.DataFrame
         A pandas dataframe containing the data on which the model will be fit, with column
         names matching variables defined in the formula.
-    family : str or bambi.families.Family
+    family : str or bambi.families.Family, optional
         A specification of the model family (analogous to the family object in R). Either
         a string, or an instance of class `bambi.families.Family`. If a string is passed, a
         family with the corresponding name must be defined in the defaults loaded at `Model`
         initialization. Valid pre-defined families are `"bernoulli"`, `"beta"`,
         `"binomial"`, `"categorical"`, `"gamma"`, `"gaussian"`, `"negativebinomial"`,
         `"poisson"`, `"t"`, and `"wald"`. Defaults to `"gaussian"`.
-    priors : dict
+    priors : dict, optional
         Optional specification of priors for one or more terms. A dictionary where the keys are
         the names of terms in the model, "common," or "group_specific" and the values are
         instances of class `Prior`. If priors are unset, use automatic priors inspired by
         the R rstanarm library.
-    link : str or Dict[str, str]
+    link : str or dict of str to str, optional
         The name of the link function to use. Valid names are `"cloglog"`, `"identity"`,
         `"inverse_squared"`, `"inverse"`, `"log"`, `"logit"`, `"probit"`, and
         `"softmax"`. Not all the link functions can be used with all the families.
         If a dictionary, keys are the names of the target parameters and the values are the names
         of the link functions.
-    categorical : str or list
+    categorical : str or list of str, optional
         The names of any variables to treat as categorical. Can be either a single variable
         name, or a list of names. If categorical is `None`, the data type of the columns in
         the `data` will be used to infer handling. In cases where numeric columns are
         to be treated as categorical (e.g., group specific factors coded as numerical IDs),
         explicitly passing variable names via this argument is recommended.
-    potentials : A list of 2-tuples.
+    potentials : A list of 2-tuples, optional
         Optional specification of potentials. A potential is an arbitrary expression added to the
         likelihood, this is generally useful to add constrains to models, that are difficult to
         express otherwise. The first term of a 2-tuple is the name of a variable in the model, the
@@ -78,17 +78,17 @@ class Model:
         If a constraint involves n variables, you can pass n 2-tuples or pass a tuple which first
         element is a n-tuple and second element is a lambda function with n arguments. The number
         and order of the lambda function has to match the number and order of the variables names.
-    dropna : bool
+    dropna : bool, optional
         When `True`, rows with any missing values in either the predictors or outcome are
-        automatically dropped from the dataset in a listwise manner.
+        automatically dropped from t, optionalhe dataset in a listwise manner.
     auto_scale : bool
         If `True` (default), priors are automatically rescaled to the data
         (to be weakly informative) any time default priors are used. Note that any priors
         explicitly set by the user will always take precedence over default priors.
-    noncentered : bool
+    noncentered : bool, optional
         If `True` (default), uses a non-centered parameterization for normal hyperpriors on
         grouped parameters. If `False`, naive (centered) parameterization is used.
-    center_predictors : bool
+    center_predictors : bool, optional
         If `True` (default), and if there is an intercept in the common terms, the data is
         centered by subtracting the mean. The centering is undone after sampling to provide
         the actual intercept in all distributional components that have an intercept. Note
@@ -247,24 +247,24 @@ class Model:
 
         Parameters
         ----------
-        draws: int
+        draws : int, optional
             The number of samples to draw from the posterior distribution. Defaults to 1000.
-        tune : int
+        tune : int, optional
             Number of iterations to tune. Defaults to 1000. Samplers adjust the step sizes,
             scalings or similar during tuning. These tuning samples are be drawn in addition to the
             number specified in the `draws` argument, and will be discarded unless
             `discard_tuned_samples` is set to `False`.
-        discard_tuned_samples : bool
+        discard_tuned_samples : bool, optional
             Whether to discard posterior samples of the tune interval. Defaults to `True`.
-        omit_offsets : bool
+        omit_offsets : bool, optional
             Omits offset terms in the `InferenceData` object returned when the model includes
             group specific effects. Defaults to `True`.
-        include_mean : bool
+        include_mean : bool, optional
             Deprecated. Use `include_response_params`.
-        include_response_params : bool
+        include_response_params : bool, optional
             Include parameters of the response distribution in the output. These usually take more
             space than other parameters as there's one of them per observation. Defaults to `False`.
-        inference_method : str
+        inference_method : str, optional
             The method to use for fitting the model. By default, `"pymc"`. This automatically
             assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
             variables and Metropolis for non-binary discrete ones. NUTS implementations include
@@ -272,7 +272,7 @@ class Model:
             case the model will be fitted using variational inference as implemented in PyMC using
             the `fit` function. Finally, `"laplace"`, in which case a Laplace approximation is used
             and is not recommended other than for pedagogical use.
-        init : str
+        init : str, optional
             Initialization method. Defaults to `"auto"`. The available methods are:
             * auto: Use `"jitter+adapt_diag"` and if this method fails it uses `"adapt_diag"`.
             * adapt_diag: Start with a identity mass matrix and then adapt a diagonal based on the
@@ -292,18 +292,18 @@ class Model:
             test value (usually the prior mean) as starting point.
             * jitter+adapt_full: Same as `"adapt_full"`, but use test value plus a uniform jitter
             in [-1, 1] as starting point in each chain.
-        n_init : int
+        n_init : int, optional
             Number of initialization iterations. Only works for `"advi"` init methods.
-        chains : int
+        chains : int, optional
             The number of chains to sample. Running independent chains is important for some
             convergence statistics and can also reveal multiple modes in the posterior. If `None`,
             then set to either `cores` or 2, whichever is larger.
-        cores : int
+        cores : int, optional
             The number of chains to run in parallel. If `None`, it is equal to the number of CPUs
             in the system unless there are more than 4 CPUs, in which case it is set to 4.
-        random_seed : int or list of ints
+        random_seed : int or list of ints, optional
             A list is accepted if cores is greater than one.
-        **kwargs :
+        **kwargs : dict
             For other kwargs see the documentation for `PyMC.sample()`.
 
         Returns
@@ -371,12 +371,12 @@ class Model:
 
         Parameters
         ----------
-        priors : dict
+        priors : dict or None, optional
             Dictionary of priors to update. Keys are names of terms to update; values are the new
             priors (either a `Prior` instance, or an int or float that scales the default priors).
-        common : Prior, int, or float
+        common : Prior, int, float or None, optional
             A prior specification to apply to all common terms included in the model.
-        group_specific : Prior, int, or float
+        group_specific : Prior, int, float or None, optional
             A prior specification to apply to all group specific terms included in the model.
         """
         kwargs = dict(zip(["priors", "common", "group_specific"], [priors, common, group_specific]))
@@ -455,7 +455,7 @@ class Model:
             Either a string, or an instance of class `families.Family`.
             If a string is passed, a family with the corresponding name must be defined in the
             defaults loaded at model initialization.
-        link : str or Dict[str, str]
+        link : str or dict of str to str
             The name of the link function to use. Valid names are `"cloglog"`, `"identity"`,
             `"inverse_squared"`, `"inverse"`, `"log"`, `"logit"`, `"probit"`, and
             `"softmax"`. Not all the link functions can be used with all the families.
@@ -494,12 +494,12 @@ class Model:
 
         Parameters
         ----------
-        aliases : dict
+        aliases : dict of str to str
             A dictionary where key represents the original term name and the value is the alias.
 
         Returns
         -------
-        `None`.
+        `None`
         """
         if not isinstance(aliases, dict):
             raise ValueError(f"'aliases' must be a dictionary, not a {type(aliases)}.")
@@ -635,43 +635,43 @@ class Model:
 
         Parameters
         ----------
-        draws : int
+        draws : int, optional
             Number of draws to sample from the prior predictive distribution. Defaults to 5000.
-        var_names : str or list
+        var_names : str or list of str, optional
             A list of names of variables for which to compute the prior predictive
             distribution. Defaults to `None` which means to include both observed and
             unobserved RVs.
-        random_seed : int
+        random_seed : int, optional
             Seed for the random number generator.
-        figsize : tuple
+        figsize : tuple, optional
             Figure size. If `None` it will be defined automatically.
-        textsize : float
+        textsize : float, optional
             Text size scaling factor for labels, titles and lines. If `None` it will be
             autoscaled based on `figsize`.
-        hdi_prob : float or str
+        hdi_prob : float or str, optional
             Plots highest density interval for chosen percentage of density.
             Use `"hide"` to hide the highest density interval. Defaults to 0.94.
-        round_to : int
+        round_to : int, optional
             Controls formatting of floats. Defaults to 2 or the integer part, whichever is bigger.
-        point_estimate : str
+        point_estimate : str, optional
             Plot point estimate per variable. Values should be `"mean"`, `"median"`, `"mode"`
             or `None`. Defaults to `"auto"` i.e. it falls back to default set in
             ArviZ's rcParams.
-        kind : str
+        kind : str, optional
             Type of plot to display (`"kde"` or `"hist"`) For discrete variables this argument
             is ignored and a histogram is always used.
-        bins : integer or sequence or "auto"
+        bins : int, sequence, "auto" or None, optional
             Controls the number of bins, accepts the same keywords `matplotlib.pyplot.hist()`
             does. Only works if `kind == "hist"`. If `None` (default) it will use `"auto"`
             for continuous variables and `range(xmin, xmax + 1)` for discrete variables.
-        omit_offsets : bool
+        omit_offsets : bool, optional
             Whether to omit offset terms in the plot. Defaults to `True`.
-        omit_group_specific : bool
+        omit_group_specific : bool, optional
             Whether to omit group specific effects in the plot. Defaults to `True`.
         ax : numpy array-like of matplotlib axes or bokeh figures
             A 2D array of locations into which to plot the densities. If not supplied, ArviZ will
             create its own array of plot areas (and return it).
-        **kwargs
+        **kwargs : dict
             Passed as-is to `matplotlib.pyplot.hist()` or `matplotlib.pyplot.plot()` function
             depending on the value of `kind`.
 
@@ -747,14 +747,14 @@ class Model:
 
         Parameters
         ----------
-        draws : int
+        draws : int, optional
             Number of draws to sample from the prior predictive distribution. Defaults to 500.
-        var_names : str or list
+        var_names : str, list of str or None, optional
             A list of names of variables for which to compute the prior predictive distribution.
             Defaults to `None` which means both observed and unobserved RVs.
-        omit_offsets : bool
+        omit_offsets : bool, optional
             Whether to omit offset terms in the plot. Defaults to `True`.
-        random_seed : int
+        random_seed : int or None, optional
             Seed for the random number generator.
 
         Returns
@@ -801,28 +801,28 @@ class Model:
         ----------
         idata : InferenceData
             The `InferenceData` instance returned by `.fit()`.
-        kind : str
+        kind : str, optional
             Indicates the type of prediction required. Can be `"response_params"` or
             `"response"`. The first returns draws from the posterior distribution of the
             likelihood parameters, while the latter returns the draws from the posterior
             predictive distribution (i.e. the posterior probability distribution for a new
             observation) in addition to the posterior distribution. Defaults to
             `"response_params"`.
-        data : pandas.DataFrame or None
+        data : pd.DataFrame or None, optional
             An optional data frame with values for the predictors that are used to obtain
             out-of-sample predictions. If omitted, the original dataset is used.
-        inplace : bool
+        inplace : bool, optional
             If `True` it will modify `idata` in-place. Otherwise, it will return a copy of
             `idata` with the predictions added. If `kind="response_params"`, a new variable
             with the name of the parent parameter, e.g. `"mu"` and `"sigma"` for a Gaussian
             likelihood, or `"p"` for a Bernoulli likelihood, is added to the `posterior` group.
             If `kind="response"`, it appends a `posterior_predictive` group to `idata`. If
             any of these already exist, it will be overwritten.
-        include_group_specific : bool
+        include_group_specific : bool, optional
             Determines if predictions incorporate group-specific effects. If `False`, predictions
             are made with common effects only (i.e. group specific are set to zero). Defaults to
             `True`.
-        sample_new_groups : bool
+        sample_new_groups : bool, optional
             Specifies if it is allowed to obtain predictions for new groups of group-specific terms.
             When `True`, each posterior sample for the new groups is drawn from the posterior
             draws of a randomly selected existing group. Since different groups may be selected at
@@ -901,15 +901,16 @@ class Model:
         idata : InferenceData
             The `InferenceData` instance returned by `.fit()`. It should contain the
             `posterior_predictive` group, otherwise it will be computed and added to `idata`.
-        summary : bool
+        summary : bool, optional
             If `True`, it returns a summary of the Bayesian R². Otherwise, it returns the
             posterior samples of the Bayesian R².
 
         Returns
         -------
-        Pandas Series with the following indices:
-        r2: mean value for the Bayesian R²
-        r2_std: standard deviation of the Bayesian R².
+        pandas.Series
+            A series with the following indices:
+            r2: mean value for the Bayesian R²
+            r2_std: standard deviation of the Bayesian R².
 
         References
         ----------
@@ -941,11 +942,11 @@ class Model:
         ----------
         idata : InferenceData
             The `InferenceData` instance returned by `.fit()`.
-        data : pandas.DataFrame or None
+        data : pd.DataFrame or None, optional
             An optional data frame with values for the predictors and the response on which
             the model's log-likelihood function is evaluated.
             If omitted, the original dataset is used.
-        inplace : bool
+        inplace : bool, optional
             If `True` it will modify `idata` in-place. Otherwise, it will return a copy of
             `idata` with the `log_likelihood` group added.
 
@@ -1052,19 +1053,19 @@ class Model:
 
         Parameters
         ----------
-        formatting : str
+        formatting : str, optional
             One of `"plain"` or `"plain_with_params"`. Defaults to `"plain"`.
-        name : str
+        name : str, optional
             Name of the figure to save. Defaults to `None`, no figure is saved.
-        figsize : tuple
+        figsize : tuple, optional
             Maximum width and height of figure in inches. Defaults to `None`, the figure size is
             set automatically. If defined and the drawing is larger than the given size, the drawing
             is uniformly scaled down so that it fits within the given size.  Only works if `name`
             is not `None`.
-        dpi : int
+        dpi : int, optional
             Point per inch of the figure to save.
             Defaults to 300. Only works if `name` is not `None`.
-        fmt : str
+        fmt : str, optional
             Format of the figure to save.
             Defaults to `"png"`. Only works if `name` is not `None`.
 

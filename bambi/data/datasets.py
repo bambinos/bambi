@@ -257,7 +257,7 @@ def load_data(dataset: str | None = None, data_home: str | None = None):
 
     Returns
     -------
-    pandas.DataFrame or str
+    pd.DataFrame or str
     """
     home_dir = get_data_home(data_home=data_home)
 

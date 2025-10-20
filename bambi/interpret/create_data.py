@@ -1,6 +1,5 @@
 import itertools
 
-from typing import Union
 from statistics import mode
 
 import numpy as np
@@ -28,7 +27,7 @@ from bambi.interpret.logs import log_interpret_defaults
 
 @log_interpret_defaults
 def create_grid(
-    condition: ConditionalInfo, variable: Union[VariableInfo, None] = None, **kwargs
+    condition: ConditionalInfo, variable: VariableInfo | None = None, **kwargs
 ) -> pd.DataFrame:
     """Creates a grid of data by using the covariates passed into the 'conditional'
     and  'variable' argument.
@@ -105,14 +104,12 @@ def create_grid(
 
 
 def _pairwise_grid(data_dict: dict) -> pd.DataFrame:
-    """Creates a pairwise grid (cartesian product) of data by using the
-    key-values of the dictionary
+    """Creates a pairwise grid (cartesian product) of data by using the key-values of the dictionary
 
     Parameters
     ----------
     data_dict : dict
-        A dictionary containing the covariates as keys and their values as the
-        values.
+        A dictionary containing the covariates as keys and their values as the values.
 
     Returns
     -------

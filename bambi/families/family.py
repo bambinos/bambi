@@ -182,7 +182,7 @@ class Family:
             The xarray dataset that contains the draws for all the parameters in the posterior.
             It must contain the parameters that are needed in the distribution of the response, or
             the parameters that allow to derive them.
-        data : pandas.DataFrame or None
+        data : pd.DataFrame or None
             A data frame with values for the predictors and the response on which the model's
             log-likelihood function is evaluated. If omitted, the original dataset is used.
         kwargs : dict

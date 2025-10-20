@@ -24,9 +24,7 @@ def _plot_differences(
     fig_kwargs=None,
     subplot_kwargs=None,
 ):
-    """
-    Common function used for both 'plot_comparisons' and 'plot_slopes'.
-    """
+    """Common function used for both 'plot_comparisons' and 'plot_slopes'."""
     if (subplot_kwargs and not average_by) or (subplot_kwargs and average_by):
         for key, value in subplot_kwargs.items():
             conditional_info.covariates.update({key: value})
@@ -111,10 +109,10 @@ def plot_predictions(
         The covariates we would like to average by. The passed covariate(s) will marginalize
         over the other covariates in the model. If True, it averages over all covariates
         in the model to obtain the average estimate. Defaults to `None`.
-    target : str
+    target : str, optional
         Which model parameter to plot. Defaults to 'mean'. Passing a parameter into target only
         works when pps is False as the target may not be available in the posterior predictive
-        distribution.
+        distribution. Defaults to `"mean"`.
     sample_new_groups : bool, optional
         If the model contains group-level effects, and data is passed for unseen groups, whether
         to sample from the new groups. Defaults to `False`.
