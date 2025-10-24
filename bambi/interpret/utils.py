@@ -210,7 +210,7 @@ def average_over(data: pd.DataFrame, covariate: str | list[str]) -> pd.DataFrame
     if covariate == "all":
         return pd.DataFrame(data[data.columns[-3:]].mean()).T
     else:
-        return data.groupby(covariate, as_index=False)[data.columns[-3:]].mean()
+        return data.groupby(covariate, as_index=False, observed=False)[data.columns[-3:]].mean()
 
 
 def get_model_terms(model: Model) -> dict:
