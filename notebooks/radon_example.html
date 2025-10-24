@@ -1463,7 +1463,7 @@ y &amp;= \text{Response for the (log) radon measurement }\\
 </div>
 </div>
 </div>
-<p>Note how for the combination <code>county == 'YELLOW MEDICINE' and floor == 'Floor'</code> where we do not have any observations, the model can still generate predictions which are essentially coming from the prior distributions, which explains the large HDI intervals.</p>
+<p>Note how for the combination <code>county == 'YELLOW MEDICINE' and floor == 'Floor'</code> where we do not have any observations, the model can still generate predictions which are essentially coming from the prior distributions, which explain the large HDI intervals.</p>
 <p>Next, let’s have a look into the posterior mean for each <code>county</code> and <code>floor</code> combination:</p>
 <div id="cell-62" class="cell" data-execution_count="26">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>unpooled_summary <span class="op">=</span> az.summary(data<span class="op">=</span>unpooled_results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1528,7 +1528,7 @@ y &amp;= \text{Response for the (log) radon measurement }\\
 <p>We start with a model that considers a global intercept and varying intercepts for each county. The dispersion parameter of the prior for these varying intercepts is an <em>hyperprior</em> that is common to all the counties. As we are going to conclude later, this is what causes the <strong>partial pooling</strong> in the model estimates.</p>
 <section id="model-2" class="level4">
 <h4 class="anchored" data-anchor-id="model-2">Model</h4>
-<p>Let us use greek letters for common effects and roman letters for varying effects. In this case, <span class="math inline">\(\alpha\)</span> is a common intercept and <span class="math inline">\(u\)</span> is a group-specific intercept.</p>
+<p>Let us use Greek letters for common effects and Roman letters for varying effects. In this case, <span class="math inline">\(\alpha\)</span> is a common intercept and <span class="math inline">\(u\)</span> is a group-specific intercept.</p>
 <p><span class="math display">\[
 y = \alpha + u_j + \varepsilon
 \]</span></p>
@@ -5521,7 +5521,7 @@ b_{jk} \sim \text{Normal}(0, \sigma_{b_j})
 </div>
 </div>
 </div>
-<p>In the graph representation of the model we can now see hierarchical structures both in the intercepts and the slopes. The terms that end with <code>_offset</code> appeared because we are using a non-centered parametrization. This parametrization is an algebraic trick that helps computation but leaves the model unchanged.</p>
+<p>In the graph representation of the model we can now see hierarchical structures both in the intercepts and the slopes. The terms that end with <code>_offset</code> appeared because we are using a non-centered parametrization. This parametrization is an algebraic trick that helps with computation but leaves the model unchanged.</p>
 <div id="cell-106" class="cell" data-execution_count="40">
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>varying_intercept_slope_model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="40">
