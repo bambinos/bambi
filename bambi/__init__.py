@@ -11,6 +11,7 @@ from bambi.families import Family, Likelihood, Link
 from bambi.formula import Formula
 from bambi.models import Model
 from bambi.priors import Prior
+from bambi import interpret
 
 __version__ = version("bambi")
 
