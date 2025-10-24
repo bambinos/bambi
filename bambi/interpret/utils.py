@@ -1,7 +1,6 @@
 # pylint: disable = too-many-function-args
 # pylint: disable = too-many-nested-blocks
 from dataclasses import dataclass, field
-from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -49,14 +48,14 @@ class VariableInfo:
     """
 
     model: Model
-    variable: Union[str, dict, list]
+    variable: str | dict | list
     kind: str
-    grid: Union[bool, None] = False
-    eps: Union[float, None] = None
+    grid: bool | None = False
+    eps: float | None = None
     user_passed: bool = False
     name: str = field(init=False)
-    values: Union[int, float, np.ndarray] = field(init=False)
-    passed_values: Union[int, float, np.ndarray] = field(init=False)
+    values: int | float | np.ndarray = field(init=False)
+    passed_values: int | float | np.ndarray = field(init=False)
 
     def __post_init__(self):
         """
@@ -152,7 +151,7 @@ class ConditionalInfo:
     """
 
     model: Model
-    conditional: Union[str, dict, list, None]
+    conditional: str | dict | list | None
     covariates: dict = field(init=False)
     user_passed: bool = field(init=False)
 
@@ -199,11 +198,11 @@ class Covariates:
     """
 
     main: str
-    group: Union[str, None]
-    panel: Union[str, None]
+    group: str | None
+    panel: str | None
 
 
-def average_over(data: pd.DataFrame, covariate: Union[str, list]) -> pd.DataFrame:
+def average_over(data: pd.DataFrame, covariate: str | list[str]) -> pd.DataFrame:
     """
     Average estimates by specified covariate in the model. data.columns[-3:] are
     the columns: 'estimate', 'lower', and 'upper'.

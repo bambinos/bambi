@@ -13,7 +13,7 @@ def generate_prior(dist, **kwargs):
 
     Parameters
     ----------
-    dist: str, int, float
+    dist : str, int, float
         If a string, it is the name of the prior distribution with default values taken from
         `SETTINGS_DISTRIBUTIONS`. If a number, it is a factor used to scale the standard deviation
         of the priors generated automatically by Bambi.
@@ -28,14 +28,16 @@ def generate_prior(dist, **kwargs):
     Prior
         The Prior instance.
     """
+
+    if not isinstance(dist, str | int | float):
+        raise ValueError("'dist' must be the name of a distribution or a numeric value.")
+
     if isinstance(dist, str):
         prior = Prior(dist, **SETTINGS_DISTRIBUTIONS[dist])
         if kwargs:
             prior.update(**{k: generate_prior(v) for k, v in kwargs.items()})
-    elif isinstance(dist, (int, float)):
-        prior = dist
     else:
-        raise ValueError("'dist' must be the name of a distribution or a numeric value.")
+        prior = dist
     return prior
 
 
@@ -52,7 +54,7 @@ def generate_prior_hsgp(cov_name: str):
 
     Returns
     -------
-    dict[str, Prior]
+    dict of str to Prior
         The priors for the parameters of the covariance function
     """
     config = HSGP_COV_PARAMS_DEFAULT_PRIORS[cov_name]
@@ -84,7 +86,7 @@ def get_default_prior(term_type, **kwargs):
     Raises
     ------
     ValueError
-        If `term_type` is not within the values listed above.
+        If `term_type` is not one of the values listed above.
 
     Returns
     -------
@@ -111,13 +113,13 @@ def generate_likelihood(name, params, parent):
 
     Parameters
     ----------
-    name: str
+    name : str
         The name of the likelihood function.
-    args: dict
-        Indicates the auxiliary parameters and the values for their default priors. The keys are the
-        names of the parameters and the values are passed to `generate_prior()` to obtain the
+    params : dict
+        Indicates the auxiliary parameters and the values for their default priors.
+        Keys are names of the parameters and values are passed to `generate_prior()` to obtain the
         actual instance of `bambi.Prior`.
-    parent: str
+    parent : str
         The name of the parent parameter. In other words, the name of the mean parameter in the
         likelihood function.
 
@@ -136,13 +138,13 @@ def generate_family(name, likelihood, link, family, default_priors=None):
     ----------
     name : str
         The name of the family.
-    likelihood: bambi.Likelihood
+    likelihood : bambi.Likelihood
         A representation of the likelihood function that corresponds to the family being created.
     link : bambi.Link
         A representation of the link function that corresponds to the family being created.
     family : subclass of bambi.Family
         A subclass of bambi.Family that generates the instance of the desired family.
-    default_priors : dict
+    default_priors : dict or None, optional
         Default priors for non-parent parameters.
 
     Returns

@@ -162,8 +162,9 @@ def is_hsgp_term(term):
 def remove_common_intercept(dm: fm.matrices.DesignMatrices) -> fm.matrices.DesignMatrices:
     """Removes the intercept from the common design matrix
 
-    This is used in ordinal families, where the intercept is requested but not used because its
-    inclusion, together with the cutpoints, would create a non-identifiability problem.
+    This function is used with families for ordinal responses,
+    where the intercept is requested but not used because its inclusion,
+    together with the cutpoints, would create a non-identifiability problem.
     """
     dm.common.terms.pop("Intercept")
     intercept_slice = dm.common.slices.pop("Intercept")
@@ -172,8 +173,7 @@ def remove_common_intercept(dm: fm.matrices.DesignMatrices) -> fm.matrices.Desig
 
 
 def response_evaluate_new_data(model, data):
-    # Probably we need formulae to have an "evaluate_new_data" on the response
-    # It would save us from having to do this.
+    # TODO: Add "evaluate_new_data" to the response component in formulae, so we don't need this.
     name = model.response_component.term.name
     env = model.response_component.response.env
 

@@ -35,12 +35,12 @@ class Likelihood:
     ----------
     name : str
         Name of the likelihood function. Must be a valid PyMC distribution name.
-    params : Sequence[str]
+    params : sequence of str or None, optional
         The name of the parameters the likelihood function accepts.
-    parent : str
+    parent : str or None, optional
         Optional specification of the name of the mean parameter in the likelihood.
         This is the parameter whose transformation is modeled by the linear predictor.
-    dist : pymc.Distribution or callable
+    dist : pymc.Distribution or callable or None, optional
         Optional custom PyMC distribution that will be used to compute the likelihood.
 
     Notes

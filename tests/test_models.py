@@ -1047,7 +1047,7 @@ class TestCensoredResponses(FitPredictParent):
         idata = self.fit(model, random_seed=121195)
         self.predict_oos(model, idata)
         # Assert response is censored
-        assert isinstance(model.backend.model.observed_RVs[0]._owner.op, pm.Censored.rv_type)
+        assert isinstance(model.backend.model.observed_RVs[0].owner.op, pm.Censored.rv_type)
 
     def test_model_without_intercept(self, data_kidney):
         priors = {
@@ -1065,7 +1065,7 @@ class TestCensoredResponses(FitPredictParent):
         idata = self.fit(model, random_seed=121195)
         self.predict_oos(model, idata)
         # Assert response is censored
-        assert isinstance(model.backend.model.observed_RVs[0]._owner.op, pm.Censored.rv_type)
+        assert isinstance(model.backend.model.observed_RVs[0].owner.op, pm.Censored.rv_type)
 
     def test_model_with_group_specific_effects(self, data_kidney):
         # Model 3, with group-specific effects
@@ -1087,7 +1087,7 @@ class TestCensoredResponses(FitPredictParent):
         idata = self.fit(model, random_seed=121195)
         self.predict_oos(model, idata)
         # Assert response is censored
-        assert isinstance(model.backend.model.observed_RVs[0]._owner.op, pm.Censored.rv_type)
+        assert isinstance(model.backend.model.observed_RVs[0].owner.op, pm.Censored.rv_type)
 
 
 @pytest.mark.usefixtures("mock_pymc_sample")
@@ -1102,7 +1102,7 @@ class TestTruncatedResponse(FitPredictParent):
         idata = self.fit(model, random_seed=121195)
         self.predict_oos(model, idata)
         # PyMC seems to automatically dispatch to TruncatedNormal
-        assert isinstance(model.backend.model.observed_RVs[0]._owner.op, pm.TruncatedNormal.rv_type)
+        assert isinstance(model.backend.model.observed_RVs[0].owner.op, pm.TruncatedNormal.rv_type)
 
 
 @pytest.mark.usefixtures("mock_pymc_sample")

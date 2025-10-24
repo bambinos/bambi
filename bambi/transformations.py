@@ -4,7 +4,7 @@ import pandas as pd
 from formulae.transforms import register_stateful_transform
 
 
-def c(*args):  # pylint: disable=invalid-name
+def c(*args):
     """Concatenate columns into a 2D NumPy Array."""
     return np.column_stack(args)
 
@@ -392,8 +392,8 @@ def mean_by_group(values, group):
     values : np.ndarray
         A 2 dimensional array. Rows indicate observations and columns indicate different variables.
     group : sequence
-        A sequence that indicates to which group each observation belongs to. If `None`, then
-        no group exists.
+        A sequence that indicates to which group each observation belongs to.
+        If `None`, then no group exists.
 
     Returns
     -------

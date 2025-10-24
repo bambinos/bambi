@@ -4,14 +4,13 @@ from importlib.metadata import version
 
 from pymc import math
 
-from .backend import PyMCModel
-from .config import config
-from .data import clear_data_home, load_data
-from .families import Family, Likelihood, Link
-from .formula import Formula
-from .models import Model
-from .priors import Prior
-from . import interpret
+from bambi.backend import PyMCModel
+from bambi.config import config
+from bambi.data import clear_data_home, load_data
+from bambi.families import Family, Likelihood, Link
+from bambi.formula import Formula
+from bambi.models import Model
+from bambi.priors import Prior
 
 __version__ = version("bambi")
 

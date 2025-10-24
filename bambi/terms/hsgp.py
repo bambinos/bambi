@@ -58,7 +58,7 @@ class HSGPTerm(BaseTerm):
 
         Parameters
         ----------
-        names : Sequence[str]
+        names : sequence of str
             The names of the attributes taken from `self.hsgp_attributes`
         """
 
