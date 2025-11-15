@@ -446,7 +446,7 @@ class StudentT(UnivariateFamily):
 
 
 class VonMises(UnivariateFamily):
-    SUPPORTED_LINKS = {"mu": ["identity", "tan_2"], "kappa": ["log"]}
+    SUPPORTED_LINKS = {"mu": ["identity"], "kappa": ["log"]}
 
 
 class Wald(UnivariateFamily):

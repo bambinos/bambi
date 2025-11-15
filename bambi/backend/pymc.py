@@ -12,7 +12,6 @@ from pymc.util import get_default_varnames
 from pytensor.tensor.special import softmax
 
 from bambi.backend.links import (
-    arctan_2,
     cloglog,
     identity,
     inverse_squared,
@@ -53,7 +52,6 @@ class PyMCModel:
         "log": pt.exp,
         "logit": logit,
         "probit": probit,
-        "tan_2": arctan_2,
         "softmax": functools.partial(softmax, axis=-1),
     }
 
