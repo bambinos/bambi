@@ -522,7 +522,7 @@ window.Quarto = {
 <p>This example will discuss polynomial regression using Bambi. Unlike many other examples shown, there aren’t specific polynomial methods or families implemented in Bambi, most of the interesting behavior for polynomial regression occurs within the formula definition. Regardless, there are some nuances that are useful to be aware of.</p>
 <p>This example uses the kinematic equations from classical mechanics as a backdrop. Specifically, an object in motion experiencing constant acceleration can be described by the following:</p>
 <p><span class="math display">\[x_f = \frac{1}{2} a t^2 + v_0 t + x_0\]</span></p>
-<p>Where <span class="math inline">\(x_0\)</span> and <span class="math inline">\(x_f\)</span> are the initial and final locations, <span class="math inline">\(v_0\)</span> is the initial velocity, and <span class="math inline">\(a\)</span> is acceleration.</p>
+<p>where <span class="math inline">\(x_0\)</span> and <span class="math inline">\(x_f\)</span> are the initial and final locations, <span class="math inline">\(v_0\)</span> is the initial velocity, and <span class="math inline">\(a\)</span> is acceleration.</p>
 <section id="a-falling-ball" class="level2">
 <h2 class="anchored" data-anchor-id="a-falling-ball">A falling ball</h2>
 <p>First, we’ll consider a simple falling ball, released from 50 meters. In this situation, <span class="math inline">\(v_0 = 0\)</span> <span class="math inline">\(m\)</span>/<span class="math inline">\(s\)</span>, <span class="math inline">\(x_0 = 50\)</span> <span class="math inline">\(m\)</span> and <span class="math inline">\(a = g\)</span>, the acceleration due to gravity, <span class="math inline">\(-9.81\)</span> <span class="math inline">\(m\)</span>/<span class="math inline">\(s^2\)</span>. So dropping out the <span class="math inline">\(v_0 t\)</span> component, the equation takes the form:</p>
@@ -552,7 +552,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>Casting the equation <span class="math inline">\(x_f = \frac{1}{2} g t^2 + x_0\)</span> into a regression context, we let time (<span class="math inline">\(t\)</span>) be the independent variable, and final location (<span class="math inline">\(x_f\)</span>) be the response/dependent variable. This allows our coefficients to be proportional to <span class="math inline">\(g\)</span> and <span class="math inline">\(x_0\)</span>. The intercept, <span class="math inline">\(\beta_0\)</span> corresponds exactly to <span class="math inline">\(x_0\)</span>. Letting <span class="math inline">\(\beta_1 = \frac{1}{2} g\)</span> then gives <span class="math inline">\(g = 2\beta_1\)</span> when <span class="math inline">\(x_1 = t^2\)</span>, meaning we”re doing <em>polynomial regression</em>. We can put this into Bambi via the following, optionally including the <code>+ 1</code> to emphasize that we choose to include the coefficient.</p>
+<p>Casting the equation <span class="math inline">\(x_f = \frac{1}{2} g t^2 + x_0\)</span> into a regression context, we let time (<span class="math inline">\(t\)</span>) be the independent variable, and final location (<span class="math inline">\(x_f\)</span>) be the response/dependent variable. This allows our coefficients to be proportional to <span class="math inline">\(g\)</span> and <span class="math inline">\(x_0\)</span>. The intercept, <span class="math inline">\(\beta_0\)</span> corresponds exactly to <span class="math inline">\(x_0\)</span>. Letting <span class="math inline">\(\beta_1 = \frac{1}{2} g\)</span> then gives <span class="math inline">\(g = 2\beta_1\)</span> when <span class="math inline">\(x_1 = t^2\)</span>, meaning we’re doing <em>polynomial regression</em>. We can put this into Bambi via the following, optionally including the <code>+ 1</code> to emphasize that we choose to include the coefficient.</p>
 <div id="cell-6" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>model_falling <span class="op">=</span> bmb.Model(<span class="st">"x ~ I(t**2) + 1"</span>, df_falling)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>results_falling <span class="op">=</span> model_falling.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}, random_seed<span class="op">=</span>SEED)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -573,13 +573,13 @@ NUTS: [sigma, Intercept, I(t ** 2)]</code></pre>
 <pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1 seconds.</code></pre>
 </div>
 </div>
-<p>The term <code>I(t**2)</code> indicates to evaluate inside the <code>I</code>. For including <em>just the <span class="math inline">\(t^2\)</span> term</em>, you can express it any of the following ways:</p>
+<p>The term <code>I(t**2)</code> indicates to evaluate inside the <code>I</code>. For including <em>just the <span class="math inline">\(t^2\)</span> term</em>, you can express it in any of the following ways:</p>
 <ul>
 <li><code>I(t**2)</code></li>
 <li><code>{t**2}</code></li>
 <li>Square the data directly, and pass it as a new column</li>
 </ul>
-<p>To verify, we”ll fit the other two versions as well.</p>
+<p>To verify, we’ll fit the other two versions as well.</p>
 <div id="cell-8" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>model_falling_variation1 <span class="op">=</span> bmb.Model(</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"x ~ {t**2} + 1"</span>,  <span class="co"># Using {t**2} syntax</span></span>
@@ -757,7 +757,7 @@ t = \sqrt{2x_0 / g}
 </div>
 <p>Modeling this using Bambi, we must include the linear term on time to capture the inital velocity. We’ll do the following regression,</p>
 <p><span class="math display">\[x_f = \beta_0 + \beta_1 t + \beta_2 t^2\]</span></p>
-<p>Which then maps the solved coefficents to the following: <span class="math inline">\(\beta_0 = x_0\)</span>, <span class="math inline">\(\beta_1 = v_0\)</span>, and <span class="math inline">\(\beta_2 = \frac{g}{2}\)</span>.</p>
+<p>which then maps the solved coefficents to the following: <span class="math inline">\(\beta_0 = x_0\)</span>, <span class="math inline">\(\beta_1 = v_0\)</span>, and <span class="math inline">\(\beta_2 = \frac{g}{2}\)</span>.</p>
 <div id="cell-18" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>model_projectile_all_terms <span class="op">=</span> bmb.Model(<span class="st">"x ~ I(t**2) + t + 1"</span>, df_projectile)</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>fit_projectile_all_terms <span class="op">=</span> model_projectile_all_terms.fit(idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>}, target_accept<span class="op">=</span><span class="fl">0.9</span>, random_seed<span class="op">=</span>SEED)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
