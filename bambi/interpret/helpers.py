@@ -1,18 +1,10 @@
-import warnings
-
 import numpy as np
 import pandas as pd
 import xarray as xr
 
-from arviz import InferenceData
-
 from bambi import Model
 from bambi.interpret.create_data import create_grid
 from bambi.interpret.utils import ConditionalInfo, VariableInfo
-
-warnings.filterwarnings(
-    "ignore", message="The group data is not defined in the InferenceData scheme"
-)
 
 
 def data_grid(
@@ -102,7 +94,7 @@ def data_grid(
     return create_grid(conditional, variable, **kwargs)
 
 
-def _prepare_idata(idata: InferenceData, data: xr.Dataset) -> InferenceData:
+def _prepare_idata(idata: "InferenceData", data: xr.Dataset) -> "InferenceData":
     """Prepare InferenceData object for use in `select_draws` by removing the
     'observed_data' group and replacing it with another 'data' group that contains
     the data used to generate predictions.
@@ -130,7 +122,7 @@ def _prepare_idata(idata: InferenceData, data: xr.Dataset) -> InferenceData:
     if "observed_data" in idata.groups():
         coordinate_name = list(idata["observed_data"].coords)
         del idata.observed_data
-        idata.add_groups(data=data)
+        idata["data"] = data
     else:
         raise ValueError("InferenceData object does not contain a 'data' or 'observed_data' group.")
 
@@ -145,7 +137,7 @@ def _prepare_idata(idata: InferenceData, data: xr.Dataset) -> InferenceData:
 
 
 def select_draws(
-    idata: InferenceData,
+    idata: "InferenceData",
     data: pd.DataFrame,
     condition: dict,
     data_var: str,

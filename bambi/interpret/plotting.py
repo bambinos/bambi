@@ -1,9 +1,10 @@
-import arviz as az
+import warnings
+
 import numpy as np
 import pandas as pd
+import xarray as xr
 
-from arviz.plots.backends.matplotlib import create_axes_grid
-from arviz.plots.plot_utils import default_grid
+from matplotlib.pyplot import subplots
 from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype
 
 from bambi.models import Model
@@ -79,7 +80,7 @@ def _plot_differences(
 
 def plot_predictions(
     model: Model,
-    idata: az.InferenceData,
+    idata: "InferenceData",
     conditional: str | list | dict | None = None,
     average_by: str | list | None = None,
     target: str = "mean",
@@ -237,7 +238,7 @@ def plot_predictions(
 
 def plot_comparisons(
     model: Model,
-    idata: az.InferenceData,
+    idata: "InferenceData",
     contrast: str | dict | list,
     conditional: str | dict | list | None = None,
     average_by: str | list | None = None,
@@ -379,7 +380,7 @@ def plot_comparisons(
 
 def plot_slopes(
     model: Model,
-    idata: az.InferenceData,
+    idata: "InferenceData",
     wrt: str | dict,
     conditional: str | dict | list | None = None,
     average_by: str | list = None,
@@ -535,3 +536,81 @@ def plot_slopes(
         fig_kwargs=fig_kwargs,
         subplot_kwargs=subplot_kwargs,
     )
+
+
+def create_axes_grid(length_plotters, rows=1, cols=1, backend_kwargs=None):
+    """Create figure and axes for grids with multiple plots.
+
+    Parameters
+    ----------
+    length_plotters : int
+        Number of axes required
+    rows : int
+        Number of rows
+    cols : int
+        Number of columns
+    backend_kwargs: dict, optional
+        kwargs for backend figure.
+
+    Returns
+    -------
+    fig : matplotlib figure
+    ax : matplotlib axes
+    """
+    if backend_kwargs is None:
+        backend_kwargs = {}
+
+    fig, axes = subplots(rows, cols, **backend_kwargs)
+    extra = (rows * cols) - length_plotters
+    if extra > 0:
+        for (row, col), ax in np.ndenumerate(axes):
+            if (row * cols + col + 1) > length_plotters:
+                ax.set_axis_off()
+    return fig, axes
+
+
+def default_grid(n_items, grid=None, max_cols=4, min_cols=3):  # noqa: D202
+    """Make a grid for subplots.
+
+    Tries to get as close to sqrt(n_items) x sqrt(n_items) as it can,
+    but allows for custom logic
+
+    Parameters
+    ----------
+    n_items : int
+        Number of panels required
+    grid : tuple
+        Number of rows and columns
+    max_cols : int
+        Maximum number of columns, inclusive
+    min_cols : int
+        Minimum number of columns, inclusive
+
+    Returns
+    -------
+    (int, int)
+        Rows and columns, so that rows * columns >= n_items
+    """
+
+    if grid is None:
+
+        def in_bounds(val):
+            return np.clip(val, min_cols, max_cols)
+
+        if n_items <= max_cols:
+            return 1, n_items
+        ideal = in_bounds(round(n_items**0.5))
+
+        for offset in (0, 1, -1, 2, -2):
+            cols = in_bounds(ideal + offset)
+            rows, extra = divmod(n_items, cols)
+            if extra == 0:
+                return rows, cols
+        return n_items // ideal + 1, ideal
+    else:
+        rows, cols = grid
+        if rows * cols < n_items:
+            raise ValueError("The number of rows times columns is less than the number of subplots")
+        if (rows * cols) - n_items >= cols:
+            warnings.warn("The number of rows times columns is larger than necessary")
+        return rows, cols
