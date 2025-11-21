@@ -1,0 +1,9 @@
+---
+title: "Kulprit Examples"
+---
+
+Variable selection refers to the process of identifying the most relevant variables in a model from a larger set of predictors. Sometimes the goal is just to separate the most relevant variables from the rest, and sometimes the goal is to obtain a ranking of the variables.
+
+In the number of variables is small we can simply uses PSIS-LOO-CV as explained [here](https://arviz-devs.github.io/EABM/Chapters/Model_comparison.html), but when the number of variables is large this approach can overfit, thus we recommend using projective predictive inference. Kulprit is a package implementing this approach and works nicely with Bambi. For variable selection examples using Kulprit with Bambi, please visit the [Kulprit documentation](https://kulprit.readthedocs.io/en/latest/examples/Examples.html).
+
+For a quick overview of projective predictive inference read [this](https://kulprit.readthedocs.io/en/latest/examples/Overview.html) and for a more academic, yet accesible, introduction to the topic read this [paper](https://projecteuclid.org/journals/statistical-science/volume-40/issue-1/Advances-in-Projection-Predictive-Inference/10.1214/24-STS949.full).
