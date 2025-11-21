@@ -36,10 +36,9 @@ jobs:
         shell: bash
         # I have to 'cd' because interlinks does not allow to pass a different path
         run: |
-          pixi shell -e dev
           cd docs
-          python -m quartodoc build
-          python -m quartodoc interlinks
+          pixi run -e dev python -m quartodoc build
+          pixi run -e dev python -m quartodoc interlinks
           quarto render
           touch _site/.nojekyll
 
