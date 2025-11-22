@@ -1,4 +1,5 @@
 <a id="0.16.0"></a>
+
 # [The awakening bambino (0.16.0)](https://github.com/bambinos/bambi/releases/tag/0.16.0) - 2025-10-24
 
 ## What's Changed
@@ -47,6 +48,7 @@
 
 
 <a id="0.15.0"></a>
+
 # [Release 0.15.0](https://github.com/bambinos/bambi/releases/tag/0.15.0) - 2024-12-21
 
 ### New features
@@ -79,6 +81,7 @@ number of rows was different from the one used to fit the model ([#847](https://
 
 
 <a id="0.14.0"></a>
+
 # [Release 0.14.0](https://github.com/bambinos/bambi/releases/tag/0.14.0) - 2024-07-10
 
 ### New features
@@ -117,6 +120,7 @@ number of rows was different from the one used to fit the model ([#847](https://
 
 
 <a id="0.13.0"></a>
+
 # [Bambi 0.13.0](https://github.com/bambinos/bambi/releases/tag/0.13.0) - 2023-10-25
 
 This is the first version of Bambi that is released with a Governance structure. Added in [#709](https://github.com/bambinos/bambi/issues/709).
@@ -129,7 +133,7 @@ The highlights are the shiny `interpret` subpackage and the implementation of su
 * Add `"kidney"` dataset ([#697](https://github.com/bambinos/bambi/issues/697))
 * Add `interpret` submodule ([#684](https://github.com/bambinos/bambi/issues/684), [#695](https://github.com/bambinos/bambi/issues/695), [#699](https://github.com/bambinos/bambi/issues/699), [#701](https://github.com/bambinos/bambi/issues/701), [#732](https://github.com/bambinos/bambi/issues/732), [#736](https://github.com/bambinos/bambi/issues/736))
     * Implements `comparisons`, `predictions`, `slopes`, `plot_comparisons`, `plot_predictions`, and `plot_slopes`
-* Support censored families 
+* Support censored families
 
 ### Maintenance and fixes
 
@@ -155,6 +159,7 @@ The highlights are the shiny `interpret` subpackage and the implementation of su
 
 
 <a id="0.12.0"></a>
+
 # [Bambi 0.12.0: Ordinal models and predictions on new groups](https://github.com/bambinos/bambi/releases/tag/0.12.0) - 2023-07-02
 
 ## 0.12.0
@@ -181,6 +186,7 @@ The highlights are the shiny `interpret` subpackage and the implementation of su
 
 
 <a id="0.11.0"></a>
+
 # [Bambi 0.11.0: The family grows](https://github.com/bambinos/bambi/releases/tag/0.11.0) - 2023-05-25
 
 ## 0.11.0
@@ -210,6 +216,7 @@ The highlights are the shiny `interpret` subpackage and the implementation of su
 
 
 <a id="0.10.0"></a>
+
 # [Bambi 0.10.0](https://github.com/bambinos/bambi/releases/tag/0.10.0) - 2023-02-10
 
 ### New features
@@ -240,6 +247,7 @@ The highlights are the shiny `interpret` subpackage and the implementation of su
 
 
 <a id="0.9.3"></a>
+
 # [Bambi 0.9.3](https://github.com/bambinos/bambi/releases/tag/0.9.3) - 2022-12-21
 
 ### Maintenance and fixes
@@ -250,6 +258,7 @@ The highlights are the shiny `interpret` subpackage and the implementation of su
 
 
 <a id="0.9.2"></a>
+
 # [Bambi 0.9.2](https://github.com/bambinos/bambi/releases/tag/0.9.2) - 2022-12-09
 
 ### New features
@@ -282,6 +291,7 @@ The highlights are the shiny `interpret` subpackage and the implementation of su
 
 
 <a id="0.9.1"></a>
+
 # [Bambi 0.9.1](https://github.com/bambinos/bambi/releases/tag/0.9.1) - 2022-08-27
 
 ## Bambi 0.9.1
@@ -310,6 +320,7 @@ The highlights are the shiny `interpret` subpackage and the implementation of su
 
 
 <a id="0.9.0"></a>
+
 # [Bambi 0.9.0](https://github.com/bambinos/bambi/releases/tag/0.9.0) - 2022-06-06
 
 
@@ -325,6 +336,7 @@ The highlights are the shiny `interpret` subpackage and the implementation of su
 
 
 <a id="0.8.0"></a>
+
 # [Bambi 0.8.0](https://github.com/bambinos/bambi/releases/tag/0.8.0) - 2022-05-18
 
 ## Bambi 0.8.0
@@ -368,6 +380,7 @@ The highlights are the shiny `interpret` subpackage and the implementation of su
 
 
 <a id="0.7.1"></a>
+
 # [Bambi 0.7.1](https://github.com/bambinos/bambi/releases/tag/0.7.1) - 2022-01-15
 
 This is a patch release where we fix a bug related to the shape of 2 level categorical group-specific effects ([#441](https://github.com/bambinos/bambi/issues/441))
@@ -376,6 +389,7 @@ This is a patch release where we fix a bug related to the shape of 2 level categ
 
 
 <a id="0.7.0"></a>
+
 # [Bambi 0.7.0](https://github.com/bambinos/bambi/releases/tag/0.7.0) - 2022-01-11
 
 This release includes a mix of new features, fixes, and new examples on our webpage.
@@ -402,6 +416,7 @@ This release includes a mix of new features, fixes, and new examples on our webp
 
 
 <a id="0.6.3"></a>
+
 # [Bambi 0.6.3](https://github.com/bambinos/bambi/releases/tag/0.6.3) - 2021-09-17
 
 Use formulae 0.2.0
@@ -410,6 +425,7 @@ Use formulae 0.2.0
 
 
 <a id="0.6.2"></a>
+
 # [Bambi 0.6.2](https://github.com/bambinos/bambi/releases/tag/0.6.2) - 2021-09-17
 
 Minor fixes to code and docs
@@ -419,6 +435,7 @@ Minor fixes to code and docs
 
 
 <a id="0.6.1"></a>
+
 # [Bambi 0.6.1](https://github.com/bambinos/bambi/releases/tag/0.6.1) - 2021-08-24
 
 Mainly changes to the docs and minor fixes.
@@ -427,6 +444,7 @@ Mainly changes to the docs and minor fixes.
 
 
 <a id="0.6.0"></a>
+
 # [Bambi 0.6.0](https://github.com/bambinos/bambi/releases/tag/0.6.0) - 2021-08-09
 
 Many changes are included in this release. Some of the most important changes are
@@ -442,6 +460,7 @@ Many changes are included in this release. Some of the most important changes ar
 
 
 <a id="0.5.0"></a>
+
 # [Bambi 0.5.0](https://github.com/bambinos/bambi/releases/tag/0.5.0) - 2021-05-16
 
 The main changes in this release can be summarized as follows
@@ -454,6 +473,7 @@ The main changes in this release can be summarized as follows
 
 
 <a id="0.4.1"></a>
+
 # [Release 0.4.1](https://github.com/bambinos/bambi/releases/tag/0.4.1) - 2021-04-06
 
 The aim of this release is to update to formulae 0.0.9, which contains several bug fixes. There are also other minor fixes and improvements that can be found in the changelog.
@@ -462,6 +482,7 @@ The aim of this release is to update to formulae 0.0.9, which contains several b
 
 
 <a id="0.4.0"></a>
+
 # [The formulae bambino (0.4.0)](https://github.com/bambinos/bambi/releases/tag/0.4.0) - 2021-03-08
 
 The main change in this release is the use of formulae, instead of patsy, to parse model formulas.
@@ -470,14 +491,15 @@ The main change in this release is the use of formulae, instead of patsy, to par
 
 
 <a id="0.3.0"></a>
-# [Release 0.3.0](https://github.com/bambinos/bambi/releases/tag/0.3.0) - 2020-12-17
 
+# [Release 0.3.0](https://github.com/bambinos/bambi/releases/tag/0.3.0) - 2020-12-17
 
 
 [Changes][0.3.0]
 
 
 <a id="0.2.0"></a>
+
 # [The First Python 3 (and arviz) Bambino (0.2.0)](https://github.com/bambinos/bambi/releases/tag/0.2.0) - 2020-03-19
 
 This release drops Python 2 support (Python >=3.6 is required) and relies on ArviZ for all the plotting and diagnostics/stats. Support for PyStan has been deprecated. If you like to contribute to maintaining PyStan support please contact us. We have done a lot of internal changes to clean the code and make it easier to maintain.
@@ -486,6 +508,7 @@ This release drops Python 2 support (Python >=3.6 is required) and relies on Arv
 
 
 <a id="0.1.5"></a>
+
 # [The last legacy Python Bambino (0.1.5)](https://github.com/bambinos/bambi/releases/tag/0.1.5) - 2019-05-13
 
 
@@ -494,6 +517,7 @@ This release drops Python 2 support (Python >=3.6 is required) and relies on Arv
 
 
 <a id="0.1.0"></a>
+
 # [great bambino (0.1.0)](https://github.com/bambinos/bambi/releases/tag/0.1.0) - 2017-04-01
 
 This release features numerous new features and improvements, including support for Stan, a revamped API, expanded random effect support, considerably better compilation and sampling performance for large models, better parameterization of random effects, among other changes.
@@ -502,6 +526,7 @@ This release features numerous new features and improvements, including support 
 
 
 <a id="0.0.5"></a>
+
 # [0.0.5](https://github.com/bambinos/bambi/releases/tag/0.0.5) - 2017-01-19
 
 Release 0.0.5
