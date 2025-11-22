@@ -125,10 +125,10 @@ Days             10.437  1.243    8.179   12.793      0.015    0.011    6674.0  
 Reaction_sigma   47.949  2.550   43.363   52.704      0.035    0.025    5614.0    2974.0    1.0
 ```
 
-First, we create and build a Bambi [`Model`](`bambi.Model`). 
-Then, the [`.fit`](`bambi.Model.fit`) method tells the sampler to start running and it returns an `InferenceData` object, 
-which can be passed to several ArviZ functions such as `az.summary()` to get a summary of 
-the parameters distribution and sample diagnostics or `az.plot_trace()` to visualize them.
+First, we create and build a Bambi [`Model`](`bambi.Model`).
+Then, the [`.fit`](`bambi.Model.fit`) method tells the sampler to start running and it returns an [`InferenceData`](`arviz.InferenceData`) object,
+which can be passed to several ArviZ functions such as [`az.summary`](`arviz.summary`) to get a summary of
+the parameters distribution and sample diagnostics or [`az.plot_trace`](`arviz.plot_trace`) to visualize them.
 
 ### Logistic regression
 
