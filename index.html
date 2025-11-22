@@ -232,29 +232,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Use ArviZ to plot the results</span></span>
 <span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>az.plot_trace(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<pre><code>   Reaction  Days  Subject
-0  249.5600     0      308
-1  258.7047     1      308
-2  250.8006     2      308
-3  321.4398     3      308
-4  356.8519     4      308</code></pre>
-<pre><code>       Formula: Reaction ~ Days
-        Family: gaussian
-          Link: mu = identity
-  Observations: 180
-        Priors:
-    target = mu
-        Common-level effects
-            Intercept ~ Normal(mu: 298.5079, sigma: 261.0092)
-            Days ~ Normal(mu: 0.0, sigma: 48.8915)
-
-        Auxiliary parameters
-            sigma ~ HalfStudentT(nu: 4.0, sigma: 56.1721)</code></pre>
-<pre><code>                   mean     sd   hdi_3%  hdi_97%  mcse_mean  mcse_sd  ess_bulk  ess_tail  r_hat
-Intercept       251.552  6.658  238.513  263.417      0.083    0.059    6491.0    2933.0    1.0
-Days             10.437  1.243    8.179   12.793      0.015    0.011    6674.0    3242.0    1.0
-Reaction_sigma   47.949  2.550   43.363   52.704      0.035    0.025    5614.0    2974.0    1.0</code></pre>
-<p>First, we create and build a Bambi <code>Model</code>. Then, the method <code>model.fit()</code> tells the sampler to start running and it returns an <code>InferenceData</code> object, which can be passed to several ArviZ functions such as <code>az.summary()</code> to get a summary of the parameters distribution and sample diagnostics or <code>az.plot_trace()</code> to visualize them.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cmd code-with-copy"><code class="sourceCode dosbat"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>   Reaction  Days  Subject</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>0  249.5600     0      308</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>1  258.7047     1      308</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>2  250.8006     2      308</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>3  321.4398     3      308</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>4  356.8519     4      308</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode cmd code-with-copy"><code class="sourceCode dosbat"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>       Formula: Reaction ~ Days</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>        Family: gaussian</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>          Link: mu = identity</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  Observations: 180</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        Priors:</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    target = mu</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        Common-level effects</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>            Intercept ~ Normal(mu: 298.5079, sigma: 261.0092<span class="kw">)</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>            Days ~ Normal(mu: 0.0, sigma: 48.8915<span class="kw">)</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        Auxiliary parameters</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>            sigma ~ HalfStudentT(nu: 4.0, sigma: 56.1721<span class="kw">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode cmd code-with-copy"><code class="sourceCode dosbat"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>                   mean     sd   hdi_3%  hdi_97%  mcse_mean  mcse_sd  ess_bulk  ess_tail  r_hat</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>Intercept       251.552  6.658  238.513  263.417      0.083    0.059    6491.0    2933.0    1.0</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>Days             10.437  1.243    8.179   12.793      0.015    0.011    6674.0    3242.0    1.0</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>Reaction_sigma   47.949  2.550   43.363   52.704      0.035    0.025    5614.0    2974.0    1.0</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>First, we create and build a Bambi <a href="./api/Model.html#bambi.Model"><code>Model</code></a>. Then, the <a href="./api/Model.html#bambi.Model.fit"><code>.fit</code></a> method tells the sampler to start running and it returns an <a href="https://python.arviz.org/en/stable/api/generated/arviz.InferenceData.html#arviz.InferenceData"><code>InferenceData</code></a> object, which can be passed to several ArviZ functions such as <a href="https://python.arviz.org/en/stable/api/generated/arviz.summary.html#arviz.summary"><code>az.summary</code></a> to get a summary of the parameters distribution and sample diagnostics or <a href="https://python.arviz.org/en/stable/api/generated/arviz.plot_trace.html#arviz.plot_trace"><code>az.plot_trace</code></a> to visualize them.</p>
 </section>
 <section id="logistic-regression" class="level3">
 <h3 class="anchored" data-anchor-id="logistic-regression">Logistic regression</h3>
