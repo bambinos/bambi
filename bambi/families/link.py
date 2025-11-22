@@ -122,13 +122,13 @@ class Link:
         The name of the link function. If it is a known name, it's not necessary to pass any
         other arguments because functions are already defined internally. If not known, all of
         `link`, `linkinv` and `linkinv_backend` must be specified.
-    link : function
+    link : function or None, optional
         A function that maps the response to the linear predictor. Known as the :math:`g` function
         in GLM jargon. Does not need to be specified when `name` is a known name.
-    linkinv : function
+    linkinv : function or None, optional
         A function that maps the linear predictor to the response. Known as the :math:`g^{-1}`
         function in GLM jargon. Does not need to be specified when `name` is a known name.
-    linkinv_backend : function
+    linkinv_backend : function or None, optional
         Same than `linkinv` but must be something that works with PyMC backend (i.e. it must
         work with PyTensor tensors). Does not need to be specified when `name` is a known
         name.

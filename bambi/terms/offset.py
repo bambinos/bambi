@@ -6,10 +6,10 @@ class OffsetTerm(CommonTerm):
 
     Parameters
     ----------
-    name : str
-        Name of the term.
     term : formulae.terms.terms.Term
         A model term created in formulae.
+    prefix : str
+        A prefix used for the name of the term.
     """
 
     def __init__(self, term, prefix):

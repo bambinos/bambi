@@ -1,7 +1,6 @@
 # pylint: disable=ungrouped-imports
 from dataclasses import dataclass, field
 import itertools
-from typing import Dict
 
 import arviz as az
 import numpy as np
@@ -35,15 +34,12 @@ class ResponseInfo:
     computing uncertainty intervals, and creating the summary dataframe in
     'PredictiveDifferences'
 
-    FIXME: is the documentation outdated?
-
     Parameters
     ----------
-    model : Model
-        The fitted bambi Model object.
+    name : str
+        The name of the response variable.
     target : str
-        The target of the response variable such as 'mean' or 'sigma'. Defaults to
-        'mean'.
+        The target of the response variable such as 'mean' or 'sigma'. Defaults to 'mean'.
     lower_bound : float
         The percentile of the lower bound of the uncertainty interval. Defaults to 0.03.
     upper_bound : float
@@ -83,16 +79,16 @@ class Estimate:
 
     Parameters
     ----------
-    mean : Dict[str, xr.DataArray]
+    mean : dict of str to xr.DataArray
         The mean of the posterior distribution (chains and draws).
-    bounds : Dict[str, xr.Dataset]
+    bounds : dict of str to xr.Dataset
         The uncertainty interval of the posterior distribution (chains and draws).
     use_hdi : bool
         Whether to use the highest density interval (HDI) (True) or quantiles (False).
     """
 
-    mean: Dict[str, xr.DataArray]
-    bounds: Dict[str, xr.Dataset]
+    mean: dict[str, xr.DataArray]
+    bounds: dict[str, xr.Dataset]
     use_hdi: bool
     bounds_list: list = field(init=False)
     lower: xr.DataArray = field(init=False)
@@ -130,8 +126,7 @@ class Estimate:
 @dataclass
 class PredictiveDifferences:
     """Computes predictive differences and their uncertainty intervals for
-    'comparisons' and 'slopes' effects and returns a summary dataframe of the
-    results
+    'comparisons' and 'slopes' effects and returns a summary dataframe of the results
 
     Parameters
     ----------
@@ -480,8 +475,8 @@ def predictions(
 
     Returns
     -------
-    cap_data : pandas.DataFrame
-        A DataFrame with the `create_cap_data` and model predictions.
+    cap_data : pd.DataFrame
+        A DataFrame with the result of `create_predictions_data` and model predictions.
 
     Raises
     ------
@@ -631,7 +626,7 @@ def comparisons(
 
     Returns
     -------
-    pandas.DataFrame
+    pd.DataFrame
         A dataframe with the comparison values, highest density interval, contrast name,
         contrast value, and conditional values.
 
@@ -794,7 +789,7 @@ def slopes(
 
     Returns
     -------
-    pandas.DataFrame
+    pd.DataFrame
         A dataframe with the comparison values, highest density interval, `wrt` name,
         contrast value, and conditional values.
 

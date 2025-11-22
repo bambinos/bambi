@@ -1,4 +1,3 @@
-from typing import Union
 import warnings
 
 import numpy as np
@@ -18,10 +17,10 @@ warnings.filterwarnings(
 
 def data_grid(
     model: Model,
-    conditional: Union[str, list, dict],
-    variable: Union[str, dict, None] = None,
-    effect_type: Union[str, None] = None,
-    eps: Union[float, None] = None,
+    conditional: str | list | dict,
+    variable: str | dict | None = None,
+    effect_type: str | None = None,
+    eps: float | None = None,
     **kwargs,
 ):
     """Create a pairwise grid of data using the covariates passed to the 'conditional' and optional

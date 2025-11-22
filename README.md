@@ -153,7 +153,7 @@ If you use Bambi and want to cite it please use
 
 Bambi is a community project and welcomes contributions. Additional information can be found in the [Contributing](https://github.com/bambinos/bambi/blob/main/CONTRIBUTING.md) Readme.
 
-For a list of contributors see the [GitHub contributor](https://github.com/bambinos/bambi/graphs/contributors) page
+For a list of contributors see the [GitHub contributor](https://github.com/bambinos/bambi/graphs/contributors) page.
 
 ## Donations
 
@@ -162,6 +162,8 @@ If you want to support Bambi financially, you can [make a donation](https://numf
 ## Code of Conduct
 
 Bambi wishes to maintain a positive community. Additional details can be found in the [Code of Conduct](https://github.com/bambinos/bambi/blob/main/CODE_OF_CONDUCT.md)
+
+If you have experienced or witnessed any behaviour that violates our Code of Conduct, we encourage you to report it through [this contact form](https://bambinos.github.io/bambi/contact.html).
 
 ## License
 

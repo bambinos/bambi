@@ -20,8 +20,7 @@ def plot_numeric(
     covariates : Covariates
         Covariates callable with attributes main, group, panel.
     plot_data : pd.DataFrame
-        The data created by the `create_cap_data` or `create_comparisons_data`
-        function.
+        The data created by the `create_predictions_data` or `create_comparisons_data` function.
     transforms : dict
         Transformations that are applied to each of the variables being plotted. The keys are the
         name of the variables, and the values are functions to be applied. Defaults to `None`.
@@ -166,8 +165,7 @@ def plot_categoric(covariates: Covariates, plot_data: pd.DataFrame, legend: bool
     covariates : Covariates
         Covariates callable with attributes main, gro up, panel.
     plot_data : pd.DataFrame
-        The data created by the `create_cap_data` or `create_comparisons_data`
-        function.
+        The data created by the `create_predictions_data` or `create_comparisons_data` function.
     legend : bool, optional
         Whether to include a legend in the plot. Default to `True`.
     axes : np.ndarray, optional

@@ -4,7 +4,7 @@ import pandas as pd
 from formulae.transforms import register_stateful_transform
 
 
-def c(*args):  # pylint: disable=invalid-name
+def c(*args):
     """Concatenate columns into a 2D NumPy Array."""
     return np.column_stack(args)
 
@@ -95,7 +95,7 @@ def truncated(x, lb=None, ub=None):
     if lb is None and ub is None:
         raise ValueError("'lb' and 'ub' cannot both be None")
 
-    # Process lower bound so we get an 1d array with the adequate values
+    # Process lower bound so we get a 1d array with the adequate values
     if lb is not None:
         lower = np.asarray(lb)
         if lower.ndim == 0:
@@ -107,7 +107,7 @@ def truncated(x, lb=None, ub=None):
     else:
         lower = np.full(len(x), -np.inf)
 
-    # Process upper bound so we get an 1d array with the adequate values
+    # Process upper bound so we get a 1d array with the adequate values
     if ub is not None:
         upper = np.asarray(ub)
         if upper.ndim == 0:
@@ -392,8 +392,8 @@ def mean_by_group(values, group):
     values : np.ndarray
         A 2 dimensional array. Rows indicate observations and columns indicate different variables.
     group : sequence
-        A sequence that indicates to which group each observation belongs to. If `None`, then
-        no group exists.
+        A sequence that indicates to which group each observation belongs to.
+        If `None`, then no group exists.
 
     Returns
     -------

@@ -1,7 +1,6 @@
 import formulae.terms
 
 from bambi.terms.base import BaseTerm
-
 from bambi.terms.utils import is_response_of_kind
 
 
