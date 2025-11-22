@@ -132,7 +132,6 @@ def _prepare_idata(idata: "InferenceData", data: xr.Dataset) -> "InferenceData":
 
     # rename index to match coordinate name in other InferenceData groups
     idata.data = idata.data.rename({"index": coordinate_name})
-
     return idata
 
 
