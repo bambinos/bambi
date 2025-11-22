@@ -516,15 +516,14 @@ window.Quarto = {
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.lines <span class="im">import</span> Line2D</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> stats</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-white"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.lines <span class="im">import</span> Line2D</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> stats</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-white"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Directional statistics, also known as circular statistics or spherical statistics, refers to a branch of statistics dealing with data which domain is the unit circle, as opposed to “linear” data which support is the real line. Circular data is convenient when dealing with directions or rotations. Some examples include temporal periods like hours or days, compass directions, dihedral angles in biomolecules, etc.</p>
 <p>The fact that a Sunday can be both the day before or after a Monday, or that 0 is a “better average” for 2 and 358 degrees than 180 are illustrations that circular data and circular statistical methods are better equipped to deal with this kind of problem than the more familiar methods <a href="https://en.wikipedia.org/wiki/Directional_statistics">[1]</a>.</p>
-<p>There are a few circular distributions, one of them is the <a href="https://en.wikipedia.org/wiki/Von_Mises_distribution">VonMises distribution</a>, that we can think as the cousin of the Gaussian that lives in circular space. The domain of this distribution is any interval of length <span class="math inline">\(2\pi\)</span>. We are going to adopt the convention that the interval goes from <span class="math inline">\(-\pi\)</span> to <span class="math inline">\(\pi\)</span>, so for example 0 radians is the same as <span class="math inline">\(2\pi\)</span>. The VonMises is defined using two parameters, the mean <span class="math inline">\(\mu\)</span> (the circular mean) and the concentration <span class="math inline">\(\kappa\)</span>, with <span class="math inline">\(\frac{1}{\kappa}\)</span> being analogue of the variance. Let see a few examples of the VonMises family:</p>
+<p>There are a few circular distributions, one of them is the <a href="https://en.wikipedia.org/wiki/Von_Mises_distribution">VonMises distribution</a>, that we can think as the cousin of the Gaussian that lives in circular space. The domain of this distribution is any interval of length <span class="math inline">\(2\pi\)</span>. We are going to adopt the convention that the interval goes from <span class="math inline">\(-\pi\)</span> to <span class="math inline">\(\pi\)</span>, so for example 0 radians is the same as <span class="math inline">\(2\pi\)</span>. The VonMises is defined using two parameters, the circular mean <span class="math inline">\(\mu\)</span> and the concentration <span class="math inline">\(\kappa\)</span>. The higher the value of with <span class="math inline">\(\kappa\)</span> the more concentrated the distribution is around <span class="math inline">\(\mu\)</span>. Let see a few examples of the VonMises family:</p>
 <div id="05a08dbd" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.linspace(<span class="op">-</span>np.pi, np.pi, <span class="dv">200</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>mus <span class="op">=</span> [<span class="fl">0.</span>, <span class="fl">0.</span>, <span class="fl">0.</span>,  <span class="op">-</span><span class="fl">2.5</span>]</span>
@@ -542,25 +541,11 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>When doing linear regression a commonly used link function is <span class="math inline">\(2 \arctan(u)\)</span> this ensure that values over the real line are mapped into the interval <span class="math inline">\([-\pi, \pi]\)</span></p>
-<div id="e5b966ac" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>u <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">12</span>, <span class="dv">12</span>, <span class="dv">200</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>plt.plot(u, <span class="dv">2</span><span class="op">*</span>np.arctan(u))</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Reals"</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Radians"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="circular_regression_files/figure-html/cell-4-output-1.png" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
 <p>Bambi supports circular regression with the VonMises family, to exemplify this we are going to use a dataset from the following experiment. 31 periwinkles (a kind of sea snail) were removed from it original place and released down shore. Then, our task is to model the direction of motion as function of the distance travelled by them after being release.</p>
-<div id="0b17723f" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> bmb.load_data(<span class="st">"periwinkles"</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="4">
+<div id="0b17723f" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> bmb.load_data(<span class="st">"periwinkles"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
 <div>
 
 
@@ -605,12 +590,17 @@ window.Quarto = {
 </div>
 </div>
 <p>Just to compare results, we are going to use the VonMises family and the normal (default) family.</p>
-<div id="e8764c4e" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>model_vm <span class="op">=</span> bmb.Model(<span class="st">"direction ~ distance"</span>, data, family<span class="op">=</span><span class="st">"vonmises"</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>idata_vm <span class="op">=</span> model_vm.fit(include_response_params<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>model_n <span class="op">=</span> bmb.Model(<span class="st">"direction ~ distance"</span>, data)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>idata_n <span class="op">=</span> model_n.fit(include_response_params<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="e8764c4e" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>model_vm <span class="op">=</span> bmb.Model(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"direction ~ distance"</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    data,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">"vonmises"</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    priors<span class="op">=</span>{<span class="st">"Intercept"</span>: bmb.Prior(<span class="st">"Normal"</span>, sigma<span class="op">=</span><span class="dv">1</span>)} <span class="co"># Identifiability reasons</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>idata_vm <span class="op">=</span> model_vm.fit(include_response_params<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>model_n <span class="op">=</span> bmb.Model(<span class="st">"direction ~ distance"</span>, data)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>idata_n <span class="op">=</span> model_n.fit(include_response_params<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
@@ -618,108 +608,44 @@ NUTS: [kappa, Intercept, distance]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"759d9357e8724061a88693faa5c3e3c7","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"d8d544f96c5a445485f83520582d2f86","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1 seconds.
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [sigma, Intercept, distance]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"d4176b8685ca4ee7a8b3bf06ff1d4806","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"c8ce5eafa08c4254b49baf293be7baf1","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1 seconds.</code></pre>
 </div>
 </div>
-<div id="af2a92d1" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>az.summary(idata_vm, var_names<span class="op">=</span>[<span class="st">"~mu"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="6">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">mean</th>
-<th data-quarto-table-cell-role="th">sd</th>
-<th data-quarto-table-cell-role="th">hdi_3%</th>
-<th data-quarto-table-cell-role="th">hdi_97%</th>
-<th data-quarto-table-cell-role="th">mcse_mean</th>
-<th data-quarto-table-cell-role="th">mcse_sd</th>
-<th data-quarto-table-cell-role="th">ess_bulk</th>
-<th data-quarto-table-cell-role="th">ess_tail</th>
-<th data-quarto-table-cell-role="th">r_hat</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">kappa</td>
-<td>2.597</td>
-<td>0.575</td>
-<td>1.638</td>
-<td>3.734</td>
-<td>0.010</td>
-<td>0.009</td>
-<td>3188.0</td>
-<td>2318.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">Intercept</td>
-<td>1.681</td>
-<td>0.322</td>
-<td>1.090</td>
-<td>2.282</td>
-<td>0.007</td>
-<td>0.006</td>
-<td>1996.0</td>
-<td>1644.0</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">distance</td>
-<td>-0.010</td>
-<td>0.004</td>
-<td>-0.019</td>
-<td>-0.002</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>2281.0</td>
-<td>2387.0</td>
-<td>1.0</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<div id="04e0081c" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">4</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model_vm, idata_vm, <span class="st">"distance"</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>])</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].plot(data.distance, data.direction, <span class="st">"k."</span>)</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].<span class="bu">set</span>(</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    xlabel<span class="op">=</span><span class="st">"Distance travelled (in m)"</span>,</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    ylabel<span class="op">=</span><span class="st">"Direction of travel (radians)"</span>,</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">"VonMises family"</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model_n, idata_n, <span class="st">"distance"</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>])</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].plot(data.distance, data.direction, <span class="st">"k."</span>)</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Distance travelled (in m)"</span>, ylabel<span class="op">=</span><span class="va">None</span>, title<span class="op">=</span><span class="st">"Normal family"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="04e0081c" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">4</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model_vm, idata_vm, <span class="st">"distance"</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>])</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].plot(data.distance, data.direction, <span class="st">"k."</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].<span class="bu">set</span>(</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    xlabel<span class="op">=</span><span class="st">"Distance travelled (in m)"</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    ylabel<span class="op">=</span><span class="st">"Direction of travel (radians)"</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">"VonMises family"</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model_n, idata_n, <span class="st">"distance"</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>])</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].plot(data.distance, data.direction, <span class="st">"k."</span>)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Distance travelled (in m)"</span>, ylabel<span class="op">=</span><span class="va">None</span>, title<span class="op">=</span><span class="st">"Normal family"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Default computed for conditional variable: distance
 Default computed for conditional variable: distance</code></pre>
@@ -727,7 +653,7 @@ Default computed for conditional variable: distance</code></pre>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="circular_regression_files/figure-html/cell-8-output-2.png" class="img-fluid figure-img"></p>
+<p><img src="circular_regression_files/figure-html/cell-6-output-2.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -736,36 +662,48 @@ Default computed for conditional variable: distance</code></pre>
 <p>We can also see that if inadvertently we had assumed a normal response we would have obtained a fit with higher uncertainty and more importantly the wrong sign for the relationship.</p>
 <p>As a last step for this example we are going to do a posterior predictive check. In the figure below we have to panels showing the same data, with the only difference that the on the right is using a polar projection and the KDE are computing taking into account the circularity of the data.</p>
 <p>We can see that our modeling is failing at capturing the bimodality in the data (with mode around 1.6 and <span class="math inline">\(\pm \pi\)</span>) and hence the predicted distribution is wider and with a mean closer to <span class="math inline">\(\pm \pi\)</span>.</p>
-<div id="657aad3f" class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">5</span>))</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>ax0 <span class="op">=</span> plt.subplot(<span class="dv">121</span>)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>ax1 <span class="op">=</span> plt.subplot(<span class="dv">122</span>, projection<span class="op">=</span><span class="st">"polar"</span>)</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>model_vm.predict(idata_vm, kind<span class="op">=</span><span class="st">"response"</span>)</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>pp_samples <span class="op">=</span> az.extract_dataset(idata_vm, group<span class="op">=</span><span class="st">"posterior_predictive"</span>, num_samples<span class="op">=</span><span class="dv">200</span>)[<span class="st">"direction"</span>]</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [<span class="st">"C0"</span> , <span class="st">"k"</span>, <span class="st">"C1"</span>]</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, circ <span class="kw">in</span> <span class="bu">zip</span>((ax0, ax1), (<span class="va">False</span>, <span class="st">"radians"</span>, colors)):</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> s <span class="kw">in</span> pp_samples:</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        az.plot_kde(s.values,  plot_kwargs<span class="op">=</span>{<span class="st">"color"</span>:colors[<span class="dv">0</span>], <span class="st">"alpha"</span>: <span class="fl">0.25</span>}, is_circular<span class="op">=</span>circ, ax<span class="op">=</span>ax)</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    az.plot_kde(idata_vm.observed_data[<span class="st">"direction"</span>].values,</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>                plot_kwargs<span class="op">=</span>{<span class="st">"color"</span>:colors[<span class="dv">1</span>], <span class="st">"lw"</span>:<span class="dv">3</span>}, is_circular<span class="op">=</span>circ, ax<span class="op">=</span>ax)</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    az.plot_kde(idata_vm.posterior_predictive[<span class="st">"direction"</span>].values,</span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>                plot_kwargs<span class="op">=</span>{<span class="st">"color"</span>:colors[<span class="dv">2</span>], <span class="st">"ls"</span>:<span class="st">"--"</span>, <span class="st">"lw"</span>:<span class="dv">3</span>}, is_circular<span class="op">=</span>circ, ax<span class="op">=</span>ax)</span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>custom_lines <span class="op">=</span> [Line2D([<span class="dv">0</span>], [<span class="dv">0</span>], color<span class="op">=</span>c) <span class="cf">for</span> c <span class="kw">in</span> colors]</span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>ax0.legend(custom_lines, [<span class="st">"posterior_predictive"</span>, <span class="st">"Observed"</span>, <span class="st">'mean posterior predictive'</span>])</span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>ax0.set_yticks([])</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">"Directions (radians)"</span>, fontsize<span class="op">=</span><span class="dv">18</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>/tmp/ipykernel_770282/706974292.py:6: FutureWarning: extract_dataset has been deprecated, please use extract
-  pp_samples = az.extract_dataset(idata_vm, group="posterior_predictive", num_samples=200)["direction"]</code></pre>
-</div>
+<div id="657aad3f" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">5</span>))</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>ax0 <span class="op">=</span> plt.subplot(<span class="dv">121</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>ax1 <span class="op">=</span> plt.subplot(<span class="dv">122</span>, projection<span class="op">=</span><span class="st">"polar"</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>model_vm.predict(idata_vm, kind<span class="op">=</span><span class="st">"response"</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>pp_samples <span class="op">=</span> az.extract(</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    idata_vm,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    group<span class="op">=</span><span class="st">"posterior_predictive"</span>,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span><span class="st">"direction"</span>,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    num_samples<span class="op">=</span><span class="dv">200</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [<span class="st">"C0"</span> , <span class="st">"k"</span>, <span class="st">"C1"</span>]</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, circ <span class="kw">in</span> <span class="bu">zip</span>((ax0, ax1), (<span class="va">False</span>, <span class="st">"radians"</span>, colors)):</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> s <span class="kw">in</span> pp_samples:</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>        az.plot_kde(</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>            s.values, plot_kwargs<span class="op">=</span>{<span class="st">"color"</span>:colors[<span class="dv">0</span>], <span class="st">"alpha"</span>: <span class="fl">0.25</span>}, is_circular<span class="op">=</span>circ, ax<span class="op">=</span>ax</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    az.plot_kde(</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>        idata_vm.observed_data[<span class="st">"direction"</span>].values,</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>        plot_kwargs<span class="op">=</span>{<span class="st">"color"</span>:colors[<span class="dv">1</span>], <span class="st">"lw"</span>:<span class="dv">3</span>},</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>        is_circular<span class="op">=</span>circ,</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>        ax<span class="op">=</span>ax</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>    az.plot_kde(</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>        idata_vm.posterior_predictive[<span class="st">"direction"</span>].values,</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>        plot_kwargs<span class="op">=</span>{<span class="st">"color"</span>:colors[<span class="dv">2</span>], <span class="st">"ls"</span>:<span class="st">"--"</span>, <span class="st">"lw"</span>:<span class="dv">3</span>},</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>        is_circular<span class="op">=</span>circ,</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>        ax<span class="op">=</span>ax</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>custom_lines <span class="op">=</span> [Line2D([<span class="dv">0</span>], [<span class="dv">0</span>], color<span class="op">=</span>c) <span class="cf">for</span> c <span class="kw">in</span> colors]</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>ax0.legend(custom_lines, [<span class="st">"posterior_predictive"</span>, <span class="st">"Observed"</span>, <span class="st">'mean posterior predictive'</span>])</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>ax0.set_yticks([])</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">"Directions (radians)"</span>, fontsize<span class="op">=</span><span class="dv">18</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="circular_regression_files/figure-html/cell-9-output-2.png" class="img-fluid figure-img"></p>
+<p><img src="circular_regression_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -777,21 +715,21 @@ Default computed for conditional variable: distance</code></pre>
 <li><a href="https://www.routledge.com/Applied-Directional-Statistics-Modern-Methods-and-Case-Studies/Ley-Verdebout/p/book/9780367733452">Applied Directional Statistics</a></li>
 <li><a href="https://www.wiley.com/en-us/Directional+Statistics-p-9780471953333">Directional Statistics</a></li>
 </ul>
-<div id="e11960e8" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="e11960e8" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Sun Sep 28 2025
+<pre><code>Last updated: Sat Nov 22 2025
 
 Python implementation: CPython
-Python version       : 3.13.7
-IPython version      : 9.4.0
+Python version       : 3.13.9
+IPython version      : 9.6.0
 
-numpy     : 2.3.3
+matplotlib: 3.10.7
 arviz     : 0.22.0
+bambi     : 0.15.1.dev41+g386f0dfad.d20251122
 scipy     : 1.16.2
-matplotlib: 3.10.6
-bambi     : 0.14.1.dev56+gd93591cd2.d20250927
+numpy     : 2.3.3
 
 Watermark: 2.5.0
 </code></pre>
