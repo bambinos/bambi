@@ -277,7 +277,7 @@ def test_links(data_random_n100):
         "gaussian": ["identity", "log", "inverse"],
         "negativebinomial": ["identity", "log", "cloglog"],
         "poisson": ["identity", "log"],
-        "vonmises": ["identity", "tan_2"],
+        "vonmises": ["identity"],
         "wald": ["inverse", "inverse_squared", "identity", "log"],
     }
     for family, links in FAMILIES.items():

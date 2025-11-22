@@ -240,7 +240,7 @@ BUILTIN_FAMILIES = {
             "params": ["mu", "kappa"],
             "parent": "mu",
         },
-        "link": {"mu": "tan_2", "kappa": "log"},
+        "link": {"mu": "identity", "kappa": "log"},
         "family": VonMises,
         "default_priors": {"kappa": "HalfNormal"},
     },

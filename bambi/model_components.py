@@ -174,7 +174,12 @@ class DistributionalComponent:
                 self.spec, linear_predictor, posterior
             )
 
-        invlink = self.spec.family.link[self.name].linkinv
+        # NOTE: Handle VonMises family that internally uses 'identity' but needs angles
+        if self.spec.family.name == "vonmises":
+            # pylint: disable=unnecessary-lambda-assignment
+            invlink = lambda x: np.angle(np.exp(1j * x))
+        else:
+            invlink = self.spec.family.link[self.name].linkinv
         invlink_kwargs = getattr(self.spec.family, "INVLINK_KWARGS", {})
         response = xr.apply_ufunc(invlink, linear_predictor, kwargs=invlink_kwargs)
 

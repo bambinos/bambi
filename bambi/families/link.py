@@ -77,14 +77,6 @@ def inv_inverse_squared(eta):
     return 1 / np.sqrt(eta)
 
 
-def arctan_2(eta):
-    return 2 * np.arctan(eta)
-
-
-def tan_2(mu):
-    return np.tan(mu / 2)
-
-
 def inverse(mu):
     return 1 / mu
 
@@ -110,7 +102,6 @@ LINKS = {
     "logit": LinksContainer(logit, expit),
     "probit": LinksContainer(probit, invprobit),
     "softmax": LinksContainer(link_not_implemented, softmax),
-    "tan_2": LinksContainer(tan_2, arctan_2),
 }
 
 

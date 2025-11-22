@@ -37,7 +37,3 @@ def identity(x):
 
 def inverse_squared(x):
     return pt.reciprocal(pt.sqrt(x))
-
-
-def arctan_2(x):
-    return 2 * pt.arctan(x)
