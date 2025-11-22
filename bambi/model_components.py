@@ -174,7 +174,10 @@ class DistributionalComponent:
                 self.spec, linear_predictor, posterior
             )
 
-        invlink = self.spec.family.link[self.name].linkinv
+        if self.spec.family.name == "vonmises":
+            invlink = lambda x: np.angle(np.exp(1j * x))
+        else:
+            invlink = self.spec.family.link[self.name].linkinv
         invlink_kwargs = getattr(self.spec.family, "INVLINK_KWARGS", {})
         response = xr.apply_ufunc(invlink, linear_predictor, kwargs=invlink_kwargs)
 
