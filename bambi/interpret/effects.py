@@ -18,32 +18,16 @@ from bambi import Model
 from bambi.interpret.utils import create_plot_config, identity
 from bambi.utils import get_aliased_name
 
+from .helpers import compare, prepare_inference_data
 from .plots import PlotConfig, plot
-
-# A Variable is a wrapper around pd.Series
-Variable = Series
-
-# A user may provide one of the following types to "condition on"
-ConditionalParam = None | str | list[str] | dict[str, np.ndarray | list | int | float]
-
-# A user may provide one of the following contrast types
-ConstrastParam = str | dict[str, np.ndarray | list | int | float]
-
-# Values provided by a user can be one of the following
-Values = list[int | float] | ArrayLike | Series
-
-
-@dataclass(frozen=True)
-class Constrat:
-    variable: Variable
-
-
-@dataclass(frozen=True)
-class Conditional:
-    """Conditional type represents a sequence of variables (and their corresponding values)
-    to condition on."""
-
-    variables: tuple[Variable, ...]
+from .types import (
+    Conditional,
+    ConditionalParam,
+    ConstrastParam,
+    Contrast,
+    Values,
+    Variable,
+)
 
 
 def validate_values(
@@ -129,8 +113,12 @@ def get_defaults(var: str, data: DataFrame):
     match series.dtype:
         case pd.CategoricalDtype():
             return pd.Series(series.mode(), name=var)  # .astype(series.dtype)
-        case dtype if is_numeric_dtype(dtype) or is_integer_dtype(dtype):
+        case dtype if is_numeric_dtype(dtype):
             return pd.Series(series.mean(), name=var)  # .astype(series.dtype)
+        case dtype if is_numeric_dtype(dtype):
+            return pd.Series(series.mean(), name=var)
+        case dtype if is_integer_dtype(dtype):
+            return pd.Series(series.mode(), name=var)
         case _:
             raise TypeError(f"Unsupported data type: {series.dtype}")
 
@@ -143,6 +131,8 @@ def parse_constrast(constrast: ConstrastParam, data: DataFrame):
             )
 
         series = data[name]
+
+        # TODO: Validation for if user passes a list or array and it only contains one element.
 
         match series.dtype:
             case pd.CategoricalDtype():
@@ -180,21 +170,24 @@ def parse_constrast(constrast: ConstrastParam, data: DataFrame):
                     # Validate and return the values as a pd.Series
                     return validate_values(values, name, target_dtype=series.dtype)
                 else:
+                    # TODO: The should return a centered difference
                     return pd.Series(series.mean(), name=name)
 
     match constrast:
         case str():
-            variables = (create_variable(constrast),)
-        case list():
-            variables = tuple(create_variable(name) for name in constrast)
+            variable = create_variable(constrast)
         case dict():
-            variables = tuple(
-                create_variable(name, values) for name, values in constrast.items()
-            )
+            # For dict, assume single key-value pair for contrast
+            if len(constrast) != 1:
+                raise ValueError(
+                    f"Contrast dict must have exactly one key-value pair, got {len(constrast)}"
+                )
+            name, values = next(iter(constrast.items()))
+            variable = create_variable(name, values)
         case _:
             raise TypeError(f"Unsupported contrast type: {type(constrast)}")
 
-    return variables
+    return variable
 
 
 def parse_conditional(
@@ -242,12 +235,23 @@ def parse_conditional(
                     return pd.Series(series.cat.categories, name=name).astype(
                         series.dtype
                     )
-            case dtype if is_numeric_dtype(dtype) or is_integer_dtype(dtype):
+            case dtype if is_numeric_dtype(dtype):
                 if values is not None:
                     # Validate and return the values as a pd.Series
                     return validate_values(values, name, target_dtype=series.dtype)
                 else:
-                    return series.copy()
+                    xs = np.linspace(series.min(), series.max(), num=50)
+                    return pd.Series(xs, name=name).astype(dtype)
+            case dtype if is_integer_dtype(dtype):
+                if values is not None:
+                    # Validate and return the values as a pd.Series
+                    return validate_values(values, name, target_dtype=series.dtype)
+                else:
+                    return pd.Series(series.unique(), name=name).astype(dtype)
+                    # TODO: Casting back to Int will causes a bug
+                    # return pd.Series(
+                    #     series.quantile(q=0.5), name=name
+                    # ).astype(dtype)
 
     match conditional:
         case str():
@@ -380,6 +384,8 @@ def comparisons(
     contrast: ConstrastParam,
     conditional: ConditionalParam,
     average_by: str | list | bool | None = None,
+    target: str = "mean",
+    pps: bool = False,
     comparison_type: str = "diff",
     use_hdi: bool = True,
     prob: float = az.rcParams["stats.ci_prob"],
@@ -397,28 +403,70 @@ def comparisons(
     response_name, target = get_response_and_target(model, target)
     response_transform = transforms.get(response_name, identity)
 
-    provided_contrast = parse_constrast(contrast, model.data)
-    provided_vars = parse_conditional(conditional, model.data)
+    # Parse provided constrast and conditional variables
+    provided_contrast_vars = parse_constrast(contrast, model.data)
+    provided_conditional_vars = parse_conditional(conditional, model.data)
+    provided_contrast_var_names = [provided_contrast_vars.name]
+    provided_conditional_var_names = [var.name for var in provided_conditional_vars]
 
     # Get all terms (covariates) defined in the model formula
     model_var_names = get_model_covariates(model).tolist()
-    # Get the names of the variables passed by user
-    provided_var_names = [var.name for var in provided_vars]
     # Determine variables that are defaults
-    default_var_names = tuple(set(model_var_names) - set(provided_var_names))
+    default_var_names = tuple(
+        set(model_var_names)
+        - set(provided_contrast_var_names)
+        - set(provided_conditional_var_names)
+    )
     default_vars = tuple(get_defaults(var, model.data) for var in default_var_names)
     # Combine provided and default vars into a Conditional type
-    all_vars = provided_vars + default_vars
-    conditional = Conditional(variables=all_vars)
+    conditional_vars = provided_conditional_vars + default_vars
+    conditional: Conditional = Conditional(variables=conditional_vars)
+    contrast: Contrast = Contrast(variable=provided_contrast_vars)
 
-    # Create data grid (cross-product of conditional variables data)
-    vals = [var.array for var in conditional.variables]
-    names = [var.name for var in conditional.variables]
+    print(f"default_var_names: {default_var_names}")
+    print(f"provided_contrast_var_names: {provided_contrast_var_names}")
+    print(f"provided_conditional_var_names: {provided_conditional_var_names}")
+
+    # Create data grid (cross-product of contrast and conditional variables data)
+    vals = [contrast.variable.array] + [var.array for var in conditional.variables]
+    names = [contrast.variable.name] + [var.name for var in conditional.variables]
+
     # Cross-product to build data grid.
     product = pd.MultiIndex.from_product(
         vals, names=names
     )  # Naturally preserves dtypes
     preds_data = product.to_frame(index=False)
+    # print(preds_data)
+
+    pred_kwargs = {
+        "idata": idata,
+        "data": preds_data,
+        "sample_new_groups": sample_new_groups,
+        "inplace": False,
+    }
+    preds_idata: InferenceData = model.predict(
+        **pred_kwargs, **({"kind": "response"} if pps else {})
+    )
+    group = "posterior_predictive" if pps else "posterior"
+    var = response_name if pps else target
+    # y_hat = response_transform(idata[group][var])
+
+    compare_idata = prepare_inference_data(preds_idata, preds_data)
+    compared_draws = compare(
+        compare_idata,
+        contrast,
+        var,
+        group,
+        comparison_fn=lambda a, b: (b - a).mean(("chain", "draw")),
+    )
+
+    print(preds_data.shape)
+    print(compared_draws)
+
+    return preds_data, preds_idata, contrast, conditional, compared_draws
+
+    # stats_data = get_summary_stats(y_hat, prob)
+    # print(stats_data)
 
 
 def get_summary_stats(x: DataArray, prob: float) -> DataFrame:

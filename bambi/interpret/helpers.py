@@ -1,0 +1,92 @@
+from functools import partial
+from itertools import combinations
+from typing import Callable
+
+import numpy as np
+import xarray as xr
+from arviz import InferenceData
+from pandas import DataFrame
+
+from .types import Contrast, Variable
+
+
+def prepare_inference_data(
+    preds_idata: InferenceData, preds_data: DataFrame
+) -> InferenceData:
+    """
+    Prepare a new `InferenceData` object by replacing the existing `observed_data` group with
+    prediction data.
+
+    Returns
+    -------
+    Tuple of (prepared dataset, coordinate name)
+    """
+    new_grid_idata = preds_idata.copy()
+    xr_df = xr.Dataset.from_dataframe(preds_data)
+
+    if "observed_data" in new_grid_idata.groups():
+        coordinate_name = list(new_grid_idata["observed_data"].coords)
+        # Delete the Pandas-based observed_data group and add the preds xr.Dataset
+        del new_grid_idata.observed_data
+        new_grid_idata.add_groups(data=xr_df)
+    else:
+        raise ValueError(
+            "InferenceData object does not contain a 'data' or 'observed_data' group."
+        )
+
+    if len(coordinate_name) > 1:
+        raise NotImplementedError("Only one coordinate is currently supported.")
+    coordinate_name = coordinate_name[0]
+
+    # Rename index to match coordinate name in other InferenceData groups
+    new_grid_idata.data = new_grid_idata.data.rename({"index": coordinate_name})
+
+    return new_grid_idata
+
+
+def filter_draws(
+    val, idata: InferenceData, group: str, target: str, variable: Variable
+):
+    coordinate_name = list(idata["data"].coords)[0]
+
+    # Get indices where condition is true
+    # np.logical_and.reduce is useful if multiple conditions (contrast vals)
+    idx = np.where(np.logical_and.reduce([idata["data"][variable.name] == val]))[0]
+    draws = idata[group].isel({coordinate_name: idx})[target]
+
+    # In the case of main and or parent parameters (e.g., distributional models)
+    if coordinate_name in draws.coords:
+        new_coords = np.arange(len(idx))
+        draws = draws.assign_coords({coordinate_name: new_coords})
+
+    return draws
+
+
+def compare(
+    idata: InferenceData,
+    contrast: Contrast,
+    target: str,
+    group: str,
+    comparison_fn: Callable,
+):
+    """Compares samples in an InferenceData group given the Contrast variables."""
+    # Bind
+    filter_fn = partial(
+        filter_draws,
+        idata=idata,
+        group=group,
+        target=target,
+        variable=contrast.variable,
+    )
+
+    # Apply filter_draws over all contrast variable values
+    filtered_draws = list(map(filter_fn, contrast.variable))
+    # Generate unique pairs for each draw
+    paired_draws = combinations(enumerate(filtered_draws), r=2)
+    # Apply comparison function to each pair
+    res = {
+        f"{contrast.variable[i]}_vs_{contrast.variable[j]}": comparison_fn(a, b)
+        for (i, a), (j, b) in paired_draws
+    }
+
+    return res
