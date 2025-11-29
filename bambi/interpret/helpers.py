@@ -10,16 +10,16 @@ from pandas import DataFrame
 from .types import Contrast, Variable
 
 
-def prepare_inference_data(
+def create_inference_data(
     preds_idata: InferenceData, preds_data: DataFrame
 ) -> InferenceData:
     """
-    Prepare a new `InferenceData` object by replacing the existing `observed_data` group with
-    prediction data.
+    Creates a new `InferenceData` object by replacing the existing `observed_data` group of `preds_idata`
+    with the `preds_data`.
 
     Returns
     -------
-    Tuple of (prepared dataset, coordinate name)
+    InferenceData
     """
     new_grid_idata = preds_idata.copy()
     xr_df = xr.Dataset.from_dataframe(preds_data)
@@ -70,7 +70,6 @@ def compare(
     comparison_fn: Callable,
 ):
     """Compares samples in an InferenceData group given the Contrast variables."""
-    # Bind
     filter_fn = partial(
         filter_draws,
         idata=idata,
@@ -83,7 +82,7 @@ def compare(
     filtered_draws = list(map(filter_fn, contrast.variable))
     # Generate unique pairs for each draw
     paired_draws = combinations(enumerate(filtered_draws), r=2)
-    # Apply comparison function to each pair
+    # Apply a comparison function to each pair
     res = {
         f"{contrast.variable[i]}_vs_{contrast.variable[j]}": comparison_fn(a, b)
         for (i, a), (j, b) in paired_draws

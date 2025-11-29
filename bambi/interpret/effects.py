@@ -15,10 +15,9 @@ from utils import get_model_covariates
 from xarray import DataArray
 
 from bambi import Model
-from bambi.interpret.utils import create_plot_config, identity
-from bambi.utils import get_aliased_name
+from bambi.interpret.utils import create_plot_config, get_response_and_target, identity
 
-from .helpers import compare, prepare_inference_data
+from .helpers import compare, create_inference_data
 from .plots import PlotConfig, plot
 from .types import (
     Conditional,
@@ -449,24 +448,31 @@ def comparisons(
     )
     group = "posterior_predictive" if pps else "posterior"
     var = response_name if pps else target
-    # y_hat = response_transform(idata[group][var])
 
-    compare_idata = prepare_inference_data(preds_idata, preds_data)
+    compare_idata = create_inference_data(preds_idata, preds_data)
     compared_draws = compare(
         compare_idata,
         contrast,
         var,
         group,
-        comparison_fn=lambda a, b: (b - a).mean(("chain", "draw")),
+        comparison_fn=lambda a, b: (b - a),
+    )
+    # Compute mean and uncertainty over (chain, draw)
+    summary_draws = {k: get_summary_stats(v, prob) for k, v in compared_draws.items()}
+    # Comparison column name corresponds to the contrast values being compared (e.g., 1_vs_4)
+    comparison_df = pd.concat(summary_draws, names=["comparison", "index"]).reset_index(
+        level=0
+    )
+    # Use index of both dataframes to join on.
+    # This is useful when there are multiple contrast variables and or values
+    summary_df = (
+        preds_data[[var.name for var in conditional.variables]]
+        .drop_duplicates()  # Okay because the join on index below will duplicate if necessary
+        .reset_index(drop=True)
+        .join(comparison_df, on=None)
     )
 
-    print(preds_data.shape)
-    print(compared_draws)
-
-    return preds_data, preds_idata, contrast, conditional, compared_draws
-
-    # stats_data = get_summary_stats(y_hat, prob)
-    # print(stats_data)
+    return summary_df
 
 
 def get_summary_stats(x: DataArray, prob: float) -> DataFrame:
@@ -489,26 +495,3 @@ def get_summary_stats(x: DataArray, prob: float) -> DataFrame:
     stats = mean.join(bounds).reset_index().drop("__obs__", axis=1)
 
     return stats
-
-
-def get_response_and_target(model: Model, target: str):
-    """
-    Parameters
-    ----------
-    target : str
-        Target model parameter...
-    """
-    match target:
-        case "mean":
-            return (
-                get_aliased_name(model.response_component.term),
-                model.family.likelihood.parent,
-            )
-        case _:
-            component = model.components[target]
-            return (
-                get_aliased_name(component)
-                if component.alias
-                else get_aliased_name(model.response_component.term),
-                None if component.alias else target,
-            )

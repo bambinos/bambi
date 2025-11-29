@@ -9,7 +9,7 @@ from formulae.terms.call_resolver import LazyVariable
 
 from bambi import Model
 from bambi.interpret.logs import log_interpret_defaults
-from bambi.utils import listify
+from bambi.utils import get_aliased_name, listify
 
 from .plots import PlotConfig
 
@@ -123,6 +123,29 @@ def get_model_covariates(model: Model) -> np.ndarray:
     flatten_covariates = [name for name in flatten_covariates if name in model.data]
 
     return np.unique(flatten_covariates)
+
+
+def get_response_and_target(model: Model, target: str):
+    """
+    Parameters
+    ----------
+    target : str
+        Target model parameter...
+    """
+    match target:
+        case "mean":
+            return (
+                get_aliased_name(model.response_component.term),
+                model.family.likelihood.parent,
+            )
+        case _:
+            component = model.components[target]
+            return (
+                get_aliased_name(component)
+                if component.alias
+                else get_aliased_name(model.response_component.term),
+                None if component.alias else target,
+            )
 
 
 def identity(x):
