@@ -1,6 +1,11 @@
 import logging
 
-from bambi.interpret.effects import comparisons, plot_predictions, predictions
+from bambi.interpret.effects import (
+    comparisons,
+    plot_comparisons,
+    plot_predictions,
+    predictions,
+)
 from bambi.interpret.plots import plot
 
 __all__ = [
@@ -8,6 +13,7 @@ __all__ = [
     "logger",
     "predictions",
     "plot",
+    "plot_comparisons",
     "plot_predictions",
 ]
 

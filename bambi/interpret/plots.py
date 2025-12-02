@@ -8,6 +8,7 @@ from pandas.api.types import (
     is_integer_dtype,
     is_numeric_dtype,
 )
+from pandas.core.dtypes.api import is_float_dtype
 from seaborn.objects import Plot
 
 
@@ -61,10 +62,18 @@ def plot(data: DataFrame, config: PlotConfig) -> Plot:
                 ymax="upper_0.97%",
             )
         # Line plot if numeric or integer dtype
-        case dtype if is_numeric_dtype(dtype) or is_integer_dtype(dtype):
+        case dtype if is_float_dtype(dtype):
             plot = plot.add(so.Line())
             plot = plot.add(
                 so.Band(alpha=0.3),
+                ymin="lower_0.03%",
+                ymax="upper_0.97%",
+            )
+        case dtype if is_integer_dtype(dtype):
+            plot = plot.add(so.Dot(), so.Dodge())
+            plot = plot.add(
+                so.Range(),
+                so.Dodge(),
                 ymin="lower_0.03%",
                 ymax="upper_0.97%",
             )

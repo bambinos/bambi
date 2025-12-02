@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Mapping, Optional
+from typing import Any, Callable, Mapping, Optional
 
 import arviz as az
 import numpy as np
@@ -8,6 +8,7 @@ from arviz import InferenceData
 from numpy.typing import ArrayLike
 from pandas import DataFrame, Series
 from pandas.api.types import (
+    is_float_dtype,
     is_integer_dtype,
     is_numeric_dtype,
 )
@@ -111,13 +112,13 @@ def get_defaults(var: str, data: DataFrame):
 
     match series.dtype:
         case pd.CategoricalDtype():
-            return pd.Series(series.mode(), name=var)  # .astype(series.dtype)
-        case dtype if is_numeric_dtype(dtype):
+            # Takes the first mode if there are multiple modes
+            return pd.Series(series.mode().iloc[0], name=var)  # .astype(series.dtype)
+        case dtype if is_float_dtype(dtype):
             return pd.Series(series.mean(), name=var)  # .astype(series.dtype)
-        case dtype if is_numeric_dtype(dtype):
-            return pd.Series(series.mean(), name=var)
         case dtype if is_integer_dtype(dtype):
-            return pd.Series(series.mode(), name=var)
+            # Takes the first mode if there are multiple modes
+            return pd.Series(series.mode().iloc[0], name=var)
         case _:
             raise TypeError(f"Unsupported data type: {series.dtype}")
 
@@ -164,7 +165,8 @@ def parse_constrast(constrast: ConstrastParam, data: DataFrame):
                         )
                 else:
                     return pd.Series(series.mode(), name=name)
-            case dtype if is_numeric_dtype(dtype) or is_integer_dtype(dtype):
+            # TODO: I am not sure we should handle these the same?
+            case dtype if is_float_dtype(dtype) or is_integer_dtype(dtype):
                 if values is not None:
                     # Validate and return the values as a pd.Series
                     return validate_values(values, name, target_dtype=series.dtype)
@@ -234,7 +236,7 @@ def parse_conditional(
                     return pd.Series(series.cat.categories, name=name).astype(
                         series.dtype
                     )
-            case dtype if is_numeric_dtype(dtype):
+            case dtype if is_float_dtype(dtype):
                 if values is not None:
                     # Validate and return the values as a pd.Series
                     return validate_values(values, name, target_dtype=series.dtype)
@@ -385,7 +387,7 @@ def comparisons(
     average_by: str | list | bool | None = None,
     target: str = "mean",
     pps: bool = False,
-    comparison_type: str = "diff",
+    comparison: Callable | str = "diff",
     use_hdi: bool = True,
     prob: float = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
@@ -435,7 +437,6 @@ def comparisons(
         vals, names=names
     )  # Naturally preserves dtypes
     preds_data = product.to_frame(index=False)
-    # print(preds_data)
 
     pred_kwargs = {
         "idata": idata,
@@ -457,6 +458,7 @@ def comparisons(
         group,
         comparison_fn=lambda a, b: (b - a),
     )
+
     # Compute mean and uncertainty over (chain, draw)
     summary_draws = {k: get_summary_stats(v, prob) for k, v in compared_draws.items()}
     # Comparison column name corresponds to the contrast values being compared (e.g., 1_vs_4)
@@ -473,6 +475,58 @@ def comparisons(
     )
 
     return summary_df
+
+
+def plot_comparisons(
+    model: Model,
+    idata: InferenceData,
+    contrast: ConstrastParam,
+    conditional: ConditionalParam,
+    average_by: str | list | bool | None = None,
+    target: str = "mean",
+    pps: bool = False,
+    comparison: Callable | str = "diff",
+    use_hdi: bool = True,
+    prob: float = az.rcParams["stats.ci_prob"],
+    transforms: dict | None = None,
+    sample_new_groups: bool = False,
+    fig_kwargs: Optional[dict[str, Any]] = None,
+    subplot_kwargs: Optional[Mapping[str, str]] = None,
+):
+    """
+    Parameters
+    ----------
+    subplot_kwargs :
+        Overrides default plotting sequence.
+    """
+    # Cannot plot more than three-dimensions
+    provided_vars = parse_conditional(conditional, model.data)
+    if len(provided_vars) > 3 and average_by is None:
+        raise ValueError(
+            f"Cannot plot more than 3 conditional variables. Received: {len(provided_vars)}. "
+            f"Consider removing a variable(s) or passing a value(s) to `average_by`."
+        )
+
+    provided_var_names = [var.name for var in provided_vars]
+
+    plot_config = create_plot_config(provided_var_names, subplot_kwargs)
+
+    out = comparisons(
+        model=model,
+        idata=idata,
+        contrast=contrast,
+        conditional=conditional,
+        average_by=average_by,
+        target=target,
+        pps=pps,
+        comparison=comparison,
+        use_hdi=use_hdi,
+        prob=prob,
+        transforms=transforms,
+        sample_new_groups=sample_new_groups,
+    )
+
+    plot(out, plot_config)
 
 
 def get_summary_stats(x: DataArray, prob: float) -> DataFrame:
