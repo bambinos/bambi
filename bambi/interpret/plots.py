@@ -52,8 +52,8 @@ def plot(data: DataFrame, config: PlotConfig) -> Plot:
 
     # Add a "main" layer
     match data[config.main].dtype:
-        # Strip plot if categorical dtype
-        case pd.CategoricalDtype():
+        # Strip plot if categorical or integer dtype
+        case dtype if pd.CategoricalDtype() or dtype if is_integer_dtype(dtype):
             plot = plot.add(so.Dot(), so.Dodge())
             plot = plot.add(
                 so.Range(),
@@ -66,14 +66,6 @@ def plot(data: DataFrame, config: PlotConfig) -> Plot:
             plot = plot.add(so.Line())
             plot = plot.add(
                 so.Band(alpha=0.3),
-                ymin="lower_0.03%",
-                ymax="upper_0.97%",
-            )
-        case dtype if is_integer_dtype(dtype):
-            plot = plot.add(so.Dot(), so.Dodge())
-            plot = plot.add(
-                so.Range(),
-                so.Dodge(),
                 ymin="lower_0.03%",
                 ymax="upper_0.97%",
             )
