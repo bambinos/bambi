@@ -735,6 +735,12 @@ class Model:
         """
         self._check_built()
 
+        if stats is None:
+            stats = {}
+        else:
+            stats = stats.copy()
+            stats["dist"] = stats.get("dist", {}).copy()
+
         unobserved_rvs_names = []
         flat_rvs = []
 
@@ -752,9 +758,6 @@ class Model:
                 """,
                 FutureWarning,
             )
-        else:
-            if stats is None:
-                stats = {}
             stats.get("dist", {}).setdefault("bins", bins)
 
         if round_to is not None:
@@ -763,9 +766,6 @@ class Model:
                 please use ``stats={"dist": {"round_to": round_to}}``""",
                 FutureWarning,
             )
-        else:
-            if stats is None:
-                stats = {}
             stats.get("dist", {}).setdefault("round_to", round_to)
 
         if pc_kwargs is None:
