@@ -165,14 +165,22 @@ def parse_constrast(constrast: ConstrastParam, data: DataFrame):
                         )
                 else:
                     return pd.Series(series.mode(), name=name)
-            # TODO: I am not sure we should handle these the same?
-            case dtype if is_float_dtype(dtype) or is_integer_dtype(dtype):
+            case dtype if is_float_dtype(dtype):
                 if values is not None:
-                    # Validate and return the values as a pd.Series
+                    # Validate and return the values as a Pandas Series
                     return validate_values(values, name, target_dtype=series.dtype)
                 else:
-                    # TODO: The should return a centered difference
-                    return pd.Series(series.mean(), name=name)
+                    mean = series.mean()
+                    return pd.Series([mean - 0.5, mean + 0.5], name=name).astype(dtype)
+
+            case dtype if is_integer_dtype(dtype):
+                if values is not None:
+                    # Validate and return the values as a Pandas Series
+                    return validate_values(values, name, target_dtype=series.dtype)
+                else:
+                    # If more than one mode, use the first one
+                    mode = series.mode().iloc[0]
+                    return pd.Series([mode - 1, mode + 1], name=name).astype(dtype)
 
     match constrast:
         case str():
@@ -371,9 +379,9 @@ def predictions(
     idata = model.predict(**pred_kwargs, **({"kind": "response"} if pps else {}))
     group = "posterior_predictive" if pps else "posterior"
     var = response_name if pps else target
-    y_hat = response_transform(idata[group][var])
+    y_hat = idata[group][var]
 
-    stats_data = get_summary_stats(y_hat, prob)
+    stats_data = get_summary_stats(y_hat, prob, response_transform)
     summary_df = preds_data.join(stats_data, on=None)
 
     return summary_df
@@ -398,6 +406,20 @@ def comparisons(
         raise ValueError(
             f"'prob' must be greater than 0 and smaller than 1. It is {prob}."
         )
+
+    match comparison:
+        case "diff":
+            comparison_fn = lambda a, b: b - a
+        case "ratio":
+            comparison_fn = lambda a, b: b / a
+        case "lift":
+            comparison_fn = lambda a, b: (b - a) / a
+        case _ if callable(comparison):
+            comparison_fn = comparison
+        case _:
+            raise TypeError(
+                f"'comparison' must be a callable or string, got {type(comparison).__name__}."
+            )
 
     transforms = transforms or {}
 
@@ -424,10 +446,6 @@ def comparisons(
     conditional: Conditional = Conditional(variables=conditional_vars)
     contrast: Contrast = Contrast(variable=provided_contrast_vars)
 
-    print(f"default_var_names: {default_var_names}")
-    print(f"provided_contrast_var_names: {provided_contrast_var_names}")
-    print(f"provided_conditional_var_names: {provided_conditional_var_names}")
-
     # Create data grid (cross-product of contrast and conditional variables data)
     vals = [contrast.variable.array] + [var.array for var in conditional.variables]
     names = [contrast.variable.name] + [var.name for var in conditional.variables]
@@ -444,9 +462,7 @@ def comparisons(
         "sample_new_groups": sample_new_groups,
         "inplace": False,
     }
-    preds_idata: InferenceData = model.predict(
-        **pred_kwargs, **({"kind": "response"} if pps else {})
-    )
+    preds_idata = model.predict(**pred_kwargs, **({"kind": "response"} if pps else {}))
     group = "posterior_predictive" if pps else "posterior"
     var = response_name if pps else target
 
@@ -456,11 +472,14 @@ def comparisons(
         contrast,
         var,
         group,
-        comparison_fn=lambda a, b: (b - a),
+        comparison_fn=comparison_fn,
     )
 
     # Compute mean and uncertainty over (chain, draw)
-    summary_draws = {k: get_summary_stats(v, prob) for k, v in compared_draws.items()}
+    summary_draws = {
+        k: get_summary_stats(v, prob, response_transform)
+        for k, v in compared_draws.items()
+    }
     # Comparison column name corresponds to the contrast values being compared (e.g., 1_vs_4)
     comparison_df = pd.concat(summary_draws, names=["comparison", "index"]).reset_index(
         level=0
@@ -529,7 +548,8 @@ def plot_comparisons(
     plot(out, plot_config)
 
 
-def get_summary_stats(x: DataArray, prob: float) -> DataFrame:
+def get_summary_stats(x: DataArray, prob: float, transforms) -> DataFrame:
+    x = transforms(x)
     mean = x.mean(dim=("chain", "draw")).to_series().rename("estimate").to_frame()
 
     lower_bound = round((1 - prob) / 2, 4)
