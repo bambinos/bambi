@@ -2,7 +2,6 @@ import warnings
 
 import numpy as np
 import pandas as pd
-import xarray as xr
 
 from matplotlib.pyplot import subplots
 from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype

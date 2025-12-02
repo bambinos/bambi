@@ -700,7 +700,7 @@ class Model:
             * "ecdf" -> passed to :func:`~arviz_plots.visuals.ecdf_line`
             * "hist" -> passed to :func: `~arviz_plots.visuals.step_hist`
 
-            * face -> :term:`visual` that fills the area under the marginal distribution representation.
+            * face -> :term:`visual` fills area under the marginal distribution representation.
 
             Defaults to False. Depending on the value of `kind` it is passed to:
 
@@ -712,7 +712,7 @@ class Model:
             * point_estimate_text -> passed to :func:`~arviz_plots.visuals.point_estimate_text`
             * title -> passed to :func:`~arviz_plots.visuals.labelled_title`
             * rug -> passed to :func:`~arviz_plots.visuals.scatter_x`. Defaults to False.
-            * remove_axis -> not passed anywhere, can only be ``False`` to skip calling this function
+            * remove_axis -> not passed, can only be ``False`` to skip calling this function
 
         stats : mapping, optional
             Valid keys are:
@@ -1016,9 +1016,9 @@ class Model:
         if pred_mean not in idata.posterior:
             self.predict(idata, kind="response_params", inplace=True)
 
-        # We should change this to use bayesian_r2 ensuring we pass the correct scale for each family
-        # we could use residual_r2 as a fallback for families we don't have implemented yet
-        # we may want to have an argument to compute the loo_r2 as well or a separate method
+        # We should change this to use bayesian_r2 ensuring we pass the correct scale for each
+        # family we could use residual_r2 as a fallback for families we don't have implemented
+        # yet we may want to have an argument to compute the loo_r2 as well or a separate method
         return residual_r2(idata, pred_mean=pred_mean, obs_name=response_name, summary=summary)
 
     def compute_log_likelihood(self, idata, data=None, inplace=True):
