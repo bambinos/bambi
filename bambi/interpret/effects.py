@@ -16,7 +16,12 @@ from utils import get_model_covariates
 from xarray import DataArray
 
 from bambi import Model
-from bambi.interpret.utils import create_plot_config, get_response_and_target, identity
+from bambi.interpret.utils import (
+    aggregate,
+    create_plot_config,
+    get_response_and_target,
+    identity,
+)
 
 from .helpers import compare, create_inference_data
 from .plots import PlotConfig, plot
@@ -164,7 +169,7 @@ def parse_constrast(constrast: ConstrastParam, data: DataFrame):
                             f"Categorical variable '{name}' values must be a list or array of categories."
                         )
                 else:
-                    return pd.Series(series.mode(), name=name)
+                    return pd.Series(series, name=name)
             case dtype if is_float_dtype(dtype):
                 if values is not None:
                     # Validate and return the values as a Pandas Series
@@ -382,9 +387,9 @@ def predictions(
     y_hat = idata[group][var]
 
     stats_data = get_summary_stats(y_hat, prob, response_transform)
-    summary_df = preds_data.join(stats_data, on=None)
+    summary_df = aggregate(data=preds_data.join(stats_data, on=None), by=average_by)
 
-    return summary_df
+    return summary_df, preds_data, idata
 
 
 def comparisons(
@@ -493,6 +498,8 @@ def comparisons(
         .join(comparison_df, on=None)
     )
 
+    summary_df = aggregate(data=summary_df, by=average_by)
+
     return summary_df
 
 
@@ -549,6 +556,14 @@ def plot_comparisons(
 
 
 def get_summary_stats(x: DataArray, prob: float, transforms) -> DataFrame:
+    """Computes summary statistics (mean and uncertainty interval) of an array.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+    """
     x = transforms(x)
     mean = x.mean(dim=("chain", "draw")).to_series().rename("estimate").to_frame()
 

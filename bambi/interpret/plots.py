@@ -19,9 +19,6 @@ class PlotConfig:
     main: str
     group: str | None = None
     panel: str | None = None
-    # sharex: bool = True
-    # sharey: bool = True
-    # theme: Optional[dict[Any, Any]] = None
 
 
 def plot(data: DataFrame, config: PlotConfig) -> Plot:
@@ -42,6 +39,15 @@ def plot(data: DataFrame, config: PlotConfig) -> Plot:
     if estimate_dim:
         print(f"Detected estimate dimension column: {estimate_dim}")
 
+    # Plotting specification labels
+    ymin = next(filter(lambda col: "lower" in col, data.columns))
+    ymax = next(filter(lambda col: "upper" in col, data.columns))
+
+    # Plotting customization
+    # - ticks
+    # - sharex and sharey
+    # -
+
     # Base figure (must include x-y axis)
     plot = so.Plot(data, x=config.main, y="estimate", color=config.group)
 
@@ -58,16 +64,16 @@ def plot(data: DataFrame, config: PlotConfig) -> Plot:
             plot = plot.add(
                 so.Range(),
                 so.Dodge(),
-                ymin="lower_0.03%",
-                ymax="upper_0.97%",
+                ymin=ymin,
+                ymax=ymax,
             )
         # Line plot if numeric or integer dtype
         case dtype if is_float_dtype(dtype):
             plot = plot.add(so.Line())
             plot = plot.add(
                 so.Band(alpha=0.3),
-                ymin="lower_0.03%",
-                ymax="upper_0.97%",
+                ymin=ymin,
+                ymax=ymax,
             )
         case _:
             raise TypeError(f"Unsupported data type: {data[config.main].dtype}")

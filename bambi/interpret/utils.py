@@ -1,17 +1,37 @@
 # pylint: disable = too-many-function-args
 # pylint: disable = too-many-nested-blocks
 from dataclasses import dataclass, fields
-from typing import Mapping, Optional, Sequence
+from typing import Callable, Mapping, Optional, Sequence
 
 import numpy as np
 from formulae.terms.call import Call
 from formulae.terms.call_resolver import LazyVariable
+from pandas import DataFrame
 
 from bambi import Model
 from bambi.interpret.logs import log_interpret_defaults
 from bambi.utils import get_aliased_name, listify
 
 from .plots import PlotConfig
+
+
+def aggregate(
+    data: DataFrame,
+    by: Optional[str | list[str]],
+    agg_fn: Callable[[DataFrame], DataFrame] = lambda df: df.mean(),
+) -> DataFrame:
+    keywords = ["estimate", "lower", "upper"]
+    # lower and upper columns can have different names
+    # E.g., lower_0.03% or lower_0.05%
+    stat_cols = [
+        col for col in data.columns if any(keyword in col for keyword in keywords)
+    ]
+
+    match by:
+        case None:
+            return data
+        case _:
+            return agg_fn(data.groupby(by=by, observed=True)[stat_cols])
 
 
 def create_plot_config(
