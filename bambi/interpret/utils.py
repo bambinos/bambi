@@ -21,8 +21,8 @@ def aggregate(
     agg_fn: Callable[[DataFrame], DataFrame] = lambda df: df.mean(),
 ) -> DataFrame:
     keywords = ["estimate", "lower", "upper"]
-    # lower and upper columns can have different names
-    # E.g., lower_0.03% or lower_0.05%
+    # Lower and upper columns can have different names
+    # For example, lower_0.03% or lower_0.05%
     stat_cols = [
         col for col in data.columns if any(keyword in col for keyword in keywords)
     ]

@@ -330,6 +330,51 @@ def plot_predictions(
     plot(out, plot_config)
 
 
+def create_grid(variables: tuple[Variable, ...]) -> DataFrame:
+    """Create cross-product grid from variables."""
+    vals = [var.array for var in variables]
+    names = [var.name for var in variables]
+    product = pd.MultiIndex.from_product(vals, names=names)
+
+    return product.to_frame(index=False)
+
+
+def build_predictions_data(
+    model,
+    *,
+    conditional: Optional[Conditional] = None,
+    contrast: Optional[Contrast] = None,
+) -> DataFrame:
+    """Build a predictions dataframe."""
+
+    # Unit level data
+    if conditional is None and contrast is None:
+        return model.data.copy()
+
+    contrast_vars = (
+        parse_constrast(contrast, model.data) if contrast is not None else ()
+    )
+    conditional_vars = (
+        parse_conditional(conditional, model.data) if conditional is not None else ()
+    )
+
+    # Build variable sets
+    model_var_names = get_model_covariates(model).tolist()
+
+    contrast_vars = (contrast_vars,)
+    provided_var_names = {var.name for var in contrast_vars} | {
+        var.name for var in conditional_vars
+    }
+    print(provided_var_names)
+    default_var_names = set(model_var_names) - provided_var_names
+    default_vars = tuple(get_defaults(var, model.data) for var in default_var_names)
+
+    # Combine all variables and create grid
+    all_vars = contrast_vars + conditional_vars + default_vars
+
+    return create_grid(all_vars)
+
+
 def predictions(
     model: Model,
     idata: InferenceData,
@@ -353,27 +398,7 @@ def predictions(
     response_name, target = get_response_and_target(model, target)
     response_transform = transforms.get(response_name, identity)
 
-    provided_vars = parse_conditional(conditional, model.data)
-
-    # Get all terms (covariates) defined in the model formula
-    model_var_names = get_model_covariates(model).tolist()
-    # Get the names of the variables passed by user
-    provided_var_names = [var.name for var in provided_vars]
-    # Determine variables that are defaults
-    default_var_names = tuple(set(model_var_names) - set(provided_var_names))
-    default_vars = tuple(get_defaults(var, model.data) for var in default_var_names)
-    # Combine provided and default vars into a Conditional type
-    all_vars = provided_vars + default_vars
-    conditional = Conditional(variables=all_vars)
-
-    # Create data grid (cross-product of conditional variables data)
-    vals = [var.array for var in conditional.variables]
-    names = [var.name for var in conditional.variables]
-    # Cross-product to build data grid.
-    product = pd.MultiIndex.from_product(
-        vals, names=names
-    )  # Naturally preserves dtypes
-    preds_data = product.to_frame(index=False)
+    preds_data = build_predictions_data(model, conditional=conditional, contrast=None)
 
     pred_kwargs = {
         "idata": idata,
@@ -389,7 +414,7 @@ def predictions(
     stats_data = get_summary_stats(y_hat, prob, response_transform)
     summary_df = aggregate(data=preds_data.join(stats_data, on=None), by=average_by)
 
-    return summary_df, preds_data, idata
+    return summary_df
 
 
 def comparisons(
@@ -431,35 +456,42 @@ def comparisons(
     response_name, target = get_response_and_target(model, target)
     response_transform = transforms.get(response_name, identity)
 
+    preds_data = build_predictions_data(
+        model, conditional=conditional, contrast=contrast
+    )
+
+    provided_contrast_var = parse_constrast(contrast, model.data)
+    contrast: Contrast = Contrast(variable=provided_contrast_var)
+
     # Parse provided constrast and conditional variables
-    provided_contrast_vars = parse_constrast(contrast, model.data)
-    provided_conditional_vars = parse_conditional(conditional, model.data)
-    provided_contrast_var_names = [provided_contrast_vars.name]
-    provided_conditional_var_names = [var.name for var in provided_conditional_vars]
+    # provided_contrast_vars = parse_constrast(contrast, model.data)
+    # provided_conditional_vars = parse_conditional(conditional, model.data)
+    # provided_contrast_var_names = [provided_contrast_vars.name]
+    # provided_conditional_var_names = [var.name for var in provided_conditional_vars]
 
     # Get all terms (covariates) defined in the model formula
-    model_var_names = get_model_covariates(model).tolist()
+    # model_var_names = get_model_covariates(model).tolist()
     # Determine variables that are defaults
-    default_var_names = tuple(
-        set(model_var_names)
-        - set(provided_contrast_var_names)
-        - set(provided_conditional_var_names)
-    )
-    default_vars = tuple(get_defaults(var, model.data) for var in default_var_names)
+    # default_var_names = tuple(
+    #     set(model_var_names)
+    #     - set(provided_contrast_var_names)
+    #     - set(provided_conditional_var_names)
+    # )
+    # default_vars = tuple(get_defaults(var, model.data) for var in default_var_names)
     # Combine provided and default vars into a Conditional type
-    conditional_vars = provided_conditional_vars + default_vars
-    conditional: Conditional = Conditional(variables=conditional_vars)
-    contrast: Contrast = Contrast(variable=provided_contrast_vars)
+    # conditional_vars = provided_conditional_vars + default_vars
+    # conditional: Conditional = Conditional(variables=conditional_vars)
+    # contrast: Contrast = Contrast(variable=provided_contrast_vars)
 
     # Create data grid (cross-product of contrast and conditional variables data)
-    vals = [contrast.variable.array] + [var.array for var in conditional.variables]
-    names = [contrast.variable.name] + [var.name for var in conditional.variables]
+    # vals = [contrast.variable.array] + [var.array for var in conditional.variables]
+    # names = [contrast.variable.name] + [var.name for var in conditional.variables]
 
     # Cross-product to build data grid.
-    product = pd.MultiIndex.from_product(
-        vals, names=names
-    )  # Naturally preserves dtypes
-    preds_data = product.to_frame(index=False)
+    # product = pd.MultiIndex.from_product(
+    # vals, names=names
+    # )  # Naturally preserves dtypes
+    # preds_data = product.to_frame(index=False)
 
     pred_kwargs = {
         "idata": idata,
