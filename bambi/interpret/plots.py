@@ -14,7 +14,17 @@ from seaborn.objects import Plot
 
 @dataclass
 class PlotConfig:
-    "Product type"
+    """Configuration for plotting interpret results.
+
+    Parameters
+    ----------
+    main : str
+        The primary variable to plot on the x-axis.
+    group : str or None
+        Optional grouping variable for color differentiation.
+    panel : str or None
+        Optional faceting variable for creating subplots.
+    """
 
     main: str
     group: str | None = None
@@ -22,18 +32,29 @@ class PlotConfig:
 
 
 def plot(data: DataFrame, config: PlotConfig) -> Plot:
-    """Declaratively plot `data` according to a plot `config`.
+    """Declaratively plot data according to a plot configuration.
 
     Parameters
     ----------
     data : DataFrame
-        A `interpret` summary dataframe.
+        An interpret summary DataFrame containing estimate, lower, and upper columns
+        along with variable columns specified in the config.
     config : PlotConfig
-        A plotting config used to build a Seaborn objects plotting specification.
+        A plotting configuration used to build a Seaborn objects plotting specification.
+        Specifies the main variable (x-axis), optional grouping variable (color),
+        and optional panel variable (facets).
 
     Returns
     -------
-    A Seaborn objects `Plot`.
+    Plot
+        A Seaborn objects Plot with appropriate marks (Dot/Line) and bands (Range/Band)
+        based on the data types of the variables. Categorical and integer types use
+        strip plots with error bars, while float types use line plots with bands.
+
+    Raises
+    ------
+    TypeError
+        If the main variable has an unsupported data type.
     """
     estimate_dim = list(filter(lambda col: "dim" in col, data.columns))
     if estimate_dim:

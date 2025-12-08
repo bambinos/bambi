@@ -1,11 +1,12 @@
 from functools import partial
 from itertools import combinations
-from typing import Callable
+from typing import Any, Callable
 
 import numpy as np
 import xarray as xr
 from arviz import InferenceData
 from pandas import DataFrame
+from xarray import DataArray
 
 from .types import Contrast, Variable
 
@@ -13,13 +14,26 @@ from .types import Contrast, Variable
 def create_inference_data(
     preds_idata: InferenceData, preds_data: DataFrame
 ) -> InferenceData:
-    """
-    Creates a new `InferenceData` object by replacing the existing `observed_data` group of `preds_idata`
-    with the `preds_data`.
+    """Create a new InferenceData object by replacing the observed_data group.
+
+    Parameters
+    ----------
+    preds_idata : InferenceData
+        The InferenceData object containing posterior samples.
+    preds_data : DataFrame
+        The DataFrame to use as the new observed_data group.
 
     Returns
     -------
     InferenceData
+        A new InferenceData object with the observed_data group replaced by preds_data.
+
+    Raises
+    ------
+    ValueError
+        If the InferenceData object does not contain an 'observed_data' group.
+    NotImplementedError
+        If the InferenceData object has more than one coordinate.
     """
     new_grid_idata = preds_idata.copy()
     xr_df = xr.Dataset.from_dataframe(preds_data)
@@ -45,8 +59,28 @@ def create_inference_data(
 
 
 def filter_draws(
-    val, idata: InferenceData, group: str, target: str, variable: Variable
-):
+    val: Any, idata: InferenceData, group: str, target: str, variable: Variable
+) -> DataArray:
+    """Filter draws from an InferenceData group based on variable values.
+
+    Parameters
+    ----------
+    val : Any
+        The value to filter by.
+    idata : InferenceData
+        The InferenceData object containing the draws.
+    group : str
+        The name of the group to filter from (e.g., 'posterior', 'posterior_predictive').
+    target : str
+        The target variable name within the group.
+    variable : Variable
+        The variable (pandas Series) to use for filtering.
+
+    Returns
+    -------
+    DataArray
+        An xarray DataArray containing the filtered draws.
+    """
     coordinate_name = list(idata["data"].coords)[0]
 
     # Get indices where condition is true
@@ -68,8 +102,28 @@ def compare(
     target: str,
     group: str,
     comparison_fn: Callable,
-):
-    """Compares samples in an InferenceData group given the Contrast variables."""
+) -> dict[str, DataArray]:
+    """Compare samples in an InferenceData group given the Contrast variables.
+
+    Parameters
+    ----------
+    idata : InferenceData
+        The InferenceData object containing the samples to compare.
+    contrast : Contrast
+        The Contrast object specifying the variable to create contrasts for.
+    target : str
+        The target variable name to compare within the group.
+    group : str
+        The name of the group to compare (e.g., 'posterior', 'posterior_predictive').
+    comparison_fn : Callable
+        The comparison function to apply to pairs of draws (e.g., difference, ratio).
+
+    Returns
+    -------
+    dict[str, DataArray]
+        A dictionary mapping comparison labels (e.g., "1_vs_2") to DataArrays
+        containing the comparison results.
+    """
     filter_fn = partial(
         filter_draws,
         idata=idata,

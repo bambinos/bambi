@@ -1,7 +1,7 @@
 # pylint: disable = too-many-function-args
 # pylint: disable = too-many-nested-blocks
 from dataclasses import dataclass, fields
-from typing import Callable, Mapping, Optional, Sequence
+from typing import Any, Callable, Mapping, Optional, Sequence
 
 import numpy as np
 from formulae.terms.call import Call
@@ -10,9 +10,42 @@ from pandas import DataFrame
 
 from bambi import Model
 from bambi.interpret.logs import log_interpret_defaults
-from bambi.utils import get_aliased_name, listify
+from bambi.utils import get_aliased_name
 
 from .plots import PlotConfig
+
+
+def get_response_and_target(model: Model, target: str) -> tuple[str, str | None]:
+    """Get the response name and target parameter from the model.
+
+    Parameters
+    ----------
+    model : Model
+        The fitted Bambi model.
+    target : str
+        Target model parameter (e.g., 'mean', or a distributional component name).
+
+    Returns
+    -------
+    tuple[str, str or None]
+        A tuple containing the response name and the target parameter name.
+        If target is 'mean', returns the response name and the parent parameter.
+        Otherwise, returns the component alias (or response name) and the target (or None).
+    """
+    match target:
+        case "mean":
+            return (
+                get_aliased_name(model.response_component.term),
+                model.family.likelihood.parent,
+            )
+        case _:
+            component = model.components[target]
+            return (
+                get_aliased_name(component)
+                if component.alias
+                else get_aliased_name(model.response_component.term),
+                None if component.alias else target,
+            )
 
 
 def aggregate(
@@ -20,6 +53,22 @@ def aggregate(
     by: Optional[str | list[str]],
     agg_fn: Callable[[DataFrame], DataFrame] = lambda df: df.mean(),
 ) -> DataFrame:
+    """Aggregate data by grouping variables.
+
+    Parameters
+    ----------
+    data : DataFrame
+        The DataFrame to aggregate.
+    by : str or list[str] or None
+        Column name(s) to group by. If None, returns data unchanged.
+    agg_fn : Callable[[DataFrame], DataFrame]
+        Aggregation function to apply to each group. Default is mean.
+
+    Returns
+    -------
+    DataFrame
+        The aggregated DataFrame with summary statistics.
+    """
     keywords = ["estimate", "lower", "upper"]
     # Lower and upper columns can have different names
     # For example, lower_0.03% or lower_0.05%
@@ -31,17 +80,33 @@ def aggregate(
         case None:
             return data
         case _:
-            return agg_fn(data.groupby(by=by, observed=True)[stat_cols])
+            return agg_fn(data.groupby(by=by, observed=True)[stat_cols]).reset_index()
 
 
 def create_plot_config(
-    var_names: Sequence[str], overrides: Optional[Mapping[str, str]] = None
+    var_names: list[str], overrides: Optional[Mapping[str, str]] = None
 ) -> PlotConfig:
-    """
-    Create a 'PlotConfig' from 'var_names' or 'overrides'.
+    """Create a PlotConfig from variable names or overrides.
 
-    Default behavior assigns variables in the order of: main, group, panel. If overrides is
-    provided uses those mappings instead.
+    Parameters
+    ----------
+    var_names : list[str]
+        List of variable names to create the plot configuration from.
+    overrides : Mapping[str, str] or None
+        Dictionary to override default plotting sequence. Valid keys are 'main', 'group', and 'panel'.
+
+    Returns
+    -------
+    PlotConfig
+        A PlotConfig object with main, group, and panel assignments.
+        Default behavior assigns variables in the order of: main, group, panel.
+        If overrides is provided, uses those mappings instead.
+
+    Raises
+    ------
+    ValueError
+        If no variable names are provided, if more than 3 variables are provided,
+        if 'main' key is missing from overrides, or if invalid keys are in overrides.
     """
     match overrides:
         # Pattern match on valid subplot_kwarg structure
@@ -90,9 +155,17 @@ def create_plot_config(
 
 
 def get_model_terms(model: Model) -> dict:
-    """
-    Loops through the distributional components of a bambi model and
-    returns a dictionary of terms.
+    """Loop through the distributional components of a Bambi model and return terms.
+
+    Parameters
+    ----------
+    model : Model
+        The fitted Bambi model.
+
+    Returns
+    -------
+    dict
+        A dictionary containing all terms from the model's distributional components.
     """
     terms = {}
     for component in model.distributional_components.values():
@@ -106,8 +179,17 @@ def get_model_terms(model: Model) -> dict:
 
 
 def get_model_covariates(model: Model) -> np.ndarray:
-    """
-    Return covariates specified in the model.
+    """Return covariates specified in the model.
+
+    Parameters
+    ----------
+    model : Model
+        The fitted Bambi model.
+
+    Returns
+    -------
+    np.ndarray
+        An array of unique covariate names present in the model.
     """
     terms = get_model_terms(model)
     covariates = []
@@ -145,28 +227,17 @@ def get_model_covariates(model: Model) -> np.ndarray:
     return np.unique(flatten_covariates)
 
 
-def get_response_and_target(model: Model, target: str):
-    """
+def identity(x: Any) -> Any:
+    """Identity function that returns its input unchanged.
+
     Parameters
     ----------
-    target : str
-        Target model parameter...
+    x : Any
+        Input value.
+
+    Returns
+    -------
+    Any
+        The same value as the input.
     """
-    match target:
-        case "mean":
-            return (
-                get_aliased_name(model.response_component.term),
-                model.family.likelihood.parent,
-            )
-        case _:
-            component = model.components[target]
-            return (
-                get_aliased_name(component)
-                if component.alias
-                else get_aliased_name(model.response_component.term),
-                None if component.alias else target,
-            )
-
-
-def identity(x):
     return x

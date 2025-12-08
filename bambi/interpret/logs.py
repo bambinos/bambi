@@ -1,20 +1,31 @@
 import logging
+from typing import Callable
 
 from bambi import config
 
 
-def log_interpret_defaults(func):
+def log_interpret_defaults(func: Callable) -> Callable:
     """Decorator for functions that compute default values.
 
     Logs output to console if `bmb.config["INTERPRET_VERBOSE"] = True` and when
     default values are computed for the variable of interest, i.e., 'contrast'
     or 'wrt' of 'comparisons' and 'slopes', as well as the 'conditional'
     parameter of 'comparisons', 'predictions', and 'slopes'.
+
+    Parameters
+    ----------
+    func : Callable
+        The function to decorate. Should be a function that computes default values
+        for interpret operations.
+
+    Returns
+    -------
+    Callable
+        The wrapped function that includes logging functionality.
     """
     logger = logging.getLogger("__bambi_interpret__")
 
     def wrapper(*args, **kwargs):
-
         if not config["INTERPRET_VERBOSE"]:
             return func(*args, **kwargs)
 
@@ -34,13 +45,17 @@ def log_interpret_defaults(func):
             data_dict = kwargs.get("data_dict", args[1])
             keys_before = list(data_dict.keys())
             keys_after = list(func(*args, **kwargs).keys())
-            covariate_name = ", ".join([key for key in keys_after if key not in keys_before])
+            covariate_name = ", ".join(
+                [key for key in keys_after if key not in keys_before]
+            )
 
             if len(covariate_name) > 0:
                 arg_name = "unspecified"
 
         if arg_name:
-            logger.info("Default computed for %s variable: %s", arg_name, covariate_name)
+            logger.info(
+                "Default computed for %s variable: %s", arg_name, covariate_name
+            )
 
         return func(*args, **kwargs)
 

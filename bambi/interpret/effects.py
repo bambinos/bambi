@@ -1,35 +1,33 @@
-from dataclasses import dataclass
 from typing import Any, Callable, Mapping, Optional
 
 import arviz as az
 import numpy as np
 import pandas as pd
 from arviz import InferenceData
-from numpy.typing import ArrayLike
 from pandas import DataFrame, Series
 from pandas.api.types import (
     is_float_dtype,
     is_integer_dtype,
     is_numeric_dtype,
 )
-from utils import get_model_covariates
 from xarray import DataArray
 
 from bambi import Model
 from bambi.interpret.utils import (
     aggregate,
     create_plot_config,
+    get_model_covariates,
     get_response_and_target,
     identity,
 )
 
 from .helpers import compare, create_inference_data
-from .plots import PlotConfig, plot
+from .plots import plot
 from .types import (
     Conditional,
     ConditionalParam,
-    ConstrastParam,
     Contrast,
+    ContrastParam,
     Values,
     Variable,
 )
@@ -38,8 +36,32 @@ from .types import (
 def validate_values(
     values: Values, var_name: str, target_dtype: np.dtype | None = None
 ) -> Series:
-    """Validate input values and convert to pandas Series with consistent dtype."""
+    """Validate and convert user provided values to a Pandas Series.
+
+    Parameters
+    ----------
+    values : Values
+        User-provided values as a list, numpy array, or pandas Series.
+    var_name : str
+        Name of the variable for error messages and Series naming.
+    target_dtype : np.dtype or None
+        Target data type to convert values to. If None, uses the natural dtype.
+
+    Returns
+    -------
+    Series
+        A pandas Series containing the validated and converted values.
+
+    Raises
+    ------
+    TypeError
+        If values are not a list, ndarray, or Series, or if they cannot be converted
+        to the target dtype.
+    ValueError
+        If the values container is empty.
+    """
     match values:
+        # Values can be a list
         case list() as lst:
             # Validate all elements are int or float
             if not all(isinstance(x, (int, float)) for x in lst):
@@ -59,7 +81,7 @@ def validate_values(
                         f"Cannot convert list values for '{var_name}' to target dtype {target_dtype}: {e}"
                     )
             return series
-
+        # Values can be an ndarray
         case np.ndarray() as arr:
             # Validate array is numeric
             if not np.issubdtype(arr.dtype, np.number):
@@ -78,7 +100,7 @@ def validate_values(
                         f"Cannot convert array values for '{var_name}' to target dtype {target_dtype}: {e}"
                     )
             return series
-
+        # Values can be a Pandas Series
         case Series() as series:
             # Validate series is numeric
             if not is_numeric_dtype(series.dtype):
@@ -97,13 +119,6 @@ def validate_values(
                         f"Cannot convert Series values for '{var_name}' to target dtype {target_dtype}: {e}"
                     )
             return result
-
-        case None:
-            raise TypeError(
-                f"Values for '{var_name}' cannot be None. "
-                "This indicates a programming error in parse_conditional."
-            )
-
         case _:
             raise TypeError(
                 f"Values for '{var_name}' must be one of: list[int|float], np.ndarray, or pd.Series. "
@@ -111,16 +126,36 @@ def validate_values(
             )
 
 
-def get_defaults(var: str, data: DataFrame):
-    """Computes a default value for the given `var` in the `data`."""
+def get_defaults(var: str, data: DataFrame) -> Series:
+    """Compute a default value for the given variable in the data.
+
+    Parameters
+    ----------
+    var : str
+        Name of the variable to compute defaults for.
+    data : DataFrame
+        DataFrame containing the variable.
+
+    Returns
+    -------
+    Series
+        A pandas Series containing the default value(s) for the variable.
+        For categorical and integer types, returns the mode.
+        For float types, returns the mean.
+
+    Raises
+    ------
+    TypeError
+        If the variable has an unsupported data type.
+    """
     series = data[var]
 
     match series.dtype:
         case pd.CategoricalDtype():
             # Takes the first mode if there are multiple modes
-            return pd.Series(series.mode().iloc[0], name=var)  # .astype(series.dtype)
+            return pd.Series(series.mode().iloc[0], name=var)
         case dtype if is_float_dtype(dtype):
-            return pd.Series(series.mean(), name=var)  # .astype(series.dtype)
+            return pd.Series(series.mean(), name=var)
         case dtype if is_integer_dtype(dtype):
             # Takes the first mode if there are multiple modes
             return pd.Series(series.mode().iloc[0], name=var)
@@ -128,7 +163,36 @@ def get_defaults(var: str, data: DataFrame):
             raise TypeError(f"Unsupported data type: {series.dtype}")
 
 
-def parse_constrast(constrast: ConstrastParam, data: DataFrame):
+def get_contrast(contrast: ContrastParam, data: DataFrame) -> Contrast:
+    """Parse contrast parameter and create a Variable for comparisons.
+
+    Parameters
+    ----------
+    contrast : ContrastParam
+        The contrast specification, either as a string (variable name) or
+        a dictionary mapping variable name to values.
+    data : DataFrame
+        DataFrame containing the variable data.
+
+    Returns
+    -------
+    Variable
+        A pandas Series representing the contrast variable with appropriate values.
+        For categorical variables, returns all categories or user-specified categories.
+        For float variables, returns mean ± 0.5 or user-specified values.
+        For integer variables, returns mode ± 1 or user-specified values.
+
+    Raises
+    ------
+    KeyError
+        If the variable name is not found in the DataFrame.
+    ValueError
+        If provided categorical values are not valid categories, or if the
+        contrast dict does not have exactly one key-value pair.
+    TypeError
+        If the contrast type is not supported.
+    """
+
     def create_variable(name: str, values: Values | None = None) -> Variable:
         if name not in data.columns:
             raise KeyError(
@@ -187,27 +251,56 @@ def parse_constrast(constrast: ConstrastParam, data: DataFrame):
                     mode = series.mode().iloc[0]
                     return pd.Series([mode - 1, mode + 1], name=name).astype(dtype)
 
-    match constrast:
+    match contrast:
         case str():
-            variable = create_variable(constrast)
+            variable = Contrast(variable=create_variable(contrast))
         case dict():
             # For dict, assume single key-value pair for contrast
-            if len(constrast) != 1:
+            if len(contrast) != 1:
                 raise ValueError(
-                    f"Contrast dict must have exactly one key-value pair, got {len(constrast)}"
+                    f"Contrast dict must have exactly one key-value pair, got {len(contrast)}"
                 )
-            name, values = next(iter(constrast.items()))
-            variable = create_variable(name, values)
+            name, values = next(iter(contrast.items()))
+            variable = Contrast(variable=create_variable(name, values))
         case _:
-            raise TypeError(f"Unsupported contrast type: {type(constrast)}")
+            raise TypeError(f"Unsupported contrast type: {type(contrast)}")
 
     return variable
 
 
-def parse_conditional(
+def get_conditional(
     conditional: ConditionalParam,
     data: DataFrame,
-):
+) -> Conditional:
+    """Parse conditional parameter and create Variables for conditioning.
+
+    Parameters
+    ----------
+    conditional : ConditionalParam
+        The conditional specification, either as a string (single variable name),
+        a list of strings (multiple variable names), or a dictionary mapping
+        variable names to values.
+    data : DataFrame
+        DataFrame containing the variable data.
+
+    Returns
+    -------
+    tuple[Variable, ...]
+        A tuple of pandas Series representing the conditional variables with appropriate values.
+        For categorical variables, returns all categories or user-specified categories.
+        For float variables, returns 50 equally-spaced points from min to max or user-specified values.
+        For integer variables, returns all unique values or user-specified values.
+
+    Raises
+    ------
+    KeyError
+        If a variable name is not found in the DataFrame.
+    ValueError
+        If provided categorical values are not valid categories.
+    TypeError
+        If the conditional type is not supported.
+    """
+
     def create_variable(name: str, values: Values | None = None) -> Variable:
         if name not in data.columns:
             raise KeyError(
@@ -269,69 +362,39 @@ def parse_conditional(
 
     match conditional:
         case str():
-            variables = (create_variable(conditional),)
+            variables = Conditional((create_variable(conditional),))
         case list():
-            variables = tuple(create_variable(name) for name in conditional)
-        case dict():
-            variables = tuple(
-                create_variable(name, values) for name, values in conditional.items()
+            variables = Conditional(
+                tuple(create_variable(name) for name in conditional)
             )
+        case dict():
+            variables = Conditional(
+                tuple(
+                    create_variable(name, values)
+                    for name, values in conditional.items()
+                )
+            )
+        case None:
+            variables = Conditional(tuple())
         case _:
             raise TypeError(f"Unsupported conditional type: {type(conditional)}")
 
     return variables
 
 
-def plot_predictions(
-    model: Model,
-    idata: InferenceData,
-    conditional: ConditionalParam,
-    average_by: str | list | bool | None = None,
-    target: str = "mean",
-    pps: bool = False,
-    use_hdi: bool = True,
-    prob: float = az.rcParams["stats.ci_prob"],
-    transforms: dict | None = None,
-    sample_new_groups: bool = False,
-    fig_kwargs: Optional[dict[str, Any]] = None,
-    subplot_kwargs: Optional[Mapping[str, str]] = None,
-):
-    """
+def create_grid(variables: tuple[Variable, ...]) -> DataFrame:
+    """Create cross-product grid from variables.
+
     Parameters
     ----------
-    subplot_kwargs :
-        Overrides default plotting sequence.
+    variables : tuple[Variable, ...]
+        Tuple of pandas Series representing variables.
+
+    Returns
+    -------
+    DataFrame
+        A DataFrame containing the Cartesian product of all variable values.
     """
-    # Cannot plot more than three-dimensions
-    provided_vars = parse_conditional(conditional, model.data)
-    if len(provided_vars) > 3 and average_by is None:
-        raise ValueError(
-            f"Cannot plot more than 3 conditional variables. Received: {len(provided_vars)}. "
-            f"Consider removing a variable(s) or passing a value(s) to `average_by`."
-        )
-
-    provided_var_names = [var.name for var in provided_vars]
-
-    plot_config = create_plot_config(provided_var_names, subplot_kwargs)
-
-    out = predictions(
-        model=model,
-        idata=idata,
-        conditional=conditional,
-        average_by=average_by,
-        target=target,
-        pps=pps,
-        use_hdi=use_hdi,
-        prob=prob,
-        transforms=transforms,
-        sample_new_groups=sample_new_groups,
-    )
-
-    plot(out, plot_config)
-
-
-def create_grid(variables: tuple[Variable, ...]) -> DataFrame:
-    """Create cross-product grid from variables."""
     vals = [var.array for var in variables]
     names = [var.name for var in variables]
     product = pd.MultiIndex.from_product(vals, names=names)
@@ -339,46 +402,51 @@ def create_grid(variables: tuple[Variable, ...]) -> DataFrame:
     return product.to_frame(index=False)
 
 
-def build_predictions_data(
-    model,
-    *,
-    conditional: Optional[Conditional] = None,
-    contrast: Optional[Contrast] = None,
-) -> DataFrame:
-    """Build a predictions dataframe."""
+def get_summary_stats(x: DataArray, prob: float, transforms: Callable) -> DataFrame:
+    """Compute summary statistics (mean and uncertainty interval) of an array.
 
-    # Unit level data
-    if conditional is None and contrast is None:
-        return model.data.copy()
+    Parameters
+    ----------
+    x : DataArray
+        The xarray DataArray containing posterior samples.
+    prob : float
+        Probability for the credible interval (between 0 and 1).
+    transforms : Callable
+        Function to transform the data before computing statistics.
 
-    contrast_vars = (
-        parse_constrast(contrast, model.data) if contrast is not None else ()
+    Returns
+    -------
+    DataFrame
+        A DataFrame containing the estimate (mean) and lower/upper bounds of the credible interval.
+    """
+    x = transforms(x)
+    mean = x.mean(dim=("chain", "draw")).to_series().rename("estimate").to_frame()
+
+    lower_bound = round((1 - prob) / 2, 4)
+    upper_bound = 1 - lower_bound
+    bounds = (
+        x.quantile(q=(lower_bound, upper_bound), dim=("chain", "draw"))
+        .to_series()
+        .unstack(level="quantile")
+        .rename(
+            columns={
+                lower_bound: f"lower_{lower_bound}%",
+                upper_bound: f"upper_{upper_bound}%",
+            }
+        )
     )
-    conditional_vars = (
-        parse_conditional(conditional, model.data) if conditional is not None else ()
-    )
 
-    # Build variable sets
-    model_var_names = get_model_covariates(model).tolist()
+    stats = mean.join(bounds).reset_index().drop("__obs__", axis=1)
 
-    contrast_vars = (contrast_vars,)
-    provided_var_names = {var.name for var in contrast_vars} | {
-        var.name for var in conditional_vars
-    }
-    print(provided_var_names)
-    default_var_names = set(model_var_names) - provided_var_names
-    default_vars = tuple(get_defaults(var, model.data) for var in default_var_names)
-
-    # Combine all variables and create grid
-    all_vars = contrast_vars + conditional_vars + default_vars
-
-    return create_grid(all_vars)
+    return stats
 
 
 def predictions(
     model: Model,
     idata: InferenceData,
-    conditional: ConditionalParam,
+    conditional: Optional[
+        str | list[str] | dict[str, np.ndarray | list | int | float]
+    ] = None,
     average_by: str | list | bool | None = None,
     target: str = "mean",
     pps: bool = False,
@@ -387,7 +455,41 @@ def predictions(
     transforms: dict | None = None,
     sample_new_groups: bool = False,
 ) -> DataFrame:
-    """Compute Conditional Adjusted Predictions."""
+    """Compute conditional adjusted predictions.
+
+    Parameters
+    ----------
+    model : Model
+        The fitted Bambi model.
+    idata : InferenceData
+        InferenceData object containing the posterior samples.
+    conditional : ConditionalParam
+        Variables to condition on for predictions.
+    average_by : str or list or bool or None
+        Variables to average predictions over.
+    target : str
+        The target parameter to predict. Default is "mean".
+    pps : bool
+        Whether to use posterior predictive samples. Default is False.
+    use_hdi : bool
+        Whether to use highest density interval. Default is True.
+    prob : float
+        Probability for the credible interval. Default is from arviz rcParams.
+    transforms : dict or None
+        Dictionary of transformations to apply to predictions.
+    sample_new_groups : bool
+        Whether to sample new group levels. Default is False.
+
+    Returns
+    -------
+    DataFrame
+        A DataFrame containing the conditional adjusted predictions with summary statistics.
+
+    Raises
+    ------
+    ValueError
+        If prob is not between 0 and 1.
+    """
     if not 0 < prob < 1:
         raise ValueError(
             f"'prob' must be greater than 0 and smaller than 1. It is {prob}."
@@ -398,7 +500,26 @@ def predictions(
     response_name, target = get_response_and_target(model, target)
     response_transform = transforms.get(response_name, identity)
 
-    preds_data = build_predictions_data(model, conditional=conditional, contrast=None)
+    conditional = get_conditional(conditional, model.data)
+
+    # Parse defaults
+    # Get all terms (covariates) defined in the model formula
+    model_var_names = get_model_covariates(model).tolist()
+
+    # Determine variables that are defaults
+    default_var_names = tuple(
+        set(model_var_names) - set(var.name for var in conditional.variables)
+    )
+    default_vars = tuple(get_defaults(var, model.data) for var in default_var_names)
+    all_vars = conditional.variables + default_vars
+
+    if not conditional.variables:
+        # Unit-level data
+        preds_data = model.data.copy()
+    else:
+        # Data grid (cross-product)
+        conditional = Conditional(variables=all_vars)
+        preds_data = create_grid(conditional.variables)
 
     pred_kwargs = {
         "idata": idata,
@@ -417,11 +538,95 @@ def predictions(
     return summary_df
 
 
+def plot_predictions(
+    model: Model,
+    idata: InferenceData,
+    conditional: Optional[
+        str | list[str] | dict[str, np.ndarray | list | int | float]
+    ] = None,
+    average_by: str | list | bool | None = None,
+    target: str = "mean",
+    pps: bool = False,
+    use_hdi: bool = True,
+    prob: float = az.rcParams["stats.ci_prob"],
+    transforms: dict | None = None,
+    sample_new_groups: bool = False,
+    fig_kwargs: Optional[dict[str, Any]] = None,
+    subplot_kwargs: Optional[Mapping[str, str]] = None,
+) -> None:
+    """Plot conditional adjusted predictions.
+
+    Parameters
+    ----------
+    model : Model
+        The fitted Bambi model.
+    idata : InferenceData
+        InferenceData object containing the posterior samples.
+    conditional : ConditionalParam
+        Variables to condition on for predictions.
+    average_by : str or list or bool or None
+        Variables to average predictions over.
+    target : str
+        The target parameter to predict. Default is "mean".
+    pps : bool
+        Whether to use posterior predictive samples. Default is False.
+    use_hdi : bool
+        Whether to use highest density interval. Default is True.
+    prob : float
+        Probability for the credible interval. Default is from arviz rcParams.
+    transforms : dict or None
+        Dictionary of transformations to apply to predictions.
+    sample_new_groups : bool
+        Whether to sample new group levels. Default is False.
+    fig_kwargs : dict or None
+        Additional keyword arguments for figure customization.
+    subplot_kwargs : Mapping[str, str] or None
+        Overrides default plotting sequence (main, group, panel).
+
+    Returns
+    -------
+    None
+        Displays the plot.
+
+    Raises
+    ------
+    ValueError
+        If more than 3 conditional variables are provided without averaging.
+    """
+    # Cannot plot more than three dimensions
+    _conditional = get_conditional(conditional, model.data)
+    if len(_conditional.variables) > 3 and average_by is None:
+        raise ValueError(
+            f"Cannot plot more than 3 conditional variables. Received: {len(_conditional.variables)}. "
+            f"Consider removing a variable(s) or passing a value(s) to `average_by`."
+        )
+
+    provided_var_names = [var.name for var in _conditional.variables]
+    plot_config = create_plot_config(provided_var_names, subplot_kwargs)
+
+    summary_df = predictions(
+        model=model,
+        idata=idata,
+        conditional=conditional,
+        average_by=average_by,
+        target=target,
+        pps=pps,
+        use_hdi=use_hdi,
+        prob=prob,
+        transforms=transforms,
+        sample_new_groups=sample_new_groups,
+    )
+
+    plot(summary_df, plot_config)
+
+
 def comparisons(
     model: Model,
     idata: InferenceData,
-    contrast: ConstrastParam,
-    conditional: ConditionalParam,
+    contrast: str | dict[str, np.ndarray | list | int | float],
+    conditional: Optional[
+        str | list[str] | dict[str, np.ndarray | list | int | float]
+    ] = None,
     average_by: str | list | bool | None = None,
     target: str = "mean",
     pps: bool = False,
@@ -430,8 +635,48 @@ def comparisons(
     prob: float = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
     sample_new_groups: bool = False,
-):
-    """Compute conditional adjusted comparisons."""
+) -> DataFrame:
+    """Compute conditional adjusted comparisons.
+
+    Parameters
+    ----------
+    model : Model
+        The fitted Bambi model.
+    idata : InferenceData
+        InferenceData object containing the posterior samples.
+    contrast : ContrastParam
+        Variable(s) to create contrasts for.
+    conditional : ConditionalParam
+        Variables to condition on for comparisons.
+    average_by : str or list or bool or None
+        Variables to average comparisons over.
+    target : str
+        The target parameter to compare. Default is "mean".
+    pps : bool
+        Whether to use posterior predictive samples. Default is False.
+    comparison : Callable or str
+        Comparison function or string ("diff", "ratio", "lift"). Default is "diff".
+    use_hdi : bool
+        Whether to use highest density interval. Default is True.
+    prob : float
+        Probability for the credible interval. Default is from arviz rcParams.
+    transforms : dict or None
+        Dictionary of transformations to apply to comparisons.
+    sample_new_groups : bool
+        Whether to sample new group levels. Default is False.
+
+    Returns
+    -------
+    DataFrame
+        A DataFrame containing the conditional adjusted comparisons with summary statistics.
+
+    Raises
+    ------
+    ValueError
+        If prob is not between 0 and 1.
+    TypeError
+        If comparison is not a callable or valid string.
+    """
     if not 0 < prob < 1:
         raise ValueError(
             f"'prob' must be greater than 0 and smaller than 1. It is {prob}."
@@ -456,42 +701,39 @@ def comparisons(
     response_name, target = get_response_and_target(model, target)
     response_transform = transforms.get(response_name, identity)
 
-    preds_data = build_predictions_data(
-        model, conditional=conditional, contrast=contrast
-    )
+    contrast = get_contrast(contrast, model.data)
+    conditional = get_conditional(conditional, model.data)
 
-    provided_contrast_var = parse_constrast(contrast, model.data)
-    contrast: Contrast = Contrast(variable=provided_contrast_var)
-
-    # Parse provided constrast and conditional variables
-    # provided_contrast_vars = parse_constrast(contrast, model.data)
-    # provided_conditional_vars = parse_conditional(conditional, model.data)
-    # provided_contrast_var_names = [provided_contrast_vars.name]
-    # provided_conditional_var_names = [var.name for var in provided_conditional_vars]
-
+    # Parse defaults
     # Get all terms (covariates) defined in the model formula
-    # model_var_names = get_model_covariates(model).tolist()
+    model_var_names = get_model_covariates(model).tolist()
+
     # Determine variables that are defaults
-    # default_var_names = tuple(
-    #     set(model_var_names)
-    #     - set(provided_contrast_var_names)
-    #     - set(provided_conditional_var_names)
+    default_var_names = tuple(
+        set(model_var_names)
+        - set(var.name for var in conditional.variables)
+        - set([contrast.variable.name])
+    )
+    default_vars = tuple(get_defaults(var, model.data) for var in default_var_names)
+    conditional_vars = conditional.variables + default_vars
+
+    if not conditional.variables:
+        # Unit-level data
+        preds_data = model.data.copy()
+    else:
+        # Data grid (cross-product)
+        conditional = Conditional(variables=conditional_vars)
+        preds_data = create_grid((contrast.variable, *conditional.variables))
+
+    # # Parse variables and create predictions dataframe
+    # contrast, conditional = parse_variables_for_comparisons(
+    #     model, contrast, conditional
     # )
-    # default_vars = tuple(get_defaults(var, model.data) for var in default_var_names)
-    # Combine provided and default vars into a Conditional type
-    # conditional_vars = provided_conditional_vars + default_vars
-    # conditional: Conditional = Conditional(variables=conditional_vars)
-    # contrast: Contrast = Contrast(variable=provided_contrast_vars)
-
-    # Create data grid (cross-product of contrast and conditional variables data)
-    # vals = [contrast.variable.array] + [var.array for var in conditional.variables]
-    # names = [contrast.variable.name] + [var.name for var in conditional.variables]
-
-    # Cross-product to build data grid.
-    # product = pd.MultiIndex.from_product(
-    # vals, names=names
-    # )  # Naturally preserves dtypes
-    # preds_data = product.to_frame(index=False)
+    # preds_data = create_prediction_dataframe(
+    #     model, conditional=conditional, contrast=contrast
+    # )
+    # # contrast: Contrast = Contrast(contrast_var)
+    # # conditional: Conditional = Conditional((*conditional_vars, *default_vars))
 
     pred_kwargs = {
         "idata": idata,
@@ -538,8 +780,10 @@ def comparisons(
 def plot_comparisons(
     model: Model,
     idata: InferenceData,
-    contrast: ConstrastParam,
-    conditional: ConditionalParam,
+    contrast: str | dict[str, np.ndarray | list | int | float],
+    conditional: Optional[
+        str | list[str] | dict[str, np.ndarray | list | int | float]
+    ] = None,
     average_by: str | list | bool | None = None,
     target: str = "mean",
     pps: bool = False,
@@ -550,26 +794,62 @@ def plot_comparisons(
     sample_new_groups: bool = False,
     fig_kwargs: Optional[dict[str, Any]] = None,
     subplot_kwargs: Optional[Mapping[str, str]] = None,
-):
-    """
+) -> None:
+    """Plot conditional adjusted comparisons.
+
     Parameters
     ----------
-    subplot_kwargs :
-        Overrides default plotting sequence.
+    model : Model
+        The fitted Bambi model.
+    idata : InferenceData
+        InferenceData object containing the posterior samples.
+    contrast : contrastParam
+        Variable(s) to create contrasts for.
+    conditional : ConditionalParam
+        Variables to condition on for comparisons.
+    average_by : str or list or bool or None
+        Variables to average comparisons over.
+    target : str
+        The target parameter to compare. Default is "mean".
+    pps : bool
+        Whether to use posterior predictive samples. Default is False.
+    comparison : Callable or str
+        Comparison function or string ("diff", "ratio", "lift"). Default is "diff".
+    use_hdi : bool
+        Whether to use highest density interval. Default is True.
+    prob : float
+        Probability for the credible interval. Default is from arviz rcParams.
+    transforms : dict or None
+        Dictionary of transformations to apply to comparisons.
+    sample_new_groups : bool
+        Whether to sample new group levels. Default is False.
+    fig_kwargs : dict or None
+        Additional keyword arguments for figure customization.
+    subplot_kwargs : Mapping[str, str] or None
+        Overrides default plotting sequence (main, group, panel).
+
+    Returns
+    -------
+    None
+        Displays the plot.
+
+    Raises
+    ------
+    ValueError
+        If more than 3 conditional variables are provided without averaging.
     """
-    # Cannot plot more than three-dimensions
-    provided_vars = parse_conditional(conditional, model.data)
-    if len(provided_vars) > 3 and average_by is None:
+    # Cannot plot more than three dimensions
+    _conditional = get_conditional(conditional, model.data)
+    if len(_conditional.variables) > 3 and average_by is None:
         raise ValueError(
-            f"Cannot plot more than 3 conditional variables. Received: {len(provided_vars)}. "
+            f"Cannot plot more than 3 conditional variables. Received: {len(_conditional.variables)}. "
             f"Consider removing a variable(s) or passing a value(s) to `average_by`."
         )
 
-    provided_var_names = [var.name for var in provided_vars]
-
+    provided_var_names = [var.name for var in _conditional.variables]
     plot_config = create_plot_config(provided_var_names, subplot_kwargs)
 
-    out = comparisons(
+    summary_df = comparisons(
         model=model,
         idata=idata,
         contrast=contrast,
@@ -584,35 +864,4 @@ def plot_comparisons(
         sample_new_groups=sample_new_groups,
     )
 
-    plot(out, plot_config)
-
-
-def get_summary_stats(x: DataArray, prob: float, transforms) -> DataFrame:
-    """Computes summary statistics (mean and uncertainty interval) of an array.
-
-    Parameters
-    ----------
-
-    Returns
-    -------
-    """
-    x = transforms(x)
-    mean = x.mean(dim=("chain", "draw")).to_series().rename("estimate").to_frame()
-
-    lower_bound = round((1 - prob) / 2, 4)
-    upper_bound = 1 - lower_bound
-    bounds = (
-        x.quantile(q=(lower_bound, upper_bound), dim=("chain", "draw"))
-        .to_series()
-        .unstack(level="quantile")
-        .rename(
-            columns={
-                lower_bound: f"lower_{lower_bound}%",
-                upper_bound: f"upper_{upper_bound}%",
-            }
-        )
-    )
-
-    stats = mean.join(bounds).reset_index().drop("__obs__", axis=1)
-
-    return stats
+    plot(summary_df, plot_config)
