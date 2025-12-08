@@ -554,7 +554,7 @@ def create_axes_grid(length_plotters, rows=1, cols=1, backend_kwargs=None):
     Returns
     -------
     fig : matplotlib figure
-    ax : matplotlib axes
+    axes : matplotlib axes
     """
     if backend_kwargs is None:
         backend_kwargs = {}
@@ -571,8 +571,7 @@ def create_axes_grid(length_plotters, rows=1, cols=1, backend_kwargs=None):
 def default_grid(n_items, grid=None, max_cols=4, min_cols=3):  # noqa: D202
     """Make a grid for subplots.
 
-    Tries to get as close to sqrt(n_items) x sqrt(n_items) as it can,
-    but allows for custom logic
+    Tries to get as close to sqrt(n_items) x sqrt(n_items) as it can, but allows for custom logic.
 
     Parameters
     ----------
