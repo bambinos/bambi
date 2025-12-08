@@ -725,16 +725,6 @@ def comparisons(
         conditional = Conditional(variables=conditional_vars)
         preds_data = create_grid((contrast.variable, *conditional.variables))
 
-    # # Parse variables and create predictions dataframe
-    # contrast, conditional = parse_variables_for_comparisons(
-    #     model, contrast, conditional
-    # )
-    # preds_data = create_prediction_dataframe(
-    #     model, conditional=conditional, contrast=contrast
-    # )
-    # # contrast: Contrast = Contrast(contrast_var)
-    # # conditional: Conditional = Conditional((*conditional_vars, *default_vars))
-
     pred_kwargs = {
         "idata": idata,
         "data": preds_data,
