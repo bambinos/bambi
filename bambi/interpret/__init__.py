@@ -9,7 +9,6 @@ from bambi.interpret.effects import (
 
 __all__ = [
     "comparisons",
-    "logger",
     "predictions",
     "plot_comparisons",
     "plot_predictions",
