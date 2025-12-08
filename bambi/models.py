@@ -987,8 +987,8 @@ class Model:
         References
         ----------
         .. [1] Gelman et al. *R-squared for Bayesian regression models*.
-            The American Statistician. 73(3) (2019). [https://doi.org/10.1080/00031305.2018.1549100]()
-            preprint [http://www.stat.columbia.edu/~gelman/research/published/bayes_R2_v3.pdf]().
+            The American Statistician. 73(3) (2019). <https://doi.org/10.1080/00031305.2018.1549100>
+            preprint <http://www.stat.columbia.edu/~gelman/research/published/bayes_R2_v3.pdf]>.
         """
         response_name = self.response_component.term.name
         pred_mean = self.family.likelihood.parent
