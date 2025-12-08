@@ -1,9 +1,8 @@
 project:
   type: website
   output-dir: _site
-  pre-render: pre_render.py
-  post-render: post_render.py
-  resources: 
+  # pre-render: pre_render.py
+  resources:
     - api/**
   render:
     - "*.qmd"
@@ -102,6 +101,10 @@ quartodoc:
   parser: numpy
   style: pkgdown
   dir: api
+  render_interlinks: true
+  renderer:
+    style: markdown
+    table_style: description-list
   package: bambi # the name used to import the package
   sidebar: api/_sidebar.yml # write sidebar data to this file
   sections:
@@ -142,8 +145,6 @@ quartodoc:
 metadata-files:
   - api/_sidebar.yml
 
-# profile:
-#   default: latest
 
 format:
   html:
@@ -161,5 +162,14 @@ interlinks:
       url: https://docs.python.org/3/
     arviz:
       url: https://python.arviz.org/en/stable/
+    arviz_plots:
+      url: http://arviz-plots.readthedocs.io/en/latest/
+    arviz_stats:
+      url: http://arviz-stats.readthedocs.io/en/latest/
+    arviz_base:
+      url: http://arviz-base.readthedocs.io/en/latest/
     pymc:
       url: https://www.pymc.io/projects/docs/en/stable/
+  aliases:
+    arviz: az
+    pymc: pm
