@@ -365,138 +365,70 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Compute Conditional Adjusted Slopes</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 3%">
-<col style="width: 5%">
-<col style="width: 88%">
-<col style="width: 2%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>model</td>
-<td>bambi.Model</td>
-<td>The model for which we want to plot the predictions.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td>idata</td>
-<td>arviz.InferenceData</td>
-<td>The InferenceData object that contains the samples from the posterior distribution of the model.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="odd">
-<td>wrt</td>
-<td>(str, dict)</td>
-<td>The slope of the regression with respect to (wrt) this predictor will be computed.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td>conditional</td>
-<td>(str, list, dict)</td>
-<td>The covariates we would like to condition on. If dict, keys are the covariate names and values are the values to condition on.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>average_by</td>
-<td>str | list | bool | None</td>
-<td>The covariates we would like to average by. The passed covariate(s) will marginalize over the other covariates in the model. If True, it averages over all covariates in the model to obtain the average estimate. Defaults to <code>None</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>eps</td>
-<td>float</td>
-<td>To compute the slope, ‘wrt’ is evaluated at wrt +/- ‘eps’. The rate of change is then computed as the difference between the two values divided by ‘eps’. Defaults to 1e-4.</td>
-<td><code>0.0001</code></td>
-</tr>
-<tr class="odd">
-<td>slope</td>
-<td>str</td>
-<td>The type of slope to compute. Defaults to ‘dydx’. ‘dydx’ represents a unit increase in ‘wrt’ is associated with an n-unit change in the response. ‘eyex’ represents a percentage increase in ‘wrt’ is associated with an n-percent change in the response. ‘eydx’ represents a unit increase in ‘wrt’ is associated with an n-percent change in the response. ‘dyex’ represents a percent change in ‘wrt’ is associated with a unit increase in the response.</td>
-<td><code>'dydx'</code></td>
-</tr>
-<tr class="even">
-<td>use_hdi</td>
-<td>bool</td>
-<td>Whether to compute the highest density interval (defaults to True) or the quantiles.</td>
-<td><code>True</code></td>
-</tr>
-<tr class="odd">
-<td>prob</td>
-<td>float</td>
-<td>The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94. Changing the global variable <code>az.rcParams["stats.ci_prob"]</code> affects this default.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>transforms</td>
-<td>dict</td>
-<td>Transformations that are applied to each of the variables being plotted. The keys are the name of the variables, and the values are functions to be applied. Defaults to <code>None</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>sample_new_groups</td>
-<td>bool</td>
-<td>If the model contains group-level effects, and data is passed for unseen groups, whether to sample from the new groups. Defaults to <code>False</code>.</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>model</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bambi</code>.<a href="../api/Model.html#bambi.Model">Model</a></span></code></dt>
+<dd>
+<p>The model for which we want to plot the predictions.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>idata</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>arviz</code>.<a href="https://python.arviz.org/en/stable/api/generated/arviz.InferenceData.html#arviz.InferenceData">InferenceData</a></span></code></dt>
+<dd>
+<p>The InferenceData object that contains the samples from the posterior distribution of the model.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>wrt</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>)</span></code></dt>
+<dd>
+<p>The slope of the regression with respect to (wrt) this predictor will be computed.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>conditional</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>, <a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>)</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The covariates we would like to condition on. If dict, keys are the covariate names and values are the values to condition on.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>average_by</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | <a href="https://docs.python.org/3/library/stdtypes.html#list">list</a> | <a href="https://docs.python.org/3/library/functions.html#bool">bool</a> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The covariates we would like to average by. The passed covariate(s) will marginalize over the other covariates in the model. If True, it averages over all covariates in the model to obtain the average estimate. Defaults to <code>None</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>eps</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">0.0001</span></code></dt>
+<dd>
+<p>To compute the slope, ‘wrt’ is evaluated at wrt +/- ‘eps’. The rate of change is then computed as the difference between the two values divided by ‘eps’. Defaults to 1e-4.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>slope</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'dydx'</span></code></dt>
+<dd>
+<p>The type of slope to compute. Defaults to ‘dydx’. ‘dydx’ represents a unit increase in ‘wrt’ is associated with an n-unit change in the response. ‘eyex’ represents a percentage increase in ‘wrt’ is associated with an n-percent change in the response. ‘eydx’ represents a unit increase in ‘wrt’ is associated with an n-percent change in the response. ‘dyex’ represents a percent change in ‘wrt’ is associated with a unit increase in the response.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>use_hdi</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dd>
+<p>Whether to compute the highest density interval (defaults to True) or the quantiles.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>prob</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94. Changing the global variable <code>az.rcParams["stats.ci_prob"]</code> affects this default.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>transforms</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>Transformations that are applied to each of the variables being plotted. The keys are the name of the variables, and the values are functions to be applied. Defaults to <code>None</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>sample_new_groups</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">False</span></code></dt>
+<dd>
+<p>If the model contains group-level effects, and data is passed for unseen groups, whether to sample from the new groups. Defaults to <code>False</code>.</p>
+</dd>
+</dl>
 </section>
 <section id="returns" class="level2 doc-section doc-section-returns">
 <h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 5%">
-<col style="width: 9%">
-<col style="width: 84%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td></td>
-<td>pd.DataFrame</td>
-<td>A dataframe with the comparison values, highest density interval, <code>wrt</code> name, contrast value, and conditional values.</td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>pd</code>.<code>DataFrame</code></span></code></dt>
+<dd>
+<p>A dataframe with the comparison values, highest density interval, <code>wrt</code> name, contrast value, and conditional values.</p>
+</dd>
+</dl>
 </section>
 <section id="raises" class="level2 doc-section doc-section-raises">
 <h2 class="doc-section doc-section-raises anchored" data-anchor-id="raises">Raises</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 2%">
-<col style="width: 3%">
-<col style="width: 94%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td></td>
-<td>ValueError</td>
-<td>If length of <code>wrt</code> is greater than 1. If <code>conditional</code> is <code>None</code> and <code>wrt</code> is passed more than 2 values. If <code>conditional</code> is <code>None</code> and default <code>wrt</code> has more than 2 unique values. If <code>conditional</code> is a list and the length is greater than 3. If <code>slope</code> is not ‘dydx’, ‘dyex’, ‘eyex’, or ‘eydx’. If <code>prob</code> is not &gt; 0 and &lt; 1.</td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/exceptions.html#ValueError">ValueError</a></span></code></dt>
+<dd>
+<p>If length of <code>wrt</code> is greater than 1. If <code>conditional</code> is <code>None</code> and <code>wrt</code> is passed more than 2 values. If <code>conditional</code> is <code>None</code> and default <code>wrt</code> has more than 2 unique values. If <code>conditional</code> is a list and the length is greater than 3. If <code>slope</code> is not ‘dydx’, ‘dyex’, ‘eyex’, or ‘eydx’. If <code>prob</code> is not &gt; 0 and &lt; 1.</p>
+</dd>
+</dl>
 
 
 </section>

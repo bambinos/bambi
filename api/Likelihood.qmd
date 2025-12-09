@@ -8,12 +8,21 @@ Representation of a Likelihood function for a Bambi model
 
 ## Parameters {.doc-section .doc-section-parameters}
 
-| Name   | Type                                  | Description                                                                                                                                                | Default    |
-|--------|---------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| name   | str                                   | Name of the likelihood function. Must be a valid PyMC distribution name.                                                                                   | _required_ |
-| params | sequence of str or None               | The name of the parameters the likelihood function accepts.                                                                                                | `None`     |
-| parent | str or None                           | Optional specification of the name of the mean parameter in the likelihood. This is the parameter whose transformation is modeled by the linear predictor. | `None`     |
-| dist   | pymc.Distribution or callable or None | Optional custom PyMC distribution that will be used to compute the likelihood.                                                                             | `None`     |
+<code>[**name**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation}</code>
+
+:   Name of the likelihood function. Must be a valid PyMC distribution name.
+
+<code>[**params**]{.parameter-name} [:]{.parameter-annotation-sep} [sequence of str or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   The name of the parameters the likelihood function accepts.
+
+<code>[**parent**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Optional specification of the name of the mean parameter in the likelihood. This is the parameter whose transformation is modeled by the linear predictor.
+
+<code>[**dist**]{.parameter-name} [:]{.parameter-annotation-sep} [[pymc](`pymc`).[Distribution](`pymc.Distribution`) or [callable](`callable`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Optional custom PyMC distribution that will be used to compute the likelihood.
 
 ## Notes {.doc-section .doc-section-notes}
 

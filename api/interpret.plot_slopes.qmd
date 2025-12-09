@@ -24,32 +24,74 @@ Plot Conditional Adjusted Slopes
 
 ## Parameters {.doc-section .doc-section-parameters}
 
-| Name              | Type                                  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Default    |
-|-------------------|---------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| model             | bambi.Model                           | The model for which we want to plot the predictions.                                                                                                                                                                                                                                                                                                                                                                                                          | _required_ |
-| idata             | arviz.InferenceData                   | The InferenceData object that contains the samples from the posterior distribution of the model.                                                                                                                                                                                                                                                                                                                                                              | _required_ |
-| wrt               | (str, dict)                           | The slope of the regression with respect to (wrt) this predictor will be computed. If 'wrt' is numeric, the derivative is computed, else if string or categorical, 'comparisons' is called to compute difference in group means.                                                                                                                                                                                                                              | _required_ |
-| conditional       | (str, dict, list)                     | The covariates we would like to condition on. If dict, keys are the covariate names and values are the values to condition on.                                                                                                                                                                                                                                                                                                                                | `None`     |
-| average_by        | str \| list                           | The covariates we would like to average by. The passed covariate(s) will marginalize over the other covariates in the model. If True, it averages over all covariates in the model to obtain the average estimate. Defaults to `None`.                                                                                                                                                                                                                        | `None`     |
-| eps               | float                                 | To compute the slope, 'wrt' is evaluated at wrt +/- 'eps'. The rate of change is then computed as the difference between the two values divided by 'eps'. Defaults to 1e-4.                                                                                                                                                                                                                                                                                   | `0.0001`   |
-| slope             | str                                   | The type of slope to compute. Defaults to 'dydx'. 'dydx' represents a unit increase in 'wrt' is associated with an n-unit change in the response. 'eyex' represents a percentage increase in 'wrt' is associated with an n-percent change in the response. 'eydx' represents a unit increase in 'wrt' is associated with an n-percent change in the response. 'dyex' represents a percent change in 'wrt' is associated with a unit increase in the response. | `'dydx'`   |
-| sample_new_groups | bool                                  | If the model contains group-level effects, and data is passed for unseen groups, whether to sample from the new groups. Defaults to `False`.                                                                                                                                                                                                                                                                                                                  | `False`    |
-| use_hdi           | bool                                  | Whether to compute the highest density interval (defaults to True) or the quantiles.                                                                                                                                                                                                                                                                                                                                                                          | `True`     |
-| prob              | float                                 | The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94. Changing the global variable `az.rcParam["stats.ci_prob"]` affects this default.                                                                                                                                                                                                                                                                                    | `None`     |
-| transforms        | dict                                  | Transformations that are applied to each of the variables being plotted. The keys are the name of the variables, and the values are functions to be applied. Defaults to `None`.                                                                                                                                                                                                                                                                              | `None`     |
-| legend            | bool                                  | Whether to automatically include a legend in the plot. Defaults to `True`.                                                                                                                                                                                                                                                                                                                                                                                    | `True`     |
-| ax                | matplotlib.axes._subplots.AxesSubplot | A matplotlib axes object or a sequence of them. If None, this function instantiates a new axes object. Defaults to `None`.                                                                                                                                                                                                                                                                                                                                    | `None`     |
-| fig_kwargs        | optional                              | Keyword arguments passed to the matplotlib figure function as a dict. For example, `fig_kwargs=dict(figsize=(11, 8)), sharey=True` would make the figure 11 inches wide by 8 inches high and would share the y-axis values.                                                                                                                                                                                                                                   | `None`     |
-| subplot_kwargs    | optional                              | Keyword arguments used to determine the covariates used for the horizontal, group, and panel axes. For example, `subplot_kwargs=dict(main="x", group="y", panel="z")` would plot the horizontal axis as `x`, the color (hue) as `y`, and the panel axis as `z`.                                                                                                                                                                                               | `None`     |
+<code>[**model**]{.parameter-name} [:]{.parameter-annotation-sep} [[bambi](`bambi`).[Model](`bambi.Model`)]{.parameter-annotation}</code>
+
+:   The model for which we want to plot the predictions.
+
+<code>[**idata**]{.parameter-name} [:]{.parameter-annotation-sep} [[arviz](`arviz`).[InferenceData](`arviz.InferenceData`)]{.parameter-annotation}</code>
+
+:   The InferenceData object that contains the samples from the posterior distribution of the model.
+
+<code>[**wrt**]{.parameter-name} [:]{.parameter-annotation-sep} [([str](`str`), [dict](`dict`))]{.parameter-annotation}</code>
+
+:   The slope of the regression with respect to (wrt) this predictor will be computed. If 'wrt' is numeric, the derivative is computed, else if string or categorical, 'comparisons' is called to compute difference in group means.
+
+<code>[**conditional**]{.parameter-name} [:]{.parameter-annotation-sep} [([str](`str`), [dict](`dict`), [list](`list`))]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   The covariates we would like to condition on. If dict, keys are the covariate names and values are the values to condition on.
+
+<code>[**average_by**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`) \| [list](`list`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   The covariates we would like to average by. The passed covariate(s) will marginalize over the other covariates in the model. If True, it averages over all covariates in the model to obtain the average estimate. Defaults to `None`.
+
+<code>[**eps**]{.parameter-name} [:]{.parameter-annotation-sep} [[float](`float`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [0.0001]{.parameter-default}</code>
+
+:   To compute the slope, 'wrt' is evaluated at wrt +/- 'eps'. The rate of change is then computed as the difference between the two values divided by 'eps'. Defaults to 1e-4.
+
+<code>[**slope**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'dydx\']{.parameter-default}</code>
+
+:   The type of slope to compute. Defaults to 'dydx'. 'dydx' represents a unit increase in 'wrt' is associated with an n-unit change in the response. 'eyex' represents a percentage increase in 'wrt' is associated with an n-percent change in the response. 'eydx' represents a unit increase in 'wrt' is associated with an n-percent change in the response. 'dyex' represents a percent change in 'wrt' is associated with a unit increase in the response.
+
+<code>[**sample_new_groups**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [False]{.parameter-default}</code>
+
+:   If the model contains group-level effects, and data is passed for unseen groups, whether to sample from the new groups. Defaults to `False`.
+
+<code>[**use_hdi**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
+
+:   Whether to compute the highest density interval (defaults to True) or the quantiles.
+
+<code>[**prob**]{.parameter-name} [:]{.parameter-annotation-sep} [[float](`float`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94. Changing the global variable `az.rcParam["stats.ci_prob"]` affects this default.
+
+<code>[**transforms**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Transformations that are applied to each of the variables being plotted. The keys are the name of the variables, and the values are functions to be applied. Defaults to `None`.
+
+<code>[**legend**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
+
+:   Whether to automatically include a legend in the plot. Defaults to `True`.
+
+<code>[**ax**]{.parameter-name} [:]{.parameter-annotation-sep} [[matplotlib](`matplotlib`).[axes](`matplotlib.axes`).[_subplots](`matplotlib.axes._subplots`).[AxesSubplot](`matplotlib.axes._subplots.AxesSubplot`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   A matplotlib axes object or a sequence of them. If None, this function instantiates a new axes object. Defaults to `None`.
+
+<code>[**fig_kwargs**]{.parameter-name} [:]{.parameter-annotation-sep} [[optional](`optional`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Keyword arguments passed to the matplotlib figure function as a dict. For example, `fig_kwargs=dict(figsize=(11, 8)), sharey=True` would make the figure 11 inches wide by 8 inches high and would share the y-axis values.
+
+<code>[**subplot_kwargs**]{.parameter-name} [:]{.parameter-annotation-sep} [[optional](`optional`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Keyword arguments used to determine the covariates used for the horizontal, group, and panel axes. For example, `subplot_kwargs=dict(main="x", group="y", panel="z")` would plot the horizontal axis as `x`, the color (hue) as `y`, and the panel axis as `z`.
 
 ## Returns {.doc-section .doc-section-returns}
 
-| Name   | Type                                                              | Description                           |
-|--------|-------------------------------------------------------------------|---------------------------------------|
-|        | (matplotlib.figure.Figure, matplotlib.axes._subplots.AxesSubplot) | A tuple with the figure and the axes. |
+<code>[]{.parameter-name} [:]{.parameter-annotation-sep} [([matplotlib](`matplotlib`).[figure](`matplotlib.figure`).[Figure](`matplotlib.figure.Figure`), [matplotlib](`matplotlib`).[axes](`matplotlib.axes`).[_subplots](`matplotlib.axes._subplots`).[AxesSubplot](`matplotlib.axes._subplots.AxesSubplot`))]{.parameter-annotation}</code>
+
+:   A tuple with the figure and the axes.
 
 ## Raises {.doc-section .doc-section-raises}
 
-| Name   | Type       | Description                                                                                                                                                                                                                                                                                                                                  |
-|--------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|        | ValueError | If the number of `wrt` values is greater than 2 and `average_by` is `None`. If `conditional` and `average_by` are both `None`. If length of `conditional` is greater than 3 and `average_by` is `None`. If `average_by` is `True`. If `slope` is not one of ('dydx', 'dyex', 'eyex', 'eydx'). If main covariate is not numeric or categoric. |
+<code>[:]{.parameter-annotation-sep} [[ValueError](`ValueError`)]{.parameter-annotation}</code>
+
+:   If the number of `wrt` values is greater than 2 and `average_by` is `None`. If `conditional` and `average_by` are both `None`. If length of `conditional` is greater than 3 and `average_by` is `None`. If `average_by` is `True`. If `slope` is not one of ('dydx', 'dyex', 'eyex', 'eydx'). If main covariate is not numeric or categoric.

@@ -358,36 +358,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Allows to describe a model with multiple formulas. The first formula describes the response variable and its predictors. The following formulas describe predictors for other parameters of the response distribution, allowing distributional models.</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 11%">
-<col style="width: 11%">
-<col style="width: 68%">
-<col style="width: 9%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>formula</td>
-<td>str</td>
-<td>A model description written using the formula syntax from the <code>formulae</code> library.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td>*additionals</td>
-<td>tuple of str</td>
-<td>Additional formulas that describe model parameters rather than a response variable.</td>
-<td><code>()</code></td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>formula</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span></code></dt>
+<dd>
+<p>A model description written using the formula syntax from the <code>formulae</code> library.</p>
+</dd>
+<dt><code><span class="parameter-name">*<strong>additionals</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">tuple of str</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">()</span></code></dt>
+<dd>
+<p>Additional formulas that describe model parameters rather than a response variable.</p>
+</dd>
+</dl>
 </section>
 <section id="methods" class="level2">
 <h2 class="anchored" data-anchor-id="methods">Methods</h2>
@@ -419,59 +399,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Check if an additional formula matches the expected format</p>
 <section id="parameters-1" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 14%">
-<col style="width: 9%">
-<col style="width: 61%">
-<col style="width: 14%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>additional</td>
-<td>str</td>
-<td>A model formula that describes a model parameter.</td>
-<td><em>required</em></td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>additional</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span></code></dt>
+<dd>
+<p>A model formula that describes a model parameter.</p>
+</dd>
+</dl>
 </section>
 <section id="raises" class="level4 doc-section doc-section-raises">
 <h4 class="doc-section doc-section-raises anchored" data-anchor-id="raises">Raises</h4>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 11%">
-<col style="width: 17%">
-<col style="width: 71%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td></td>
-<td>ValueError</td>
-<td>If the formula does not contain a response term.</td>
-</tr>
-<tr class="even">
-<td></td>
-<td>ValueError</td>
-<td>If the response term is not a plain name.</td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/exceptions.html#ValueError">ValueError</a></span></code></dt>
+<dd>
+<p>If the formula does not contain a response term.</p>
+</dd>
+<dt><code><span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/exceptions.html#ValueError">ValueError</a></span></code></dt>
+<dd>
+<p>If the response term is not a plain name.</p>
+</dd>
+</dl>
 </section>
 </section>
 <section id="bambi.Formula.check_additionals" class="level3">
@@ -480,54 +426,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Check if the additional formulas match the expected format</p>
 <section id="parameters-2" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 10%">
-<col style="width: 13%">
-<col style="width: 65%">
-<col style="width: 9%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>additionals</td>
-<td>sequence of str</td>
-<td>Model formulas that describe model parameters rather than a response variable.</td>
-<td><em>required</em></td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>additionals</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">sequence of str</span></code></dt>
+<dd>
+<p>Model formulas that describe model parameters rather than a response variable.</p>
+</dd>
+</dl>
 </section>
 <section id="returns" class="level4 doc-section doc-section-returns">
 <h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 14%">
-<col style="width: 18%">
-<col style="width: 67%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>additionals</td>
-<td>sequence of str</td>
-<td>If all formulas match the required format, it returns them.</td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>additionals</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">sequence of str</span></code></dt>
+<dd>
+<p>If all formulas match the required format, it returns them.</p>
+</dd>
+</dl>
 </section>
 </section>
 <section id="bambi.Formula.get_all_formulas" class="level3">
@@ -536,22 +449,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Get all the model formulas</p>
 <section id="returns-1" class="level4 doc-section doc-section-returns">
 <h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td></td>
-<td>list of str</td>
-<td>All the formulas in the instance.</td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">list of str</span></code></dt>
+<dd>
+<p>All the formulas in the instance.</p>
+</dd>
+</dl>
 
 
 </section>

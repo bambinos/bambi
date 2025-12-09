@@ -521,13 +521,13 @@ window.Quarto = {
 
 
 <div id="cell-2" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz.preview <span class="im">as</span> az</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>SEED <span class="op">=</span> <span class="dv">1211</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-darkgrid"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-variat"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>In this example we are going to use <strong>sleepstudy</strong> dataset. It is derived from the study described in <a href="https://pubmed.ncbi.nlm.nih.gov/12603781/">Belenky et al.&nbsp;(2003)</a> and popularized in the <a href="https://CRAN.R-project.org/package=lme4">lme4</a> R package. This dataset contains the average reaction time per day (in milliseconds) on a series of tests for the most sleep-deprived group in a sleep deprivation study. The first two days of the study are considered as adaptation and training, the third day is a baseline, and sleep deprivation started after day 3. The subjects in this group were restricted to 3 hours of sleep per night.</p>
 <section id="load-data" class="level2">
@@ -648,8 +648,8 @@ window.Quarto = {
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        ax.set_title(<span class="ss">f"Subject: </span><span class="sc">{</span>subject<span class="sc">}</span><span class="ss">"</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
 <span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    ax.xaxis.set_ticks([<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">8</span>])</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    fig.text(<span class="fl">0.5</span>, <span class="fl">0.02</span>, <span class="st">"Days"</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    fig.text(<span class="fl">0.03</span>, <span class="fl">0.5</span>, <span class="st">"Reaction time (ms)"</span>, rotation<span class="op">=</span><span class="dv">90</span>, fontsize<span class="op">=</span><span class="dv">14</span>, va<span class="op">=</span><span class="st">"center"</span>)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    fig.text(<span class="fl">0.5</span>, <span class="dv">0</span>, <span class="st">"Days"</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    fig.text(<span class="fl">0.02</span>, <span class="fl">0.5</span>, <span class="st">"Reaction time (ms)"</span>, rotation<span class="op">=</span><span class="dv">90</span>, fontsize<span class="op">=</span><span class="dv">14</span>, va<span class="op">=</span><span class="st">"center"</span>)</span>
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> axes</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -718,14 +718,14 @@ NUTS: [sigma, Intercept, Days, 1|Subject_sigma, 1|Subject_offset, Days|Subject_s
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"e893d6893b9e4ac3ace409d582cca846","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"65448fabbb3f4f8fa24ffa979db04d77","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 6 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 8 seconds.</code></pre>
 </div>
 </div>
 </section>
@@ -744,24 +744,24 @@ NUTS: [sigma, Intercept, Days, 1|Subject_sigma, 1|Subject_offset, Days|Subject_s
 <th data-quarto-table-cell-role="th"></th>
 <th data-quarto-table-cell-role="th">mean</th>
 <th data-quarto-table-cell-role="th">sd</th>
-<th data-quarto-table-cell-role="th">hdi_3%</th>
-<th data-quarto-table-cell-role="th">hdi_97%</th>
+<th data-quarto-table-cell-role="th">eti89_lb</th>
+<th data-quarto-table-cell-role="th">eti89_ub</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Intercept</td>
-<td>251.669</td>
-<td>7.611</td>
-<td>237.503</td>
-<td>266.530</td>
+<td>251.29</td>
+<td>7.51</td>
+<td>239.26</td>
+<td>263.21</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">Days</td>
-<td>10.382</td>
-<td>1.707</td>
-<td>7.167</td>
-<td>13.578</td>
+<td>10.50</td>
+<td>1.72</td>
+<td>7.79</td>
+<td>13.23</td>
 </tr>
 </tbody>
 </table>
@@ -775,7 +775,7 @@ NUTS: [sigma, Intercept, Days, 1|Subject_sigma, 1|Subject_offset, Days|Subject_s
 <p>From the range of the posteriors of the subject-specific intercepts we can see the initial mean reaction time for a given subject can differ substantially from the general mean we see in the table above. There’s also a large difference in the slopes. Some subjects see their reaction times increase quite rapidly as they’re deprived from sleep, while others have a better tolerance and get worse more slowly. Finally, from the pink posterior centered at ~ -11, there seems to be one person who gets better at reaction times. Looks like they took this as a serious challenge!</p>
 <p>In summary, the model is capturing the behavior we saw in the data exploration stage. People differ both in the initial reaction times as well as in how these reaction times are affected by the successive days of sleep deprivation.</p>
 <div id="cell-23" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(idata, var_names<span class="op">=</span>[<span class="st">"1|Subject"</span>, <span class="st">"Days|Subject"</span>])<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace_dist(idata, var_names<span class="op">=</span>[<span class="st">"1|Subject"</span>, <span class="st">"Days|Subject"</span>])<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -803,13 +803,14 @@ NUTS: [sigma, Intercept, Days, 1|Subject_sigma, 1|Subject_offset, Days|Subject_s
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    add_colorbar<span class="op">=</span><span class="va">False</span>,</span>
 <span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    add_legend<span class="op">=</span><span class="va">False</span>,</span>
 <span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    cmap<span class="op">=</span><span class="st">"tab20"</span>,</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    edgecolors<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>)                      </span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>ax.axhline(c<span class="op">=</span><span class="st">"0.25"</span>, ls<span class="op">=</span><span class="st">"--"</span>)</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>ax.axvline(c<span class="op">=</span><span class="st">"0.25"</span>, ls<span class="op">=</span><span class="st">"--"</span>)</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Subject-specific intercept"</span>)</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Subject-specific slope"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    edgecolors<span class="op">=</span><span class="st">"none"</span>,</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    alpha<span class="op">=</span><span class="fl">0.2</span>,</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>)                      </span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>ax.axhline(c<span class="op">=</span><span class="st">"0.25"</span>, ls<span class="op">=</span><span class="st">"--"</span>)</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>ax.axvline(c<span class="op">=</span><span class="st">"0.25"</span>, ls<span class="op">=</span><span class="st">"--"</span>)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Subject-specific intercept"</span>)</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Subject-specific slope"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -822,25 +823,21 @@ NUTS: [sigma, Intercept, Days, 1|Subject_sigma, 1|Subject_offset, Days|Subject_s
 <p>On the other hand, if we look at the joint posterior for a given individual, we can see a negative correlation between the intercept and the slope. This is telling that, conditional on a given subject, the intercept and slope posteriors are not independent. However, it doesn’t imply anything about the overall relationship between the intercept and the slope, which is what we need if we want to know whether the initial time is associated with how much sleep deprivation affects the reaction time.</p>
 <p>To conclude with this example, we’re going create the same plot we created in the beginning with the mean regression lines and a credible bands for them.</p>
 <div id="cell-27" class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Obtain the posterior of the mean</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>model.predict(idata)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the data</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>axes <span class="op">=</span> plot_data(data)</span>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>model.predict(idata)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>axes <span class="op">=</span> plot_data(data)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>reaction_mean <span class="op">=</span> az.extract(idata)[<span class="st">"mu"</span>].values</span>
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Take the posterior of the mean reaction time</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>reaction_mean <span class="op">=</span> az.extract(idata)[<span class="st">"mu"</span>].values</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> subject, ax <span class="kw">in</span> <span class="bu">zip</span>(data[<span class="st">"Subject"</span>].unique(), axes.ravel()):</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> data.index[data[<span class="st">"Subject"</span>]<span class="op">==</span> subject].tolist()</span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    days <span class="op">=</span> data.loc[idx, <span class="st">"Days"</span>].values</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> subject, ax <span class="kw">in</span> <span class="bu">zip</span>(data[<span class="st">"Subject"</span>].unique(), axes.ravel()):</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> data.index[data[<span class="st">"Subject"</span>] <span class="op">==</span> subject].tolist()</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    days <span class="op">=</span> data.loc[idx, <span class="st">"Days"</span>].values</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    lower <span class="op">=</span> np.percentile(reaction_mean[idx], <span class="dv">5</span>, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    upper <span class="op">=</span> np.percentile(reaction_mean[idx], <span class="dv">95</span>, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    ax.fill_between(days, lower, upper, color<span class="op">=</span><span class="st">"C0"</span>, alpha<span class="op">=</span><span class="fl">0.25</span>)</span>
 <span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot highest density interval / credibility interval</span></span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    az.plot_hdi(days, reaction_mean[idx].T[np.newaxis], color<span class="op">=</span><span class="st">"C0"</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot mean regression line</span></span>
-<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    ax.plot(days, reaction_mean[idx].mean(axis<span class="op">=</span><span class="dv">1</span>), color<span class="op">=</span><span class="st">"C0"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    ax.plot(days, reaction_mean[idx].mean(axis<span class="op">=</span><span class="dv">1</span>), color<span class="op">=</span><span class="st">"C0"</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -853,16 +850,16 @@ NUTS: [sigma, Intercept, Days, 1|Subject_sigma, 1|Subject_offset, Days|Subject_s
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Sun Sep 28 2025
+<pre><code>Last updated: Tue Dec 02 2025
 
 Python implementation: CPython
-Python version       : 3.13.7
-IPython version      : 9.4.0
+Python version       : 3.13.0
+IPython version      : 9.1.0
 
-arviz     : 0.22.0
-matplotlib: 3.10.6
-numpy     : 2.3.3
-bambi     : 0.14.1.dev58+gb25742785.d20250928
+bambi     : 0.16.0
+numpy     : 2.2.4
+matplotlib: 3.10.1
+arviz     : 0.21.0
 
 Watermark: 2.5.0
 </code></pre>

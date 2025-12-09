@@ -20,28 +20,58 @@ Compute Conditional Adjusted Slopes
 
 ## Parameters {.doc-section .doc-section-parameters}
 
-| Name              | Type                        | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Default    |
-|-------------------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| model             | bambi.Model                 | The model for which we want to plot the predictions.                                                                                                                                                                                                                                                                                                                                                                                                          | _required_ |
-| idata             | arviz.InferenceData         | The InferenceData object that contains the samples from the posterior distribution of the model.                                                                                                                                                                                                                                                                                                                                                              | _required_ |
-| wrt               | (str, dict)                 | The slope of the regression with respect to (wrt) this predictor will be computed.                                                                                                                                                                                                                                                                                                                                                                            | _required_ |
-| conditional       | (str, list, dict)           | The covariates we would like to condition on. If dict, keys are the covariate names and values are the values to condition on.                                                                                                                                                                                                                                                                                                                                | `None`     |
-| average_by        | str \| list \| bool \| None | The covariates we would like to average by. The passed covariate(s) will marginalize over the other covariates in the model. If True, it averages over all covariates in the model to obtain the average estimate. Defaults to `None`.                                                                                                                                                                                                                        | `None`     |
-| eps               | float                       | To compute the slope, 'wrt' is evaluated at wrt +/- 'eps'. The rate of change is then computed as the difference between the two values divided by 'eps'. Defaults to 1e-4.                                                                                                                                                                                                                                                                                   | `0.0001`   |
-| slope             | str                         | The type of slope to compute. Defaults to 'dydx'. 'dydx' represents a unit increase in 'wrt' is associated with an n-unit change in the response. 'eyex' represents a percentage increase in 'wrt' is associated with an n-percent change in the response. 'eydx' represents a unit increase in 'wrt' is associated with an n-percent change in the response. 'dyex' represents a percent change in 'wrt' is associated with a unit increase in the response. | `'dydx'`   |
-| use_hdi           | bool                        | Whether to compute the highest density interval (defaults to True) or the quantiles.                                                                                                                                                                                                                                                                                                                                                                          | `True`     |
-| prob              | float                       | The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94. Changing the global variable `az.rcParams["stats.ci_prob"]` affects this default.                                                                                                                                                                                                                                                                                   | `None`     |
-| transforms        | dict                        | Transformations that are applied to each of the variables being plotted. The keys are the name of the variables, and the values are functions to be applied. Defaults to `None`.                                                                                                                                                                                                                                                                              | `None`     |
-| sample_new_groups | bool                        | If the model contains group-level effects, and data is passed for unseen groups, whether to sample from the new groups. Defaults to `False`.                                                                                                                                                                                                                                                                                                                  | `False`    |
+<code>[**model**]{.parameter-name} [:]{.parameter-annotation-sep} [[bambi](`bambi`).[Model](`bambi.Model`)]{.parameter-annotation}</code>
+
+:   The model for which we want to plot the predictions.
+
+<code>[**idata**]{.parameter-name} [:]{.parameter-annotation-sep} [[arviz](`arviz`).[InferenceData](`arviz.InferenceData`)]{.parameter-annotation}</code>
+
+:   The InferenceData object that contains the samples from the posterior distribution of the model.
+
+<code>[**wrt**]{.parameter-name} [:]{.parameter-annotation-sep} [([str](`str`), [dict](`dict`))]{.parameter-annotation}</code>
+
+:   The slope of the regression with respect to (wrt) this predictor will be computed.
+
+<code>[**conditional**]{.parameter-name} [:]{.parameter-annotation-sep} [([str](`str`), [list](`list`), [dict](`dict`))]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   The covariates we would like to condition on. If dict, keys are the covariate names and values are the values to condition on.
+
+<code>[**average_by**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`) \| [list](`list`) \| [bool](`bool`) \| None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   The covariates we would like to average by. The passed covariate(s) will marginalize over the other covariates in the model. If True, it averages over all covariates in the model to obtain the average estimate. Defaults to `None`.
+
+<code>[**eps**]{.parameter-name} [:]{.parameter-annotation-sep} [[float](`float`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [0.0001]{.parameter-default}</code>
+
+:   To compute the slope, 'wrt' is evaluated at wrt +/- 'eps'. The rate of change is then computed as the difference between the two values divided by 'eps'. Defaults to 1e-4.
+
+<code>[**slope**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'dydx\']{.parameter-default}</code>
+
+:   The type of slope to compute. Defaults to 'dydx'. 'dydx' represents a unit increase in 'wrt' is associated with an n-unit change in the response. 'eyex' represents a percentage increase in 'wrt' is associated with an n-percent change in the response. 'eydx' represents a unit increase in 'wrt' is associated with an n-percent change in the response. 'dyex' represents a percent change in 'wrt' is associated with a unit increase in the response.
+
+<code>[**use_hdi**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
+
+:   Whether to compute the highest density interval (defaults to True) or the quantiles.
+
+<code>[**prob**]{.parameter-name} [:]{.parameter-annotation-sep} [[float](`float`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94. Changing the global variable `az.rcParams["stats.ci_prob"]` affects this default.
+
+<code>[**transforms**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Transformations that are applied to each of the variables being plotted. The keys are the name of the variables, and the values are functions to be applied. Defaults to `None`.
+
+<code>[**sample_new_groups**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [False]{.parameter-default}</code>
+
+:   If the model contains group-level effects, and data is passed for unseen groups, whether to sample from the new groups. Defaults to `False`.
 
 ## Returns {.doc-section .doc-section-returns}
 
-| Name   | Type         | Description                                                                                                           |
-|--------|--------------|-----------------------------------------------------------------------------------------------------------------------|
-|        | pd.DataFrame | A dataframe with the comparison values, highest density interval, `wrt` name, contrast value, and conditional values. |
+<code>[]{.parameter-name} [:]{.parameter-annotation-sep} [[pd](`pandas`).[DataFrame](`pandas.DataFrame`)]{.parameter-annotation}</code>
+
+:   A dataframe with the comparison values, highest density interval, `wrt` name, contrast value, and conditional values.
 
 ## Raises {.doc-section .doc-section-raises}
 
-| Name   | Type       | Description                                                                                                                                                                                                                                                                                                                          |
-|--------|------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|        | ValueError | If length of `wrt` is greater than 1. If `conditional` is `None` and `wrt` is passed more than 2 values. If `conditional` is `None` and default `wrt` has more than 2 unique values. If `conditional` is a list and the length is greater than 3. If `slope` is not 'dydx', 'dyex', 'eyex', or 'eydx'. If `prob` is not > 0 and < 1. |
+<code>[:]{.parameter-annotation-sep} [[ValueError](`ValueError`)]{.parameter-annotation}</code>
+
+:   If length of `wrt` is greater than 1. If `conditional` is `None` and `wrt` is passed more than 2 values. If `conditional` is `None` and default `wrt` has more than 2 unique values. If `conditional` is a list and the length is greater than 3. If `slope` is not 'dydx', 'dyex', 'eyex', or 'eydx'. If `prob` is not > 0 and < 1.

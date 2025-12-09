@@ -258,12 +258,12 @@ window.Quarto = {
 <section id="setup" class="level3">
 <h3 class="anchored" data-anchor-id="setup">Setup</h3>
 <div id="cell-4" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz.preview <span class="im">as</span> az</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="cell-5" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-darkgrid"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-variat"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="creating-a-model" class="level3">
@@ -633,14 +633,14 @@ NUTS: [sigma, Intercept, condition, age, gender, 1|uid_sigma, 1|uid_offset]</cod
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"9c00c355a2de49f4a4787a68eec39b68","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"b5bd6063af554af290dbf17f891816fc","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 5 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 11 seconds.</code></pre>
 </div>
 </div>
 <p>The above code obtains 1,000 draws (the default value) and return them as an <code>InferenceData</code> instance.</p>
@@ -774,14 +774,14 @@ NUTS: [Intercept, gre, gpa, rank]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"69f4d88695514f179b94eff15239d67e","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"a87c37d3e5b54f6fa4cb45e8479f7d14","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 7 seconds.</code></pre>
 </div>
 </div>
 <p>If no <code>link</code> argument is explicitly set (see below), the canonical link function (or an otherwise sensible default) will be used.</p>
@@ -1020,14 +1020,14 @@ NUTS: [Intercept, scale(gre), gpa, rank]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"0a3f37484f1241d4a14f96b0320117b9","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"bb567673146e499a93fcf7348d27e299","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.</code></pre>
 </div>
 </div>
 <p>The above example produces results identical to simply setting <code>family='bernoulli'</code>.</p>
@@ -1041,7 +1041,7 @@ NUTS: [Intercept, scale(gre), gpa, rank]</code></pre>
 <h2 class="anchored" data-anchor-id="plotting">Plotting</h2>
 <p>To visualize a plot of the posterior estimates and sample traces for all parameters, simply pass the <a href="https://python.arviz.org/en/stable/api/generated/arviz.InferenceData.html#arviz.InferenceData"><code>InferenceData</code></a> object to the ArviZ function <a href="https://python.arviz.org/en/stable/api/generated/arviz.plot_trace.html#arviz.plot_trace"><code>az.plot_trace</code></a>:</p>
 <div id="cell-41" class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(results, compact<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>az.plot_rank_dist(results)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1067,63 +1067,63 @@ NUTS: [Intercept, scale(gre), gpa, rank]</code></pre>
 <th data-quarto-table-cell-role="th"></th>
 <th data-quarto-table-cell-role="th">mean</th>
 <th data-quarto-table-cell-role="th">sd</th>
-<th data-quarto-table-cell-role="th">hdi_3%</th>
-<th data-quarto-table-cell-role="th">hdi_97%</th>
-<th data-quarto-table-cell-role="th">mcse_mean</th>
-<th data-quarto-table-cell-role="th">mcse_sd</th>
+<th data-quarto-table-cell-role="th">eti89_lb</th>
+<th data-quarto-table-cell-role="th">eti89_ub</th>
 <th data-quarto-table-cell-role="th">ess_bulk</th>
 <th data-quarto-table-cell-role="th">ess_tail</th>
 <th data-quarto-table-cell-role="th">r_hat</th>
+<th data-quarto-table-cell-role="th">mcse_mean</th>
+<th data-quarto-table-cell-role="th">mcse_sd</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Intercept</td>
-<td>-2.137</td>
-<td>1.172</td>
-<td>-4.241</td>
-<td>0.112</td>
-<td>0.017</td>
-<td>0.017</td>
-<td>5030.0</td>
-<td>3039.0</td>
+<td>-2.14</td>
+<td>1.12</td>
+<td>-3.93</td>
+<td>-0.35</td>
+<td>5109.95</td>
+<td>3766.25</td>
 <td>1.0</td>
+<td>0.02</td>
+<td>0.01</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">gpa</td>
+<td>0.79</td>
+<td>0.32</td>
+<td>0.28</td>
+<td>1.30</td>
+<td>4718.14</td>
+<td>3656.95</td>
+<td>1.0</td>
+<td>0.00</td>
+<td>0.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">rank</td>
+<td>-0.57</td>
+<td>0.13</td>
+<td>-0.77</td>
+<td>-0.36</td>
+<td>5726.48</td>
+<td>3270.86</td>
+<td>1.0</td>
+<td>0.00</td>
+<td>0.00</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">scale(gre)</td>
-<td>0.267</td>
-<td>0.127</td>
-<td>0.027</td>
-<td>0.494</td>
-<td>0.002</td>
-<td>0.002</td>
-<td>4604.0</td>
-<td>3192.0</td>
+<td>0.27</td>
+<td>0.12</td>
+<td>0.07</td>
+<td>0.48</td>
+<td>4391.84</td>
+<td>3649.53</td>
 <td>1.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">gpa</td>
-<td>0.789</td>
-<td>0.330</td>
-<td>0.169</td>
-<td>1.408</td>
-<td>0.005</td>
-<td>0.005</td>
-<td>4724.0</td>
-<td>3328.0</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">rank</td>
-<td>-0.567</td>
-<td>0.129</td>
-<td>-0.801</td>
-<td>-0.327</td>
-<td>0.002</td>
-<td>0.002</td>
-<td>5354.0</td>
-<td>3081.0</td>
-<td>1.0</td>
+<td>0.00</td>
+<td>0.00</td>
 </tr>
 </tbody>
 </table>
@@ -1136,7 +1136,7 @@ NUTS: [Intercept, scale(gre), gpa, rank]</code></pre>
 <div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># show the names of all variables stored in the InferenceData object</span></span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(results.posterior.data_vars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="19">
-<pre><code>['Intercept', 'scale(gre)', 'gpa', 'rank']</code></pre>
+<pre><code>['Intercept', 'gpa', 'rank', 'scale(gre)']</code></pre>
 </div>
 </div>
 <p>You can find detailed, worked examples of fitting Bambi models and working with the results in the example notebooks <a href="https://bambinos.github.io/bambi/notebooks/">here</a>.</p>
@@ -1180,17 +1180,17 @@ NUTS: [Intercept, scale(gre), gpa, rank]</code></pre>
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Sat Nov 22 2025
+<pre><code>Last updated: Tue Dec 02 2025
 
 Python implementation: CPython
-Python version       : 3.13.9
-IPython version      : 9.6.0
+Python version       : 3.11.0
+IPython version      : 8.29.0
 
-pandas: 2.3.3
-scipy : 1.16.2
-bambi : 0.15.1.dev40+g78807c5f7
 arviz : 0.22.0
+pandas: 2.2.3
 pymc  : 5.26.1
+bambi : 0.16.1.dev17+g8ceb481ce.d20251202
+scipy : 1.14.1
 
 Watermark: 2.5.0
 </code></pre>

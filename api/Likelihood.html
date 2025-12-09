@@ -352,48 +352,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Representation of a Likelihood function for a Bambi model</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 3%">
-<col style="width: 18%">
-<col style="width: 72%">
-<col style="width: 5%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>name</td>
-<td>str</td>
-<td>Name of the likelihood function. Must be a valid PyMC distribution name.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td>params</td>
-<td>sequence of str or None</td>
-<td>The name of the parameters the likelihood function accepts.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>parent</td>
-<td>str or None</td>
-<td>Optional specification of the name of the mean parameter in the likelihood. This is the parameter whose transformation is modeled by the linear predictor.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>dist</td>
-<td>pymc.Distribution or callable or None</td>
-<td>Optional custom PyMC distribution that will be used to compute the likelihood.</td>
-<td><code>None</code></td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>name</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span></code></dt>
+<dd>
+<p>Name of the likelihood function. Must be a valid PyMC distribution name.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>params</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">sequence of str or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The name of the parameters the likelihood function accepts.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>parent</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>Optional specification of the name of the mean parameter in the likelihood. This is the parameter whose transformation is modeled by the linear predictor.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>dist</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>pymc</code>.<a href="https://www.pymc.io/projects/docs/en/stable/api/distributions/generated/pymc.Distribution.html#pymc.Distribution">Distribution</a> or <a href="https://docs.python.org/3/library/functions.html#callable">callable</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>Optional custom PyMC distribution that will be used to compute the likelihood.</p>
+</dd>
+</dl>
 </section>
 <section id="notes" class="level2 doc-section doc-section-notes">
 <h2 class="doc-section doc-section-notes anchored" data-anchor-id="notes">Notes</h2>

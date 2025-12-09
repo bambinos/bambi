@@ -21,20 +21,53 @@ Specification of model class
 
 ## Parameters {.doc-section .doc-section-parameters}
 
-| Name              | Type                         | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Default      |
-|-------------------|------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|
-| formula           | str or bambi.formula.Formula | A model description written using the formula syntax from the `formulae` library.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | _required_   |
-| data              | pd.DataFrame                 | A pandas dataframe containing the data on which the model will be fit, with column names matching variables defined in the formula.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | _required_   |
-| family            | str or bambi.families.Family | A specification of the model family (analogous to the family object in R). Either a string, or an instance of class `bambi.families.Family`. If a string is passed, a family with the corresponding name must be defined in the defaults loaded at `Model` initialization. Valid pre-defined families are `"bernoulli"`, `"beta"`, `"binomial"`, `"categorical"`, `"gamma"`, `"gaussian"`, `"negativebinomial"`, `"poisson"`, `"t"`, and `"wald"`. Defaults to `"gaussian"`.                                                                                                                                            | `'gaussian'` |
-| priors            | dict                         | Optional specification of priors for one or more terms. A dictionary where the keys are the names of terms in the model, "common," or "group_specific" and the values are instances of class `Prior`. If priors are unset, use automatic priors inspired by the R rstanarm library.                                                                                                                                                                                                                                                                                                                                     | `None`       |
-| link              | str or dict of str to str    | The name of the link function to use. Valid names are `"cloglog"`, `"identity"`, `"inverse_squared"`, `"inverse"`, `"log"`, `"logit"`, `"probit"`, and `"softmax"`. Not all the link functions can be used with all the families. If a dictionary, keys are the names of the target parameters and the values are the names of the link functions.                                                                                                                                                                                                                                                                      | `None`       |
-| categorical       | str or list of str           | The names of any variables to treat as categorical. Can be either a single variable name, or a list of names. If categorical is `None`, the data type of the columns in the `data` will be used to infer handling. In cases where numeric columns are to be treated as categorical (e.g., group specific factors coded as numerical IDs), explicitly passing variable names via this argument is recommended.                                                                                                                                                                                                           | `None`       |
-| potentials        | A list of 2-tuples           | Optional specification of potentials. A potential is an arbitrary expression added to the likelihood, this is generally useful to add constrains to models, that are difficult to express otherwise. The first term of a 2-tuple is the name of a variable in the model, the second a lambda function expressing the desired constraint. If a constraint involves n variables, you can pass n 2-tuples or pass a tuple which first element is a n-tuple and second element is a lambda function with n arguments. The number and order of the lambda function has to match the number and order of the variables names. | `None`       |
-| dropna            | bool                         | When `True`, rows with any missing values in either the predictors or outcome are automatically dropped from t, optionalhe dataset in a listwise manner.                                                                                                                                                                                                                                                                                                                                                                                                                                                                | `False`      |
-| auto_scale        | bool                         | If `True` (default), priors are automatically rescaled to the data (to be weakly informative) any time default priors are used. Note that any priors explicitly set by the user will always take precedence over default priors.                                                                                                                                                                                                                                                                                                                                                                                        | `True`       |
-| noncentered       | bool                         | If `True` (default), uses a non-centered parameterization for normal hyperpriors on grouped parameters. If `False`, naive (centered) parameterization is used.                                                                                                                                                                                                                                                                                                                                                                                                                                                          | `True`       |
-| center_predictors | bool                         | If `True` (default), and if there is an intercept in the common terms, the data is centered by subtracting the mean. The centering is undone after sampling to provide the actual intercept in all distributional components that have an intercept. Note that this changes the interpretation of the prior on the intercept because it refers to the intercept of the centered data.                                                                                                                                                                                                                                   | `True`       |
-| extra_namespace   | dict                         | Additional user supplied variables with transformations or data to include in the environment where the formula is evaluated. Defaults to `None`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | `None`       |
+<code>[**formula**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`) or [Formula](`bambi.formula.Formula`)]{.parameter-annotation}</code>
+
+:   A model description written using the formula syntax from the `formulae` library.
+
+<code>[**data**]{.parameter-name} [:]{.parameter-annotation-sep} [[pd](`pandas`).[DataFrame](`pandas.DataFrame`)]{.parameter-annotation}</code>
+
+:   A pandas dataframe containing the data on which the model will be fit, with column names matching variables defined in the formula.
+
+<code>[**family**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`) or [bambi](`bambi`).[Family](`bambi.Family`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'gaussian\']{.parameter-default}</code>
+
+:   A specification of the model family (analogous to the family object in R). Either a string, or an instance of class [](`bambi.Family`). If a string is passed, a family with the corresponding name must be defined in the defaults loaded at `Model` initialization. Valid pre-defined families are `"bernoulli"`, `"beta"`, `"binomial"`, `"categorical"`, `"gamma"`, `"gaussian"`, `"negativebinomial"`, `"poisson"`, `"t"`, and `"wald"`. Defaults to `"gaussian"`.
+
+<code>[**priors**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Optional specification of priors for one or more terms. A dictionary where the keys are the names of terms in the model, "common," or "group_specific" and the values are instances of class `Prior`. If priors are unset, use automatic priors inspired by the R rstanarm library.
+
+<code>[**link**]{.parameter-name} [:]{.parameter-annotation-sep} [str or dict of str to str]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   The name of the link function to use. Valid names are `"cloglog"`, `"identity"`, `"inverse_squared"`, `"inverse"`, `"log"`, `"logit"`, `"probit"`, and `"softmax"`. Not all the link functions can be used with all the families. If a dictionary, keys are the names of the target parameters and the values are the names of the link functions.
+
+<code>[**categorical**]{.parameter-name} [:]{.parameter-annotation-sep} [str or list of str]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   The names of any variables to treat as categorical. Can be either a single variable name, or a list of names. If categorical is `None`, the data type of the columns in the `data` will be used to infer handling. In cases where numeric columns are to be treated as categorical (e.g., group specific factors coded as numerical IDs), explicitly passing variable names via this argument is recommended.
+
+<code>[**potentials**]{.parameter-name} [:]{.parameter-annotation-sep} [A list of 2-tuples]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Optional specification of potentials. A potential is an arbitrary expression added to the likelihood, this is generally useful to add constrains to models, that are difficult to express otherwise. The first term of a 2-tuple is the name of a variable in the model, the second a lambda function expressing the desired constraint. If a constraint involves n variables, you can pass n 2-tuples or pass a tuple which first element is a n-tuple and second element is a lambda function with n arguments. The number and order of the lambda function has to match the number and order of the variables names.
+
+<code>[**dropna**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [False]{.parameter-default}</code>
+
+:   When `True`, rows with any missing values in either the predictors or outcome are automatically dropped from t, optionalhe dataset in a listwise manner.
+
+<code>[**auto_scale**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
+
+:   If `True` (default), priors are automatically rescaled to the data (to be weakly informative) any time default priors are used. Note that any priors explicitly set by the user will always take precedence over default priors.
+
+<code>[**noncentered**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
+
+:   If `True` (default), uses a non-centered parameterization for normal hyperpriors on grouped parameters. If `False`, naive (centered) parameterization is used.
+
+<code>[**center_predictors**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
+
+:   If `True` (default), and if there is an intercept in the common terms, the data is centered by subtracting the mean. The centering is undone after sampling to provide the actual intercept in all distributional components that have an intercept. Note that this changes the interpretation of the prior on the intercept because it refers to the intercept of the centered data.
+
+<code>[**extra_namespace**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Additional user supplied variables with transformations or data to include in the environment where the formula is evaluated. Defaults to `None`.
 
 ## Methods
 
@@ -69,21 +102,27 @@ Model.compute_log_likelihood(idata, data=None, inplace=True)
 
 Compute the model's log-likelihood
 
-NOTE: This is a new feature and it may not work in all cases.
+**NOTE**: This is a new feature and it may not work in all cases.
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name    | Type                 | Description                                                                                                                                                                 | Default    |
-|---------|----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| idata   | InferenceData        | The `InferenceData` instance returned by `.fit()`.                                                                                                                          | _required_ |
-| data    | pd.DataFrame or None | An optional data frame with values for the predictors and the response on which the model's log-likelihood function is evaluated. If omitted, the original dataset is used. | `None`     |
-| inplace | bool                 | If `True` it will modify `idata` in-place. Otherwise, it will return a copy of `idata` with the `log_likelihood` group added.                                               | `True`     |
+<code>[**idata**]{.parameter-name} [:]{.parameter-annotation-sep} [[InferenceData](`InferenceData`)]{.parameter-annotation}</code>
+
+:   The `InferenceData` instance returned by `.fit()`.
+
+<code>[**data**]{.parameter-name} [:]{.parameter-annotation-sep} [[pd](`pandas`).[DataFrame](`pandas.DataFrame`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   An optional data frame with values for the predictors and the response on which the model's log-likelihood function is evaluated. If omitted, the original dataset is used.
+
+<code>[**inplace**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
+
+:   If `True` it will modify `idata` in-place. Otherwise, it will return a copy of `idata` with the `log_likelihood` group added.
 
 #### Returns {.doc-section .doc-section-returns}
 
-| Name   | Type                  | Description   |
-|--------|-----------------------|---------------|
-|        | InferenceData or None |               |
+<code>[]{.parameter-name} [:]{.parameter-annotation-sep} [[InferenceData](`InferenceData`) or None]{.parameter-annotation}</code>
+
+:   
 
 ### fit { #bambi.Model.fit }
 
@@ -109,27 +148,63 @@ Fit the model using PyMC
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name                    | Type                | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Default   |
-|-------------------------|---------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
-| draws                   | int                 | The number of samples to draw from the posterior distribution. Defaults to 1000.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | `1000`    |
-| tune                    | int                 | Number of iterations to tune. Defaults to 1000. Samplers adjust the step sizes, scalings or similar during tuning. These tuning samples are be drawn in addition to the number specified in the `draws` argument, and will be discarded unless `discard_tuned_samples` is set to `False`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | `1000`    |
-| discard_tuned_samples   | bool                | Whether to discard posterior samples of the tune interval. Defaults to `True`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | `True`    |
-| omit_offsets            | bool                | Omits offset terms in the `InferenceData` object returned when the model includes group specific effects. Defaults to `True`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | `True`    |
-| include_mean            | bool                | Deprecated. Use `include_response_params`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | `None`    |
-| include_response_params | bool                | Include parameters of the response distribution in the output. These usually take more space than other parameters as there's one of them per observation. Defaults to `False`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | `False`   |
-| inference_method        | str                 | The method to use for fitting the model. By default, `"pymc"`. This automatically assigns a MCMC method best suited for each kind of variables, like NUTS for continuous variables and Metropolis for non-binary discrete ones. NUTS implementations include `"pymc"`, `"nutpie"`, `"blackjax"`, and `"numpyro"`. Alternatively, `"vi"`, in which case the model will be fitted using variational inference as implemented in PyMC using the `fit` function. Finally, `"laplace"`, in which case a Laplace approximation is used and is not recommended other than for pedagogical use.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | `'pymc'`  |
-| init                    | str                 | Initialization method. Defaults to `"auto"`. The available methods are: * auto: Use `"jitter+adapt_diag"` and if this method fails it uses `"adapt_diag"`. * adapt_diag: Start with a identity mass matrix and then adapt a diagonal based on the variance of the tuning samples. All chains use the test value (usually the prior mean) as starting point. * jitter+adapt_diag: Same as `"adapt_diag"`, but use test value plus a uniform jitter in [-1, 1] as starting point in each chain. * advi+adapt_diag: Run ADVI and then adapt the resulting diagonal mass matrix based on the sample variance of the tuning samples. * advi+adapt_diag_grad: Run ADVI and then adapt the resulting diagonal mass matrix based on the variance of the gradients during tuning. This is **experimental** and might be removed in a future release. * advi: Run ADVI to estimate posterior mean and diagonal mass matrix. * advi_map: Initialize ADVI with MAP and use MAP as starting point. * map: Use the MAP as starting point. This is strongly discouraged. * adapt_full: Adapt a dense mass matrix using the sample covariances. All chains use the test value (usually the prior mean) as starting point. * jitter+adapt_full: Same as `"adapt_full"`, but use test value plus a uniform jitter in [-1, 1] as starting point in each chain. | `'auto'`  |
-| n_init                  | int                 | Number of initialization iterations. Only works for `"advi"` init methods.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | `50000`   |
-| chains                  | int                 | The number of chains to sample. Running independent chains is important for some convergence statistics and can also reveal multiple modes in the posterior. If `None`, then set to either `cores` or 2, whichever is larger.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | `None`    |
-| cores                   | int                 | The number of chains to run in parallel. If `None`, it is equal to the number of CPUs in the system unless there are more than 4 CPUs, in which case it is set to 4.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | `None`    |
-| random_seed             | int or list of ints | A list is accepted if cores is greater than one.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | `None`    |
-| **kwargs                | dict                | For other kwargs see the documentation for `PyMC.sample()`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `{}`      |
+<code>[**draws**]{.parameter-name} [:]{.parameter-annotation-sep} [[int](`int`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [1000]{.parameter-default}</code>
+
+:   The number of samples to draw from the posterior distribution. Defaults to 1000.
+
+<code>[**tune**]{.parameter-name} [:]{.parameter-annotation-sep} [[int](`int`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [1000]{.parameter-default}</code>
+
+:   Number of iterations to tune. Defaults to 1000. Samplers adjust the step sizes, scalings or similar during tuning. These tuning samples are be drawn in addition to the number specified in the `draws` argument, and will be discarded unless `discard_tuned_samples` is set to `False`.
+
+<code>[**discard_tuned_samples**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
+
+:   Whether to discard posterior samples of the tune interval. Defaults to `True`.
+
+<code>[**omit_offsets**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
+
+:   Omits offset terms in the `InferenceData` object returned when the model includes group specific effects. Defaults to `True`.
+
+<code>[**include_mean**]{.parameter-name} [:]{.parameter-annotation-sep} [([bool](`bool`), [optional](`optional`), [deprecated](`deprecated`))]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   **This argument is deprecated and will be removed in future versions**. Use `include_response_params`.
+
+<code>[**include_response_params**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [False]{.parameter-default}</code>
+
+:   Include parameters of the response distribution in the output. These usually take more space than other parameters as there's one of them per observation. Defaults to `False`.
+
+<code>[**inference_method**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'pymc\']{.parameter-default}</code>
+
+:   The method to use for fitting the model. By default, `"pymc"`. This automatically assigns a MCMC method best suited for each kind of variables, like NUTS for continuous variables and Metropolis for non-binary discrete ones. NUTS implementations include `"pymc"`, `"nutpie"`, `"blackjax"`, and `"numpyro"`. Alternatively, `"vi"`, in which case the model will be fitted using variational inference as implemented in PyMC using the `fit` function. Finally, `"laplace"`, in which case a Laplace approximation is used and is not recommended other than for pedagogical use.
+
+<code>[**init**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'auto\']{.parameter-default}</code>
+
+:   Initialization method. Defaults to `"auto"`. The available methods are: * auto: Use `"jitter+adapt_diag"` and if this method fails it uses `"adapt_diag"`. * adapt_diag: Start with a identity mass matrix and then adapt a diagonal based on the variance of the tuning samples. All chains use the test value (usually the prior mean) as starting point. * jitter+adapt_diag: Same as `"adapt_diag"`, but use test value plus a uniform jitter in [-1, 1] as starting point in each chain. * advi+adapt_diag: Run ADVI and then adapt the resulting diagonal mass matrix based on the sample variance of the tuning samples. * advi+adapt_diag_grad: Run ADVI and then adapt the resulting diagonal mass matrix based on the variance of the gradients during tuning. This is **experimental** and might be removed in a future release. * advi: Run ADVI to estimate posterior mean and diagonal mass matrix. * advi_map: Initialize ADVI with MAP and use MAP as starting point. * map: Use the MAP as starting point. This is strongly discouraged. * adapt_full: Adapt a dense mass matrix using the sample covariances. All chains use the test value (usually the prior mean) as starting point. * jitter+adapt_full: Same as `"adapt_full"`, but use test value plus a uniform jitter in [-1, 1] as starting point in each chain.
+
+<code>[**n_init**]{.parameter-name} [:]{.parameter-annotation-sep} [[int](`int`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [50000]{.parameter-default}</code>
+
+:   Number of initialization iterations. Only works for `"advi"` init methods.
+
+<code>[**chains**]{.parameter-name} [:]{.parameter-annotation-sep} [[int](`int`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   The number of chains to sample. Running independent chains is important for some convergence statistics and can also reveal multiple modes in the posterior. If `None`, then set to either `cores` or 2, whichever is larger.
+
+<code>[**cores**]{.parameter-name} [:]{.parameter-annotation-sep} [[int](`int`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   The number of chains to run in parallel. If `None`, it is equal to the number of CPUs in the system unless there are more than 4 CPUs, in which case it is set to 4.
+
+<code>[**random_seed**]{.parameter-name} [:]{.parameter-annotation-sep} [int or list of ints]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   A list is accepted if cores is greater than one.
+
+<code>[**kwargs**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [{}]{.parameter-default}</code>
+
+:   For other kwargs see the documentation for `PyMC.sample()`.
 
 #### Returns {.doc-section .doc-section-returns}
 
-| Name   | Type                                  | Description                                                                                                                                                          |
-|--------|---------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|        | `az.InferenceData` or `Approximation` | It returns an `az.InferenceData` if `inference_method` is `"pymc"`, `"nutpie"`, `"blackjax"`, `"numpyro"`, or `"laplace"`, and an `Approximation` object if  `"vi"`. |
+<code>[]{.parameter-name} [:]{.parameter-annotation-sep} [`InferenceData` or `Approximation`]{.parameter-annotation}</code>
+
+:   It returns an `InferenceData` if `inference_method` is `"pymc"`, `"nutpie"`, `"blackjax"`, `"numpyro"`, or `"laplace"`, and an `Approximation` object if  `"vi"`.
 
 ### graph { #bambi.Model.graph }
 
@@ -139,28 +214,42 @@ Model.graph(formatting='plain', name=None, figsize=None, dpi=300, fmt='png')
 
 Produce a graphviz Digraph from a built Bambi model.
 
-Requires graphviz, which may be installed most easily with
-    `conda install -c conda-forge python-graphviz`
+Requires graphviz, which may be installed most easily with:
+```cmd
+conda install -c conda-forge python-graphviz
+```
 
 Alternatively, you may install the `graphviz` binaries yourself, and then
 `pip install graphviz` to get the python bindings.
-See http://graphviz.readthedocs.io/en/stable/manual.html for more information.
+See <http://graphviz.readthedocs.io/en/stable/manual.html> for more information.
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name       | Type   | Description                                                                                                                                                                                                                                                                        | Default   |
-|------------|--------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
-| formatting | str    | One of `"plain"` or `"plain_with_params"`. Defaults to `"plain"`.                                                                                                                                                                                                                  | `'plain'` |
-| name       | str    | Name of the figure to save. Defaults to `None`, no figure is saved.                                                                                                                                                                                                                | `None`    |
-| figsize    | tuple  | Maximum width and height of figure in inches. Defaults to `None`, the figure size is set automatically. If defined and the drawing is larger than the given size, the drawing is uniformly scaled down so that it fits within the given size.  Only works if `name` is not `None`. | `None`    |
-| dpi        | int    | Point per inch of the figure to save. Defaults to 300. Only works if `name` is not `None`.                                                                                                                                                                                         | `300`     |
-| fmt        | str    | Format of the figure to save. Defaults to `"png"`. Only works if `name` is not `None`.                                                                                                                                                                                             | `'png'`   |
+<code>[**formatting**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'plain\']{.parameter-default}</code>
+
+:   One of `"plain"` or `"plain_with_params"`. Defaults to `"plain"`.
+
+<code>[**name**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Name of the figure to save. Defaults to `None`, no figure is saved.
+
+<code>[**figsize**]{.parameter-name} [:]{.parameter-annotation-sep} [[tuple](`tuple`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Maximum width and height of figure in inches. Defaults to `None`, the figure size is set automatically. If defined and the drawing is larger than the given size, the drawing is uniformly scaled down so that it fits within the given size.  Only works if `name` is not `None`.
+
+<code>[**dpi**]{.parameter-name} [:]{.parameter-annotation-sep} [[int](`int`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [300]{.parameter-default}</code>
+
+:   Point per inch of the figure to save. Defaults to 300. Only works if `name` is not `None`.
+
+<code>[**fmt**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'png\']{.parameter-default}</code>
+
+:   Format of the figure to save. Defaults to `"png"`. Only works if `name` is not `None`.
 
 #### Returns {.doc-section .doc-section-returns}
 
-| Name   | Type             | Description   |
-|--------|------------------|---------------|
-|        | graphviz.Digraph | The graph     |
+<code>[]{.parameter-name} [:]{.parameter-annotation-sep} [[graphviz](`graphviz`).[Digraph](`graphviz.Digraph`)]{.parameter-annotation}</code>
+
+:   The graph
 
 #### Examples {.doc-section .doc-section-examples}
 
@@ -176,18 +265,25 @@ model.graph()
 Model.plot_priors(
     draws=5000,
     var_names=None,
-    random_seed=None,
-    figsize=None,
-    textsize=None,
-    hdi_prob=None,
-    round_to=2,
-    point_estimate='mean',
+    filter_vars=None,
     kind='kde',
-    bins=None,
+    ci_kind=None,
+    ci_prob=None,
+    point_estimate=None,
+    plot_collection=None,
+    backend=None,
+    labeller=None,
+    aes_by_visuals=None,
+    visuals=None,
+    stats=None,
+    figsize=None,
     omit_offsets=True,
     omit_group_specific=True,
-    ax=None,
-    **kwargs,
+    random_seed=None,
+    bins=None,
+    hdi_prob=None,
+    round_to=None,
+    **pc_kwargs,
 )
 ```
 
@@ -195,28 +291,95 @@ Samples from the prior distribution and plots its marginals.
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name                | Type                                                 | Description                                                                                                                                                                                                                                   | Default   |
-|---------------------|------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
-| draws               | int                                                  | Number of draws to sample from the prior predictive distribution. Defaults to 5000.                                                                                                                                                           | `5000`    |
-| var_names           | str or list of str                                   | A list of names of variables for which to compute the prior predictive distribution. Defaults to `None` which means to include both observed and unobserved RVs.                                                                              | `None`    |
-| random_seed         | int                                                  | Seed for the random number generator.                                                                                                                                                                                                         | `None`    |
-| figsize             | tuple                                                | Figure size. If `None` it will be defined automatically.                                                                                                                                                                                      | `None`    |
-| textsize            | float                                                | Text size scaling factor for labels, titles and lines. If `None` it will be autoscaled based on `figsize`.                                                                                                                                    | `None`    |
-| hdi_prob            | float or str                                         | Plots highest density interval for chosen percentage of density. Use `"hide"` to hide the highest density interval. Defaults to 0.94.                                                                                                         | `None`    |
-| round_to            | int                                                  | Controls formatting of floats. Defaults to 2 or the integer part, whichever is bigger.                                                                                                                                                        | `2`       |
-| point_estimate      | str                                                  | Plot point estimate per variable. Values should be `"mean"`, `"median"`, `"mode"` or `None`. Defaults to `"auto"` i.e. it falls back to default set in ArviZ's rcParams.                                                                      | `'mean'`  |
-| kind                | str                                                  | Type of plot to display (`"kde"` or `"hist"`) For discrete variables this argument is ignored and a histogram is always used.                                                                                                                 | `'kde'`   |
-| bins                | (int, sequence, auto or None)                        | Controls the number of bins, accepts the same keywords `matplotlib.pyplot.hist()` does. Only works if `kind == "hist"`. If `None` (default) it will use `"auto"` for continuous variables and `range(xmin, xmax + 1)` for discrete variables. | `None`    |
-| omit_offsets        | bool                                                 | Whether to omit offset terms in the plot. Defaults to `True`.                                                                                                                                                                                 | `True`    |
-| omit_group_specific | bool                                                 | Whether to omit group specific effects in the plot. Defaults to `True`.                                                                                                                                                                       | `True`    |
-| ax                  | numpy array-like of matplotlib axes or bokeh figures | A 2D array of locations into which to plot the densities. If not supplied, ArviZ will create its own array of plot areas (and return it).                                                                                                     | `None`    |
-| **kwargs            | dict                                                 | Passed as-is to `matplotlib.pyplot.hist()` or `matplotlib.pyplot.plot()` function depending on the value of `kind`.                                                                                                                           | `{}`      |
+<code>[**draws**]{.parameter-name} [:]{.parameter-annotation-sep} [[int](`int`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [5000]{.parameter-default}</code>
+
+:   Number of draws to sample from the prior predictive distribution. Defaults to 5000.
+
+<code>[**var_names**]{.parameter-name} [:]{.parameter-annotation-sep} [str or list of str]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   A list of names of variables for which to compute the prior predictive distribution. Defaults to `None` which means to include both observed and unobserved RVs.
+
+<code>[**filter_vars**]{.parameter-name} [:]{.parameter-annotation-sep} [([like](`like`), [regex](`regex`))]{.parameter-annotation} [ = ]{.parameter-default-sep} [\"like\"]{.parameter-default}</code>
+
+:   If `None`, interpret `var_names` as the real variables names. If `"like"`, interpret `var_names` as substrings of the real variables names. If `"regex"`, interpret `var_names` as regular expressions on the real variables names. Forwarded to [](`arviz_plots.plot_dist`).
+
+<code>[**kind**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'kde\']{.parameter-default}</code>
+
+:   Type of plot to display (`"kde"` or `"hist"`). For discrete variables this argument is ignored and a histogram is always used. Forwarded to [](`arviz_plots.plot_dist`).
+
+<code>[**ci_kind**]{.parameter-name} [:]{.parameter-annotation-sep} [([eti](`eti`), [hdi](`hdi`))]{.parameter-annotation} [ = ]{.parameter-default-sep} [\"eti\"]{.parameter-default}</code>
+
+:   Which credible interval to use. Defaults to `arviz_base.rcParams["stats.ci_kind"]`. Forwarded to [](`arviz_plots.plot_dist`).
+
+<code>[**ci_prob**]{.parameter-name} [:]{.parameter-annotation-sep} [[float](`float`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Indicates the probability that should be contained within the plotted credible interval. Defaults to `arviz_base.rcParams["stats.ci_prob"]`. Forwarded to [](`arviz_plots.plot_dist`).
+
+<code>[**point_estimate**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Plot point estimate per variable. Values should be `"mean"`, `"median"`, `"mode"` or `None`. When `None` (default) use `arviz_base.rcParams["stats.point_estimate"]`. Forwarded to [](`arviz_plots.plot_dist`).
+
+<code>[**plot_collection**]{.parameter-name} [:]{.parameter-annotation-sep} [[arviz_plots](`arviz_plots`).[PlotCollection](`arviz_plots.PlotCollection`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   The plot collection to use. Forwarded to [](`arviz_plots.plot_dist`).
+
+<code>[**backend**]{.parameter-name} [:]{.parameter-annotation-sep} [([matplotlib](`matplotlib`), [plotly](`plotly`), [bokeh](`bokeh`))]{.parameter-annotation} [ = ]{.parameter-default-sep} [\"matplotlib\"]{.parameter-default}</code>
+
+:   The backend to use for plotting. If `None`, it inspects whether `plot_connection` is not `None`. If it's not, it uses `plot_collection.backend`. Otherweise, it uses `arviz_base.rcParams["plot.backend"]`. Forwarded to [](`arviz_plots.plot_dist`).
+
+<code>[**labeller**]{.parameter-name} [:]{.parameter-annotation-sep} [[arviz_base](`arviz_base`).[labels](`arviz_base.labels`).[BaseLabeller](`arviz_base.labels.BaseLabeller`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   The labeller. If `None`, it uses [](`arviz_base.labels.BaseLabeller`). Forwarded to [](`arviz_plots.plot_dist`).
+
+<code>[**aes_by_visuals**]{.parameter-name} [:]{.parameter-annotation-sep} [mapping of {str : sequence of str}]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Forwarded to [](`arviz_plots.plot_dist`). See `aes_by_visuals` in there.
+
+<code>[**visuals**]{.parameter-name} [:]{.parameter-annotation-sep} [mapping of {str : mapping or bool}]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Forwarded to [](`arviz_plots.plot_dist`). See `visuals` in there.
+
+<code>[**stats**]{.parameter-name} [:]{.parameter-annotation-sep} [[mapping](`mapping`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Forwarded to [](`arviz_plots.plot_dist`). See `stats` in there.
+
+<code>[**figsize**]{.parameter-name} [:]{.parameter-annotation-sep} [[tuple](`tuple`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Figure size. If `None` it will be defined automatically.
+
+<code>[**omit_offsets**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
+
+:   Whether to omit offset terms in the plot. Defaults to `True`.
+
+<code>[**omit_group_specific**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
+
+:   Whether to omit group specific effects in the plot. Defaults to `True`.
+
+<code>[**random_seed**]{.parameter-name} [:]{.parameter-annotation-sep} [[int](`int`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Seed for random number generator. Passed down to [Model.prior_predictive](`bambi.Model.prior_predictive`).
+
+<code>[**bins**]{.parameter-name} [:]{.parameter-annotation-sep} [([int](`int`), [optional](`optional`), [deprecated](`deprecated`))]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   **This argument is deprecated and will be removed in future versions**.
+
+<code>[**hdi_prob**]{.parameter-name} [:]{.parameter-annotation-sep} [([float](`float`) or [str](`str`), [optional](`optional`), [deprecated](`deprecated`))]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Plots highest density interval for chosen percentage of density. Use `"hide"` to hide the highest density interval. **This argument is deprecated and will be removed in future versions**.
+
+<code>[**round_to**]{.parameter-name} [:]{.parameter-annotation-sep} [([int](`int`), [optional](`optional`), [deprecated](`deprecated`))]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Controls formatting of floats. Defaults to 2 or the integer part, whichever is bigger. **This argument is deprecated and will be removed in future versions**.
+
+<code>[**pc_kwargs**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [{}]{.parameter-default}</code>
+
+:   Passed to [](`arviz_plots.PlotCollection.wrap`)
 
 #### Returns {.doc-section .doc-section-returns}
 
-| Name   | Type             | Description   |
-|--------|------------------|---------------|
-| axes   | matplotlib axes. |               |
+<code>[**pc**]{.parameter-name} [:]{.parameter-annotation-sep} [[arviz_plots](`arviz_plots`).[PlotCollection](`arviz_plots.PlotCollection`)]{.parameter-annotation}</code>
+
+:   
 
 ### predict { #bambi.Model.predict }
 
@@ -238,21 +401,39 @@ Obtains in-sample and out-of-sample predictions from a fitted Bambi model.
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name                   | Type                            | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                           | Default             |
-|------------------------|---------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|
-| idata                  | InferenceData                   | The `InferenceData` instance returned by `.fit()`.                                                                                                                                                                                                                                                                                                                                                                                                                    | _required_          |
-| kind                   | str                             | Indicates the type of prediction required. Can be `"response_params"` or `"response"`. The first returns draws from the posterior distribution of the likelihood parameters, while the latter returns the draws from the posterior predictive distribution (i.e. the posterior probability distribution for a new observation) in addition to the posterior distribution. Defaults to `"response_params"`.                                                            | `'response_params'` |
-| data                   | pd.DataFrame or None            | An optional data frame with values for the predictors that are used to obtain out-of-sample predictions. If omitted, the original dataset is used.                                                                                                                                                                                                                                                                                                                    | `None`              |
-| inplace                | bool                            | If `True` it will modify `idata` in-place. Otherwise, it will return a copy of `idata` with the predictions added. If `kind="response_params"`, a new variable with the name of the parent parameter, e.g. `"mu"` and `"sigma"` for a Gaussian likelihood, or `"p"` for a Bernoulli likelihood, is added to the `posterior` group. If `kind="response"`, it appends a `posterior_predictive` group to `idata`. If any of these already exist, it will be overwritten. | `True`              |
-| include_group_specific | bool                            | Determines if predictions incorporate group-specific effects. If `False`, predictions are made with common effects only (i.e. group specific are set to zero). Defaults to `True`.                                                                                                                                                                                                                                                                                    | `True`              |
-| sample_new_groups      | bool                            | Specifies if it is allowed to obtain predictions for new groups of group-specific terms. When `True`, each posterior sample for the new groups is drawn from the posterior draws of a randomly selected existing group. Since different groups may be selected at each draw, the end result represents the variation across existing groups. The method implemented is equivalent to `sample_new_levels="uncertainty"` in brms.                                       | `False`             |
-| random_seed            | (int, RandomState or Generator) | Seed for the random number generator.                                                                                                                                                                                                                                                                                                                                                                                                                                 | `None`              |
+<code>[**idata**]{.parameter-name} [:]{.parameter-annotation-sep} [[InferenceData](`InferenceData`)]{.parameter-annotation}</code>
+
+:   The `InferenceData` instance returned by `.fit()`.
+
+<code>[**kind**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'response_params\']{.parameter-default}</code>
+
+:   Indicates the type of prediction required. Can be `"response_params"` or `"response"`. The first returns draws from the posterior distribution of the likelihood parameters, while the latter returns the draws from the posterior predictive distribution (i.e. the posterior probability distribution for a new observation) in addition to the posterior distribution. Defaults to `"response_params"`.
+
+<code>[**data**]{.parameter-name} [:]{.parameter-annotation-sep} [[pd](`pandas`).[DataFrame](`pandas.DataFrame`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   An optional data frame with values for the predictors that are used to obtain out-of-sample predictions. If omitted, the original dataset is used.
+
+<code>[**inplace**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
+
+:   If `True` it will modify `idata` in-place. Otherwise, it will return a copy of `idata` with the predictions added. If `kind="response_params"`, a new variable with the name of the parent parameter, e.g. `"mu"` and `"sigma"` for a Gaussian likelihood, or `"p"` for a Bernoulli likelihood, is added to the `posterior` group. If `kind="response"`, it appends a `posterior_predictive` group to `idata`. If any of these already exist, it will be overwritten.
+
+<code>[**include_group_specific**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
+
+:   Determines if predictions incorporate group-specific effects. If `False`, predictions are made with common effects only (i.e. group specific are set to zero). Defaults to `True`.
+
+<code>[**sample_new_groups**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [False]{.parameter-default}</code>
+
+:   Specifies if it is allowed to obtain predictions for new groups of group-specific terms. When `True`, each posterior sample for the new groups is drawn from the posterior draws of a randomly selected existing group. Since different groups may be selected at each draw, the end result represents the variation across existing groups. The method implemented is equivalent to `sample_new_levels="uncertainty"` in brms.
+
+<code>[**random_seed**]{.parameter-name} [:]{.parameter-annotation-sep} [([int](`int`), [RandomState](`RandomState`) or [Generator](`Generator`))]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Seed for the random number generator.
 
 #### Returns {.doc-section .doc-section-returns}
 
-| Name   | Type                  | Description   |
-|--------|-----------------------|---------------|
-|        | InferenceData or None |               |
+<code>[]{.parameter-name} [:]{.parameter-annotation-sep} [[InferenceData](`InferenceData`) or None]{.parameter-annotation}</code>
+
+:   
 
 ### prior_predictive { #bambi.Model.prior_predictive }
 
@@ -269,18 +450,27 @@ Generate samples from the prior predictive distribution.
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name         | Type                     | Description                                                                                                                                           | Default   |
-|--------------|--------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
-| draws        | int                      | Number of draws to sample from the prior predictive distribution. Defaults to 500.                                                                    | `500`     |
-| var_names    | str, list of str or None | A list of names of variables for which to compute the prior predictive distribution. Defaults to `None` which means both observed and unobserved RVs. | `None`    |
-| omit_offsets | bool                     | Whether to omit offset terms in the plot. Defaults to `True`.                                                                                         | `True`    |
-| random_seed  | int or None              | Seed for the random number generator.                                                                                                                 | `None`    |
+<code>[**draws**]{.parameter-name} [:]{.parameter-annotation-sep} [[int](`int`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [500]{.parameter-default}</code>
+
+:   Number of draws to sample from the prior predictive distribution. Defaults to 500.
+
+<code>[**var_names**]{.parameter-name} [:]{.parameter-annotation-sep} [str, list of str or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   A list of names of variables for which to compute the prior predictive distribution. Defaults to `None` which means both observed and unobserved RVs.
+
+<code>[**omit_offsets**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
+
+:   Whether to omit offset terms in the plot. Defaults to `True`.
+
+<code>[**random_seed**]{.parameter-name} [:]{.parameter-annotation-sep} [[int](`int`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Seed for the random number generator.
 
 #### Returns {.doc-section .doc-section-returns}
 
-| Name   | Type          | Description                                                                             |
-|--------|---------------|-----------------------------------------------------------------------------------------|
-|        | InferenceData | `InferenceData` object with the groups `prior`, `prior_predictive` and `observed_data`. |
+<code>[]{.parameter-name} [:]{.parameter-annotation-sep} [[InferenceData](`InferenceData`)]{.parameter-annotation}</code>
+
+:   `InferenceData` object with the groups `prior`, `prior_predictive` and `observed_data`.
 
 ### r2_score { #bambi.Model.r2_score }
 
@@ -297,22 +487,25 @@ of the residuals. For details of the Bayesian R² see [1]_.
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name    | Type          | Description                                                                                                                                                | Default    |
-|---------|---------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| idata   | InferenceData | The `InferenceData` instance returned by `.fit()`. It should contain the `posterior_predictive` group, otherwise it will be computed and added to `idata`. | _required_ |
-| summary | bool          | If `True`, it returns a summary of the Bayesian R². Otherwise, it returns the posterior samples of the Bayesian R².                                        | `True`     |
+<code>[**idata**]{.parameter-name} [:]{.parameter-annotation-sep} [[InferenceData](`InferenceData`)]{.parameter-annotation}</code>
+
+:   The `InferenceData` instance returned by `.fit()`. It should contain the `posterior_predictive` group, otherwise it will be computed and added to `idata`.
+
+<code>[**summary**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
+
+:   If `True`, it returns a summary of the Bayesian R². Otherwise, it returns the posterior samples of the Bayesian R².
 
 #### Returns {.doc-section .doc-section-returns}
 
-| Name   | Type          | Description                                                                                                            |
-|--------|---------------|------------------------------------------------------------------------------------------------------------------------|
-|        | pandas.Series | A series with the following indices: r2: mean value for the Bayesian R² r2_std: standard deviation of the Bayesian R². |
+<code>[]{.parameter-name} [:]{.parameter-annotation-sep} [[pandas](`pandas`).[Series](`pandas.Series`)]{.parameter-annotation}</code>
+
+:   A series with the following indices: r2: mean value for the Bayesian R² r2_std: standard deviation of the Bayesian R².
 
 #### References {.doc-section .doc-section-references}
 
 .. [1] Gelman et al. *R-squared for Bayesian regression models*.
-    The American Statistician. 73(3) (2019). https://doi.org/10.1080/00031305.2018.1549100
-    preprint http://www.stat.columbia.edu/~gelman/research/published/bayes_R2_v3.pdf.
+    The American Statistician. 73(3) (2019). <https://doi.org/10.1080/00031305.2018.1549100>
+    preprint <http://www.stat.columbia.edu/~gelman/research/published/bayes_R2_v3.pdf]>.
 
 ### set_alias { #bambi.Model.set_alias }
 
@@ -324,15 +517,15 @@ Set aliases for the terms and auxiliary parameters in the model
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name    | Type               | Description                                                                          | Default    |
-|---------|--------------------|--------------------------------------------------------------------------------------|------------|
-| aliases | dict of str to str | A dictionary where key represents the original term name and the value is the alias. | _required_ |
+<code>[**aliases**]{.parameter-name} [:]{.parameter-annotation-sep} [dict of str to str]{.parameter-annotation}</code>
+
+:   A dictionary where key represents the original term name and the value is the alias.
 
 #### Returns {.doc-section .doc-section-returns}
 
-| Name   | Type   | Description   |
-|--------|--------|---------------|
-|        | `None` |               |
+<code>[]{.parameter-name} [:]{.parameter-annotation-sep} [`None`]{.parameter-annotation}</code>
+
+:   
 
 ### set_priors { #bambi.Model.set_priors }
 
@@ -344,8 +537,14 @@ Set priors for one or more existing terms.
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name           | Type                        | Description                                                                                                                                                                  | Default   |
-|----------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
-| priors         | dict or None                | Dictionary of priors to update. Keys are names of terms to update; values are the new priors (either a `Prior` instance, or an int or float that scales the default priors). | `None`    |
-| common         | (Prior, int, float or None) | A prior specification to apply to all common terms included in the model.                                                                                                    | `None`    |
-| group_specific | (Prior, int, float or None) | A prior specification to apply to all group specific terms included in the model.                                                                                            | `None`    |
+<code>[**priors**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Dictionary of priors to update. Keys are names of terms to update; values are the new priors (either a `Prior` instance, or an int or float that scales the default priors).
+
+<code>[**common**]{.parameter-name} [:]{.parameter-annotation-sep} [([Prior](`bambi.priors.Prior`), [int](`int`), [float](`float`) or None)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   A prior specification to apply to all common terms included in the model.
+
+<code>[**group_specific**]{.parameter-name} [:]{.parameter-annotation-sep} [([Prior](`bambi.priors.Prior`), [int](`int`), [float](`float`) or None)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   A prior specification to apply to all group specific terms included in the model.

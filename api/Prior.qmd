@@ -8,12 +8,21 @@ Abstract specification of a term prior
 
 ## Parameters {.doc-section .doc-section-parameters}
 
-| Name       | Type                                  | Description                                                                                                                                        | Default    |
-|------------|---------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| name       | str                                   | Name of prior distribution. Must be the name of a PyMC distribution (e.g., `"Normal"`, `"Bernoulli"`, etc.)                                        | _required_ |
-| auto_scale | bool                                  | Whether to adjust the parameters of the prior or use them as passed. Default to `True`.                                                            | `True`     |
-| dist       | pymc.Distribution or callable or None | A callable that returns a valid PyMC distribution. The signature must contain `name`, `dims`, and `shape`, as well as its own keyworded arguments. | `None`     |
-| kwargs     | dict                                  | Optional keywords specifying the parameters of the named distribution.                                                                             | `{}`       |
+<code>[**name**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation}</code>
+
+:   Name of prior distribution. Must be the name of a PyMC distribution (e.g., `"Normal"`, `"Bernoulli"`, etc.)
+
+<code>[**auto_scale**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
+
+:   Whether to adjust the parameters of the prior or use them as passed. Default to `True`.
+
+<code>[**dist**]{.parameter-name} [:]{.parameter-annotation-sep} [[pymc](`pymc`).[Distribution](`pymc.Distribution`) or [callable](`callable`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   A callable that returns a valid PyMC distribution. The signature must contain `name`, `dims`, and `shape`, as well as its own keyworded arguments.
+
+<code>[**kwargs**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [{}]{.parameter-default}</code>
+
+:   Optional keywords specifying the parameters of the named distribution.
 
 ## Methods
 
@@ -31,6 +40,6 @@ Update the arguments of the prior with additional arguments
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name   | Type   | Description                                      | Default   |
-|--------|--------|--------------------------------------------------|-----------|
-| kwargs | dict   | Optional keyword arguments to add to prior args. | `{}`      |
+<code>[**kwargs**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [{}]{.parameter-default}</code>
+
+:   Optional keyword arguments to add to prior args.

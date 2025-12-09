@@ -364,132 +364,66 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Compute Conditional Adjusted Predictions</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 6%">
-<col style="width: 9%">
-<col style="width: 79%">
-<col style="width: 4%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>model</td>
-<td>bambi.Model</td>
-<td>The model for which we want to plot the predictions.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td>idata</td>
-<td>arviz.InferenceData</td>
-<td>The InferenceData object that contains the samples from the posterior distribution of the model.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="odd">
-<td>conditional</td>
-<td>(str, list, dict)</td>
-<td>The covariates we would like to condition on. If dict, keys are the covariate names and values are the values to condition on.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>average_by</td>
-<td>str | list | bool | None</td>
-<td>The covariates we would like to average by. The passed covariate(s) will marginalize over the other covariates in the model. If True, it averages over all covariates in the model to obtain the average estimate. Defaults to <code>None</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>target</td>
-<td>str</td>
-<td>Which model parameter to plot. Defaults to ‘mean’. Passing a parameter into target only works when pps is False as the target may not be available in the posterior predictive distribution.</td>
-<td><code>'mean'</code></td>
-</tr>
-<tr class="even">
-<td>pps</td>
-<td>bool</td>
-<td>Whether to plot the posterior predictive samples. Defaults to <code>False</code>.</td>
-<td><code>False</code></td>
-</tr>
-<tr class="odd">
-<td>use_hdi</td>
-<td>bool</td>
-<td>Whether to compute the highest density interval (defaults to True) or the quantiles.</td>
-<td><code>True</code></td>
-</tr>
-<tr class="even">
-<td>prob</td>
-<td>float</td>
-<td>The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94. Changing the global variable <code>az.rcParam["stats.ci_prob"]</code> affects this default.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>transforms</td>
-<td>dict</td>
-<td>Transformations that are applied to each of the variables being plotted. The keys are the name of the variables, and the values are functions to be applied. Defaults to <code>None</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>sample_new_groups</td>
-<td>bool</td>
-<td>If the model contains group-level effects, and data is passed for unseen groups, whether to sample from the new groups. Defaults to <code>False</code>.</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>model</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bambi</code>.<a href="../api/Model.html#bambi.Model">Model</a></span></code></dt>
+<dd>
+<p>The model for which we want to plot the predictions.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>idata</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>arviz</code>.<a href="https://python.arviz.org/en/stable/api/generated/arviz.InferenceData.html#arviz.InferenceData">InferenceData</a></span></code></dt>
+<dd>
+<p>The InferenceData object that contains the samples from the posterior distribution of the model.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>conditional</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>, <a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>)</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The covariates we would like to condition on. If dict, keys are the covariate names and values are the values to condition on.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>average_by</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | <a href="https://docs.python.org/3/library/stdtypes.html#list">list</a> | <a href="https://docs.python.org/3/library/functions.html#bool">bool</a> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The covariates we would like to average by. The passed covariate(s) will marginalize over the other covariates in the model. If True, it averages over all covariates in the model to obtain the average estimate. Defaults to <code>None</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>target</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'mean'</span></code></dt>
+<dd>
+<p>Which model parameter to plot. Defaults to ‘mean’. Passing a parameter into target only works when pps is False as the target may not be available in the posterior predictive distribution.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>pps</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">False</span></code></dt>
+<dd>
+<p>Whether to plot the posterior predictive samples. Defaults to <code>False</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>use_hdi</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dd>
+<p>Whether to compute the highest density interval (defaults to True) or the quantiles.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>prob</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94. Changing the global variable <code>az.rcParam["stats.ci_prob"]</code> affects this default.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>transforms</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>Transformations that are applied to each of the variables being plotted. The keys are the name of the variables, and the values are functions to be applied. Defaults to <code>None</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>sample_new_groups</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">False</span></code></dt>
+<dd>
+<p>If the model contains group-level effects, and data is passed for unseen groups, whether to sample from the new groups. Defaults to <code>False</code>.</p>
+</dd>
+</dl>
 </section>
 <section id="returns" class="level2 doc-section doc-section-returns">
 <h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 9%">
-<col style="width: 13%">
-<col style="width: 77%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>cap_data</td>
-<td>pd.DataFrame</td>
-<td>A DataFrame with the result of <code>create_predictions_data</code> and model predictions.</td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>cap_data</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>pd</code>.<code>DataFrame</code></span></code></dt>
+<dd>
+<p>A DataFrame with the result of <code>create_predictions_data</code> and model predictions.</p>
+</dd>
+</dl>
 </section>
 <section id="raises" class="level2 doc-section doc-section-raises">
 <h2 class="doc-section doc-section-raises anchored" data-anchor-id="raises">Raises</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 4%">
-<col style="width: 7%">
-<col style="width: 87%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td></td>
-<td>ValueError</td>
-<td>If <code>pps</code> is <code>True</code> and <code>target</code> is not <code>"mean"</code>. If <code>conditional</code> is a list and the length is greater than 3. If <code>prob</code> is not &gt; 0 and &lt; 1.</td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/exceptions.html#ValueError">ValueError</a></span></code></dt>
+<dd>
+<p>If <code>pps</code> is <code>True</code> and <code>target</code> is not <code>"mean"</code>. If <code>conditional</code> is a list and the length is greater than 3. If <code>prob</code> is not &gt; 0 and &lt; 1.</p>
+</dd>
+</dl>
 
 
 </section>

@@ -353,48 +353,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The great majority of users will never interact with this class unless they want to create a custom <code>Family</code> with a custom <code>Link</code>. This is automatically handled for all the built-in families.</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 6%">
-<col style="width: 6%">
-<col style="width: 83%">
-<col style="width: 4%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>name</td>
-<td>str</td>
-<td>The name of the link function. If it is a known name, it’s not necessary to pass any other arguments because functions are already defined internally. If not known, all of <code>link</code>, <code>linkinv</code> and <code>linkinv_backend</code> must be specified.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td>link</td>
-<td>function or None</td>
-<td>A function that maps the response to the linear predictor. Known as the :math:<code>g</code> function in GLM jargon. Does not need to be specified when <code>name</code> is a known name.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>linkinv</td>
-<td>function or None</td>
-<td>A function that maps the linear predictor to the response. Known as the :math:<code>g^{-1}</code> function in GLM jargon. Does not need to be specified when <code>name</code> is a known name.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>linkinv_backend</td>
-<td>function or None</td>
-<td>Same than <code>linkinv</code> but must be something that works with PyMC backend (i.e.&nbsp;it must work with PyTensor tensors). Does not need to be specified when <code>name</code> is a known name.</td>
-<td><code>None</code></td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>name</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span></code></dt>
+<dd>
+<p>The name of the link function. If it is a known name, it’s not necessary to pass any other arguments because functions are already defined internally. If not known, all of <code>link</code>, <code>linkinv</code> and <code>linkinv_backend</code> must be specified.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>link</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>function</code> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>A function that maps the response to the linear predictor. Known as the :math:<code>g</code> function in GLM jargon. Does not need to be specified when <code>name</code> is a known name.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>linkinv</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>function</code> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>A function that maps the linear predictor to the response. Known as the :math:<code>g^{-1}</code> function in GLM jargon. Does not need to be specified when <code>name</code> is a known name.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>linkinv_backend</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>function</code> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>Same than <code>linkinv</code> but must be something that works with PyMC backend (i.e.&nbsp;it must work with PyTensor tensors). Does not need to be specified when <code>name</code> is a known name.</p>
+</dd>
+</dl>
 
 
 </section>

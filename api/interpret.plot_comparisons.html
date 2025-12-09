@@ -368,156 +368,82 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Plot Conditional Adjusted Comparisons</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 5%">
-<col style="width: 11%">
-<col style="width: 78%">
-<col style="width: 3%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>model</td>
-<td>bambi.Model</td>
-<td>The model for which we want to plot the predictions.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td>idata</td>
-<td>arviz.InferenceData</td>
-<td>The InferenceData object that contains the samples from the posterior distribution of the model.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="odd">
-<td>contrast</td>
-<td>(str, dict, list)</td>
-<td>The predictor name whose contrast we would like to compare.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td>conditional</td>
-<td>(str, dict, list)</td>
-<td>The covariates we would like to condition on. If dict, keys are the covariate names and values are the values to condition on.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>average_by</td>
-<td>str | list | None</td>
-<td>The covariates we would like to average by. The passed covariate(s) will marginalize over the other covariates in the model. Defaults to <code>None</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>comparison_type</td>
-<td>str</td>
-<td>The type of comparison to plot. Defaults to ‘diff’.</td>
-<td><code>'diff'</code></td>
-</tr>
-<tr class="odd">
-<td>sample_new_groups</td>
-<td>bool</td>
-<td>If the model contains group-level effects, and data is passed for unseen groups, whether to sample from the new groups. Defaults to <code>False</code>.</td>
-<td><code>False</code></td>
-</tr>
-<tr class="even">
-<td>use_hdi</td>
-<td>bool</td>
-<td>Whether to compute the highest density interval (defaults to True) or the quantiles.</td>
-<td><code>True</code></td>
-</tr>
-<tr class="odd">
-<td>prob</td>
-<td>float</td>
-<td>The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94. Changing the global variable <code>az.rcParam["stats.ci_prob"]</code> affects this default.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>legend</td>
-<td>bool</td>
-<td>Whether to automatically include a legend in the plot. Defaults to <code>True</code>.</td>
-<td><code>True</code></td>
-</tr>
-<tr class="odd">
-<td>transforms</td>
-<td>dict</td>
-<td>Transformations that are applied to each of the variables being plotted. The keys are the name of the variables, and the values are functions to be applied. Defaults to <code>None</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>ax</td>
-<td>matplotlib.axes._subplots.AxesSubplot</td>
-<td>A matplotlib axes object or a sequence of them. If None, this function instantiates a new axes object. Defaults to <code>None</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>fig_kwargs</td>
-<td>optional</td>
-<td>Keyword arguments passed to the matplotlib figure function as a dict. For example, <code>fig_kwargs=dict(figsize=(11, 8)), sharey=True</code> would make the figure 11 inches wide by 8 inches high and would share the y-axis values.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>subplot_kwargs</td>
-<td>optional</td>
-<td>Keyword arguments used to determine the covariates used for the horizontal, group, and panel axes. For example, <code>subplot_kwargs=dict(main="x", group="y", panel="z")</code> would plot the horizontal axis as <code>x</code>, the color (hue) as <code>y</code>, and the panel axis as <code>z</code>.</td>
-<td><code>None</code></td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>model</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bambi</code>.<a href="../api/Model.html#bambi.Model">Model</a></span></code></dt>
+<dd>
+<p>The model for which we want to plot the predictions.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>idata</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>arviz</code>.<a href="https://python.arviz.org/en/stable/api/generated/arviz.InferenceData.html#arviz.InferenceData">InferenceData</a></span></code></dt>
+<dd>
+<p>The InferenceData object that contains the samples from the posterior distribution of the model.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>contrast</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>, <a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>)</span></code></dt>
+<dd>
+<p>The predictor name whose contrast we would like to compare.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>conditional</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>, <a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>)</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The covariates we would like to condition on. If dict, keys are the covariate names and values are the values to condition on.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>average_by</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | <a href="https://docs.python.org/3/library/stdtypes.html#list">list</a> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The covariates we would like to average by. The passed covariate(s) will marginalize over the other covariates in the model. Defaults to <code>None</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>comparison_type</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'diff'</span></code></dt>
+<dd>
+<p>The type of comparison to plot. Defaults to ‘diff’.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>sample_new_groups</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">False</span></code></dt>
+<dd>
+<p>If the model contains group-level effects, and data is passed for unseen groups, whether to sample from the new groups. Defaults to <code>False</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>use_hdi</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dd>
+<p>Whether to compute the highest density interval (defaults to True) or the quantiles.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>prob</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94. Changing the global variable <code>az.rcParam["stats.ci_prob"]</code> affects this default.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>legend</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dd>
+<p>Whether to automatically include a legend in the plot. Defaults to <code>True</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>transforms</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>Transformations that are applied to each of the variables being plotted. The keys are the name of the variables, and the values are functions to be applied. Defaults to <code>None</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>ax</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>matplotlib</code>.<code>axes</code>.<code>_subplots</code>.<code>AxesSubplot</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>A matplotlib axes object or a sequence of them. If None, this function instantiates a new axes object. Defaults to <code>None</code>.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>fig_kwargs</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>optional</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>Keyword arguments passed to the matplotlib figure function as a dict. For example, <code>fig_kwargs=dict(figsize=(11, 8)), sharey=True</code> would make the figure 11 inches wide by 8 inches high and would share the y-axis values.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>subplot_kwargs</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>optional</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>Keyword arguments used to determine the covariates used for the horizontal, group, and panel axes. For example, <code>subplot_kwargs=dict(main="x", group="y", panel="z")</code> would plot the horizontal axis as <code>x</code>, the color (hue) as <code>y</code>, and the panel axis as <code>z</code>.</p>
+</dd>
+</dl>
 </section>
 <section id="returns" class="level2 doc-section doc-section-returns">
 <h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 7%">
-<col style="width: 58%">
-<col style="width: 34%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td></td>
-<td>(matplotlib.figure.Figure, matplotlib.axes._subplots.AxesSubplot)</td>
-<td>A tuple with the figure and the axes.</td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<code>matplotlib</code>.<code>figure</code>.<code>Figure</code>, <code>matplotlib</code>.<code>axes</code>.<code>_subplots</code>.<code>AxesSubplot</code>)</span></code></dt>
+<dd>
+<p>A tuple with the figure and the axes.</p>
+</dd>
+</dl>
 </section>
 <section id="raises" class="level2 doc-section doc-section-raises">
 <h2 class="doc-section doc-section-raises anchored" data-anchor-id="raises">Raises</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 2%">
-<col style="width: 4%">
-<col style="width: 93%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td></td>
-<td>ValueError</td>
-<td>If the number of contrast levels is greater than 2 and <code>average_by</code> is <code>None</code>. If <code>conditional</code> and <code>average_by</code> are both <code>None</code>. If length of <code>conditional</code> is greater than 3 and <code>average_by</code> is <code>None</code>. If <code>average_by</code> is <code>True</code>. If main covariate is not numeric or categoric.</td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/exceptions.html#ValueError">ValueError</a></span></code></dt>
+<dd>
+<p>If the number of contrast levels is greater than 2 and <code>average_by</code> is <code>None</code>. If <code>conditional</code> and <code>average_by</code> are both <code>None</code>. If length of <code>conditional</code> is greater than 3 and <code>average_by</code> is <code>None</code>. If <code>average_by</code> is <code>True</code>. If main covariate is not numeric or categoric.</p>
+</dd>
+</dl>
 
 
 </section>

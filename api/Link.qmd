@@ -16,9 +16,18 @@ families.
 
 ## Parameters {.doc-section .doc-section-parameters}
 
-| Name            | Type             | Description                                                                                                                                                                                                                            | Default    |
-|-----------------|------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| name            | str              | The name of the link function. If it is a known name, it's not necessary to pass any other arguments because functions are already defined internally. If not known, all of `link`, `linkinv` and `linkinv_backend` must be specified. | _required_ |
-| link            | function or None | A function that maps the response to the linear predictor. Known as the :math:`g` function in GLM jargon. Does not need to be specified when `name` is a known name.                                                                   | `None`     |
-| linkinv         | function or None | A function that maps the linear predictor to the response. Known as the :math:`g^{-1}` function in GLM jargon. Does not need to be specified when `name` is a known name.                                                              | `None`     |
-| linkinv_backend | function or None | Same than `linkinv` but must be something that works with PyMC backend (i.e. it must work with PyTensor tensors). Does not need to be specified when `name` is a known name.                                                           | `None`     |
+<code>[**name**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation}</code>
+
+:   The name of the link function. If it is a known name, it's not necessary to pass any other arguments because functions are already defined internally. If not known, all of `link`, `linkinv` and `linkinv_backend` must be specified.
+
+<code>[**link**]{.parameter-name} [:]{.parameter-annotation-sep} [[function](`function`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   A function that maps the response to the linear predictor. Known as the :math:`g` function in GLM jargon. Does not need to be specified when `name` is a known name.
+
+<code>[**linkinv**]{.parameter-name} [:]{.parameter-annotation-sep} [[function](`function`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   A function that maps the linear predictor to the response. Known as the :math:`g^{-1}` function in GLM jargon. Does not need to be specified when `name` is a known name.
+
+<code>[**linkinv_backend**]{.parameter-name} [:]{.parameter-annotation-sep} [[function](`function`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Same than `linkinv` but must be something that works with PyMC backend (i.e. it must work with PyTensor tensors). Does not need to be specified when `name` is a known name.

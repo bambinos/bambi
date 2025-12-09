@@ -359,42 +359,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>A specification of model family</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 3%">
-<col style="width: 11%">
-<col style="width: 81%">
-<col style="width: 3%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>name</td>
-<td>str</td>
-<td>The name of the family. It can be any string.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td>likelihood</td>
-<td>Likelihood</td>
-<td>A <code>bambi.families.Likelihood</code> instance specifying the model likelihood function.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="odd">
-<td>link</td>
-<td>str or dict of str to (str or Link)</td>
-<td>The link function that’s used for every parameter in the likelihood function. Keys are the names of the parameters and values are the link functions. These can be a <code>str</code> with a name or a <code>bambi.families.Link</code> instance. The link function transforms the linear predictors.</td>
-<td><em>required</em></td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>name</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span></code></dt>
+<dd>
+<p>The name of the family. It can be any string.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>likelihood</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="../api/Likelihood.html#bambi.Likelihood">Likelihood</a></span></code></dt>
+<dd>
+<p>A <code>bambi.families.Likelihood</code> instance specifying the model likelihood function.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>link</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">str or dict of str to (str or Link)</span></code></dt>
+<dd>
+<p>The link function that’s used for every parameter in the likelihood function. Keys are the names of the parameters and values are the link functions. These can be a <code>str</code> with a name or a <code>bambi.families.Link</code> instance. The link function transforms the linear predictors.</p>
+</dd>
+</dl>
 </section>
 <section id="examples" class="level2 doc-section doc-section-examples">
 <h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
@@ -457,72 +435,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>This method uses <code>pm.logp()</code>.</p>
 <section id="parameters-1" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 4%">
-<col style="width: 8%">
-<col style="width: 82%">
-<col style="width: 4%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>model</td>
-<td>bambi.Model</td>
-<td>The model</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td>posterior</td>
-<td>xr.Dataset</td>
-<td>The xarray dataset that contains the draws for all the parameters in the posterior. It must contain the parameters that are needed in the distribution of the response, or the parameters that allow to derive them.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="odd">
-<td>data</td>
-<td>pd.DataFrame or None</td>
-<td>A data frame with values for the predictors and the response on which the model’s log-likelihood function is evaluated. If omitted, the original dataset is used.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td>kwargs</td>
-<td>dict</td>
-<td>Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the ‘n’ in binomial models and multinomial models.</td>
-<td><code>{}</code></td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>model</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bambi</code>.<a href="../api/Model.html#bambi.Model">Model</a></span></code></dt>
+<dd>
+<p>The model</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>posterior</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>xr</code>.<code>Dataset</code></span></code></dt>
+<dd>
+<p>The xarray dataset that contains the draws for all the parameters in the posterior. It must contain the parameters that are needed in the distribution of the response, or the parameters that allow to derive them.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>data</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>pd</code>.<code>DataFrame</code> or None</span></code></dt>
+<dd>
+<p>A data frame with values for the predictors and the response on which the model’s log-likelihood function is evaluated. If omitted, the original dataset is used.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>kwargs</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">{}</span></code></dt>
+<dd>
+<p>Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the ‘n’ in binomial models and multinomial models.</p>
+</dd>
+</dl>
 </section>
 <section id="returns" class="level4 doc-section doc-section-returns">
 <h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 6%">
-<col style="width: 10%">
-<col style="width: 83%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td></td>
-<td>xr.DataArray</td>
-<td>A data array with the value of the log-likelihood for each chain, draw, and value of the response variable.</td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>xr</code>.<code>DataArray</code></span></code></dt>
+<dd>
+<p>A data array with the value of the log-likelihood for each chain, draw, and value of the response variable.</p>
+</dd>
+</dl>
 </section>
 </section>
 <section id="bambi.Family.posterior_predictive" class="level3">
@@ -532,72 +471,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>This function works for almost all the families. It grabs the draws for the parameters needed in the response distribution, and then gets samples from the posterior predictive distribution using <code>pm.draw()</code>. It won’t work when the response distribution requires parameters that are not available in <code>posterior</code>.</p>
 <section id="parameters-2" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 4%">
-<col style="width: 12%">
-<col style="width: 78%">
-<col style="width: 4%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>model</td>
-<td>bambi.Model</td>
-<td>The model</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td>posterior</td>
-<td>xr.Dataset</td>
-<td>The xarray dataset that contains the draws for all the parameters in the posterior. It must contain the parameters that are needed in the distribution of the response, or the parameters that allow to derive them.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="odd">
-<td>random_seed</td>
-<td>(int, RandomState or Generator)</td>
-<td>Seed for the random number generator.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
-<td>kwargs</td>
-<td>dict</td>
-<td>Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the ‘n’ in binomial models and multinomial models.</td>
-<td><code>{}</code></td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>model</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>bambi</code>.<a href="../api/Model.html#bambi.Model">Model</a></span></code></dt>
+<dd>
+<p>The model</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>posterior</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>xr</code>.<code>Dataset</code></span></code></dt>
+<dd>
+<p>The xarray dataset that contains the draws for all the parameters in the posterior. It must contain the parameters that are needed in the distribution of the response, or the parameters that allow to derive them.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>random_seed</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<a href="https://docs.python.org/3/library/functions.html#int">int</a>, <code>RandomState</code> or <code>Generator</code>)</span></code></dt>
+<dd>
+<p>Seed for the random number generator.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>kwargs</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">{}</span></code></dt>
+<dd>
+<p>Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the ‘n’ in binomial models and multinomial models.</p>
+</dd>
+</dl>
 </section>
 <section id="returns-1" class="level4 doc-section doc-section-returns">
 <h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 8%">
-<col style="width: 14%">
-<col style="width: 76%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td></td>
-<td>xr.DataArray</td>
-<td>A data array with the draws from the posterior predictive distribution.</td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>xr</code>.<code>DataArray</code></span></code></dt>
+<dd>
+<p>A data array with the draws from the posterior predictive distribution.</p>
+</dd>
+</dl>
 </section>
 </section>
 <section id="bambi.Family.set_default_priors" class="level3">
@@ -606,30 +506,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Set default priors for non-parent parameters</p>
 <section id="parameters-3" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-3">Parameters</h4>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 6%">
-<col style="width: 6%">
-<col style="width: 76%">
-<col style="width: 10%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>priors</td>
-<td>dict</td>
-<td>The keys are the names of non-parent parameters and the values are their default priors.</td>
-<td><em>required</em></td>
-</tr>
-</tbody>
-</table>
+<dl>
+<dt><code><span class="parameter-name"><strong>priors</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></span></code></dt>
+<dd>
+<p>The keys are the names of non-parent parameters and the values are their default priors.</p>
+</dd>
+</dl>
 
 
 </section>

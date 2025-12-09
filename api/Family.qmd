@@ -8,11 +8,17 @@ A specification of model family
 
 ## Parameters {.doc-section .doc-section-parameters}
 
-| Name       | Type                                | Description                                                                                                                                                                                                                                                                     | Default    |
-|------------|-------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| name       | str                                 | The name of the family. It can be any string.                                                                                                                                                                                                                                   | _required_ |
-| likelihood | Likelihood                          | A `bambi.families.Likelihood` instance specifying the model likelihood function.                                                                                                                                                                                                | _required_ |
-| link       | str or dict of str to (str or Link) | The link function that's used for every parameter in the likelihood function. Keys are the names of the parameters and values are the link functions. These can be a `str` with a name or a `bambi.families.Link` instance. The link function transforms the linear predictors. | _required_ |
+<code>[**name**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation}</code>
+
+:   The name of the family. It can be any string.
+
+<code>[**likelihood**]{.parameter-name} [:]{.parameter-annotation-sep} [[Likelihood](`bambi.families.likelihood.Likelihood`)]{.parameter-annotation}</code>
+
+:   A `bambi.families.Likelihood` instance specifying the model likelihood function.
+
+<code>[**link**]{.parameter-name} [:]{.parameter-annotation-sep} [str or dict of str to (str or Link)]{.parameter-annotation}</code>
+
+:   The link function that's used for every parameter in the likelihood function. Keys are the names of the parameters and values are the link functions. These can be a `str` with a name or a `bambi.families.Link` instance. The link function transforms the linear predictors.
 
 ## Examples {.doc-section .doc-section-examples}
 
@@ -63,18 +69,27 @@ This method uses `pm.logp()`.
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name      | Type                 | Description                                                                                                                                                                                                          | Default    |
-|-----------|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| model     | bambi.Model          | The model                                                                                                                                                                                                            | _required_ |
-| posterior | xr.Dataset           | The xarray dataset that contains the draws for all the parameters in the posterior. It must contain the parameters that are needed in the distribution of the response, or the parameters that allow to derive them. | _required_ |
-| data      | pd.DataFrame or None | A data frame with values for the predictors and the response on which the model's log-likelihood function is evaluated. If omitted, the original dataset is used.                                                    | _required_ |
-| kwargs    | dict                 | Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the 'n' in binomial models and multinomial models.                                  | `{}`       |
+<code>[**model**]{.parameter-name} [:]{.parameter-annotation-sep} [[bambi](`bambi`).[Model](`bambi.Model`)]{.parameter-annotation}</code>
+
+:   The model
+
+<code>[**posterior**]{.parameter-name} [:]{.parameter-annotation-sep} [[xr](`xarray`).[Dataset](`xarray.Dataset`)]{.parameter-annotation}</code>
+
+:   The xarray dataset that contains the draws for all the parameters in the posterior. It must contain the parameters that are needed in the distribution of the response, or the parameters that allow to derive them.
+
+<code>[**data**]{.parameter-name} [:]{.parameter-annotation-sep} [[pd](`pd`).[DataFrame](`pd.DataFrame`) or None]{.parameter-annotation}</code>
+
+:   A data frame with values for the predictors and the response on which the model's log-likelihood function is evaluated. If omitted, the original dataset is used.
+
+<code>[**kwargs**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [{}]{.parameter-default}</code>
+
+:   Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the 'n' in binomial models and multinomial models.
 
 #### Returns {.doc-section .doc-section-returns}
 
-| Name   | Type         | Description                                                                                                 |
-|--------|--------------|-------------------------------------------------------------------------------------------------------------|
-|        | xr.DataArray | A data array with the value of the log-likelihood for each chain, draw, and value of the response variable. |
+<code>[]{.parameter-name} [:]{.parameter-annotation-sep} [[xr](`xarray`).[DataArray](`xarray.DataArray`)]{.parameter-annotation}</code>
+
+:   A data array with the value of the log-likelihood for each chain, draw, and value of the response variable.
 
 ### posterior_predictive { #bambi.Family.posterior_predictive }
 
@@ -91,18 +106,27 @@ parameters that are not available in `posterior`.
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name        | Type                            | Description                                                                                                                                                                                                          | Default    |
-|-------------|---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| model       | bambi.Model                     | The model                                                                                                                                                                                                            | _required_ |
-| posterior   | xr.Dataset                      | The xarray dataset that contains the draws for all the parameters in the posterior. It must contain the parameters that are needed in the distribution of the response, or the parameters that allow to derive them. | _required_ |
-| random_seed | (int, RandomState or Generator) | Seed for the random number generator.                                                                                                                                                                                | _required_ |
-| kwargs      | dict                            | Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the 'n' in binomial models and multinomial models.                                  | `{}`       |
+<code>[**model**]{.parameter-name} [:]{.parameter-annotation-sep} [[bambi](`bambi`).[Model](`bambi.Model`)]{.parameter-annotation}</code>
+
+:   The model
+
+<code>[**posterior**]{.parameter-name} [:]{.parameter-annotation-sep} [[xr](`xarray`).[Dataset](`xarray.Dataset`)]{.parameter-annotation}</code>
+
+:   The xarray dataset that contains the draws for all the parameters in the posterior. It must contain the parameters that are needed in the distribution of the response, or the parameters that allow to derive them.
+
+<code>[**random_seed**]{.parameter-name} [:]{.parameter-annotation-sep} [([int](`int`), [RandomState](`RandomState`) or [Generator](`Generator`))]{.parameter-annotation}</code>
+
+:   Seed for the random number generator.
+
+<code>[**kwargs**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [{}]{.parameter-default}</code>
+
+:   Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the 'n' in binomial models and multinomial models.
 
 #### Returns {.doc-section .doc-section-returns}
 
-| Name   | Type         | Description                                                             |
-|--------|--------------|-------------------------------------------------------------------------|
-|        | xr.DataArray | A data array with the draws from the posterior predictive distribution. |
+<code>[]{.parameter-name} [:]{.parameter-annotation-sep} [[xr](`xarray`).[DataArray](`xarray.DataArray`)]{.parameter-annotation}</code>
+
+:   A data array with the draws from the posterior predictive distribution.
 
 ### set_default_priors { #bambi.Family.set_default_priors }
 
@@ -114,6 +138,6 @@ Set default priors for non-parent parameters
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name   | Type   | Description                                                                              | Default    |
-|--------|--------|------------------------------------------------------------------------------------------|------------|
-| priors | dict   | The keys are the names of non-parent parameters and the values are their default priors. | _required_ |
+<code>[**priors**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`)]{.parameter-annotation}</code>
+
+:   The keys are the names of non-parent parameters and the values are their default priors.
