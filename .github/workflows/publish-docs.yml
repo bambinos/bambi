@@ -34,14 +34,17 @@ jobs:
 
       - name: Build documentation
         shell: bash
-        # I have to 'cd' because interlinks does not allow to pass a different path
+        # 1. I have to 'cd' because interlinks does not allow to pass a different path
+        # 2. sphobjinv and mv are needed to offer objects.inv to other projects
         run: |
           cd docs
           pixi run -e dev python -m quartodoc build --verbose
           pixi run -e dev python -m quartodoc interlinks
           quarto render
           touch _site/.nojekyll
-          cp objects.json _site/objects.json
+          python -m sphobjinv convert -o zlib objects.txt objects.inv
+          mv objects.inv _site/objects.inv
+          ls _site
 
       - name: Publish documentation to GitHub
         if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags')
