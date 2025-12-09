@@ -42,7 +42,7 @@ jobs:
           pixi run -e dev python -m quartodoc interlinks
           quarto render
           touch _site/.nojekyll
-          python -m sphobjinv convert -o zlib objects.txt objects.inv
+          pixi run -e dev python -m sphobjinv convert -o zlib objects.txt objects.inv
           mv objects.inv _site/objects.inv
           ls _site
 
