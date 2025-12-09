@@ -224,7 +224,7 @@ class PredictiveDifferences:
 
     def get_estimate(
         self,
-        idata: az.InferenceData,
+        idata: "InferenceData",
         response_transforms: dict,
         comparison_type: str = "diff",
         slope: str = "dydx",
@@ -429,7 +429,7 @@ class PredictiveDifferences:
 
 def predictions(
     model: Model,
-    idata: az.InferenceData,
+    idata: "InferenceData",
     conditional: str | dict | list | None = None,
     average_by: str | list | bool | None = None,
     target: str = "mean",
@@ -582,7 +582,7 @@ def predictions(
 
 def comparisons(
     model: Model,
-    idata: az.InferenceData,
+    idata: "InferenceData",
     contrast: str | dict,
     conditional: str | dict | list | None = None,
     average_by: str | list | bool | None = None,
@@ -733,7 +733,7 @@ def comparisons(
 
 def slopes(
     model: Model,
-    idata: az.InferenceData,
+    idata: "InferenceData",
     wrt: str | dict,
     conditional: str | dict | list | None = None,
     average_by: str | list | bool | None = None,
