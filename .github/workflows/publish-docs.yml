@@ -37,10 +37,11 @@ jobs:
         # I have to 'cd' because interlinks does not allow to pass a different path
         run: |
           cd docs
-          pixi run -e dev python -m quartodoc build
+          pixi run -e dev python -m quartodoc build --verbose
           pixi run -e dev python -m quartodoc interlinks
           quarto render
           touch _site/.nojekyll
+          cp objects.json _site/objects.json
 
       - name: Publish documentation to GitHub
         if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags')
