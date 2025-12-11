@@ -21,9 +21,7 @@ class GroupSpecificTerm(BaseTerm):  # pylint: disable=too-many-instance-attribut
         multiplications in the backend), invert the dummy-coding process and represent full-rank
         dummies as a vector of indices into the coefficients.
         """
-        # vector = np.zeros(len(dummies), dtype=int)
-        # for i in range(1, dummies.shape[1]):
-        #     vector[dummies[:, i] == 1] = i
+        # NOTE: This asummes there's a single '1' per row, which is true.
         return dummies.argmax(1)
 
     @property
