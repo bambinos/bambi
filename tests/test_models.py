@@ -224,11 +224,17 @@ class TestGaussian(FitPredictParent):
 
         # Check that the group specific effects design matrices have the same shape
         X0 = pd.concat(
-            [pd.DataFrame(t.data) for t in model0.components["mu"].group_specific_terms.values()],
+            [
+                pd.DataFrame(term.data.toarray())
+                for term in model0.components["mu"].group_specific_terms.values()
+            ],
             axis=1,
         )
         X1 = pd.concat(
-            [pd.DataFrame(t.data) for t in model1.components["mu"].group_specific_terms.values()],
+            [
+                pd.DataFrame(term.data.toarray())
+                for term in model1.components["mu"].group_specific_terms.values()
+            ],
             axis=1,
         )
         assert X0.shape == X1.shape
@@ -337,23 +343,15 @@ class TestGaussian(FitPredictParent):
         # check that the group specific effects design matrices have the same shape
         X0 = pd.concat(
             [
-                (
-                    pd.DataFrame(t.data)
-                    if not isinstance(t.data, dict)
-                    else pd.concat([pd.DataFrame(t.data[x]) for x in t.data.keys()], axis=1)
-                )
-                for t in model0.components["mu"].group_specific_terms.values()
+                pd.DataFrame(term.data.toarray())
+                for term in model0.components["mu"].group_specific_terms.values()
             ],
             axis=1,
         )
         X1 = pd.concat(
             [
-                (
-                    pd.DataFrame(t.data)
-                    if not isinstance(t.data, dict)
-                    else pd.concat([pd.DataFrame(t.data[x]) for x in t.data.keys()], axis=1)
-                )
-                for t in model0.components["mu"].group_specific_terms.values()
+                pd.DataFrame(term.data.toarray())
+                for term in model0.components["mu"].group_specific_terms.values()
             ],
             axis=1,
         )

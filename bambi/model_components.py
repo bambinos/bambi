@@ -1,3 +1,5 @@
+import sparse
+
 import formulae as fm
 import numpy as np
 import xarray as xr
@@ -297,7 +299,6 @@ class DistributionalComponent:
             fm.config["EVAL_UNSEEN_CATEGORIES"] = fm_eval_unseen_categories_original
 
             Z = group.design_matrix
-
             factors_with_new_levels = group.factors_with_new_levels
             if factors_with_new_levels:
                 if sample_new_groups is False:
@@ -355,7 +356,8 @@ class DistributionalComponent:
 
         u = np.concatenate(u_arrays, axis=-1)
         u = xr.DataArray(u, dims=u_dims)
-        Z = xr.DataArray(Z, dims=design_matrix_dims)
+        # NOTE: xarray supports sparse matrices from the 'sparse' package, not from scipy.
+        Z = xr.DataArray(sparse.COO.from_scipy_sparse(Z), dims=design_matrix_dims)
         return xr.dot(Z, u)
 
     def _construct_u_with_new_groups(self, posterior, to_stack_dims, factors_with_new_levels):
