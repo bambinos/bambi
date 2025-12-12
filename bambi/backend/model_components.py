@@ -1,9 +1,11 @@
 import numpy as np
 
 from pytensor import tensor as pt
+from pytensor import sparse as ps
 
 from bambi.backend.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, InterceptTerm, ResponseTerm
 from bambi.backend.utils import get_distribution_from_prior
+from bambi.config import config as bmb_config
 from bambi.families.multivariate import MultivariateFamily
 from bambi.families.univariate import Categorical, Cumulative, StoppingRatio
 
@@ -141,15 +143,24 @@ class DistributionalComponent:
             coef, predictor = group_specific_term.build(bmb_model)
 
             # Add to the linear predictor
-            # The loop through predictor columns is not the most beautiful alternative.
-            # But it's the fastest. Doing matrix multiplication, pm.math.dot(data, coef), is slower.
-            if predictor.ndim > 1:
-                for col in range(predictor.shape[1]):
-                    self.output += coef[:, col] * predictor[:, col]
-            elif isinstance(bmb_model.family, (MultivariateFamily, Categorical)):
-                self.output += coef * predictor[:, np.newaxis]
+            if bmb_config["SPARSE_DOT"]:
+                # NOTE: How to handle multivariate families?
+                # NOTE: new axis and squeezes are added because PyTensor works with matrices
+                contribution = ps.structured_dot(term.data, coef[:, np.newaxis]).squeeze()
             else:
-                self.output += coef * predictor
+                # The loop through columns is not beautiful.
+                # But it's the fastest, a matrix multiplication with pm.math.dot is slower.
+                coef = coef[term.group_index]
+                if predictor.ndim > 1:
+                    contribution = 0
+                    for col in range(predictor.shape[1]):
+                        contribution += coef[:, col] * predictor[:, col]
+                elif isinstance(bmb_model.family, (MultivariateFamily, Categorical)):
+                    contribution = coef * predictor[:, np.newaxis]
+                else:
+                    contribution = coef * predictor
+
+            self.output += contribution
 
     def add_response_coords(self, pymc_backend, bmb_model):
         response_term = bmb_model.response_component.term
