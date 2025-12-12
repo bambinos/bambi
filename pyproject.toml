@@ -23,11 +23,12 @@ maintainers = [
 
 dependencies = [
     "arviz_plots @ git+https://github.com/arviz-devs/arviz-plots",
-    "formulae @ git+https://github.com/tomicapretto/formulae@misc-fixes",
+    "formulae @ git+https://github.com/bambinos/formulae",
     "graphviz",
     "matplotlib>=3.9.0",
     "pandas>=1.0.0",
     "pymc>=5.26.1",
+    "sparse>=0.17.0,<0.18",
 
 ]
 
@@ -74,8 +75,6 @@ preview = ["pixi-build"]
 bambi = { path = ".", editable = true }
 
 [tool.pixi.dependencies]
-sparse = ">=0.17.0,<0.18"
-pyarrow = ">=22.0.0,<23"
 # NOTE: We get all dependencies we need through installation of Bambi itself
 
 ## Dependencies from conda channels

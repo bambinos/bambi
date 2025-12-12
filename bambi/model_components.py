@@ -358,7 +358,9 @@ class DistributionalComponent:
         u = xr.DataArray(u, dims=u_dims)
         # NOTE: xarray supports sparse matrices from the 'sparse' package, not from scipy.
         Z = xr.DataArray(sparse.COO.from_scipy_sparse(Z), dims=design_matrix_dims)
-        return xr.dot(Z, u)
+        # .as_numpy() is called to make sure the `.data` attribute of the resulting
+        # data array is a dense numpy array.
+        return xr.dot(Z, u).as_numpy()
 
     def _construct_u_with_new_groups(self, posterior, to_stack_dims, factors_with_new_levels):
         u_list = []
