@@ -116,7 +116,6 @@ class GroupSpecificTerm:
         # See https://github.com/pymc-devs/pymc/issues/7246
         if len(coef.shape.eval()) == 2 and coef.shape.eval()[-1] == 1:
             coef = pt.specify_broadcastable(coef, 1).squeeze()
-        coef = coef[self.term.group_index]
 
         return coef, predictor
 
