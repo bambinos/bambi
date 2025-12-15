@@ -49,15 +49,6 @@ def get_distribution(dist):
     return dist
 
 
-def has_hyperprior(kwargs):
-    """Determines if a Prior has an hyperprior"""
-    return (
-        "sigma" in kwargs
-        and "observed" not in kwargs
-        and isinstance(kwargs["sigma"], pt.TensorVariable)
-    )
-
-
 def get_distribution_from_prior(prior):
     if prior.dist is not None:
         distribution = prior.dist

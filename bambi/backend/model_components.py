@@ -31,11 +31,11 @@ class ConstantComponent:
             pymc_backend.model.add_coords({threshold_dim: threshold_values})
 
         with pymc_backend.model:
-            # Set to a constant value
             if isinstance(self.component.prior, (int, float)):
+                # Set to a constant value
                 self.output = self.component.prior
-            # Set to a distribution
             else:
+                # Set to a distribution
                 dist = get_distribution_from_prior(self.component.prior)
                 self.output = dist(label, **self.component.prior.args, **extra_args)
 
@@ -82,34 +82,36 @@ class DistributionalComponent:
         spec : bambi.Model
             The model.
         """
-        if self.component.common_terms:
-            coefs = []
-            columns = []
-            for term in self.component.common_terms.values():
-                common_term = CommonTerm(term)
-                # Add coords
-                for name, values in common_term.coords.items():
-                    pymc_backend.model.add_coords({name: values})
+        if not self.component.common_terms:
+            return
 
-                # Build
-                coef, data = common_term.build(bmb_model)
-                coefs.append(coef)
-                columns.append(data)
+        # np.ndarray of shape (n, 1) or (n, p_j).
 
-            # Column vector of coefficients and design matrix
-            coefs = pt.concatenate(coefs)
+        coefs = []
+        columns = []
+        for term in self.component.common_terms.values():
+            common_term = CommonTerm(term)
+            for name, values in common_term.coords.items():
+                pymc_backend.model.add_coords({name: values})
 
-            # Design matrix
-            data = np.column_stack(columns)
+            coef = common_term.build(bmb_model)
+            coefs.append(coef)
+            columns.append(term.data)
 
-            # If there's an intercept, center the data
-            # Also store the design matrix without the intercept to uncenter the intercept later
-            if self.has_intercept and bmb_model.center_predictors:
-                self.design_matrix_without_intercept = data
-                data = data - data.mean(0)
+        # Coefficients: shape (p, ) or (p, k)
+        coefs = pt.concatenate(coefs, axis=0)
 
-            # Add term to linear predictor
-            self.output += pt.dot(data, coefs)
+        # Design matrix: shape (n, p)
+        data = np.column_stack(columns)
+
+        # If there's an intercept, center the data
+        # Also store the design matrix without the intercept to uncenter the intercept later
+        if self.has_intercept and bmb_model.center_predictors:
+            self.design_matrix_without_intercept = data
+            data = data - data.mean(0)
+
+        # Add term to linear predictor
+        self.output += pt.dot(data, coefs)  # (n, ) or (n, k)
 
     def build_hsgp_terms(self, bmb_model, pymc_backend):
         """Add HSGP (Hilbert-Space Gaussian Process approximation) terms to the PyMC model.
@@ -131,23 +133,34 @@ class DistributionalComponent:
         This creates the 'u' parameter vector in PyMC, computes `Z @ u`, and adds it to
         `self.output`.
         """
-        for term in self.component.group_specific_terms.values():
-            group_specific_term = GroupSpecificTerm(term, bmb_model.noncentered)
+        if not self.component.group_specific_terms:
+            return
 
-            # Add coords
-            for name, values in group_specific_term.coords.items():
-                if name not in pymc_backend.model.coords:
-                    pymc_backend.model.add_coords({name: values})
-
-            # Build
-            coef, predictor = group_specific_term.build(bmb_model)
-
+        if bmb_config["SPARSE_DOT"]:
             # Add to the linear predictor
-            if bmb_config["SPARSE_DOT"]:
-                # NOTE: How to handle multivariate families?
-                # NOTE: new axis and squeezes are added because PyTensor works with matrices
-                contribution = ps.structured_dot(term.data, coef[:, np.newaxis]).squeeze()
-            else:
+            # print("predictor ndim shape", predictor.ndim, predictor.shape)
+            # print("coef ndim shape", coef.ndim)  # coef.shape.eval()
+            # print("-" * 20)
+            ...
+
+            # NOTE: How to handle multivariate families? -> coef.ndim == 3
+            # NOTE: structured_dot expects and returns matrices
+            # if coef.ndim == 2:
+            #     coef = coef.flatten()  # Needs to be a vector for Z @ u
+            # contribution = ps.structured_dot(term.data, coef[:, np.newaxis]).squeeze()
+        else:
+            for term in self.component.group_specific_terms.values():
+                group_specific_term = GroupSpecificTerm(term, bmb_model.noncentered)
+
+                # Add coords
+                for name, values in group_specific_term.coords.items():
+                    if name not in pymc_backend.model.coords:
+                        pymc_backend.model.add_coords({name: values})
+
+                # Build
+                coef = group_specific_term.build(bmb_model)
+                predictor = np.squeeze(term.predictor)
+
                 # The loop through columns is not beautiful.
                 # But it's the fastest, a matrix multiplication with pm.math.dot is slower.
                 coef = coef[term.group_index]
@@ -160,7 +173,7 @@ class DistributionalComponent:
                 else:
                     contribution = coef * predictor
 
-            self.output += contribution
+                self.output += contribution
 
     def add_response_coords(self, pymc_backend, bmb_model):
         response_term = bmb_model.response_component.term
