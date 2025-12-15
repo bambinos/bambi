@@ -16,14 +16,13 @@ from xarray import DataArray
 from bambi import Model
 from bambi.interpret.utils import (
     aggregate,
-    create_plot_config,
     get_model_covariates,
     get_response_and_target,
     identity,
 )
 
 from .helpers import compare, create_inference_data
-from .plots import plot
+from .plots import create_plot_config, plot
 from .types import (
     Conditional,
     Contrast,
