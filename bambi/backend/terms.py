@@ -113,9 +113,6 @@ class GroupSpecificTerm:
             FIXME: What is the best layout for this?
             A PyMC distribution of shape (f_j, ), (e_j, f_j), (f_j, k) or (e_j, f_j, k)
         """
-        label = self.name
-        kwargs = self.term.prior.args
-
         # Dims of the term
         term_dims = list(self.coords)
 
@@ -125,15 +122,15 @@ class GroupSpecificTerm:
             response_dims = list(spec.response_component.term.coords)
 
         dims = term_dims + response_dims
-        coef = self.build_distribution(self.term.prior, label, dims=dims, **kwargs)
+        return self.build_distribution(value=self.term.prior, label=self.name, dims=dims)
 
-        # Squeeze ensures we don't have a shape of (n, 1) when we mean (n, )
-        # This happens with categorical predictors with two levels and intercept.
-        # See https://github.com/pymc-devs/pymc/issues/7246
-        if coef.ndim == 2 and coef.shape.eval()[-1] == 1:
-            coef = pt.specify_broadcastable(coef, 1).squeeze()
+        # # Squeeze ensures we don't have a shape of (n, 1) when we mean (n, )
+        # # This happens with categorical predictors with two levels and intercept.
+        # # See https://github.com/pymc-devs/pymc/issues/7246
+        # if coef.ndim == 2 and coef.shape.eval()[-1] == 1:
+        #     coef = pt.specify_broadcastable(coef, 1).squeeze()
 
-        return coef
+        # return coef
 
     def get_coords(self):
         coords = self.term.coords.copy()
