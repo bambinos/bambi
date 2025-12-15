@@ -10,6 +10,7 @@ from pandas.api.types import (
     is_integer_dtype,
     is_numeric_dtype,
 )
+from seaborn.objects import Plot
 from xarray import DataArray
 
 from bambi import Model
@@ -25,100 +26,173 @@ from .helpers import compare, create_inference_data
 from .plots import plot
 from .types import (
     Conditional,
-    ConditionalParam,
     Contrast,
-    ContrastParam,
     Values,
     Variable,
 )
 
 
-def validate_values(
-    values: Values, var_name: str, target_dtype: np.dtype | None = None
+def validate_category_values(
+    values: Values, var_name: str, reference: Series
 ) -> Series:
-    """Validate and convert user provided values to a Pandas Series.
+    """Validates user-provided values against the original Pandas Categorical values used to
+    fit a Bambi model.
 
     Parameters
     ----------
     values : Values
-        User-provided values as a list, numpy array, or pandas Series.
+        User-provided values to validate. Can be a list, numpy array, or pandas Series.
     var_name : str
-        Name of the variable for error messages and Series naming.
-    target_dtype : np.dtype or None
-        Target data type to convert values to. If None, uses the natural dtype.
-
-    Returns
-    -------
-    Series
-        A pandas Series containing the validated and converted values.
+        Name of the variable being validated.
+    reference : Series
+        Reference pandas Series with categorical dtype from the original model data.
 
     Raises
     ------
     TypeError
-        If values are not a list, ndarray, or Series, or if they cannot be converted
-        to the target dtype.
+        If reference series is not categorical or if values is not a list, array, or Series.
     ValueError
-        If the values container is empty.
+        If values is empty or contains invalid categories not present in reference.
+
+    Returns
+    -------
+    Series
+        A pandas Series with categorical dtype matching the reference categories and ordering.
     """
+    if not isinstance(reference.dtype, pd.CategoricalDtype):
+        raise TypeError(f"Reference series for '{var_name}' must be categorical.")
+
+    # Extract categories
     match values:
-        # Values can be a list
         case list() as lst:
-            # Validate all elements are int or float
+            if len(lst) == 0:
+                raise ValueError(f"List values for '{var_name}' cannot be empty")
+            vals = lst
+        case np.ndarray() as arr:
+            if arr.size == 0:
+                raise ValueError(f"Array values for '{var_name}' cannot be empty")
+            vals = arr.tolist()
+        case Series() as series:
+            if len(series) == 0:
+                raise ValueError(f"Series values for '{var_name}' cannot be empty")
+            vals = series.tolist()
+        case _:
+            raise TypeError(
+                f"Categorical values for '{var_name}' must be one of: list, np.ndarray, or pd.Series. "
+                f"Got: {type(values).__name__}"
+            )
+
+    # Validate categories
+    valid_cats = set(reference.cat.categories)
+    provided_cats = set(vals)
+
+    if not provided_cats.issubset(valid_cats):
+        invalid = provided_cats - valid_cats
+        raise ValueError(
+            f"Invalid categories for '{var_name}': {invalid}. "
+            f"Valid categories: {list(valid_cats)}"
+        )
+
+    # Create categorical series with reference categories and ordering
+    return pd.Series(
+        pd.Categorical(
+            vals,
+            categories=reference.cat.categories,
+            ordered=reference.cat.ordered,
+        ),
+        name=var_name,
+    )
+
+
+def validate_numeric_values(
+    values: Values,
+    var_name: str,
+    target_dtype: np.dtype | None = None,
+) -> Series:
+    """Validates user-provided values against the original Pandas numerical values used to
+    fit a Bambi model.
+
+    Parameters
+    ----------
+    values : Values
+        User-provided values to validate. Can be a list, numpy array, or pandas Series.
+    var_name : str
+        Name of the variable being validated.
+    target_dtype : np.dtype or None, optional
+        Target dtype to convert the values to. If None, no conversion is performed.
+
+    Raises
+    ------
+    TypeError
+        If values is not a list, array, or Series, or if conversion to target_dtype fails.
+    ValueError
+        If values is empty.
+
+    Returns
+    -------
+    Series
+        A pandas Series with validated numeric values, optionally converted to target_dtype.
+    """
+
+    def convert_to_dtype(series: Series) -> Series:
+        """Convert series to target dtype if specified.
+
+        Parameters
+        ----------
+        series : Series
+            The pandas Series to convert.
+
+        Returns
+        -------
+        Series
+            The series converted to target_dtype if specified, otherwise unchanged.
+
+        Raises
+        ------
+        TypeError
+            If conversion to target_dtype fails.
+        """
+        if target_dtype is not None and series.dtype != target_dtype:
+            try:
+                return series.astype(target_dtype)
+            except (ValueError, TypeError) as e:
+                raise TypeError(
+                    f"Cannot convert values for '{var_name}' to target dtype {target_dtype}: {e}"
+                )
+        return series
+
+    match values:
+        case list() as lst:
+            if len(lst) == 0:
+                raise ValueError(f"List values for '{var_name}' cannot be empty")
             if not all(isinstance(x, (int, float)) for x in lst):
                 raise TypeError(
                     f"List values for '{var_name}' must contain only int or float, "
                     f"got types: {set(type(x).__name__ for x in lst)}"
                 )
-            if len(lst) == 0:
-                raise ValueError(f"List values for '{var_name}' cannot be empty")
-            # Convert list to Series with target dtype
             series = pd.Series(lst, name=var_name)
-            if target_dtype is not None:
-                try:
-                    series = series.astype(target_dtype)
-                except (ValueError, TypeError) as e:
-                    raise TypeError(
-                        f"Cannot convert list values for '{var_name}' to target dtype {target_dtype}: {e}"
-                    )
-            return series
-        # Values can be an ndarray
+            return convert_to_dtype(series)
+
         case np.ndarray() as arr:
-            # Validate array is numeric
+            if arr.size == 0:
+                raise ValueError(f"Array values for '{var_name}' cannot be empty")
             if not np.issubdtype(arr.dtype, np.number):
                 raise TypeError(
                     f"Array values for '{var_name}' must be numeric, got dtype: {arr.dtype}"
                 )
-            if arr.size == 0:
-                raise ValueError(f"Array values for '{var_name}' cannot be empty")
-            # Convert array to Series with target dtype
             series = pd.Series(arr, name=var_name)
-            if target_dtype is not None:
-                try:
-                    series = series.astype(target_dtype)
-                except (ValueError, TypeError) as e:
-                    raise TypeError(
-                        f"Cannot convert array values for '{var_name}' to target dtype {target_dtype}: {e}"
-                    )
-            return series
-        # Values can be a Pandas Series
+            return convert_to_dtype(series)
+
         case Series() as series:
-            # Validate series is numeric
+            if len(series) == 0:
+                raise ValueError(f"Series values for '{var_name}' cannot be empty")
             if not is_numeric_dtype(series.dtype):
                 raise TypeError(
                     f"Series values for '{var_name}' must be numeric, got dtype: {series.dtype}"
                 )
-            if len(series) == 0:
-                raise ValueError(f"Series values for '{var_name}' cannot be empty")
-            # Return copy with proper name and target dtype
             result = series.copy().rename(var_name)
-            if target_dtype is not None and result.dtype != target_dtype:
-                try:
-                    result = result.astype(target_dtype)
-                except (ValueError, TypeError) as e:
-                    raise TypeError(
-                        f"Cannot convert Series values for '{var_name}' to target dtype {target_dtype}: {e}"
-                    )
-            return result
+            return convert_to_dtype(result)
+
         case _:
             raise TypeError(
                 f"Values for '{var_name}' must be one of: list[int|float], np.ndarray, or pd.Series. "
@@ -163,20 +237,22 @@ def get_defaults(var: str, data: DataFrame) -> Series:
             raise TypeError(f"Unsupported data type: {series.dtype}")
 
 
-def get_contrast(contrast: ContrastParam, data: DataFrame) -> Contrast:
-    """Parse contrast parameter and create a Variable for comparisons.
+def get_contrast(
+    data: DataFrame, contrast: str | dict[str, np.ndarray | list | int | float]
+) -> Contrast:
+    """Parse contrast parameter and create a 'Contrast' for comparisons.
 
     Parameters
     ----------
-    contrast : ContrastParam
-        The contrast specification, either as a string (variable name) or
-        a dictionary mapping variable name to values.
     data : DataFrame
         DataFrame containing the variable data.
+    contrast : str | dict[str, np.ndarray | list | int | float]
+        The contrast specification, either as a string (variable name) or
+        a dictionary mapping variable name to values.
 
     Returns
     -------
-    Variable
+    Contrast
         A pandas Series representing the contrast variable with appropriate values.
         For categorical variables, returns all categories or user-specified categories.
         For float variables, returns mean ± 0.5 or user-specified values.
@@ -194,62 +270,71 @@ def get_contrast(contrast: ContrastParam, data: DataFrame) -> Contrast:
     """
 
     def create_variable(name: str, values: Values | None = None) -> Variable:
+        """Create a Variable for contrast analysis.
+
+        Parameters
+        ----------
+        name : str
+            Name of the variable to create.
+        values : Values or None, optional
+            User-provided values for the variable. If None, default values are generated
+            based on the variable's dtype.
+
+        Returns
+        -------
+        Variable
+            A pandas Series representing the contrast variable with appropriate values.
+
+        Raises
+        ------
+        KeyError
+            If the variable name is not found in the DataFrame.
+        ValueError
+            If the contrast must contain more than one value but doesn't.
+        TypeError
+            If the variable dtype is not supported for contrasts.
+        """
         if name not in data.columns:
             raise KeyError(
-                f"Variable '{name}' not found in DataFrame. Available: {list(data.columns)}"
+                f"Contrast '{name}' not found in DataFrame. Available: {list(data.columns)}"
+            )
+
+        if len(values) < 2:
+            raise ValueError(
+                f"Contrast '{name}' must contain more than one value. Received: {len(values)}"
             )
 
         series = data[name]
+        dtype = series.dtype
 
-        # TODO: Validation for if user passes a list or array and it only contains one element.
+        match (dtype, values):
+            # User-provided categorical values
+            case (pd.CategoricalDtype(), vals) if vals is not None:
+                return validate_category_values(vals, name, reference=series)
+            # Default categorical values
+            case (pd.CategoricalDtype(), None):
+                return pd.Series(series, name=name)
 
-        match series.dtype:
-            case pd.CategoricalDtype():
-                if values is not None:
-                    if isinstance(values, (list, np.ndarray)):
-                        valid_cats = set(series.cat.categories)
-                        provided_cats = (
-                            set(values)
-                            if isinstance(values, list)
-                            else set(values.tolist())
-                        )
-                        if not provided_cats.issubset(valid_cats):
-                            invalid = provided_cats - valid_cats
-                            raise ValueError(
-                                f"Invalid category for '{name}: {invalid}' "
-                                f"Valid categories: {list(valid_cats)}"
-                            )
+            # User-provided float values
+            case (dtype, vals) if is_float_dtype(dtype) and vals is not None:
+                return validate_numeric_values(vals, name, target_dtype=series.dtype)
+            # Default float values
+            case (dtype, None) if is_float_dtype(dtype):
+                eps = 0.5
+                mean = series.mean()
+                return pd.Series([mean - eps, mean + eps], name=name).astype(dtype)
 
-                        return pd.Series(
-                            pd.Categorical(
-                                values,
-                                categories=series.cat.categories,
-                                ordered=series.cat.ordered,
-                            ),
-                            name=name,
-                        )
-                    else:
-                        raise ValueError(
-                            f"Categorical variable '{name}' values must be a list or array of categories."
-                        )
-                else:
-                    return pd.Series(series, name=name)
-            case dtype if is_float_dtype(dtype):
-                if values is not None:
-                    # Validate and return the values as a Pandas Series
-                    return validate_values(values, name, target_dtype=series.dtype)
-                else:
-                    mean = series.mean()
-                    return pd.Series([mean - 0.5, mean + 0.5], name=name).astype(dtype)
+            # User-provided integer values
+            case (dtype, vals) if is_integer_dtype(dtype) and vals is not None:
+                return validate_numeric_values(vals, name, target_dtype=series.dtype)
+            # Default integer values
+            case (dtype, None) if is_integer_dtype(dtype):
+                eps = 1
+                mode = series.mode().iloc[0]  # Use first mode
+                return pd.Series([mode - eps, mode + eps], name=name).astype(dtype)
 
-            case dtype if is_integer_dtype(dtype):
-                if values is not None:
-                    # Validate and return the values as a Pandas Series
-                    return validate_values(values, name, target_dtype=series.dtype)
-                else:
-                    # If more than one mode, use the first one
-                    mode = series.mode().iloc[0]
-                    return pd.Series([mode - 1, mode + 1], name=name).astype(dtype)
+            case _:
+                raise TypeError(f"Unsupported dtype for contrast: {dtype}")
 
     match contrast:
         case str():
@@ -269,23 +354,25 @@ def get_contrast(contrast: ContrastParam, data: DataFrame) -> Contrast:
 
 
 def get_conditional(
-    conditional: ConditionalParam,
     data: DataFrame,
+    conditional: Optional[
+        str | list[str] | dict[str, np.ndarray | list | int | float]
+    ] = None,
 ) -> Conditional:
     """Parse conditional parameter and create Variables for conditioning.
 
     Parameters
     ----------
-    conditional : ConditionalParam
+    data : DataFrame
+        DataFrame containing the variable data.
+    conditional : Optional[str | list[str] | dict[str, np.ndarray | list | int | float]]
         The conditional specification, either as a string (single variable name),
         a list of strings (multiple variable names), or a dictionary mapping
         variable names to values.
-    data : DataFrame
-        DataFrame containing the variable data.
 
     Returns
     -------
-    tuple[Variable, ...]
+    Conditional
         A tuple of pandas Series representing the conditional variables with appropriate values.
         For categorical variables, returns all categories or user-specified categories.
         For float variables, returns 50 equally-spaced points from min to max or user-specified values.
@@ -302,63 +389,62 @@ def get_conditional(
     """
 
     def create_variable(name: str, values: Values | None = None) -> Variable:
+        """Create a Variable for conditional analysis.
+
+        Parameters
+        ----------
+        name : str
+            Name of the variable to create.
+        values : Values or None, optional
+            User-provided values for the variable. If None, default values are generated
+            based on the variable's dtype (all categories for categorical, 50 points for float,
+            unique values for integer).
+
+        Returns
+        -------
+        Variable
+            A pandas Series representing the conditional variable with appropriate values.
+
+        Raises
+        ------
+        KeyError
+            If the variable name is not found in the DataFrame.
+        TypeError
+            If the variable dtype is not supported for conditionals.
+        """
         if name not in data.columns:
             raise KeyError(
                 f"Variable '{name}' not found in DataFrame. Available: {list(data.columns)}"
             )
 
         series = data[name]
+        dtype = series.dtype
 
-        match series.dtype:
-            case pd.CategoricalDtype():
-                if values is not None:
-                    if isinstance(values, (list, np.ndarray)):
-                        valid_cats = set(series.cat.categories)
-                        provided_cats = (
-                            set(values)
-                            if isinstance(values, list)
-                            else set(values.tolist())
-                        )
-                        if not provided_cats.issubset(valid_cats):
-                            invalid = provided_cats - valid_cats
-                            raise ValueError(
-                                f"Invalid category for '{name}: {invalid}' "
-                                f"Valid categories: {list(valid_cats)}"
-                            )
+        match (dtype, values):
+            # User-provided categorical values
+            case (pd.CategoricalDtype(), vals) if vals is not None:
+                return validate_category_values(vals, name, reference=series)
+            # Default categorical values
+            case (pd.CategoricalDtype(), None):
+                return pd.Series(series.cat.categories, name=name).astype(series.dtype)
 
-                        return pd.Series(
-                            pd.Categorical(
-                                values,
-                                categories=series.cat.categories,
-                                ordered=series.cat.ordered,
-                            ),
-                            name=name,
-                        )
-                    else:
-                        raise ValueError(
-                            f"Categorical variable '{name}' values must be a list or array of categories."
-                        )
-                else:
-                    return pd.Series(series.cat.categories, name=name).astype(
-                        series.dtype
-                    )
-            case dtype if is_float_dtype(dtype):
-                if values is not None:
-                    # Validate and return the values as a pd.Series
-                    return validate_values(values, name, target_dtype=series.dtype)
-                else:
-                    xs = np.linspace(series.min(), series.max(), num=50)
-                    return pd.Series(xs, name=name).astype(dtype)
-            case dtype if is_integer_dtype(dtype):
-                if values is not None:
-                    # Validate and return the values as a pd.Series
-                    return validate_values(values, name, target_dtype=series.dtype)
-                else:
-                    return pd.Series(series.unique(), name=name).astype(dtype)
-                    # TODO: Casting back to Int will causes a bug
-                    # return pd.Series(
-                    #     series.quantile(q=0.5), name=name
-                    # ).astype(dtype)
+            # User-provided float values
+            case (dtype, vals) if is_float_dtype(dtype) and vals is not None:
+                return validate_numeric_values(vals, name, target_dtype=series.dtype)
+            # Default float values
+            case (dtype, None) if is_float_dtype(dtype):
+                xs = np.linspace(series.min(), series.max(), num=50)
+                return pd.Series(xs, name=name).astype(dtype)
+
+            # User-provided integer values
+            case (dtype, vals) if is_integer_dtype(dtype) and vals is not None:
+                return validate_numeric_values(vals, name, target_dtype=series.dtype)
+            # Default integer values
+            case (dtype, None) if is_integer_dtype(dtype):
+                return pd.Series(series.unique(), name=name).astype(dtype)
+
+            case _:
+                raise TypeError(f"Unsupported dtype for contrast: {dtype}")
 
     match conditional:
         case str():
@@ -385,15 +471,21 @@ def get_conditional(
 def create_grid(variables: tuple[Variable, ...]) -> DataFrame:
     """Create cross-product grid from variables.
 
+    Takes multiple variables (pandas Series) and creates a DataFrame containing all
+    possible combinations of their values using Cartesian product.
+
     Parameters
     ----------
     variables : tuple[Variable, ...]
-        Tuple of pandas Series representing variables.
+        Tuple of pandas Series representing variables. Each Series should have a name
+        that will be used as a column name in the resulting DataFrame.
 
     Returns
     -------
     DataFrame
         A DataFrame containing the Cartesian product of all variable values.
+        Each row represents one unique combination of values across all variables.
+        Column names correspond to the names of the input Series.
     """
     vals = [var.array for var in variables]
     names = [var.name for var in variables]
@@ -408,16 +500,22 @@ def get_summary_stats(x: DataArray, prob: float, transforms: Callable) -> DataFr
     Parameters
     ----------
     x : DataArray
-        The xarray DataArray containing posterior samples.
+        The xarray DataArray containing posterior samples with 'chain' and 'draw' dimensions.
     prob : float
-        Probability for the credible interval (between 0 and 1).
+        Probability for the credible interval (between 0 and 1). For example, 0.95
+        corresponds to a 95% credible interval.
     transforms : Callable
-        Function to transform the data before computing statistics.
+        Function to transform the data before computing statistics. Common transforms
+        include identity, log, exp, etc.
 
     Returns
     -------
     DataFrame
-        A DataFrame containing the estimate (mean) and lower/upper bounds of the credible interval.
+        A DataFrame containing summary statistics with columns:
+        - 'estimate': posterior mean
+        - 'lower_X%': lower bound of credible interval
+        - 'upper_Y%': upper bound of credible interval
+        The '__obs__' index column is dropped from the final result.
     """
     x = transforms(x)
     mean = x.mean(dim=("chain", "draw")).to_series().rename("estimate").to_frame()
@@ -500,7 +598,7 @@ def predictions(
     response_name, target = get_response_and_target(model, target)
     response_transform = transforms.get(response_name, identity)
 
-    conditional = get_conditional(conditional, model.data)
+    conditional = get_conditional(model.data, conditional)
 
     # Parse defaults
     # Get all terms (covariates) defined in the model formula
@@ -551,9 +649,10 @@ def plot_predictions(
     prob: float = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
     sample_new_groups: bool = False,
+    theme: dict[str, Any] = {},
     fig_kwargs: Optional[dict[str, Any]] = None,
     subplot_kwargs: Optional[Mapping[str, str]] = None,
-) -> None:
+) -> Plot:
     """Plot conditional adjusted predictions.
 
     Parameters
@@ -578,6 +677,8 @@ def plot_predictions(
         Dictionary of transformations to apply to predictions.
     sample_new_groups : bool
         Whether to sample new group levels. Default is False.
+    theme : dict or None
+        A dictionary of 'matplotlib rc' parameters.
     fig_kwargs : dict or None
         Additional keyword arguments for figure customization.
     subplot_kwargs : Mapping[str, str] or None
@@ -585,8 +686,8 @@ def plot_predictions(
 
     Returns
     -------
-    None
-        Displays the plot.
+    Plot
+        Displays and returns a Seaborn objects 'Plot'
 
     Raises
     ------
@@ -594,7 +695,7 @@ def plot_predictions(
         If more than 3 conditional variables are provided without averaging.
     """
     # Cannot plot more than three dimensions
-    _conditional = get_conditional(conditional, model.data)
+    _conditional = get_conditional(model.data, conditional)
     if len(_conditional.variables) > 3 and average_by is None:
         raise ValueError(
             f"Cannot plot more than 3 conditional variables. Received: {len(_conditional.variables)}. "
@@ -617,7 +718,9 @@ def plot_predictions(
         sample_new_groups=sample_new_groups,
     )
 
-    plot(summary_df, plot_config)
+    p = plot(summary_df, plot_config, theme)
+
+    return p
 
 
 def comparisons(
@@ -701,8 +804,8 @@ def comparisons(
     response_name, target = get_response_and_target(model, target)
     response_transform = transforms.get(response_name, identity)
 
-    contrast = get_contrast(contrast, model.data)
-    conditional = get_conditional(conditional, model.data)
+    contrast = get_contrast(model.data, contrast)
+    conditional = get_conditional(model.data, conditional)
 
     # Parse defaults
     # Get all terms (covariates) defined in the model formula
@@ -757,7 +860,7 @@ def comparisons(
     # This is useful when there are multiple contrast variables and or values
     summary_df = (
         preds_data[[var.name for var in conditional.variables]]
-        .drop_duplicates()  # Okay because the join on index below will duplicate if necessary
+        .drop_duplicates()  # This is fine because the join on index below will duplicate if necessary
         .reset_index(drop=True)
         .join(comparison_df, on=None)
     )
@@ -782,9 +885,10 @@ def plot_comparisons(
     prob: float = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
     sample_new_groups: bool = False,
+    theme: dict[str, Any] = {},
     fig_kwargs: Optional[dict[str, Any]] = None,
     subplot_kwargs: Optional[Mapping[str, str]] = None,
-) -> None:
+) -> Plot:
     """Plot conditional adjusted comparisons.
 
     Parameters
@@ -820,8 +924,8 @@ def plot_comparisons(
 
     Returns
     -------
-    None
-        Displays the plot.
+    Plot
+        Displays and returns a Seaborn objects 'Plot'
 
     Raises
     ------
@@ -829,7 +933,7 @@ def plot_comparisons(
         If more than 3 conditional variables are provided without averaging.
     """
     # Cannot plot more than three dimensions
-    _conditional = get_conditional(conditional, model.data)
+    _conditional = get_conditional(model.data, conditional)
     if len(_conditional.variables) > 3 and average_by is None:
         raise ValueError(
             f"Cannot plot more than 3 conditional variables. Received: {len(_conditional.variables)}. "
@@ -854,4 +958,6 @@ def plot_comparisons(
         sample_new_groups=sample_new_groups,
     )
 
-    plot(summary_df, plot_config)
+    p = plot(summary_df, plot_config, theme)
+
+    return p

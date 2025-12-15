@@ -31,7 +31,7 @@ class PlotConfig:
     panel: str | None = None
 
 
-def plot(data: DataFrame, config: PlotConfig) -> Plot:
+def plot(data: DataFrame, config: PlotConfig, theme: dict[str, Any]) -> Plot:
     """Declaratively plot data according to a plot configuration.
 
     Parameters
@@ -43,6 +43,8 @@ def plot(data: DataFrame, config: PlotConfig) -> Plot:
         A plotting configuration used to build a Seaborn objects plotting specification.
         Specifies the main variable (x-axis), optional grouping variable (color),
         and optional panel variable (facets).
+    theme : dict or None
+        A dictionary of 'matplotlib rc' parameters.
 
     Returns
     -------
@@ -58,7 +60,7 @@ def plot(data: DataFrame, config: PlotConfig) -> Plot:
     """
     estimate_dim = list(filter(lambda col: "dim" in col, data.columns))
     if estimate_dim:
-        print(f"Detected estimate dimension column: {estimate_dim}")
+        print(f"Detected an estimate dimension column: {estimate_dim}")
 
     # Plotting specification labels
     ymin = next(filter(lambda col: "lower" in col, data.columns))
@@ -100,7 +102,7 @@ def plot(data: DataFrame, config: PlotConfig) -> Plot:
             raise TypeError(f"Unsupported data type: {data[config.main].dtype}")
 
     # Add theme dictionary
-    # plot = plot.theme(config.theme)
+    plot = plot.theme(theme)
 
     plot.show()
 

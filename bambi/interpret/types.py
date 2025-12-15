@@ -1,7 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Mapping, Optional
 
-import numpy as np
 from numpy.typing import ArrayLike
 from pandas import Series
 
@@ -9,32 +7,12 @@ from pandas import Series
 Variable = Series
 """Type alias for a variable represented as a pandas Series."""
 
-# Type alias for conditional parameters that users may provide
-ConditionalParam = None | str | list[str] | dict[str, np.ndarray | list | int | float]
-"""Type alias for conditional parameter specifications.
-
-Can be:
-- None: No conditioning
-- str: Single variable name
-- list[str]: Multiple variable names
-- dict: Mapping of variable names to their values
-"""
-
-# Type alias for contrast parameters that users may provide
-ContrastParam = str | dict[str, np.ndarray | list | int | float]
-"""Type alias for contrast parameter specifications.
-
-Can be:
-- str: Variable name
-- dict: Mapping of variable name to contrast values
-"""
-
 # Type alias for values provided by users
-Values = list[int | float] | ArrayLike | Series
+Values = list[int | float | str] | ArrayLike | Series
 """Type alias for user-provided values.
 
 Can be:
-- list[int | float]: List of numeric values
+- list[int | float | str]: List of integer, float, or string values
 - ArrayLike: NumPy array or array-like object
 - Series: Pandas Series
 """

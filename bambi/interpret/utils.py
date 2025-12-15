@@ -1,7 +1,6 @@
 # pylint: disable = too-many-function-args
 # pylint: disable = too-many-nested-blocks
-from dataclasses import dataclass, fields
-from typing import Any, Callable, Mapping, Optional, Sequence
+from typing import Any, Callable, Mapping, Optional
 
 import numpy as np
 from formulae.terms.call import Call
@@ -9,7 +8,6 @@ from formulae.terms.call_resolver import LazyVariable
 from pandas import DataFrame
 
 from bambi import Model
-from bambi.interpret.logs import log_interpret_defaults
 from bambi.utils import get_aliased_name
 
 from .plots import PlotConfig

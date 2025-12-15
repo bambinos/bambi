@@ -14,7 +14,8 @@ from .types import Contrast, Variable
 def create_inference_data(
     preds_idata: InferenceData, preds_data: DataFrame
 ) -> InferenceData:
-    """Create a new InferenceData object by replacing the observed_data group.
+    """Create a new InferenceData object by replacing the observed_data group with the
+    'preds_data'.
 
     Parameters
     ----------
