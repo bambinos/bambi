@@ -10,8 +10,9 @@ import pymc as pm
 
 from bambi.terms import CommonTerm, GroupSpecificTerm
 from formulae import design_matrices
+from pytensor.sparse import StructuredDot
 
-from helpers import assert_ip_dlogp
+from helpers import assert_ip_dlogp, graph_contains_op
 
 
 @pytest.fixture(scope="module")
@@ -494,3 +495,106 @@ def test_2d_response_no_shape(mock_pymc_sample):
     model.build()
     assert_ip_dlogp(model)
     model.fit(chains=2)
+
+
+def test_sparse_dot_univariate(mock_pymc_sample):
+    rng = np.random.default_rng(121195)
+    data = pd.DataFrame(
+        {
+            "y": rng.normal(size=6),
+            "x1": rng.normal(size=6),
+            "x2": [1, 1, 0, 0, 1, 1],
+            "g1": ["a"] * 3 + ["b"] * 3,
+            "g2": ["x", "x", "z", "z", "y", "y"],
+        }
+    )
+
+    formula = "y ~ x1 + x2 + g1 + (g1|g2) + (x2|g2)"
+    bmb.config.SPARSE_DOT = False
+    model_dense = bmb.Model(formula, data)
+    model_dense.build()
+
+    bmb.config.SPARSE_DOT = True
+    model_sparse = bmb.Model(formula, data)
+    model_sparse.build()
+
+    assert graph_contains_op(model_sparse.backend.model["mu"], StructuredDot)
+
+    logp_dense = model_dense.backend.model.compile_logp()
+    dlogp_dense = model_dense.backend.model.compile_dlogp()
+    ip_dense = model_dense.backend.model.initial_point()
+
+    logp_sparse = model_sparse.backend.model.compile_logp()
+    dlogp_sparse = model_sparse.backend.model.compile_dlogp()
+    ip_sparse = model_sparse.backend.model.initial_point()
+
+    # Keys of initial point are equal
+    assert set(ip_dense) == set(ip_sparse)
+
+    # Initial point values are equal
+    for key in ip_dense:
+        assert np.allclose(ip_dense[key], ip_sparse[key])
+
+    # Initial logps and dlogps are equal
+    assert np.allclose(logp_dense(ip_dense), logp_sparse(ip_sparse))
+    assert np.allclose(dlogp_dense(ip_dense), dlogp_sparse(ip_sparse))
+
+    idata_sparse = model_sparse.fit(chains=2)
+    # NOTE: names for dense are tested elsewhere
+    names = {
+        "Intercept",
+        "x1",
+        "x2",
+        "g1[b]",
+        "1|g2_sigma",
+        "g1|g2_sigma[b]",
+        "x2|g2_sigma",
+        "sigma",
+        "1|g2[x]",
+        "1|g2[y]",
+        "1|g2[z]",
+        "g1|g2[b, x]",
+        "g1|g2[b, y]",
+        "g1|g2[b, z]",
+        "x2|g2[x]",
+        "x2|g2[y]",
+        "x2|g2[z]",
+    }
+    assert set(az.summary(idata_sparse).index) == names
+
+
+def test_sparse_dot_multivariate(data_inhaler, mock_pymc_sample):
+    formula = "rating ~ 1 + period + treat + (1 + treat|subject)"
+
+    bmb.config.SPARSE_DOT = False
+    model_dense = bmb.Model(formula, data_inhaler, family="categorical")
+    model_dense.build()
+
+    bmb.config.SPARSE_DOT = True
+    model_sparse = bmb.Model(formula, data_inhaler, family="categorical")
+    model_sparse.build()
+
+    assert graph_contains_op(model_sparse.backend.model["p"], StructuredDot)
+
+    logp_dense = model_dense.backend.model.compile_logp()
+    dlogp_dense = model_dense.backend.model.compile_dlogp()
+    ip_dense = model_dense.backend.model.initial_point()
+
+    logp_sparse = model_sparse.backend.model.compile_logp()
+    dlogp_sparse = model_sparse.backend.model.compile_dlogp()
+    ip_sparse = model_sparse.backend.model.initial_point()
+
+    # Keys of initial point are equal
+    assert set(ip_dense) == set(ip_sparse)
+
+    # Initial point values are equal
+    for key in ip_dense:
+        assert np.allclose(ip_dense[key], ip_sparse[key])
+
+    # Initial logps and dlogps are equal
+    assert np.allclose(logp_dense(ip_dense), logp_sparse(ip_sparse))
+    assert np.allclose(dlogp_dense(ip_dense), dlogp_sparse(ip_sparse))
+
+    idata_dense = model_dense.fit(chains=2)
+    idata_sparse = model_sparse.fit(chains=2)
+    assert set(az.summary(idata_dense).index) == set(az.summary(idata_sparse).index)
