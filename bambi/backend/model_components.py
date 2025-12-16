@@ -94,9 +94,8 @@ class DistributionalComponent:
             for name, values in common_term.coords.items():
                 pymc_backend.model.add_coords({name: values})
 
-            coef = common_term.build(bmb_model)
-            coefs.append(coef)
-            columns.append(term.data)
+            coefs.append(common_term.build(bmb_model))
+            columns.append(term.data)  # ndarray of shape (n, ) or (n, p_j)
 
         # Coefficients: shape (p, ) or (p, k)
         coefs = pt.concatenate(coefs, axis=0)
@@ -199,12 +198,14 @@ class DistributionalComponent:
                 #     (n, ) * (1, ) -> (n, )
 
                 coef = coef[group_index]
+                predictor_ndim = predictor.ndim
+
                 if as_multivariate:
                     predictor = predictor[:, np.newaxis]
 
                 term_contribution = coef * predictor
 
-                if predictor.ndim > 1:
+                if predictor_ndim > 1:
                     term_contribution = term_contribution.sum(axis=1)
 
                 contribution += term_contribution
