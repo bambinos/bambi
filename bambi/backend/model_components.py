@@ -1,4 +1,5 @@
 import numpy as np
+import scipy as sp
 
 from pytensor import tensor as pt
 from pytensor import sparse as ps
@@ -86,7 +87,6 @@ class DistributionalComponent:
             return
 
         # np.ndarray of shape (n, 1) or (n, p_j).
-
         coefs = []
         columns = []
         for term in self.component.common_terms.values():
@@ -136,44 +136,77 @@ class DistributionalComponent:
         if not self.component.group_specific_terms:
             return
 
+        as_multivariate = isinstance(bmb_model.family, (MultivariateFamily, Categorical))
+
+        coefs = []
+        columns = []
+        predictors = []
+        group_indexes = []
+
+        for term in self.component.group_specific_terms.values():
+            group_specific_term = GroupSpecificTerm(term, bmb_model.noncentered)
+            # Add coords
+            for name, values in group_specific_term.coords.items():
+                if name not in pymc_backend.model.coords:
+                    pymc_backend.model.add_coords({name: values})
+
+            coefs.append(group_specific_term.build(bmb_model))
+            columns.append(term.data)
+            predictors.append(np.squeeze(term.predictor))
+            group_indexes.append(term.group_index)
+
         if bmb_config["SPARSE_DOT"]:
-            # Add to the linear predictor
-            # print("predictor ndim shape", predictor.ndim, predictor.shape)
-            # print("coef ndim shape", coef.ndim)  # coef.shape.eval()
-            # print("-" * 20)
-            ...
+            coefs_reshaped = []
+            for coef in coefs:
+                if as_multivariate and coef.ndim == 3:
+                    # (factor, expr, response) -> (factor * expr, response)
+                    coef_reshaped = coef.reshape(-1, coef.shape[-1])
+                elif not as_multivariate and coef.ndim == 2:
+                    # (factor, expr) -> (factor * expr,)
+                    coef_reshaped = coef.flatten()
+                else:
+                    coef_reshaped = coef
 
-            # NOTE: How to handle multivariate families? -> coef.ndim == 3
-            # NOTE: structured_dot expects and returns matrices
-            # if coef.ndim == 2:
-            #     coef = coef.flatten()  # Needs to be a vector for Z @ u
-            # contribution = ps.structured_dot(term.data, coef[:, np.newaxis]).squeeze()
+                coefs_reshaped.append(coef_reshaped)
+
+            # Design matrix Z: shape (n, q)
+            data = sp.sparse.hstack(columns, format="csr")
+
+            # Coefficients: shape (q, ) or (q, k)
+            coefs = pt.concatenate(coefs_reshaped, axis=0)
+
+            if not as_multivariate:
+                coefs = coefs[:, np.newaxis]  # # pytensor expects 2D
+
+            contribution = ps.structured_dot(data, coefs).squeeze()  # (n, ) or (n, k)
         else:
-            for term in self.component.group_specific_terms.values():
-                group_specific_term = GroupSpecificTerm(term, bmb_model.noncentered)
-
-                # Add coords
-                for name, values in group_specific_term.coords.items():
-                    if name not in pymc_backend.model.coords:
-                        pymc_backend.model.add_coords({name: values})
-
-                # Build
-                coef = group_specific_term.build(bmb_model)
-                predictor = np.squeeze(term.predictor)
-
+            contribution = 0
+            for coef, predictor, group_index in zip(coefs, predictors, group_indexes):
                 # The loop through columns is not beautiful.
                 # But it's the fastest, a matrix multiplication with pm.math.dot is slower.
-                coef = coef[term.group_index]
-                if predictor.ndim > 1:
-                    contribution = 0
-                    for col in range(predictor.shape[1]):
-                        contribution += coef[:, col] * predictor[:, col]
-                elif isinstance(bmb_model.family, (MultivariateFamily, Categorical)):
-                    contribution = coef * predictor[:, np.newaxis]
-                else:
-                    contribution = coef * predictor
 
-                self.output += contribution
+                # Squeeze ensures we don't have a shape of (n, 1) when we mean (n, )
+                # This happens with categorical predictors with two levels and intercept.
+                # See https://github.com/pymc-devs/pymc/issues/7246
+                # NOTE: Also consider the case where there's a multivariate response
+                if coef.ndim == 2 and coef.shape.eval()[-1] == 1:
+                    coef = pt.specify_broadcastable(coef, 1).squeeze()
+
+                coef = coef[group_index]
+                if predictor.ndim > 1:
+                    # NOTE: This can be simplified (columnwise multiply + sum), but we have
+                    # to consider the case where the response is multivariate
+                    term_contribution = 0
+                    for col in range(predictor.shape[1]):
+                        term_contribution += coef[:, col] * predictor[:, col]
+                elif as_multivariate:
+                    term_contribution = coef * predictor[:, np.newaxis]
+                else:
+                    term_contribution = coef * predictor
+
+                contribution += term_contribution
+
+        self.output += contribution
 
     def add_response_coords(self, pymc_backend, bmb_model):
         response_term = bmb_model.response_component.term

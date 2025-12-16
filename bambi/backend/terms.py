@@ -110,10 +110,9 @@ class GroupSpecificTerm:
         Returns
         -------
         coef : distribution
-            FIXME: What is the best layout for this?
             A PyMC distribution of shape (f_j, ), (e_j, f_j), (f_j, k) or (e_j, f_j, k)
         """
-        # Dims of the term
+        # Dims of the term (factor or factor + expr)
         term_dims = list(self.coords)
 
         # Dims of the response variable
@@ -122,15 +121,13 @@ class GroupSpecificTerm:
             response_dims = list(spec.response_component.term.coords)
 
         dims = term_dims + response_dims
-        return self.build_distribution(value=self.term.prior, label=self.name, dims=dims)
 
-        # # Squeeze ensures we don't have a shape of (n, 1) when we mean (n, )
-        # # This happens with categorical predictors with two levels and intercept.
-        # # See https://github.com/pymc-devs/pymc/issues/7246
-        # if coef.ndim == 2 and coef.shape.eval()[-1] == 1:
-        #     coef = pt.specify_broadcastable(coef, 1).squeeze()
-
-        # return coef
+        # Possible output shapes
+        # * (f_j, e_j, k): when factor_dims, expr_dims and response_dims
+        # * (f_j, k):      when factor_dims and response_dims
+        # * (f_j, e_j):    when factor_dims and expr_dims
+        # * (f_j, ):       when factor_dims
+        return self.build_distribution(prior=self.term.prior, label=self.name, dims=dims)
 
     def get_coords(self):
         coords = self.term.coords.copy()
@@ -153,7 +150,6 @@ class GroupSpecificTerm:
         # * The response is vector-valued:                 ["{response_dim}"]
         # * The expression and response are vector-valued: ["{name}__expr_dim", "{response_dim}"]
         # * The expression is scalar and the response is univariate: None
-
         if dims is not None:
             hyperparams_dims = [dim for dim in dims if not dim.endswith("__factor_dim")]
         else:
@@ -181,10 +177,11 @@ class GroupSpecificTerm:
                 sigma = dist_kwargs["sigma"]
                 offset = pm.Normal(label + "_offset", mu=0, sigma=1, dims=dims)
                 return pm.Deterministic(label, offset * sigma, dims=dims)
-
-            raise NotImplementedError(
-                "The non-centered parametrization is only supported for Normal priors"
-            )
+            # FIXME: There must be a better way
+            # print(prior)
+            # raise NotImplementedError(
+            #     "The non-centered parametrization is only supported for Normal priors"
+            # )
 
         distribution = get_distribution_from_prior(prior)
         return distribution(label, **dist_kwargs, dims=dims)
