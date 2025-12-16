@@ -130,8 +130,8 @@ class DistributionalComponent:
         """Add group-specific (random or varying) terms to the PyMC model
 
         We have linear predictors of the form 'X @ b + Z @ u'.
-        This creates the 'u' parameter vector in PyMC, computes `Z @ u`, and adds it to
-        `self.output`.
+        This creates the 'u' parameter vector in PyMC, computes `Z @ u`,
+        and adds it to `self.output`.
         """
         if not self.component.group_specific_terms:
             return
@@ -152,17 +152,17 @@ class DistributionalComponent:
 
             coefs.append(group_specific_term.build(bmb_model))
             columns.append(term.data)
-            predictors.append(np.squeeze(term.predictor))
+            predictors.append(term.predictor)
             group_indexes.append(term.group_index)
 
         if bmb_config["SPARSE_DOT"]:
             coefs_reshaped = []
             for coef in coefs:
                 if as_multivariate and coef.ndim == 3:
-                    # (factor, expr, response) -> (factor * expr, response)
+                    # (f_j, e_j, K) -> (f_j * e_j, K)
                     coef_reshaped = coef.reshape(-1, coef.shape[-1])
                 elif not as_multivariate and coef.ndim == 2:
-                    # (factor, expr) -> (factor * expr,)
+                    # (f_j, e_j) -> (f_j * e_j,)
                     coef_reshaped = coef.flatten()
                 else:
                     coef_reshaped = coef
@@ -172,40 +172,44 @@ class DistributionalComponent:
             # Design matrix Z: shape (n, q)
             data = sp.sparse.hstack(columns, format="csr")
 
-            # Coefficients: shape (q, ) or (q, k)
+            # Coefficients: shape (q, ) or (q, K)
             coefs = pt.concatenate(coefs_reshaped, axis=0)
 
             if not as_multivariate:
-                coefs = coefs[:, np.newaxis]  # # pytensor expects 2D
+                coefs = coefs[:, np.newaxis]  # PyTensor expects 2D
 
-            contribution = ps.structured_dot(data, coefs).squeeze()  # (n, ) or (n, k)
+            contribution = ps.structured_dot(data, coefs).squeeze()  # (n, ) or (n, K)
         else:
             contribution = 0
             for coef, predictor, group_index in zip(coefs, predictors, group_indexes):
-                # The loop through columns is not beautiful.
-                # But it's the fastest, a matrix multiplication with pm.math.dot is slower.
+                # The following code is short, but not simple.
 
-                # Squeeze ensures we don't have a shape of (n, 1) when we mean (n, )
-                # This happens with categorical predictors with two levels and intercept.
-                # See https://github.com/pymc-devs/pymc/issues/7246
-                # NOTE: Also consider the case where there's a multivariate response
-                if coef.ndim == 2 and coef.shape.eval()[-1] == 1:
-                    coef = pt.specify_broadcastable(coef, 1).squeeze()
+                # With multivariate models, we have:
+                # When predictor.ndim > 1
+                #     (n, e_j, K) * (n, e_j, 1) -> (n, e_j, K)
+                #     (n, e_j, K).sum(1) -> (n, K)
+                # Else
+                #     (n, K) * (n, 1) -> (n, K)
+                #
+                # And with univariate models, we have:
+                # When predictor.ndim > 1
+                #     (n, e_j) * (n, e_j) -> (n, e_j)
+                #     (n, e_j).sum(1) -> (n, )
+                # Else
+                #     (n, ) * (1, ) -> (n, )
 
                 coef = coef[group_index]
+                if as_multivariate:
+                    predictor = predictor[:, np.newaxis]
+
+                term_contribution = coef * predictor
+
                 if predictor.ndim > 1:
-                    # NOTE: This can be simplified (columnwise multiply + sum), but we have
-                    # to consider the case where the response is multivariate
-                    term_contribution = 0
-                    for col in range(predictor.shape[1]):
-                        term_contribution += coef[:, col] * predictor[:, col]
-                elif as_multivariate:
-                    term_contribution = coef * predictor[:, np.newaxis]
-                else:
-                    term_contribution = coef * predictor
+                    term_contribution = term_contribution.sum(axis=1)
 
                 contribution += term_contribution
 
+        # 'contribution' is of shape (n, ) or (n, K)
         self.output += contribution
 
     def add_response_coords(self, pymc_backend, bmb_model):

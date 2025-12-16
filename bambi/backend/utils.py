@@ -7,25 +7,28 @@ import pymc as pm
 
 
 def horseshoe(name, tau_nu=3, lam_nu=1, dims=None):
-    """Simulate a beta coefficient value with a horseshoe prior.
-    This is an internal function which is not supposed to be used by users.
-    This will be used only when a horseshoe prior is called for beta coefficients.
+    """Define coefficients with a horseshoe prior.
+
+    This is an internal helper that constructs the PyMC random variables
+    corresponding to a horseshoe prior for regression coefficients.
+    It is not intended to be called directly by users.
 
     Parameters
     ----------
-    name: str
-        is the name of the parameters as registered in the PyMC model
-    tau_nu: int, float
-        Degrees of freedom of tau. Default: 3
-    lam_nu: int, float
-        Degrees of freedom of lam. Default: 1 (equivalent to a HalfCauchy)
-    dims: str
-        dimensions passed to PyMC. Default: None
+    name : str
+        Base name of the coefficient as registered in the PyMC model.
+    tau_nu : int or float
+        Degrees of freedom of the global scale parameter `tau`. Default is 3.
+    lam_nu : int or float
+        Degrees of freedom of the local scale parameter `lam`.
+        Default is 1 (equivalent to a Half-Cauchy).
+    dims : str or sequence of str, optional
+        Dimensions passed to PyMC. Default is `None`.
 
     Returns
-    ------
-    np.ndarray
-        Array with the beta coefficient simulated.
+    -------
+    pm.Deterministic
+        Deterministic PyMC variable representing coefficients with a horseshoe prior.
     """
     tau = pm.HalfStudentT(f"{name}_tau", nu=tau_nu)
     lam = pm.HalfStudentT(f"{name}_lam", nu=lam_nu, dims=dims)
