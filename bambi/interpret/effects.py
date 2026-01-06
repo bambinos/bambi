@@ -22,7 +22,7 @@ from bambi.interpret.utils import (
 )
 
 from .helpers import compare, create_inference_data
-from .plots import create_plot_config, plot
+from .plots import PlottingConfig, create_figure_config, create_subplot_config, plot
 from .types import (
     Conditional,
     Contrast,
@@ -493,7 +493,7 @@ def create_grid(variables: tuple[Variable, ...]) -> DataFrame:
     return product.to_frame(index=False)
 
 
-def get_summary_stats(x: DataArray, prob: float, transforms: Callable) -> DataFrame:
+def get_summary_stats(x: DataArray, prob: float) -> DataFrame:
     """Compute summary statistics (mean and uncertainty interval) of an array.
 
     Parameters
@@ -503,9 +503,6 @@ def get_summary_stats(x: DataArray, prob: float, transforms: Callable) -> DataFr
     prob : float
         Probability for the credible interval (between 0 and 1). For example, 0.95
         corresponds to a 95% credible interval.
-    transforms : Callable
-        Function to transform the data before computing statistics. Common transforms
-        include identity, log, exp, etc.
 
     Returns
     -------
@@ -516,7 +513,6 @@ def get_summary_stats(x: DataArray, prob: float, transforms: Callable) -> DataFr
         - 'upper_Y%': upper bound of credible interval
         The '__obs__' index column is dropped from the final result.
     """
-    x = transforms(x)
     mean = x.mean(dim=("chain", "draw")).to_series().rename("estimate").to_frame()
 
     lower_bound = round((1 - prob) / 2, 4)
@@ -629,7 +625,7 @@ def predictions(
     var = response_name if pps else target
     y_hat = idata[group][var]
 
-    stats_data = get_summary_stats(y_hat, prob, response_transform)
+    stats_data = get_summary_stats(response_transform(y_hat), prob)
     summary_df = aggregate(data=preds_data.join(stats_data, on=None), by=average_by)
 
     return summary_df
@@ -650,7 +646,7 @@ def plot_predictions(
     sample_new_groups: bool = False,
     theme: dict[str, Any] = {},
     fig_kwargs: Optional[dict[str, Any]] = None,
-    subplot_kwargs: Optional[Mapping[str, str]] = None,
+    subplot_kwargs: Optional[dict[str, str]] = None,
 ) -> Plot:
     """Plot conditional adjusted predictions.
 
@@ -680,13 +676,13 @@ def plot_predictions(
         A dictionary of 'matplotlib rc' parameters.
     fig_kwargs : dict or None
         Additional keyword arguments for figure customization.
-    subplot_kwargs : Mapping[str, str] or None
+    subplot_kwargs : dict or None
         Overrides default plotting sequence (main, group, panel).
 
     Returns
     -------
     Plot
-        Displays and returns a Seaborn objects 'Plot'
+        Displays and returns a Seaborn objects 'Plot'.
 
     Raises
     ------
@@ -702,7 +698,9 @@ def plot_predictions(
         )
 
     provided_var_names = [var.name for var in _conditional.variables]
-    plot_config = create_plot_config(provided_var_names, subplot_kwargs)
+    subplot_config = create_subplot_config(provided_var_names, subplot_kwargs)
+    figure_config = create_figure_config(fig_kwargs)
+    plot_config = PlottingConfig(subplot_config, figure_config)
 
     summary_df = predictions(
         model=model,
@@ -848,7 +846,7 @@ def comparisons(
 
     # Compute mean and uncertainty over (chain, draw)
     summary_draws = {
-        k: get_summary_stats(v, prob, response_transform)
+        k: get_summary_stats(response_transform(v), prob)
         for k, v in compared_draws.items()
     }
     # Comparison column name corresponds to the contrast values being compared (e.g., 1_vs_4)
@@ -940,7 +938,9 @@ def plot_comparisons(
         )
 
     provided_var_names = [var.name for var in _conditional.variables]
-    plot_config = create_plot_config(provided_var_names, subplot_kwargs)
+    subplot_config = create_subplot_config(provided_var_names, subplot_kwargs)
+    figure_config = create_figure_config(fig_kwargs)
+    plot_config = PlottingConfig(subplot_config, figure_config)
 
     summary_df = comparisons(
         model=model,

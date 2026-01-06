@@ -49,7 +49,7 @@ def aggregate(
     by: Optional[str | list[str]],
     agg_fn: Callable[[DataFrame], DataFrame] = lambda df: df.mean(),
 ) -> DataFrame:
-    """Aggregate data by grouping variables.
+    """Group data by variable(s) and apply an aggregation function.
 
     Parameters
     ----------
@@ -121,35 +121,29 @@ def get_model_covariates(model: Model) -> np.ndarray:
     for term in terms.values():
         if hasattr(term, "components"):
             for component in term.components:
-                # if the component is a function call, look for relevant argument names
+                # If the component is a function call, look for relevant argument names
                 if isinstance(component, Call):
                     # Add variable names passed as unnamed arguments
-                    covariates.append(
-                        [
-                            arg.name
-                            for arg in component.call.args
-                            if isinstance(arg, LazyVariable)
-                        ]
+                    covariates.extend(
+                        arg.name
+                        for arg in component.call.args
+                        if isinstance(arg, LazyVariable)
                     )
                     # Add variable names passed as named arguments
-                    covariates.append(
-                        [
-                            kwarg_value.name
-                            for kwarg_value in component.call.kwargs.values()
-                            if isinstance(kwarg_value, LazyVariable)
-                        ]
+                    covariates.extend(
+                        kwarg_value.name
+                        for kwarg_value in component.call.kwargs.values()
+                        if isinstance(kwarg_value, LazyVariable)
                     )
                 else:
-                    covariates.append([component.name])
+                    covariates.append(component.name)
         elif hasattr(term, "factor"):
-            covariates.append(list(term.var_names))
-
-    flatten_covariates = [item for sublist in covariates for item in sublist]
+            covariates.extend(list(term.var_names))
 
     # Don't include non-covariate names (#797)
-    flatten_covariates = [name for name in flatten_covariates if name in model.data]
+    covariates = [name for name in covariates if name in model.data]
 
-    return np.unique(flatten_covariates)
+    return np.unique(covariates)
 
 
 def identity(x: Any) -> Any:

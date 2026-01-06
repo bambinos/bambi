@@ -9,17 +9,31 @@ from seaborn.objects import Plot
 
 
 @dataclass
-class PlotConfig:
-    """Configuration for plotting interpret results.
+class FigConfig:
+    """Configuration for customizing the appearance of a Seaborn figure."""
 
-    Parameters
-    ----------
-    main : str
-        The primary variable to plot on the x-axis.
-    group : str or None
-        Optional grouping variable for color differentiation.
-    panel : str or None
-        Optional faceting variable for creating subplots.
+    sharex: bool = True
+    sharey: bool = True
+    # legend: bool = True # TODO
+    xlabel: Optional[str] = None
+    ylabel: Optional[str] = None
+    title: Optional[str] = None
+    wrap: Optional[int] = None
+
+
+@dataclass
+class SubplotConfig:
+    """Configuration for specifying the content to plot from an
+    interpret summary results DataFrame.
+
+     Parameters
+     ----------
+     main : str
+         The primary variable to plot on the x-axis.
+     group : str or None
+         Optional grouping variable for color differentiation.
+     panel : str or None
+         Optional faceting variable for creating subplots.
     """
 
     main: str
@@ -27,10 +41,34 @@ class PlotConfig:
     panel: str | None = None
 
 
-def create_plot_config(
+@dataclass
+class PlottingConfig:
+    plot: SubplotConfig
+    figure: FigConfig
+
+
+def create_figure_config(kwargs: Optional[dict[str, Any]] = None) -> FigConfig:
+    """Create a `FigConfig` to alter the default Seaborn figure-level
+    appearance.
+
+    Parameters
+    ----------
+    kwargs : dict or None
+        A dictionary of figure-level arguments.
+
+    Returns
+    -------
+    FigConfig
+        A `FigConfig` object with attributes used to alter a Seaborn figure
+        appearance.
+    """
+    return FigConfig(**(kwargs or {}))
+
+
+def create_subplot_config(
     var_names: list[str], overrides: Optional[Mapping[str, str]] = None
-) -> PlotConfig:
-    """Create a PlotConfig from variable names or overrides.
+) -> SubplotConfig:
+    """Create a `SubplotConfig` from variable names or overrides.
 
     Parameters
     ----------
@@ -41,8 +79,8 @@ def create_plot_config(
 
     Returns
     -------
-    PlotConfig
-        A PlotConfig object with main, group, and panel assignments.
+    SubplotConfig
+        A SubplotConfig object with main, group, and panel assignments.
         Default behavior assigns variables in the order of: main, group, panel.
         If overrides is provided, uses those mappings instead.
 
@@ -55,18 +93,14 @@ def create_plot_config(
     match overrides:
         # Pattern match on valid subplot_kwarg structure
         case {"main": main, "group": group, "panel": panel}:
-            return PlotConfig(main=main, group=group, panel=panel)
-
+            return SubplotConfig(main=main, group=group, panel=panel)
         case {"main": main, "group": group}:
-            return PlotConfig(main=main, group=group)
-
+            return SubplotConfig(main=main, group=group)
         case {"main": main, "panel": panel}:
-            return PlotConfig(main=main, panel=panel)
-
+            return SubplotConfig(main=main, panel=panel)
         case {"main": main}:
-            return PlotConfig(main=main)
-
-        # Invalid: subplot_kwargs provided but missing 'main' or has extra keys
+            return SubplotConfig(main=main)
+        # Invalid subplot_kwargs provided but missing 'main' or has extra keys
         case dict() as override_dict if override_dict:
             provided_keys = set(override_dict.keys())
             allowed_keys = {"main", "group", "panel"}
@@ -81,7 +115,6 @@ def create_plot_config(
                 f"Invalid keys in subplot_kwargs: {invalid_keys}. "
                 f"Only 'main', 'group', and 'panel' are allowed."
             )
-
         # Default plotting sequence
         case _:
             if not var_names:
@@ -91,34 +124,35 @@ def create_plot_config(
                     f"Cannot create plot config with more than 3 variables. Received: {len(var_names)}"
                 )
 
-            return PlotConfig(
+            return SubplotConfig(
                 main=var_names[0],
                 group=var_names[1] if len(var_names) > 1 else None,
                 panel=var_names[2] if len(var_names) > 2 else None,
             )
 
 
-def plot(data: DataFrame, config: PlotConfig, theme: dict[str, Any]) -> Plot:
-    """Declaratively plot data according to a plot configuration.
+def plot(
+    data: DataFrame,
+    config: PlottingConfig,
+    theme: dict[str, Any],
+) -> Plot:
+    """Declaratively plot data according to a plotting configuration.
 
     Parameters
     ----------
     data : DataFrame
         An interpret summary DataFrame containing estimate, lower, and upper columns
         along with variable columns specified in the config.
-    config : PlotConfig
-        A plotting configuration used to build a Seaborn objects plotting specification.
-        Specifies the main variable (x-axis), optional grouping variable (color),
-        and optional panel variable (facets).
+    config : PlottingConfig
+        A plotting configuration used to build and customize the appearance of a Seaborn
+        objects plotting specification.
     theme : dict or None
         A dictionary of 'matplotlib rc' parameters.
 
     Returns
     -------
     Plot
-        A Seaborn objects Plot with appropriate marks (Dot/Line) and bands (Range/Band)
-        based on the data types of the variables. Categorical and integer types use
-        strip plots with error bars, while float types use line plots with bands.
+        A Seaborn objects Plot displaying the information of an `interpret` summary DataFrame.
 
     Raises
     ------
@@ -129,25 +163,18 @@ def plot(data: DataFrame, config: PlotConfig, theme: dict[str, Any]) -> Plot:
     if estimate_dim:
         print(f"Detected an estimate dimension column: {estimate_dim}")
 
-    # Plotting specification labels
+    # Plot labels
     ymin = next(filter(lambda col: "lower" in col, data.columns))
     ymax = next(filter(lambda col: "upper" in col, data.columns))
 
-    # Plotting customization
-    # - ticks
-    # - sharex and sharey
-    # -
-
-    # Base figure (must include x-y axis)
-    plot = so.Plot(data, x=config.main, y="estimate", color=config.group)
-
+    # Base plot (must include x-y axis)
+    plot = so.Plot(data, x=config.plot.main, y="estimate", color=config.plot.group)
     # Add a facet layer (only adds if config.panel is not None)
-    plot = plot.facet(col=config.panel)
-    # TODO
-    # plot = plot.share(x=config.sharex, y=config.sharey)
-
+    plot = plot.facet(col=config.plot.panel, wrap=config.figure.wrap)
+    # Share axis labels
+    plot = plot.share(x=config.figure.sharex, y=config.figure.sharey)
     # Add a "main" layer
-    match data[config.main].dtype:
+    match data[config.plot.main].dtype:
         # Strip plot if categorical or integer dtype
         case dtype if pd.CategoricalDtype() or is_integer_dtype(dtype):
             plot = plot.add(so.Dot(), so.Dodge())
@@ -157,7 +184,7 @@ def plot(data: DataFrame, config: PlotConfig, theme: dict[str, Any]) -> Plot:
                 ymin=ymin,
                 ymax=ymax,
             )
-        # Line plot if numeric or integer dtype
+        # Line plot if numeric dtype
         case dtype if is_float_dtype(dtype):
             plot = plot.add(so.Line())
             plot = plot.add(
@@ -166,9 +193,16 @@ def plot(data: DataFrame, config: PlotConfig, theme: dict[str, Any]) -> Plot:
                 ymax=ymax,
             )
         case _:
-            raise TypeError(f"Unsupported data type: {data[config.main].dtype}")
+            raise TypeError(f"Unsupported data type: {data[config.plot.main].dtype}")
 
-    # Add theme dictionary
+    # Adjust figure labels
+    plot = plot.label(
+        x=config.figure.xlabel,
+        y=config.figure.ylabel,
+        title=config.figure.title,
+        # legend=config.figure.legend, # TODO
+    )
+    # Set plot theme (matplotlib rc parameters)
     plot = plot.theme(theme)
 
     plot.show()
