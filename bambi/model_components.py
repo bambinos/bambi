@@ -455,7 +455,7 @@ class DistributionalComponent:
         # Get a new xr.Dataset with the draws of the terms that have new groups
         u = xr.Dataset(dict(zip(names_list, u_list)))
 
-        # Get a xr.Dataset with the draws of the terms that don't have new groups
+        # Get an xr.Dataset with the draws of the terms that don't have new groups
         Z_terms = [
             get_aliased_name(term)
             for term in self.group_specific_terms.values()

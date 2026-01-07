@@ -50,7 +50,7 @@ def get_distribution(dist):
 
 
 def has_hyperprior(kwargs):
-    """Determines if a Prior has an hyperprior"""
+    """Determines if a Prior has a hyperprior"""
     return (
         "sigma" in kwargs
         and "observed" not in kwargs
