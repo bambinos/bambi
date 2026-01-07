@@ -682,7 +682,7 @@ NUTS: [sigma, Intercept, x]</code></pre>
 </div>
 <p>The recovered regression line, as well as the <span class="math inline">\(0.5\sigma\)</span> and <span class="math inline">\(1\sigma\)</span> bands are shown.</p>
 <p>Clearly there is skew in the fit. At lower <span class="math inline">\(x\)</span> values, the regression line is far higher than the true line. This is a result of the outliers, which cause the model to assume a higher value in that regime.</p>
-<p>Additionally the uncertainty bands are too wide (remember, the <span class="math inline">\(1\sigma\)</span> band ought to cover 68% of the data, while here it covers most of the points). Due to the small probability mass in the tails of a normal distribution, the outliers have an large effect, causing the uncertainty bands to be oversized.</p>
+<p>Additionally the uncertainty bands are too wide (remember, the <span class="math inline">\(1\sigma\)</span> band ought to cover 68% of the data, while here it covers most of the points). Due to the small probability mass in the tails of a normal distribution, the outliers have a large effect, causing the uncertainty bands to be oversized.</p>
 <p>Clearly, assuming the data are distributed normally is inducing problems here. Bayesian robust linear regression forgoes the normality assumption by instead using a Student T distribution to describe the distribution of the data. The Student T distribution has thicker tails, and by allocating more probability mass to the tails, outliers have a less strong effect.</p>
 <p>Comparing the two distributions,</p>
 <div id="4e021729" class="cell" data-execution_count="7">
