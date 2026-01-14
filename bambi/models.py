@@ -929,7 +929,7 @@ class Model:
 
         # Populate the posterior in the InferenceData object with the likelihood parameters
         idata = self._compute_likelihood_params(
-            idata, data, include_group_specific, sample_new_groups
+            idata, data, include_group_specific, sample_new_groups, random_seed
         )
 
         # Only if requested predict the predictive distribution
@@ -1063,6 +1063,7 @@ class Model:
         data=None,
         include_group_specific=True,
         sample_new_groups=False,
+        random_seed=None,
     ):
         """Computes the parameters of the likelihood (response distribution)
 
@@ -1079,7 +1080,7 @@ class Model:
         for name, component in self.distributional_components.items():
             var_name = component.alias if component.alias else name
             means_dict[var_name] = component.predict(
-                idata, data, include_group_specific, hsgp_dict, sample_new_groups
+                idata, data, include_group_specific, hsgp_dict, sample_new_groups, random_seed
             )
 
             # Drop var/dim if already present. Needed for out-of-sample predictions.
