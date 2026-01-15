@@ -19,8 +19,9 @@ jobs:
     strategy:
       matrix:
         pixi-env: ["py311", "py312", "py313"]
+        pytensor-linker: ["cvm", "numba"]
 
-    name: CI on ${{ matrix.pixi-env }}
+    name: CI on ${{ matrix.pixi-env }} | ${{ matrix.pytensor-linker }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v5
@@ -39,6 +40,8 @@ jobs:
         run: pixi run -e ${{ matrix.pixi-env }} pylint bambi
 
       - name: Run tests with Coverage
+        env:
+          PYTENSOR_FLAGS: linker=${{ matrix.pytensor-linker }}
         run: pixi run -e ${{ matrix.pixi-env }} pytest -vv --cov=bambi --cov-report=term --cov-report=xml tests
 
       - name: Check Coverage Report
