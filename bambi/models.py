@@ -77,7 +77,7 @@ class Model:
         express otherwise. The first term of a 2-tuple is the name of a variable in the model, the
         second a lambda function expressing the desired constraint.
         If a constraint involves n variables, you can pass n 2-tuples or pass a tuple which first
-        element is a n-tuple and second element is a lambda function with n arguments. The number
+        element is an n-tuple and second element is a lambda function with n arguments. The number
         and order of the lambda function has to match the number and order of the variables names.
     dropna : bool, optional
         When `True`, rows with any missing values in either the predictors or outcome are
@@ -268,7 +268,7 @@ class Model:
             space than other parameters as there's one of them per observation. Defaults to `False`.
         inference_method : str, optional
             The method to use for fitting the model. By default, `"pymc"`. This automatically
-            assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
+            assigns an MCMC method best suited for each kind of variables, like NUTS for continuous
             variables and Metropolis for non-binary discrete ones. NUTS implementations include
             `"pymc"`, `"nutpie"`, `"blackjax"`, and `"numpyro"`. Alternatively, `"vi"`, in which
             case the model will be fitted using variational inference as implemented in PyMC using
@@ -277,7 +277,7 @@ class Model:
         init : str, optional
             Initialization method. Defaults to `"auto"`. The available methods are:
             * auto: Use `"jitter+adapt_diag"` and if this method fails it uses `"adapt_diag"`.
-            * adapt_diag: Start with a identity mass matrix and then adapt a diagonal based on the
+            * adapt_diag: Start with an identity mass matrix and then adapt a diagonal based on the
             variance of the tuning samples. All chains use the test value (usually the prior mean)
             as starting point.
             * jitter+adapt_diag: Same as `"adapt_diag"`, but use test value plus a uniform jitter
