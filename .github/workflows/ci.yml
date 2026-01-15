@@ -7,11 +7,13 @@ on:
     paths:
       - "bambi/**"
       - "tests/**"
+      - ".github/workflows/ci.yml"
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "bambi/**"
       - "tests/**"
+      - ".github/workflows/ci.yml"
 
 jobs:
   test:
