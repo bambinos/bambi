@@ -303,7 +303,7 @@ class DistributionalComponent:
         to_stack_dims,
         design_matrix_dims,
         sample_new_groups,
-        random_seed=None,
+        random_seed,
     ):
         if in_sample:
             Z = self.design.group.design_matrix
@@ -378,7 +378,7 @@ class DistributionalComponent:
         return xr.dot(Z, u)
 
     def _construct_u_with_new_groups(
-        self, posterior, to_stack_dims, factors_with_new_levels, random_seed=None
+        self, posterior, to_stack_dims, factors_with_new_levels, random_seed
     ):
         u_list = []
         names_list = []
