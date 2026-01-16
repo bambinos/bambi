@@ -6,8 +6,8 @@ import os
 import pathlib
 import shutil
 from collections import namedtuple
+from urllib.request import urlretrieve
 
-import requests
 import pandas as pd
 
 
@@ -266,12 +266,7 @@ def load_data(dataset: str | None = None, data_home: str | None = None):
         file_path = home_dir / datafile.filename
 
         if not os.path.exists(file_path):
-            response = requests.get(datafile.url, timeout=60)
-            response.raise_for_status()
-
-            with open(file_path, "wb") as file_obj:
-                file_obj.write(response.content)
-
+            urlretrieve(datafile.url, file_path)
             checksum = _sha256(file_path)
 
             if datafile.checksum != checksum:
