@@ -164,13 +164,13 @@ class DistributionalComponent:
 
         if self.design.group and include_group_specific:
             linear_predictor += self.predict_group_specific(
-                posterior,
-                data,
-                in_sample,
-                to_stack_dims,
-                design_matrix_dims,
-                sample_new_groups,
-                random_seed,
+                posterior=posterior,
+                data=data,
+                in_sample=in_sample,
+                to_stack_dims=to_stack_dims,
+                design_matrix_dims=design_matrix_dims,
+                sample_new_groups=sample_new_groups,
+                random_seed=random_seed,
             )
 
         # Sort dimensions
@@ -325,7 +325,10 @@ class DistributionalComponent:
                         "'sample_new_groups' is False."
                     )
                 u = self._construct_u_with_new_groups(
-                    posterior, to_stack_dims, factors_with_new_levels, random_seed
+                    posterior=posterior,
+                    to_stack_dims=to_stack_dims,
+                    factors_with_new_levels=factors_with_new_levels,
+                    random_seed=random_seed,
                 )
             else:
                 u = posterior

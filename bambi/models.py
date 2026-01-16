@@ -929,7 +929,11 @@ class Model:
 
         # Populate the posterior in the InferenceData object with the likelihood parameters
         idata = self._compute_likelihood_params(
-            idata, data, include_group_specific, sample_new_groups, random_seed
+            idata=idata,
+            data=data,
+            include_group_specific=include_group_specific,
+            sample_new_groups=sample_new_groups,
+            random_seed=random_seed,
         )
 
         # Only if requested predict the predictive distribution
@@ -1037,7 +1041,10 @@ class Model:
 
         # Populate the posterior in the InferenceData object with the likelihood parameters
         idata = self._compute_likelihood_params(
-            idata, data, include_group_specific, sample_new_groups
+            idata=idata,
+            data=data,
+            include_group_specific=include_group_specific,
+            sample_new_groups=sample_new_groups,
         )
 
         required_kwargs = {"model": self, "posterior": idata.posterior, "data": data}
