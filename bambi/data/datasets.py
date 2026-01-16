@@ -5,10 +5,9 @@ import itertools
 import os
 import pathlib
 import shutil
-import requests
-
 from collections import namedtuple
 
+import requests
 import pandas as pd
 
 
@@ -267,7 +266,7 @@ def load_data(dataset: str | None = None, data_home: str | None = None):
         file_path = home_dir / datafile.filename
 
         if not os.path.exists(file_path):
-            response = requests.get(datafile.url)
+            response = requests.get(datafile.url, timeout=60)
             response.raise_for_status()
 
             with open(file_path, "wb") as file_obj:
