@@ -8,7 +8,6 @@ from bambi.backend.utils import (
     get_distribution_from_likelihood,
     get_distribution_from_prior,
     get_linkinv,
-    has_hyperprior,
     make_weighted_distribution,
     GP_KERNELS,
 )
@@ -20,8 +19,7 @@ from bambi.priors import Prior
 class CommonTerm:
     """Representation of a common effects term in PyMC
 
-    An object that builds the PyMC distribution for a common effects term. It also contains the
-    coordinates that we then add to the model.
+    It builds the PyMC distribution for a common effects term.
 
     Parameters
     ----------
@@ -36,41 +34,54 @@ class CommonTerm:
             self.coords[self.term.alias + "_dim"] = self.coords.pop(self.term.name + "_dim")
 
     def build(self, spec):
-        data = self.term.data
+        """Build term.
+
+        Parameters
+        ----------
+        spec : bambi.Model
+            The model instance.
+
+        Returns
+        -------
+        coef : pm.Distribution
+            A distribution of shape `(1, )`, `(p_j, )`, `(1, K)`, or `(p_j, K)`.
+        """
         label = self.name
-        args = self.term.prior.args
+        kwargs = self.term.prior.args
         distribution = get_distribution_from_prior(self.term.prior)
+
+        # Dims of the term
+        term_dims = list(self.coords)
 
         # Dims of the response variable
         response_dims = []
         if isinstance(spec.family, (MultivariateFamily, Categorical)):
+            # NOTE: Very opaque. The dictionary contains at most one element.
             response_dims = list(spec.response_component.term.coords)
             response_dims_n = len(spec.response_component.term.coords[response_dims[0]])
-            # Arguments may be of shape (a,) but we need them to be of shape (a, b)
-            # a: length of predictor coordinates
-            # b: length of response coordinates
-            for key, value in args.items():
+
+            # Arguments may be of shape (p_j,) but we need them to be of shape (p_j, K)
+            # p_j: length of predictor coordinates
+            # K: length of response coordinates
+            for key, value in kwargs.items():
+                # NOTE: The case value.ndim == 0 is handled below
                 if value.ndim == 1:
-                    args[key] = np.hstack([value[:, np.newaxis]] * response_dims_n)
+                    kwargs[key] = np.hstack([value[:, np.newaxis]] * response_dims_n)
 
-        dims = list(self.coords) + response_dims
-        if dims:
-            coef = distribution(label, dims=dims, **args)
+        if response_dims and term_dims:
+            # shape: (p_j, K)
+            coef = distribution(label, dims=term_dims + response_dims, **kwargs)
+        elif response_dims:
+            # shape: (1, K)
+            coef = distribution(label, dims=response_dims, **kwargs)[np.newaxis, :]
+        elif term_dims:
+            # shape: (p_j, )
+            coef = distribution(label, dims=term_dims, **kwargs)
         else:
-            if data.ndim == 1:
-                shape = None
-            elif data.shape[1] == 1:
-                shape = None
-            else:
-                shape = data.shape[1]
-            coef = distribution(label, shape=shape, **args)
-            coef = pt.atleast_1d(coef)  # If only a single numeric column it won't be 1D
+            # shape: (1, )
+            coef = pt.atleast_1d(distribution(label, **kwargs))
 
-        # Prepends one dimension if response is multivariate and the predictor is 1D
-        if response_dims and len(dims) == 1:
-            coef = coef[np.newaxis, :]
-
-        return coef, data
+        return coef
 
     @property
     def name(self):
@@ -82,8 +93,7 @@ class CommonTerm:
 class GroupSpecificTerm:
     """Representation of a group specific effects term in PyMC
 
-    Creates an object that builds the PyMC distribution for a group specific effect. It also
-    contains the coordinates that we then add to the model.
+    It builds the PyMC distribution for a group-specific effects term.
 
     Parameters
     ----------
@@ -96,31 +106,9 @@ class GroupSpecificTerm:
     def __init__(self, term, noncentered):
         self.term = term
         self.noncentered = noncentered
-        self.coords = self.get_coords()
 
-    def build(self, spec):
-        label = self.name
-        kwargs = self.term.prior.args
-        predictor = np.squeeze(self.term.predictor)
-
-        # Dims of the response variable (e.g. categorical)
-        response_dims = []
-        if isinstance(spec.family, (MultivariateFamily, Categorical)):
-            response_dims = list(spec.response_component.term.coords)
-
-        dims = list(self.coords) + response_dims
-        coef = self.build_distribution(self.term.prior, label, dims=dims, **kwargs)
-
-        # Squeeze ensures we don't have a shape of (n, 1) when we mean (n, )
-        # This happens with categorical predictors with two levels and intercept.
-        # See https://github.com/pymc-devs/pymc/issues/7246
-        if len(coef.shape.eval()) == 2 and coef.shape.eval()[-1] == 1:
-            coef = pt.specify_broadcastable(coef, 1).squeeze()
-        coef = coef[self.term.group_index]
-
-        return coef, predictor
-
-    def get_coords(self):
+    @property
+    def coords(self):
         coords = self.term.coords.copy()
         # If there's no alias, return the coords from the underlying term
         if not self.term.alias:
@@ -133,31 +121,94 @@ class GroupSpecificTerm:
             new_coords[self.term.alias + "__" + kind] = value
         return new_coords
 
-    def build_distribution(self, prior, label, **kwargs):
-        """Build and return a PyMC Distribution."""
-        distribution = get_distribution_from_prior(prior)
+    def build(self, spec):
+        """Build term.
 
-        if "dims" in kwargs:
-            group_dim = [dim for dim in kwargs["dims"] if dim.endswith("__expr_dim")]
-            kwargs = {
-                k: self.expand_prior_args(k, v, label, dims=group_dim) for (k, v) in kwargs.items()
-            }
+        Parameters
+        ----------
+        spec : bambi.Model
+            The model instance.
+
+        Returns
+        -------
+        coef : pm.Distribution
+            A PyMC distribution of shape `(f_j, )`, `(e_j, f_j)`, `(f_j, K)` or `(e_j, f_j, K)`.
+        """
+        # Dims of the term (factor_dims or factor_dims + expr_dims)
+        term_dims = list(self.coords)
+
+        # Dims of the response variable
+        response_dims = []
+        if isinstance(spec.family, (MultivariateFamily, Categorical)):
+            response_dims = list(spec.response_component.term.coords)
+
+        dims = term_dims + response_dims
+
+        # Possible output shapes
+        # * (f_j, e_j, K): when factor_dims, expr_dims and response_dims
+        # * (f_j, K):      when factor_dims and response_dims
+        # * (f_j, e_j):    when factor_dims and expr_dims
+        # * (f_j, ):       when factor_dims
+        return self.build_distribution(prior=self.term.prior, label=self.name, dims=dims)
+
+    def build_distribution(self, prior, label, dims=None):
+        """_summary_
+
+        Parameters
+        ----------
+        prior : bambi.priors.Prior
+            The prior distribution.
+        label : str
+            Name of the distribution.
+        dims : Sequence[str], optional
+            Sequence of dimension names, by default None.
+
+        Returns
+        -------
+        pm.Distribution
+            The PyMC distribution for the corresponding group-specific term.
+        """
+        # Keep all dims except of `"{name}__factor_dim"`.
+        # The value in `dims` can be:
+        # * The expression is vector-valued:               ["{name}__expr_dim"]
+        # * The response is vector-valued:                 ["{response_dim}"]
+        # * The expression and response are vector-valued: ["{name}__expr_dim", "{response_dim}"]
+        # * The expression is scalar and the response is univariate: None
+        if dims is not None:
+            hyperparams_dims = [dim for dim in dims if not dim.endswith("__factor_dim")]
         else:
-            kwargs = {k: self.expand_prior_args(k, v, label) for (k, v) in kwargs.items()}
+            hyperparams_dims = None
 
-        if self.noncentered and has_hyperprior(kwargs):
-            sigma = kwargs["sigma"]
-            offset = pm.Normal(label + "_offset", mu=0, sigma=1, dims=kwargs["dims"])
-            return pm.Deterministic(label, offset * sigma, dims=kwargs["dims"])
-        return distribution(label, **kwargs)
+        dist_kwargs = {}
+        for key, value in prior.args.items():
+            if isinstance(value, Prior):
+                hyperparam_key = self.term.hyperprior_alias.get(key, key)
+                hyperparam_label = f"{label}_{hyperparam_key}"
+                dist_kwargs[key] = self.build_distribution(
+                    prior=value,
+                    label=hyperparam_label,
+                    dims=hyperparams_dims,
+                )
+            else:
+                dist_kwargs[key] = value
 
-    def expand_prior_args(self, key, value, label, **kwargs):
-        # kwargs are used to pass 'dims' for group specific terms.
-        if isinstance(value, Prior):
-            # If there's an alias for the hyperprior, use it.
-            key = self.term.hyperprior_alias.get(key, key)
-            return self.build_distribution(value, f"{label}_{key}", **value.args, **kwargs)
-        return value
+        if self.noncentered and any(isinstance(v, pt.TensorVariable) for v in dist_kwargs.values()):
+            # non-centered is only relevant when distribution arguments are random variables.
+            if (
+                prior.name == "Normal"
+                and "sigma" in dist_kwargs
+                and isinstance(dist_kwargs["sigma"], pt.TensorVariable)
+            ):
+                sigma = dist_kwargs["sigma"]
+                offset = pm.Normal(label + "_offset", mu=0, sigma=1, dims=dims)
+                return pm.Deterministic(label, offset * sigma, dims=dims)
+
+            raise NotImplementedError(
+                "The non-centered parametrization is only supported for Normal priors"
+            )
+
+        distribution = get_distribution_from_prior(prior)
+        return distribution(label, **dist_kwargs, dims=dims)
 
     @property
     def name(self):
@@ -167,28 +218,40 @@ class GroupSpecificTerm:
 
 
 class InterceptTerm:
-    """Representation of an intercept term in a PyMC model
+    """Representation of an intercept term in a PyMC model.
 
     Parameters
     ----------
     term : bambi.terms.Term
-        An object representing the intercept. This has `.kind == "intercept"`
+        An object representing the intercept.
     """
 
     def __init__(self, term):
         self.term = term
 
     def build(self, spec):
-        dist = get_distribution_from_prior(self.term.prior)
+        """Build term.
+
+        Parameters
+        ----------
+        spec : bambi.Model
+            The model instance.
+
+        Returns
+        -------
+        dist : pm.Distribution
+            A PyMC distribution of shape `(1, )` or `(1, K)`.
+        """
+        distribution = get_distribution_from_prior(self.term.prior)
         label = self.name
-        # Prepends one dimension if response is multivariate
+
         if isinstance(spec.family, (MultivariateFamily, Categorical)):
+            # shape: (1, K)
             dims = list(spec.response_component.term.coords)
-            dist = dist(label, dims=dims, **self.term.prior.args)[np.newaxis, :]
+            dist = distribution(label, dims=dims, **self.term.prior.args)[np.newaxis, :]
         else:
-            dist = dist(label, **self.term.prior.args)
-            # Multiply it by a vector of ones so it then has the proper length
-            dist = dist * np.ones((spec.response_component.term.data.shape[0],))
+            # shape: (1,)
+            dist = pt.atleast_1d(distribution(label, **self.term.prior.args))
         return dist
 
     @property
@@ -266,11 +329,11 @@ class ResponseTerm:
             kwargs[name] = pm.Deterministic(aliased_name, linkinv(output), dims=dims)
 
         # Build the response distribution
-        dist = self.build_response_distribution(kwargs, pymc_backend)
+        dist = self.build_distribution(kwargs, pymc_backend)
 
         return dist
 
-    def build_response_distribution(self, kwargs, pymc_backend):
+    def build_distribution(self, kwargs, pymc_backend):
         # Get likelihood distribution
         distribution = get_distribution_from_likelihood(self.family.likelihood)
 
@@ -385,8 +448,8 @@ class ResponseTerm:
         return self.term.name
 
     def robustify_dims(self, pymc_backend, kwargs):
-        # It's possible the observed for the response is multidimensional, but there's a single
-        # linear predictor because the family is not multivariate.
+        # It's possible the observed for the response is multidimensional,
+        # but there's a single linear predictor because the family is not multivariate.
         # In this case, we add extra dimensions to avoid having shape mismatch between the data
         # and the shape implied by the `dims` we pass.
 

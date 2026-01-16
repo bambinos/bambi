@@ -11,20 +11,20 @@ class GroupSpecificTerm(BaseTerm):  # pylint: disable=too-many-instance-attribut
         self._hyperprior_alias = {}
         self.term = term
         self.prior = prior
-        self.data = np.squeeze(term.data)
+        self.data = term.data
         self.group_index = self.invert_dummies(self.grouper)
         self.prefix = prefix
 
     def invert_dummies(self, dummies):
-        """
+        """Invert dummies
         For the sake of computational efficiency (i.e., to avoid lots of large matrix
         multiplications in the backend), invert the dummy-coding process and represent full-rank
         dummies as a vector of indices into the coefficients.
+
+        Only used when `bmb.config.SPARSE_DOT` is `False`.
         """
-        vector = np.zeros(len(dummies), dtype=int)
-        for i in range(1, dummies.shape[1]):
-            vector[dummies[:, i] == 1] = i
-        return vector
+        # NOTE: This asummes there's a single '1' per row, which is true.
+        return dummies.argmax(1)
 
     @property
     def term(self):

@@ -1,9 +1,12 @@
 import numpy as np
+import scipy as sp
 
 from pytensor import tensor as pt
+from pytensor import sparse as ps
 
 from bambi.backend.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, InterceptTerm, ResponseTerm
 from bambi.backend.utils import get_distribution_from_prior
+from bambi.config import config as bmb_config
 from bambi.families.multivariate import MultivariateFamily
 from bambi.families.univariate import Categorical, Cumulative, StoppingRatio
 
@@ -29,11 +32,11 @@ class ConstantComponent:
             pymc_backend.model.add_coords({threshold_dim: threshold_values})
 
         with pymc_backend.model:
-            # Set to a constant value
             if isinstance(self.component.prior, (int, float)):
+                # Set to a constant value
                 self.output = self.component.prior
-            # Set to a distribution
             else:
+                # Set to a distribution
                 dist = get_distribution_from_prior(self.component.prior)
                 self.output = dist(label, **self.component.prior.args, **extra_args)
 
@@ -80,34 +83,34 @@ class DistributionalComponent:
         spec : bambi.Model
             The model.
         """
-        if self.component.common_terms:
-            coefs = []
-            columns = []
-            for term in self.component.common_terms.values():
-                common_term = CommonTerm(term)
-                # Add coords
-                for name, values in common_term.coords.items():
-                    pymc_backend.model.add_coords({name: values})
+        if not self.component.common_terms:
+            return
 
-                # Build
-                coef, data = common_term.build(bmb_model)
-                coefs.append(coef)
-                columns.append(data)
+        coefs = []
+        columns = []
+        for term in self.component.common_terms.values():
+            common_term = CommonTerm(term)
+            for name, values in common_term.coords.items():
+                pymc_backend.model.add_coords({name: values})
 
-            # Column vector of coefficients and design matrix
-            coefs = pt.concatenate(coefs)
+            coefs.append(common_term.build(bmb_model))
+            columns.append(term.data)  # ndarray of shape (n, ) or (n, p_j)
 
-            # Design matrix
-            data = np.column_stack(columns)
+        # Coefficients: shape (p, ) or (p, k)
+        coefs = pt.concatenate(coefs, axis=0)
 
-            # If there's an intercept, center the data
-            # Also store the design matrix without the intercept to uncenter the intercept later
-            if self.has_intercept and bmb_model.center_predictors:
-                self.design_matrix_without_intercept = data
-                data = data - data.mean(0)
+        # Design matrix: shape (n, p)
+        data = np.column_stack(columns)
 
-            # Add term to linear predictor
-            self.output += pt.dot(data, coefs)
+        # If there's an intercept, center the data
+        # Also store the design matrix without the intercept to uncenter the intercept later
+        # TODO: Use a deterministic for this.
+        if self.has_intercept and bmb_model.center_predictors:
+            self.design_matrix_without_intercept = data
+            data = data - data.mean(0)
+
+        # 'pt.dot(data, coefs)' is of shape (n, ) or (n, k)
+        self.output += pt.dot(data, coefs)
 
     def build_hsgp_terms(self, bmb_model, pymc_backend):
         """Add HSGP (Hilbert-Space Gaussian Process approximation) terms to the PyMC model.
@@ -126,30 +129,88 @@ class DistributionalComponent:
         """Add group-specific (random or varying) terms to the PyMC model
 
         We have linear predictors of the form 'X @ b + Z @ u'.
-        This creates the 'u' parameter vector in PyMC, computes `Z @ u`, and adds it to
-        `self.output`.
+        This creates the 'u' parameter vector in PyMC, computes `Z @ u`,
+        and adds it to `self.output`.
         """
+        if not self.component.group_specific_terms:
+            return
+
+        as_multivariate = isinstance(bmb_model.family, (MultivariateFamily, Categorical))
+
+        coefs = []
+        columns = []
+        predictors = []
+        group_indexes = []
+
         for term in self.component.group_specific_terms.values():
             group_specific_term = GroupSpecificTerm(term, bmb_model.noncentered)
-
             # Add coords
             for name, values in group_specific_term.coords.items():
                 if name not in pymc_backend.model.coords:
                     pymc_backend.model.add_coords({name: values})
 
-            # Build
-            coef, predictor = group_specific_term.build(bmb_model)
+            coefs.append(group_specific_term.build(bmb_model))
+            columns.append(term.data)
+            predictors.append(term.predictor)
+            group_indexes.append(term.group_index)
 
-            # Add to the linear predictor
-            # The loop through predictor columns is not the most beautiful alternative.
-            # But it's the fastest. Doing matrix multiplication, pm.math.dot(data, coef), is slower.
-            if predictor.ndim > 1:
-                for col in range(predictor.shape[1]):
-                    self.output += coef[:, col] * predictor[:, col]
-            elif isinstance(bmb_model.family, (MultivariateFamily, Categorical)):
-                self.output += coef * predictor[:, np.newaxis]
-            else:
-                self.output += coef * predictor
+        if bmb_config["SPARSE_DOT"]:
+            coefs_reshaped = []
+            for coef in coefs:
+                if as_multivariate and coef.ndim == 3:
+                    # (f_j, e_j, k) -> (f_j * e_j, k)
+                    coef_reshaped = coef.reshape(-1, coef.shape[-1])
+                elif not as_multivariate and coef.ndim == 2:
+                    # (f_j, e_j) -> (f_j * e_j,)
+                    coef_reshaped = coef.flatten()
+                else:
+                    coef_reshaped = coef
+
+                coefs_reshaped.append(coef_reshaped)
+
+            # Design matrix Z: shape (n, q)
+            data = sp.sparse.hstack(columns, format="csr")
+
+            # Coefficients: shape (q, ) or (q, k)
+            coefs = pt.concatenate(coefs_reshaped, axis=0)
+
+            if not as_multivariate:
+                coefs = coefs[:, np.newaxis]  # PyTensor expects 2D
+
+            contribution = ps.structured_dot(data, coefs).squeeze()  # (n, ) or (n, k)
+        else:
+            contribution = 0
+            for coef, predictor, group_index in zip(coefs, predictors, group_indexes):
+                # The following code is short, but not simple.
+                #
+                # With multivariate models, we have:
+                # When predictor.ndim > 1
+                #     (n, e_j, k) * (n, e_j, 1) -> (n, e_j, k)
+                #     (n, e_j, k).sum(1) -> (n, k)
+                # Else
+                #     (n, k) * (n, 1) -> (n, k)
+                #
+                # And with univariate models, we have:
+                # When predictor.ndim > 1
+                #     (n, e_j) * (n, e_j) -> (n, e_j)
+                #     (n, e_j).sum(1) -> (n, )
+                # Else
+                #     (n, ) * (1, ) -> (n, )
+                coef = coef[group_index]
+                predictor_ndim = predictor.ndim
+
+                if as_multivariate:
+                    predictor = predictor[:, np.newaxis]
+
+                term_contribution = coef * predictor
+
+                if predictor_ndim > 1:
+                    term_contribution = term_contribution.sum(axis=1)
+
+                contribution += term_contribution
+
+        # 'contribution' is of shape (n, ) or (n, k)
+        self.output += contribution
 
     def add_response_coords(self, pymc_backend, bmb_model):
         response_term = bmb_model.response_component.term
