@@ -3,11 +3,11 @@
 import hashlib
 import itertools
 import os
+import pathlib
 import shutil
-
 from collections import namedtuple
-from urllib.request import urlretrieve
 
+import requests
 import pandas as pd
 
 
@@ -68,7 +68,7 @@ distributed under Open Data terms by the Baseball Data Bank.
     ),
     "cherry_blossoms": FileMetadata(
         filename="cherry_blossoms.csv",
-        url="https://figshare.com/ndownloader/files/31072807",
+        url="https://ndownloader.figshare.com/files/31072807",
         checksum="b859dd4f64c231c76ecb80b78f26da71e2f92698c50e0ceb93be0399dee24f51",
         description="""
 Historical Series of Phenological data for Cherry Tree Flowering at Kyoto City. Extracted from
@@ -77,7 +77,7 @@ the `rethinking` library in R.
     ),
     "sleepstudy": FileMetadata(
         filename="sleepstudy.csv",
-        url="https://figshare.com/ndownloader/files/31181002",
+        url="https://ndownloader.figshare.com/files/31181002",
         checksum="0a002bec8be2fa9d40dbbf3d5038e614d113a4fd5bf8813f6f4271c3d6294675",
         description="""
 The average reaction time per day (in milliseconds) for subjects in a sleep deprivation study.
@@ -103,14 +103,14 @@ Subject
     ),
     "admissions": FileMetadata(
         filename="admissions.csv",
-        url="https://figshare.com/ndownloader/files/34757857",
+        url="https://ndownloader.figshare.com/files/34757857",
         checksum="41e2312ca09d50e99c2db67fbabc78d215df6ce71eefe880df5e9310a9fa8397",
         description="""Admission into graduate school data. This dataset has a binary response
         variable called 'admit'. There are three predictor variables: 'gre', 'gpa' and 'rank'.""",
     ),
     "bikes": FileMetadata(
         filename="bike_sharing.csv",
-        url="https://figshare.com/ndownloader/files/38737026",
+        url="https://ndownloader.figshare.com/files/38737026",
         checksum="3e1844b6da435f910b10899e18188568f7d789c715a286c9c6c2ca23833ee7ac",
         description="""
 This dataset contains the hourly and daily count of rental bikes between
@@ -146,7 +146,7 @@ Original source: https://archive.ics.uci.edu/ml/datasets/bike+sharing+dataset
     ),
     "mtcars": FileMetadata(
         filename="mtcars.csv",
-        url="https://figshare.com/ndownloader/files/40208785",
+        url="https://ndownloader.figshare.com/files/40208785",
         checksum="c802190c43e02246da9c6c9c3f13a58f076cc6b77922f4d9766a3c6bdb1b52bd",
         description="""
 The data was extracted from the 1974 Motor Trend US magazine, and comprises fuel consumption and 10
@@ -167,7 +167,7 @@ The following is a description of the variables:
     ),
     "kidney": FileMetadata(
         filename="kidney.csv",
-        url="https://figshare.com/ndownloader/files/41645361",
+        url="https://ndownloader.figshare.com/files/41645361",
         checksum="46e49372b4e8c3044dca0ffbb4eb2244f56d7398746802e351baac6c12625564",
         description="""
 It describes the first and second recurrence times of infection in kidney patients together with
@@ -189,7 +189,7 @@ Biometrics, 47(2), 461-466
 }
 
 
-def get_data_home(data_home: str | None = None):
+def get_data_home(data_home: str | None = None) -> pathlib.Path:
     """Return the path of the Bambi data dir.
 
     This folder is used to avoid downloading the data several times.
@@ -209,7 +209,7 @@ def get_data_home(data_home: str | None = None):
     data_home = os.path.expanduser(data_home)
     if not os.path.exists(data_home):
         os.makedirs(data_home)
-    return data_home
+    return pathlib.Path(data_home)
 
 
 def clear_data_home(data_home: str | None = None):
@@ -263,11 +263,17 @@ def load_data(dataset: str | None = None, data_home: str | None = None):
 
     if dataset in DATASETS:
         datafile = DATASETS[dataset]
-        file_path = os.path.join(home_dir, datafile.filename)
+        file_path = home_dir / datafile.filename
 
         if not os.path.exists(file_path):
-            urlretrieve(datafile.url, file_path)
+            response = requests.get(datafile.url, timeout=60)
+            response.raise_for_status()
+
+            with open(file_path, "wb") as file_obj:
+                file_obj.write(response.content)
+
             checksum = _sha256(file_path)
+
             if datafile.checksum != checksum:
                 raise IOError(
                     f"{file_path} has an SHA256 checksum ({checksum}) differing from expected "
