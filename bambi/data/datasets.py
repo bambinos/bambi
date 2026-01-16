@@ -103,14 +103,14 @@ Subject
     ),
     "admissions": FileMetadata(
         filename="admissions.csv",
-        url="https://figshare.com/ndownloader/files/34757857",
+        url="https://ndownloader.figshare.com/files/34757857",
         checksum="41e2312ca09d50e99c2db67fbabc78d215df6ce71eefe880df5e9310a9fa8397",
         description="""Admission into graduate school data. This dataset has a binary response
         variable called 'admit'. There are three predictor variables: 'gre', 'gpa' and 'rank'.""",
     ),
     "bikes": FileMetadata(
         filename="bike_sharing.csv",
-        url="https://figshare.com/ndownloader/files/38737026",
+        url="https://ndownloader.figshare.com/files/38737026",
         checksum="3e1844b6da435f910b10899e18188568f7d789c715a286c9c6c2ca23833ee7ac",
         description="""
 This dataset contains the hourly and daily count of rental bikes between
@@ -146,7 +146,7 @@ Original source: https://archive.ics.uci.edu/ml/datasets/bike+sharing+dataset
     ),
     "mtcars": FileMetadata(
         filename="mtcars.csv",
-        url="https://figshare.com/ndownloader/files/40208785",
+        url="https://ndownloader.figshare.com/files/40208785",
         checksum="c802190c43e02246da9c6c9c3f13a58f076cc6b77922f4d9766a3c6bdb1b52bd",
         description="""
 The data was extracted from the 1974 Motor Trend US magazine, and comprises fuel consumption and 10
@@ -167,7 +167,7 @@ The following is a description of the variables:
     ),
     "kidney": FileMetadata(
         filename="kidney.csv",
-        url="https://figshare.com/ndownloader/files/41645361",
+        url="https://ndownloader.figshare.com/files/41645361",
         checksum="46e49372b4e8c3044dca0ffbb4eb2244f56d7398746802e351baac6c12625564",
         description="""
 It describes the first and second recurrence times of infection in kidney patients together with
