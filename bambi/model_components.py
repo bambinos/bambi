@@ -128,7 +128,13 @@ class DistributionalComponent:
             self.terms[name].prior = value
 
     def predict(
-        self, idata, data=None, include_group_specific=True, hsgp_dict=None, sample_new_groups=False
+        self,
+        idata,
+        data=None,
+        include_group_specific=True,
+        hsgp_dict=None,
+        sample_new_groups=False,
+        random_seed=None,
     ):
         linear_predictor = 0
         posterior = idata.posterior
@@ -160,7 +166,13 @@ class DistributionalComponent:
 
         if self.design.group and include_group_specific:
             linear_predictor += self.predict_group_specific(
-                posterior, data, in_sample, to_stack_dims, design_matrix_dims, sample_new_groups
+                posterior=posterior,
+                data=data,
+                in_sample=in_sample,
+                to_stack_dims=to_stack_dims,
+                design_matrix_dims=design_matrix_dims,
+                sample_new_groups=sample_new_groups,
+                random_seed=random_seed,
             )
 
         # Sort dimensions
@@ -286,7 +298,14 @@ class DistributionalComponent:
         return linear_predictor
 
     def predict_group_specific(
-        self, posterior, data, in_sample, to_stack_dims, design_matrix_dims, sample_new_groups
+        self,
+        posterior,
+        data,
+        in_sample,
+        to_stack_dims,
+        design_matrix_dims,
+        sample_new_groups,
+        random_seed,
     ):
         if in_sample:
             Z = self.design.group.design_matrix
@@ -307,7 +326,10 @@ class DistributionalComponent:
                         "'sample_new_groups' is False."
                     )
                 u = self._construct_u_with_new_groups(
-                    posterior, to_stack_dims, factors_with_new_levels
+                    posterior=posterior,
+                    to_stack_dims=to_stack_dims,
+                    factors_with_new_levels=factors_with_new_levels,
+                    random_seed=random_seed,
                 )
             else:
                 u = posterior
@@ -361,13 +383,15 @@ class DistributionalComponent:
         # Ensure the result's `.data` is a dense NumPy array.
         return xr.dot(Z, u).as_numpy()
 
-    def _construct_u_with_new_groups(self, posterior, to_stack_dims, factors_with_new_levels):
+    def _construct_u_with_new_groups(
+        self, posterior, to_stack_dims, factors_with_new_levels, random_seed
+    ):
         u_list = []
         names_list = []
         factor_idxs = {}
         draw_n = len(posterior.coords["draw"])
         chain_n = len(posterior.coords["chain"])
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(random_seed)
         seq_draw = np.arange(draw_n)
         seq_chain = np.arange(chain_n)
 

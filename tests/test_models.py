@@ -1351,6 +1351,65 @@ def test_predict_new_groups(data, formula, family, df_new, request, mock_pymc_sa
     model.predict(idata, data=df_new, sample_new_groups=True)
 
 
+@pytest.mark.parametrize(
+    "data,formula,family,df_new",
+    [
+        (
+            "data_sleepstudy",
+            "Reaction ~ 1 + Days + (1 + Days | Subject)",
+            "gaussian",
+            pd.DataFrame({"Days": [1, 2, 3], "Subject": ["x", "y", "z"]}),
+        ),
+        (
+            "data_inhaler",
+            "rating ~ 1 + period + treat + (1 + treat|subject)",
+            "categorical",
+            pd.DataFrame(
+                {
+                    "subject": [1, 999],
+                    "rating": [1, 1],
+                    "treat": [0.5, 0.5],
+                    "period": [0.5, 0.5],
+                    "carry": [0, 0],
+                }
+            ),
+        ),
+        (
+            "data_crossed",
+            "Y ~ 0 + threecats + (0 + threecats | subj)",
+            "gaussian",
+            pd.DataFrame({"threecats": ["a", "a"], "subj": ["0", "11"]}),
+        ),
+    ],
+)
+def test_predict_new_groups_deterministic(data, formula, family, df_new, request, mock_pymc_sample):
+    data = request.getfixturevalue(data)
+    model = bmb.Model(formula, data, family=family)
+    model.build()
+    assert_ip_dlogp(model)
+    idata = model.fit(chains=2)
+
+    pred1 = model.predict(idata, data=df_new, sample_new_groups=True, random_seed=42, inplace=False)
+    pred2 = model.predict(idata, data=df_new, sample_new_groups=True, random_seed=42, inplace=False)
+    pred3 = model.predict(
+        idata, data=df_new, sample_new_groups=True, random_seed=123, inplace=False
+    )
+
+    param_name = list(model.distributional_components.keys())[0]
+    if model.distributional_components[param_name].alias:
+        param_name = model.distributional_components[param_name].alias
+
+    # Extract the parameter values
+    param1 = pred1.posterior[param_name].values
+    param2 = pred2.posterior[param_name].values
+    param3 = pred3.posterior[param_name].values
+
+    assert np.allclose(param1, param2), "Predictions with same random_seed should be identical"
+    assert not np.allclose(
+        param1, param3
+    ), "Predictions with different random_seed should be different"
+
+
 def test_weighted(mock_pymc_sample):
     weights = 1 + np.random.poisson(lam=3, size=100)
     y = np.random.exponential(scale=3, size=100)
