@@ -1,5 +1,13 @@
-<a id="0.17.0"></a>
-# [The sparse bambino (0.17.0)](https://github.com/bambinos/bambi/releases/tag/0.17.0) - 2026-01-16
+<a id="0.17.2"></a>
+# [Bambi 0.17.2](https://github.com/bambinos/bambi/releases/tag/0.17.2) - 2026-01-16
+
+Patch release since the previous one failed :')
+
+[Changes][0.17.2]
+
+
+<a id="0.17.1"></a>
+# [The sparse bambino (0.17.1)](https://github.com/bambinos/bambi/releases/tag/0.17.1) - 2026-01-16
 
 ## What's Changed
 
@@ -15,6 +23,7 @@
 * Make quartodoc build verbose and copy objects.json to _site by [@tomicapretto](https://github.com/tomicapretto) in [#949](https://github.com/bambinos/bambi/pull/949)
 * Fix non-deterministic predictions when `sample_new_groups=True` and `random_seed` is set by [@Delogon](https://github.com/Delogon) in [#954](https://github.com/bambinos/bambi/pull/954)
 * Update how data is read from figshare by [@tomicapretto](https://github.com/tomicapretto) in [#956](https://github.com/bambinos/bambi/pull/956)
+* Make twine verbose by [@tomicapretto](https://github.com/tomicapretto) in [`641a938783`](https://github.com/bambinos/bambi/commit/641a9387830ffe84230bd3b9c33e8f7aaae2b1a8)
 
 ### Documentation
 
@@ -34,7 +43,7 @@
 
 **Full Changelog**: https://github.com/bambinos/bambi/compare/0.16.0...0.17.0
 
-[Changes][0.17.0]
+[Changes][0.17.1]
 
 
 <a id="0.16.0"></a>
@@ -549,7 +558,8 @@ Release 0.0.5
 [Changes][0.0.5]
 
 
-[0.17.0]: https://github.com/bambinos/bambi/compare/0.16.0...0.17.0
+[0.17.2]: https://github.com/bambinos/bambi/compare/0.17.1...0.17.2
+[0.17.1]: https://github.com/bambinos/bambi/compare/0.16.0...0.17.1
 [0.16.0]: https://github.com/bambinos/bambi/compare/0.15.0...0.16.0
 [0.15.0]: https://github.com/bambinos/bambi/compare/0.14.0...0.15.0
 [0.14.0]: https://github.com/bambinos/bambi/compare/0.13.0...0.14.0
