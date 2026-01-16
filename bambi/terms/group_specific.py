@@ -20,6 +20,8 @@ class GroupSpecificTerm(BaseTerm):  # pylint: disable=too-many-instance-attribut
         For the sake of computational efficiency (i.e., to avoid lots of large matrix
         multiplications in the backend), invert the dummy-coding process and represent full-rank
         dummies as a vector of indices into the coefficients.
+
+        Only used when `bmb.config.SPARSE_DOT` is `False`.
         """
         # NOTE: This asummes there's a single '1' per row, which is true.
         return dummies.argmax(1)

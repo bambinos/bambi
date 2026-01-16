@@ -3,6 +3,7 @@
 # [The awakening bambino (0.16.0)](https://github.com/bambinos/bambi/releases/tag/0.16.0) - 2025-10-24
 
 ## What's Changed
+
 * Fix broken links by [@B-Deforce](https://github.com/B-Deforce) in [#866](https://github.com/bambinos/bambi/pull/866)
 * Fix random seed handling for "vi" by [@B-Deforce](https://github.com/B-Deforce) in [#869](https://github.com/bambinos/bambi/pull/869)
 * typo fix -> `SETTINGS_FAMILIES` to `BUILTIN_FAMILIES` by [@Schefflera-Arboricola](https://github.com/Schefflera-Arboricola) in [#873](https://github.com/bambinos/bambi/pull/873)

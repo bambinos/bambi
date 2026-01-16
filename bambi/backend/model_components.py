@@ -86,7 +86,6 @@ class DistributionalComponent:
         if not self.component.common_terms:
             return
 
-        # np.ndarray of shape (n, 1) or (n, p_j).
         coefs = []
         columns = []
         for term in self.component.common_terms.values():
@@ -105,12 +104,13 @@ class DistributionalComponent:
 
         # If there's an intercept, center the data
         # Also store the design matrix without the intercept to uncenter the intercept later
+        # TODO: Use a deterministic for this.
         if self.has_intercept and bmb_model.center_predictors:
             self.design_matrix_without_intercept = data
             data = data - data.mean(0)
 
-        # Add term to linear predictor
-        self.output += pt.dot(data, coefs)  # (n, ) or (n, k)
+        # 'pt.dot(data, coefs)' is of shape (n, ) or (n, k)
+        self.output += pt.dot(data, coefs)
 
     def build_hsgp_terms(self, bmb_model, pymc_backend):
         """Add HSGP (Hilbert-Space Gaussian Process approximation) terms to the PyMC model.
@@ -158,7 +158,7 @@ class DistributionalComponent:
             coefs_reshaped = []
             for coef in coefs:
                 if as_multivariate and coef.ndim == 3:
-                    # (f_j, e_j, K) -> (f_j * e_j, K)
+                    # (f_j, e_j, k) -> (f_j * e_j, k)
                     coef_reshaped = coef.reshape(-1, coef.shape[-1])
                 elif not as_multivariate and coef.ndim == 2:
                     # (f_j, e_j) -> (f_j * e_j,)
@@ -171,24 +171,24 @@ class DistributionalComponent:
             # Design matrix Z: shape (n, q)
             data = sp.sparse.hstack(columns, format="csr")
 
-            # Coefficients: shape (q, ) or (q, K)
+            # Coefficients: shape (q, ) or (q, k)
             coefs = pt.concatenate(coefs_reshaped, axis=0)
 
             if not as_multivariate:
                 coefs = coefs[:, np.newaxis]  # PyTensor expects 2D
 
-            contribution = ps.structured_dot(data, coefs).squeeze()  # (n, ) or (n, K)
+            contribution = ps.structured_dot(data, coefs).squeeze()  # (n, ) or (n, k)
         else:
             contribution = 0
             for coef, predictor, group_index in zip(coefs, predictors, group_indexes):
                 # The following code is short, but not simple.
-
+                #
                 # With multivariate models, we have:
                 # When predictor.ndim > 1
-                #     (n, e_j, K) * (n, e_j, 1) -> (n, e_j, K)
-                #     (n, e_j, K).sum(1) -> (n, K)
+                #     (n, e_j, k) * (n, e_j, 1) -> (n, e_j, k)
+                #     (n, e_j, k).sum(1) -> (n, k)
                 # Else
-                #     (n, K) * (n, 1) -> (n, K)
+                #     (n, k) * (n, 1) -> (n, k)
                 #
                 # And with univariate models, we have:
                 # When predictor.ndim > 1
@@ -196,7 +196,6 @@ class DistributionalComponent:
                 #     (n, e_j).sum(1) -> (n, )
                 # Else
                 #     (n, ) * (1, ) -> (n, )
-
                 coef = coef[group_index]
                 predictor_ndim = predictor.ndim
 
@@ -210,7 +209,7 @@ class DistributionalComponent:
 
                 contribution += term_contribution
 
-        # 'contribution' is of shape (n, ) or (n, K)
+        # 'contribution' is of shape (n, ) or (n, k)
         self.output += contribution
 
     def add_response_coords(self, pymc_backend, bmb_model):
