@@ -53,7 +53,7 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
-        run: python3 -m twine upload --skip-existing --repository testpypi dist/*
+        run: python3 -m twine upload --skip-existing --repository testpypi dist/* --verbose
 
       - name: Test pip install from Test PyPI and verify version number
         run: |
@@ -84,7 +84,7 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: python3 -m twine upload dist/*
+        run: python3 -m twine upload dist/* --verbose
 
 # See documentation on accesing the tag from the release
 # Look for 'github.ref' and 'github.ref_name' in https://docs.github.com/en/actions/learn-github-actions/contexts
