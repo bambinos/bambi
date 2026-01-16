@@ -604,7 +604,7 @@ Categories (7, int64): [1 &lt; 2 &lt; 3 &lt; 4 &lt; 5 &lt; 6 &lt; 7]</code></pre
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>cum_logit <span class="op">=</span> logit_func(cum_pr_k)</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>cum_logit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/tmp/ipykernel_117147/1548491577.py:3: RuntimeWarning: invalid value encountered in log
+<pre><code>/tmp/ipykernel_66844/1548491577.py:3: RuntimeWarning: invalid value encountered in log
   logit_func = lambda x: np.log(x / (1 - x))</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="4">
@@ -630,29 +630,26 @@ Categories (7, int64): [1 &lt; 2 &lt; 3 &lt; 4 &lt; 5 &lt; 6 &lt; 7]</code></pre
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"response ~ 0"</span>, data<span class="op">=</span>trolly, family<span class="op">=</span><span class="st">"cumulative"</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [threshold]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"b541e7837edd4e128fe3428198840106","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"de78558bb9bf4bf09ca1515e6b22c1f4","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/home/tomas/anaconda3/envs/bambi-dev/lib/python3.11/site-packages/pytensor/compile/function/types.py:970: RuntimeWarning: invalid value encountered in add
-  self.vm()</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+<pre><code>/home/tomas/Desktop/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/compile/function/types.py:1038: RuntimeWarning: invalid value encountered in accumulate
+  outputs = vm() if output_subset is None else vm(output_subset=output_subset)
+/home/tomas/Desktop/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/compile/function/types.py:1038: RuntimeWarning: invalid value encountered in accumulate
+  outputs = vm() if output_subset is None else vm(output_subset=output_subset)</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 8 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 14 seconds.</code></pre>
 </div>
 </div>
 <p>Below, the components of the model are outputed. Notice how the thresholds are a grid of six values ranging from -2 to 2.</p>
@@ -700,48 +697,48 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <td data-quarto-table-cell-role="th">threshold[0]</td>
 <td>-1.917</td>
 <td>0.030</td>
-<td>-1.969</td>
-<td>-1.859</td>
-<td>0.001</td>
+<td>-1.973</td>
+<td>-1.860</td>
 <td>0.0</td>
-<td>2293.0</td>
-<td>1520.0</td>
+<td>0.0</td>
+<td>4197.0</td>
+<td>2771.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">threshold[1]</td>
 <td>-1.267</td>
 <td>0.024</td>
-<td>-1.314</td>
-<td>-1.223</td>
-<td>0.000</td>
+<td>-1.310</td>
+<td>-1.219</td>
 <td>0.0</td>
-<td>2826.0</td>
-<td>1286.0</td>
+<td>0.0</td>
+<td>4730.0</td>
+<td>3408.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">threshold[2]</td>
 <td>-0.718</td>
-<td>0.021</td>
-<td>-0.759</td>
-<td>-0.679</td>
-<td>0.000</td>
+<td>0.022</td>
+<td>-0.760</td>
+<td>-0.678</td>
 <td>0.0</td>
-<td>2621.0</td>
-<td>2089.0</td>
+<td>0.0</td>
+<td>5131.0</td>
+<td>3406.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">threshold[3]</td>
-<td>0.248</td>
+<td>0.249</td>
 <td>0.020</td>
-<td>0.211</td>
-<td>0.286</td>
-<td>0.000</td>
+<td>0.212</td>
+<td>0.287</td>
 <td>0.0</td>
-<td>2491.0</td>
-<td>1849.0</td>
+<td>0.0</td>
+<td>4640.0</td>
+<td>3180.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
@@ -749,23 +746,23 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <td>0.891</td>
 <td>0.022</td>
 <td>0.850</td>
-<td>0.931</td>
-<td>0.000</td>
+<td>0.930</td>
 <td>0.0</td>
-<td>2334.0</td>
-<td>1882.0</td>
+<td>0.0</td>
+<td>4712.0</td>
+<td>3423.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">threshold[5]</td>
 <td>1.771</td>
 <td>0.028</td>
-<td>1.719</td>
-<td>1.822</td>
-<td>0.001</td>
+<td>1.721</td>
+<td>1.825</td>
 <td>0.0</td>
-<td>2352.0</td>
-<td>1795.0</td>
+<td>0.0</td>
+<td>5294.0</td>
+<td>3362.0</td>
 <td>1.0</td>
 </tr>
 </tbody>
@@ -850,29 +847,24 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [threshold, action, intention, contact, action:intention, contact:intention]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"e9770346ce3e4ae19876e74050953637","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"a16927331d754fb2a62ab425ffacb730","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/home/tomas/anaconda3/envs/bambi-dev/lib/python3.11/site-packages/pytensor/compile/function/types.py:970: RuntimeWarning: invalid value encountered in accumulate
-  self.vm()</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+<pre><code>/home/tomas/Desktop/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/compile/function/types.py:1038: RuntimeWarning: invalid value encountered in accumulate
+  outputs = vm() if output_subset is None else vm(output_subset=output_subset)</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 93 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 48 seconds.</code></pre>
 </div>
 </div>
 <p>In the summary dataframe below, we only select the predictor variables as the cutpoints are not of interest at the moment.</p>
@@ -904,62 +896,62 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">action[1]</td>
-<td>-0.463</td>
-<td>0.054</td>
-<td>-0.564</td>
+<td>-0.464</td>
+<td>0.055</td>
+<td>-0.563</td>
 <td>-0.360</td>
 <td>0.001</td>
 <td>0.001</td>
-<td>1418.0</td>
-<td>1691.0</td>
+<td>2861.0</td>
+<td>2986.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intention[1]</td>
-<td>-0.274</td>
-<td>0.058</td>
-<td>-0.380</td>
-<td>-0.161</td>
-<td>0.002</td>
+<td>-0.275</td>
+<td>0.060</td>
+<td>-0.393</td>
+<td>-0.166</td>
 <td>0.001</td>
-<td>1264.0</td>
-<td>1446.0</td>
+<td>0.001</td>
+<td>2590.0</td>
+<td>2650.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">contact[1]</td>
-<td>-0.325</td>
-<td>0.068</td>
-<td>-0.445</td>
-<td>-0.189</td>
-<td>0.002</td>
+<td>-0.324</td>
+<td>0.071</td>
+<td>-0.462</td>
+<td>-0.199</td>
 <td>0.001</td>
-<td>1203.0</td>
-<td>1310.0</td>
+<td>0.001</td>
+<td>2793.0</td>
+<td>2925.0</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">action:intention[1, 1]</td>
-<td>-0.455</td>
-<td>0.081</td>
-<td>-0.607</td>
-<td>-0.303</td>
+<td>-0.454</td>
+<td>0.082</td>
+<td>-0.605</td>
+<td>-0.302</td>
 <td>0.002</td>
 <td>0.001</td>
-<td>1505.0</td>
-<td>1625.0</td>
+<td>2715.0</td>
+<td>2753.0</td>
 <td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">contact:intention[1, 1]</td>
-<td>-1.279</td>
-<td>0.099</td>
-<td>-1.473</td>
-<td>-1.109</td>
-<td>0.003</td>
+<td>-1.278</td>
+<td>0.101</td>
+<td>-1.467</td>
+<td>-1.089</td>
 <td>0.002</td>
-<td>1326.0</td>
-<td>1456.0</td>
+<td>0.002</td>
+<td>3141.0</td>
+<td>3103.0</td>
 <td>1.0</td>
 </tr>
 </tbody>
@@ -1165,30 +1157,25 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div id="cell-37" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>sequence_model <span class="op">=</span> bmb.Model(</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"YearsAtCompany ~ 0 + TotalWorkingYears"</span>, </span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>attrition, </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>attrition,</span>
 <span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">"sratio"</span></span>
 <span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>sequence_idata <span class="op">=</span> sequence_model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [threshold, TotalWorkingYears]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"4f54440683794514b86bd0ef57029e8c","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"e8bb912089a24060b6f9ee2fc9f3a13c","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
-<div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 370 seconds.
-We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 309 seconds.</code></pre>
 </div>
 </div>
 <div id="cell-38" class="cell" data-execution_count="21">
@@ -1234,436 +1221,436 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">TotalWorkingYears</td>
-<td>0.127</td>
-<td>0.006</td>
-<td>0.117</td>
-<td>0.138</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>458.0</td>
-<td>719.0</td>
-<td>1.00</td>
-</tr>
-<tr class="even">
 <td data-quarto-table-cell-role="th">threshold[0]</td>
-<td>-2.518</td>
-<td>0.188</td>
-<td>-2.849</td>
-<td>-2.154</td>
-<td>0.004</td>
+<td>-2.519</td>
+<td>0.193</td>
+<td>-2.861</td>
+<td>-2.138</td>
 <td>0.003</td>
-<td>2139.0</td>
-<td>893.0</td>
-<td>1.00</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[1]</td>
-<td>-1.051</td>
-<td>0.106</td>
-<td>-1.253</td>
-<td>-0.861</td>
 <td>0.003</td>
-<td>0.002</td>
-<td>1668.0</td>
-<td>1416.0</td>
-<td>1.00</td>
+<td>4837.0</td>
+<td>3187.0</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[2]</td>
-<td>-1.014</td>
-<td>0.117</td>
-<td>-1.237</td>
-<td>-0.806</td>
-<td>0.003</td>
+<td data-quarto-table-cell-role="th">threshold[1]</td>
+<td>-1.055</td>
+<td>0.109</td>
+<td>-1.260</td>
+<td>-0.858</td>
 <td>0.002</td>
-<td>1480.0</td>
-<td>1458.0</td>
-<td>1.00</td>
+<td>0.002</td>
+<td>2776.0</td>
+<td>2591.0</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
+<td data-quarto-table-cell-role="th">threshold[2]</td>
+<td>-1.013</td>
+<td>0.117</td>
+<td>-1.240</td>
+<td>-0.803</td>
+<td>0.002</td>
+<td>0.002</td>
+<td>3347.0</td>
+<td>2898.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
 <td data-quarto-table-cell-role="th">threshold[3]</td>
 <td>-0.757</td>
 <td>0.113</td>
-<td>-0.973</td>
-<td>-0.554</td>
-<td>0.003</td>
+<td>-0.974</td>
+<td>-0.547</td>
 <td>0.002</td>
-<td>1200.0</td>
-<td>1390.0</td>
-<td>1.00</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">threshold[4]</td>
-<td>-0.759</td>
-<td>0.122</td>
-<td>-0.978</td>
-<td>-0.521</td>
-<td>0.003</td>
 <td>0.002</td>
-<td>1394.0</td>
-<td>1346.0</td>
-<td>1.00</td>
+<td>2543.0</td>
+<td>2624.0</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[5]</td>
-<td>0.250</td>
-<td>0.108</td>
-<td>0.060</td>
-<td>0.458</td>
+<td data-quarto-table-cell-role="th">threshold[4]</td>
+<td>-0.756</td>
+<td>0.125</td>
+<td>-0.995</td>
+<td>-0.528</td>
 <td>0.003</td>
 <td>0.002</td>
-<td>1069.0</td>
-<td>1283.0</td>
-<td>1.00</td>
+<td>2464.0</td>
+<td>2670.0</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
+<td data-quarto-table-cell-role="th">threshold[5]</td>
+<td>0.251</td>
+<td>0.108</td>
+<td>0.056</td>
+<td>0.459</td>
+<td>0.003</td>
+<td>0.002</td>
+<td>1859.0</td>
+<td>2655.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
 <td data-quarto-table-cell-role="th">threshold[6]</td>
 <td>-0.505</td>
-<td>0.148</td>
-<td>-0.790</td>
-<td>-0.228</td>
-<td>0.004</td>
+<td>0.145</td>
+<td>-0.787</td>
+<td>-0.248</td>
 <td>0.003</td>
-<td>1436.0</td>
-<td>1496.0</td>
-<td>1.00</td>
+<td>0.002</td>
+<td>2718.0</td>
+<td>2871.0</td>
+<td>1.0</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td data-quarto-table-cell-role="th">threshold[7]</td>
-<td>-0.085</td>
-<td>0.138</td>
-<td>-0.338</td>
-<td>0.171</td>
-<td>0.004</td>
+<td>-0.083</td>
+<td>0.140</td>
+<td>-0.331</td>
+<td>0.189</td>
 <td>0.003</td>
-<td>1373.0</td>
-<td>1364.0</td>
-<td>1.00</td>
+<td>0.002</td>
+<td>2458.0</td>
+<td>2760.0</td>
+<td>1.0</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td data-quarto-table-cell-role="th">threshold[8]</td>
-<td>0.028</td>
-<td>0.143</td>
-<td>-0.228</td>
-<td>0.305</td>
-<td>0.005</td>
+<td>0.033</td>
+<td>0.147</td>
+<td>-0.236</td>
+<td>0.312</td>
 <td>0.003</td>
-<td>980.0</td>
-<td>1503.0</td>
-<td>1.00</td>
+<td>0.002</td>
+<td>2725.0</td>
+<td>2639.0</td>
+<td>1.0</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td data-quarto-table-cell-role="th">threshold[9]</td>
-<td>0.388</td>
-<td>0.151</td>
-<td>0.101</td>
-<td>0.662</td>
+<td>0.389</td>
+<td>0.154</td>
+<td>0.100</td>
+<td>0.685</td>
+<td>0.003</td>
+<td>0.003</td>
+<td>2379.0</td>
+<td>2601.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">threshold[10]</td>
+<td>1.272</td>
+<td>0.154</td>
+<td>0.975</td>
+<td>1.558</td>
+<td>0.004</td>
+<td>0.002</td>
+<td>1937.0</td>
+<td>2331.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">threshold[11]</td>
+<td>0.438</td>
+<td>0.220</td>
+<td>0.022</td>
+<td>0.842</td>
 <td>0.004</td>
 <td>0.003</td>
-<td>1306.0</td>
-<td>1373.0</td>
-<td>1.00</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">threshold[10]</td>
-<td>1.269</td>
-<td>0.153</td>
-<td>0.948</td>
-<td>1.523</td>
-<td>0.005</td>
-<td>0.004</td>
-<td>801.0</td>
-<td>1164.0</td>
-<td>1.00</td>
+<td>3141.0</td>
+<td>3153.0</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[11]</td>
-<td>0.440</td>
-<td>0.218</td>
-<td>0.061</td>
-<td>0.871</td>
-<td>0.006</td>
-<td>0.004</td>
-<td>1224.0</td>
-<td>1354.0</td>
-<td>1.00</td>
-</tr>
-<tr class="even">
 <td data-quarto-table-cell-role="th">threshold[12]</td>
-<td>-0.105</td>
-<td>0.297</td>
-<td>-0.643</td>
-<td>0.454</td>
-<td>0.007</td>
-<td>0.006</td>
-<td>1733.0</td>
-<td>1697.0</td>
-<td>1.00</td>
+<td>-0.113</td>
+<td>0.294</td>
+<td>-0.690</td>
+<td>0.408</td>
+<td>0.005</td>
+<td>0.004</td>
+<td>3642.0</td>
+<td>3009.0</td>
+<td>1.0</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td data-quarto-table-cell-role="th">threshold[13]</td>
-<td>0.517</td>
-<td>0.242</td>
-<td>0.084</td>
-<td>0.992</td>
-<td>0.007</td>
+<td>0.520</td>
+<td>0.260</td>
+<td>0.008</td>
+<td>0.987</td>
 <td>0.005</td>
-<td>1361.0</td>
-<td>1272.0</td>
-<td>1.00</td>
+<td>0.004</td>
+<td>2967.0</td>
+<td>2703.0</td>
+<td>1.0</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td data-quarto-table-cell-role="th">threshold[14]</td>
-<td>0.390</td>
-<td>0.280</td>
-<td>-0.151</td>
-<td>0.910</td>
-<td>0.007</td>
+<td>0.398</td>
+<td>0.288</td>
+<td>-0.166</td>
+<td>0.924</td>
 <td>0.005</td>
-<td>1730.0</td>
-<td>1358.0</td>
-<td>1.00</td>
+<td>0.005</td>
+<td>3286.0</td>
+<td>2895.0</td>
+<td>1.0</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td data-quarto-table-cell-role="th">threshold[15]</td>
-<td>0.797</td>
-<td>0.264</td>
-<td>0.289</td>
-<td>1.273</td>
-<td>0.007</td>
+<td>0.795</td>
+<td>0.273</td>
+<td>0.311</td>
+<td>1.330</td>
 <td>0.005</td>
-<td>1632.0</td>
-<td>1534.0</td>
-<td>1.00</td>
+<td>0.004</td>
+<td>2910.0</td>
+<td>2981.0</td>
+<td>1.0</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td data-quarto-table-cell-role="th">threshold[16]</td>
-<td>0.426</td>
-<td>0.335</td>
-<td>-0.193</td>
-<td>1.066</td>
-<td>0.008</td>
+<td>0.433</td>
+<td>0.328</td>
+<td>-0.160</td>
+<td>1.045</td>
+<td>0.005</td>
 <td>0.006</td>
-<td>1787.0</td>
-<td>1330.0</td>
-<td>1.00</td>
+<td>3888.0</td>
+<td>3277.0</td>
+<td>1.0</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td data-quarto-table-cell-role="th">threshold[17]</td>
-<td>0.249</td>
-<td>0.372</td>
-<td>-0.444</td>
-<td>0.944</td>
-<td>0.010</td>
-<td>0.007</td>
-<td>1390.0</td>
-<td>1357.0</td>
-<td>1.00</td>
+<td>0.255</td>
+<td>0.378</td>
+<td>-0.420</td>
+<td>0.995</td>
+<td>0.006</td>
+<td>0.006</td>
+<td>4115.0</td>
+<td>2777.0</td>
+<td>1.0</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td data-quarto-table-cell-role="th">threshold[18]</td>
-<td>0.794</td>
-<td>0.335</td>
-<td>0.180</td>
+<td>0.807</td>
+<td>0.344</td>
+<td>0.134</td>
 <td>1.423</td>
-<td>0.008</td>
 <td>0.006</td>
-<td>1591.0</td>
-<td>1638.0</td>
-<td>1.00</td>
+<td>0.006</td>
+<td>3288.0</td>
+<td>2600.0</td>
+<td>1.0</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td data-quarto-table-cell-role="th">threshold[19]</td>
-<td>0.793</td>
-<td>0.370</td>
-<td>0.110</td>
-<td>1.499</td>
-<td>0.009</td>
-<td>0.007</td>
-<td>1689.0</td>
-<td>1201.0</td>
-<td>1.00</td>
+<td>0.797</td>
+<td>0.359</td>
+<td>0.146</td>
+<td>1.491</td>
+<td>0.006</td>
+<td>0.005</td>
+<td>3836.0</td>
+<td>3319.0</td>
+<td>1.0</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td data-quarto-table-cell-role="th">threshold[20]</td>
-<td>2.201</td>
-<td>0.272</td>
-<td>1.723</td>
-<td>2.725</td>
-<td>0.008</td>
+<td>2.205</td>
+<td>0.275</td>
+<td>1.683</td>
+<td>2.718</td>
 <td>0.006</td>
-<td>1133.0</td>
-<td>1333.0</td>
-<td>1.00</td>
+<td>0.004</td>
+<td>2281.0</td>
+<td>2969.0</td>
+<td>1.0</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td data-quarto-table-cell-role="th">threshold[21]</td>
-<td>1.842</td>
-<td>0.349</td>
-<td>1.177</td>
-<td>2.449</td>
-<td>0.009</td>
-<td>0.007</td>
-<td>1388.0</td>
-<td>1316.0</td>
-<td>1.00</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">threshold[22]</td>
-<td>2.444</td>
-<td>0.342</td>
-<td>1.762</td>
-<td>3.046</td>
-<td>0.009</td>
+<td>1.841</td>
+<td>0.356</td>
+<td>1.173</td>
+<td>2.502</td>
 <td>0.006</td>
-<td>1544.0</td>
-<td>1429.0</td>
-<td>1.00</td>
+<td>0.005</td>
+<td>3258.0</td>
+<td>2723.0</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
+<td data-quarto-table-cell-role="th">threshold[22]</td>
+<td>2.433</td>
+<td>0.365</td>
+<td>1.685</td>
+<td>3.074</td>
+<td>0.006</td>
+<td>0.006</td>
+<td>3332.0</td>
+<td>2734.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
 <td data-quarto-table-cell-role="th">threshold[23]</td>
-<td>0.030</td>
-<td>0.724</td>
-<td>-1.373</td>
-<td>1.291</td>
-<td>0.013</td>
-<td>0.016</td>
-<td>3182.0</td>
-<td>1571.0</td>
-<td>1.00</td>
+<td>0.038</td>
+<td>0.736</td>
+<td>-1.279</td>
+<td>1.471</td>
+<td>0.010</td>
+<td>0.012</td>
+<td>6032.0</td>
+<td>3174.0</td>
+<td>1.0</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td data-quarto-table-cell-role="th">threshold[24]</td>
-<td>1.587</td>
-<td>0.538</td>
-<td>0.516</td>
-<td>2.535</td>
-<td>0.013</td>
+<td>1.600</td>
+<td>0.521</td>
+<td>0.619</td>
+<td>2.529</td>
+<td>0.007</td>
 <td>0.009</td>
-<td>1902.0</td>
-<td>1429.0</td>
-<td>1.00</td>
+<td>5217.0</td>
+<td>3024.0</td>
+<td>1.0</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td data-quarto-table-cell-role="th">threshold[25]</td>
-<td>1.507</td>
-<td>0.597</td>
-<td>0.292</td>
-<td>2.507</td>
-<td>0.011</td>
+<td>1.528</td>
+<td>0.577</td>
+<td>0.471</td>
+<td>2.625</td>
 <td>0.008</td>
-<td>2841.0</td>
-<td>1557.0</td>
-<td>1.00</td>
+<td>0.010</td>
+<td>5438.0</td>
+<td>2419.0</td>
+<td>1.0</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td data-quarto-table-cell-role="th">threshold[26]</td>
-<td>1.735</td>
-<td>0.632</td>
-<td>0.582</td>
-<td>2.871</td>
-<td>0.012</td>
-<td>0.008</td>
-<td>3066.0</td>
-<td>1220.0</td>
-<td>1.01</td>
+<td>1.734</td>
+<td>0.625</td>
+<td>0.539</td>
+<td>2.852</td>
+<td>0.010</td>
+<td>0.010</td>
+<td>4180.0</td>
+<td>3111.0</td>
+<td>1.0</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td data-quarto-table-cell-role="th">threshold[27]</td>
-<td>1.047</td>
-<td>0.749</td>
-<td>-0.325</td>
-<td>2.439</td>
-<td>0.014</td>
+<td>1.055</td>
+<td>0.758</td>
+<td>-0.287</td>
+<td>2.528</td>
 <td>0.010</td>
-<td>2780.0</td>
-<td>1363.0</td>
-<td>1.00</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">threshold[28]</td>
-<td>1.156</td>
-<td>0.755</td>
-<td>-0.300</td>
-<td>2.467</td>
-<td>0.014</td>
-<td>0.010</td>
-<td>2965.0</td>
-<td>1382.0</td>
-<td>1.00</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[29]</td>
-<td>0.543</td>
-<td>0.850</td>
-<td>-1.078</td>
-<td>2.144</td>
-<td>0.016</td>
-<td>0.016</td>
-<td>2806.0</td>
-<td>1360.0</td>
-<td>1.00</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">threshold[30]</td>
-<td>1.268</td>
-<td>0.788</td>
-<td>-0.124</td>
-<td>2.844</td>
-<td>0.014</td>
-<td>0.012</td>
-<td>3180.0</td>
-<td>1638.0</td>
-<td>1.00</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[31]</td>
-<td>1.373</td>
-<td>0.781</td>
-<td>-0.118</td>
-<td>2.799</td>
-<td>0.014</td>
-<td>0.011</td>
-<td>2961.0</td>
-<td>1629.0</td>
-<td>1.00</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">threshold[32]</td>
-<td>2.653</td>
-<td>0.732</td>
-<td>1.315</td>
-<td>4.084</td>
-<td>0.015</td>
-<td>0.011</td>
-<td>2384.0</td>
-<td>1292.0</td>
-<td>1.00</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[33]</td>
-<td>0.861</td>
-<td>0.942</td>
-<td>-0.994</td>
-<td>2.554</td>
-<td>0.014</td>
-<td>0.016</td>
-<td>4345.0</td>
-<td>1567.0</td>
-<td>1.00</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">threshold[34]</td>
-<td>1.757</td>
-<td>0.892</td>
-<td>0.128</td>
-<td>3.399</td>
-<td>0.018</td>
 <td>0.013</td>
-<td>2441.0</td>
-<td>1202.0</td>
-<td>1.00</td>
+<td>5754.0</td>
+<td>3219.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">threshold[28]</td>
+<td>1.154</td>
+<td>0.782</td>
+<td>-0.348</td>
+<td>2.596</td>
+<td>0.011</td>
+<td>0.012</td>
+<td>5699.0</td>
+<td>3190.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">threshold[29]</td>
+<td>0.564</td>
+<td>0.827</td>
+<td>-1.042</td>
+<td>1.990</td>
+<td>0.010</td>
+<td>0.013</td>
+<td>6618.0</td>
+<td>3230.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">threshold[30]</td>
+<td>1.270</td>
+<td>0.783</td>
+<td>-0.215</td>
+<td>2.713</td>
+<td>0.010</td>
+<td>0.014</td>
+<td>5746.0</td>
+<td>2863.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">threshold[31]</td>
+<td>1.374</td>
+<td>0.829</td>
+<td>-0.310</td>
+<td>2.778</td>
+<td>0.011</td>
+<td>0.015</td>
+<td>6368.0</td>
+<td>2706.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">threshold[32]</td>
+<td>2.667</td>
+<td>0.710</td>
+<td>1.306</td>
+<td>4.000</td>
+<td>0.010</td>
+<td>0.012</td>
+<td>5269.0</td>
+<td>2574.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">threshold[33]</td>
+<td>0.860</td>
+<td>0.966</td>
+<td>-0.988</td>
+<td>2.619</td>
+<td>0.011</td>
+<td>0.020</td>
+<td>8440.0</td>
+<td>2728.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">threshold[34]</td>
+<td>1.789</td>
+<td>0.909</td>
+<td>0.112</td>
+<td>3.505</td>
+<td>0.011</td>
+<td>0.016</td>
+<td>7497.0</td>
+<td>2778.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">TotalWorkingYears</td>
+<td>0.127</td>
+<td>0.006</td>
+<td>0.116</td>
+<td>0.137</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>886.0</td>
+<td>1654.0</td>
+<td>1.0</td>
 </tr>
 </tbody>
 </table>
@@ -1720,19 +1707,19 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Sat May 25 2024
+<pre><code>Last updated: Tue Dec 16 2025
 
 Python implementation: CPython
-Python version       : 3.11.9
-IPython version      : 8.24.0
+Python version       : 3.13.9
+IPython version      : 9.6.0
 
-bambi     : 0.13.1.dev37+g2a54df76.d20240525
-arviz     : 0.18.0
-numpy     : 1.26.4
-matplotlib: 3.8.4
-pandas    : 2.2.2
+pandas    : 2.3.3
+matplotlib: 3.10.7
+arviz     : 0.22.0
+bambi     : 0.15.1.dev47+g707bbd9e5.d20251216
+numpy     : 2.3.3
 
-Watermark: 2.4.3
+Watermark: 2.5.0
 </code></pre>
 </div>
 </div>
