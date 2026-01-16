@@ -3,10 +3,11 @@
 import hashlib
 import itertools
 import os
+import pathlib
 import shutil
+import requests
 
 from collections import namedtuple
-from urllib.request import urlretrieve
 
 import pandas as pd
 
@@ -68,7 +69,7 @@ distributed under Open Data terms by the Baseball Data Bank.
     ),
     "cherry_blossoms": FileMetadata(
         filename="cherry_blossoms.csv",
-        url="https://figshare.com/ndownloader/files/31072807",
+        url="https://ndownloader.figshare.com/files/31072807",
         checksum="b859dd4f64c231c76ecb80b78f26da71e2f92698c50e0ceb93be0399dee24f51",
         description="""
 Historical Series of Phenological data for Cherry Tree Flowering at Kyoto City. Extracted from
@@ -77,7 +78,7 @@ the `rethinking` library in R.
     ),
     "sleepstudy": FileMetadata(
         filename="sleepstudy.csv",
-        url="https://figshare.com/ndownloader/files/31181002",
+        url="https://ndownloader.figshare.com/files/31181002",
         checksum="0a002bec8be2fa9d40dbbf3d5038e614d113a4fd5bf8813f6f4271c3d6294675",
         description="""
 The average reaction time per day (in milliseconds) for subjects in a sleep deprivation study.
@@ -189,7 +190,7 @@ Biometrics, 47(2), 461-466
 }
 
 
-def get_data_home(data_home: str | None = None):
+def get_data_home(data_home: str | None = None) -> pathlib.Path:
     """Return the path of the Bambi data dir.
 
     This folder is used to avoid downloading the data several times.
@@ -209,7 +210,7 @@ def get_data_home(data_home: str | None = None):
     data_home = os.path.expanduser(data_home)
     if not os.path.exists(data_home):
         os.makedirs(data_home)
-    return data_home
+    return pathlib.Path(data_home)
 
 
 def clear_data_home(data_home: str | None = None):
@@ -263,11 +264,17 @@ def load_data(dataset: str | None = None, data_home: str | None = None):
 
     if dataset in DATASETS:
         datafile = DATASETS[dataset]
-        file_path = os.path.join(home_dir, datafile.filename)
+        file_path = home_dir / datafile.filename
 
         if not os.path.exists(file_path):
-            urlretrieve(datafile.url, file_path)
+            response = requests.get(datafile.url)
+            response.raise_for_status()
+
+            with open(file_path, "wb") as file_obj:
+                file_obj.write(response.content)
+
             checksum = _sha256(file_path)
+
             if datafile.checksum != checksum:
                 raise IOError(
                     f"{file_path} has an SHA256 checksum ({checksum}) differing from expected "
