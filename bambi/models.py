@@ -403,11 +403,13 @@ class Model:
         """
         from bambi.backend.utils import should_use_sparse_dot
 
+        # Model parameter takes precedence
         if self.sparse_dot is not None:
             return self.sparse_dot
-        if config.SPARSE_DOT is True:
-            return True
-        # config.SPARSE_DOT is False or None: auto-detect from backend
+        # Global config takes precedence over auto-detection
+        if config.SPARSE_DOT is not None:
+            return config.SPARSE_DOT
+        # Auto-detect based on inference method
         return should_use_sparse_dot(inference_method)
 
     def set_priors(self, priors=None, common=None, group_specific=None):
