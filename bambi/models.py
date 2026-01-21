@@ -99,8 +99,10 @@ class Model:
     sparse_dot : bool or None, optional
         If `True`, uses sparse matrix multiplication for group-specific effects, which is
         faster on GPU/JAX backends. If `False`, uses indexing, which is faster on CPU.
-        If `None` (default), automatically detects based on `inference_method` in `fit()`.
-        This parameter takes precedence over the global `bmb.config.SPARSE_DOT` setting.
+        If `None` (default), automatically enables sparse_dot for JAX backends (numpyro,
+        blackjax) when calling `fit()`. This parameter takes precedence over the global
+        `bmb.config.SPARSE_DOT` setting. The priority order is: model parameter > global
+        config > auto-detection.
     extra_namespace : dict, optional
         Additional user supplied variables with transformations or data to include in the
         environment where the formula is evaluated. Defaults to `None`.
@@ -372,14 +374,22 @@ class Model:
         )
 
     def build(self):
-        """Set up the model for sampling/fitting
+        """Set up the model for sampling/fitting.
 
         Creates an instance of the underlying PyMC model and adds all the necessary terms to it.
+
+        Notes
+        -----
+        When calling `build()` directly (without `fit()`), the `sparse_dot` setting is
+        resolved as: model parameter > global config > `False`. Auto-detection based on
+        inference method only happens when calling `fit()`.
         """
-        # Resolve sparse_dot: model param > global config
+        # Resolve sparse_dot for building: model param > global config > False
+        # We temporarily set sparse_dot to the effective value during build,
+        # then restore the original value so it can be re-determined on subsequent fit() calls
         original_sparse_dot = self.sparse_dot
-        if self.sparse_dot is None and config.SPARSE_DOT is not None:
-            self.sparse_dot = config.SPARSE_DOT
+        if self.sparse_dot is None:
+            self.sparse_dot = config.SPARSE_DOT if config.SPARSE_DOT is not None else False
 
         self.backend = PyMCModel()
         self.backend.build(self)
@@ -390,6 +400,8 @@ class Model:
         """Determine whether to use sparse matrix multiplication for group-specific effects.
 
         The priority order is: model parameter > global config > auto-detect from backend.
+        Auto-detection enables sparse_dot for JAX backends (numpyro, blackjax) which benefit
+        from sparse matrix multiplication on GPU/TPU.
 
         Parameters
         ----------

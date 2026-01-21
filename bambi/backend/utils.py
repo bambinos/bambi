@@ -205,19 +205,22 @@ def make_weighted_distribution(dist: pm.Distribution):
 
 
 def should_use_sparse_dot(inference_method=None):
-    """Determine whether to use sparse matrix multiplication for group effects.
+    """Determine whether to use sparse matrix multiplication for group-specific effects.
 
-    Sparse matmul is faster on JAX/GPU backends but may be slower on CPU backends.
+    Sparse matrix multiplication is faster on JAX/GPU backends (numpyro, blackjax) but may be
+    slower on CPU backends (pymc, nutpie). This function is used for auto-detection when the
+    user has not explicitly set the `sparse_dot` parameter.
 
     Parameters
     ----------
-    inference_method : str, optional
-        The sampling backend: "pymc", "numpyro", "blackjax", "nutpie", "vi", "laplace".
+    inference_method : str or None, optional
+        The sampling backend: `"pymc"`, `"numpyro"`, `"blackjax"`, `"nutpie"`,
+        `"vi"`, `"laplace"`. If `None`, returns `False`.
 
     Returns
     -------
     bool
-        True for JAX backends (numpyro, blackjax), False otherwise.
+        `True` for JAX backends (numpyro, blackjax), `False` otherwise.
     """
     if inference_method is None:
         return False
