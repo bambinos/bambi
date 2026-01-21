@@ -598,3 +598,149 @@ def test_sparse_dot_multivariate(data_inhaler, mock_pymc_sample):
     idata_dense = model_dense.fit(chains=2)
     idata_sparse = model_sparse.fit(chains=2)
     assert set(az.summary(idata_dense).index) == set(az.summary(idata_sparse).index)
+
+
+class TestSparseDotAutoDetection:
+    """Tests for sparse_dot auto-detection and priority handling."""
+
+    @pytest.fixture
+    def simple_data(self):
+        """Simple data for testing sparse_dot behavior."""
+        rng = np.random.default_rng(42)
+        return pd.DataFrame(
+            {
+                "y": rng.normal(size=20),
+                "x": rng.normal(size=20),
+                "group": ["a"] * 10 + ["b"] * 10,
+            }
+        )
+
+    def test_should_use_sparse_dot_jax_backends(self):
+        """Test that should_use_sparse_dot returns True for JAX backends."""
+        from bambi.backend.utils import should_use_sparse_dot
+
+        assert should_use_sparse_dot("numpyro") is True
+        assert should_use_sparse_dot("blackjax") is True
+        assert should_use_sparse_dot("NUMPYRO") is True  # Case insensitive
+        assert should_use_sparse_dot("BlackJax") is True  # Case insensitive
+
+    def test_should_use_sparse_dot_non_jax_backends(self):
+        """Test that should_use_sparse_dot returns False for non-JAX backends."""
+        from bambi.backend.utils import should_use_sparse_dot
+
+        assert should_use_sparse_dot("pymc") is False
+        assert should_use_sparse_dot("nutpie") is False
+        assert should_use_sparse_dot("vi") is False
+        assert should_use_sparse_dot("laplace") is False
+        assert should_use_sparse_dot(None) is False
+
+    def test_determine_sparse_dot_model_param_precedence(self, simple_data):
+        """Test that model parameter takes precedence over config and auto-detection."""
+        formula = "y ~ x + (1|group)"
+
+        # Model param True overrides everything
+        original_config = bmb.config.SPARSE_DOT
+        bmb.config.SPARSE_DOT = False
+        model = bmb.Model(formula, simple_data, sparse_dot=True)
+        assert model._determine_sparse_dot("pymc") is True
+        assert model._determine_sparse_dot("numpyro") is True
+        bmb.config.SPARSE_DOT = original_config
+
+        # Model param False overrides auto-detection
+        model = bmb.Model(formula, simple_data, sparse_dot=False)
+        assert model._determine_sparse_dot("numpyro") is False
+        assert model._determine_sparse_dot("blackjax") is False
+
+    def test_determine_sparse_dot_config_precedence(self, simple_data):
+        """Test that global config takes precedence over auto-detection."""
+        formula = "y ~ x + (1|group)"
+        original_config = bmb.config.SPARSE_DOT
+
+        # Config True overrides auto-detection returning False
+        bmb.config.SPARSE_DOT = True
+        model = bmb.Model(formula, simple_data, sparse_dot=None)
+        assert model._determine_sparse_dot("pymc") is True
+
+        # Config False prevents auto-detection
+        bmb.config.SPARSE_DOT = False
+        model = bmb.Model(formula, simple_data, sparse_dot=None)
+        assert model._determine_sparse_dot("numpyro") is False
+        assert model._determine_sparse_dot("blackjax") is False
+
+        bmb.config.SPARSE_DOT = original_config
+
+    def test_determine_sparse_dot_auto_detection(self, simple_data):
+        """Test auto-detection when model param and config are None."""
+        formula = "y ~ x + (1|group)"
+        original_config = bmb.config.SPARSE_DOT
+        bmb.config.SPARSE_DOT = None
+
+        model = bmb.Model(formula, simple_data, sparse_dot=None)
+
+        # JAX backends auto-detect to True
+        assert model._determine_sparse_dot("numpyro") is True
+        assert model._determine_sparse_dot("blackjax") is True
+
+        # Non-JAX backends auto-detect to False
+        assert model._determine_sparse_dot("pymc") is False
+        assert model._determine_sparse_dot("nutpie") is False
+
+        bmb.config.SPARSE_DOT = original_config
+
+    def test_build_without_fit_uses_config(self, simple_data, mock_pymc_sample):
+        """Test that build() without fit() uses config, not auto-detection."""
+        formula = "y ~ x + (1|group)"
+        original_config = bmb.config.SPARSE_DOT
+
+        # When config is None and model param is None, build() defaults to False
+        bmb.config.SPARSE_DOT = None
+        model = bmb.Model(formula, simple_data, sparse_dot=None)
+        model.build()
+        # After build, sparse_dot should be restored to original None
+        assert model.sparse_dot is None
+
+        # When config is True, build() uses True
+        bmb.config.SPARSE_DOT = True
+        model = bmb.Model(formula, simple_data, sparse_dot=None)
+        model.build()
+        assert graph_contains_op(model.backend.model["mu"], StructuredDot)
+
+        bmb.config.SPARSE_DOT = original_config
+
+    def test_fit_auto_detects_for_jax(self, simple_data, mock_pymc_sample):
+        """Test that fit() auto-detects sparse_dot for JAX backends."""
+        formula = "y ~ x + (1|group)"
+        original_config = bmb.config.SPARSE_DOT
+        bmb.config.SPARSE_DOT = None
+
+        # Note: We can't actually test JAX backends without JAX installed,
+        # but we can verify the logic by checking the model's sparse_dot after build
+        model = bmb.Model(formula, simple_data, sparse_dot=None)
+
+        # When fitting with pymc (non-JAX), sparse_dot should be False
+        model.fit(inference_method="pymc", draws=10, tune=10, chains=1)
+        # sparse_dot should be restored to None after fit
+        assert model.sparse_dot is None
+        # But the model was built without sparse dot
+        assert not graph_contains_op(model.backend.model["mu"], StructuredDot)
+
+        bmb.config.SPARSE_DOT = original_config
+
+    def test_sparse_dot_preserved_after_fit(self, simple_data, mock_pymc_sample):
+        """Test that original sparse_dot value is preserved after fit()."""
+        formula = "y ~ x + (1|group)"
+
+        # When sparse_dot=None, it should remain None after fit
+        model = bmb.Model(formula, simple_data, sparse_dot=None)
+        model.fit(inference_method="pymc", draws=10, tune=10, chains=1)
+        assert model.sparse_dot is None
+
+        # When sparse_dot=True, it should remain True after fit
+        model = bmb.Model(formula, simple_data, sparse_dot=True)
+        model.fit(inference_method="pymc", draws=10, tune=10, chains=1)
+        assert model.sparse_dot is True
+
+        # When sparse_dot=False, it should remain False after fit
+        model = bmb.Model(formula, simple_data, sparse_dot=False)
+        model.fit(inference_method="pymc", draws=10, tune=10, chains=1)
+        assert model.sparse_dot is False
