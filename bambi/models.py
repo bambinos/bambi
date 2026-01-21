@@ -15,6 +15,7 @@ from arviz_plots import plot_dist
 from arviz_stats import residual_r2
 
 from bambi.backend import PyMCModel
+from bambi.config import config
 from bambi.defaults import get_builtin_family
 from bambi.model_components import ConstantComponent, DistributionalComponent, ResponseComponent
 from bambi.families import Family, univariate
@@ -95,6 +96,11 @@ class Model:
         the actual intercept in all distributional components that have an intercept. Note
         that this changes the interpretation of the prior on the intercept because it refers
         to the intercept of the centered data.
+    sparse_dot : bool or None, optional
+        If `True`, uses sparse matrix multiplication for group-specific effects, which is
+        faster on GPU/JAX backends. If `False`, uses indexing, which is faster on CPU.
+        If `None` (default), automatically detects based on `inference_method` in `fit()`.
+        This parameter takes precedence over the global `bmb.config.SPARSE_DOT` setting.
     extra_namespace : dict, optional
         Additional user supplied variables with transformations or data to include in the
         environment where the formula is evaluated. Defaults to `None`.
@@ -114,6 +120,7 @@ class Model:
         auto_scale=True,
         noncentered=True,
         center_predictors=True,
+        sparse_dot=None,
         extra_namespace=None,
     ):
         # attributes that are set later
@@ -132,6 +139,7 @@ class Model:
         self.noncentered = noncentered
         self.potentials = potentials
         self.center_predictors = center_predictors
+        self.sparse_dot = sparse_dot
 
         # Read and clean data
         if not isinstance(data, pd.DataFrame):
@@ -325,8 +333,12 @@ class Model:
                 )
                 inference_method = method
 
+        # Set sparse_dot based on: model param > global config > auto-detect from backend
         if not self.built:
+            original_sparse_dot = self.sparse_dot
+            self.sparse_dot = self._determine_sparse_dot(inference_method)
             self.build()
+            self.sparse_dot = original_sparse_dot
 
         # Tell user which event is being modeled
         if isinstance(self.family, univariate.Bernoulli):
@@ -364,9 +376,39 @@ class Model:
 
         Creates an instance of the underlying PyMC model and adds all the necessary terms to it.
         """
+        # Resolve sparse_dot: model param > global config
+        original_sparse_dot = self.sparse_dot
+        if self.sparse_dot is None and config.SPARSE_DOT is not None:
+            self.sparse_dot = config.SPARSE_DOT
+
         self.backend = PyMCModel()
         self.backend.build(self)
         self.built = True
+        self.sparse_dot = original_sparse_dot
+
+    def _determine_sparse_dot(self, inference_method):
+        """Determine whether to use sparse matrix multiplication for group-specific effects.
+
+        The priority order is: model parameter > global config > auto-detect from backend.
+
+        Parameters
+        ----------
+        inference_method : str
+            The inference method passed to `fit()`.
+
+        Returns
+        -------
+        bool
+            Whether to use sparse matrix multiplication.
+        """
+        from bambi.backend.utils import should_use_sparse_dot
+
+        if self.sparse_dot is not None:
+            return self.sparse_dot
+        if config.SPARSE_DOT is True:
+            return True
+        # config.SPARSE_DOT is False or None: auto-detect from backend
+        return should_use_sparse_dot(inference_method)
 
     def set_priors(self, priors=None, common=None, group_specific=None):
         """Set priors for one or more existing terms.

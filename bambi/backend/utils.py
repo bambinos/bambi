@@ -202,3 +202,24 @@ def make_weighted_distribution(dist: pm.Distribution):
             )
 
     return WeightedDistribution
+
+
+def should_use_sparse_dot(inference_method=None):
+    """Determine whether to use sparse matrix multiplication for group effects.
+
+    Sparse matmul is faster on JAX/GPU backends but may be slower on CPU backends.
+
+    Parameters
+    ----------
+    inference_method : str, optional
+        The sampling backend: "pymc", "numpyro", "blackjax", "nutpie", "vi", "laplace".
+
+    Returns
+    -------
+    bool
+        True for JAX backends (numpyro, blackjax), False otherwise.
+    """
+    if inference_method is None:
+        return False
+    # JAX backends benefit from sparse matmul on GPU/TPU
+    return inference_method.lower() in {"numpyro", "blackjax"}
