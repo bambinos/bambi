@@ -350,7 +350,8 @@ def test_data_is_copied():
         assert id(adults) != id(model.data)
         assert all(model.data.dtypes[:3] == "category")
 
-    assert all(adults.dtypes[:3] == "object")
+    # NOTE: https://pandas.pydata.org/docs/dev/whatsnew/v3.0.0.html#dedicated-string-data-type-by-default
+    assert all(dtype in ("object", "str") for dtype in adults.dtypes[:3])
 
 
 def test_response_is_censored():
