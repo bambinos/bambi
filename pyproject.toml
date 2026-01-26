@@ -26,7 +26,7 @@ dependencies = [
     "formulae>=0.6.0,<0.7.0",
     "graphviz",
     "matplotlib>=3.9.0",
-    "pandas>=1.0.0",
+    "pandas>=1.0.0,<3",
     "pymc>=5.27.0,<6",
     "sparse>=0.17.0,<0.18",
 ]
@@ -74,6 +74,7 @@ preview = ["pixi-build"]
 bambi = { path = ".", editable = true }
 
 [tool.pixi.dependencies]
+pandas = "<3.0" # Has to be manually specified, otherwise resolution fails
 # NOTE: We get all dependencies we need through installation of Bambi itself
 
 ## Dependencies from conda channels
