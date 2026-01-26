@@ -14,7 +14,7 @@ from pymc.testing import mock_sample_setup_and_teardown
 mock_pymc_sample = pytest.fixture(scope="function")(mock_sample_setup_and_teardown)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def data_random_n100():
     size = 100
     rng = np.random.default_rng(121195)
@@ -35,12 +35,12 @@ def data_random_n100():
     return data
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def data_anes():
     return bmb.load_data("ANES")
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def data_diabetes():
     data = pd.read_csv(pathlib.Path(__file__).parent / "data" / "diabetes.txt", sep="\t")
     data["age_grp"] = 0
@@ -49,7 +49,7 @@ def data_diabetes():
     return data
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def data_crossed():
     """
     Group specific effects:
@@ -74,7 +74,7 @@ def data_crossed():
     return data
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def data_beetle():
     return pd.DataFrame(
         {
@@ -85,34 +85,36 @@ def data_beetle():
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def data_gasoline():
     return pd.read_csv(pathlib.Path(__file__).parent / "data" / "gasoline.csv")
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def data_inhaler():
     data = pd.read_csv(pathlib.Path(__file__).parent / "data" / "inhaler.csv")
     data["rating"] = pd.Categorical(data["rating"], categories=[1, 2, 3, 4])
     return data
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def data_kidney():
     data = bmb.load_data("kidney")
     data["status"] = np.where(data["censored"] == 0, "none", "right")
     return data
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def data_multinomial(data_inhaler):
     df = data_inhaler.groupby(["treat", "carry", "rating"], as_index=False).size()
-    df = df.pivot(index=["treat", "carry"], columns="rating", values="size").reset_index()
+    df = pd.pivot_table(
+        df, values="size", columns="rating", index=["treat", "carry"], fill_value=0
+    ).reset_index()
     df.columns = ["treat", "carry", "y1", "y2", "y3", "y4"]
     return df
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def data_sleepstudy():
     return bmb.load_data("sleepstudy")
 
