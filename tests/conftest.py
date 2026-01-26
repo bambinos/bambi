@@ -107,7 +107,9 @@ def data_kidney():
 @pytest.fixture(scope="module")
 def data_multinomial(data_inhaler):
     df = data_inhaler.groupby(["treat", "carry", "rating"], as_index=False).size()
-    df = df.pivot(index=["treat", "carry"], columns="rating", values="size").reset_index()
+    df = pd.pivot_table(
+        df, values="size", columns="rating", index=["treat", "carry"], fill_value=0
+    ).reset_index()
     df.columns = ["treat", "carry", "y1", "y2", "y3", "y4"]
     return df
 
