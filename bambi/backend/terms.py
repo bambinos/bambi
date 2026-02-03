@@ -478,7 +478,7 @@ class ResponseTerm:
 
 
 class HSGPTerm:
-    """A term that is compiled to a HSGP term in PyMC
+    """A term that is compiled to an HSGP term in PyMC
 
     This instance contains information of a bambi.HSGPTerm and knows how to build the distributions
     in PyMC that represent the HSGP latent approximation.
