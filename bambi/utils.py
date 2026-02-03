@@ -145,7 +145,7 @@ def is_stateful_transform(component):
 
 
 def is_hsgp_term(term):
-    """Determines if formulae term represents a HSGP term
+    """Determines if formulae term represents an HSGP term
 
     Bambi uses this function to detect HSGP terms and treat them in a different way.
     """
