@@ -13,7 +13,7 @@ GP_VALID_PRIORS = tuple(value for value in VALID_PRIORS if value is not None)
 # pylint: disable = invalid-name
 class HSGPTerm(BaseTerm):
     def __init__(self, term, prior, prefix=None):
-        """Create a term for a HSGP model component
+        """Create a term for an HSGP model component
 
         Parameters
         ----------
