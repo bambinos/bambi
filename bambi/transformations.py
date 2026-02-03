@@ -229,7 +229,7 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
             The proportion extension factor. Se `HSGP.reconciliate_shape` to see how it is
             broadcasted/recycled. Defaults to `None`.
         by : array-like, optional
-            The values of a variable to group by. It is used to create a HSGP term by group.
+            The values of a variable to group by. It is used to create an HSGP term by group.
             Defaults to `None`.
         cov : str, optional
             The name of the covariance function to use. Defaults to "ExpQuad".
