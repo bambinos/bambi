@@ -123,46 +123,45 @@ This creates a copy of the code under your GitHub user account.
 
 We recommend that your contribution complies with the following guidelines before you submit a pull request:
 
-- If your pull request addresses an issue, please use the pull request title to describe the issue and mention the issue number in the pull request description.
+- If your pull request addresses an issue, please use the pull request title to describe the issue
+and mention the issue number in the pull request description.
 This will make sure a link back to the original issue is created.
 
-- All public methods must have informative docstrings with sample usage when appropriate.
+- Please use a Draft Pull Request to indicate an incomplete contribution or work in progress.
+Draft PRs may be useful to (1) signal you are working on something and avoid duplicated work,
+(2) request early feedback on functionality or API, or (3) seek collaborators.
 
-- To indicate a work in progress please mark the PR as `draft`.
-  Drafts may be useful to (1) indicate you are working on something to avoid duplicated work,
-  (2) request broad review of functionality or API, or (3) seek collaborators.
+- Run any of the pre-existing examples notebooks that contain analyses that would be affected by
+your changes to ensure that nothing breaks. This is a useful opportunity to not only check your
+work for bugs that might not be revealed by unit test, but also to show how your contribution 
+improves ArviZ for end users.
 
-- All other tests pass when everything is rebuilt from scratch.
+- All public functions and methods must have informative NumPy-style docstrings,
+including Examples and, when appropriate, See Also, References, and Notes.
+
+- New functionality must be covered by tests, and tests context must follow the
+[pytest fixture pattern](https://docs.pytest.org/en/latest/fixture.html#fixture).
 
 - When adding additional functionality, provide at least one example script or Jupyter Notebook in the `bambi/examples/` folder.
 Have a look at other examples for reference. Examples should demonstrate why the new functionality is useful in practice and,
 if possible, compare it to other methods available in Bambi.
 
-- Added tests follow the [pytest fixture pattern](https://docs.pytest.org/en/latest/fixture.html#fixture)
+- Your code follows the style guidelines of the project:
 
-- Documentation and high-coverage tests are necessary for enhancements to be accepted.
-
-- Documentation follows NumPy style guide
-
-- Run any of the pre-existing examples in `examples` that contain analyses that would be affected by your changes to ensure that nothing breaks.
-This is a useful opportunity to not only check your work for bugs that might not be revealed by unit test, but also to show how your contribution improves Bambi for end users.
-
-- Code coverage **cannot** decrease. Coverage can be checked with **pytest-cov** package:
-
-  ```bash
-  pytest --cov=bambi --cov-report=html tests
-  ```
-
-- Your code passes black
-
-  ```bash
-  black bambi
+  ```shell
+  pixi run -e dev pre-commit run --all
   ```
 
 - Your code passes pylint
 
-  ```bash
-  pylint bambi
+  ```shell
+  pixi run -e dev pylint bambi
+  ```
+
+* All **tests must pass**.
+
+  ```shell
+  pixi run -e dev pytest tests
   ```
 
 **This guide was derived from the [ArviZ guide to contributing](https://github.com/arviz-devs/arviz/blob/main/CONTRIBUTING.md)**
