@@ -69,13 +69,13 @@ def get_default_prior(term_type, **kwargs):
 
     The following summarises default priors for each type of term:
 
-    * intercept: Normal prior.
-    * common: Normal prior.
-    * intercept_flat: Uniform prior.
-    * common_flat: Uniform prior.
-    * group_specific: Normal prior where its sigma has a HalfNormal hyperprior.
-    * group_specific_flat: Normal prior where its sigma has a HalfFlat hyperprior.
-    * hsgp: The priors depend on the value passed to `kwargs["cov_func"]`.
+    - intercept: Normal prior.
+    - common: Normal prior.
+    - intercept_flat: Uniform prior.
+    - common_flat: Uniform prior.
+    - group_specific: Normal prior where its sigma has a HalfNormal hyperprior.
+    - group_specific_flat: Normal prior where its sigma has a HalfFlat hyperprior.
+    - hsgp: The priors depend on the value passed to `kwargs["cov_func"]`.
         See `HSGP_COV_PARAMS_DEFAULT_PRIORS`.
 
     Parameters

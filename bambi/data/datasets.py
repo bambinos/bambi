@@ -127,10 +127,12 @@ information.
 - weekday : day of the week
 - workingday : if day is neither weekend nor holiday is 1, otherwise is 0.
 - weathersit :
-    * 1: Clear, Few clouds, Partly cloudy, Partly cloudy
-    * 2: Mist + Cloudy, Mist + Broken clouds, Mist + Few clouds, Mist
-    * 3: Light Snow, Light Rain + Thunderstorm + Scattered clouds, Light Rain + Scattered clouds
-    * 4: Heavy Rain + Ice Pallets + Thunderstorm + Mist, Snow + Fog
+
+    - 1: Clear, Few clouds, Partly cloudy, Partly cloudy
+    - 2: Mist + Cloudy, Mist + Broken clouds, Mist + Few clouds, Mist
+    - 3: Light Snow, Light Rain + Thunderstorm + Scattered clouds, Light Rain + Scattered clouds
+    - 4: Heavy Rain + Ice Pallets + Thunderstorm + Mist, Snow + Fog
+
 - temperature : Normalized temperature in Celsius.
     The values are derived via (t-t_min)/(t_max-t_min), t_min=-8, t_max=+39 (only in hourly scale)
 - atemp: Normalized feeling temperature in Celsius.
@@ -153,16 +155,16 @@ The data was extracted from the 1974 Motor Trend US magazine, and comprises fuel
 aspects of automobile design and performance for 32 automobiles (1973--74 models).
 The following is a description of the variables:
 
-* mpg: Miles/(US) gallon
-* cyl: Number of cylinders
-* disp: Displacement (cu.in.)
-* hp: Gross horsepower
-* drat: Rear axle ratio
-* wt: Weight (1000 lbs)
-* qsec: 1/4 mile time
-* vs: Engine (0 = V-shaped, 1 = straight)
-* am: Transmission (0 = automatic, 1 = manual)
-* gear: Number of forward gears
+- mpg: Miles/(US) gallon
+- cyl: Number of cylinders
+- disp: Displacement (cu.in.)
+- hp: Gross horsepower
+- drat: Rear axle ratio
+- wt: Weight (1000 lbs)
+- qsec: 1/4 mile time
+- vs: Engine (0 = V-shaped, 1 = straight)
+- am: Transmission (0 = automatic, 1 = manual)
+- gear: Number of forward gears
 """,
     ),
     "kidney": FileMetadata(
@@ -174,13 +176,13 @@ It describes the first and second recurrence times of infection in kidney patien
 information on risk variables such as age, sex, and disease type.
 This dataset is taken from McGilchrist and Aisbett (1991).
 
-* time: Days to first or second recurrence of the infection, or the time of censoring
-* censored: Indicates censoring status. 0 indicates no censoring and 1 indicates right censoring
-* patient: Patient ID
-* recur: Indicates if the infection occurs for first or second time.
-* age: Age of the patient
-* sex: Sex of the patient
-* disease: The type of disease. Can be "AN", "GN", "PKG", or "other"
+- time: Days to first or second recurrence of the infection, or the time of censoring
+- censored: Indicates censoring status. 0 indicates no censoring and 1 indicates right censoring
+- patient: Patient ID
+- recur: Indicates if the infection occurs for first or second time.
+- age: Age of the patient
+- sex: Sex of the patient
+- disease: The type of disease. Can be "AN", "GN", "PKG", or "other"
 
 McGilchrist, C. A., & Aisbett, C. W. (1991). Regression with frailty in survival analysis.
 Biometrics, 47(2), 461-466

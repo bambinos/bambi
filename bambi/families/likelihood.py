@@ -45,8 +45,8 @@ class Likelihood:
 
     Notes
     -----
-    * `parent` must be in `params`
-    * `parent` is inferred from the `name` if it is a known name
+    - `parent` must be in `params`
+    - `parent` is inferred from the `name` if it is a known name
     """
 
     DISTRIBUTIONS = DISTRIBUTIONS
