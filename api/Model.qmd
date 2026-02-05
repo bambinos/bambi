@@ -178,7 +178,26 @@ Fit the model using PyMC
 
 <code>[**init**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'auto\']{.parameter-default}</code>
 
-:   Initialization method. Defaults to `"auto"`. The available methods are: * auto: Use `"jitter+adapt_diag"` and if this method fails it uses `"adapt_diag"`. * adapt_diag: Start with an identity mass matrix and then adapt a diagonal based on the variance of the tuning samples. All chains use the test value (usually the prior mean) as starting point. * jitter+adapt_diag: Same as `"adapt_diag"`, but use test value plus a uniform jitter in [-1, 1] as starting point in each chain. * advi+adapt_diag: Run ADVI and then adapt the resulting diagonal mass matrix based on the sample variance of the tuning samples. * advi+adapt_diag_grad: Run ADVI and then adapt the resulting diagonal mass matrix based on the variance of the gradients during tuning. This is **experimental** and might be removed in a future release. * advi: Run ADVI to estimate posterior mean and diagonal mass matrix. * advi_map: Initialize ADVI with MAP and use MAP as starting point. * map: Use the MAP as starting point. This is strongly discouraged. * adapt_full: Adapt a dense mass matrix using the sample covariances. All chains use the test value (usually the prior mean) as starting point. * jitter+adapt_full: Same as `"adapt_full"`, but use test value plus a uniform jitter in [-1, 1] as starting point in each chain.
+:   Initialization method. Defaults to `"auto"`. The available methods are:
+
+    - `"auto"`: Use `"jitter+adapt_diag"` and if this method fails it uses `"adapt_diag"`.
+    - `"adapt_diag"`: Start with an identity mass matrix and then adapt a diagonal based on
+    the variance of the tuning samples. All chains use the test value
+    (usually the prior mean) as starting point.
+    - `"jitter+adapt_diag"`: Same as `"adapt_diag"`, but use test value plus a uniform
+    jitter in [-1, 1] as starting point in each chain.
+    - `"advi+adapt_diag"`: Run ADVI and then adapt the resulting diagonal mass matrix based
+    on the sample variance of the tuning samples.
+    - `"advi+adapt_diag_grad"`: Run ADVI and then adapt the resulting diagonal mass matrix
+    based on the variance of the gradients during tuning. This is **experimental** and might
+    be removed in a future release.
+    - `"advi"`: Run ADVI to estimate posterior mean and diagonal mass matrix.
+    - `"advi_map"`: Initialize ADVI with MAP and use MAP as starting point.
+    - `"map"`: Use the MAP as starting point. This is strongly discouraged.
+    - `"adapt_full"`: Adapt a dense mass matrix using the sample covariances.
+    All chains use the test value (usually the prior mean) as starting point.
+    - `"jitter+adapt_full"`: Same as `"adapt_full"`, but use test value plus a uniform
+    jitter in [-1, 1] as starting point in each chain.
 
 <code>[**n_init**]{.parameter-name} [:]{.parameter-annotation-sep} [[int](`int`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [50000]{.parameter-default}</code>
 
@@ -505,7 +524,6 @@ of the residuals. For details of the Bayesian R² see [1]_.
 
 .. [1] Gelman et al. *R-squared for Bayesian regression models*.
     The American Statistician. 73(3) (2019). <https://doi.org/10.1080/00031305.2018.1549100>
-    preprint <http://www.stat.columbia.edu/~gelman/research/published/bayes_R2_v3.pdf]>.
 
 ### set_alias { #bambi.Model.set_alias }
 

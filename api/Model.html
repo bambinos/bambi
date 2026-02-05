@@ -169,7 +169,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../api/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Function reference</span></a>
+ <span class="menu-text">Bambi</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -569,7 +569,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </dd>
 <dt><code><span class="parameter-name"><strong>init</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'auto'</span></code></dt>
 <dd>
-<p>Initialization method. Defaults to <code>"auto"</code>. The available methods are: * auto: Use <code>"jitter+adapt_diag"</code> and if this method fails it uses <code>"adapt_diag"</code>. * adapt_diag: Start with an identity mass matrix and then adapt a diagonal based on the variance of the tuning samples. All chains use the test value (usually the prior mean) as starting point. * jitter+adapt_diag: Same as <code>"adapt_diag"</code>, but use test value plus a uniform jitter in [-1, 1] as starting point in each chain. * advi+adapt_diag: Run ADVI and then adapt the resulting diagonal mass matrix based on the sample variance of the tuning samples. * advi+adapt_diag_grad: Run ADVI and then adapt the resulting diagonal mass matrix based on the variance of the gradients during tuning. This is <strong>experimental</strong> and might be removed in a future release. * advi: Run ADVI to estimate posterior mean and diagonal mass matrix. * advi_map: Initialize ADVI with MAP and use MAP as starting point. * map: Use the MAP as starting point. This is strongly discouraged. * adapt_full: Adapt a dense mass matrix using the sample covariances. All chains use the test value (usually the prior mean) as starting point. * jitter+adapt_full: Same as <code>"adapt_full"</code>, but use test value plus a uniform jitter in [-1, 1] as starting point in each chain.</p>
+<p>Initialization method. Defaults to <code>"auto"</code>. The available methods are:</p>
+<ul>
+<li><code>"auto"</code>: Use <code>"jitter+adapt_diag"</code> and if this method fails it uses <code>"adapt_diag"</code>.</li>
+<li><code>"adapt_diag"</code>: Start with an identity mass matrix and then adapt a diagonal based on the variance of the tuning samples. All chains use the test value (usually the prior mean) as starting point.</li>
+<li><code>"jitter+adapt_diag"</code>: Same as <code>"adapt_diag"</code>, but use test value plus a uniform jitter in [-1, 1] as starting point in each chain.</li>
+<li><code>"advi+adapt_diag"</code>: Run ADVI and then adapt the resulting diagonal mass matrix based on the sample variance of the tuning samples.</li>
+<li><code>"advi+adapt_diag_grad"</code>: Run ADVI and then adapt the resulting diagonal mass matrix based on the variance of the gradients during tuning. This is <strong>experimental</strong> and might be removed in a future release.</li>
+<li><code>"advi"</code>: Run ADVI to estimate posterior mean and diagonal mass matrix.</li>
+<li><code>"advi_map"</code>: Initialize ADVI with MAP and use MAP as starting point.</li>
+<li><code>"map"</code>: Use the MAP as starting point. This is strongly discouraged.</li>
+<li><code>"adapt_full"</code>: Adapt a dense mass matrix using the sample covariances. All chains use the test value (usually the prior mean) as starting point.</li>
+<li><code>"jitter+adapt_full"</code>: Same as <code>"adapt_full"</code>, but use test value plus a uniform jitter in [-1, 1] as starting point in each chain.</li>
+</ul>
 </dd>
 <dt><code><span class="parameter-name"><strong>n_init</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">50000</span></code></dt>
 <dd>
@@ -901,7 +913,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="references" class="level4 doc-section doc-section-references">
 <h4 class="doc-section doc-section-references anchored" data-anchor-id="references">References</h4>
-<p>.. [1] Gelman et al.&nbsp;<em>R-squared for Bayesian regression models</em>. The American Statistician. 73(3) (2019). <a href="https://doi.org/10.1080/00031305.2018.1549100" class="uri">https://doi.org/10.1080/00031305.2018.1549100</a> preprint <a href="http://www.stat.columbia.edu/~gelman/research/published/bayes_R2_v3.pdf%5D" class="uri">http://www.stat.columbia.edu/~gelman/research/published/bayes_R2_v3.pdf]</a>.</p>
+<p>.. [1] Gelman et al.&nbsp;<em>R-squared for Bayesian regression models</em>. The American Statistician. 73(3) (2019). <a href="https://doi.org/10.1080/00031305.2018.1549100" class="uri">https://doi.org/10.1080/00031305.2018.1549100</a></p>
 </section>
 </section>
 <section id="bambi.Model.set_alias" class="level3">
@@ -1356,8 +1368,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../api/index.html" class="pagination-link" aria-label="Function reference">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Function reference</span>
+      <a href="../api/index.html" class="pagination-link" aria-label="Bambi">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Bambi</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
