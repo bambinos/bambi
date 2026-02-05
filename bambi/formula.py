@@ -100,9 +100,10 @@ def check_ordinal_formula(formula: Formula) -> Formula:
     """Check if a supplied formula can be used with an ordinal model.
 
     Ordinal models have the following constrains (for the moment):
-    * A single formula must be passed. This is because Bambi does not support  modeling the
+
+    - A single formula must be passed. This is because Bambi does not support  modeling the
     thresholds as a function of predictors.
-    * The intercept is omitted. This is to avoid non-identifiability issues between the intercept
+    - The intercept is omitted. This is to avoid non-identifiability issues between the intercept
     and the thresholds.
     """
     if len(formula.additionals) > 0:

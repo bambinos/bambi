@@ -23,10 +23,10 @@ def censored(*args):
 
     Valid censoring statuses are:
 
-    * "left": left censoring
-    * "none": no censoring
-    * "right": right censoring
-    * "interval": interval censoring
+    - "left": left censoring
+    - "none": no censoring
+    - "right": right censoring
+    - "interval": interval censoring
 
     Interval censoring is supported by this function but not supported by PyMC, so Bambi
     does not support interval censoring for now.
@@ -333,13 +333,14 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
 
         The behavior of the method depends on the type of `value` in the following way.
         If value is of type...
-        * `int`: the same value is recycled for all variables and groups.
-        * `Sequence[int]`: it represents the values by variable and it is recycled for all groups.
-        * `Sequence[Sequence[int]]`: it represents the values by variable and by group and thus
+
+        - `int`: the same value is recycled for all variables and groups.
+        - `Sequence[int]`: it represents the values by variable and it is recycled for all groups.
+        - `Sequence[Sequence[int]]`: it represents the values by variable and by group and thus
         no recycling applies. Must be of shape `(groups_n, variables_n)`.
-        * `ndarray`:
-            * If one dimensional, it behaves as `Sequence[int]`
-            * If two dimensional, it behaves as `Sequence[Sequence[int]]`
+        - `ndarray`:
+            - If one dimensional, it behaves as `Sequence[int]`
+            - If two dimensional, it behaves as `Sequence[Sequence[int]]`
         """
         value = np.asarray(value)
         shape = value.shape
