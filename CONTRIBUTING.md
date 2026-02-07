@@ -126,13 +126,7 @@ The documentation is built using [Quarto](https://quarto.org/) with [quartodoc](
 ### Prerequisites
 
 - The `dev` Pixi environment must be installed (see [Steps](#steps) above).
-- [Quarto](https://quarto.org/docs/get-started/) must be installed separately. On macOS you can install it via Homebrew:
-
-  ```bash
-  brew install quarto
-  ```
-
-  For other platforms, follow the [official Quarto installation instructions](https://quarto.org/docs/get-started/).
+- [Quarto](https://quarto.org/) must be installed separately using the [official Quarto installation instructions](https://quarto.org/docs/get-started/).
 
 ### Building the docs
 
