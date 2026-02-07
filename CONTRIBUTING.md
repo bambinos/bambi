@@ -145,7 +145,7 @@ The documentation is built using [Quarto](https://quarto.org/) with [quartodoc](
    quarto render docs/
    ```
 
-   > **Tip:** Rendering the full site executes all example notebooks, which can take a significant amount of time.
+   > **Tip:** Rendering the full site renders all example notebooks from scratch, which can take a significant amount of time.
    > To render a single notebook, use `quarto render docs/notebooks/<notebook_name>.ipynb`.
 
    **Preview general docs content** (notebooks, `.qmd` pages — no API reference changes):
