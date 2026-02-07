@@ -17,4 +17,10 @@ repos:
       - id: end-of-file-fixer
         types: [text]
       - id: check-added-large-files
+        name: check-added-large-files (general, 2MB)
         args: ["--maxkb=2048"]
+        exclude: \.ipynb$
+      - id: check-added-large-files
+        name: check-added-large-files (notebooks, 10MB)
+        args: ["--maxkb=10240"]
+        files: \.ipynb$
