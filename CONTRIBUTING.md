@@ -119,6 +119,47 @@ This creates a copy of the code under your GitHub user account.
    Click the **'Pull Request'** button to send your changes to the project's maintainers for review.
    This will send an email to the committers.
 
+## Building the documentation locally
+
+The documentation is built using [Quarto](https://quarto.org/) with [quartodoc](https://github.com/machow/quartodoc) for the API reference. The `dev` environment already includes all the necessary dependencies.
+
+### Prerequisites
+
+- The `dev` Pixi environment must be installed (see [Steps](#steps) above).
+- [Quarto](https://quarto.org/docs/get-started/) must be installed separately. On macOS you can install it via Homebrew:
+
+  ```bash
+  brew install quarto
+  ```
+
+  For other platforms, follow the [official Quarto installation instructions](https://quarto.org/docs/get-started/).
+
+### Building the docs
+
+1. Activate the `dev` environment:
+
+   ```bash
+   pixi shell -e dev
+   ```
+
+2. Generate the API reference pages with quartodoc:
+
+   ```bash
+   quartodoc build --config docs/_quarto.yml
+   ```
+
+3. Preview the docs locally (with live reload):
+
+   ```bash
+   quarto preview docs/
+   ```
+
+   Or render the full site (output goes to `docs/_site/`):
+
+   ```bash
+   quarto render docs/
+   ```
+
 ## Pull request checklist
 
 We recommend that your contribution complies with the following guidelines before you submit a pull request:
