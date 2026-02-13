@@ -5,7 +5,8 @@ from typing import Any, Callable, Optional
 import numpy as np
 from formulae.terms.call import Call
 from formulae.terms.call_resolver import LazyVariable
-from pandas import DataFrame
+from pandas import DataFrame, Series
+from pandas.core.groupby import DataFrameGroupBy, SeriesGroupBy
 
 from bambi import Model
 from bambi.utils import get_aliased_name
@@ -47,7 +48,9 @@ def get_response_and_target(model: Model, target: str) -> tuple[str, str | None]
 def aggregate(
     data: DataFrame,
     by: Optional[str | list[str]],
-    agg_fn: Callable[[DataFrame], DataFrame] = lambda df: df.mean(),
+    agg_fn: Callable[
+        [DataFrame | Series | DataFrameGroupBy | SeriesGroupBy], DataFrame
+    ] = lambda df: df.mean(),
 ) -> DataFrame:
     """Group data by variable(s) and apply an aggregation function.
 
@@ -68,15 +71,19 @@ def aggregate(
     keywords = ["estimate", "lower", "upper"]
     # Lower and upper columns can have different names
     # For example, lower_0.03% or lower_0.05%
-    stat_cols = [
+    selector_cols = [
         col for col in data.columns if any(keyword in col for keyword in keywords)
     ]
 
     match by:
         case None:
             return data
+        case "all":
+            return agg_fn(data[selector_cols])
         case _:
-            return agg_fn(data.groupby(by=by, observed=True)[stat_cols]).reset_index()
+            return agg_fn(
+                data.groupby(by=by, observed=True)[selector_cols]
+            ).reset_index()
 
 
 def get_model_terms(model: Model) -> dict:

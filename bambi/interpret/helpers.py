@@ -3,19 +3,20 @@ from itertools import combinations
 from typing import Any, Callable
 
 import numpy as np
+import pandas as pd
 import xarray as xr
 from arviz import InferenceData
 from pandas import DataFrame
 from xarray import DataArray
 
-from .types import Contrast, Variable
+from .types import ContrastVariable
 
 
 def create_inference_data(
     preds_idata: InferenceData, preds_data: DataFrame
 ) -> InferenceData:
     """Create a new InferenceData object by replacing the observed_data group with the
-    'preds_data'.
+    `preds_data`.
 
     Parameters
     ----------
@@ -60,7 +61,7 @@ def create_inference_data(
 
 
 def filter_draws(
-    val: Any, idata: InferenceData, group: str, target: str, variable: Variable
+    val: Any, idata: InferenceData, group: str, target: str, variable: pd.Series
 ) -> DataArray:
     """Filter draws from an InferenceData group based on variable values.
 
@@ -74,7 +75,7 @@ def filter_draws(
         The name of the group to filter from (e.g., 'posterior', 'posterior_predictive').
     target : str
         The target variable name within the group.
-    variable : Variable
+    variable : pd.Series
         The variable (pandas Series) to use for filtering.
 
     Returns
@@ -99,19 +100,19 @@ def filter_draws(
 
 def compare(
     idata: InferenceData,
-    contrast: Contrast,
+    contrast: ContrastVariable,
     target: str,
     group: str,
     comparison_fn: Callable,
 ) -> dict[str, DataArray]:
-    """Compare samples in an InferenceData group given the Contrast variables.
+    """Compare samples in an InferenceData group given a `ContrastVariable`.
 
     Parameters
     ----------
     idata : InferenceData
         The InferenceData object containing the samples to compare.
-    contrast : Contrast
-        The Contrast object specifying the variable to create contrasts for.
+    contrast : ContrastVariable
+        The ContrastVariable specifying the variable to create contrasts for.
     target : str
         The target variable name to compare within the group.
     group : str
