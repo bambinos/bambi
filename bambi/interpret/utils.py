@@ -79,7 +79,7 @@ def aggregate(
         case None:
             return data
         case "all":
-            return agg_fn(data[selector_cols])
+            return agg_fn(data[selector_cols]).to_frame().transpose()
         case _:
             return agg_fn(
                 data.groupby(by=by, observed=True)[selector_cols]

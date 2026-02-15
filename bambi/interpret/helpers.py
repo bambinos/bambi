@@ -9,7 +9,7 @@ from arviz import InferenceData
 from pandas import DataFrame
 from xarray import DataArray
 
-from .types import ContrastVariable
+from .types import ComparisonVariable
 
 
 def create_inference_data(
@@ -86,7 +86,7 @@ def filter_draws(
     coordinate_name = list(idata["data"].coords)[0]
 
     # Get indices where condition is true
-    # np.logical_and.reduce is useful if multiple conditions (contrast vals)
+    # np.logical_and.reduce is useful if there are multiple conditions (contrast values)
     idx = np.where(np.logical_and.reduce([idata["data"][variable.name] == val]))[0]
     draws = idata[group].isel({coordinate_name: idx})[target]
 
@@ -100,19 +100,19 @@ def filter_draws(
 
 def compare(
     idata: InferenceData,
-    contrast: ContrastVariable,
+    contrast: ComparisonVariable,
     target: str,
     group: str,
     comparison_fn: Callable,
 ) -> dict[str, DataArray]:
-    """Compare samples in an InferenceData group given a `ContrastVariable`.
+    """Compare samples in an InferenceData group given a `ComparisonVariable`.
 
     Parameters
     ----------
     idata : InferenceData
         The InferenceData object containing the samples to compare.
-    contrast : ContrastVariable
-        The ContrastVariable specifying the variable to create contrasts for.
+    contrast : ComparisonVariable
+    The ComparisonVariable specifying the variable to create contrasts for.
     target : str
         The target variable name to compare within the group.
     group : str

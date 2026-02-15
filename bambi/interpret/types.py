@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, NamedTuple
 
 import numpy as np
 import pandas as pd
+from arviz import InferenceData
 from pandas import DataFrame, Series
 from pandas.api.types import is_float_dtype, is_integer_dtype, is_numeric_dtype
 
@@ -14,11 +15,14 @@ from .validate import Values, validate_category_values, validate_numeric_values
 DefaultStrategy = Callable[[Series], Series]
 
 
-def _contrast_defaults(series: Series) -> Series:
+def _comparison_defaults(series: Series) -> Series:
     """Generate default contrast values based on dtype."""
     match series.dtype:
         case pd.CategoricalDtype():
-            return pd.Series(series, name=series.name)
+            # For default categorical dtypes, return all the unique categories
+            return pd.Series(series.cat.categories, name=series.name).astype(
+                series.dtype
+            )
         case dtype if is_float_dtype(dtype):
             mean = series.mean()
             return pd.Series([mean - 0.5, mean + 0.5], name=series.name).astype(dtype)
@@ -43,6 +47,21 @@ def _conditional_defaults(series: Series) -> Series:
             return pd.Series(series.unique(), name=series.name).astype(dtype)
         case _:
             raise TypeError(f"Unsupported dtype for conditional: {series.dtype}")
+
+
+def _slope_defaults(series: Series, eps: float) -> Series:
+    """Generate default wrt values: evaluation point + epsilon perturbation."""
+    match series.dtype:
+        case dtype if is_float_dtype(dtype):
+            x = series.mean()
+            return pd.Series([x, x + eps], name=series.name)
+        case dtype if is_integer_dtype(dtype):
+            x = float(series.mode().iloc[0])
+            return pd.Series([x, x + eps], name=series.name)
+        case _:
+            raise TypeError(
+                f"slopes() requires a numeric 'wrt' variable, got dtype: {series.dtype}"
+            )
 
 
 def _default_defaults(series: Series) -> Series:
@@ -111,7 +130,7 @@ def _resolve_values(
 
 
 @dataclass(frozen=True)
-class ContrastVariable:
+class ComparisonVariable:
     """A single variable with values to compare across.
 
     Parameters
@@ -126,8 +145,8 @@ class ContrastVariable:
     def from_param(
         data: DataFrame,
         contrast: str | dict[str, Values],
-    ) -> ContrastVariable:
-        """Create a ContrastVariable from user input.
+    ) -> ComparisonVariable:
+        """Create a ComparisonVariable from user input.
 
         Parameters
         ----------
@@ -139,7 +158,7 @@ class ContrastVariable:
 
         Returns
         -------
-        ContrastVariable
+        ComparisonVariable
 
         Raises
         ------
@@ -150,10 +169,10 @@ class ContrastVariable:
         """
         match contrast:
             case str():
-                series = _resolve_values(contrast, data, None, _contrast_defaults)
+                series = _resolve_values(contrast, data, None, _comparison_defaults)
             case dict() if len(contrast) == 1:
                 name, values = next(iter(contrast.items()))
-                series = _resolve_values(name, data, values, _contrast_defaults)
+                series = _resolve_values(name, data, values, _comparison_defaults)
             case dict():
                 raise ValueError(
                     f"Contrast dict must have exactly one key-value pair, got {len(contrast)}"
@@ -166,7 +185,7 @@ class ContrastVariable:
                 f"Contrast '{series.name}' must contain at least 2 values, got {len(series)}"
             )
 
-        return ContrastVariable(variable=series)
+        return ComparisonVariable(variable=series)
 
 
 @dataclass(frozen=True)
@@ -277,3 +296,88 @@ class DefaultVariables:
                 for name in default_names
             )
         )
+
+
+@dataclass(frozen=True)
+class SlopeVariable:
+    """A variable for computing slopes via finite differences.
+
+    Contains exactly two values [x, x + eps] for the wrt variable,
+    where x is the evaluation point and eps is the perturbation size.
+
+    Parameters
+    ----------
+    variable : Series
+        A pandas Series containing exactly 2 values: [x, x + eps].
+    eps : float
+        The perturbation size used for finite differencing.
+    """
+
+    variable: Series
+    eps: float
+
+    @staticmethod
+    def from_param(
+        data: DataFrame,
+        wrt: str | dict[str, float | int],
+        eps: float = 1e-4,
+    ) -> SlopeVariable:
+        """Create a SlopeVariable from user input.
+
+        Parameters
+        ----------
+        data : DataFrame
+            DataFrame containing the variable data.
+        wrt : str or dict[str, float | int]
+            Either a variable name (uses mean/mode as evaluation point) or a
+            single-entry dict mapping variable name to a single evaluation point.
+        eps : float
+            Perturbation size for finite differencing. Default is 1e-4.
+
+        Returns
+        -------
+        SlopeVariable
+
+        Raises
+        ------
+        ValueError
+            If dict has != 1 key.
+        TypeError
+            If wrt type is unsupported or variable is not numeric.
+        """
+        match wrt:
+            case str():
+                series = _slope_defaults(data[wrt], eps)
+                series.name = wrt
+            case dict() if len(wrt) == 1:
+                name, value = next(iter(wrt.items()))
+                if name not in data.columns:
+                    raise KeyError(
+                        f"'{name}' not found in DataFrame. Available: {list(data.columns)}"
+                    )
+                if not is_numeric_dtype(data[name].dtype):
+                    raise TypeError(
+                        f"slopes() requires a numeric 'wrt' variable, "
+                        f"got dtype: {data[name].dtype}"
+                    )
+                x = float(value)
+                series = pd.Series([x, x + eps], name=name)
+            case dict():
+                raise ValueError(
+                    f"wrt dict must have exactly one key-value pair, got {len(wrt)}"
+                )
+            case _:
+                raise TypeError(f"Unsupported wrt type: {type(wrt)}")
+
+        return SlopeVariable(variable=series, eps=eps)
+
+
+class Result(NamedTuple):
+    """The result of an predictions, comparisons, or slopes computation.
+
+    A `Result` contains a high-level summary dataframe and the original draws (samples)
+    used to compute that summary.
+    """
+
+    summary: DataFrame
+    draws: InferenceData

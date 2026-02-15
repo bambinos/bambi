@@ -4,7 +4,7 @@ from numpy.typing import ArrayLike
 from pandas import Series
 from pandas.api.types import is_numeric_dtype
 
-# Type alias for user-provided values
+# User-provided values can be one of these types
 Values = list[int | float | str] | ArrayLike | Series
 
 

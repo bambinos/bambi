@@ -105,9 +105,9 @@ class SubplotConfig:
             # No overrides, no variables — cannot determine plot axes
             case (None, []):
                 raise ValueError(
-                    "Unable to determine plotting variable(s). Either pass "
-                    "variable(s) to `conditional` or specify the layout via "
-                    "`subplot_kwargs`."
+                    "Unable to determine plotting variable(s) when 'conditional' is 'None'. "
+                    "Either pass variable(s) to `conditional` or specify the layout via "
+                    "'subplot_kwargs'."
                 )
             # No overrides, too many variables — cannot auto-assign to 3 aesthetics
             case (None, names) if len(names) > 3:
@@ -191,6 +191,8 @@ def plot(
     plot = so.Plot(
         data, x=config.subplot.main, y="estimate", color=config.subplot.group
     )
+    # Force color cycle to nomial instead of gradient
+    plot = plot.scale(color=so.Nominal())
     # Add a facet layer (only adds if panel is not None)
     plot = plot.facet(col=config.subplot.panel, wrap=config.figure.wrap)
     # Share axis labels
