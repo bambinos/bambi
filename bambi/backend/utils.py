@@ -33,7 +33,7 @@ def horseshoe(name, tau_nu=3, lam_nu=1, dims=None):
     tau = pm.HalfStudentT(f"{name}_tau", nu=tau_nu)
     lam = pm.HalfStudentT(f"{name}_lam", nu=lam_nu, dims=dims)
     beta_raw = pm.Normal(f"{name}_raw", 0, 1, dims=dims)
-    beta = pm.Deterministic(name, beta_raw * tau**2 * lam**2, dims=dims)
+    beta = pm.Deterministic(name, beta_raw * tau * lam, dims=dims)
     return beta
 
 
