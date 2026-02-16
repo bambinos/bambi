@@ -1,15 +1,64 @@
-# pylint: disable = too-many-function-args
 # pylint: disable = too-many-nested-blocks
 from typing import Any, Callable, Optional
 
 import numpy as np
+import xarray as xr
+from arviz import InferenceData
 from formulae.terms.call import Call
 from formulae.terms.call_resolver import LazyVariable
 from pandas import DataFrame, Series
 from pandas.core.groupby import DataFrameGroupBy, SeriesGroupBy
 
-from bambi import Model
+from bambi.models import Model
 from bambi.utils import get_aliased_name
+
+
+def create_inference_data(
+    preds_idata: InferenceData, preds_data: DataFrame
+) -> InferenceData:
+    """Create a new InferenceData object by replacing the observed_data group with the
+    `preds_data`.
+
+    Parameters
+    ----------
+    preds_idata : InferenceData
+        The InferenceData object containing posterior samples.
+    preds_data : DataFrame
+        The DataFrame to use as the new observed_data group.
+
+    Returns
+    -------
+    InferenceData
+        A new InferenceData object with the observed_data group replaced by preds_data.
+
+    Raises
+    ------
+    ValueError
+        If the InferenceData object does not contain an 'observed_data' group.
+    NotImplementedError
+        If the InferenceData object has more than one coordinate.
+    """
+    new_grid_idata = preds_idata.copy()
+    xr_df = xr.Dataset.from_dataframe(preds_data)
+
+    if "observed_data" in new_grid_idata.groups():
+        coordinate_name = list(new_grid_idata["observed_data"].coords)
+        # Delete the Pandas-based observed_data group and add the preds xr.Dataset
+        del new_grid_idata.observed_data
+        new_grid_idata.add_groups(data=xr_df)
+    else:
+        raise ValueError(
+            "InferenceData object does not contain a 'data' or 'observed_data' group."
+        )
+
+    if len(coordinate_name) > 1:
+        raise NotImplementedError("Only one coordinate is currently supported.")
+    coordinate_name = coordinate_name[0]
+
+    # Rename index to match coordinate name in other InferenceData groups
+    new_grid_idata.data = new_grid_idata.data.rename({"index": coordinate_name})
+
+    return new_grid_idata
 
 
 def get_response_and_target(model: Model, target: str) -> tuple[str, str | None]:

@@ -1,3 +1,5 @@
+from functools import partial
+from itertools import combinations
 from typing import Any, Callable, Mapping, Optional
 
 import arviz as az
@@ -9,15 +11,15 @@ from pandas import DataFrame
 from seaborn.objects import Plot
 from xarray import DataArray
 
-from bambi import Model
 from bambi.interpret.utils import (
     aggregate,
+    create_inference_data,
     get_model_covariates,
     get_response_and_target,
     identity,
 )
+from bambi.models import Model
 
-from .helpers import compare, create_inference_data, filter_draws
 from .ops import ComparisonFunc, SlopeFunc, get_comparison_func, get_slope_func
 from .plots import PlottingConfig, plot
 from .types import (
@@ -27,6 +29,162 @@ from .types import (
     Result,
     SlopeVariable,
 )
+
+
+def _determine_plot_vars(
+    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]],
+    average_by: str | list[str] | None,
+    model_data: DataFrame,
+) -> list[str]:
+    """Determine which variables to plot based on conditional and average_by parameters.
+
+    Parameters
+    ----------
+    conditional : ConditionalParam
+        User-specified conditional variables.
+    average_by : str, list, or None
+        Variables to average over.
+    model_data : DataFrame
+        Model data used to parse conditional variables.
+
+    Returns
+    -------
+    list[str]
+        Variable names to use for plotting configuration.
+    """
+    cond = ConditionalVariables.from_param(model_data, conditional)
+    provided_var_names = [var.name for var in cond.variables]
+
+    match average_by:
+        case None:
+            return provided_var_names
+        case "all":
+            return []
+        case str():
+            return [average_by]
+        case list():
+            return list(average_by)
+
+
+def _extract_dim_columns(summary_df: DataFrame, var_names: list[str]) -> list[str]:
+    """Extract dimension columns from summary dataframe.
+
+    These are additional columns (like class indices for Categorical models)
+    that should be plotted but aren't part of the user-specified variables.
+
+    Parameters
+    ----------
+    summary_df : DataFrame
+        The summary dataframe from a Result object.
+    var_names : list[str]
+        Already-determined variable names from user input.
+
+    Returns
+    -------
+    list[str]
+        Dimension column names found in the summary.
+    """
+    # Exclude metadata and statistic columns
+    metadata_cols = ["term", "estimate_type", "value"]
+    stat_keywords = ["estimate", "lower", "upper"]
+
+    dim_cols = [
+        col
+        for col in summary_df.columns
+        if "dim" in col.lower()
+        and col not in metadata_cols
+        and col not in var_names
+        and not any(keyword in col for keyword in stat_keywords)
+    ]
+
+    return dim_cols
+
+
+def filter_draws(
+    val: Any, idata: InferenceData, group: str, target: str, variable: pd.Series
+) -> DataArray:
+    """Filter draws from an InferenceData group based on variable values.
+
+    Parameters
+    ----------
+    val : Any
+        The value to filter by.
+    idata : InferenceData
+        The InferenceData object containing the draws.
+    group : str
+        The name of the group to filter from (e.g., 'posterior', 'posterior_predictive').
+    target : str
+        The target variable name within the group.
+    variable : pd.Series
+        The variable (pandas Series) to use for filtering.
+
+    Returns
+    -------
+    DataArray
+        An xarray DataArray containing the filtered draws.
+    """
+    coordinate_name = list(idata["data"].coords)[0]
+
+    # Get indices where condition is true
+    # np.logical_and.reduce is useful if there are multiple conditions (contrast values)
+    idx = np.where(np.logical_and.reduce([idata["data"][variable.name] == val]))[0]
+    draws = idata[group].isel({coordinate_name: idx})[target]
+
+    # In the case of main and or parent parameters (e.g., distributional models)
+    if coordinate_name in draws.coords:
+        new_coords = np.arange(len(idx))
+        draws = draws.assign_coords({coordinate_name: new_coords})
+
+    return draws
+
+
+def compare(
+    idata: InferenceData,
+    contrast: ComparisonVariable,
+    target: str,
+    group: str,
+    comparison_fn: Callable,
+) -> dict[str, DataArray]:
+    """Compare samples in an InferenceData group given a `ComparisonVariable`.
+
+    Parameters
+    ----------
+    idata : InferenceData
+        The InferenceData object containing the samples to compare.
+    contrast : ComparisonVariable
+    The ComparisonVariable specifying the variable to create contrasts for.
+    target : str
+        The target variable name to compare within the group.
+    group : str
+        The name of the group to compare (e.g., 'posterior', 'posterior_predictive').
+    comparison_fn : Callable
+        The comparison function to apply to pairs of draws (e.g., difference, ratio).
+
+    Returns
+    -------
+    dict[str, DataArray]
+        A dictionary mapping comparison labels (e.g., "1_vs_2") to DataArrays
+        containing the comparison results.
+    """
+    filter_fn = partial(
+        filter_draws,
+        idata=idata,
+        group=group,
+        target=target,
+        variable=contrast.variable,
+    )
+
+    # Apply filter_draws over all contrast variable values
+    filtered_draws = list(map(filter_fn, contrast.variable))
+    # Generate unique pairs for each draw
+    paired_draws = combinations(enumerate(filtered_draws), r=2)
+    # Apply a comparison function to each pair
+    res = {
+        f"{contrast.variable[i]}_vs_{contrast.variable[j]}": comparison_fn(a, b)
+        for (i, a), (j, b) in paired_draws
+    }
+
+    return res
 
 
 def create_grid(variables: tuple[pd.Series, ...]) -> DataFrame:
@@ -78,10 +236,17 @@ def get_summary_stats(x: DataArray, prob: float, use_hdi: bool = True) -> DataFr
         # az.hdi returns a Dataset with MultiIndex (__obs__, hdi) and one column (var name)
         # We need to unstack 'hdi' to get columns, then flatten the resulting MultiIndex
         var_name = list(hdi.data_vars)[0]
+        lower_bound = round((1 - prob) / 2, 4)
+        upper_bound = 1 - lower_bound
         bounds = (
             hdi.to_dataframe()
             .unstack(level="hdi")[var_name]
-            .rename(columns={"lower": f"lower_{prob}", "higher": f"upper_{prob}"})
+            .rename(
+                columns={
+                    "lower": f"lower_{lower_bound * 100}%",
+                    "higher": f"upper_{upper_bound * 100}%",
+                }
+            )
         )
     else:
         lower_bound = round((1 - prob) / 2, 4)
@@ -92,8 +257,8 @@ def get_summary_stats(x: DataArray, prob: float, use_hdi: bool = True) -> DataFr
             .unstack(level="quantile")
             .rename(
                 columns={
-                    lower_bound: f"lower_{lower_bound}%",
-                    upper_bound: f"upper_{upper_bound}%",
+                    lower_bound: f"lower_{lower_bound * 100}%",
+                    upper_bound: f"upper_{upper_bound * 100}%",
                 }
             )
         )
@@ -179,7 +344,7 @@ def _build_predictions(
         **pred_kwargs, **({} if not pps else {"kind": "response"})
     )
     group = "posterior_predictive" if pps else "posterior"
-    var = response_name if pps else target
+    var = response_name if pps or target is None else target
 
     compare_idata = create_inference_data(preds_idata, preds_data)
 
@@ -265,7 +430,7 @@ def predictions(
     }
     idata = model.predict(**pred_kwargs, **({} if not pps else {"kind": "response"}))
     group = "posterior_predictive" if pps else "posterior"
-    var = response_name if pps else target
+    var = response_name if pps or target is None else target
     y_hat = idata[group][var]
 
     stats_data = get_summary_stats(response_transform(y_hat), prob, use_hdi)
@@ -330,11 +495,7 @@ def plot_predictions(
     ValueError
         If more than 3 conditional variables are provided without averaging.
     """
-    cond = ConditionalVariables.from_param(model.data, conditional)
-    provided_var_names = [var.name for var in cond.variables]
-    plot_config = PlottingConfig.from_params(
-        provided_var_names, subplot_kwargs, fig_kwargs
-    )
+    var_names = _determine_plot_vars(conditional, average_by, model.data)
 
     result = predictions(
         model=model,
@@ -348,6 +509,12 @@ def plot_predictions(
         transforms=transforms,
         sample_new_groups=sample_new_groups,
     )
+
+    # Add dimension columns for multi-output models (e.g., Categorical family)
+    dim_cols = _extract_dim_columns(result.summary, var_names)
+    all_var_names = var_names + dim_cols
+
+    plot_config = PlottingConfig.from_params(all_var_names, subplot_kwargs, fig_kwargs)
 
     p = plot(result.summary, plot_config)
 
@@ -535,11 +702,7 @@ def plot_comparisons(
     ValueError
         If more than 3 conditional variables are provided without averaging.
     """
-    cond = ConditionalVariables.from_param(model.data, conditional)
-    provided_var_names = [var.name for var in cond.variables]
-    plot_config = PlottingConfig.from_params(
-        provided_var_names, subplot_kwargs, fig_kwargs
-    )
+    var_names = _determine_plot_vars(conditional, average_by, model.data)
 
     result = comparisons(
         model=model,
@@ -555,6 +718,12 @@ def plot_comparisons(
         transforms=transforms,
         sample_new_groups=sample_new_groups,
     )
+
+    # Add dimension columns for multi-output models (e.g., Categorical family)
+    dim_cols = _extract_dim_columns(result.summary, var_names)
+    all_var_names = var_names + dim_cols
+
+    plot_config = PlottingConfig.from_params(all_var_names, subplot_kwargs, fig_kwargs)
 
     p = plot(result.summary, plot_config)
 
@@ -753,11 +922,7 @@ def plot_slopes(
     ValueError
         If more than 3 conditional variables are provided without averaging.
     """
-    cond = ConditionalVariables.from_param(model.data, conditional)
-    provided_var_names = [var.name for var in cond.variables]
-    plot_config = PlottingConfig.from_params(
-        provided_var_names, subplot_kwargs, fig_kwargs
-    )
+    var_names = _determine_plot_vars(conditional, average_by, model.data)
 
     result = slopes(
         model=model,
@@ -774,6 +939,12 @@ def plot_slopes(
         transforms=transforms,
         sample_new_groups=sample_new_groups,
     )
+
+    # Add dimension columns for multi-output models (e.g., Categorical family)
+    dim_cols = _extract_dim_columns(result.summary, var_names)
+    all_var_names = var_names + dim_cols
+
+    plot_config = PlottingConfig.from_params(all_var_names, subplot_kwargs, fig_kwargs)
 
     p = plot(result.summary, plot_config)
 

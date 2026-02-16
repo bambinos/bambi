@@ -102,14 +102,14 @@ class SubplotConfig:
                     group=overrides.get("group"),
                     panel=overrides.get("panel"),
                 )
-            # No overrides, no variables — cannot determine plot axes
+            # No overrides, no variables (cannot determine plot axes)
             case (None, []):
                 raise ValueError(
                     "Unable to determine plotting variable(s) when 'conditional' is 'None'. "
                     "Either pass variable(s) to `conditional` or specify the layout via "
                     "'subplot_kwargs'."
                 )
-            # No overrides, too many variables — cannot auto-assign to 3 aesthetics
+            # No overrides, too many variables (cannot auto-assign to 3 aesthetics)
             case (None, names) if len(names) > 3:
                 raise ValueError(
                     f"Cannot automatically plot more than 3 conditional variables "
@@ -117,7 +117,7 @@ class SubplotConfig:
                     f"pass `average_by` to reduce dimensionality, or use "
                     f"`subplot_kwargs` to explicitly assign variables to plot axes."
                 )
-            # No overrides, 1-3 variables — auto-assign positionally
+            # No overrides, 1-3 variables (auto-assign positionally)
             case (None, names):
                 return SubplotConfig(
                     main=names[0],
@@ -158,6 +158,35 @@ class PlottingConfig:
         )
 
 
+def _add_main_layer(plot: Plot, data: DataFrame, config: PlottingConfig) -> Plot:
+    # Plot labels
+    ymin = next(filter(lambda col: "lower" in col, data.columns))
+    ymax = next(filter(lambda col: "upper" in col, data.columns))
+
+    match data[config.subplot.main].dtype:
+        # Strip plot if categorical or integer dtype
+        case dtype if isinstance(dtype, pd.CategoricalDtype) or is_integer_dtype(dtype):
+            plot = plot.add(so.Dot(), so.Dodge())
+            plot = plot.add(
+                so.Range(),
+                so.Dodge(),
+                ymin=ymin,
+                ymax=ymax,
+            )
+        # Line plot if numeric dtype
+        case dtype if is_float_dtype(dtype):
+            plot = plot.add(so.Line())
+            plot = plot.add(
+                so.Band(alpha=0.3),
+                ymin=ymin,
+                ymax=ymax,
+            )
+        case _:
+            raise TypeError(f"Unsupported data type: {data[config.subplot.main].dtype}")
+
+    return plot
+
+
 def plot(
     data: DataFrame,
     config: PlottingConfig,
@@ -183,50 +212,26 @@ def plot(
     TypeError
         If the main variable has an unsupported data type.
     """
-    # Plot labels
-    ymin = next(filter(lambda col: "lower" in col, data.columns))
-    ymax = next(filter(lambda col: "upper" in col, data.columns))
-
     # Base plot (must include x-y axis)
     plot = so.Plot(
         data, x=config.subplot.main, y="estimate", color=config.subplot.group
     )
-    # Force color cycle to nomial instead of gradient
+    # Force color cycle to nominal instead of gradient
     plot = plot.scale(color=so.Nominal())
     # Add a facet layer (only adds if panel is not None)
     plot = plot.facet(col=config.subplot.panel, wrap=config.figure.wrap)
-    # Share axis labels
+    # Share x-y axis labels
     plot = plot.share(x=config.figure.sharex, y=config.figure.sharey)
-    # Add a "main" layer
-    match data[config.subplot.main].dtype:
-        # Strip plot if categorical or integer dtype
-        case dtype if isinstance(dtype, pd.CategoricalDtype) or is_integer_dtype(dtype):
-            plot = plot.add(so.Dot(), so.Dodge())
-            plot = plot.add(
-                so.Range(),
-                so.Dodge(),
-                ymin=ymin,
-                ymax=ymax,
-            )
-        # Line plot if numeric dtype
-        case dtype if is_float_dtype(dtype):
-            plot = plot.add(so.Line())
-            plot = plot.add(
-                so.Band(alpha=0.3),
-                ymin=ymin,
-                ymax=ymax,
-            )
-        case _:
-            raise TypeError(f"Unsupported data type: {data[config.subplot.main].dtype}")
+    # Add a main layer (line or stripplot based on dtype)
+    plot = _add_main_layer(plot, data, config)
 
     # Adjust figure labels
     plot = plot.label(
         x=config.figure.xlabel,
         y=config.figure.ylabel,
         title=config.figure.title,
-        # legend=config.figure.legend, # TODO
     )
-    # Set plot theme (matplotlib rc parameters)
+    # Set plot theme (dict of matplotlib rc parameters)
     if config.figure.theme:
         plot = plot.theme(config.figure.theme)
 
