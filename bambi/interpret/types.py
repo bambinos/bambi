@@ -20,9 +20,7 @@ def _comparison_defaults(series: Series) -> Series:
     match series.dtype:
         case pd.CategoricalDtype():
             # For default categorical dtypes, return all the unique categories
-            return pd.Series(series.cat.categories, name=series.name).astype(
-                series.dtype
-            )
+            return pd.Series(series.cat.categories, name=series.name).astype(series.dtype)
         case dtype if is_float_dtype(dtype):
             mean = series.mean()
             return pd.Series([mean - 0.5, mean + 0.5], name=series.name).astype(dtype)
@@ -37,9 +35,7 @@ def _conditional_defaults(series: Series) -> Series:
     """Generate default conditional values based on dtype."""
     match series.dtype:
         case pd.CategoricalDtype():
-            return pd.Series(series.cat.categories, name=series.name).astype(
-                series.dtype
-            )
+            return pd.Series(series.cat.categories, name=series.name).astype(series.dtype)
         case dtype if is_float_dtype(dtype):
             xs = np.linspace(series.min(), series.max(), num=50)
             return pd.Series(xs, name=series.name).astype(dtype)
@@ -109,9 +105,7 @@ def _resolve_values(
         If the dtype is unsupported or values have wrong type.
     """
     if name not in data.columns:
-        raise KeyError(
-            f"'{name}' not found in DataFrame. Available: {list(data.columns)}"
-        )
+        raise KeyError(f"'{name}' not found in DataFrame. Available: {list(data.columns)}")
 
     series = data[name]
 
@@ -291,10 +285,7 @@ class DefaultVariables:
         """
         default_names = set(model_covariates) - provided_names
         return DefaultVariables(
-            tuple(
-                _resolve_values(name, data, None, _default_defaults)
-                for name in default_names
-            )
+            tuple(_resolve_values(name, data, None, _default_defaults) for name in default_names)
         )
 
 
@@ -363,9 +354,7 @@ class SlopeVariable:
                 x = float(value)
                 series = pd.Series([x, x + eps], name=name)
             case dict():
-                raise ValueError(
-                    f"wrt dict must have exactly one key-value pair, got {len(wrt)}"
-                )
+                raise ValueError(f"wrt dict must have exactly one key-value pair, got {len(wrt)}")
             case _:
                 raise TypeError(f"Unsupported wrt type: {type(wrt)}")
 

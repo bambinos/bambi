@@ -13,9 +13,7 @@ from bambi.models import Model
 from bambi.utils import get_aliased_name
 
 
-def create_inference_data(
-    preds_idata: InferenceData, preds_data: DataFrame
-) -> InferenceData:
+def create_inference_data(preds_idata: InferenceData, preds_data: DataFrame) -> InferenceData:
     """Create a new InferenceData object by replacing the observed_data group with the
     `preds_data`.
 
@@ -47,9 +45,7 @@ def create_inference_data(
         del new_grid_idata.observed_data
         new_grid_idata.add_groups(data=xr_df)
     else:
-        raise ValueError(
-            "InferenceData object does not contain a 'data' or 'observed_data' group."
-        )
+        raise ValueError("InferenceData object does not contain a 'data' or 'observed_data' group.")
 
     if len(coordinate_name) > 1:
         raise NotImplementedError("Only one coordinate is currently supported.")
@@ -87,9 +83,11 @@ def get_response_and_target(model: Model, target: str) -> tuple[str, str | None]
         case _:
             component = model.components[target]
             return (
-                get_aliased_name(component)
-                if component.alias
-                else get_aliased_name(model.response_component.term),
+                (
+                    get_aliased_name(component)
+                    if component.alias
+                    else get_aliased_name(model.response_component.term)
+                ),
                 None if component.alias else target,
             )
 
@@ -120,9 +118,7 @@ def aggregate(
     keywords = ["estimate", "lower", "upper"]
     # Lower and upper columns can have different names
     # For example, lower_0.03% or lower_0.05%
-    selector_cols = [
-        col for col in data.columns if any(keyword in col for keyword in keywords)
-    ]
+    selector_cols = [col for col in data.columns if any(keyword in col for keyword in keywords)]
 
     match by:
         case None:
@@ -130,9 +126,7 @@ def aggregate(
         case "all":
             return agg_fn(data[selector_cols]).to_frame().transpose()
         case _:
-            return agg_fn(
-                data.groupby(by=by, observed=True)[selector_cols]
-            ).reset_index()
+            return agg_fn(data.groupby(by=by, observed=True)[selector_cols]).reset_index()
 
 
 def get_model_terms(model: Model) -> dict:
@@ -181,9 +175,7 @@ def get_model_covariates(model: Model) -> np.ndarray:
                 if isinstance(component, Call):
                     # Add variable names passed as unnamed arguments
                     covariates.extend(
-                        arg.name
-                        for arg in component.call.args
-                        if isinstance(arg, LazyVariable)
+                        arg.name for arg in component.call.args if isinstance(arg, LazyVariable)
                     )
                     # Add variable names passed as named arguments
                     covariates.extend(

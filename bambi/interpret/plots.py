@@ -1,3 +1,4 @@
+# pylint: disable=redefined-outer-name
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -213,9 +214,7 @@ def plot(
         If the main variable has an unsupported data type.
     """
     # Base plot (must include x-y axis)
-    plot = so.Plot(
-        data, x=config.subplot.main, y="estimate", color=config.subplot.group
-    )
+    plot = so.Plot(data, x=config.subplot.main, y="estimate", color=config.subplot.group)
     # Force color cycle to nominal instead of gradient
     plot = plot.scale(color=so.Nominal())
     # Add a facet layer (only adds if panel is not None)

@@ -340,9 +340,7 @@ def _build_predictions(
         "sample_new_groups": sample_new_groups,
         "inplace": False,
     }
-    preds_idata = model.predict(
-        **pred_kwargs, **({} if not pps else {"kind": "response"})
-    )
+    preds_idata = model.predict(**pred_kwargs, **({} if not pps else {"kind": "response"}))
     group = "posterior_predictive" if pps else "posterior"
     var = response_name if pps or target is None else target
 
@@ -354,9 +352,7 @@ def _build_predictions(
 def predictions(
     model: Model,
     idata: InferenceData,
-    conditional: Optional[
-        str | list[str] | dict[str, np.ndarray | list | int | float]
-    ] = None,
+    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list[str] | None = None,
     target: str = "mean",
     pps: bool = False,
@@ -401,9 +397,7 @@ def predictions(
         If prob is not between 0 and 1.
     """
     if not 0 < prob < 1:
-        raise ValueError(
-            f"'prob' must be greater than 0 and smaller than 1. It is {prob}."
-        )
+        raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
     transforms = transforms or {}
 
@@ -442,9 +436,7 @@ def predictions(
 def plot_predictions(
     model: Model,
     idata: InferenceData,
-    conditional: Optional[
-        str | list[str] | dict[str, np.ndarray | list | int | float]
-    ] = None,
+    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list | bool | None = None,
     target: str = "mean",
     pps: bool = False,
@@ -525,9 +517,7 @@ def comparisons(
     model: Model,
     idata: InferenceData,
     contrast: str | dict[str, np.ndarray | list | int | float],
-    conditional: Optional[
-        str | list[str] | dict[str, np.ndarray | list | int | float]
-    ] = None,
+    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list[str] | None = None,
     target: str = "mean",
     pps: bool = False,
@@ -581,24 +571,20 @@ def comparisons(
         If comparison is not a callable or valid string.
     """
     if not 0 < prob < 1:
-        raise ValueError(
-            f"'prob' must be greater than 0 and smaller than 1. It is {prob}."
-        )
+        raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
     comparison_fn = get_comparison_func(comparison)
     con = ComparisonVariable.from_param(model.data, contrast)
 
-    compare_idata, preds_data, context_columns, var, group, response_transform = (
-        _build_predictions(
-            model,
-            idata,
-            con.variable,
-            conditional,
-            target,
-            pps,
-            transforms,
-            sample_new_groups,
-        )
+    compare_idata, preds_data, context_columns, var, group, response_transform = _build_predictions(
+        model,
+        idata,
+        con.variable,
+        conditional,
+        target,
+        pps,
+        transforms,
+        sample_new_groups,
     )
 
     compared_draws = compare(
@@ -615,14 +601,10 @@ def comparisons(
         for k, v in compared_draws.items()
     }
     # Comparison column name corresponds to the contrast values being compared (e.g., 1_vs_4)
-    comparison_df = pd.concat(summary_draws, names=["comparison", "index"]).reset_index(
-        level=0
-    )
+    comparison_df = pd.concat(summary_draws, names=["comparison", "index"]).reset_index(level=0)
 
     summary_df = (
-        preds_data.loc[
-            preds_data[con.variable.name] == con.variable.iloc[0], context_columns
-        ]
+        preds_data.loc[preds_data[con.variable.name] == con.variable.iloc[0], context_columns]
         .reset_index(drop=True)
         .join(comparison_df, on=None)
     )
@@ -642,9 +624,7 @@ def plot_comparisons(
     model: Model,
     idata: InferenceData,
     contrast: str | dict[str, np.ndarray | list | int | float],
-    conditional: Optional[
-        str | list[str] | dict[str, np.ndarray | list | int | float]
-    ] = None,
+    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list | bool | None = None,
     target: str = "mean",
     pps: bool = False,
@@ -734,9 +714,7 @@ def slopes(
     model: Model,
     idata: InferenceData,
     wrt: str | dict[str, float | int],
-    conditional: Optional[
-        str | list[str] | dict[str, np.ndarray | list | int | float]
-    ] = None,
+    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list[str] | None = None,
     eps: float = 1e-4,
     slope: str | SlopeFunc = "dydx",
@@ -800,24 +778,20 @@ def slopes(
         If slope is not a callable or valid string.
     """
     if not 0 < prob < 1:
-        raise ValueError(
-            f"'prob' must be greater than 0 and smaller than 1. It is {prob}."
-        )
+        raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
     slope_fn = get_slope_func(slope)
     wrt_var = SlopeVariable.from_param(model.data, wrt, eps)
 
-    compare_idata, preds_data, context_columns, var, group, response_transform = (
-        _build_predictions(
-            model,
-            idata,
-            wrt_var.variable,
-            conditional,
-            target,
-            pps,
-            transforms,
-            sample_new_groups,
-        )
+    compare_idata, preds_data, context_columns, var, group, response_transform = _build_predictions(
+        model,
+        idata,
+        wrt_var.variable,
+        conditional,
+        target,
+        pps,
+        transforms,
+        sample_new_groups,
     )
 
     # Compute finite-differences
@@ -862,9 +836,7 @@ def plot_slopes(
     model: Model,
     idata: InferenceData,
     wrt: str | dict[str, float | int],
-    conditional: Optional[
-        str | list[str] | dict[str, np.ndarray | list | int | float]
-    ] = None,
+    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list | bool | None = None,
     eps: float = 1e-4,
     slope: str | SlopeFunc = "dydx",

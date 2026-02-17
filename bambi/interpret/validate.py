@@ -8,9 +8,7 @@ from pandas.api.types import is_numeric_dtype
 Values = list[int | float | str] | ArrayLike | Series
 
 
-def validate_category_values(
-    values: Values, var_name: str, reference: Series
-) -> Series:
+def validate_category_values(values: Values, var_name: str, reference: Series) -> Series:
     """Validates user-provided values against the original Pandas Categorical values used to
     fit a Bambi model.
 
@@ -54,8 +52,8 @@ def validate_category_values(
             vals = series.tolist()
         case _:
             raise TypeError(
-                f"Categorical values for '{var_name}' must be one of: list, np.ndarray, or pd.Series. "
-                f"Got: {type(values).__name__}"
+                f"Categorical values for '{var_name}' must be one of: list, np.ndarray, "
+                f"or pd.Series. Got: {type(values).__name__}"
             )
 
     # Validate categories
@@ -117,7 +115,7 @@ def validate_numeric_values(
             except (ValueError, TypeError) as e:
                 raise TypeError(
                     f"Cannot convert values for '{var_name}' to target dtype {target_dtype}: {e}"
-                )
+                ) from e
         return series
 
     match values:
@@ -154,6 +152,6 @@ def validate_numeric_values(
 
         case _:
             raise TypeError(
-                f"Values for '{var_name}' must be one of: list[int|float], np.ndarray, or pd.Series. "
-                f"Got: {type(values).__name__}"
+                f"Values for '{var_name}' must be one of: list[int|float], np.ndarray, "
+                f"or pd.Series. Got: {type(values).__name__}"
             )

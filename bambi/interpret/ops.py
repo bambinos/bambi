@@ -1,3 +1,4 @@
+# pylint: disable=unused-argument
 from typing import Callable
 
 from xarray.core.dataarray import DataArray
@@ -92,7 +93,7 @@ def get_comparison_func(comparison: str | ComparisonFunc) -> ComparisonFunc:
     match comparison:
         case str():
             if comparison not in COMPARISON_TYPES:
-                available = ", ".join(f"'{k}'" for k in COMPARISON_TYPES.keys())
+                available = ", ".join(f"'{k}'" for k in COMPARISON_TYPES)
                 raise ValueError(
                     f"Unknown comparison '{comparison}'. Available options: {available}"
                 )
@@ -222,14 +223,10 @@ def get_slope_func(slope: str | SlopeFunc) -> SlopeFunc:
     match slope:
         case str():
             if slope not in SLOPE_TYPES:
-                available = ", ".join(f"'{k}'" for k in SLOPE_TYPES.keys())
-                raise ValueError(
-                    f"Unknown slope '{slope}'. Available options: {available}"
-                )
+                available = ", ".join(f"'{k}'" for k in SLOPE_TYPES)
+                raise ValueError(f"Unknown slope '{slope}'. Available options: {available}")
             return SLOPE_TYPES[slope]
         case _ if callable(slope):
             return slope
         case _:
-            raise TypeError(
-                f"'slope' must be a callable or string, got {type(slope).__name__}."
-            )
+            raise TypeError(f"'slope' must be a callable or string, got {type(slope).__name__}.")
