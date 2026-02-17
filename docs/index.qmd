@@ -94,8 +94,7 @@ az.summary(results)
 # Use ArviZ to plot the results
 az.plot_trace(results)
 ```
-
-```cmd
+```
    Reaction  Days  Subject
 0  249.5600     0      308
 1  258.7047     1      308
@@ -103,8 +102,7 @@ az.plot_trace(results)
 3  321.4398     3      308
 4  356.8519     4      308
 ```
-
-```cmd
+```
        Formula: Reaction ~ Days
         Family: gaussian
           Link: mu = identity
@@ -118,17 +116,17 @@ az.plot_trace(results)
         Auxiliary parameters
             sigma ~ HalfStudentT(nu: 4.0, sigma: 56.1721)
 ```
-```cmd
+```
                    mean     sd   hdi_3%  hdi_97%  mcse_mean  mcse_sd  ess_bulk  ess_tail  r_hat
 Intercept       251.552  6.658  238.513  263.417      0.083    0.059    6491.0    2933.0    1.0
 Days             10.437  1.243    8.179   12.793      0.015    0.011    6674.0    3242.0    1.0
 Reaction_sigma   47.949  2.550   43.363   52.704      0.035    0.025    5614.0    2974.0    1.0
 ```
 
-First, we create and build a Bambi [`Model`](`bambi.Model`).
-Then, the [`.fit`](`bambi.Model.fit`) method tells the sampler to start running and it returns an [`InferenceData`](`arviz.InferenceData`) object,
-which can be passed to several ArviZ functions such as [`az.summary`](`arviz.summary`) to get a summary of
-the parameters distribution and sample diagnostics or [`az.plot_trace`](`arviz.plot_trace`) to visualize them.
+First, we create and build a Bambi `Model`. Then, the method `model.fit()` tells the sampler to start
+running and it returns an `InferenceData` object, which can be passed to several ArviZ functions
+such as `az.summary()` to get a summary of the parameters distribution and sample diagnostics or
+`az.plot_trace()` to visualize them.
 
 ### Logistic regression
 
@@ -187,6 +185,7 @@ and guidelines [here](https://github.com/bambinos/bambi/blob/main/CONTRIBUTING.m
 ## Contributors
 
 See the [GitHub contributor page](https://github.com/bambinos/bambi/graphs/contributors).
+
 
 ## Donations
 

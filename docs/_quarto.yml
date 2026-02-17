@@ -2,6 +2,7 @@ project:
   type: website
   output-dir: _site
   pre-render: pre_render.py
+  post-render: post_render.py
   resources:
     - api/**
   render:
@@ -10,7 +11,6 @@ project:
     # - "!ignored-dir/"
     # - "!ignored-file.qmd"
     # they should go after things we do want to render
-
 
 website:
   title: "Bambi"
@@ -58,7 +58,6 @@ website:
             - notebooks/radon_example.ipynb
             - notebooks/Strack_RRR_re_analysis.ipynb
             - notebooks/shooter_crossed_random_ANOVA.ipynb
-            - notebooks/fixed_random.ipynb
             - notebooks/t_regression.ipynb
             - notebooks/predict_new_groups.ipynb
             - notebooks/polynomial_regression.ipynb
@@ -90,23 +89,14 @@ website:
             - notebooks/plot_predictions.ipynb
             - notebooks/plot_comparisons.ipynb
             - notebooks/plot_slopes.ipynb
-            - notebooks/interpret_advanced_usage.ipynb
-        - section: Variable selection
-          contents:
-            - notebooks/kulprit.qmd
         - section: Alternative sampling backends
           contents:
-              - notebooks/alternative_samplers.ipynb
+            - notebooks/alternative_samplers.ipynb
 
 quartodoc:
   parser: numpy
   style: pkgdown
   dir: api
-  render_interlinks: true
-  title: "Bambi"
-  renderer:
-    style: markdown
-    table_style: description-list
   package: bambi # the name used to import the package
   sidebar: api/_sidebar.yml # write sidebar data to this file
   sections:
@@ -147,32 +137,12 @@ quartodoc:
 metadata-files:
   - api/_sidebar.yml
 
+# profile:
+#   default: latest
 
 format:
   html:
     theme: cosmo
     css: styles.css
     toc: true
-
-filters:
-  - interlinks
-
-# The objects in all cases are in `objects.inv` at the listed URLs
-interlinks:
-  fast: true # Creates .txt inventory that we then convert
-  sources:
-    python:
-      url: https://docs.python.org/3/
-    arviz:
-      url: https://python.arviz.org/en/stable/
-    arviz_plots:
-      url: http://arviz-plots.readthedocs.io/en/latest/
-    arviz_stats:
-      url: http://arviz-stats.readthedocs.io/en/latest/
-    arviz_base:
-      url: http://arviz-base.readthedocs.io/en/latest/
-    pymc:
-      url: https://www.pymc.io/projects/docs/en/stable/
-  aliases:
-    arviz: az
-    pymc: pm
+# https://github.com/quarto-dev/quarto-web/tree/main/docs/gallery
