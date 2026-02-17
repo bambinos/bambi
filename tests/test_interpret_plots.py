@@ -83,6 +83,29 @@ class TestCommon:
         ):
             plot_slopes(model, idata, "hp", "am", prob=-0.1)
 
+    def test_plot_customization(self, mtcars_fixture):
+        """Verify plots can be customized after creation without calling .show()."""
+        model, idata = mtcars_fixture
+
+        # Test plot_predictions
+        plot = plot_predictions(model, idata, "hp")
+        assert isinstance(plot, Plot)
+        # Verify customization works (method chaining)
+        customized = plot.label(title="Custom Title", x="Horsepower")
+        assert isinstance(customized, Plot)
+
+        # Test plot_comparisons
+        plot = plot_comparisons(model, idata, "hp", "am")
+        assert isinstance(plot, Plot)
+        customized = plot.label(title="Custom Comparison")
+        assert isinstance(customized, Plot)
+
+        # Test plot_slopes
+        plot = plot_slopes(model, idata, "hp", "am")
+        assert isinstance(plot, Plot)
+        customized = plot.label(title="Custom Slopes")
+        assert isinstance(customized, Plot)
+
 
 class TestPredictions:
     """
@@ -282,6 +305,22 @@ class TestPredictions:
         )
         assert isinstance(result, Plot)
 
+    def test_average_by_all(self, mtcars_fixture):
+        """Test average_by='all' reduces to a single-row summary."""
+        model, idata = mtcars_fixture
+        result = plot_predictions(model, idata, ["hp", "am"], average_by="all")
+        assert isinstance(result, Plot)
+
+    def test_distributional_target(self, distributional_fixture):
+        model, idata = distributional_fixture
+        result = plot_predictions(model, idata, "x", target="alpha")
+        assert isinstance(result, Plot)
+
+    def test_integer_predictor(self, integer_data_fixture):
+        model, idata = integer_data_fixture
+        result = plot_predictions(model, idata, "x_int")
+        assert isinstance(result, Plot)
+
 
 class TestComparisons:
     """
@@ -308,6 +347,15 @@ class TestComparisons:
     def test_with_groups(self, mtcars_fixture, contrast, conditional):
         model, idata = mtcars_fixture
         result = plot_comparisons(model, idata, contrast, conditional)
+        assert isinstance(result, Plot)
+
+    @pytest.mark.parametrize(
+        "conditional",
+        [["am", "drat", "gear"], ["drat", "am", "gear"], ["drat", "gear", "am"]],
+    )
+    def test_with_group_and_panel(self, mtcars_fixture, conditional):
+        model, idata = mtcars_fixture
+        result = plot_comparisons(model, idata, "hp", conditional)
         assert isinstance(result, Plot)
 
     @pytest.mark.parametrize(
@@ -413,6 +461,22 @@ class TestComparisons:
         result = plot_comparisons(model, idata, "hp", "am", pps=True)
         assert isinstance(result, Plot)
 
+    def test_custom_callable(self, mtcars_fixture):
+        model, idata = mtcars_fixture
+
+        def my_comparison(reference, contrast):
+            return contrast - 2 * reference
+
+        result = plot_comparisons(
+            model, idata, "hp", "am", comparison=my_comparison
+        )
+        assert isinstance(result, Plot)
+
+    def test_integer_contrast(self, integer_data_fixture):
+        model, idata = integer_data_fixture
+        result = plot_comparisons(model, idata, "x_int", "x_float")
+        assert isinstance(result, Plot)
+
 
 class TestSlopes:
     """
@@ -437,6 +501,15 @@ class TestSlopes:
     def test_with_groups(self, mtcars_fixture, wrt, conditional):
         model, idata = mtcars_fixture
         result = plot_slopes(model, idata, wrt, conditional)
+        assert isinstance(result, Plot)
+
+    @pytest.mark.parametrize(
+        "conditional",
+        [["am", "drat", "gear"], ["drat", "am", "gear"], ["drat", "gear", "am"]],
+    )
+    def test_with_group_and_panel(self, mtcars_fixture, conditional):
+        model, idata = mtcars_fixture
+        result = plot_slopes(model, idata, "hp", conditional)
         assert isinstance(result, Plot)
 
     @pytest.mark.parametrize(
@@ -520,4 +593,18 @@ class TestSlopes:
     def test_pps(self, mtcars_fixture):
         model, idata = mtcars_fixture
         result = plot_slopes(model, idata, "hp", "am", pps=True)
+        assert isinstance(result, Plot)
+
+    def test_custom_callable(self, mtcars_fixture):
+        model, idata = mtcars_fixture
+
+        def my_slope(derivative, x, y):
+            return derivative * 2
+
+        result = plot_slopes(model, idata, "hp", "drat", slope=my_slope)
+        assert isinstance(result, Plot)
+
+    def test_integer_wrt(self, integer_data_fixture):
+        model, idata = integer_data_fixture
+        result = plot_slopes(model, idata, "x_int", "x_float")
         assert isinstance(result, Plot)
