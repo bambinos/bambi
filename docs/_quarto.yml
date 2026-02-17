@@ -11,7 +11,6 @@ project:
     # - "!ignored-file.qmd"
     # they should go after things we do want to render
 
-
 website:
   title: "Bambi"
   description: "BAyesian Model Building Interface in Python"
@@ -90,13 +89,12 @@ website:
             - notebooks/plot_predictions.ipynb
             - notebooks/plot_comparisons.ipynb
             - notebooks/plot_slopes.ipynb
-            - notebooks/interpret_advanced_usage.ipynb
         - section: Variable selection
           contents:
             - notebooks/kulprit.qmd
         - section: Alternative sampling backends
           contents:
-              - notebooks/alternative_samplers.ipynb
+            - notebooks/alternative_samplers.ipynb
 
 quartodoc:
   parser: numpy
@@ -146,7 +144,6 @@ quartodoc:
 # Tell quarto to read the generated sidebar
 metadata-files:
   - api/_sidebar.yml
-
 
 format:
   html:
