@@ -488,7 +488,9 @@ def plot_predictions(
     Returns
     -------
     Plot
-        Displays and returns a Seaborn objects 'Plot'.
+        A Seaborn objects Plot. In Jupyter notebooks, the plot automatically displays.
+        In scripts, call `.show()` to display. The returned Plot object can be
+        customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
 
     Raises
     ------
@@ -516,9 +518,7 @@ def plot_predictions(
 
     plot_config = PlottingConfig.from_params(all_var_names, subplot_kwargs, fig_kwargs)
 
-    p = plot(result.summary, plot_config)
-
-    return p
+    return plot(result.summary, plot_config)
 
 
 def comparisons(
@@ -695,7 +695,9 @@ def plot_comparisons(
     Returns
     -------
     Plot
-        Displays and returns a Seaborn objects 'Plot'
+        A Seaborn objects Plot. In Jupyter notebooks, the plot automatically displays.
+        In scripts, call `.show()` to display. The returned Plot object can be
+        customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
 
     Raises
     ------
@@ -725,9 +727,7 @@ def plot_comparisons(
 
     plot_config = PlottingConfig.from_params(all_var_names, subplot_kwargs, fig_kwargs)
 
-    p = plot(result.summary, plot_config)
-
-    return p
+    return plot(result.summary, plot_config)
 
 
 def slopes(
@@ -915,7 +915,9 @@ def plot_slopes(
     Returns
     -------
     Plot
-        Displays and returns a Seaborn objects 'Plot'.
+        A Seaborn objects Plot. In Jupyter notebooks, the plot automatically displays.
+        In scripts, call `.show()` to display. The returned Plot object can be
+        customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
 
     Raises
     ------
@@ -946,6 +948,4 @@ def plot_slopes(
 
     plot_config = PlottingConfig.from_params(all_var_names, subplot_kwargs, fig_kwargs)
 
-    p = plot(result.summary, plot_config)
-
-    return p
+    return plot(result.summary, plot_config)

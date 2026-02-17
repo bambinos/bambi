@@ -235,6 +235,4 @@ def plot(
     if config.figure.theme:
         plot = plot.theme(config.figure.theme)
 
-    plot.show()
-
     return plot
