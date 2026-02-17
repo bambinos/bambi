@@ -11,6 +11,20 @@ from pandas import DataFrame
 from seaborn.objects import Plot
 from xarray import DataArray
 
+from bambi.interpret.ops import (
+    ComparisonFunc,
+    SlopeFunc,
+    get_comparison_func,
+    get_slope_func,
+)
+from bambi.interpret.plots import PlottingConfig, plot
+from bambi.interpret.types import (
+    ComparisonVariable,
+    ConditionalVariables,
+    DefaultVariables,
+    Result,
+    SlopeVariable,
+)
 from bambi.interpret.utils import (
     aggregate,
     create_inference_data,
@@ -19,16 +33,6 @@ from bambi.interpret.utils import (
     identity,
 )
 from bambi.models import Model
-
-from .ops import ComparisonFunc, SlopeFunc, get_comparison_func, get_slope_func
-from .plots import PlottingConfig, plot
-from .types import (
-    ComparisonVariable,
-    ConditionalVariables,
-    DefaultVariables,
-    Result,
-    SlopeVariable,
-)
 
 
 def _determine_plot_vars(
@@ -332,7 +336,7 @@ def _build_predictions(
     else:
         all_vars = (focal_variable, *cond.variables, *defaults.variables)
         preds_data = create_grid(all_vars)
-        context_columns = [var.name for var in cond.variables]
+        context_columns = [var.name for var in (*cond.variables, *defaults.variables)]
 
     pred_kwargs = {
         "idata": idata,
@@ -609,13 +613,13 @@ def comparisons(
         .join(comparison_df, on=None)
     )
 
-    summary_df = aggregate(data=summary_df, by=average_by)
+    summary_df = summary_df.rename(columns={"comparison": "value"})
+    summary_df = aggregate(data=summary_df, by=average_by, preserve=["value"])
 
     # Add summary metadata
     estimate_type = comparison if isinstance(comparison, str) else comparison.__name__
     summary_df.insert(0, "term", con.variable.name)
     summary_df.insert(1, "estimate_type", estimate_type)
-    summary_df = summary_df.rename(columns={"comparison": "value"})
 
     return Result(summary=summary_df, draws=compare_idata)
 

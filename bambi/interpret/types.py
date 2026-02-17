@@ -9,7 +9,11 @@ from arviz import InferenceData
 from pandas import DataFrame, Series
 from pandas.api.types import is_float_dtype, is_integer_dtype, is_numeric_dtype
 
-from .validate import Values, validate_category_values, validate_numeric_values
+from bambi.interpret.validate import (
+    Values,
+    validate_category_values,
+    validate_numeric_values,
+)
 
 # Strategy type: given a Series, produce default values as a Series
 DefaultStrategy = Callable[[Series], Series]
@@ -240,7 +244,7 @@ class ConditionalVariables:
                     )
                 )
             case None:
-                return ConditionalVariables(())
+                return ConditionalVariables(tuple())
             case _:
                 raise TypeError(f"Unsupported conditional type: {type(conditional)}")
 

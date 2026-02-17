@@ -98,6 +98,7 @@ def aggregate(
     agg_fn: Callable[
         [DataFrame | Series | DataFrameGroupBy | SeriesGroupBy], DataFrame
     ] = lambda df: df.mean(),
+    preserve: Optional[list[str]] = None,
 ) -> DataFrame:
     """Group data by variable(s) and apply an aggregation function.
 
@@ -107,8 +108,11 @@ def aggregate(
         The DataFrame to aggregate.
     by : str or list[str] or None
         Column name(s) to group by. If None, returns data unchanged.
-    agg_fn : Callable[[DataFrame], DataFrame]
+    agg_fn : Callable[[DataFrame | Series | DataFrameGroupBy | SeriesGroupBy], DataFrame],
+    optional
         Aggregation function to apply to each group. Default is mean.
+    preserve : list[str] or None
+        Column names that must survive aggregation by being included as groupby keys.
 
     Returns
     -------
@@ -119,14 +123,19 @@ def aggregate(
     # Lower and upper columns can have different names
     # For example, lower_0.03% or lower_0.05%
     selector_cols = [col for col in data.columns if any(keyword in col for keyword in keywords)]
+    preserve = preserve or []
 
     match by:
         case None:
             return data
         case "all":
+            if preserve:
+                return agg_fn(data.groupby(preserve, observed=True)[selector_cols]).reset_index()
             return agg_fn(data[selector_cols]).to_frame().transpose()
         case _:
-            return agg_fn(data.groupby(by=by, observed=True)[selector_cols]).reset_index()
+            by = [by] if isinstance(by, str) else list(by)
+            all_groups = list(dict.fromkeys(preserve + by))
+            return agg_fn(data.groupby(by=all_groups, observed=True)[selector_cols]).reset_index()
 
 
 def get_model_terms(model: Model) -> dict:

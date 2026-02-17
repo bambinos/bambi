@@ -17,6 +17,7 @@ class FigureConfig:
 
     sharex: bool = True
     sharey: bool = True
+    alpha: float = 0.3
     xlabel: str | None = None
     ylabel: str | None = None
     title: str | None = None
@@ -161,8 +162,8 @@ class PlottingConfig:
 
 def _add_main_layer(plot: Plot, data: DataFrame, config: PlottingConfig) -> Plot:
     # Plot labels
-    ymin = next(filter(lambda col: "lower" in col, data.columns))
-    ymax = next(filter(lambda col: "upper" in col, data.columns))
+    ymin = next(col for col in data.columns if "lower" in col)
+    ymax = next(col for col in data.columns if "upper" in col)
 
     match data[config.subplot.main].dtype:
         # Strip plot if categorical or integer dtype
@@ -178,7 +179,7 @@ def _add_main_layer(plot: Plot, data: DataFrame, config: PlottingConfig) -> Plot
         case dtype if is_float_dtype(dtype):
             plot = plot.add(so.Line())
             plot = plot.add(
-                so.Band(alpha=0.3),
+                so.Band(alpha=config.figure.alpha),
                 ymin=ymin,
                 ymax=ymax,
             )
@@ -226,8 +227,8 @@ def plot(
 
     # Adjust figure labels
     plot = plot.label(
-        x=config.figure.xlabel,
-        y=config.figure.ylabel,
+        x=config.figure.xlabel or config.subplot.main,
+        y=config.figure.ylabel or "estimate",
         title=config.figure.title,
     )
     # Set plot theme (dict of matplotlib rc parameters)
