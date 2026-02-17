@@ -28,9 +28,7 @@ class TestCommon:
         model, idata = mtcars_fixture
         result = plot_comparisons(model, idata, "hp", "am", use_hdi=False)
         assert isinstance(result, Plot)
-        result = plot_predictions(
-            model, idata, ["hp", "cyl", "gear"], pps=pps, use_hdi=False
-        )
+        result = plot_predictions(model, idata, ["hp", "cyl", "gear"], pps=pps, use_hdi=False)
         assert isinstance(result, Plot)
         result = plot_slopes(model, idata, "hp", "am", use_hdi=False)
         assert isinstance(result, Plot)
@@ -40,9 +38,7 @@ class TestCommon:
         model, idata = mtcars_fixture
         result = plot_comparisons(model, idata, "am", "hp", prob=0.8)
         assert isinstance(result, Plot)
-        result = plot_predictions(
-            model, idata, ["hp", "cyl", "gear"], pps=pps, prob=0.8
-        )
+        result = plot_predictions(model, idata, ["hp", "cyl", "gear"], pps=pps, prob=0.8)
         assert isinstance(result, Plot)
         result = plot_slopes(model, idata, "hp", "am", prob=0.8)
         assert isinstance(result, Plot)
@@ -240,9 +236,7 @@ class TestPredictions:
         assert isinstance(result, Plot)
 
         # With alias
-        alias = {
-            "alpha": {"Intercept": "sd_intercept", "x": "sd_x", "alpha": "sd_alpha"}
-        }
+        alias = {"alpha": {"Intercept": "sd_intercept", "x": "sd_x", "alpha": "sd_alpha"}}
         model.set_alias(alias)
         idata = model.fit(tune=100, draws=100, random_seed=1234)
 
@@ -254,9 +248,7 @@ class TestPredictions:
         model, idata = sleep_study
 
         # contains new unseen data
-        result = plot_predictions(
-            model, idata, ["Days", "Subject"], sample_new_groups=True
-        )
+        result = plot_predictions(model, idata, ["Days", "Subject"], sample_new_groups=True)
         assert isinstance(result, Plot)
 
         with pytest.raises(
@@ -377,9 +369,7 @@ class TestComparisons:
         "contrast, conditional, subplot_kwargs",
         [("drat", ["hp", "am"], {"main": "hp", "group": "am", "panel": "am"})],
     )
-    def test_subplot_kwargs(
-        self, mtcars_fixture, contrast, conditional, subplot_kwargs
-    ):
+    def test_subplot_kwargs(self, mtcars_fixture, contrast, conditional, subplot_kwargs):
         model, idata = mtcars_fixture
         result = plot_comparisons(
             model, idata, contrast, conditional, subplot_kwargs=subplot_kwargs
@@ -395,9 +385,7 @@ class TestComparisons:
     )
     def test_transforms(self, mtcars_fixture, contrast, conditional, transforms):
         model, idata = mtcars_fixture
-        result = plot_comparisons(
-            model, idata, contrast, conditional, transforms=transforms
-        )
+        result = plot_comparisons(model, idata, contrast, conditional, transforms=transforms)
         assert isinstance(result, Plot)
 
     @pytest.mark.parametrize("average_by", ["am", "drat", ["am", "drat"]])
@@ -416,9 +404,7 @@ class TestComparisons:
         model, idata = sleep_study
 
         # contains new unseen data
-        result = plot_comparisons(
-            model, idata, "Days", "Subject", sample_new_groups=True
-        )
+        result = plot_comparisons(model, idata, "Days", "Subject", sample_new_groups=True)
         assert isinstance(result, Plot)
         # user passed values seen in observed data
         result = plot_comparisons(
@@ -532,9 +518,7 @@ class TestSlopes:
     )
     def test_subplot_kwargs(self, mtcars_fixture, wrt, conditional, subplot_kwargs):
         model, idata = mtcars_fixture
-        result = plot_slopes(
-            model, idata, wrt, conditional, subplot_kwargs=subplot_kwargs
-        )
+        result = plot_slopes(model, idata, wrt, conditional, subplot_kwargs=subplot_kwargs)
         assert isinstance(result, Plot)
 
     @pytest.mark.parametrize(
@@ -568,9 +552,7 @@ class TestSlopes:
         result = plot_slopes(model, idata, "Days", "Subject", sample_new_groups=True)
         assert isinstance(result, Plot)
         # user passed values seen in observed data
-        result = plot_slopes(
-            model, idata, wrt={"Days": 2}, conditional={"Subject": 308}
-        )
+        result = plot_slopes(model, idata, wrt={"Days": 2}, conditional={"Subject": 308})
         assert isinstance(result, Plot)
 
         with pytest.raises(
