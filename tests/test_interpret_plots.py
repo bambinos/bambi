@@ -45,39 +45,51 @@ class TestCommon:
 
         with pytest.raises(
             ValueError,
-            match="'prob' must be greater than 0 and smaller than 1. It is 1.1.",
+            match="'prob' values must be between 0 and 1 \\(exclusive\\). Got 1.1.",
         ):
             plot_comparisons(model, idata, "am", "hp", prob=1.1)
 
         with pytest.raises(
             ValueError,
-            match="'prob' must be greater than 0 and smaller than 1. It is 1.1.",
+            match="'prob' values must be between 0 and 1 \\(exclusive\\). Got 1.1.",
         ):
             plot_predictions(model, idata, ["hp", "cyl", "gear"], pps=pps, prob=1.1)
 
         with pytest.raises(
             ValueError,
-            match="'prob' must be greater than 0 and smaller than 1. It is 1.1.",
+            match="'prob' values must be between 0 and 1 \\(exclusive\\). Got 1.1.",
         ):
             plot_slopes(model, idata, "hp", "am", prob=1.1)
 
         with pytest.raises(
             ValueError,
-            match="'prob' must be greater than 0 and smaller than 1. It is -0.1.",
+            match="'prob' values must be between 0 and 1 \\(exclusive\\). Got -0.1.",
         ):
             plot_comparisons(model, idata, "am", "hp", prob=-0.1)
 
         with pytest.raises(
             ValueError,
-            match="'prob' must be greater than 0 and smaller than 1. It is -0.1.",
+            match="'prob' values must be between 0 and 1 \\(exclusive\\). Got -0.1.",
         ):
             plot_predictions(model, idata, ["hp", "cyl", "gear"], pps=pps, prob=-0.1)
 
         with pytest.raises(
             ValueError,
-            match="'prob' must be greater than 0 and smaller than 1. It is -0.1.",
+            match="'prob' values must be between 0 and 1 \\(exclusive\\). Got -0.1.",
         ):
             plot_slopes(model, idata, "hp", "am", prob=-0.1)
+
+    def test_multiple_prob(self, mtcars_fixture):
+        model, idata = mtcars_fixture
+        # Numeric main (uses Band) and categorical main (uses Range)
+        result = plot_predictions(model, idata, "hp", prob=[0.5, 0.94])
+        assert isinstance(result, Plot)
+        result = plot_predictions(model, idata, "gear", prob=[0.5, 0.94])
+        assert isinstance(result, Plot)
+        result = plot_comparisons(model, idata, "hp", "am", prob=[0.5, 0.94])
+        assert isinstance(result, Plot)
+        result = plot_slopes(model, idata, "hp", "am", prob=[0.5, 0.94])
+        assert isinstance(result, Plot)
 
     def test_plot_customization(self, mtcars_fixture):
         """Verify plots can be customized after creation without calling .show()."""
