@@ -119,6 +119,10 @@ def validate_numeric_values(
         return series
 
     match values:
+        case int() | float() as scalar:
+            series = pd.Series([scalar], name=var_name)
+            return convert_to_dtype(series)
+
         case list() as lst:
             if len(lst) == 0:
                 raise ValueError(f"List values for '{var_name}' cannot be empty")
