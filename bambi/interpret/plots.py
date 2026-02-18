@@ -166,14 +166,14 @@ def _get_interval_pairs(data: DataFrame, base_alpha: float) -> list[tuple[str, s
     """Extract lower/upper column pairs and compute alpha and linewidth for each interval.
 
     Pairs are sorted by interval width (widest first) so that wider bands
-    are drawn first (behind narrower ones). Alpha ramps linearly from
-    ``base_alpha / n`` (widest) to ``base_alpha`` (narrowest). Linewidth
-    ramps linearly from ``1`` (widest) to ``2`` (narrowest).
+    are drawn first (behind narrower intervals). Alpha ramps linearly from
+    `base_alpha / n` (widest) to `base_alpha` (narrowest). Linewidth ramps
+    linearly from `1` (widest) to `2` (narrowest).
 
     Parameters
     ----------
     data : DataFrame
-        Summary DataFrame containing ``lower_*`` and ``upper_*`` columns.
+        Summary DataFrame containing `lower_*` and `upper_*` columns.
     base_alpha : float
         Maximum alpha value (used for the narrowest interval).
 
@@ -185,8 +185,10 @@ def _get_interval_pairs(data: DataFrame, base_alpha: float) -> list[tuple[str, s
     lower_cols = [col for col in data.columns if col.startswith("lower_")]
     upper_cols = [col for col in data.columns if col.startswith("upper_")]
 
-    # Parse the percentage from column names to pair them
+    # NOTE: Implicit assumption is that the percentages in the column names
+    # are indeed the correct intervals
     def _pct(col: str) -> float:
+        """Parse the percentage from column names to pair them"""
         m = re.search(r"([\d.]+)%", col)
         return float(m.group(1)) if m else 0.0
 
@@ -198,8 +200,8 @@ def _get_interval_pairs(data: DataFrame, base_alpha: float) -> list[tuple[str, s
     n = len(lower_cols)
     pairs = []
     for i, (lo, hi) in enumerate(zip(lower_cols, upper_cols)):
-        alpha = base_alpha * (i + 1) / n
-        linewidth = 1 + i / max(n - 1, 1)
+        alpha = base_alpha * (i + 1) / n  # 0.15 = 0.3 * (0 + 1) / 2
+        linewidth = 1 + i / max(n - 1, 1)  # 1.0 = 1 + 0 / max(2 - 1, 1)
         pairs.append((lo, hi, alpha, linewidth))
 
     return pairs
@@ -213,6 +215,8 @@ def _add_main_layer(plot: Plot, data: DataFrame, config: PlottingConfig) -> Plot
         case dtype if isinstance(dtype, pd.CategoricalDtype) or is_integer_dtype(dtype):
             plot = plot.add(so.Dot(), so.Dodge())
             plot = reduce(
+                # Repeatedly add a the uncertainty Range to the plot never indexing into
+                # the alpha element because this is a strip plot
                 lambda p, iv: p.add(so.Range(linewidth=iv[3]), so.Dodge(), ymin=iv[0], ymax=iv[1]),
                 intervals,
                 plot,
@@ -220,6 +224,8 @@ def _add_main_layer(plot: Plot, data: DataFrame, config: PlottingConfig) -> Plot
         # Line plot if numeric dtype
         case dtype if is_float_dtype(dtype):
             plot = plot.add(so.Line())
+            # Repeatedly add the uncertainty Band to the plot never indexing into
+            # the linewidth element because this is a line plot
             plot = reduce(
                 lambda p, iv: p.add(so.Band(alpha=iv[2]), ymin=iv[0], ymax=iv[1]),
                 intervals,
