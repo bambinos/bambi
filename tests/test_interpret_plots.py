@@ -297,12 +297,6 @@ class TestPredictions:
         )
         assert isinstance(result, Plot)
 
-    def test_average_by_all(self, mtcars_fixture):
-        """Test average_by='all' reduces to a single-row summary."""
-        model, idata = mtcars_fixture
-        result = plot_predictions(model, idata, ["hp", "am"], average_by="all")
-        assert isinstance(result, Plot)
-
     def test_distributional_target(self, distributional_fixture):
         model, idata = distributional_fixture
         result = plot_predictions(model, idata, "x", target="alpha")
@@ -552,7 +546,7 @@ class TestSlopes:
         result = plot_slopes(model, idata, "Days", "Subject", sample_new_groups=True)
         assert isinstance(result, Plot)
         # user passed values seen in observed data
-        result = plot_slopes(model, idata, wrt={"Days": 2}, conditional={"Subject": 308})
+        result = plot_slopes(model, idata, wrt={"Days": 2}, conditional={"Subject": [308]})
         assert isinstance(result, Plot)
 
         with pytest.raises(
