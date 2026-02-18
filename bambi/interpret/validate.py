@@ -8,6 +8,35 @@ from pandas.api.types import is_numeric_dtype
 Values = list[int | float | str] | ArrayLike | Series
 
 
+def validate_prob(prob: float | list[float]) -> list[float]:
+    """Validate and normalize the prob parameter.
+
+    Parameters
+    ----------
+    prob : float or list[float]
+        Probability or list of probabilities for credible intervals.
+        Each value must be between 0 and 1 (exclusive).
+
+    Returns
+    -------
+    list[float]
+        Sorted list of probabilities in descending order (widest interval first).
+
+    Raises
+    ------
+    ValueError
+        If any probability is not between 0 and 1.
+    """
+    if isinstance(prob, (int, float)):
+        prob = [prob]
+
+    for p in prob:
+        if not 0 < p < 1:
+            raise ValueError(f"'prob' values must be between 0 and 1 (exclusive). Got {p}.")
+
+    return sorted(prob, reverse=True)
+
+
 def validate_category_values(values: Values, var_name: str, reference: Series) -> Series:
     """Validates user-provided values against the original Pandas Categorical values used to
     fit a Bambi model.

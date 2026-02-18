@@ -1,7 +1,9 @@
 # pylint: disable=redefined-outer-name
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
+from functools import reduce
 from typing import Any, Mapping
 
 import pandas as pd
@@ -160,28 +162,68 @@ class PlottingConfig:
         )
 
 
+def _get_interval_pairs(data: DataFrame, base_alpha: float) -> list[tuple[str, str, float, float]]:
+    """Extract lower/upper column pairs and compute alpha and linewidth for each interval.
+
+    Pairs are sorted by interval width (widest first) so that wider bands
+    are drawn first (behind narrower ones). Alpha ramps linearly from
+    ``base_alpha / n`` (widest) to ``base_alpha`` (narrowest). Linewidth
+    ramps linearly from ``1`` (widest) to ``2`` (narrowest).
+
+    Parameters
+    ----------
+    data : DataFrame
+        Summary DataFrame containing ``lower_*`` and ``upper_*`` columns.
+    base_alpha : float
+        Maximum alpha value (used for the narrowest interval).
+
+    Returns
+    -------
+    list[tuple[str, str, float, float]]
+        Each tuple is ``(lower_col, upper_col, alpha, linewidth)``.
+    """
+    lower_cols = [col for col in data.columns if col.startswith("lower_")]
+    upper_cols = [col for col in data.columns if col.startswith("upper_")]
+
+    # Parse the percentage from column names to pair them
+    def _pct(col: str) -> float:
+        m = re.search(r"([\d.]+)%", col)
+        return float(m.group(1)) if m else 0.0
+
+    # Sort lower cols by percentage ascending (smallest % = widest interval)
+    lower_cols.sort(key=_pct)
+    # Sort upper cols by percentage descending (largest % = widest interval)
+    upper_cols.sort(key=_pct, reverse=True)
+
+    n = len(lower_cols)
+    pairs = []
+    for i, (lo, hi) in enumerate(zip(lower_cols, upper_cols)):
+        alpha = base_alpha * (i + 1) / n
+        linewidth = 1 + i / max(n - 1, 1)
+        pairs.append((lo, hi, alpha, linewidth))
+
+    return pairs
+
+
 def _add_main_layer(plot: Plot, data: DataFrame, config: PlottingConfig) -> Plot:
-    # Plot labels
-    ymin = next(col for col in data.columns if "lower" in col)
-    ymax = next(col for col in data.columns if "upper" in col)
+    intervals = _get_interval_pairs(data, config.figure.alpha)
 
     match data[config.subplot.main].dtype:
         # Strip plot if categorical or integer dtype
         case dtype if isinstance(dtype, pd.CategoricalDtype) or is_integer_dtype(dtype):
             plot = plot.add(so.Dot(), so.Dodge())
-            plot = plot.add(
-                so.Range(),
-                so.Dodge(),
-                ymin=ymin,
-                ymax=ymax,
+            plot = reduce(
+                lambda p, iv: p.add(so.Range(linewidth=iv[3]), so.Dodge(), ymin=iv[0], ymax=iv[1]),
+                intervals,
+                plot,
             )
         # Line plot if numeric dtype
         case dtype if is_float_dtype(dtype):
             plot = plot.add(so.Line())
-            plot = plot.add(
-                so.Band(alpha=config.figure.alpha),
-                ymin=ymin,
-                ymax=ymax,
+            plot = reduce(
+                lambda p, iv: p.add(so.Band(alpha=iv[2]), ymin=iv[0], ymax=iv[1]),
+                intervals,
+                plot,
             )
         case _:
             raise TypeError(f"Unsupported data type: {data[config.subplot.main].dtype}")
