@@ -1,890 +1,961 @@
-# pylint: disable=ungrouped-imports
-from dataclasses import dataclass, field
-import itertools
+from functools import partial
+from itertools import combinations
+from typing import Any, Callable, Mapping, Optional
 
 import arviz as az
 import numpy as np
 import pandas as pd
-from pandas.api.types import is_categorical_dtype, is_string_dtype
 import xarray as xr
+from arviz import InferenceData
+from pandas import DataFrame
+from seaborn.objects import Plot
+from xarray import DataArray
 
-from bambi.models import Model
-from bambi.interpret.create_data import create_differences_data, create_predictions_data
-from bambi.interpret.utils import (
-    average_over,
-    ConditionalInfo,
-    enforce_dtypes,
-    identity,
-    merge,
-    VariableInfo,
+from bambi.interpret.ops import (
+    ComparisonFunc,
+    SlopeFunc,
+    get_comparison_func,
+    get_slope_func,
 )
-from bambi.utils import get_aliased_name
+from bambi.interpret.plots import PlottingConfig, plot
+from bambi.interpret.types import (
+    ComparisonVariable,
+    ConditionalVariables,
+    DefaultVariables,
+    Result,
+    SlopeVariable,
+)
+from bambi.interpret.utils import (
+    aggregate,
+    create_inference_data,
+    get_model_covariates,
+    get_response_and_target,
+    identity,
+)
+from bambi.interpret.validate import validate_prob
+from bambi.models import Model
 
 
-SUPPORTED_SLOPES = ("dydx", "eyex")
-SUPPORTED_COMPARISONS = {
-    "diff": lambda x, y: x - y,
-    "ratio": lambda x, y: x / y,
-}
-
-
-@dataclass
-class ResponseInfo:
-    """Stores metadata about the response variable for indexing data in az.InferenceData,
-    computing uncertainty intervals, and creating the summary dataframe in
-    'PredictiveDifferences'
+def _determine_plot_vars(
+    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]],
+    average_by: str | list[str] | None,
+    model_data: DataFrame,
+) -> list[str]:
+    """Determine which variables to plot based on conditional and average_by parameters.
 
     Parameters
     ----------
-    name : str
-        The name of the response variable.
+    conditional : ConditionalParam
+        User-specified conditional variables.
+    average_by : str, list, or None
+        Variables to average over.
+    model_data : DataFrame
+        Model data used to parse conditional variables.
+
+    Returns
+    -------
+    list[str]
+        Variable names to use for plotting configuration.
+    """
+    cond = ConditionalVariables.from_param(model_data, conditional)
+    provided_var_names = [var.name for var in cond.variables]
+
+    match average_by:
+        case None:
+            return provided_var_names
+        case "all":
+            return []
+        case str():
+            return [average_by]
+        case list():
+            return list(average_by)
+
+
+def _extract_dim_columns(summary_df: DataFrame, var_names: list[str]) -> list[str]:
+    """Extract dimension columns from summary dataframe.
+
+    These are additional columns (like class indices for Categorical models)
+    that should be plotted but aren't part of the user-specified variables.
+
+    Parameters
+    ----------
+    summary_df : DataFrame
+        The summary dataframe from a Result object.
+    var_names : list[str]
+        Already-determined variable names from user input.
+
+    Returns
+    -------
+    list[str]
+        Dimension column names found in the summary.
+    """
+    # Exclude metadata and statistic columns
+    metadata_cols = ["term", "estimate_type", "value"]
+    stat_keywords = ["estimate", "lower", "upper"]
+
+    dim_cols = [
+        col
+        for col in summary_df.columns
+        if "dim" in col.lower()
+        and col not in metadata_cols
+        and col not in var_names
+        and not any(keyword in col for keyword in stat_keywords)
+    ]
+
+    return dim_cols
+
+
+def filter_draws(
+    val: Any, idata: InferenceData, group: str, target: str, variable: pd.Series
+) -> DataArray:
+    """Filter draws from an InferenceData group based on variable values.
+
+    Parameters
+    ----------
+    val : Any
+        The value to filter by.
+    idata : InferenceData
+        The InferenceData object containing the draws.
+    group : str
+        The name of the group to filter from (e.g., 'posterior', 'posterior_predictive').
     target : str
-        The target of the response variable such as 'mean' or 'sigma'. Defaults to 'mean'.
-    lower_bound : float
-        The percentile of the lower bound of the uncertainty interval. Defaults to 0.03.
-    upper_bound : float
-        The percentile of the upper bound of the uncertainty interval. Defaults to 0.97.
+        The target variable name within the group.
+    variable : pd.Series
+        The variable (pandas Series) to use for filtering.
+
+    Returns
+    -------
+    DataArray
+        An xarray DataArray containing the filtered draws.
     """
+    coordinate_name = list(idata["data"].coords)[0]
 
-    name: str
-    target: str | None = None
-    lower_bound: float = 0.03
-    upper_bound: float = 0.97
-    name_target: str = field(init=False)
-    name_obs: str = field(init=False)
-    lower_bound_name: str = field(init=False)
-    upper_bound_name: str = field(init=False)
+    # Get indices where condition is true
+    # np.logical_and.reduce is useful if there are multiple conditions (contrast values)
+    idx = np.where(np.logical_and.reduce([idata["data"][variable.name] == val]))[0]
+    draws = idata[group].isel({coordinate_name: idx})[target]
 
-    def __post_init__(self):
-        """
-        Assigns commonly used f-strings for indexing and column names as attributes
-        in building the summary dataframe in 'PredictiveDifferences'.
-        """
-        if self.target is None:
-            self.name_target = self.name
-        else:
-            self.name_target = self.target
+    # In the case of main and or parent parameters (e.g., distributional models)
+    if coordinate_name in draws.coords:
+        new_coords = np.arange(len(idx))
+        draws = draws.assign_coords({coordinate_name: new_coords})
 
-        self.name_obs = "__obs__"
-        self.lower_bound_name = f"lower_{self.lower_bound * 100}%"
-        self.upper_bound_name = f"upper_{self.upper_bound * 100}%"
+    return draws
 
 
-@dataclass
-class Estimate:
-    """Stores the mean and bounds (uncertainty interval) of 'comparisons' and
-    'slopes' estimates
-
-    Used in 'PredictiveDifferences' to store typed data for the summary dataframe.
+def compare(
+    idata: InferenceData,
+    contrast: ComparisonVariable,
+    target: str,
+    group: str,
+    comparison_fn: Callable,
+) -> dict[str, DataArray]:
+    """Compare samples in an InferenceData group given a `ComparisonVariable`.
 
     Parameters
     ----------
-    mean : dict of str to xr.DataArray
-        The mean of the posterior distribution (chains and draws).
-    bounds : dict of str to xr.Dataset
-        The uncertainty interval of the posterior distribution (chains and draws).
-    use_hdi : bool
-        Whether to use the highest density interval (HDI) (True) or quantiles (False).
+    idata : InferenceData
+        The InferenceData object containing the samples to compare.
+    contrast : ComparisonVariable
+    The ComparisonVariable specifying the variable to create contrasts for.
+    target : str
+        The target variable name to compare within the group.
+    group : str
+        The name of the group to compare (e.g., 'posterior', 'posterior_predictive').
+    comparison_fn : Callable
+        The comparison function to apply to pairs of draws (e.g., difference, ratio).
+
+    Returns
+    -------
+    dict[str, DataArray]
+        A dictionary mapping comparison labels (e.g., "1_vs_2") to DataArrays
+        containing the comparison results.
     """
+    filter_fn = partial(
+        filter_draws,
+        idata=idata,
+        group=group,
+        target=target,
+        variable=contrast.variable,
+    )
 
-    mean: dict[str, xr.DataArray]
-    bounds: dict[str, xr.Dataset]
-    use_hdi: bool
-    bounds_list: list = field(init=False)
-    lower: xr.DataArray = field(init=False)
-    higher: xr.DataArray = field(init=False)
+    # Apply filter_draws over all contrast variable values
+    filtered_draws = list(map(filter_fn, contrast.variable))
+    # Generate unique pairs for each draw
+    paired_draws = combinations(enumerate(filtered_draws), r=2)
+    # Apply a comparison function to each pair
+    res = {
+        f"{contrast.variable[i]}_vs_{contrast.variable[j]}": comparison_fn(a, b)
+        for (i, a), (j, b) in paired_draws
+    }
 
-    def __post_init__(self):
-        """
-        Parses the mean and bounds dictionaries into arrays for inserting
-        the 'mean', 'lower', and 'upper' columns into the summary dataframe.
-        """
-        self.bounds_list = [self.bounds[key] for key in self.bounds]
-        self.mean = np.array(list(self.mean.values())).flatten()
-
-        if self.use_hdi:
-            data_var = list(self.bounds_list[0].data_vars)[0]
-            self.lower = np.array(
-                [self.bounds[key][data_var].sel(hdi="lower") for key in self.bounds]
-            ).flatten()
-            self.higher = np.array(
-                [self.bounds[key][data_var].sel(hdi="higher") for key in self.bounds]
-            ).flatten()
-        else:
-            lower = self.bounds_list[0].coords["quantile"].values[0]
-            higher = self.bounds_list[0].coords["quantile"].values[1]
-            self.lower = np.array(
-                [self.bounds[key].sel(quantile=lower) for key in self.bounds]
-            ).flatten()
-            self.higher = np.array(
-                [self.bounds[key].sel(quantile=higher) for key in self.bounds]
-            ).flatten()
+    return res
 
 
-# pylint: disable=consider-iterating-dictionary
-# pylint: disable=too-many-instance-attributes
-@dataclass
-class PredictiveDifferences:
-    """Computes predictive differences and their uncertainty intervals for
-    'comparisons' and 'slopes' effects and returns a summary dataframe of the results
+def create_grid(variables: tuple[pd.Series, ...]) -> DataFrame:
+    """Create a grid (cross-product) of data from `variables`.
+
+    Takes multiple `variables` (Pandas Series) and creates a DataFrame containing all
+    possible combinations of their values using Cartesian product.
+
+    Parameters
+    ----------
+    variables : tuple[Series, ...]
+        Tuple of pandas Series representing variables. Each Series should have a name
+        that will be used as a column name in the resulting DataFrame.
+
+    Returns
+    -------
+    DataFrame
+        A DataFrame containing the Cartesian product of all variable values.
+    """
+    vals = [var.array for var in variables]
+    names = [var.name for var in variables]
+    product = pd.MultiIndex.from_product(vals, names=names)
+
+    return product.to_frame(index=False)
+
+
+def _compute_bounds(x: DataArray, prob: float, use_hdi: bool) -> DataFrame:
+    """Compute lower/upper bounds for a single probability level.
+
+    Parameters
+    ----------
+    x : DataArray
+        The xarray DataArray containing posterior samples.
+    prob : float
+        Probability for the credible interval.
+    use_hdi : bool
+        Whether to use highest density interval.
+
+    Returns
+    -------
+    DataFrame
+        A DataFrame with lower and upper bound columns.
+    """
+    lower_bound = round((1 - prob) / 2, 4)
+    upper_bound = 1 - lower_bound
+
+    if use_hdi:
+        hdi = az.hdi(x, hdi_prob=prob)
+        var_name = list(hdi.data_vars)[0]
+        bounds = (
+            hdi.to_dataframe()
+            .unstack(level="hdi")[var_name]
+            .rename(
+                columns={
+                    "lower": f"lower_{lower_bound * 100}%",
+                    "higher": f"upper_{upper_bound * 100}%",
+                }
+            )
+        )
+    else:
+        bounds = (
+            x.quantile(q=(lower_bound, upper_bound), dim=("chain", "draw"))
+            .to_series()
+            .unstack(level="quantile")
+            .rename(
+                columns={
+                    lower_bound: f"lower_{lower_bound * 100}%",
+                    upper_bound: f"upper_{upper_bound * 100}%",
+                }
+            )
+        )
+
+    return bounds
+
+
+def get_summary_stats(x: DataArray, prob: float | list[float], use_hdi: bool = True) -> DataFrame:
+    """Compute summary statistics (mean and uncertainty intervals) of an array.
+
+    Parameters
+    ----------
+    x : DataArray
+        The xarray DataArray containing posterior samples with 'chain' and 'draw' dimensions.
+    prob : float or list[float]
+        Probability or list of probabilities for credible intervals (each between 0 and 1).
+        When a list is provided, multiple pairs of lower/upper columns are returned,
+        sorted by interval width (widest first).
+
+    Returns
+    -------
+    DataFrame
+        A DataFrame containing summary statistics with columns:
+        - 'estimate': posterior mean
+        - 'lower_X%' / 'upper_Y%': bounds for each probability level
+    """
+    if isinstance(prob, (int, float)):
+        prob = [prob]
+
+    # Sort descending so widest interval columns come first
+    prob = sorted(prob, reverse=True)
+
+    mean = x.mean(dim=("chain", "draw")).to_series().rename("estimate").to_frame()
+
+    bounds_list = [_compute_bounds(x, p, use_hdi) for p in prob]
+    all_bounds = pd.concat(bounds_list, axis=1)
+
+    stats = mean.join(all_bounds).reset_index().drop("__obs__", axis=1)
+
+    return stats
+
+
+def _build_predictions(
+    model: Model,
+    idata: InferenceData,
+    focal_variable: pd.Series,
+    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]],
+    target: str,
+    pps: bool,
+    transforms: dict | None,
+    sample_new_groups: bool,
+) -> tuple[InferenceData, DataFrame, list[str], str, str, Callable]:
+    """Shared prediction pipeline for comparisons and slopes.
+
+    Resolves variables, builds the data grid, runs model predictions,
+    and creates inference data for downstream contrast/slope computation.
 
     Parameters
     ----------
     model : Model
-        Bambi model object.
-    preds_data : pd.DataFrame
-        Dataframe used to generate predictions.
-    variable : VariableInfo
-        Variable of interest with its name and values.
-    conditional : ConditionalInfo
-        Conditional covariates with their names and values (if any).
-    response : ResponseInfo
-        Response variable with its name and target.
-    use_hdi : bool
-        Whether to use the highest density interval (HDI) (True) or quantiles (False).
-    kind : str
-        Type of effect to compute. Either 'comparisons' or 'slopes'.
+        The fitted Bambi model.
+    idata : InferenceData
+        InferenceData object containing the posterior samples.
+    focal_variable : Series
+        The focal variable values (contrast values for comparisons,
+        [x, x+eps] pairs for slopes).
+    conditional : str, list, dict, or None
+        Variables to condition on.
+    target : str
+        The target parameter to predict.
+    pps : bool
+        Whether to use posterior predictive samples.
+    transforms : dict or None
+        Dictionary of transformations.
+    sample_new_groups : bool
+        Whether to sample new group levels.
 
     Returns
     -------
-    summary_df : pd.DataFrame
-        Dataframe with the data used to generate predictions, the effect kind
-        and type, variable of interest name and value, and the mean and uncertainty
-        intervals of the predictive difference estimate.
+    tuple
+        (compare_idata, preds_data, context_columns, var, group, response_transform)
     """
+    transforms = transforms or {}
 
-    model: Model
-    preds_data: pd.DataFrame
-    variable: VariableInfo
-    conditional: ConditionalInfo
-    response: ResponseInfo
-    use_hdi: bool
-    kind: str
-    estimate_name: str = field(init=False)
-    estimate: Estimate = field(init=False)
-    summary_df: pd.DataFrame = field(init=False)
-    contrast_values: list = field(init=False)
+    response_name, target = get_response_and_target(model, target)
+    response_transform = transforms.get(response_name, identity)
 
-    def set_variable_values(self, draws: dict) -> np.ndarray:
-        """
-        Obtain pairwise combinations of the 'draws' keys. The dictionary keys
-        represent the variable of interest's values. If 'comparisons', then
-        the keys are the contrast values. If 'slopes', then the keys are the
-        values of the variable of interest and the values of the variable of
-        interest plus 'eps'.
-        """
+    cond = ConditionalVariables.from_param(model.data, conditional)
+    covariates = get_model_covariates(model).tolist()
+    defaults = DefaultVariables.from_model(
+        model.data, covariates, cond.names | {focal_variable.name}
+    )
 
-        # obtain pairwise combinations of the variable of interest's values (keys)
-        keys = np.array(list(draws.keys()))
-        pairwise_variables = list(itertools.combinations(keys, 2))
-
-        # if 'slopes' and user passed their own values, then need to index the
-        # original data, and the original data plus 'eps'
-        if self.kind == "slopes" and self.variable.user_passed:
-            original_data, original_data_plus_eps = (
-                keys[: self.variable.passed_values.size],
-                keys[self.variable.passed_values.size :],
-            )
-            pairwise_variables = np.dstack((original_data, original_data_plus_eps))[0]
-            self.variable.values = self.variable.values.reshape(2, self.variable.passed_values.size)
-
-        return pairwise_variables
-
-    # pylint: disable=possibly-used-before-assignment
-    def get_slope_estimate(
-        self,
-        predictive_difference: xr.DataArray,
-        pair: tuple,
-        draws: dict,
-        slope: str,
-        eps: float,
-        wrt_x: xr.DataArray,
-    ) -> xr.DataArray:
-        """Computes the slope estimate for 'dydx', 'dyex', 'eyex', 'eydx'."""
-        predictive_difference = (predictive_difference / eps).rename(self.response.name_target)
-
-        if slope in ("eyex", "dyex"):
-            wrt_x = xr.DataArray(
-                wrt_x[pair[1]],
-                coords={self.response.name_obs: np.arange(0, len(wrt_x[pair[1]]))},
-                dims=[self.response.name_obs],
-            )
-
-        if slope in ("eyex", "eydx"):
-            y_hat = draws[pair[1]]
-
-        if slope == "eyex":
-            predictive_difference = predictive_difference * (wrt_x / y_hat)
-        elif slope == "eydx":
-            predictive_difference = predictive_difference * (1 / y_hat)
-        elif slope == "dyex":
-            predictive_difference = predictive_difference * wrt_x
-
-        return predictive_difference
-
-    def get_estimate(
-        self,
-        idata: "InferenceData",
-        response_transforms: dict,
-        comparison_type: str = "diff",
-        slope: str = "dydx",
-        eps: float | None = None,
-        prob: float = 0.94,
-    ):
-        """Obtain the effect ('comparisons' or 'slopes') estimate and uncertainty
-        interval using the posterior samples
-
-        First, the posterior samples are subsetted by the variable of interest's
-        values. Then, the effect is computed for each pairwise combination of the
-        variable of interest's values.
-
-        Parameters
-        ----------
-        idata : az.InferenceData
-            InferenceData object containing the posterior samples for the model.
-        response_transforms : dict
-            Dictionary with the response variable name as key and the
-            transformation function as value.
-        comparison_type : str
-            Type of comparison to compute. Either 'diff' or 'ratio'. Defaults
-            to 'diff'.
-        slope : str
-            Type of slope to compute. Either 'dydx', 'dyex', 'eyex', 'eydx'.
-            Defaults to 'dydx'.
-        eps : float
-            Value to add to the variable of interest's values to compute the
-            slope. Defaults to None.
-        prob : float
-            Probability for the uncertainty interval. Defaults to 0.94.
-
-        Returns
-        -------
-        estimate : Estimate
-            Estimate object with the effect estimate mean  and uncertainty
-            interval.
-        """
-        assert self.kind in ("slopes", "comparisons")
-        assert comparison_type in SUPPORTED_COMPARISONS.keys()
-
-        function = SUPPORTED_COMPARISONS[comparison_type]
-
-        if self.kind == "slopes":
-            self.estimate_name = slope
-        else:
-            self.estimate_name = comparison_type
-
-        if self.variable.values.ndim == 1:
-            self.variable.values = np.array(self.variable.values).reshape(-1, 1)
-
-        draws = {}
-        variable_data = {}
-        for idx, _ in enumerate(self.variable.values):
-            mask = np.array(self.preds_data[self.variable.name].isin(self.variable.values[idx]))
-            select_draw = response_transforms(
-                idata.posterior[self.response.name_target].sel({self.response.name_obs: mask})
-            )
-            select_draw = select_draw.assign_coords(
-                {self.response.name_obs: np.arange(len(select_draw.coords[self.response.name_obs]))}
-            )
-            draws[f"mask_{idx}"] = select_draw
-
-            if slope in ("eyex", "dyex"):
-                variable_data[f"mask_{idx}"] = self.preds_data[
-                    self.preds_data[self.variable.name].isin(self.variable.values[idx])
-                ][self.variable.name]
-
-        pairwise_variables = self.set_variable_values(draws)
-
-        difference_mean = {}
-        difference_bounds = {}
-        for idx, pair in enumerate(pairwise_variables):
-            # comparisons effects
-            predictive_difference = function(draws[pair[1]], draws[pair[0]])
-            # slope effects
-            if self.kind == "slopes":
-                predictive_difference = self.get_slope_estimate(
-                    predictive_difference, pair, draws, slope, eps, variable_data
-                )
-
-            difference_mean[f"estimate_{idx}"] = predictive_difference.mean(("chain", "draw"))
-
-            if self.use_hdi:
-                difference_bounds[f"estimate_{idx}"] = az.hdi(predictive_difference, prob)
-            else:
-                difference_bounds[f"estimate_{idx}"] = predictive_difference.quantile(
-                    q=(self.response.lower_bound, self.response.upper_bound), dim=("chain", "draw")
-                )
-
-        self.estimate = Estimate(difference_mean, difference_bounds, self.use_hdi)
-
-        return self
-
-    def get_summary_df(self, response_dim: np.ndarray) -> pd.DataFrame:
-        """
-        Builds the summary dataframe for 'comparisons' and 'slopes' effects
-
-        There are four scenarios to consider:
-
-            1.) If the effect kind is 'comparisons' and more than 2 values are being
-            compared, then the entire 'preds' data is used.
-
-            2.) If the model predictions have multiple response levels, then 'preds' data
-            needs to be duplicated to match the number of response levels. E.g., 'preds'
-            data has 100 rows and 3 response levels, then the summary dataframe will have
-            300 rows since the model made a prediction for each response level for each
-            sample in 'preds'.
-
-            3.) If the effect kind is 'slopes' and more than 2 values are being compared, then
-            only a subset of the 'preds' data is used to build the summary.
-
-            4.) If the number of values passed for the variable of interest is less then 2
-            for 'comparisons' and 'slopes', then a subset of the 'preds' data is used
-            to build the summary.
-        """
-        # scenario 1
-        if len(self.variable.values) > 2 and self.kind == "comparisons":
-            summary_df = self.preds_data.drop(columns=self.variable.name).drop_duplicates()
-            covariates_cols = summary_df.columns
-            contrast_values = list(itertools.combinations(self.variable.values.flatten(), 2))
-            covariate_vals = np.tile(summary_df.T, len(contrast_values))
-            summary_df = pd.DataFrame(data=covariate_vals.T, columns=covariates_cols)
-            contrast_values = np.repeat(
-                contrast_values, summary_df.shape[0] // len(contrast_values), axis=0
-            )
-            contrast_values = [tuple(elem) for elem in contrast_values]
-        # scenario 2
-        elif len(response_dim) > 1:
-            summary_df = self.preds_data.drop(columns=self.variable.name).drop_duplicates()
-            covariates_cols = summary_df.columns
-            contrast_values = self.variable.values.flatten()
-            covariate_vals = np.repeat(summary_df.T, len(response_dim))
-            summary_df = pd.DataFrame(data=covariate_vals.T, columns=covariates_cols)
-            summary_df["estimate_dim"] = np.tile(
-                response_dim, summary_df.shape[0] // len(response_dim)
-            )
-            contrast_values = [tuple(contrast_values)] * summary_df.shape[0]
-        # scenario 3 & 4
-        else:
-            wrt = {}
-            for idx, _ in enumerate(self.variable.values):
-                mask = np.array(self.preds_data[self.variable.name].isin(self.variable.values[idx]))
-                wrt[f"draw_mask_{idx}"] = self.preds_data[mask][self.variable.name].reset_index(
-                    drop=True
-                )
-                # only need to get "a" dataframe since remaining N dataframes are identical
-                if idx == 0:
-                    summary_df = (
-                        self.preds_data[mask]
-                        .drop(columns=self.variable.name)
-                        .reset_index(drop=True)
-                    )
-            contrast_values = pd.concat(wrt.values(), axis=1).apply(tuple, axis=1)
-
-        summary_df.insert(0, "term", self.variable.name)
-        summary_df.insert(1, "estimate_type", self.estimate_name)
-        summary_df.insert(2, "value", contrast_values)
-        summary_df.insert(len(summary_df.columns), "estimate", self.estimate.mean)
-        summary_df.insert(
-            len(summary_df.columns), self.response.lower_bound_name, self.estimate.lower
+    # Unit level: copy observed data with focal variable substituted
+    if not cond.variables:
+        focal_name = focal_variable.name
+        empirical_data = model.data[covariates].copy()
+        preds_data = pd.concat(
+            [empirical_data.assign(**{focal_name: val}) for val in focal_variable],
+            ignore_index=True,
         )
-        summary_df.insert(
-            len(summary_df.columns), self.response.upper_bound_name, self.estimate.higher
-        )
+        context_columns = [c for c in covariates if c != focal_name]
+    # Grid level: Cartesian product
+    else:
+        all_vars = (focal_variable, *cond.variables, *defaults.variables)
+        preds_data = create_grid(all_vars)
+        context_columns = [var.name for var in (*cond.variables, *defaults.variables)]
 
-        self.summary_df = summary_df
-        self.contrast_values = contrast_values
+    pred_kwargs = {
+        "idata": idata,
+        "data": preds_data,
+        "sample_new_groups": sample_new_groups,
+        "inplace": False,
+    }
+    preds_idata = model.predict(**pred_kwargs, **({} if not pps else {"kind": "response"}))
+    group = "posterior_predictive" if pps else "posterior"
+    var = response_name if pps or target is None else target
 
-        return self.summary_df
+    compare_idata = create_inference_data(preds_idata, preds_data)
 
-    def average_by(self, variable: bool | str) -> pd.DataFrame:
-        """Uses the original 'summary_df' to perform a marginal (if 'variable=True')
-        or group by average if covariate(s) are passed
-
-        Parameters
-        ----------
-        variable : bool or str
-            If `True`, then average over all covariates.
-            If a string is passed, then a group by average is performed.
-
-        Returns
-        -------
-        pd.DataFrame
-            A dataframe containing the marginal or group by average.
-        """
-        if variable is True:
-            contrast_df_avg = average_over(self.summary_df, "all")
-            contrast_df_avg.insert(0, "term", self.variable.name)
-            contrast_df_avg.insert(1, "estimate_type", self.estimate_name)
-            if self.kind != "slopes" and len(self.variable.values) < 3:
-                contrast_df_avg.insert(2, "value", self.contrast_values)
-        else:
-            contrast_df_avg = average_over(self.summary_df, variable)
-            contrast_df_avg.insert(0, "term", self.variable.name)
-            contrast_df_avg.insert(1, "estimate_type", self.estimate_name)
-            if self.kind != "slopes" and len(self.variable.values) < 3:
-                contrast_df_avg.insert(2, "value", self.contrast_values)
-
-        return contrast_df_avg.reset_index(drop=True)
+    return compare_idata, preds_data, context_columns, var, group, response_transform
 
 
 def predictions(
     model: Model,
-    idata: "InferenceData",
-    conditional: str | dict | list | None = None,
+    idata: InferenceData,
+    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
+    average_by: str | list[str] | None = None,
+    target: str = "mean",
+    pps: bool = False,
+    use_hdi: bool = True,
+    prob: float | list[float] = az.rcParams["stats.ci_prob"],
+    transforms: dict | None = None,
+    sample_new_groups: bool = False,
+) -> Result:
+    """Compute conditional adjusted predictions.
+
+    Parameters
+    ----------
+    model : Model
+        The fitted Bambi model.
+    idata : InferenceData
+        InferenceData object containing the posterior samples.
+    conditional : ConditionalParam
+        Variables to condition on for predictions.
+    average_by : str, list or None
+        Variables to average predictions over.
+    target : str
+        The target parameter to predict. Default is "mean".
+    pps : bool
+        Whether to use posterior predictive samples. Default is False.
+    use_hdi : bool
+        Whether to use highest density interval. Default is True.
+    prob : float or list[float]
+        Probability or list of probabilities for credible intervals. Default is from
+        arviz rcParams. When a list is provided, multiple nested intervals are computed.
+    transforms : dict or None
+        Dictionary of transformations to apply to predictions.
+    sample_new_groups : bool
+        Whether to sample new group levels. Default is False.
+
+    Returns
+    -------
+    DataFrame
+        A DataFrame containing the conditional adjusted predictions with summary statistics.
+
+    Raises
+    ------
+    ValueError
+        If any prob value is not between 0 and 1.
+    """
+    prob = validate_prob(prob)
+
+    transforms = transforms or {}
+
+    response_name, target = get_response_and_target(model, target)
+    response_transform = transforms.get(response_name, identity)
+
+    cond = ConditionalVariables.from_param(model.data, conditional)
+    covariates = get_model_covariates(model).tolist()
+    defaults = DefaultVariables.from_model(model.data, covariates, cond.names)
+
+    # Unit level predictions
+    if not cond.variables:
+        preds_data = model.data[covariates].copy()
+    # Data grid predictions
+    else:
+        all_vars = cond.variables + defaults.variables
+        preds_data = create_grid(all_vars)
+
+    pred_kwargs = {
+        "idata": idata,
+        "data": preds_data,
+        "sample_new_groups": sample_new_groups,
+        "inplace": False,
+    }
+    idata = model.predict(**pred_kwargs, **({} if not pps else {"kind": "response"}))
+    group = "posterior_predictive" if pps else "posterior"
+    var = response_name if pps or target is None else target
+    y_hat = idata[group][var]
+
+    stats_data = get_summary_stats(response_transform(y_hat), prob, use_hdi)
+    summary_df = aggregate(data=preds_data.join(stats_data, on=None), by=average_by)
+
+    return Result(summary=summary_df, draws=idata)
+
+
+def plot_predictions(
+    model: Model,
+    idata: InferenceData,
+    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list | bool | None = None,
     target: str = "mean",
     pps: bool = False,
     use_hdi: bool = True,
-    prob: float | None = None,
+    prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
     sample_new_groups: bool = False,
-) -> pd.DataFrame:
-    """Compute Conditional Adjusted Predictions
+    fig_kwargs: Optional[dict[str, Any]] = None,
+    subplot_kwargs: Optional[dict[str, str]] = None,
+) -> Plot:
+    """Plot conditional adjusted predictions.
 
     Parameters
     ----------
-    model : bambi.Model
-        The model for which we want to plot the predictions.
-    idata : arviz.InferenceData
-        The InferenceData object that contains the samples from the posterior distribution of
-        the model.
-    conditional : str, list, dict, optional
-        The covariates we would like to condition on. If dict, keys are the covariate names and
-        values are the values to condition on.
-    average_by: str, list, bool, optional
-        The covariates we would like to average by. The passed covariate(s) will marginalize
-        over the other covariates in the model. If True, it averages over all covariates
-        in the model to obtain the average estimate. Defaults to `None`.
+    model : Model
+        The fitted Bambi model.
+    idata : InferenceData
+        InferenceData object containing the posterior samples.
+    conditional : ConditionalParam
+        Variables to condition on for predictions.
+    average_by : str or list or bool or None
+        Variables to average predictions over.
     target : str
-        Which model parameter to plot. Defaults to 'mean'. Passing a parameter into target only
-        works when pps is False as the target may not be available in the posterior predictive
-        distribution.
-    pps: bool, optional
-        Whether to plot the posterior predictive samples. Defaults to `False`.
-    use_hdi : bool, optional
-        Whether to compute the highest density interval (defaults to True) or the quantiles.
-    prob : float, optional
-        The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable `az.rcParam["stats.ci_prob"]` affects this default.
-    transforms : dict, optional
-        Transformations that are applied to each of the variables being plotted. The keys are the
-        name of the variables, and the values are functions to be applied. Defaults to `None`.
-    sample_new_groups : bool, optional
-        If the model contains group-level effects, and data is passed for unseen groups, whether
-        to sample from the new groups. Defaults to `False`.
+        The target parameter to predict. Default is "mean".
+    pps : bool
+        Whether to use posterior predictive samples. Default is False.
+    use_hdi : bool
+        Whether to use highest density interval. Default is True.
+    prob : float or list[float]
+        Probability or list of probabilities for credible intervals. Default is from
+        arviz rcParams. When a list is provided, nested bands with decreasing opacity
+        are drawn.
+    transforms : dict or None
+        Dictionary of transformations to apply to predictions.
+    sample_new_groups : bool
+        Whether to sample new group levels. Default is False.
+    fig_kwargs : dict or None
+        Additional keyword arguments for figure customization. Use the 'theme' key
+        to pass a dictionary of matplotlib rc parameters.
+    subplot_kwargs : dict or None
+        Overrides default plotting sequence (main, group, panel).
 
     Returns
     -------
-    cap_data : pd.DataFrame
-        A DataFrame with the result of `create_predictions_data` and model predictions.
+    Plot
+        A Seaborn objects Plot. In Jupyter notebooks, the plot automatically displays.
+        In scripts, call `.show()` to display. The returned Plot object can be
+        customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
 
     Raises
     ------
     ValueError
-        If `pps` is `True` and `target` is not `"mean"`.
-        If `conditional` is a list and the length is greater than 3.
-        If `prob` is not > 0 and < 1.
+        If more than 3 conditional variables are provided without averaging.
     """
-    if pps and target != "mean":
-        raise ValueError("When passing 'pps=True', target must be 'mean'")
+    var_names = _determine_plot_vars(conditional, average_by, model.data)
 
-    if isinstance(conditional, list):
-        if len(conditional) > 3:
-            raise ValueError(
-                f"Only 3 covariates can be passed to 'conditional'. {len(conditional)} "
-                "were passed. If you would like to pass more than 3 covariates, use "
-                "a dictionary."
-            )
+    result = predictions(
+        model=model,
+        idata=idata,
+        conditional=conditional,
+        average_by=average_by,
+        target=target,
+        pps=pps,
+        use_hdi=use_hdi,
+        prob=prob,
+        transforms=transforms,
+        sample_new_groups=sample_new_groups,
+    )
 
-    conditional_info = ConditionalInfo(model, conditional)
-    transforms = transforms if transforms is not None else {}
+    # Add dimension columns for multi-output models (e.g., Categorical family)
+    dim_cols = _extract_dim_columns(result.summary, var_names)
+    all_var_names = var_names + dim_cols
 
-    if prob is None:
-        prob = az.rcParams["stats.ci_prob"]
-    if not 0 < prob < 1:
-        raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
+    plot_config = PlottingConfig.from_params(all_var_names, subplot_kwargs, fig_kwargs)
 
-    cap_data = create_predictions_data(conditional_info)
-
-    if target != "mean":
-        component = model.components[target]
-        if component.alias:
-            # use only the aliased name (without appended target)
-            response_name = get_aliased_name(component)
-            target = None
-        else:
-            # use the default response "y" and append target
-            response_name = get_aliased_name(model.response_component.term)
-    else:
-        response_name = get_aliased_name(model.response_component.term)
-
-    if target == "mean":
-        target_ = model.family.likelihood.parent
-    else:
-        target_ = target
-
-    response = ResponseInfo(name=response_name, target=target_)
-    response_transform = transforms.get(response_name, identity)
-
-    if pps:
-        idata = model.predict(
-            idata,
-            data=cap_data,
-            sample_new_groups=sample_new_groups,
-            inplace=False,
-            kind="response",
-        )
-        y_hat = response_transform(idata["posterior_predictive"][response.name])
-        y_hat_mean = y_hat.mean(("chain", "draw"))
-    else:
-        idata = model.predict(
-            idata, data=cap_data, sample_new_groups=sample_new_groups, inplace=False
-        )
-        y_hat = response_transform(idata["posterior"][response.name_target])
-        y_hat_mean = y_hat.mean(("chain", "draw"))
-
-    if use_hdi and pps:
-        y_hat_bounds = az.hdi(y_hat, prob)[response.name].T
-    elif use_hdi:
-        y_hat_bounds = az.hdi(y_hat, prob)[response.name_target].T
-    else:
-        lower_bound = round((1 - prob) / 2, 4)
-        upper_bound = 1 - lower_bound
-        y_hat_bounds = y_hat.quantile(q=(lower_bound, upper_bound), dim=("chain", "draw"))
-
-    lower_bound = round((1 - prob) / 2, 4)
-    upper_bound = 1 - lower_bound
-    response.lower_bound, response.upper_bound = lower_bound, upper_bound
-
-    cap_data = cap_data.copy()
-    if y_hat_mean.ndim > 1:
-        cap_data = merge(y_hat_mean, y_hat_bounds, cap_data)
-        cap_data = cap_data.rename(
-            columns={
-                f"{response.name}_dim": "estimate_dim",
-                f"{response.name_target}": "estimate",
-                f"{response.name_target}_x": response.lower_bound_name,
-                f"{response.name_target}_y": response.upper_bound_name,
-            }
-        )
-    else:
-        cap_data["estimate"] = y_hat_mean
-        cap_data[response.lower_bound_name] = y_hat_bounds[0]
-        cap_data[response.upper_bound_name] = y_hat_bounds[1]
-
-    if average_by is not None:
-        if average_by is True:
-            average_by = "all"
-        cap_data = average_over(cap_data, covariate=average_by)
-
-    return cap_data
+    return plot(result.summary, plot_config)
 
 
 def comparisons(
     model: Model,
-    idata: "InferenceData",
-    contrast: str | dict,
-    conditional: str | dict | list | None = None,
-    average_by: str | list | bool | None = None,
-    comparison_type: str = "diff",
+    idata: InferenceData,
+    contrast: str | dict[str, np.ndarray | list | int | float],
+    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
+    average_by: str | list[str] | None = None,
+    target: str = "mean",
+    pps: bool = False,
+    comparison: ComparisonFunc | str = "diff",
     use_hdi: bool = True,
-    prob: float | None = None,
+    prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
     sample_new_groups: bool = False,
-) -> pd.DataFrame:
-    """Compute Conditional Adjusted Comparisons
+) -> Result:
+    """Compute conditional adjusted comparisons.
 
     Parameters
     ----------
-    model : bambi.Model
-        The model for which we want to plot the predictions.
-    idata : arviz.InferenceData
-        The InferenceData object that contains the samples from the posterior distribution of
-        the model.
-    contrast : str, dict
-        The predictor name whose contrast we would like to compare.
-    conditional : str, list, dict, optional
-        The covariates we would like to condition on. If dict, keys are the covariate names and
-        values are the values to condition on.
-    average_by: str, list, bool, optional
-        The covariates we would like to average by. The passed covariate(s) will marginalize
-        over the other covariates in the model. If True, it averages over all covariates
-        in the model to obtain the average estimate. Defaults to `None`.
-    comparison_type : str, optional
-        The type of comparison to plot. Defaults to 'diff'.
-    use_hdi : bool, optional
-        Whether to compute the highest density interval (defaults to True) or the quantiles.
-    prob : float, optional
-        The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable `az.rcParams["stats.hdi_prob"]` affects this default.
-    transforms : dict, optional
-        Transformations that are applied to each of the variables being plotted. The keys are the
-        name of the variables, and the values are functions to be applied. Defaults to `None`.
-    sample_new_groups : bool, optional
-        If the model contains group-level effects, and data is passed for unseen groups, whether
-        to sample from the new groups. Defaults to `False`.
+    model : Model
+        The fitted Bambi model.
+    idata : InferenceData
+        InferenceData object containing the posterior samples.
+    contrast : ContrastParam
+        Variable(s) to create contrasts for.
+    conditional : ConditionalParam
+        Variables to condition on for comparisons.
+    average_by : str, list or None
+        Variables to average comparisons over.
+    target : str
+        The target parameter to compare. Default is "mean".
+    pps : bool
+        Whether to use posterior predictive samples. Default is False.
+    comparison : ComparisonFunc or str
+        Comparison function or string name. Built-in options: "diff" (difference),
+        "ratio" (ratio), "lift" (relative difference). Default is "diff".
+        Custom functions should accept (reference, contrast) DataArrays and return a DataArray.
+    use_hdi : bool
+        Whether to use highest density interval. Default is True.
+    prob : float or list[float]
+        Probability or list of probabilities for credible intervals. Default is from
+        arviz rcParams. When a list is provided, multiple nested intervals are computed.
+    transforms : dict or None
+        Dictionary of transformations to apply to comparisons.
+    sample_new_groups : bool
+        Whether to sample new group levels. Default is False.
 
     Returns
     -------
-    pd.DataFrame
-        A dataframe with the comparison values, highest density interval, contrast name,
-        contrast value, and conditional values.
+    DataFrame
+        A DataFrame containing the conditional adjusted comparisons with summary statistics.
 
     Raises
     ------
     ValueError
-        If `wrt` is a dict and length of `contrast` is greater than 1.
-        If `wrt` is a dict and length of `contrast` is greater than 2 and
-        `conditional` is `None`.
-        If `conditional` is None and `contrast` is categorical with > 2 values.
-        If `conditional` is a list and the length is greater than 3.
-        If `comparison_type` is not 'diff' or 'ratio'.
-        If `prob` is not > 0 and < 1.
+        If any prob value is not between 0 and 1.
+    TypeError
+        If comparison is not a callable or valid string.
     """
-    contrast_name = contrast
-    if isinstance(contrast, dict):
-        if len(contrast) > 1:
-            raise ValueError(
-                f"Only one predictor can be passed to 'contrast'. {len(contrast)} were passed."
-            )
-        contrast_name, contrast_values = next(iter(contrast.items()))
-        if len(contrast_values) > 2 and conditional is None:
-            raise ValueError(
-                "'conditional' must be specified when 'contrast' has more than 2 values."
-                f"{contrast_name} was passed {len(contrast_values)} values."
-            )
+    prob = validate_prob(prob)
 
-    if isinstance(conditional, list):
-        if len(conditional) > 3:
-            raise ValueError(
-                f"Only 3 covariates can be passed to 'conditional'. {len(conditional)} "
-                "were passed. If you would like to pass more than 3 covariates, "
-                "use a dictionary."
-            )
+    comparison_fn = get_comparison_func(comparison)
+    con = ComparisonVariable.from_param(model.data, contrast)
 
-    if conditional is None:
-        if is_categorical_dtype(model.data[contrast_name]) or is_string_dtype(
-            model.data[contrast_name]
-        ):
-            num_levels = len(model.data[contrast_name].unique())
-            if num_levels > 2:
-                raise ValueError(
-                    f"'conditional' must be specified when 'contrast' has more than 2 values. "
-                    f"{contrast_name} has {num_levels} unique values."
-                )
-
-    if comparison_type not in ("diff", "ratio"):
-        raise ValueError("'comparison_type' must be 'diff' or 'ratio'")
-
-    if prob is None:
-        prob = az.rcParams["stats.ci_prob"]
-    if not 0 < prob < 1:
-        raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
-
-    lower_bound = round((1 - prob) / 2, 4)
-    upper_bound = 1 - lower_bound
-
-    contrast_info = VariableInfo(model, contrast, "comparisons", eps=0.5)
-    conditional_info = ConditionalInfo(model, conditional)
-
-    transforms = transforms if transforms is not None else {}
-    response_name = get_aliased_name(model.response_component.term)
-
-    response = ResponseInfo(
-        name=response_name,
-        target=model.family.likelihood.parent,
-        lower_bound=lower_bound,
-        upper_bound=upper_bound,
-    )
-    response_transform = transforms.get(response_name, identity)
-
-    comparisons_data = create_differences_data(
-        conditional_info, contrast_info, effect_type="comparisons"
-    )
-    idata = model.predict(
-        idata, data=comparisons_data, sample_new_groups=sample_new_groups, inplace=False
-    )
-
-    # returns empty array if model predictions do not have multiple dimensions
-    response_dim_key = response.name + "_dim"
-    if response_dim_key in idata.posterior.coords:
-        response_dim = idata.posterior.coords[response_dim_key].values
-    else:
-        response_dim = np.empty(0)
-
-    predictive_difference = PredictiveDifferences(
+    compare_idata, preds_data, context_columns, var, group, response_transform = _build_predictions(
         model,
-        comparisons_data,
-        contrast_info,
-        conditional_info,
-        response,
-        use_hdi,
-        kind="comparisons",
+        idata,
+        con.variable,
+        conditional,
+        target,
+        pps,
+        transforms,
+        sample_new_groups,
     )
-    comparisons_summary = predictive_difference.get_estimate(
-        idata, response_transform, comparison_type, prob=prob
-    ).get_summary_df(response_dim)
 
-    if average_by:
-        comparisons_summary = predictive_difference.average_by(variable=average_by)
+    compared_draws = compare(
+        compare_idata,
+        con,
+        var,
+        group,
+        comparison_fn,
+    )
 
-    return enforce_dtypes(comparisons_data, comparisons_summary)
+    # Compute mean and uncertainty over (chain, draw)
+    summary_draws = {
+        k: get_summary_stats(response_transform(v), prob, use_hdi)
+        for k, v in compared_draws.items()
+    }
+    # Comparison column name corresponds to the contrast values being compared (e.g., 1_vs_4)
+    comparison_df = pd.concat(summary_draws, names=["comparison", "index"]).reset_index(level=0)
+
+    summary_df = (
+        preds_data.loc[preds_data[con.variable.name] == con.variable.iloc[0], context_columns]
+        .reset_index(drop=True)
+        .join(comparison_df, on=None)
+    )
+
+    summary_df = summary_df.rename(columns={"comparison": "value"})
+    summary_df = aggregate(data=summary_df, by=average_by, preserve=["value"])
+
+    # Add summary metadata
+    estimate_type = comparison if isinstance(comparison, str) else comparison.__name__
+    summary_df.insert(0, "term", con.variable.name)
+    summary_df.insert(1, "estimate_type", estimate_type)
+
+    return Result(summary=summary_df, draws=compare_idata)
+
+
+def plot_comparisons(
+    model: Model,
+    idata: InferenceData,
+    contrast: str | dict[str, np.ndarray | list | int | float],
+    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
+    average_by: str | list | bool | None = None,
+    target: str = "mean",
+    pps: bool = False,
+    comparison: ComparisonFunc | str = "diff",
+    use_hdi: bool = True,
+    prob: float | list[float] = az.rcParams["stats.ci_prob"],
+    transforms: dict | None = None,
+    sample_new_groups: bool = False,
+    fig_kwargs: Optional[dict[str, Any]] = None,
+    subplot_kwargs: Optional[Mapping[str, str]] = None,
+) -> Plot:
+    """Plot conditional adjusted comparisons.
+
+    Parameters
+    ----------
+    model : Model
+        The fitted Bambi model.
+    idata : InferenceData
+        InferenceData object containing the posterior samples.
+    contrast : contrastParam
+        Variable(s) to create contrasts for.
+    conditional : ConditionalParam
+        Variables to condition on for comparisons.
+    average_by : str or list or bool or None
+        Variables to average comparisons over.
+    target : str
+        The target parameter to compare. Default is "mean".
+    pps : bool
+        Whether to use posterior predictive samples. Default is False.
+    comparison : ComparisonFunc or str
+        Comparison function or string name. Built-in options: "diff" (difference),
+        "ratio" (ratio), "lift" (relative difference). Default is "diff".
+        Custom functions should accept (reference, contrast) DataArrays and return a DataArray.
+    use_hdi : bool
+        Whether to use highest density interval. Default is True.
+    prob : float or list[float]
+        Probability or list of probabilities for credible intervals. Default is from
+        arviz rcParams. When a list is provided, nested bands with decreasing opacity
+        are drawn.
+    transforms : dict or None
+        Dictionary of transformations to apply to comparisons.
+    sample_new_groups : bool
+        Whether to sample new group levels. Default is False.
+    fig_kwargs : dict or None
+        Additional keyword arguments for figure customization. Use the 'theme' key
+        to pass a dictionary of matplotlib rc parameters.
+    subplot_kwargs : Mapping[str, str] or None
+        Overrides default plotting sequence (main, group, panel).
+
+    Returns
+    -------
+    Plot
+        A Seaborn objects Plot. In Jupyter notebooks, the plot automatically displays.
+        In scripts, call `.show()` to display. The returned Plot object can be
+        customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
+
+    Raises
+    ------
+    ValueError
+        If more than 3 conditional variables are provided without averaging.
+    """
+    var_names = _determine_plot_vars(conditional, average_by, model.data)
+
+    result = comparisons(
+        model=model,
+        idata=idata,
+        contrast=contrast,
+        conditional=conditional,
+        average_by=average_by,
+        target=target,
+        pps=pps,
+        comparison=comparison,
+        use_hdi=use_hdi,
+        prob=prob,
+        transforms=transforms,
+        sample_new_groups=sample_new_groups,
+    )
+
+    # Add dimension columns for multi-output models (e.g., Categorical family)
+    dim_cols = _extract_dim_columns(result.summary, var_names)
+    all_var_names = var_names + dim_cols
+
+    plot_config = PlottingConfig.from_params(all_var_names, subplot_kwargs, fig_kwargs)
+
+    return plot(result.summary, plot_config)
 
 
 def slopes(
     model: Model,
-    idata: "InferenceData",
-    wrt: str | dict,
-    conditional: str | dict | list | None = None,
-    average_by: str | list | bool | None = None,
+    idata: InferenceData,
+    wrt: str | dict[str, float | int],
+    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
+    average_by: str | list[str] | None = None,
     eps: float = 1e-4,
-    slope: str = "dydx",
+    slope: str | SlopeFunc = "dydx",
+    target: str = "mean",
+    pps: bool = False,
     use_hdi: bool = True,
-    prob: float | None = None,
+    prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
     sample_new_groups: bool = False,
-) -> pd.DataFrame:
-    """Compute Conditional Adjusted Slopes
+) -> Result:
+    """Compute conditional adjusted slopes.
+
+    Slopes are computed using finite differences. The wrt variable is evaluated at
+    [x, x + eps] and the slope is approximated as (f(x + eps) - f(x)) / eps.
 
     Parameters
     ----------
-    model : bambi.Model
-        The model for which we want to plot the predictions.
-    idata : arviz.InferenceData
-        The InferenceData object that contains the samples from the posterior distribution of
-        the model.
-    wrt : str, dict
-        The slope of the regression with respect to (wrt) this predictor will be computed.
-    conditional : str, list, dict, optional
-        The covariates we would like to condition on. If dict, keys are the covariate names and
-        values are the values to condition on.
-    average_by: str, list, bool, optional
-        The covariates we would like to average by. The passed covariate(s) will marginalize
-        over the other covariates in the model. If True, it averages over all covariates
-        in the model to obtain the average estimate. Defaults to `None`.
-    eps : float, optional
-        To compute the slope, 'wrt' is evaluated at wrt +/- 'eps'. The rate of change is then
-        computed as the difference between the two values divided by 'eps'. Defaults to 1e-4.
-    slope: str, optional
-        The type of slope to compute. Defaults to 'dydx'.
-        'dydx' represents a unit increase in 'wrt' is associated with an n-unit change in
-        the response.
-        'eyex' represents a percentage increase in 'wrt' is associated with an n-percent
-        change in the response.
-        'eydx' represents a unit increase in 'wrt' is associated with an n-percent
-        change in the response.
-        'dyex' represents a percent change in 'wrt' is associated with a unit increase
-        in the response.
-    use_hdi : bool, optional
-        Whether to compute the highest density interval (defaults to True) or the quantiles.
-    prob : float, optional
-        The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable `az.rcParams["stats.ci_prob"]` affects this default.
-    transforms : dict, optional
-        Transformations that are applied to each of the variables being plotted. The keys are the
-        name of the variables, and the values are functions to be applied. Defaults to `None`.
-    sample_new_groups : bool, optional
-        If the model contains group-level effects, and data is passed for unseen groups, whether
-        to sample from the new groups. Defaults to `False`.
+    model : Model
+        The fitted Bambi model.
+    idata : InferenceData
+        InferenceData object containing the posterior samples.
+    wrt : str or dict
+        The predictor variable to compute the slope with respect to. Either a variable
+        name (uses mean/mode as evaluation point) or a single-entry dict mapping
+        variable name to a specific evaluation point.
+    conditional : ConditionalParam
+        Variables to condition on for slopes.
+    average_by : str, list or None
+        Variables to average slopes over.
+    eps : float
+        Perturbation size for finite differencing. Default is 1e-4.
+    slope : str or SlopeFunc
+        The type of slope to compute. Default is 'dydx'. Built-in options:
+        'dydx' - unit change in wrt associated with a unit change in response.
+        'eyex' - percent change in wrt associated with a percent change in response.
+        'eydx' - unit change in wrt associated with a percent change in response.
+        'dyex' - percent change in wrt associated with a unit change in response.
+    target : str
+        The target parameter to compute slopes for. Default is "mean".
+    pps : bool
+        Whether to use posterior predictive samples. Default is False.
+    use_hdi : bool
+        Whether to use highest density interval. Default is True.
+    prob : float or list[float]
+        Probability or list of probabilities for credible intervals. Default is from
+        arviz rcParams. When a list is provided, multiple nested intervals are computed.
+    transforms : dict or None
+        Dictionary of transformations to apply to predictions before differencing.
+    sample_new_groups : bool
+        Whether to sample new group levels. Default is False.
 
     Returns
     -------
-    pd.DataFrame
-        A dataframe with the comparison values, highest density interval, `wrt` name,
-        contrast value, and conditional values.
+    DataFrame
+        A DataFrame containing the conditional adjusted slopes with summary statistics.
 
     Raises
     ------
     ValueError
-        If length of `wrt` is greater than 1.
-        If `conditional` is `None` and `wrt` is passed more than 2 values.
-        If `conditional` is `None` and default `wrt` has more than 2 unique values.
-        If `conditional` is a list and the length is greater than 3.
-        If `slope` is not 'dydx', 'dyex', 'eyex', or 'eydx'.
-        If `prob` is not > 0 and < 1.
+        If any prob value is not between 0 and 1.
+    TypeError
+        If slope is not a callable or valid string.
     """
-    wrt_name = wrt
-    if isinstance(wrt, dict):
-        if len(wrt) > 1:
-            raise ValueError(f"Only one predictor can be passed to 'wrt'. {len(wrt)} were passed.")
-        wrt_name, wrt_values = next(iter(wrt.items()))
-        if not isinstance(wrt_values, (list, np.ndarray)):
-            wrt_values = [wrt_values]
-        if len(wrt_values) > 2 and conditional is None:
-            raise ValueError(
-                f"'conditional' must be specified when 'wrt' has more than 2 values. "
-                f"{wrt_name} was passed {len(wrt_values)} values."
-            )
+    prob = validate_prob(prob)
 
-    if isinstance(conditional, list):
-        if len(conditional) > 3:
-            raise ValueError(
-                f"Only 3 covariates can be passed to 'conditional'. {len(conditional)} "
-                " were passed. If you would like to pass more than 3 covariates, "
-                "use a dictionary."
-            )
+    slope_fn = get_slope_func(slope)
+    wrt_var = SlopeVariable.from_param(model.data, wrt, eps)
 
-    if not isinstance(wrt, dict) and conditional is None:
-        if is_categorical_dtype(model.data[wrt_name]) or is_string_dtype(model.data[wrt_name]):
-            num_levels = len(model.data[wrt_name].unique())
-            if num_levels > 2:
-                raise ValueError(
-                    f"'conditional' must be specified when 'wrt' has more than 2 values. "
-                    f"{wrt_name} has {num_levels} unique values."
-                )
-
-    if slope not in ("dydx", "dyex", "eyex", "eydx"):
-        raise ValueError("'slope' must be one of ('dydx', 'dyex', 'eyex', 'eydx')")
-
-    if prob is None:
-        prob = az.rcParams["stats.ci_prob"]
-    if not 0 < prob < 1:
-        raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
-
-    conditional_info = ConditionalInfo(model, conditional)
-
-    grid = bool(conditional_info.covariates)
-    # if wrt is categorical or string dtype, call 'comparisons' to compute the
-    # difference between group means as the slope
-    effect_type = "slopes"
-    if is_categorical_dtype(model.data[wrt_name]) or is_string_dtype(model.data[wrt_name]):
-        effect_type = "comparisons"
-        eps = None
-    wrt_info = VariableInfo(model, wrt, effect_type, grid, eps)
-
-    lower_bound = round((1 - prob) / 2, 4)
-    upper_bound = 1 - lower_bound
-
-    transforms = transforms if transforms is not None else {}
-    response_name = get_aliased_name(model.response_component.term)
-    response = ResponseInfo(
-        name=response_name,
-        target=model.family.likelihood.parent,
-        lower_bound=lower_bound,
-        upper_bound=upper_bound,
-    )
-    response_transform = transforms.get(response_name, identity)
-
-    slopes_data = create_differences_data(conditional_info, wrt_info, effect_type)
-    idata = model.predict(
-        idata, data=slopes_data, sample_new_groups=sample_new_groups, inplace=False
+    compare_idata, preds_data, context_columns, var, group, response_transform = _build_predictions(
+        model,
+        idata,
+        wrt_var.variable,
+        conditional,
+        target,
+        pps,
+        transforms,
+        sample_new_groups,
     )
 
-    # returns empty array if model predictions do not have multiple dimensions
-    response_dim_key = response.name + "_dim"
-    if response_dim_key in idata.posterior.coords:
-        response_dim = idata.posterior.coords[response_dim_key].values
-    else:
-        response_dim = np.empty(0)
+    # Compute finite-differences
+    x_val = wrt_var.variable.iloc[0]
+    x_eps_val = wrt_var.variable.iloc[1]
 
-    predictive_difference = PredictiveDifferences(
-        model, slopes_data, wrt_info, conditional_info, response, use_hdi, kind=effect_type
+    y_at_x = filter_draws(x_val, compare_idata, group, var, wrt_var.variable)
+    y_at_x_eps = filter_draws(x_eps_val, compare_idata, group, var, wrt_var.variable)
+
+    # Apply response transform before differencing
+    y_at_x = response_transform(y_at_x)
+    y_at_x_eps = response_transform(y_at_x_eps)
+
+    dydx = (y_at_x_eps - y_at_x) / eps
+
+    # Apply slope type scaling
+    x_draws = xr.full_like(y_at_x, x_val)
+    scaled_draws = slope_fn(dydx, x_draws, y_at_x)
+
+    # Compute summary statistics
+    stats = get_summary_stats(scaled_draws, prob, use_hdi)
+
+    summary_df = (
+        preds_data.loc[preds_data[wrt_var.variable.name] == x_val, context_columns]
+        .reset_index(drop=True)
+        .join(stats, on=None)
     )
-    slopes_summary = predictive_difference.get_estimate(
-        idata, response_transform, "diff", slope, eps, prob
-    ).get_summary_df(response_dim)
 
-    if average_by:
-        slopes_summary = predictive_difference.average_by(variable=average_by)
+    estimate_type = slope if isinstance(slope, str) else slope.__name__
 
-    return enforce_dtypes(slopes_data, slopes_summary)
+    summary_df = aggregate(data=summary_df, by=average_by)
+
+    # Add summary metadata
+    summary_df.insert(0, "term", wrt_var.variable.name)
+    summary_df.insert(1, "estimate_type", estimate_type)
+    summary_df.insert(2, "value", wrt_var.variable.iloc[0])
+
+    return Result(summary=summary_df, draws=compare_idata)
+
+
+def plot_slopes(
+    model: Model,
+    idata: InferenceData,
+    wrt: str | dict[str, float | int],
+    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
+    average_by: str | list | bool | None = None,
+    eps: float = 1e-4,
+    slope: str | SlopeFunc = "dydx",
+    target: str = "mean",
+    pps: bool = False,
+    use_hdi: bool = True,
+    prob: float | list[float] = az.rcParams["stats.ci_prob"],
+    transforms: dict | None = None,
+    sample_new_groups: bool = False,
+    fig_kwargs: Optional[dict[str, Any]] = None,
+    subplot_kwargs: Optional[Mapping[str, str]] = None,
+) -> Plot:
+    """Plot conditional adjusted slopes.
+
+    Parameters
+    ----------
+    model : Model
+        The fitted Bambi model.
+    idata : InferenceData
+        InferenceData object containing the posterior samples.
+    wrt : str or dict
+        The predictor variable to compute the slope with respect to.
+    conditional : ConditionalParam
+        Variables to condition on for slopes.
+    average_by : str or list or bool or None
+        Variables to average slopes over.
+    eps : float
+        Perturbation size for finite differencing. Default is 1e-4.
+    slope : str or SlopeFunc
+        The type of slope to compute. Default is 'dydx'.
+    target : str
+        The target parameter to compute slopes for. Default is "mean".
+    pps : bool
+        Whether to use posterior predictive samples. Default is False.
+    use_hdi : bool
+        Whether to use highest density interval. Default is True.
+    prob : float or list[float]
+        Probability or list of probabilities for credible intervals. Default is from
+        arviz rcParams. When a list is provided, nested bands with decreasing opacity
+        are drawn.
+    transforms : dict or None
+        Dictionary of transformations to apply to predictions before differencing.
+    sample_new_groups : bool
+        Whether to sample new group levels. Default is False.
+    fig_kwargs : dict or None
+        Additional keyword arguments for figure customization.
+    subplot_kwargs : Mapping[str, str] or None
+        Overrides default plotting sequence (main, group, panel).
+
+    Returns
+    -------
+    Plot
+        A Seaborn objects Plot. In Jupyter notebooks, the plot automatically displays.
+        In scripts, call `.show()` to display. The returned Plot object can be
+        customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
+
+    Raises
+    ------
+    ValueError
+        If more than 3 conditional variables are provided without averaging.
+    """
+    var_names = _determine_plot_vars(conditional, average_by, model.data)
+
+    result = slopes(
+        model=model,
+        idata=idata,
+        wrt=wrt,
+        conditional=conditional,
+        average_by=average_by,
+        eps=eps,
+        slope=slope,
+        target=target,
+        pps=pps,
+        use_hdi=use_hdi,
+        prob=prob,
+        transforms=transforms,
+        sample_new_groups=sample_new_groups,
+    )
+
+    # Add dimension columns for multi-output models (e.g., Categorical family)
+    dim_cols = _extract_dim_columns(result.summary, var_names)
+    all_var_names = var_names + dim_cols
+
+    plot_config = PlottingConfig.from_params(all_var_names, subplot_kwargs, fig_kwargs)
+
+    return plot(result.summary, plot_config)
