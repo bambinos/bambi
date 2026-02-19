@@ -1,13 +1,12 @@
 import pathlib
 import re
 
-import pytest
-import bambi as bmb
 import numpy as np
 import pandas as pd
-
+import pytest
 from helpers import assert_ip_dlogp
 
+import bambi as bmb
 
 DATA_DIR = pathlib.Path(__file__).parent.resolve() / "data"
 
@@ -94,7 +93,10 @@ def test_c_bad_shape(data_1d_multiple_groups, data_2d_multiple_groups):
 
     match = re.escape("2D sequences must be of shape (groups_n, variables_n)")
     with pytest.raises(ValueError, match=match):
-        c = [[2, 1.5], [1.8, 1.6]]  # wrong because it's of shape (variables_n - 1, groups_n - 1)
+        c = [
+            [2, 1.5],
+            [1.8, 1.6],
+        ]  # wrong because it's of shape (variables_n - 1, groups_n - 1)
         bmb.Model("outcome ~ 0 + hsgp(x, y, by=group, c=c, m=10)", data_2d_multiple_groups)
 
 
@@ -116,7 +118,10 @@ def test_L_bad_shape(data_1d_multiple_groups, data_2d_multiple_groups):
 
     match = re.escape("2D sequences must be of shape (groups_n, variables_n)")
     with pytest.raises(ValueError, match=match):
-        L = [[10, 12], [15, 20]]  # wrong because it's of shape (variables_n - 1, groups_n - 1)
+        L = [
+            [10, 12],
+            [15, 20],
+        ]  # wrong because it's of shape (variables_n - 1, groups_n - 1)
         bmb.Model("outcome ~ 0 + hsgp(x, y, by=group, L=L, m=10)", data_2d_multiple_groups)
 
 
@@ -286,14 +291,22 @@ def test_minimal_1d_predicts(data_1d_single_group, mock_pymc_sample):
     new_idata = model.predict(idata, inplace=False)
     assert new_idata.posterior["mu"].dims == ("chain", "draw", "__obs__")
     assert new_idata.posterior["mu"].to_numpy().shape == (2, 500, 100)
-    assert new_idata.posterior["hsgp(x, c=1.5, m=10)"].dims == ("chain", "draw", "__obs__")
+    assert new_idata.posterior["hsgp(x, c=1.5, m=10)"].dims == (
+        "chain",
+        "draw",
+        "__obs__",
+    )
     assert new_idata.posterior["hsgp(x, c=1.5, m=10)"].to_numpy().shape == (2, 500, 100)
 
     # Mean: Out-of-sample
     new_idata = model.predict(idata, data=new_data, inplace=False)
     assert new_idata.posterior["mu"].dims == ("chain", "draw", "__obs__")
     assert new_idata.posterior["mu"].to_numpy().shape == (2, 500, 10)
-    assert new_idata.posterior["hsgp(x, c=1.5, m=10)"].dims == ("chain", "draw", "__obs__")
+    assert new_idata.posterior["hsgp(x, c=1.5, m=10)"].dims == (
+        "chain",
+        "draw",
+        "__obs__",
+    )
     assert new_idata.posterior["hsgp(x, c=1.5, m=10)"].to_numpy().shape == (2, 500, 10)
 
     # Posterior predictive: In-sample
@@ -329,6 +342,5 @@ def test_multiple_hsgp_and_by(data_1d_multiple_groups, mock_pymc_sample):
         model,
         idata,
         conditional={"x1": np.linspace(0, 1, num=100), "fac2": ["a", "b", "c"]},
-        legend=False,
         subplot_kwargs={"main": "x1", "group": "fac2", "panel": "fac2"},
     )
