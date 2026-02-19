@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.8.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Plot Conditional Adjusted Predictions – Bambi</title>
+<title>Plot Predictions – Bambi</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -58,7 +58,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
@@ -69,14 +69,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../logos/favicon.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-24b2bc59dfb44dcacae2ef3892b980b7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-3c56c0b7dc851bacd9d27cbff10130fd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -104,10 +105,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
-<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -123,7 +124,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -150,7 +151,8 @@ window.Quarto = {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a href="../index.html" class="navbar-brand navbar-brand-logo">
-    <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo">
+    <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo light-content">
+    <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo dark-content">
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -187,7 +189,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/plot_predictions.html">Tools to interpret model outputs</a></li><li class="breadcrumb-item"><a href="../notebooks/plot_predictions.html">Plot Conditional Adjusted Predictions</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/plot_predictions.html">Tools to interpret model outputs</a></li><li class="breadcrumb-item"><a href="../notebooks/plot_predictions.html">Plot Predictions</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -430,7 +432,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../notebooks/plot_predictions.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Plot Conditional Adjusted Predictions</span></a>
+ <span class="menu-text">Plot Predictions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -443,12 +445,6 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="../notebooks/plot_slopes.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Plot Slopes</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../notebooks/interpret_advanced_usage.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Interpret Advanced Usage</span></a>
   </div>
 </li>
       </ul>
@@ -517,9 +513,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/plot_predictions.html">Tools to interpret model outputs</a></li><li class="breadcrumb-item"><a href="../notebooks/plot_predictions.html">Plot Conditional Adjusted Predictions</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/plot_predictions.html">Tools to interpret model outputs</a></li><li class="breadcrumb-item"><a href="../notebooks/plot_predictions.html">Plot Predictions</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Plot Conditional Adjusted Predictions</h1>
+<h1 class="title">Plot Predictions</h1>
 </div>
 
 
@@ -571,14 +567,14 @@ window.Quarto = {
 <p>Lastly, in (3), the original data used to fit the model is used to compute predictions. This is known as <em>unit level</em> predictions.</p>
 <p>Using the data, from scenario 1, 2, or 3, the <code>plot_predictions</code> function uses the fitted model to then compute the predictions. The <code>plot_predictions</code> function then uses these predictions to plot the model parameter as a function of (some) explanatory variable.</p>
 <div id="cell-5" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>warnings.simplefilter(action<span class="op">=</span><span class="st">"ignore"</span>, category<span class="op">=</span><span class="pp">FutureWarning</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>warnings.simplefilter(action<span class="op">=</span><span class="st">"ignore"</span>, category<span class="op">=</span><span class="pp">FutureWarning</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 </section>
@@ -598,15 +594,16 @@ window.Quarto = {
 <li>gear: Number of forward gear</li>
 </ul>
 <div id="cell-7" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> bmb.load_data(<span class="st">'mtcars'</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"cyl"</span>] <span class="op">=</span> data[<span class="st">"cyl"</span>].replace({<span class="dv">4</span>: <span class="st">"low"</span>, <span class="dv">6</span>: <span class="st">"medium"</span>, <span class="dv">8</span>: <span class="st">"high"</span>})</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"gear"</span>] <span class="op">=</span> data[<span class="st">"gear"</span>].replace({<span class="dv">3</span>: <span class="st">"A"</span>, <span class="dv">4</span>: <span class="st">"B"</span>, <span class="dv">5</span>: <span class="st">"C"</span>})</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"cyl"</span>] <span class="op">=</span> pd.Categorical(data[<span class="st">"cyl"</span>], categories<span class="op">=</span>[<span class="st">"low"</span>, <span class="st">"medium"</span>, <span class="st">"high"</span>], ordered<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Define and fit the Bambi model</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"mpg ~ 0 + hp * wt + cyl + gear"</span>, data)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(draws<span class="op">=</span><span class="dv">1000</span>, target_accept<span class="op">=</span><span class="fl">0.95</span>, random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"hp"</span>] <span class="op">=</span> data[<span class="st">"hp"</span>].astype(pd.Float32Dtype())</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"cyl"</span>] <span class="op">=</span> data[<span class="st">"cyl"</span>].replace({<span class="dv">4</span>: <span class="st">"low"</span>, <span class="dv">6</span>: <span class="st">"medium"</span>, <span class="dv">8</span>: <span class="st">"high"</span>})</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"gear"</span>] <span class="op">=</span> data[<span class="st">"gear"</span>].replace({<span class="dv">3</span>: <span class="st">"A"</span>, <span class="dv">4</span>: <span class="st">"B"</span>, <span class="dv">5</span>: <span class="st">"C"</span>})</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"cyl"</span>] <span class="op">=</span> pd.Categorical(data[<span class="st">"cyl"</span>], categories<span class="op">=</span>[<span class="st">"low"</span>, <span class="st">"medium"</span>, <span class="st">"high"</span>], ordered<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Define and fit the Bambi model</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"mpg ~ 0 + hp * wt + cyl + gear"</span>, data)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(draws<span class="op">=</span><span class="dv">1000</span>, target_accept<span class="op">=</span><span class="fl">0.95</span>, random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
@@ -614,71 +611,61 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"427c56fdea7e406f90bc70bcd0affc02","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"021397618cbd468ebea682ae3cb0080a","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 13 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 6 seconds.</code></pre>
 </div>
 </div>
 <p>We can print the Bambi model object to obtain the model components. Below, we see that the Gaussian linear model uses an identity link function that results in no transformation of the linear predictor to the mean of the outcome variable, and the distrbution of the likelihood is Gaussian.</p>
 <section id="default-values" class="level3">
 <h3 class="anchored" data-anchor-id="default-values">Default values</h3>
 <p>Now that we have fitted the model, we can visualize how a model parameter varies as a function of (some) interpolated covariate. For this example, we will visualize how the mean response <code>mpg</code> varies as a function of the covariate <code>hp</code>.</p>
-<p>The Bambi model, ArviZ inference data object (containing the posterior samples and the data used to fit the model), and a list or dictionary of covariates, in this example only <code>hp</code>, are passed to the <code>plot_predictions</code> function. The <code>plot_predictions</code> function then computes the conditional adjusted predictions for each <code>covariate</code> in the list or dictionary using the method described above. The <code>plot_predictions</code> function returns a <code>matplotlib</code> figure object that can be further customized.</p>
+<p>The Bambi model, ArviZ inference data object (containing the posterior samples and the data used to fit the model), and a list or dictionary of covariates, in this example only <code>hp</code>, are passed to the <code>plot_predictions</code> function. The <code>plot_predictions</code> function then computes the conditional adjusted predictions for each <code>covariate</code> in the list or dictionary using the method described above. The <code>plot_predictions</code> function returns a <code>Seaborn</code> objects <code>Plot</code> object that can be further customized.</p>
 <div id="cell-10" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>), dpi<span class="op">=</span><span class="dv">120</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, <span class="st">"hp"</span>, ax<span class="op">=</span>ax)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Default computed for conditional variable: hp
-Default computed for unspecified variable: cyl, gear, wt</code></pre>
-</div>
-<div class="cell-output cell-output-display">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, <span class="st">"hp"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
 <div>
 <figure class="figure">
-<p><img src="plot_predictions_files/figure-html/cell-4-output-2.png" class="img-fluid figure-img"></p>
+<p><img src="plot_predictions_files/figure-html/cell-4-output-1.png" width="599" height="445" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>Before we talk about the plot, you will notice that some messages have been logged to the console. By default <code>interpret</code> is <em>verbose</em> and logs a message to the console if a default value is computed for covariates in <code>conditional</code>. This is useful because unless the documentation is read, it can be difficult to tell which covariates are having default values computed for. Thus, Bambi has a config file <code>bmb.config["INTERPRET_VERBOSE"]</code> where we can specify whether or not to log messages. By default, this is set to true. To turn off logging, set <code>bmb.config["INTERPRET_VERBOSE"] = False</code>. From here on, we will turn off logging.</p>
 <p>The plot above shows that as <code>hp</code> increases, the mean <code>mpg</code> decreases. As stated above, this insight was obtained by creating the reference grid and then using the fitted model to compute the predicted values of the model parameter, in this example <code>mpg</code>, at each value of the reference grid.</p>
 <p>By default, <code>plot_predictions</code> uses the highest density interval (HDI) of the posterior distribution to compute the credible interval of the conditional adjusted predictions. The HDI is a Bayesian analog to the frequentist confidence interval. The HDI is the shortest interval that contains a specified probability of the posterior distribution. By default, <code>plot_predictions</code> uses the 94% HDI.</p>
 <p><code>plot_predictions</code> uses the posterior distribution by default to visualize some mean outcome parameter . However, the posterior predictive distribution can also be plotted by specifying <code>pps=True</code> where <code>pps</code> stands for posterior predictive samples of the response variable.</p>
 <div id="cell-12" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>bmb.config[<span class="st">"INTERPRET_VERBOSE"</span>] <span class="op">=</span> <span class="va">False</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="cell-13" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>), dpi<span class="op">=</span><span class="dv">120</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, <span class="st">"hp"</span>, pps<span class="op">=</span><span class="va">True</span>, ax<span class="op">=</span>ax)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, <span class="st">"hp"</span>, pps<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 <figure class="figure">
-<p><img src="plot_predictions_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="plot_predictions_files/figure-html/cell-5-output-1.png" width="599" height="445" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Here, we notice that the uncertainty in the conditional adjusted predictions is much larger than the uncertainty when <code>pps=False</code>. This is because the posterior predictive distribution accounts for the uncertainty in the model parameters and the uncertainty in the data. Whereas, the posterior distribution only accounts for the uncertainty in the model parameters.</p>
-<p>Additionally, <code>predictions</code> can be called to obtain a summary dataframe of the data, mean predictions (estimate), and uncertainty interval. The covariate columns in this dataframe is used to create the plot.</p>
-<div id="cell-15" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>summary_df <span class="op">=</span> bmb.interpret.predictions(model, idata, <span class="st">"hp"</span>, pps<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>summary_df.head(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="6">
+<p>Additionally, <code>predictions</code> can be called to obtain the computed result directly. <code>predictions</code> returns a <code>Result</code> named tuple with two fields: <code>summary</code> and <code>draws</code>. The <code>summary</code> field is a pandas DataFrame containing the point estimates (posterior mean) and credible intervals for each row of the prediction grid. The <code>draws</code> field is an <code>arviz.InferenceData</code> object containing the full posterior samples used to compute the summary. The <code>summary</code> is useful for quick inspection and tabular reporting, while <code>draws</code> gives access to the complete posterior distribution for custom analyses or visualizations beyond the default summary statistics. The covariate columns in the summary dataframe are used to create the plot.</p>
+<div id="cell-14" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> bmb.interpret.predictions(model, idata, <span class="st">"hp"</span>, pps<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>result.summary.head(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
 <th data-quarto-table-cell-role="th">hp</th>
+<th data-quarto-table-cell-role="th">wt</th>
 <th data-quarto-table-cell-role="th">cyl</th>
 <th data-quarto-table-cell-role="th">gear</th>
-<th data-quarto-table-cell-role="th">wt</th>
 <th data-quarto-table-cell-role="th">estimate</th>
 <th data-quarto-table-cell-role="th">lower_3.0%</th>
 <th data-quarto-table-cell-role="th">upper_97.0%</th>
@@ -686,104 +673,104 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
-<td>52</td>
+<th data-quarto-table-cell-role="th">0</th>
+<td>52.0</td>
+<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>3.21725</td>
-<td>21.810412</td>
-<td>15.363036</td>
-<td>27.695004</td>
+<td>21.769389</td>
+<td>15.155025</td>
+<td>27.801078</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
-<td>57</td>
+<th data-quarto-table-cell-role="th">1</th>
+<td>57.775509</td>
+<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>3.21725</td>
-<td>21.728002</td>
-<td>14.799208</td>
-<td>27.695061</td>
+<td>21.620118</td>
+<td>15.204532</td>
+<td>27.527416</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
-<td>63</td>
+<th data-quarto-table-cell-role="th">2</th>
+<td>63.551022</td>
+<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>3.21725</td>
-<td>21.470226</td>
-<td>15.192043</td>
-<td>27.603438</td>
+<td>21.423064</td>
+<td>15.840489</td>
+<td>27.677644</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
-<td>69</td>
+<th data-quarto-table-cell-role="th">3</th>
+<td>69.32653</td>
+<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>3.21725</td>
-<td>21.251466</td>
-<td>14.876009</td>
-<td>26.865749</td>
+<td>21.245396</td>
+<td>15.536568</td>
+<td>27.416478</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
-<td>75</td>
+<th data-quarto-table-cell-role="th">4</th>
+<td>75.102043</td>
+<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>3.21725</td>
-<td>21.117730</td>
-<td>15.416268</td>
-<td>27.389751</td>
+<td>21.031391</td>
+<td>15.176853</td>
+<td>27.166209</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">5</td>
-<td>80</td>
+<th data-quarto-table-cell-role="th">5</th>
+<td>80.877548</td>
+<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>3.21725</td>
-<td>20.818311</td>
-<td>15.323215</td>
-<td>26.810713</td>
+<td>20.793708</td>
+<td>15.066254</td>
+<td>26.569833</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">6</td>
-<td>86</td>
+<th data-quarto-table-cell-role="th">6</th>
+<td>86.653061</td>
+<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>3.21725</td>
-<td>20.619549</td>
-<td>14.916622</td>
-<td>26.441445</td>
+<td>20.570593</td>
+<td>14.985099</td>
+<td>26.452294</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">7</td>
-<td>92</td>
+<th data-quarto-table-cell-role="th">7</th>
+<td>92.428574</td>
+<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>3.21725</td>
-<td>20.464403</td>
-<td>14.924356</td>
-<td>26.002963</td>
+<td>20.396766</td>
+<td>14.969660</td>
+<td>26.324485</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">8</td>
-<td>98</td>
+<th data-quarto-table-cell-role="th">8</th>
+<td>98.204086</td>
+<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>3.21725</td>
-<td>20.229962</td>
-<td>15.119724</td>
-<td>25.877523</td>
+<td>20.233286</td>
+<td>14.416709</td>
+<td>25.516963</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">9</td>
-<td>103</td>
+<th data-quarto-table-cell-role="th">9</th>
+<td>103.979591</td>
+<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>3.21725</td>
-<td>20.093819</td>
-<td>14.936911</td>
-<td>25.902589</td>
+<td>20.017851</td>
+<td>14.435007</td>
+<td>25.197021</td>
 </tr>
 </tbody>
 </table>
@@ -792,32 +779,29 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 </div>
 </div>
 <p><code>plot_predictions</code> allows up to three covariates to be plotted simultaneously where the first element in the list represents the main (x-axis) covariate, the second element the group (hue / color), and the third element the facet (panel). However, when plotting more than one covariate, it can be useful to pass specific <code>group</code> and <code>panel</code> arguments to aid in the interpretation of the plot. Therefore, <code>subplot_kwargs</code> allows the user to manipulate the plotting by passing a dictionary where the keys are <code>{"main": ..., "group": ..., "panel": ...}</code> and the values are the names of the covariates to be plotted. For example, passing two covariates <code>hp</code> and <code>wt</code> and specifying <code>subplot_kwargs={"main": "hp", "group": "wt", "panel": "wt"}</code>.</p>
-<div id="cell-17" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>model, </span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>idata, </span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{<span class="st">"hp"</span>: np.linspace(<span class="dv">50</span>, <span class="dv">350</span>, <span class="dv">50</span>), <span class="st">"wt"</span>: np.linspace(<span class="dv">1</span>, <span class="dv">6</span>, <span class="dv">5</span>)},</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    legend<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    subplot_kwargs<span class="op">=</span>{<span class="st">"main"</span>: <span class="st">"hp"</span>, <span class="st">"group"</span>: <span class="st">"wt"</span>, <span class="st">"panel"</span>: <span class="st">"wt"</span>},</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"figsize"</span>: (<span class="dv">20</span>, <span class="dv">8</span>), <span class="st">"sharey"</span>: <span class="va">True</span>}</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-16" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>model,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>idata,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{<span class="st">"hp"</span>: np.linspace(<span class="dv">50</span>, <span class="dv">350</span>, <span class="dv">50</span>), <span class="st">"wt"</span>: np.linspace(<span class="dv">1</span>, <span class="dv">6</span>, <span class="dv">5</span>)},</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    subplot_kwargs<span class="op">=</span>{<span class="st">"main"</span>: <span class="st">"hp"</span>, <span class="st">"group"</span>: <span class="st">"wt"</span>, <span class="st">"panel"</span>: <span class="st">"wt"</span>},</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"theme"</span>: {<span class="st">"figure.figsize"</span>: (<span class="dv">12</span>, <span class="dv">5</span>)}, <span class="st">"title"</span>: <span class="st">"wt=</span><span class="sc">{}</span><span class="st">"</span>.<span class="bu">format</span>}</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>).layout(extent<span class="op">=</span>[<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.92</span>, <span class="dv">1</span>]).show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="plot_predictions_files/figure-html/cell-8-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="plot_predictions_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Furthermore, categorical covariates can also be plotted. We plot the the mean <code>mpg</code> as a function of the two categorical covariates <code>gear</code> and <code>cyl</code> below. The <code>plot_predictions</code> function automatically plots the conditional adjusted predictions for each level of the categorical covariate. Furthermore, when passing a list of covariates into the <code>plot_predictions</code> function, the list will be converted into a dictionary object where the key is taken from (“horizontal”, “color”, “panel”) and the values are the names of the variables. By default, the first element of the list is specified as the “horizontal” covariate, the second element of the list is specified as the “color” covariate, and the third element of the list is mapped to different plot panels.</p>
-<div id="cell-19" class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>), dpi<span class="op">=</span><span class="dv">120</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, [<span class="st">"gear"</span>, <span class="st">"cyl"</span>], ax<span class="op">=</span>ax)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
+<div id="cell-18" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, [<span class="st">"gear"</span>, <span class="st">"cyl"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
 <div>
 <figure class="figure">
-<p><img src="plot_predictions_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="plot_predictions_files/figure-html/cell-8-output-1.png" width="716" height="445" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -826,43 +810,42 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <section id="user-provided-values" class="level3">
 <h3 class="anchored" data-anchor-id="user-provided-values">User provided values</h3>
 <p>In the previous example, default values were computed to construct a reference grid to compute the conditional adjusted predictions. We can also pass our own values for the covariates into <code>conditional</code> using a dictionary where the key-value pairs are the covariate and value(s) of interest. For example, if we wanted to compute the predictions for <code>hp=100</code>, <code>wt=[1.5, 3.5]</code>, and <code>cyl=["low", "medium", "high"]</code> we would pass the following dictionary in the code block below. As can be seen, several data types can be passed such as: <code>np.ndarray</code>, <code>list</code>, <code>int</code>, <code>float</code>, and <code>str</code>.</p>
-<p>Furthermore, Bambi by default, maps the order of the dict keys to the main, group, and panel of the matplotlib figure. Below, since <code>hp</code> is the first key, this is used for the x-axis, <code>wt</code> for the group (color), and <code>cyl</code> for the panel (facet).</p>
-<div id="cell-21" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    model,</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    idata,</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"hp"</span>: [<span class="dv">100</span>, <span class="dv">120</span>],</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"wt"</span>: np.array([<span class="fl">1.5</span>, <span class="fl">3.5</span>]),</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"cyl"</span>: [<span class="st">"low"</span>, <span class="st">"medium"</span>, <span class="st">"high"</span>]</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>        },</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>   fig_kwargs<span class="op">=</span>{<span class="st">"figsize"</span>: (<span class="dv">10</span>, <span class="dv">4</span>), <span class="st">"sharey"</span>: <span class="va">True</span>}</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
+<p>Furthermore, Bambi by default, maps the order of the dict keys to the main, group, and panel of the Seaborn plot object. Below, since <code>hp</code> is the first key, this is used for the x-axis, <code>wt</code> for the group (color), and <code>cyl</code> for the panel (facet).</p>
+<div id="cell-20" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    model,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    idata,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"hp"</span>: [<span class="dv">100</span>, <span class="dv">120</span>],</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"wt"</span>: np.array([<span class="fl">1.5</span>, <span class="fl">3.5</span>]),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"cyl"</span>: [<span class="st">"low"</span>, <span class="st">"medium"</span>, <span class="st">"high"</span>]</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        },</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
 <div>
 <figure class="figure">
-<p><img src="plot_predictions_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="plot_predictions_files/figure-html/cell-9-output-1.png" width="685" height="445" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Before the plot is described, lets see how the dictionary passed to <code>conditional</code> was used to create the dataset in order to compute predictions.</p>
-<div id="cell-23" class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>summary_df <span class="op">=</span> bmb.interpret.predictions(</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    model,</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    idata,</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"hp"</span>: [<span class="dv">100</span>, <span class="dv">120</span>],</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"wt"</span>: np.array([<span class="fl">1.5</span>, <span class="fl">3.5</span>]),</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"cyl"</span>: [<span class="st">"low"</span>, <span class="st">"medium"</span>, <span class="st">"high"</span>]</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>        },</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>summary_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="10">
+<div id="cell-22" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> bmb.interpret.predictions(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    model,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    idata,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"hp"</span>: [<span class="dv">100</span>, <span class="dv">120</span>],</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"wt"</span>: np.array([<span class="fl">1.5</span>, <span class="fl">3.5</span>]),</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"cyl"</span>: [<span class="st">"low"</span>, <span class="st">"medium"</span>, <span class="st">"high"</span>]</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>        },</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>result.summary</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -877,124 +860,124 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
-<td>100</td>
-<td>1.5</td>
-<td>high</td>
-<td>A</td>
-<td>26.610587</td>
-<td>22.075256</td>
-<td>31.146191</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
-<td>100</td>
+<th data-quarto-table-cell-role="th">0</th>
+<td>100.0</td>
 <td>1.5</td>
 <td>low</td>
 <td>A</td>
-<td>27.251230</td>
-<td>23.419253</td>
-<td>30.830434</td>
+<td>27.304564</td>
+<td>23.784165</td>
+<td>31.096134</td>
 </tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
-<td>100</td>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>100.0</td>
 <td>1.5</td>
 <td>medium</td>
 <td>A</td>
-<td>25.529368</td>
-<td>20.970476</td>
-<td>29.644434</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
-<td>100</td>
-<td>3.5</td>
-<td>high</td>
-<td>A</td>
-<td>19.101229</td>
-<td>15.885756</td>
-<td>22.376434</td>
+<td>25.533856</td>
+<td>21.281893</td>
+<td>29.731329</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
-<td>100</td>
-<td>3.5</td>
-<td>low</td>
-<td>A</td>
-<td>19.741872</td>
-<td>16.273313</td>
-<td>23.045604</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">5</td>
-<td>100</td>
-<td>3.5</td>
-<td>medium</td>
-<td>A</td>
-<td>18.020010</td>
-<td>15.563794</td>
-<td>20.537324</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">6</td>
-<td>120</td>
+<th data-quarto-table-cell-role="th">2</th>
+<td>100.0</td>
 <td>1.5</td>
 <td>high</td>
 <td>A</td>
-<td>25.333773</td>
-<td>21.137923</td>
-<td>29.513798</td>
+<td>26.518628</td>
+<td>21.860110</td>
+<td>31.027315</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">7</td>
-<td>120</td>
-<td>1.5</td>
+<th data-quarto-table-cell-role="th">3</th>
+<td>100.0</td>
+<td>3.5</td>
 <td>low</td>
 <td>A</td>
-<td>25.974416</td>
-<td>21.920817</td>
-<td>29.976438</td>
+<td>19.841018</td>
+<td>16.525156</td>
+<td>23.657704</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">8</td>
-<td>120</td>
-<td>1.5</td>
+<th data-quarto-table-cell-role="th">4</th>
+<td>100.0</td>
+<td>3.5</td>
 <td>medium</td>
 <td>A</td>
-<td>24.252554</td>
-<td>19.666425</td>
-<td>28.194181</td>
+<td>18.070310</td>
+<td>15.677600</td>
+<td>20.494219</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">9</td>
-<td>120</td>
+<th data-quarto-table-cell-role="th">5</th>
+<td>100.0</td>
 <td>3.5</td>
 <td>high</td>
 <td>A</td>
-<td>18.484655</td>
-<td>15.674754</td>
-<td>21.087136</td>
+<td>19.055082</td>
+<td>15.840995</td>
+<td>22.335915</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">10</td>
-<td>120</td>
+<th data-quarto-table-cell-role="th">6</th>
+<td>120.0</td>
+<td>1.5</td>
+<td>low</td>
+<td>A</td>
+<td>26.042278</td>
+<td>22.086353</td>
+<td>30.095061</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">7</th>
+<td>120.0</td>
+<td>1.5</td>
+<td>medium</td>
+<td>A</td>
+<td>24.271569</td>
+<td>20.205680</td>
+<td>28.536662</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">8</th>
+<td>120.0</td>
+<td>1.5</td>
+<td>high</td>
+<td>A</td>
+<td>25.256342</td>
+<td>20.972653</td>
+<td>29.383861</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">9</th>
+<td>120.0</td>
 <td>3.5</td>
 <td>low</td>
 <td>A</td>
-<td>19.125298</td>
-<td>15.718574</td>
-<td>22.846968</td>
+<td>19.230260</td>
+<td>15.792725</td>
+<td>23.272200</td>
 </tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">11</td>
-<td>120</td>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">10</th>
+<td>120.0</td>
 <td>3.5</td>
 <td>medium</td>
 <td>A</td>
-<td>17.403436</td>
-<td>15.073683</td>
-<td>20.079422</td>
+<td>17.459552</td>
+<td>15.049397</td>
+<td>20.008033</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">11</th>
+<td>120.0</td>
+<td>3.5</td>
+<td>high</td>
+<td>A</td>
+<td>18.444324</td>
+<td>15.721322</td>
+<td>21.136251</td>
 </tr>
 </tbody>
 </table>
@@ -1008,18 +991,18 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <section id="unit-level-predictions" class="level3">
 <h3 class="anchored" data-anchor-id="unit-level-predictions">Unit level predictions</h3>
 <p>In the previous example, user provided values were computed to construct a pairwise grid to compute the conditional adjusted predictions. It is also possible to compute predictions using the observed (empirical) data used to fit the model and then average over a specific or set of covariates to obtain average adjusted predictions. This is known as unit level predictions. To compute unit level predictions, do not pass any values to the <code>conditional</code> arg. and or specify <code>None</code> (the default).</p>
-<div id="cell-26" class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>summary_df <span class="op">=</span> bmb.interpret.predictions(</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    model,</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    idata,</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>summary_df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="11">
+<div id="cell-25" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> bmb.interpret.predictions(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    model,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    idata,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>result.summary.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -1034,54 +1017,54 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
+<th data-quarto-table-cell-role="th">0</th>
 <td>medium</td>
 <td>B</td>
-<td>110</td>
+<td>110.0</td>
 <td>2.620</td>
-<td>22.264986</td>
-<td>20.077966</td>
-<td>24.325617</td>
+<td>22.216063</td>
+<td>19.981414</td>
+<td>24.313267</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
+<th data-quarto-table-cell-role="th">1</th>
 <td>medium</td>
 <td>B</td>
-<td>110</td>
+<td>110.0</td>
 <td>2.875</td>
-<td>21.349633</td>
-<td>19.300573</td>
-<td>23.263729</td>
+<td>21.305996</td>
+<td>19.187946</td>
+<td>23.226495</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
+<th data-quarto-table-cell-role="th">2</th>
 <td>low</td>
 <td>B</td>
-<td>93</td>
+<td>93.0</td>
 <td>2.320</td>
-<td>25.918932</td>
-<td>24.225028</td>
-<td>27.517733</td>
+<td>25.903324</td>
+<td>24.249935</td>
+<td>27.619540</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
+<th data-quarto-table-cell-role="th">3</th>
 <td>medium</td>
 <td>A</td>
-<td>110</td>
+<td>110.0</td>
 <td>3.215</td>
-<td>18.734764</td>
-<td>16.213729</td>
-<td>21.265602</td>
+<td>18.782065</td>
+<td>16.333854</td>
+<td>21.195922</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
+<th data-quarto-table-cell-role="th">4</th>
 <td>high</td>
 <td>A</td>
-<td>175</td>
+<td>175.0</td>
 <td>3.440</td>
-<td>16.940081</td>
-<td>15.228838</td>
-<td>18.599391</td>
+<td>16.915349</td>
+<td>15.295208</td>
+<td>18.617812</td>
 </tr>
 </tbody>
 </table>
@@ -1089,14 +1072,14 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 </div>
 </div>
 </div>
-<div id="cell-27" class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># data used to fit the model</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>model.data[[<span class="st">"cyl"</span>, <span class="st">"gear"</span>, <span class="st">"hp"</span>, <span class="st">"wt"</span>]].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="12">
+<div id="cell-26" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># data used to fit the model</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>model.data[[<span class="st">"cyl"</span>, <span class="st">"gear"</span>, <span class="st">"hp"</span>, <span class="st">"wt"</span>]].head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -1108,38 +1091,38 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
+<th data-quarto-table-cell-role="th">0</th>
 <td>medium</td>
 <td>B</td>
-<td>110</td>
+<td>110.0</td>
 <td>2.620</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
+<th data-quarto-table-cell-role="th">1</th>
 <td>medium</td>
 <td>B</td>
-<td>110</td>
+<td>110.0</td>
 <td>2.875</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
+<th data-quarto-table-cell-role="th">2</th>
 <td>low</td>
 <td>B</td>
-<td>93</td>
+<td>93.0</td>
 <td>2.320</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
+<th data-quarto-table-cell-role="th">3</th>
 <td>medium</td>
 <td>A</td>
-<td>110</td>
+<td>110.0</td>
 <td>3.215</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
+<th data-quarto-table-cell-role="th">4</th>
 <td>high</td>
 <td>A</td>
-<td>175</td>
+<td>175.0</td>
 <td>3.440</td>
 </tr>
 </tbody>
@@ -1151,20 +1134,20 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <p>Notice how the data in the summary dataframe and model data are the same.</p>
 <section id="marginalizing-over-covariates" class="level4">
 <h4 class="anchored" data-anchor-id="marginalizing-over-covariates">Marginalizing over covariates</h4>
-<p>Since the empirical distrubution is used for computing predictions, the same number of rows (<span class="math inline">\(32\)</span>) is returned as the data used to fit the model. To average over a covariate, use the <code>average_by</code> argument. If <code>True</code> is passed, then <code>predictions</code> averages over all covariates and a single estimate is returned. Else, if a single or list of covariates are passed, then <code>predictions</code> averages by the covariates passed.</p>
-<div id="cell-30" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>summary_df <span class="op">=</span> bmb.interpret.predictions(</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    model,</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    idata,</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="va">True</span></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>summary_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="13">
+<p>Since the empirical distrubution is used for computing predictions, the same number of rows (<span class="math inline">\(32\)</span>) is returned as the data used to fit the model. To average over a covariate, use the <code>average_by</code> argument. If <code>all</code> is passed, then <code>predictions</code> averages over all covariates and a single estimate is returned. Else, if a single or list of covariates are passed, then <code>predictions</code> averages by the covariates passed.</p>
+<div id="cell-29" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> bmb.interpret.predictions(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    model,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    idata,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="st">"all"</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>result.summary</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -1175,10 +1158,10 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
-<td>20.076678</td>
-<td>17.900002</td>
-<td>22.221902</td>
+<th data-quarto-table-cell-role="th">0</th>
+<td>20.058967</td>
+<td>17.899689</td>
+<td>22.247408</td>
 </tr>
 </tbody>
 </table>
@@ -1190,18 +1173,17 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <section id="average-by-subgroups" class="level4">
 <h4 class="anchored" data-anchor-id="average-by-subgroups">Average by subgroups</h4>
 <p>It is still possible to plot predictions when computing unit level predictions. However, now a covariate(s) must be passed to <code>average_by</code> to obtain average adjusted predictions by group. In the plot below, we obtain average predictions grouped by <code>gear</code> and <code>cyl</code>.</p>
-<div id="cell-32" class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    model,</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    idata,</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span>[<span class="st">"gear"</span>, <span class="st">"cyl"</span>],</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"figsize"</span>: (<span class="dv">7</span>, <span class="dv">3</span>)},</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
+<div id="cell-31" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    model,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    idata,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span>[<span class="st">"gear"</span>, <span class="st">"cyl"</span>],</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="13">
 <div>
 <figure class="figure">
-<p><img src="plot_predictions_files/figure-html/cell-15-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="plot_predictions_files/figure-html/cell-14-output-1.png" width="716" height="445" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -1217,19 +1199,19 @@ Default computed for unspecified variable: cyl, gear, wt</code></pre>
 <li>progr: The type of program. Can be one of ‘General’, ‘Academic’, or ‘Vocational’.</li>
 <li>math: Score in a standardized math test.</li>
 </ul>
-<div id="cell-34" class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data, define and fit Bambi model</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_stata(<span class="st">"https://stats.idre.ucla.edu/stat/stata/dae/nb_data.dta"</span>)</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"prog"</span>] <span class="op">=</span> data[<span class="st">"prog"</span>].<span class="bu">map</span>({<span class="dv">1</span>: <span class="st">"General"</span>, <span class="dv">2</span>: <span class="st">"Academic"</span>, <span class="dv">3</span>: <span class="st">"Vocational"</span>})</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>model_interaction <span class="op">=</span> bmb.Model(</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"daysabs ~ 0 + prog + scale(math) + prog:scale(math)"</span>,</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    data,</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">"negativebinomial"</span></span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>idata_interaction <span class="op">=</span> model_interaction.fit(</span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">1000</span>, target_accept<span class="op">=</span><span class="fl">0.95</span>, random_seed<span class="op">=</span><span class="dv">1234</span>, chains<span class="op">=</span><span class="dv">4</span></span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-33" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data, define and fit Bambi model</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_stata(<span class="st">"https://stats.idre.ucla.edu/stat/stata/dae/nb_data.dta"</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"prog"</span>] <span class="op">=</span> data[<span class="st">"prog"</span>].<span class="bu">map</span>({<span class="dv">1</span>: <span class="st">"General"</span>, <span class="dv">2</span>: <span class="st">"Academic"</span>, <span class="dv">3</span>: <span class="st">"Vocational"</span>})</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>model_interaction <span class="op">=</span> bmb.Model(</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"daysabs ~ 0 + prog + scale(math) + prog:scale(math)"</span>,</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    data,</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">"negativebinomial"</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>idata_interaction <span class="op">=</span> model_interaction.fit(</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">1000</span>, target_accept<span class="op">=</span><span class="fl">0.95</span>, random_seed<span class="op">=</span><span class="dv">1234</span>, chains<span class="op">=</span><span class="dv">4</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
@@ -1237,20 +1219,20 @@ NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"8a41306b0994443a8a8b27c70c5545c3","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"474e615d1ecb4b94814f5ce6da6e3f65","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1 seconds.</code></pre>
 </div>
 </div>
 <p>This model utilizes a log link function and a negative binomial distribution for the likelihood. Also note that this model also contains an interaction <code>prog:sale(math)</code>.</p>
-<div id="cell-36" class="cell" data-execution_count="16">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>model_interaction</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="16">
+<div id="cell-35" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model_interaction</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="15">
 <pre><code>       Formula: daysabs ~ 0 + prog + scale(math) + prog:scale(math)
         Family: negativebinomial
           Link: mu = log
@@ -1269,56 +1251,51 @@ NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
 * To see a summary or plot of the posterior pass the object returned by .fit() to az.summary() or az.plot_trace()</code></pre>
 </div>
 </div>
-<div id="cell-37" class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>), dpi<span class="op">=</span><span class="dv">120</span>)</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    model_interaction, </span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    idata_interaction, </span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"math"</span>, </span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    ax<span class="op">=</span>ax, </span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    pps<span class="op">=</span><span class="va">False</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
+<div id="cell-36" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    model_interaction, </span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    idata_interaction, </span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"math"</span>, </span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    pps<span class="op">=</span><span class="va">False</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
 <div>
 <figure class="figure">
-<p><img src="plot_predictions_files/figure-html/cell-18-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="plot_predictions_files/figure-html/cell-17-output-1.png" width="599" height="445" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>The plot above shows that as <code>math</code> increases, the mean <code>daysabs</code> decreases. However, as the model contains an interaction term, the effect of <code>math</code> on <code>daysabs</code> depends on the value of <code>prog</code>. Therefore, we will use <code>plot_predictions</code> to plot the conditional adjusted predictions for each level of <code>prog</code>.</p>
-<div id="cell-39" class="cell" data-execution_count="18">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>), dpi<span class="op">=</span><span class="dv">120</span>)</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    model_interaction, </span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    idata_interaction, </span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"math"</span>, <span class="st">"prog"</span>], </span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    ax<span class="op">=</span>ax, </span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    pps<span class="op">=</span><span class="va">False</span></span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
+<div id="cell-38" class="cell" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    model_interaction, </span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    idata_interaction, </span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"math"</span>, <span class="st">"prog"</span>], </span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    pps<span class="op">=</span><span class="va">False</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="17">
 <div>
 <figure class="figure">
-<p><img src="plot_predictions_files/figure-html/cell-19-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="plot_predictions_files/figure-html/cell-18-output-1.png" width="732" height="445" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Passing specific <code>subplot_kwargs</code> can allow for a more interpretable plot. Especially when the posterior predictive distribution plot results in overlapping credible intervals.</p>
-<div id="cell-41" class="cell" data-execution_count="19">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    model_interaction, </span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    idata_interaction, </span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>[<span class="st">"math"</span>, <span class="st">"prog"</span>],</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    pps<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    subplot_kwargs<span class="op">=</span>{<span class="st">"main"</span>: <span class="st">"math"</span>, <span class="st">"group"</span>: <span class="st">"prog"</span>, <span class="st">"panel"</span>: <span class="st">"prog"</span>},</span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    legend<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"figsize"</span>: (<span class="dv">16</span>, <span class="dv">5</span>), <span class="st">"sharey"</span>: <span class="va">True</span>}</span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
+<div id="cell-40" class="cell" data-execution_count="18">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    model_interaction, </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    idata_interaction, </span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>[<span class="st">"math"</span>, <span class="st">"prog"</span>],</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    pps<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    subplot_kwargs<span class="op">=</span>{<span class="st">"main"</span>: <span class="st">"math"</span>, <span class="st">"group"</span>: <span class="st">"prog"</span>, <span class="st">"panel"</span>: <span class="st">"prog"</span>},</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"theme"</span>: {<span class="st">"figure.figsize"</span>: (<span class="dv">8</span>, <span class="dv">4</span>)}}</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="18">
 <div>
 <figure class="figure">
-<p><img src="plot_predictions_files/figure-html/cell-20-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="plot_predictions_files/figure-html/cell-19-output-1.png" width="883" height="369" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -1327,76 +1304,227 @@ NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
 <section id="logistic-regression" class="level2">
 <h2 class="anchored" data-anchor-id="logistic-regression">Logistic Regression</h2>
 <p>To further demonstrate the <code>plot_predictions</code> function, we will implement a logistic regression model. This example is taken from the marginaleffects <code>plot_predictions</code> <a href="https://marginaleffects.com/chapters/predictions.html#conditional-predictions">documentation</a>. The internet movie database, http://imdb.com/, is a website devoted to collecting movie data supplied by studios and fans. It claims to be the biggest movie database on the web and is run by Amazon. The movies in this dataset were selected for inclusion if they had a known length and had been rated by at least one imdb user. The dataset below contains 28,819 rows and 24 columns. The variables of interest in the dataset are the following: - title. Title of the movie. - year. Year of release. - budget. Total budget (if known) in US dollars - length. Length in minutes. - rating. Average IMDB user rating. - votes. Number of IMDB users who rated this movie. - r1-10. Multiplying by ten gives percentile (to nearest 10%) of users who rated this movie a 1. - mpaa. MPAA rating. - action, animation, comedy, drama, documentary, romance, short. Binary variables represent- ing if movie was classified as belonging to that genre.</p>
-<div id="cell-43" class="cell" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">"https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2movies/movies.csv"</span>)</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"style"</span>] <span class="op">=</span> <span class="st">"Other"</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>data.loc[data[<span class="st">"Action"</span>] <span class="op">==</span> <span class="dv">1</span>, <span class="st">"style"</span>] <span class="op">=</span> <span class="st">"Action"</span></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>data.loc[data[<span class="st">"Comedy"</span>] <span class="op">==</span> <span class="dv">1</span>, <span class="st">"style"</span>] <span class="op">=</span> <span class="st">"Comedy"</span></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>data.loc[data[<span class="st">"Drama"</span>] <span class="op">==</span> <span class="dv">1</span>, <span class="st">"style"</span>] <span class="op">=</span> <span class="st">"Drama"</span></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"certified_fresh"</span>] <span class="op">=</span> (data[<span class="st">"rating"</span>] <span class="op">&gt;=</span> <span class="dv">8</span>) <span class="op">*</span> <span class="dv">1</span></span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data[data[<span class="st">"length"</span>] <span class="op">&lt;</span> <span class="dv">240</span>]</span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {<span class="st">"style"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">2</span>)}</span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"certified_fresh ~ 0 + length * style"</span>, data<span class="op">=</span>data, priors<span class="op">=</span>priors, family<span class="op">=</span><span class="st">"bernoulli"</span>)</span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>, init<span class="op">=</span><span class="st">"adapt_diag"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-42" class="cell" data-execution_count="19">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">"https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2movies/movies.csv"</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"style"</span>] <span class="op">=</span> <span class="st">"Other"</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>data.loc[data[<span class="st">"Action"</span>] <span class="op">==</span> <span class="dv">1</span>, <span class="st">"style"</span>] <span class="op">=</span> <span class="st">"Action"</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>data.loc[data[<span class="st">"Comedy"</span>] <span class="op">==</span> <span class="dv">1</span>, <span class="st">"style"</span>] <span class="op">=</span> <span class="st">"Comedy"</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>data.loc[data[<span class="st">"Drama"</span>] <span class="op">==</span> <span class="dv">1</span>, <span class="st">"style"</span>] <span class="op">=</span> <span class="st">"Drama"</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"certified_fresh"</span>] <span class="op">=</span> (data[<span class="st">"rating"</span>] <span class="op">&gt;=</span> <span class="dv">8</span>) <span class="op">*</span> <span class="dv">1</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data[data[<span class="st">"length"</span>] <span class="op">&lt;</span> <span class="dv">240</span>]</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"length"</span>] <span class="op">=</span> data[<span class="st">"length"</span>].astype(<span class="bu">float</span>)</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"certified_fresh ~ 0 + scale(length) * style"</span>, data<span class="op">=</span>data, family<span class="op">=</span><span class="st">"bernoulli"</span>)</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(inference_method<span class="op">=</span><span class="st">"nutpie"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Modeling the probability that certified_fresh==1
-Initializing NUTS using adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [length, style, length:style]</code></pre>
+<pre><code>Modeling the probability that certified_fresh==1</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"7073ab77d0e3404baad500272661ef2d","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
-</script>
+
+<style>
+    :root {
+        --column-width-1: 40%; /* Progress column width */
+        --column-width-2: 15%; /* Chain column width */
+        --column-width-3: 15%; /* Divergences column width */
+        --column-width-4: 15%; /* Step Size column width */
+        --column-width-5: 15%; /* Gradients/Draw column width */
+    }
+
+    .nutpie {
+        max-width: 800px;
+        margin: 10px auto;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        //color: #333;
+        //background-color: #fff;
+        padding: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        font-size: 14px; /* Smaller font size for a more compact look */
+    }
+    .nutpie table {
+        width: 100%;
+        border-collapse: collapse; /* Remove any extra space between borders */
+    }
+    .nutpie th, .nutpie td {
+        padding: 8px 10px; /* Reduce padding to make table more compact */
+        text-align: left;
+        border-bottom: 1px solid #888;
+    }
+    .nutpie th {
+        //background-color: #f0f0f0;
+    }
+
+    .nutpie th:nth-child(1) { width: var(--column-width-1); }
+    .nutpie th:nth-child(2) { width: var(--column-width-2); }
+    .nutpie th:nth-child(3) { width: var(--column-width-3); }
+    .nutpie th:nth-child(4) { width: var(--column-width-4); }
+    .nutpie th:nth-child(5) { width: var(--column-width-5); }
+
+    .nutpie progress {
+        width: 100%;
+        height: 15px; /* Smaller progress bars */
+        border-radius: 5px;
+    }
+    progress::-webkit-progress-bar {
+        background-color: #eee;
+        border-radius: 5px;
+    }
+    progress::-webkit-progress-value {
+        background-color: #5cb85c;
+        border-radius: 5px;
+    }
+    progress::-moz-progress-bar {
+        background-color: #5cb85c;
+        border-radius: 5px;
+    }
+    .nutpie .progress-cell {
+        width: 100%;
+    }
+
+    .nutpie p strong { font-size: 16px; font-weight: bold; }
+
+    @media (prefers-color-scheme: dark) {
+        .nutpie {
+            //color: #ddd;
+            //background-color: #1e1e1e;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .nutpie table, .nutpie th, .nutpie td {
+            border-color: #555;
+            color: #ccc;
+        }
+        .nutpie th {
+            background-color: #2a2a2a;
+        }
+        .nutpie progress::-webkit-progress-bar {
+            background-color: #444;
+        }
+        .nutpie progress::-webkit-progress-value {
+            background-color: #3178c6;
+        }
+        .nutpie progress::-moz-progress-bar {
+            background-color: #3178c6;
+        }
+    }
+</style>
 </div>
 <div class="cell-output cell-output-display">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+<div class="nutpie">
+    <p><strong>Sampler Progress</strong></p>
+    <p>Total Chains: <span id="total-chains">4</span></p>
+    <p>Active Chains: <span id="active-chains">0</span></p>
+    <p>
+        Finished Chains:
+        <span id="active-chains">4</span>
+    </p>
+    <p>Sampling for 42 seconds</p>
+    <p>
+        Estimated Time to Completion:
+        <span id="eta">now</span>
+    </p>
+
+    <progress id="total-progress-bar" max="8000" value="8000">
+    </progress>
+    <table>
+        <thead>
+            <tr>
+                <th>Progress</th>
+                <th>Draws</th>
+                <th>Divergences</th>
+                <th>Step Size</th>
+                <th>Gradients/Draw</th>
+            </tr>
+        </thead>
+        <tbody id="chain-details">
+            
+                <tr>
+                    <td class="progress-cell">
+                        <progress max="2000" value="2000">
+                        </progress>
+                    </td>
+                    <td>2000</td>
+                    <td>0</td>
+                    <td>0.36</td>
+                    <td>39</td>
+                </tr>
+            
+                <tr>
+                    <td class="progress-cell">
+                        <progress max="2000" value="2000">
+                        </progress>
+                    </td>
+                    <td>2000</td>
+                    <td>0</td>
+                    <td>0.40</td>
+                    <td>3</td>
+                </tr>
+            
+                <tr>
+                    <td class="progress-cell">
+                        <progress max="2000" value="2000">
+                        </progress>
+                    </td>
+                    <td>2000</td>
+                    <td>0</td>
+                    <td>0.34</td>
+                    <td>11</td>
+                </tr>
+            
+                <tr>
+                    <td class="progress-cell">
+                        <progress max="2000" value="2000">
+                        </progress>
+                    </td>
+                    <td>2000</td>
+                    <td>0</td>
+                    <td>0.38</td>
+                    <td>31</td>
+                </tr>
+            
+            
+        </tbody>
+    </table>
 </div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 374 seconds.</code></pre>
 </div>
 </div>
 <p>The logistic regression model uses a logit link function and a Bernoulli likelihood. Therefore, the link scale is the log-odds of a successful response and the response scale is the probability of a successful response.</p>
-<div id="cell-45" class="cell" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="21">
-<pre><code>       Formula: certified_fresh ~ 0 + length * style
+<div id="cell-44" class="cell" data-execution_count="20">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>model</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="20">
+<pre><code>       Formula: certified_fresh ~ 0 + scale(length) * style
         Family: bernoulli
           Link: p = logit
   Observations: 58662
         Priors: 
     target = p
         Common-level effects
-            length ~ Normal(mu: 0.0, sigma: 0.0283)
-            style ~ Normal(mu: 0.0, sigma: 2.0)
-            length:style ~ Normal(mu: [0. 0. 0.], sigma: [0.0263 0.0263 0.0263])
+            scale(length) ~ Normal(mu: 0.0, sigma: 1.0)
+            style ~ Normal(mu: [0. 0. 0. 0.], sigma: [1. 1. 1. 1.])
+            scale(length):style ~ Normal(mu: [0. 0. 0.], sigma: [1.0143 1.0143 1.0143])
 ------
 * To see a plot of the priors call the .plot_priors() method.
 * To see a summary or plot of the posterior pass the object returned by .fit() to az.summary() or az.plot_trace()</code></pre>
 </div>
 </div>
 <p>Again, by default, the <code>plot_predictions</code> function plots the mean outcome on the response scale. Therefore, the plot below shows the probability of a successful response <code>certified_fresh</code> as a function of <code>length</code>.</p>
-<div id="cell-47" class="cell" data-execution_count="22">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>), dpi<span class="op">=</span><span class="dv">120</span>)</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, <span class="st">"length"</span>, ax<span class="op">=</span>ax)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
+<div id="cell-46" class="cell" data-execution_count="21">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, <span class="st">"length"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="21">
 <div>
 <figure class="figure">
-<p><img src="plot_predictions_files/figure-html/cell-23-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="plot_predictions_files/figure-html/cell-22-output-1.png" width="599" height="445" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Additionally, we can see how the probability of <code>certified_fresh</code> varies as a function of categorical covariates.</p>
-<div id="cell-49" class="cell" data-execution_count="23">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>), dpi<span class="op">=</span><span class="dv">120</span>)</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, <span class="st">"style"</span>, ax<span class="op">=</span>ax)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
+<div id="cell-48" class="cell" data-execution_count="22">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, <span class="st">"style"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="22">
 <div>
 <figure class="figure">
-<p><img src="plot_predictions_files/figure-html/cell-24-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="plot_predictions_files/figure-html/cell-23-output-1.png" width="599" height="445" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -1405,18 +1533,18 @@ NUTS: [length, style, length:style]</code></pre>
 <section id="plotting-other-model-parameters" class="level2">
 <h2 class="anchored" data-anchor-id="plotting-other-model-parameters">Plotting other model parameters</h2>
 <p><code>plot_predictions</code> also has the argument <code>target</code> where <code>target</code> determines what parameter of the response distribution is plotted as a function of the explanatory variables. This argument is useful in distributional models, i.e., when the response distribution contains a parameter for location, scale and or shape. The default of this argument is <code>mean</code> and passing a parameter into <code>target</code> only works when the argument <code>pps=False</code> because when <code>pps=True</code> the posterior predictive distribution is plotted and thus, can only refer to the outcome variable (instead of any of the parameters of the response distribution). For this example, we will simulate our own dataset.</p>
-<div id="cell-51" class="cell" data-execution_count="24">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">121195</span>)</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">200</span></span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>a, b <span class="op">=</span> <span class="fl">0.5</span>, <span class="fl">1.1</span></span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="fl">1.5</span>, <span class="fl">1.5</span>, N)</span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>shape <span class="op">=</span> np.exp(<span class="fl">0.3</span> <span class="op">+</span> x <span class="op">*</span> <span class="fl">0.5</span> <span class="op">+</span> rng.normal(scale<span class="op">=</span><span class="fl">0.1</span>, size<span class="op">=</span>N))</span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> rng.gamma(shape, np.exp(a <span class="op">+</span> b <span class="op">*</span> x) <span class="op">/</span> shape, N)</span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>data_gamma <span class="op">=</span> pd.DataFrame({<span class="st">"x"</span>: x, <span class="st">"y"</span>: y})</span>
-<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>formula <span class="op">=</span> bmb.Formula(<span class="st">"y ~ x"</span>, <span class="st">"alpha ~ x"</span>)</span>
-<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(formula, data_gamma, family<span class="op">=</span><span class="st">"gamma"</span>)</span>
-<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-50" class="cell" data-execution_count="23">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">121195</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">200</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>a, b <span class="op">=</span> <span class="fl">0.5</span>, <span class="fl">1.1</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="fl">1.5</span>, <span class="fl">1.5</span>, N)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>shape <span class="op">=</span> np.exp(<span class="fl">0.3</span> <span class="op">+</span> x <span class="op">*</span> <span class="fl">0.5</span> <span class="op">+</span> rng.normal(scale<span class="op">=</span><span class="fl">0.1</span>, size<span class="op">=</span>N))</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> rng.gamma(shape, np.exp(a <span class="op">+</span> b <span class="op">*</span> x) <span class="op">/</span> shape, N)</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>data_gamma <span class="op">=</span> pd.DataFrame({<span class="st">"x"</span>: x, <span class="st">"y"</span>: y})</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>formula <span class="op">=</span> bmb.Formula(<span class="st">"y ~ x"</span>, <span class="st">"alpha ~ x"</span>)</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(formula, data_gamma, family<span class="op">=</span><span class="st">"gamma"</span>)</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
@@ -1424,20 +1552,20 @@ NUTS: [Intercept, x, alpha_Intercept, alpha_x]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"3792802aecbf4732b40231acfec7affa","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"01f4a58e4747486090fbf9e61cbf165b","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 3 seconds.
-There were 9 divergences after tuning. Increase `target_accept` or reparameterize.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.
+There were 10 divergences after tuning. Increase `target_accept` or reparameterize.</code></pre>
 </div>
 </div>
-<div id="cell-52" class="cell" data-execution_count="25">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="25">
+<div id="cell-51" class="cell" data-execution_count="24">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>model</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="24">
 <pre><code>       Formula: y ~ x
                 alpha ~ x
         Family: gamma
@@ -1459,45 +1587,43 @@ There were 9 divergences after tuning. Increase `target_accept` or reparameteriz
 </div>
 </div>
 <p>The model we defined uses a <code>gamma</code> distribution parameterized by <code>alpha</code> and <code>mu</code> where <code>alpha</code> utilizes a log link and <code>mu</code> goes through an inverse link. Therefore, we can plot either: (1) the <code>mu</code> of the response distribution (which is the default), or (2) <code>alpha</code> of the response distribution as a function of the explanatory variable <span class="math inline">\(x\)</span>.</p>
-<div id="cell-54" class="cell" data-execution_count="26">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First, the mean of the response (default)</span></span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>), dpi<span class="op">=</span><span class="dv">120</span>)</span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, <span class="st">"x"</span>, ax<span class="op">=</span>ax)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
+<div id="cell-53" class="cell" data-execution_count="25">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First, the mean of the response (default)</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, <span class="st">"x"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="25">
 <div>
 <figure class="figure">
-<p><img src="plot_predictions_files/figure-html/cell-27-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="plot_predictions_files/figure-html/cell-26-output-1.png" width="599" height="445" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Below, instead of plotting the default target, <code>target=mean</code>, we set <code>target=alpha</code> to visualize how the model parameter <code>alpha</code> varies as a function of the <code>x</code> predictor.</p>
-<div id="cell-56" class="cell" data-execution_count="27">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Second, another param. of the distribution: alpha</span></span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>), dpi<span class="op">=</span><span class="dv">120</span>)</span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, <span class="st">"x"</span>, target<span class="op">=</span><span class="st">"alpha"</span>, ax<span class="op">=</span>ax)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
+<div id="cell-55" class="cell" data-execution_count="26">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Second, another param. of the distribution: alpha</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, <span class="st">"x"</span>, target<span class="op">=</span><span class="st">"alpha"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="26">
 <div>
 <figure class="figure">
-<p><img src="plot_predictions_files/figure-html/cell-28-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="plot_predictions_files/figure-html/cell-27-output-1.png" width="599" height="445" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<div id="cell-57" class="cell" data-execution_count="28">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-56" class="cell" data-execution_count="27">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Sun Sep 28 2025
+<pre><code>Last updated: Wed Feb 18 2026
 
 Python implementation: CPython
-Python version       : 3.13.7
-IPython version      : 9.4.0
+Python version       : 3.13.9
+IPython version      : 9.6.0
 
-pandas    : 2.3.2
 numpy     : 2.3.3
-matplotlib: 3.10.6
-bambi     : 0.14.1.dev58+gb25742785.d20250928
+bambi     : 0.16.1.dev42+g0d5870261.d20260218
+pandas    : 2.3.3
+matplotlib: 3.10.7
 
 Watermark: 2.5.0
 </code></pre>
@@ -1559,13 +1685,14 @@ Watermark: 2.5.0
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

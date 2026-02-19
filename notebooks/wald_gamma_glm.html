@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.8.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -58,7 +58,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
@@ -69,14 +69,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../logos/favicon.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-24b2bc59dfb44dcacae2ef3892b980b7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-3c56c0b7dc851bacd9d27cbff10130fd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -104,10 +105,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
-<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -123,7 +124,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -150,7 +151,8 @@ window.Quarto = {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a href="../index.html" class="navbar-brand navbar-brand-logo">
-    <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo">
+    <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo light-content">
+    <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo dark-content">
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -430,7 +432,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../notebooks/plot_predictions.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Plot Conditional Adjusted Predictions</span></a>
+ <span class="menu-text">Plot Predictions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -443,12 +445,6 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="../notebooks/plot_slopes.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Plot Slopes</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../notebooks/interpret_advanced_usage.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Interpret Advanced Usage</span></a>
   </div>
 </li>
       </ul>
@@ -532,23 +528,23 @@ window.Quarto = {
 
 
 <div id="cell-2" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-darkgrid"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-darkgrid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <section id="load-and-examine-vehicle-insurance-data" class="level2">
 <h2 class="anchored" data-anchor-id="load-and-examine-vehicle-insurance-data">Load and examine Vehicle insurance data</h2>
 <p>In this notebook we use a data set consisting of 67856 insurance policies and 4624 (6.8%) claims in Australia between 2004 and 2005. The original source of this dataset is the book <a href="https://doi.org/10.1017/CBO9780511755408">Generalized Linear Models for Insurance Data</a> by Piet de Jong and Gillian Z. Heller.</p>
 <div id="cell-4" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> bmb.load_data(<span class="st">"carclaims"</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> bmb.load_data(<span class="st">"carclaims"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>data.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -566,7 +562,7 @@ window.Quarto = {
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
+<th data-quarto-table-cell-role="th">0</th>
 <td>1.06</td>
 <td>0.303901</td>
 <td>0</td>
@@ -579,7 +575,7 @@ window.Quarto = {
 <td>2</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
+<th data-quarto-table-cell-role="th">1</th>
 <td>1.03</td>
 <td>0.648871</td>
 <td>0</td>
@@ -592,7 +588,7 @@ window.Quarto = {
 <td>4</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
+<th data-quarto-table-cell-role="th">2</th>
 <td>3.26</td>
 <td>0.569473</td>
 <td>0</td>
@@ -605,7 +601,7 @@ window.Quarto = {
 <td>2</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
+<th data-quarto-table-cell-role="th">3</th>
 <td>4.14</td>
 <td>0.317591</td>
 <td>0</td>
@@ -618,7 +614,7 @@ window.Quarto = {
 <td>2</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
+<th data-quarto-table-cell-role="th">4</th>
 <td>0.72</td>
 <td>0.648871</td>
 <td>0</td>
@@ -651,19 +647,19 @@ window.Quarto = {
 </ul>
 <p>The variable of interest is the claim amount, given by <code>"claimcst0"</code>. We keep the records where there is a claim, so claim amount is greater than 0.</p>
 <div id="cell-7" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data[data[<span class="st">"claimcst0"</span>] <span class="op">&gt;</span> <span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data[data[<span class="st">"claimcst0"</span>] <span class="op">&gt;</span> <span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>For clarity, we only show those claims amounts below \$15,000, since there are only 65 records above that threshold.</p>
 <div id="cell-9" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>data[data[<span class="st">"claimcst0"</span>] <span class="op">&gt;</span> <span class="dv">15000</span>].shape[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>data[data[<span class="st">"claimcst0"</span>] <span class="op">&gt;</span> <span class="dv">15000</span>].shape[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
 <pre><code>65</code></pre>
 </div>
 </div>
 <div id="cell-10" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>plt.hist(data[data[<span class="st">"claimcst0"</span>] <span class="op">&lt;=</span> <span class="dv">15000</span>][<span class="st">"claimcst0"</span>], bins<span class="op">=</span><span class="dv">30</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>plt.hist(data[data[<span class="st">"claimcst0"</span>] <span class="op">&lt;=</span> <span class="dv">15000</span>][<span class="st">"claimcst0"</span>], bins<span class="op">=</span><span class="dv">30</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Distribution of claim amount"</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Claim amount ($)"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Claim amount ($)"</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -720,8 +716,8 @@ y_i \sim \text{Gamma}(\mu_i, \sigma_i), &amp; g(\mu_i) = \mathbf{x}_i^T\beta, &a
 <section id="wald" class="level3">
 <h3 class="anchored" data-anchor-id="wald">Wald</h3>
 <div id="cell-17" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>model_wald <span class="op">=</span> bmb.Model(<span class="st">"claimcst0 ~ C(agecat) + gender + area"</span>, data, family <span class="op">=</span> <span class="st">"wald"</span>, link <span class="op">=</span> <span class="st">"log"</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>fitted_wald <span class="op">=</span> model_wald.fit(tune<span class="op">=</span><span class="dv">2000</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>, idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>model_wald <span class="op">=</span> bmb.Model(<span class="st">"claimcst0 ~ C(agecat) + gender + area"</span>, data, family <span class="op">=</span> <span class="st">"wald"</span>, link <span class="op">=</span> <span class="st">"log"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>fitted_wald <span class="op">=</span> model_wald.fit(tune<span class="op">=</span><span class="dv">2000</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>, idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
@@ -740,7 +736,7 @@ NUTS: [lam, Intercept, C(agecat), gender, area]</code></pre>
 </div>
 </div>
 <div id="cell-18" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(fitted_wald)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(fitted_wald)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -750,12 +746,12 @@ NUTS: [lam, Intercept, C(agecat), gender, area]</code></pre>
 </div>
 </div>
 <div id="cell-19" class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>az.summary(fitted_wald)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>az.summary(fitted_wald)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="8">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -772,7 +768,7 @@ NUTS: [lam, Intercept, C(agecat), gender, area]</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">lam</td>
+<th data-quarto-table-cell-role="th">lam</th>
 <td>722.968</td>
 <td>14.905</td>
 <td>696.637</td>
@@ -784,7 +780,7 @@ NUTS: [lam, Intercept, C(agecat), gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">Intercept</td>
+<th data-quarto-table-cell-role="th">Intercept</th>
 <td>7.724</td>
 <td>0.096</td>
 <td>7.537</td>
@@ -796,7 +792,7 @@ NUTS: [lam, Intercept, C(agecat), gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">C(agecat)[2]</td>
+<th data-quarto-table-cell-role="th">C(agecat)[2]</th>
 <td>-0.166</td>
 <td>0.104</td>
 <td>-0.354</td>
@@ -808,7 +804,7 @@ NUTS: [lam, Intercept, C(agecat), gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">C(agecat)[3]</td>
+<th data-quarto-table-cell-role="th">C(agecat)[3]</th>
 <td>-0.258</td>
 <td>0.099</td>
 <td>-0.443</td>
@@ -820,7 +816,7 @@ NUTS: [lam, Intercept, C(agecat), gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">C(agecat)[4]</td>
+<th data-quarto-table-cell-role="th">C(agecat)[4]</th>
 <td>-0.265</td>
 <td>0.099</td>
 <td>-0.462</td>
@@ -832,7 +828,7 @@ NUTS: [lam, Intercept, C(agecat), gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">C(agecat)[5]</td>
+<th data-quarto-table-cell-role="th">C(agecat)[5]</th>
 <td>-0.378</td>
 <td>0.106</td>
 <td>-0.567</td>
@@ -844,7 +840,7 @@ NUTS: [lam, Intercept, C(agecat), gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">C(agecat)[6]</td>
+<th data-quarto-table-cell-role="th">C(agecat)[6]</th>
 <td>-0.318</td>
 <td>0.119</td>
 <td>-0.543</td>
@@ -856,7 +852,7 @@ NUTS: [lam, Intercept, C(agecat), gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">gender[M]</td>
+<th data-quarto-table-cell-role="th">gender[M]</th>
 <td>0.153</td>
 <td>0.051</td>
 <td>0.051</td>
@@ -868,7 +864,7 @@ NUTS: [lam, Intercept, C(agecat), gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">area[B]</td>
+<th data-quarto-table-cell-role="th">area[B]</th>
 <td>-0.029</td>
 <td>0.072</td>
 <td>-0.162</td>
@@ -880,7 +876,7 @@ NUTS: [lam, Intercept, C(agecat), gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">area[C]</td>
+<th data-quarto-table-cell-role="th">area[C]</th>
 <td>0.072</td>
 <td>0.068</td>
 <td>-0.053</td>
@@ -892,7 +888,7 @@ NUTS: [lam, Intercept, C(agecat), gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">area[D]</td>
+<th data-quarto-table-cell-role="th">area[D]</th>
 <td>-0.021</td>
 <td>0.090</td>
 <td>-0.190</td>
@@ -904,7 +900,7 @@ NUTS: [lam, Intercept, C(agecat), gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">area[E]</td>
+<th data-quarto-table-cell-role="th">area[E]</th>
 <td>0.149</td>
 <td>0.103</td>
 <td>-0.045</td>
@@ -916,7 +912,7 @@ NUTS: [lam, Intercept, C(agecat), gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">area[F]</td>
+<th data-quarto-table-cell-role="th">area[F]</th>
 <td>0.372</td>
 <td>0.131</td>
 <td>0.133</td>
@@ -940,14 +936,14 @@ NUTS: [lam, Intercept, C(agecat), gender, area]</code></pre>
 <section id="gamma" class="level3">
 <h3 class="anchored" data-anchor-id="gamma">Gamma</h3>
 <div id="cell-22" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>model_gamma <span class="op">=</span> bmb.Model(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>model_gamma <span class="op">=</span> bmb.Model(</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"claimcst0 ~ agecat + gender + area"</span>,</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    data,</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">"gamma"</span>,</span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    link<span class="op">=</span><span class="st">"log"</span>,</span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    categorical<span class="op">=</span><span class="st">"agecat"</span>,</span>
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>fitted_gamma <span class="op">=</span> model_gamma.fit(tune<span class="op">=</span><span class="dv">2000</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>, idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>fitted_gamma <span class="op">=</span> model_gamma.fit(tune<span class="op">=</span><span class="dv">2000</span>, target_accept<span class="op">=</span><span class="fl">0.9</span>, idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
@@ -966,7 +962,7 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 </div>
 </div>
 <div id="cell-23" class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(fitted_gamma)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(fitted_gamma)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -976,12 +972,12 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 </div>
 </div>
 <div id="cell-24" class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>az.summary(fitted_gamma)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>az.summary(fitted_gamma)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="11">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -998,7 +994,7 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">alpha</td>
+<th data-quarto-table-cell-role="th">alpha</th>
 <td>0.762</td>
 <td>0.013</td>
 <td>0.737</td>
@@ -1010,7 +1006,7 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">Intercept</td>
+<th data-quarto-table-cell-role="th">Intercept</th>
 <td>7.718</td>
 <td>0.063</td>
 <td>7.598</td>
@@ -1022,7 +1018,7 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">agecat[2]</td>
+<th data-quarto-table-cell-role="th">agecat[2]</th>
 <td>-0.183</td>
 <td>0.064</td>
 <td>-0.309</td>
@@ -1034,7 +1030,7 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">agecat[3]</td>
+<th data-quarto-table-cell-role="th">agecat[3]</th>
 <td>-0.277</td>
 <td>0.062</td>
 <td>-0.395</td>
@@ -1046,7 +1042,7 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">agecat[4]</td>
+<th data-quarto-table-cell-role="th">agecat[4]</th>
 <td>-0.270</td>
 <td>0.062</td>
 <td>-0.382</td>
@@ -1058,7 +1054,7 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">agecat[5]</td>
+<th data-quarto-table-cell-role="th">agecat[5]</th>
 <td>-0.390</td>
 <td>0.070</td>
 <td>-0.519</td>
@@ -1070,7 +1066,7 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">agecat[6]</td>
+<th data-quarto-table-cell-role="th">agecat[6]</th>
 <td>-0.317</td>
 <td>0.080</td>
 <td>-0.463</td>
@@ -1082,7 +1078,7 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">gender[M]</td>
+<th data-quarto-table-cell-role="th">gender[M]</th>
 <td>0.167</td>
 <td>0.033</td>
 <td>0.106</td>
@@ -1094,7 +1090,7 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">area[B]</td>
+<th data-quarto-table-cell-role="th">area[B]</th>
 <td>-0.024</td>
 <td>0.051</td>
 <td>-0.124</td>
@@ -1106,7 +1102,7 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">area[C]</td>
+<th data-quarto-table-cell-role="th">area[C]</th>
 <td>0.071</td>
 <td>0.048</td>
 <td>-0.021</td>
@@ -1118,7 +1114,7 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">area[D]</td>
+<th data-quarto-table-cell-role="th">area[D]</th>
 <td>-0.016</td>
 <td>0.064</td>
 <td>-0.128</td>
@@ -1130,7 +1126,7 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">area[E]</td>
+<th data-quarto-table-cell-role="th">area[E]</th>
 <td>0.152</td>
 <td>0.069</td>
 <td>0.031</td>
@@ -1142,7 +1138,7 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">area[F]</td>
+<th data-quarto-table-cell-role="th">area[F]</th>
 <td>0.372</td>
 <td>0.080</td>
 <td>0.224</td>
@@ -1166,14 +1162,14 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 <h2 class="anchored" data-anchor-id="model-comparison">Model comparison</h2>
 <p>We can perform a Bayesian model comparison very easily with <code>az.compare()</code>. Here we pass a dictionary with the InferenceData objects that <code>Model.fit()</code> returned and <code>az.compare()</code> returns a data frame that is ordered from best to worst according to the criteria used.</p>
 <div id="cell-27" class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>models <span class="op">=</span> {<span class="st">"wald"</span>: fitted_wald, <span class="st">"gamma"</span>: fitted_gamma}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>models <span class="op">=</span> {<span class="st">"wald"</span>: fitted_wald, <span class="st">"gamma"</span>: fitted_gamma}</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>df_compare <span class="op">=</span> az.compare(models)</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>df_compare</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>df_compare</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="12">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -1190,7 +1186,7 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">wald</td>
+<th data-quarto-table-cell-role="th">wald</th>
 <td>0</td>
 <td>-38581.494055</td>
 <td>12.959767</td>
@@ -1202,7 +1198,7 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 <td>log</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">gamma</td>
+<th data-quarto-table-cell-role="th">gamma</th>
 <td>1</td>
 <td>-39629.411646</td>
 <td>27.222600</td>
@@ -1220,7 +1216,7 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 </div>
 </div>
 <div id="cell-28" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>az.plot_compare(df_compare, insample_dev<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>az.plot_compare(df_compare, insample_dev<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1231,8 +1227,8 @@ NUTS: [alpha, Intercept, agecat, gender, area]</code></pre>
 </div>
 <p>By default, ArviZ uses <em>loo</em>, which is an estimation of leave one out cross-validation. Another option is the widely applicable information criterion (WAIC). Since the results are in the log scale, the better out-of-sample predictive fit is given by the model with the highest value, which is the Wald model.</p>
 <div id="cell-30" class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Last updated: Sun Sep 28 2025
 
@@ -1304,13 +1300,14 @@ Watermark: 2.5.0
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

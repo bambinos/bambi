@@ -7,66 +7,80 @@ interpret.comparisons(
     contrast,
     conditional=None,
     average_by=None,
-    comparison_type='diff',
+    target='mean',
+    pps=False,
+    comparison='diff',
     use_hdi=True,
-    prob=None,
+    prob=az.rcParams['stats.ci_prob'],
     transforms=None,
     sample_new_groups=False,
 )
 ```
 
-Compute Conditional Adjusted Comparisons
+Compute conditional adjusted comparisons.
 
 ## Parameters {.doc-section .doc-section-parameters}
 
-<code>[**model**]{.parameter-name} [:]{.parameter-annotation-sep} [[bambi](`bambi`).[Model](`bambi.Model`)]{.parameter-annotation}</code>
+<code>[**model**]{.parameter-name} [:]{.parameter-annotation-sep} [[Model](`bambi.models.Model`)]{.parameter-annotation}</code>
 
-:   The model for which we want to plot the predictions.
+:   The fitted Bambi model.
 
-<code>[**idata**]{.parameter-name} [:]{.parameter-annotation-sep} [[arviz](`arviz`).[InferenceData](`arviz.InferenceData`)]{.parameter-annotation}</code>
+<code>[**idata**]{.parameter-name} [:]{.parameter-annotation-sep} [[InferenceData](`arviz.InferenceData`)]{.parameter-annotation}</code>
 
-:   The InferenceData object that contains the samples from the posterior distribution of the model.
+:   InferenceData object containing the posterior samples.
 
-<code>[**contrast**]{.parameter-name} [:]{.parameter-annotation-sep} [([str](`str`), [dict](`dict`))]{.parameter-annotation}</code>
+<code>[**contrast**]{.parameter-name} [:]{.parameter-annotation-sep} [[ContrastParam](`ContrastParam`)]{.parameter-annotation}</code>
 
-:   The predictor name whose contrast we would like to compare.
+:   Variable(s) to create contrasts for.
 
-<code>[**conditional**]{.parameter-name} [:]{.parameter-annotation-sep} [([str](`str`), [list](`list`), [dict](`dict`))]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+<code>[**conditional**]{.parameter-name} [:]{.parameter-annotation-sep} [[ConditionalParam](`ConditionalParam`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
 
-:   The covariates we would like to condition on. If dict, keys are the covariate names and values are the values to condition on.
+:   Variables to condition on for comparisons.
 
-<code>[**average_by**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`) \| [list](`list`) \| [bool](`bool`) \| None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+<code>[**average_by**]{.parameter-name} [:]{.parameter-annotation-sep} [([str](`str`), [list](`list`) or None)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
 
-:   The covariates we would like to average by. The passed covariate(s) will marginalize over the other covariates in the model. If True, it averages over all covariates in the model to obtain the average estimate. Defaults to `None`.
+:   Variables to average comparisons over.
 
-<code>[**comparison_type**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'diff\']{.parameter-default}</code>
+<code>[**target**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'mean\']{.parameter-default}</code>
 
-:   The type of comparison to plot. Defaults to 'diff'.
+:   The target parameter to compare. Default is "mean".
+
+<code>[**pps**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [False]{.parameter-default}</code>
+
+:   Whether to use posterior predictive samples. Default is False.
+
+<code>[**comparison**]{.parameter-name} [:]{.parameter-annotation-sep} [[ComparisonFunc](`bambi.interpret.ops.ComparisonFunc`) or [str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'diff\']{.parameter-default}</code>
+
+:   Comparison function or string name. Built-in options: "diff" (difference), "ratio" (ratio), "lift" (relative difference). Default is "diff". Custom functions should accept (reference, contrast) DataArrays and return a DataArray.
 
 <code>[**use_hdi**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
 
-:   Whether to compute the highest density interval (defaults to True) or the quantiles.
+:   Whether to use highest density interval. Default is True.
 
-<code>[**prob**]{.parameter-name} [:]{.parameter-annotation-sep} [[float](`float`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+<code>[**prob**]{.parameter-name} [:]{.parameter-annotation-sep} [[float](`float`) or [list](`list`)\[[float](`float`)\]]{.parameter-annotation} [ = ]{.parameter-default-sep} [az.rcParams\[\'stats.ci_prob\'\]]{.parameter-default}</code>
 
-:   The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94. Changing the global variable `az.rcParams["stats.hdi_prob"]` affects this default.
+:   Probability or list of probabilities for credible intervals. Default is from arviz rcParams. When a list is provided, multiple nested intervals are computed.
 
-<code>[**transforms**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+<code>[**transforms**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
 
-:   Transformations that are applied to each of the variables being plotted. The keys are the name of the variables, and the values are functions to be applied. Defaults to `None`.
+:   Dictionary of transformations to apply to comparisons.
 
 <code>[**sample_new_groups**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [False]{.parameter-default}</code>
 
-:   If the model contains group-level effects, and data is passed for unseen groups, whether to sample from the new groups. Defaults to `False`.
+:   Whether to sample new group levels. Default is False.
 
 ## Returns {.doc-section .doc-section-returns}
 
-<code>[]{.parameter-name} [:]{.parameter-annotation-sep} [[pd](`pandas`).[DataFrame](`pandas.DataFrame`)]{.parameter-annotation}</code>
+<code>[]{.parameter-name} [:]{.parameter-annotation-sep} [[DataFrame](`pandas.DataFrame`)]{.parameter-annotation}</code>
 
-:   A dataframe with the comparison values, highest density interval, contrast name, contrast value, and conditional values.
+:   A DataFrame containing the conditional adjusted comparisons with summary statistics.
 
 ## Raises {.doc-section .doc-section-raises}
 
 <code>[[ValueError](`ValueError`)]{.parameter-annotation}</code>
 
-:   If `wrt` is a dict and length of `contrast` is greater than 1. If `wrt` is a dict and length of `contrast` is greater than 2 and `conditional` is `None`. If `conditional` is None and `contrast` is categorical with > 2 values. If `conditional` is a list and the length is greater than 3. If `comparison_type` is not 'diff' or 'ratio'. If `prob` is not > 0 and < 1.
+:   If any prob value is not between 0 and 1.
+
+<code>[[TypeError](`TypeError`)]{.parameter-annotation}</code>
+
+:   If comparison is not a callable or valid string.

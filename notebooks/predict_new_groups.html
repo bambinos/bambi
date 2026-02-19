@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.8.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -58,7 +58,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
@@ -69,14 +69,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../logos/favicon.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-24b2bc59dfb44dcacae2ef3892b980b7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-3c56c0b7dc851bacd9d27cbff10130fd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -104,10 +105,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
-<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -123,7 +124,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -150,7 +151,8 @@ window.Quarto = {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a href="../index.html" class="navbar-brand navbar-brand-logo">
-    <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo">
+    <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo light-content">
+    <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo dark-content">
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -430,7 +432,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../notebooks/plot_predictions.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Plot Conditional Adjusted Predictions</span></a>
+ <span class="menu-text">Plot Predictions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -443,12 +445,6 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="../notebooks/plot_slopes.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Plot Slopes</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../notebooks/interpret_advanced_usage.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Interpret Advanced Usage</span></a>
   </div>
 </li>
       </ul>
@@ -551,7 +547,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="hierarchical-regression">Hierarchical regression</h2>
 <p>To demonstrate the <code>sample_new_groups</code> argument, we will develop a hierarchical model on the <a href="https://www.kaggle.com/c/osic-pulmonary-fibrosis-progression">OSIC Pulmonary Fibrosis Progression</a> dataset. Pulmonary fibrosis is a disorder with no known cause and no known cure, created by scarring of the lungs. Using a hierarchical model, the objective is to predict a patient’s severity of decline in lung function. Lung function is assessed based on output from a spirometer, which measures the forced vital capacity (FVC), i.e.&nbsp;the volume of air exhaled by the patient.</p>
 <div id="cell-5" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
@@ -559,7 +555,7 @@ window.Quarto = {
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>warnings.simplefilter(action<span class="op">=</span><span class="st">"ignore"</span>, category<span class="op">=</span><span class="pp">FutureWarning</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>warnings.simplefilter(action<span class="op">=</span><span class="st">"ignore"</span>, category<span class="op">=</span><span class="pp">FutureWarning</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <section id="the-osic-pulmonary-fibrosis-progression-dataset" class="level3">
 <h3 class="anchored" data-anchor-id="the-osic-pulmonary-fibrosis-progression-dataset">The OSIC pulmonary fibrosis progression dataset</h3>
@@ -575,7 +571,7 @@ window.Quarto = {
 </ul>
 <p>A patient has an image acquired at time <code>week = 0</code> and has numerous follow up visits over the course of approximately 1-2 years, at which time their FVC is measured. Below, we randomly sample three patients and plot their FVC measurements over time.</p>
 <div id="cell-7" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"https://gist.githubusercontent.com/ucals/"</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2cf9d101992cb1b78c2cdd6e3bac6a4b/raw/"</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"43034c39052dcf97d4b894d2ec1bc3f90f3623d9/"</span></span>
@@ -584,12 +580,12 @@ window.Quarto = {
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>data.columns <span class="op">=</span> data.columns.<span class="bu">str</span>.lower()</span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>data.columns <span class="op">=</span> data.columns.<span class="bu">str</span>.replace(<span class="st">"smokingstatus"</span>, <span class="st">"smoking_status"</span>)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -604,7 +600,7 @@ window.Quarto = {
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
+<th data-quarto-table-cell-role="th">0</th>
 <td>ID00007637202177411956430</td>
 <td>-4</td>
 <td>2315</td>
@@ -614,7 +610,7 @@ window.Quarto = {
 <td>Ex-smoker</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
+<th data-quarto-table-cell-role="th">1</th>
 <td>ID00007637202177411956430</td>
 <td>5</td>
 <td>2214</td>
@@ -624,7 +620,7 @@ window.Quarto = {
 <td>Ex-smoker</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
+<th data-quarto-table-cell-role="th">2</th>
 <td>ID00007637202177411956430</td>
 <td>7</td>
 <td>2061</td>
@@ -634,7 +630,7 @@ window.Quarto = {
 <td>Ex-smoker</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
+<th data-quarto-table-cell-role="th">3</th>
 <td>ID00007637202177411956430</td>
 <td>9</td>
 <td>2144</td>
@@ -644,7 +640,7 @@ window.Quarto = {
 <td>Ex-smoker</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
+<th data-quarto-table-cell-role="th">4</th>
 <td>ID00007637202177411956430</td>
 <td>11</td>
 <td>2069</td>
@@ -654,7 +650,7 @@ window.Quarto = {
 <td>Ex-smoker</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">...</td>
+<th data-quarto-table-cell-role="th">...</th>
 <td>...</td>
 <td>...</td>
 <td>...</td>
@@ -664,7 +660,7 @@ window.Quarto = {
 <td>...</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">1544</td>
+<th data-quarto-table-cell-role="th">1544</th>
 <td>ID00426637202313170790466</td>
 <td>13</td>
 <td>2712</td>
@@ -674,7 +670,7 @@ window.Quarto = {
 <td>Never smoked</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">1545</td>
+<th data-quarto-table-cell-role="th">1545</th>
 <td>ID00426637202313170790466</td>
 <td>19</td>
 <td>2978</td>
@@ -684,7 +680,7 @@ window.Quarto = {
 <td>Never smoked</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">1546</td>
+<th data-quarto-table-cell-role="th">1546</th>
 <td>ID00426637202313170790466</td>
 <td>31</td>
 <td>2908</td>
@@ -694,7 +690,7 @@ window.Quarto = {
 <td>Never smoked</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">1547</td>
+<th data-quarto-table-cell-role="th">1547</th>
 <td>ID00426637202313170790466</td>
 <td>43</td>
 <td>2975</td>
@@ -704,7 +700,7 @@ window.Quarto = {
 <td>Never smoked</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">1548</td>
+<th data-quarto-table-cell-role="th">1548</th>
 <td>ID00426637202313170790466</td>
 <td>59</td>
 <td>2774</td>
@@ -721,17 +717,17 @@ window.Quarto = {
 </div>
 </div>
 <div id="cell-8" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> label_encoder(labels):</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> label_encoder(labels):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Encode patient IDs as integers.</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    unique_labels <span class="op">=</span> np.unique(labels)</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    label_to_index <span class="op">=</span> {label: index <span class="cf">for</span> index, label <span class="kw">in</span> <span class="bu">enumerate</span>(unique_labels)}</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    encoded_labels <span class="op">=</span> labels.<span class="bu">map</span>(label_to_index)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> encoded_labels</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> encoded_labels</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="cell-9" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>predictors <span class="op">=</span> [<span class="st">"patient"</span>, <span class="st">"weeks"</span>, <span class="st">"fvc"</span>, <span class="st">"smoking_status"</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>predictors <span class="op">=</span> [<span class="st">"patient"</span>, <span class="st">"weeks"</span>, <span class="st">"fvc"</span>, <span class="st">"smoking_status"</span>]</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"patient"</span>] <span class="op">=</span> label_encoder(data[<span class="st">'patient'</span>])</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -742,10 +738,10 @@ window.Quarto = {
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    data[<span class="st">"fvc"</span>].<span class="bu">max</span>() <span class="op">-</span> data[<span class="st">"fvc"</span>].<span class="bu">min</span>()</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data[predictors]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data[predictors]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="cell-10" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>patient_id <span class="op">=</span> data.sample(n<span class="op">=</span><span class="dv">3</span>, random_state<span class="op">=</span><span class="dv">42</span>)[<span class="st">"patient"</span>].values</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>patient_id <span class="op">=</span> data.sample(n<span class="op">=</span><span class="dv">3</span>, random_state<span class="op">=</span><span class="dv">42</span>)[<span class="st">"patient"</span>].values</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">3</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, p <span class="kw">in</span> <span class="bu">enumerate</span>(patient_id):</span>
@@ -755,7 +751,7 @@ window.Quarto = {
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    ax[i].set_ylabel(<span class="st">"fvc"</span>)</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    ax[i].set_title(<span class="ss">f"patient </span><span class="sc">{</span>p<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -776,7 +772,7 @@ window.Quarto = {
 <p>Additionally, the global intercept is not included. Since the global intercept is excluded, <code>smoking_status</code> uses cell means encoding (i.e.&nbsp;the coefficient represents the estimate for each <code>smoking_status</code> category of the entire group). This logic also applies for <code>weeks</code>. However, a group-effect is also specified for <code>weeks</code>, which means that the association between <code>weeks</code> and the <code>fvc</code> is allowed to vary by individual <code>patients</code>.</p>
 <p>Below, the default prior for the group-effect sigma is changed from <code>HalfNormal</code> to a <code>Gamma</code> distribution. Additionally, the model graph shows the model has been reparameterized to be non-centered. This is the default when there are group-effects in Bambi.</p>
 <div id="cell-13" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"weeks|patient"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span>bmb.Prior(<span class="st">"Gamma"</span>, alpha<span class="op">=</span><span class="dv">3</span>, beta<span class="op">=</span><span class="dv">3</span>)),</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -787,81 +783,130 @@ window.Quarto = {
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    categorical<span class="op">=</span>[<span class="st">"patient"</span>, <span class="st">"smoking_status"</span>],</span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>model.build()</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>ERROR (pytensor.graph.rewriting.basic): Rewrite failure due to: random_make_inplace
-ERROR (pytensor.graph.rewriting.basic): node: t_rv{"(),(),()-&gt;()"}(*0-&lt;RandomGeneratorType&gt;, *1-&lt;NoneTypeT&gt;, *2-&lt;Scalar(float64, shape=())&gt;, 0.0, *3-&lt;Scalar(float64, shape=())&gt;)
-ERROR (pytensor.graph.rewriting.basic): TRACEBACK:
-ERROR (pytensor.graph.rewriting.basic): Traceback (most recent call last):
-  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1933, in process_node
-    replacements = node_rewriter.transform(fgraph, node)
-  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1086, in transform
-    return self.fn(fgraph, node)
-           ~~~~~~~^^^^^^^^^^^^^^
-  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/rewriting/basic.py", line 50, in random_make_inplace
-    new_outputs = new_op.make_node(*node.inputs).outputs
-                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
-  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/op.py", line 368, in make_node
-    size = normalize_size_param(size)
-  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/utils.py", line 190, in normalize_size_param
-    shape = cast(as_tensor_variable(shape, ndim=1, dtype="int64"), "int64")
-                 ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/__init__.py", line 50, in as_tensor_variable
-    return _as_tensor_variable(x, name, ndim, **kwargs)
-  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/functools.py", line 934, in wrapper
-    return dispatch(args[0].__class__)(*args, **kw)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/basic.py", line 113, in _as_tensor_Variable
-    raise TypeError(
-        f"Tensor type field must be a TensorType; found {type(x.type)}."
-    )
-TypeError: Tensor type field must be a TensorType; found &lt;class 'pytensor.tensor.type_other.NoneTypeT'&gt;.
+<pre><code>There is no layout engine support for "dot"
+Perhaps "dot -c" needs to be run (with installer's privileges) to register the plugins?</code></pre>
+</div>
+<div class="cell-output cell-output-error">
+<div class="ansi-escaped-output">
+<pre><span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">CalledProcessError</span>                        Traceback (most recent call last)
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/projects/bambi/.pixi/envs/dev/lib/python3.13/site-packages/graphviz/backend/execute.py:88</span>, in <span class="ansi-cyan-fg">run_check</span><span class="ansi-blue-fg">(cmd, input_lines, encoding, quiet, **kwargs)</span>
+<span class="ansi-green-fg">     87</span> <span style="font-weight:bold;color:rgb(0,135,0)">try</span>:
+<span class="ansi-green-fg">---&gt; </span><span class="ansi-green-fg">88</span>     <span class="ansi-yellow-bg">proc</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">check_returncode</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-fg">     89</span> <span style="font-weight:bold;color:rgb(0,135,0)">except</span> subprocess.CalledProcessError <span style="font-weight:bold;color:rgb(0,135,0)">as</span> e:
 
-ERROR (pytensor.graph.rewriting.basic): Rewrite failure due to: random_make_inplace
-ERROR (pytensor.graph.rewriting.basic): node: t_rv{"(),(),()-&gt;()"}(*0-&lt;RandomGeneratorType&gt;, *1-&lt;NoneTypeT&gt;, *2-&lt;Scalar(float64, shape=())&gt;, 0.0, *3-&lt;Scalar(float64, shape=())&gt;)
-ERROR (pytensor.graph.rewriting.basic): TRACEBACK:
-ERROR (pytensor.graph.rewriting.basic): Traceback (most recent call last):
-  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1933, in process_node
-    replacements = node_rewriter.transform(fgraph, node)
-  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/graph/rewriting/basic.py", line 1086, in transform
-    return self.fn(fgraph, node)
-           ~~~~~~~^^^^^^^^^^^^^^
-  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/rewriting/basic.py", line 50, in random_make_inplace
-    new_outputs = new_op.make_node(*node.inputs).outputs
-                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
-  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/op.py", line 368, in make_node
-    size = normalize_size_param(size)
-  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/random/utils.py", line 190, in normalize_size_param
-    shape = cast(as_tensor_variable(shape, ndim=1, dtype="int64"), "int64")
-                 ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/__init__.py", line 50, in as_tensor_variable
-    return _as_tensor_variable(x, name, ndim, **kwargs)
-  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/functools.py", line 934, in wrapper
-    return dispatch(args[0].__class__)(*args, **kw)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pytensor/tensor/basic.py", line 113, in _as_tensor_Variable
-    raise TypeError(
-        f"Tensor type field must be a TensorType; found {type(x.type)}."
-    )
-TypeError: Tensor type field must be a TensorType; found &lt;class 'pytensor.tensor.type_other.NoneTypeT'&gt;.
-</code></pre>
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/projects/bambi/.pixi/envs/dev/lib/python3.13/subprocess.py:508</span>, in <span class="ansi-cyan-fg">CompletedProcess.check_returncode</span><span class="ansi-blue-fg">(self)</span>
+<span class="ansi-green-fg">    507</span> <span style="font-weight:bold;color:rgb(0,135,0)">if</span> <span style="color:rgb(0,135,0)">self</span>.returncode:
+<span class="ansi-green-fg">--&gt; </span><span class="ansi-green-fg">508</span>     <span style="font-weight:bold;color:rgb(0,135,0)">raise</span> CalledProcessError(<span style="color:rgb(0,135,0)">self</span>.returncode, <span style="color:rgb(0,135,0)">self</span>.args, <span style="color:rgb(0,135,0)">self</span>.stdout,
+<span class="ansi-green-fg">    509</span>                              <span style="color:rgb(0,135,0)">self</span>.stderr)
+
+<span class="ansi-red-fg">CalledProcessError</span>: Command '[PosixPath('dot'), '-Kdot', '-Tsvg']' returned non-zero exit status 1.
+
+During handling of the above exception, another exception occurred:
+
+<span class="ansi-red-fg">CalledProcessError</span>                        Traceback (most recent call last)
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/projects/bambi/.pixi/envs/dev/lib/python3.13/site-packages/IPython/core/formatters.py:1036</span>, in <span class="ansi-cyan-fg">MimeBundleFormatter.__call__</span><span class="ansi-blue-fg">(self, obj, include, exclude)</span>
+<span class="ansi-green-fg">   1033</span>     method = get_real_method(obj, <span style="color:rgb(0,135,0)">self</span>.print_method)
+<span class="ansi-green-fg">   1035</span>     <span style="font-weight:bold;color:rgb(0,135,0)">if</span> method <span style="font-weight:bold;color:rgb(175,0,255)">is</span> <span style="font-weight:bold;color:rgb(175,0,255)">not</span> <span style="font-weight:bold;color:rgb(0,135,0)">None</span>:
+<span class="ansi-green-fg">-&gt; </span><span class="ansi-green-fg">1036</span>         <span style="font-weight:bold;color:rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">method</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">include</span><span class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">include</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">exclude</span><span class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">exclude</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-fg">   1037</span>     <span style="font-weight:bold;color:rgb(0,135,0)">return</span> <span style="font-weight:bold;color:rgb(0,135,0)">None</span>
+<span class="ansi-green-fg">   1038</span> <span style="font-weight:bold;color:rgb(0,135,0)">else</span>:
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/projects/bambi/.pixi/envs/dev/lib/python3.13/site-packages/graphviz/jupyter_integration.py:98</span>, in <span class="ansi-cyan-fg">JupyterIntegration._repr_mimebundle_</span><span class="ansi-blue-fg">(self, include, exclude, **_)</span>
+<span class="ansi-green-fg">     96</span> include = <span style="color:rgb(0,135,0)">set</span>(include) <span style="font-weight:bold;color:rgb(0,135,0)">if</span> include <span style="font-weight:bold;color:rgb(175,0,255)">is</span> <span style="font-weight:bold;color:rgb(175,0,255)">not</span> <span style="font-weight:bold;color:rgb(0,135,0)">None</span> <span style="font-weight:bold;color:rgb(0,135,0)">else</span> {<span style="color:rgb(0,135,0)">self</span>._jupyter_mimetype}
+<span class="ansi-green-fg">     97</span> include -= <span style="color:rgb(0,135,0)">set</span>(exclude <span style="font-weight:bold;color:rgb(175,0,255)">or</span> [])
+<span class="ansi-green-fg">---&gt; </span><span class="ansi-green-fg">98</span> <span style="font-weight:bold;color:rgb(0,135,0)">return</span> {mimetype: <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">getattr</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">method_name</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-fg">     99</span>         <span style="font-weight:bold;color:rgb(0,135,0)">for</span> mimetype, method_name <span style="font-weight:bold;color:rgb(175,0,255)">in</span> MIME_TYPES.items()
+<span class="ansi-green-fg">    100</span>         <span style="font-weight:bold;color:rgb(0,135,0)">if</span> mimetype <span style="font-weight:bold;color:rgb(175,0,255)">in</span> include}
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/projects/bambi/.pixi/envs/dev/lib/python3.13/site-packages/graphviz/jupyter_integration.py:112</span>, in <span class="ansi-cyan-fg">JupyterIntegration._repr_image_svg_xml</span><span class="ansi-blue-fg">(self)</span>
+<span class="ansi-green-fg">    110</span> <span style="font-weight:bold;color:rgb(0,135,0)">def</span><span style="color:rgb(188,188,188)"> </span><span class="ansi-blue-fg">_repr_image_svg_xml</span>(<span style="color:rgb(0,135,0)">self</span>) -&gt; <span style="color:rgb(0,135,0)">str</span>:
+<span class="ansi-green-fg">    111</span> <span style="color:rgb(188,188,188)">    </span><span style="font-style:italic" class="ansi-yellow-fg">"""Return the rendered graph as SVG string."""</span>
+<span class="ansi-green-fg">--&gt; </span><span class="ansi-green-fg">112</span>     <span style="font-weight:bold;color:rgb(0,135,0)">return</span> <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">pipe</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">format</span><span class="ansi-yellow-bg">=</span><span class="ansi-yellow-fg ansi-yellow-bg">'</span><span class="ansi-yellow-fg ansi-yellow-bg">svg</span><span class="ansi-yellow-fg ansi-yellow-bg">'</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">encoding</span><span class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">SVG_ENCODING</span><span class="ansi-yellow-bg">)</span>
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/projects/bambi/.pixi/envs/dev/lib/python3.13/site-packages/graphviz/piping.py:104</span>, in <span class="ansi-cyan-fg">Pipe.pipe</span><span class="ansi-blue-fg">(self, format, renderer, formatter, neato_no_op, quiet, engine, encoding)</span>
+<span class="ansi-green-fg">     55</span> <span style="font-weight:bold;color:rgb(0,135,0)">def</span><span style="color:rgb(188,188,188)"> </span><span class="ansi-blue-fg">pipe</span>(<span style="color:rgb(0,135,0)">self</span>,
+<span class="ansi-green-fg">     56</span>          <span style="color:rgb(0,135,0)">format</span>: typing.Optional[<span style="color:rgb(0,135,0)">str</span>] = <span style="font-weight:bold;color:rgb(0,135,0)">None</span>,
+<span class="ansi-green-fg">     57</span>          renderer: typing.Optional[<span style="color:rgb(0,135,0)">str</span>] = <span style="font-weight:bold;color:rgb(0,135,0)">None</span>,
+<span class="ansi-green-fg">   (...)</span><span class="ansi-green-fg">     61</span>          engine: typing.Optional[<span style="color:rgb(0,135,0)">str</span>] = <span style="font-weight:bold;color:rgb(0,135,0)">None</span>,
+<span class="ansi-green-fg">     62</span>          encoding: typing.Optional[<span style="color:rgb(0,135,0)">str</span>] = <span style="font-weight:bold;color:rgb(0,135,0)">None</span>) -&gt; typing.Union[<span style="color:rgb(0,135,0)">bytes</span>, <span style="color:rgb(0,135,0)">str</span>]:
+<span class="ansi-green-fg">     63</span> <span style="color:rgb(188,188,188)">    </span><span style="font-style:italic" class="ansi-yellow-fg">"""Return the source piped through the Graphviz layout command.</span>
+<span class="ansi-green-fg">     64</span> 
+<span class="ansi-green-fg">     65</span> <span style="font-style:italic" class="ansi-yellow-fg">    Args:</span>
+<span class="ansi-green-fg">   (...)</span><span class="ansi-green-fg">    102</span> <span style="font-style:italic" class="ansi-yellow-fg">        '&lt;?xml version='</span>
+<span class="ansi-green-fg">    103</span> <span style="font-style:italic" class="ansi-yellow-fg">    """</span>
+<span class="ansi-green-fg">--&gt; </span><span class="ansi-green-fg">104</span>     <span style="font-weight:bold;color:rgb(0,135,0)">return</span> <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">_pipe_legacy</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">format</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    105</span> <span class="ansi-yellow-bg">                             </span><span class="ansi-yellow-bg">renderer</span><span class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">renderer</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    106</span> <span class="ansi-yellow-bg">                             </span><span class="ansi-yellow-bg">formatter</span><span class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">formatter</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    107</span> <span class="ansi-yellow-bg">                             </span><span class="ansi-yellow-bg">neato_no_op</span><span class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">neato_no_op</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    108</span> <span class="ansi-yellow-bg">                             </span><span class="ansi-yellow-bg">quiet</span><span class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">quiet</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    109</span> <span class="ansi-yellow-bg">                             </span><span class="ansi-yellow-bg">engine</span><span class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">engine</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    110</span> <span class="ansi-yellow-bg">                             </span><span class="ansi-yellow-bg">encoding</span><span class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">encoding</span><span class="ansi-yellow-bg">)</span>
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/projects/bambi/.pixi/envs/dev/lib/python3.13/site-packages/graphviz/_tools.py:185</span>, in <span class="ansi-cyan-fg">deprecate_positional_args.&lt;locals&gt;.decorator.&lt;locals&gt;.wrapper</span><span class="ansi-blue-fg">(*args, **kwargs)</span>
+<span class="ansi-green-fg">    177</span>     wanted = <span class="ansi-yellow-fg">'</span><span class="ansi-yellow-fg">, </span><span class="ansi-yellow-fg">'</span>.join(<span class="ansi-yellow-fg">f</span><span class="ansi-yellow-fg">'</span><span style="font-weight:bold;color:rgb(175,95,135)">{</span>name<span style="font-weight:bold;color:rgb(175,95,135)">}</span><span class="ansi-yellow-fg">=</span><span style="font-weight:bold;color:rgb(175,95,135)">{</span>value<span style="font-weight:bold;color:rgb(175,95,135)">!r}</span><span class="ansi-yellow-fg">'</span>
+<span class="ansi-green-fg">    178</span>                        <span style="font-weight:bold;color:rgb(0,135,0)">for</span> name, value <span style="font-weight:bold;color:rgb(175,0,255)">in</span> deprecated.items())
+<span class="ansi-green-fg">    179</span>     warnings.warn(<span class="ansi-yellow-fg">f</span><span class="ansi-yellow-fg">'</span><span class="ansi-yellow-fg">The signature of </span><span style="font-weight:bold;color:rgb(175,95,135)">{</span>func_name<span style="font-weight:bold;color:rgb(175,95,135)">}</span><span class="ansi-yellow-fg"> will be reduced</span><span class="ansi-yellow-fg">'</span>
+<span class="ansi-green-fg">    180</span>                   <span class="ansi-yellow-fg">f</span><span class="ansi-yellow-fg">'</span><span class="ansi-yellow-fg"> to </span><span style="font-weight:bold;color:rgb(175,95,135)">{</span>supported_number<span style="font-weight:bold;color:rgb(175,95,135)">}</span><span class="ansi-yellow-fg"> positional arg</span><span style="font-weight:bold;color:rgb(175,95,135)">{</span>s_<span style="font-weight:bold;color:rgb(175,95,135)">}</span><span style="font-weight:bold;color:rgb(175,95,135)">{</span>qualification<span style="font-weight:bold;color:rgb(175,95,135)">}</span><span class="ansi-yellow-fg">'</span>
+<span class="ansi-green-fg">    181</span>                   <span class="ansi-yellow-fg">f</span><span class="ansi-yellow-fg">'</span><span class="ansi-yellow-fg"> </span><span style="font-weight:bold;color:rgb(175,95,135)">{</span><span style="color:rgb(0,135,0)">list</span>(supported)<span style="font-weight:bold;color:rgb(175,95,135)">}</span><span class="ansi-yellow-fg">: pass </span><span style="font-weight:bold;color:rgb(175,95,135)">{</span>wanted<span style="font-weight:bold;color:rgb(175,95,135)">}</span><span class="ansi-yellow-fg"> as keyword arg</span><span style="font-weight:bold;color:rgb(175,95,135)">{</span>s_<span style="font-weight:bold;color:rgb(175,95,135)">}</span><span class="ansi-yellow-fg">'</span>,
+<span class="ansi-green-fg">    182</span>                   stacklevel=stacklevel,
+<span class="ansi-green-fg">    183</span>                   category=category)
+<span class="ansi-green-fg">--&gt; </span><span class="ansi-green-fg">185</span> <span style="font-weight:bold;color:rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">func</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">*</span><span class="ansi-yellow-bg">args</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">*</span><span class="ansi-yellow-bg">*</span><span class="ansi-yellow-bg">kwargs</span><span class="ansi-yellow-bg">)</span>
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/projects/bambi/.pixi/envs/dev/lib/python3.13/site-packages/graphviz/piping.py:121</span>, in <span class="ansi-cyan-fg">Pipe._pipe_legacy</span><span class="ansi-blue-fg">(self, format, renderer, formatter, neato_no_op, quiet, engine, encoding)</span>
+<span class="ansi-green-fg">    112</span> <span style="color:rgb(175,0,255)">@_tools</span>.deprecate_positional_args(supported_number=<span class="ansi-green-fg">1</span>, ignore_arg=<span class="ansi-yellow-fg">'</span><span class="ansi-yellow-fg">self</span><span class="ansi-yellow-fg">'</span>)
+<span class="ansi-green-fg">    113</span> <span style="font-weight:bold;color:rgb(0,135,0)">def</span><span style="color:rgb(188,188,188)"> </span><span class="ansi-blue-fg">_pipe_legacy</span>(<span style="color:rgb(0,135,0)">self</span>,
+<span class="ansi-green-fg">    114</span>                  <span style="color:rgb(0,135,0)">format</span>: typing.Optional[<span style="color:rgb(0,135,0)">str</span>] = <span style="font-weight:bold;color:rgb(0,135,0)">None</span>,
+<span class="ansi-green-fg">   (...)</span><span class="ansi-green-fg">    119</span>                  engine: typing.Optional[<span style="color:rgb(0,135,0)">str</span>] = <span style="font-weight:bold;color:rgb(0,135,0)">None</span>,
+<span class="ansi-green-fg">    120</span>                  encoding: typing.Optional[<span style="color:rgb(0,135,0)">str</span>] = <span style="font-weight:bold;color:rgb(0,135,0)">None</span>) -&gt; typing.Union[<span style="color:rgb(0,135,0)">bytes</span>, <span style="color:rgb(0,135,0)">str</span>]:
+<span class="ansi-green-fg">--&gt; </span><span class="ansi-green-fg">121</span>     <span style="font-weight:bold;color:rgb(0,135,0)">return</span> <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">_pipe_future</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">format</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    122</span> <span class="ansi-yellow-bg">                             </span><span class="ansi-yellow-bg">renderer</span><span class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">renderer</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    123</span> <span class="ansi-yellow-bg">                             </span><span class="ansi-yellow-bg">formatter</span><span class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">formatter</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    124</span> <span class="ansi-yellow-bg">                             </span><span class="ansi-yellow-bg">neato_no_op</span><span class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">neato_no_op</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    125</span> <span class="ansi-yellow-bg">                             </span><span class="ansi-yellow-bg">quiet</span><span class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">quiet</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    126</span> <span class="ansi-yellow-bg">                             </span><span class="ansi-yellow-bg">engine</span><span class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">engine</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    127</span> <span class="ansi-yellow-bg">                             </span><span class="ansi-yellow-bg">encoding</span><span class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">encoding</span><span class="ansi-yellow-bg">)</span>
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/projects/bambi/.pixi/envs/dev/lib/python3.13/site-packages/graphviz/piping.py:149</span>, in <span class="ansi-cyan-fg">Pipe._pipe_future</span><span class="ansi-blue-fg">(self, format, renderer, formatter, neato_no_op, quiet, engine, encoding)</span>
+<span class="ansi-green-fg">    146</span> <span style="font-weight:bold;color:rgb(0,135,0)">if</span> encoding <span style="font-weight:bold;color:rgb(175,0,255)">is</span> <span style="font-weight:bold;color:rgb(175,0,255)">not</span> <span style="font-weight:bold;color:rgb(0,135,0)">None</span>:
+<span class="ansi-green-fg">    147</span>     <span style="font-weight:bold;color:rgb(0,135,0)">if</span> codecs.lookup(encoding) <span style="font-weight:bold;color:rgb(175,0,255)">is</span> codecs.lookup(<span style="color:rgb(0,135,0)">self</span>.encoding):
+<span class="ansi-green-fg">    148</span>         <span style="font-style:italic;color:rgb(95,135,135)"># common case: both stdin and stdout need the same encoding</span>
+<span class="ansi-green-fg">--&gt; </span><span class="ansi-green-fg">149</span>         <span style="font-weight:bold;color:rgb(0,135,0)">return</span> <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">_pipe_lines_string</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">*</span><span class="ansi-yellow-bg">args</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">encoding</span><span class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">encoding</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">*</span><span class="ansi-yellow-bg">*</span><span class="ansi-yellow-bg">kwargs</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-fg">    150</span>     <span style="font-weight:bold;color:rgb(0,135,0)">try</span>:
+<span class="ansi-green-fg">    151</span>         raw = <span style="color:rgb(0,135,0)">self</span>._pipe_lines(*args, input_encoding=<span style="color:rgb(0,135,0)">self</span>.encoding, **kwargs)
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/projects/bambi/.pixi/envs/dev/lib/python3.13/site-packages/graphviz/backend/piping.py:212</span>, in <span class="ansi-cyan-fg">pipe_lines_string</span><span class="ansi-blue-fg">(engine, format, input_lines, encoding, renderer, formatter, neato_no_op, quiet)</span>
+<span class="ansi-green-fg">    206</span> cmd = dot_command.command(engine, <span style="color:rgb(0,135,0)">format</span>,
+<span class="ansi-green-fg">    207</span>                           renderer=renderer,
+<span class="ansi-green-fg">    208</span>                           formatter=formatter,
+<span class="ansi-green-fg">    209</span>                           neato_no_op=neato_no_op)
+<span class="ansi-green-fg">    210</span> kwargs = {<span class="ansi-yellow-fg">'</span><span class="ansi-yellow-fg">input_lines</span><span class="ansi-yellow-fg">'</span>: input_lines, <span class="ansi-yellow-fg">'</span><span class="ansi-yellow-fg">encoding</span><span class="ansi-yellow-fg">'</span>: encoding}
+<span class="ansi-green-fg">--&gt; </span><span class="ansi-green-fg">212</span> proc = <span class="ansi-yellow-bg">execute</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">run_check</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">cmd</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">capture_output</span><span class="ansi-yellow-bg">=</span><span style="font-weight:bold;color:rgb(0,135,0)" class="ansi-yellow-bg">True</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">quiet</span><span class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">quiet</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">*</span><span class="ansi-yellow-bg">*</span><span class="ansi-yellow-bg">kwargs</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-fg">    213</span> <span style="font-weight:bold;color:rgb(0,135,0)">return</span> proc.stdout
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/projects/bambi/.pixi/envs/dev/lib/python3.13/site-packages/graphviz/backend/execute.py:90</span>, in <span class="ansi-cyan-fg">run_check</span><span class="ansi-blue-fg">(cmd, input_lines, encoding, quiet, **kwargs)</span>
+<span class="ansi-green-fg">     88</span>     proc.check_returncode()
+<span class="ansi-green-fg">     89</span> <span style="font-weight:bold;color:rgb(0,135,0)">except</span> subprocess.CalledProcessError <span style="font-weight:bold;color:rgb(0,135,0)">as</span> e:
+<span class="ansi-green-fg">---&gt; </span><span class="ansi-green-fg">90</span>     <span style="font-weight:bold;color:rgb(0,135,0)">raise</span> CalledProcessError(*e.args)
+<span class="ansi-green-fg">     92</span> <span style="font-weight:bold;color:rgb(0,135,0)">return</span> proc
+
+<span class="ansi-red-fg">CalledProcessError</span>: Command '[PosixPath('dot'), '-Kdot', '-Tsvg']' returned non-zero exit status 1. [stderr: 'There is no layout engine support for "dot"\nPerhaps "dot -c" needs to be run (with installer\'s privileges) to register the plugins?\n']</pre>
+</div>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="6">
-<div>
-<figure class="figure">
-<p><img src="predict_new_groups_files/figure-html/cell-7-output-2.svg" class="img-fluid figure-img"></p>
-</figure>
-</div>
+<pre><code>&lt;graphviz.graphs.Digraph at 0x3148c67b0&gt;</code></pre>
 </div>
 </div>
 <div id="cell-14" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">1500</span>,</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    tune<span class="op">=</span><span class="dv">1000</span>,</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    target_accept<span class="op">=</span><span class="fl">0.95</span>,</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    chains<span class="op">=</span><span class="dv">4</span>,</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="dv">42</span>,</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">1500</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    tune<span class="op">=</span><span class="dv">1000</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    target_accept<span class="op">=</span><span class="fl">0.95</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    chains<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="dv">42</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
@@ -869,7 +914,7 @@ NUTS: [sigma, weeks, smoking_status, weeks|patient_sigma, weeks|patient_offset]<
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"fc81a394f6f84c7ebbb8d53bbf380957","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"fd1347ea91394cf0a8ac17b8e8307209","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -886,8 +931,8 @@ The effective sample size per chain is smaller than 100 for some parameters.  A 
 <h3 class="anchored" data-anchor-id="model-criticism">Model criticism</h3>
 <p>Hierarchical models can induce difficult posterior geometries to sample from. Below, we quickly analyze the traces to ensure sampling went well.</p>
 <div id="cell-16" class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(idata)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(idata)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -898,12 +943,12 @@ The effective sample size per chain is smaller than 100 for some parameters.  A 
 </div>
 <p>Analyzing the marginal posteriors of <code>weeks</code> and <code>weeks|patient</code>, we see that the slope can be very different for some individuals. <code>weeks</code> indicates that as a population, the slope is negative. However, <code>weeks|patients</code> indicates some patients are negative, some are positive, and some are close to zero. Moreover, there are varying levels of uncertainty observed in the coefficients for the three different values of the <code>smoking_status</code> variable.</p>
 <div id="cell-18" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>az.summary(idata, var_names<span class="op">=</span>[<span class="st">"weeks"</span>, <span class="st">"smoking_status"</span>, <span class="st">"sigma"</span>, <span class="st">"weeks|patient_sigma"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>az.summary(idata, var_names<span class="op">=</span>[<span class="st">"weeks"</span>, <span class="st">"smoking_status"</span>, <span class="st">"sigma"</span>, <span class="st">"weeks|patient_sigma"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="9">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -920,75 +965,75 @@ The effective sample size per chain is smaller than 100 for some parameters.  A 
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">weeks</td>
-<td>-0.118</td>
+<th data-quarto-table-cell-role="th">weeks</th>
+<td>-0.120</td>
 <td>0.038</td>
-<td>-0.188</td>
-<td>-0.043</td>
+<td>-0.192</td>
+<td>-0.052</td>
 <td>0.002</td>
 <td>0.001</td>
-<td>371.0</td>
-<td>716.0</td>
+<td>308.0</td>
+<td>590.0</td>
 <td>1.01</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">smoking_status[Currently smokes]</td>
+<th data-quarto-table-cell-role="th">smoking_status[Currently smokes]</th>
 <td>0.398</td>
 <td>0.017</td>
 <td>0.365</td>
 <td>0.430</td>
 <td>0.000</td>
 <td>0.000</td>
-<td>3166.0</td>
-<td>4176.0</td>
+<td>3017.0</td>
+<td>3631.0</td>
 <td>1.00</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">smoking_status[Ex-smoker]</td>
+<th data-quarto-table-cell-role="th">smoking_status[Ex-smoker]</th>
 <td>0.382</td>
 <td>0.005</td>
 <td>0.373</td>
 <td>0.392</td>
 <td>0.000</td>
 <td>0.000</td>
-<td>5563.0</td>
-<td>4801.0</td>
+<td>4860.0</td>
+<td>3972.0</td>
 <td>1.00</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">smoking_status[Never smoked]</td>
+<th data-quarto-table-cell-role="th">smoking_status[Never smoked]</th>
 <td>0.291</td>
-<td>0.008</td>
+<td>0.007</td>
 <td>0.278</td>
 <td>0.306</td>
 <td>0.000</td>
 <td>0.000</td>
-<td>3801.0</td>
-<td>4114.0</td>
+<td>3430.0</td>
+<td>4628.0</td>
 <td>1.00</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">sigma</td>
+<th data-quarto-table-cell-role="th">sigma</th>
 <td>0.077</td>
 <td>0.001</td>
 <td>0.074</td>
 <td>0.080</td>
 <td>0.000</td>
 <td>0.000</td>
-<td>8095.0</td>
-<td>4024.0</td>
+<td>9259.0</td>
+<td>4476.0</td>
 <td>1.00</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">weeks|patient_sigma</td>
-<td>0.458</td>
+<th data-quarto-table-cell-role="th">weeks|patient_sigma</th>
+<td>0.457</td>
 <td>0.026</td>
-<td>0.409</td>
-<td>0.506</td>
+<td>0.407</td>
+<td>0.503</td>
 <td>0.001</td>
-<td>0.001</td>
-<td>848.0</td>
-<td>1482.0</td>
+<td>0.000</td>
+<td>834.0</td>
+<td>1936.0</td>
 <td>1.00</td>
 </tr>
 </tbody>
@@ -1003,26 +1048,26 @@ The effective sample size per chain is smaller than 100 for some parameters.  A 
 <h3 class="anchored" data-anchor-id="predict-observed-patients">Predict observed patients</h3>
 <p>First, we will use the posterior distribution to plot the mean and 95% credible interval for the FVC measurements of the three randomly sampled patients above.</p>
 <div id="cell-21" class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> model.predict(idata, kind<span class="op">=</span><span class="st">"response_params"</span>, inplace<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>fvc_mean <span class="op">=</span> az.extract(preds[<span class="st">"posterior"</span>])[<span class="st">"mu"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> model.predict(idata, kind<span class="op">=</span><span class="st">"response_params"</span>, inplace<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>fvc_mean <span class="op">=</span> az.extract(preds[<span class="st">"posterior"</span>])[<span class="st">"mu"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="cell-22" class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot posterior predictions</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">3</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, p <span class="kw">in</span> <span class="bu">enumerate</span>(patient_id):</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> data.index[data[<span class="st">"patient"</span>] <span class="op">==</span> p].tolist()</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    weeks <span class="op">=</span> data.loc[idx, <span class="st">"weeks"</span>].values</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    fvc <span class="op">=</span> data.loc[idx, <span class="st">"fvc"</span>].values</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    ax[i].scatter(weeks, fvc)</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    az.plot_hdi(weeks, fvc_mean[idx].T, color<span class="op">=</span><span class="st">"C0"</span>, ax<span class="op">=</span>ax[i])</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    ax[i].plot(weeks, fvc_mean[idx].mean(axis<span class="op">=</span><span class="dv">1</span>), color<span class="op">=</span><span class="st">"C0"</span>)</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    ax[i].set_xlabel(<span class="st">"weeks"</span>)</span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    ax[i].set_ylabel(<span class="st">"fvc"</span>)</span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    ax[i].set_title(<span class="ss">f"patient </span><span class="sc">{</span>p<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot posterior predictions</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">3</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, p <span class="kw">in</span> <span class="bu">enumerate</span>(patient_id):</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> data.index[data[<span class="st">"patient"</span>] <span class="op">==</span> p].tolist()</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    weeks <span class="op">=</span> data.loc[idx, <span class="st">"weeks"</span>].values</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    fvc <span class="op">=</span> data.loc[idx, <span class="st">"fvc"</span>].values</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    ax[i].scatter(weeks, fvc)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    az.plot_hdi(weeks, fvc_mean[idx].T, color<span class="op">=</span><span class="st">"C0"</span>, ax<span class="op">=</span>ax[i])</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    ax[i].plot(weeks, fvc_mean[idx].mean(axis<span class="op">=</span><span class="dv">1</span>), color<span class="op">=</span><span class="st">"C0"</span>)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    ax[i].set_xlabel(<span class="st">"weeks"</span>)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    ax[i].set_ylabel(<span class="st">"fvc"</span>)</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    ax[i].set_title(<span class="ss">f"patient </span><span class="sc">{</span>p<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1038,17 +1083,17 @@ The effective sample size per chain is smaller than 100 for some parameters.  A 
 <p>Imagine the cost of acquiring a CT scan increases dramatically, and we would like to interopolate the FVC measurement for a new patient with a given set of clinical information <code>smoking_status</code> and <code>weeks</code>. We achieve this by passing this data to the predict method and setting <code>sample_new_groups=True</code>. As outlined in the <em>Sampling new groups in Bambi</em> section, this new data is evaluated by <code>formulae</code> to update the design matrix, and then predictions are made for the new group by sampling from the posterior draws of a randomly selected existing group.</p>
 <p>Below, we will simulate a new patient and predict their FVC measurements over time. First, we will copy clinical data from patient 39 and use it for patient 176 (the new, unseen, patient). Subsequently, we will construct another new patient, with different clinical data.</p>
 <div id="cell-25" class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># copy patient 39 data to the new patient 176</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>patient_39 <span class="op">=</span> data[data[<span class="st">"patient"</span>] <span class="op">==</span> <span class="dv">39</span>].reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> patient_39.copy()</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>new_data[<span class="st">"patient"</span>] <span class="op">=</span> <span class="dv">176</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> pd.concat([new_data, patient_39]).reset_index(drop<span class="op">=</span><span class="va">True</span>)[predictors]</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>new_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># copy patient 39 data to the new patient 176</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>patient_39 <span class="op">=</span> data[data[<span class="st">"patient"</span>] <span class="op">==</span> <span class="dv">39</span>].reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> patient_39.copy()</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>new_data[<span class="st">"patient"</span>] <span class="op">=</span> <span class="dv">176</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> pd.concat([new_data, patient_39]).reset_index(drop<span class="op">=</span><span class="va">True</span>)[predictors]</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>new_data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="12">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -1060,140 +1105,140 @@ The effective sample size per chain is smaller than 100 for some parameters.  A 
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
+<th data-quarto-table-cell-role="th">0</th>
 <td>176</td>
 <td>0.355072</td>
 <td>0.378141</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
+<th data-quarto-table-cell-role="th">1</th>
 <td>176</td>
 <td>0.376812</td>
 <td>0.365937</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
+<th data-quarto-table-cell-role="th">2</th>
 <td>176</td>
 <td>0.391304</td>
 <td>0.401651</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
+<th data-quarto-table-cell-role="th">3</th>
 <td>176</td>
 <td>0.405797</td>
 <td>0.405958</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
+<th data-quarto-table-cell-role="th">4</th>
 <td>176</td>
 <td>0.420290</td>
 <td>0.390883</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">5</td>
+<th data-quarto-table-cell-role="th">5</th>
 <td>176</td>
 <td>0.456522</td>
 <td>0.390165</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">6</td>
+<th data-quarto-table-cell-role="th">6</th>
 <td>176</td>
 <td>0.543478</td>
 <td>0.348528</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">7</td>
+<th data-quarto-table-cell-role="th">7</th>
 <td>176</td>
 <td>0.637681</td>
 <td>0.337581</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">8</td>
+<th data-quarto-table-cell-role="th">8</th>
 <td>176</td>
 <td>0.746377</td>
 <td>0.365219</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">9</td>
+<th data-quarto-table-cell-role="th">9</th>
 <td>176</td>
 <td>0.775362</td>
 <td>0.360014</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">10</td>
+<th data-quarto-table-cell-role="th">10</th>
 <td>39</td>
 <td>0.355072</td>
 <td>0.378141</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">11</td>
+<th data-quarto-table-cell-role="th">11</th>
 <td>39</td>
 <td>0.376812</td>
 <td>0.365937</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">12</td>
+<th data-quarto-table-cell-role="th">12</th>
 <td>39</td>
 <td>0.391304</td>
 <td>0.401651</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">13</td>
+<th data-quarto-table-cell-role="th">13</th>
 <td>39</td>
 <td>0.405797</td>
 <td>0.405958</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">14</td>
+<th data-quarto-table-cell-role="th">14</th>
 <td>39</td>
 <td>0.420290</td>
 <td>0.390883</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">15</td>
+<th data-quarto-table-cell-role="th">15</th>
 <td>39</td>
 <td>0.456522</td>
 <td>0.390165</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">16</td>
+<th data-quarto-table-cell-role="th">16</th>
 <td>39</td>
 <td>0.543478</td>
 <td>0.348528</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">17</td>
+<th data-quarto-table-cell-role="th">17</th>
 <td>39</td>
 <td>0.637681</td>
 <td>0.337581</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">18</td>
+<th data-quarto-table-cell-role="th">18</th>
 <td>39</td>
 <td>0.746377</td>
 <td>0.365219</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">19</td>
+<th data-quarto-table-cell-role="th">19</th>
 <td>39</td>
 <td>0.775362</td>
 <td>0.360014</td>
@@ -1206,37 +1251,37 @@ The effective sample size per chain is smaller than 100 for some parameters.  A 
 </div>
 </div>
 <div id="cell-26" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> model.predict(</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    idata,</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">"response_params"</span>,</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>new_data,</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    sample_new_groups<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    inplace<span class="op">=</span><span class="va">False</span></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> model.predict(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    idata,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">"response_params"</span>,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>new_data,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    sample_new_groups<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    inplace<span class="op">=</span><span class="va">False</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="cell-27" class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># utility func for plotting</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_new_patient(idata, data, patient_ids):</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    fvc_mean <span class="op">=</span> az.extract(idata[<span class="st">"posterior"</span>])[<span class="st">"mu"</span>]</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">3</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, p <span class="kw">in</span> <span class="bu">enumerate</span>(patient_ids):</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>        idx <span class="op">=</span> data.index[data[<span class="st">"patient"</span>] <span class="op">==</span> p].tolist()</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>        weeks <span class="op">=</span> data.loc[idx, <span class="st">"weeks"</span>].values</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>        fvc <span class="op">=</span> data.loc[idx, <span class="st">"fvc"</span>].values</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> p <span class="op">==</span> patient_ids[<span class="dv">0</span>]:</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>            ax[i].scatter(weeks, fvc)</span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>        az.plot_hdi(weeks, fvc_mean[idx].T, color<span class="op">=</span><span class="st">"C0"</span>, ax<span class="op">=</span>ax[i])</span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>        ax[i].plot(weeks, fvc_mean[idx].mean(axis<span class="op">=</span><span class="dv">1</span>), color<span class="op">=</span><span class="st">"C0"</span>)</span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>        ax[i].set_xlabel(<span class="st">"weeks"</span>)</span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>        ax[i].set_ylabel(<span class="st">"fvc"</span>)</span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>        ax[i].set_title(<span class="ss">f"patient </span><span class="sc">{</span>p<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># utility func for plotting</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_new_patient(idata, data, patient_ids):</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    fvc_mean <span class="op">=</span> az.extract(idata[<span class="st">"posterior"</span>])[<span class="st">"mu"</span>]</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">3</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, p <span class="kw">in</span> <span class="bu">enumerate</span>(patient_ids):</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>        idx <span class="op">=</span> data.index[data[<span class="st">"patient"</span>] <span class="op">==</span> p].tolist()</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>        weeks <span class="op">=</span> data.loc[idx, <span class="st">"weeks"</span>].values</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>        fvc <span class="op">=</span> data.loc[idx, <span class="st">"fvc"</span>].values</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> p <span class="op">==</span> patient_ids[<span class="dv">0</span>]:</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>            ax[i].scatter(weeks, fvc)</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>        az.plot_hdi(weeks, fvc_mean[idx].T, color<span class="op">=</span><span class="st">"C0"</span>, ax<span class="op">=</span>ax[i])</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>        ax[i].plot(weeks, fvc_mean[idx].mean(axis<span class="op">=</span><span class="dv">1</span>), color<span class="op">=</span><span class="st">"C0"</span>)</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>        ax[i].set_xlabel(<span class="st">"weeks"</span>)</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>        ax[i].set_ylabel(<span class="st">"fvc"</span>)</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>        ax[i].set_title(<span class="ss">f"patient </span><span class="sc">{</span>p<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="cell-28" class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>plot_new_patient(preds, new_data, [<span class="dv">39</span>, <span class="dv">176</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>plot_new_patient(preds, new_data, [<span class="dv">39</span>, <span class="dv">176</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1247,15 +1292,15 @@ The effective sample size per chain is smaller than 100 for some parameters.  A 
 </div>
 <p>Although identical data was used for both patients, the variability increased consideribly for patient 176. However, the mean predictions for both patients appear to be almost identical. Now, let’s construct a new patient with different clinical data and see how the predictions change. We will select 10 times of follow up visits at random, and set the <code>smoking_status = "Currently smokes"</code>.</p>
 <div id="cell-30" class="cell" data-execution_count="16">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>new_data.loc[new_data[<span class="st">"patient"</span>] <span class="op">==</span> <span class="dv">176</span>, <span class="st">"smoking_status"</span>] <span class="op">=</span> <span class="st">"Currently smokes"</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>weeks <span class="op">=</span> np.random.choice(<span class="bu">sorted</span>(model.data.weeks.unique()), size<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>new_data.loc[new_data[<span class="st">"patient"</span>] <span class="op">==</span> <span class="dv">176</span>, <span class="st">"weeks"</span>] <span class="op">=</span> weeks </span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>new_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>new_data.loc[new_data[<span class="st">"patient"</span>] <span class="op">==</span> <span class="dv">176</span>, <span class="st">"smoking_status"</span>] <span class="op">=</span> <span class="st">"Currently smokes"</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>weeks <span class="op">=</span> np.random.choice(<span class="bu">sorted</span>(model.data.weeks.unique()), size<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>new_data.loc[new_data[<span class="st">"patient"</span>] <span class="op">==</span> <span class="dv">176</span>, <span class="st">"weeks"</span>] <span class="op">=</span> weeks </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>new_data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="16">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -1267,140 +1312,140 @@ The effective sample size per chain is smaller than 100 for some parameters.  A 
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
+<th data-quarto-table-cell-role="th">0</th>
 <td>176</td>
-<td>0.485507</td>
+<td>0.195652</td>
 <td>0.378141</td>
 <td>Currently smokes</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
+<th data-quarto-table-cell-role="th">1</th>
 <td>176</td>
-<td>0.420290</td>
+<td>0.297101</td>
 <td>0.365937</td>
 <td>Currently smokes</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
+<th data-quarto-table-cell-role="th">2</th>
 <td>176</td>
-<td>0.260870</td>
+<td>0.224638</td>
 <td>0.401651</td>
 <td>Currently smokes</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
+<th data-quarto-table-cell-role="th">3</th>
 <td>176</td>
-<td>0.811594</td>
+<td>0.637681</td>
 <td>0.405958</td>
 <td>Currently smokes</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
+<th data-quarto-table-cell-role="th">4</th>
 <td>176</td>
-<td>0.159420</td>
+<td>0.884058</td>
 <td>0.390883</td>
 <td>Currently smokes</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">5</td>
+<th data-quarto-table-cell-role="th">5</th>
 <td>176</td>
-<td>0.478261</td>
+<td>0.521739</td>
 <td>0.390165</td>
 <td>Currently smokes</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">6</td>
+<th data-quarto-table-cell-role="th">6</th>
 <td>176</td>
-<td>0.094203</td>
+<td>0.811594</td>
 <td>0.348528</td>
 <td>Currently smokes</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">7</td>
+<th data-quarto-table-cell-role="th">7</th>
 <td>176</td>
-<td>1.000000</td>
+<td>0.420290</td>
 <td>0.337581</td>
 <td>Currently smokes</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">8</td>
+<th data-quarto-table-cell-role="th">8</th>
 <td>176</td>
-<td>0.550725</td>
+<td>0.623188</td>
 <td>0.365219</td>
 <td>Currently smokes</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">9</td>
+<th data-quarto-table-cell-role="th">9</th>
 <td>176</td>
-<td>0.717391</td>
+<td>0.057971</td>
 <td>0.360014</td>
 <td>Currently smokes</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">10</td>
+<th data-quarto-table-cell-role="th">10</th>
 <td>39</td>
 <td>0.355072</td>
 <td>0.378141</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">11</td>
+<th data-quarto-table-cell-role="th">11</th>
 <td>39</td>
 <td>0.376812</td>
 <td>0.365937</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">12</td>
+<th data-quarto-table-cell-role="th">12</th>
 <td>39</td>
 <td>0.391304</td>
 <td>0.401651</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">13</td>
+<th data-quarto-table-cell-role="th">13</th>
 <td>39</td>
 <td>0.405797</td>
 <td>0.405958</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">14</td>
+<th data-quarto-table-cell-role="th">14</th>
 <td>39</td>
 <td>0.420290</td>
 <td>0.390883</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">15</td>
+<th data-quarto-table-cell-role="th">15</th>
 <td>39</td>
 <td>0.456522</td>
 <td>0.390165</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">16</td>
+<th data-quarto-table-cell-role="th">16</th>
 <td>39</td>
 <td>0.543478</td>
 <td>0.348528</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">17</td>
+<th data-quarto-table-cell-role="th">17</th>
 <td>39</td>
 <td>0.637681</td>
 <td>0.337581</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">18</td>
+<th data-quarto-table-cell-role="th">18</th>
 <td>39</td>
 <td>0.746377</td>
 <td>0.365219</td>
 <td>Ex-smoker</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">19</td>
+<th data-quarto-table-cell-role="th">19</th>
 <td>39</td>
 <td>0.775362</td>
 <td>0.360014</td>
@@ -1414,16 +1459,16 @@ The effective sample size per chain is smaller than 100 for some parameters.  A 
 </div>
 <p>If we were to keep the default value of <code>sample_new_groups=False</code>, the following error would be raised: <code>ValueError: There are new groups for the factors ('patient',) and 'sample_new_groups' is False</code>. Thus, we set <code>sample_new_groups=True</code> and obtain predictions for the new patient.</p>
 <div id="cell-32" class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> model.predict(</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    idata,</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">"response_params"</span>,</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>new_data,</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    sample_new_groups<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    inplace<span class="op">=</span><span class="va">False</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> model.predict(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    idata,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">"response_params"</span>,</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>new_data,</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    sample_new_groups<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    inplace<span class="op">=</span><span class="va">False</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="cell-33" class="cell" data-execution_count="18">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>plot_new_patient(preds, new_data, [<span class="dv">39</span>, <span class="dv">176</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>plot_new_patient(preds, new_data, [<span class="dv">39</span>, <span class="dv">176</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1433,54 +1478,15 @@ The effective sample size per chain is smaller than 100 for some parameters.  A 
 </div>
 </div>
 <p>With <code>smoking_status = "Currently smokes"</code>, and the time of follow up visit randomly selected, we can see that the intercept is slightly higher, and it appears that the slope is steeper for this new patient. Again, the variability is much higher for patient 176, and in particular, where there are fewer <code>fvc</code> measurements.</p>
-<section id="predict-new-patients-with-interpret" class="level4">
-<h4 class="anchored" data-anchor-id="predict-new-patients-with-interpret">Predict new patients with <code>interpret</code></h4>
-<p>The <code>interpret</code> sub-package in Bambi allows us to easily interpret the predictions for new patients. In particular, using <code>bmb.interpret.comparisons</code>, we can compare the predictions made for a new patient and an existing similar patient. Below, we will compare the predictions made for patient 176 and patient 39. We will use the same clinical data for both patients as we did in the first exampe above.</p>
-<div id="cell-36" class="cell" data-execution_count="19">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>time_of_follow_up <span class="op">=</span> <span class="bu">list</span>(new_data.query(<span class="st">"patient == 39"</span>)[<span class="st">"weeks"</span>].values)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>time_of_follow_up</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="19">
-<pre><code>[np.float64(0.35507246376811596),
- np.float64(0.37681159420289856),
- np.float64(0.391304347826087),
- np.float64(0.4057971014492754),
- np.float64(0.42028985507246375),
- np.float64(0.45652173913043476),
- np.float64(0.5434782608695652),
- np.float64(0.6376811594202898),
- np.float64(0.7463768115942029),
- np.float64(0.7753623188405797)]</code></pre>
-</div>
-</div>
-<div id="cell-37" class="cell" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_comparisons(</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    model,</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    idata,</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span>{<span class="st">"patient"</span>: [<span class="dv">39</span>, <span class="dv">176</span>]},</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{<span class="st">"weeks"</span>: time_of_follow_up, <span class="st">"smoking_status"</span>: <span class="st">"Ex-smoker"</span>},</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    sample_new_groups<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"figsize"</span>: (<span class="dv">7</span>, <span class="dv">3</span>)}</span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Difference in predictions for patient 176 vs 39"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="predict_new_groups_files/figure-html/cell-21-output-1.png" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>Referring to the plots where patient 39 and 176 use identical data, the mean <code>fvc</code> predictions “look” about the same. When this comparison is made quantitatively using the comparisons function, we can see that mean <code>fvc</code> measurements are slightly below 0.0, and have a constant slope across <code>weeks</code> indicating there is a slight difference in mean <code>fvc</code> measurements between the two patients.</p>
-</section>
 </section>
 </section>
 <section id="summary" class="level2">
 <h2 class="anchored" data-anchor-id="summary">Summary</h2>
 <p>In this notebook, it was shown how predictions at multiple levels and for unseen groups are possible with hierarchical models. To utilize this feature of hierarchical models, Bambi first updates the design matrix to include the new group. Then, predictions are made for the new group by sampling from the posterior draws of a randomly selected existing group.</p>
 <p>To predict new groups in Bambi, you can either: (1) create a dataset with new groups and pass it to the <code>model.predict()</code> method while specifying <code>sample_new_groups=True</code>, or (2) use the functions <code>comparisons</code> or <code>slopes</code> in the <code>interpret</code> sub-package with <code>sample_new_groups=True</code> to compare predictions or slopes for new groups and existing groups.</p>
-<div id="cell-40" class="cell" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-36" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Last updated: Sun Sep 28 2025
 
@@ -1554,13 +1560,14 @@ Watermark: 2.5.0
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

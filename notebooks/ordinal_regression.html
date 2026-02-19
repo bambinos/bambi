@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.8.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -58,7 +58,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
@@ -69,14 +69,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../logos/favicon.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-24b2bc59dfb44dcacae2ef3892b980b7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-3c56c0b7dc851bacd9d27cbff10130fd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -104,10 +105,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
-<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -123,7 +124,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -150,7 +151,8 @@ window.Quarto = {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a href="../index.html" class="navbar-brand navbar-brand-logo">
-    <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo">
+    <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo light-content">
+    <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo dark-content">
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -430,7 +432,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../notebooks/plot_predictions.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Plot Conditional Adjusted Predictions</span></a>
+ <span class="menu-text">Plot Predictions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -443,12 +445,6 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="../notebooks/plot_slopes.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Plot Slopes</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../notebooks/interpret_advanced_usage.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Interpret Advanced Usage</span></a>
   </div>
 </li>
       </ul>
@@ -537,7 +533,7 @@ window.Quarto = {
 
 
 <div id="cell-1" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.lines <span class="im">import</span> Line2D</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -546,7 +542,7 @@ window.Quarto = {
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">"ignore"</span>, category<span class="op">=</span><span class="pp">FutureWarning</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">"ignore"</span>, category<span class="op">=</span><span class="pp">FutureWarning</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>In some scenarios, the response variable is discrete, like a count, and ordered. Common examples of such data come from questionnaires where the respondent is asked to rate a product, service, or experience on a scale. This scale is often referred to as a <a href="https://en.wikipedia.org/wiki/Likert_scale">Likert scale</a>. For example, a five-level Likert scale could be:</p>
 <ul>
@@ -584,16 +580,16 @@ window.Quarto = {
 <li><code>contact</code>: a factor with levels 0 and 1 where 1 indicates that the story contained “using physical contact to cause harm to a victim is morally worse than causing equivalent harm to a victim without using physical contact”.</li>
 </ul>
 <div id="cell-5" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>trolly <span class="op">=</span> pd.read_csv(<span class="st">"https://raw.githubusercontent.com/rmcelreath/rethinking/master/data/Trolley.csv"</span>, sep<span class="op">=</span><span class="st">";"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>trolly <span class="op">=</span> pd.read_csv(<span class="st">"https://raw.githubusercontent.com/rmcelreath/rethinking/master/data/Trolley.csv"</span>, sep<span class="op">=</span><span class="st">";"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>trolly <span class="op">=</span> trolly[[<span class="st">"response"</span>, <span class="st">"action"</span>, <span class="st">"intention"</span>, <span class="st">"contact"</span>]]</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>trolly[<span class="st">"action"</span>] <span class="op">=</span> pd.Categorical(trolly[<span class="st">"action"</span>], ordered<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>trolly[<span class="st">"intention"</span>] <span class="op">=</span> pd.Categorical(trolly[<span class="st">"intention"</span>], ordered<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>trolly[<span class="st">"contact"</span>] <span class="op">=</span> pd.Categorical(trolly[<span class="st">"contact"</span>], ordered<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>trolly[<span class="st">"response"</span>] <span class="op">=</span> pd.Categorical(trolly[<span class="st">"response"</span>], ordered<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>trolly[<span class="st">"response"</span>] <span class="op">=</span> pd.Categorical(trolly[<span class="st">"response"</span>], ordered<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="cell-6" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 7 ordered categories from 1-7</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>trolly.response.unique()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 7 ordered categories from 1-7</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>trolly.response.unique()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
 <pre><code>[4, 3, 5, 2, 1, 7, 6]
 Categories (7, int64): [1 &lt; 2 &lt; 3 &lt; 4 &lt; 5 &lt; 6 &lt; 7]</code></pre>
@@ -604,11 +600,11 @@ Categories (7, int64): [1 &lt; 2 &lt; 3 &lt; 4 &lt; 5 &lt; 6 &lt; 7]</code></pre
 <h3 class="anchored" data-anchor-id="intercept-only-model">Intercept only model</h3>
 <p>Before we fit a model with predictors, let’s attempt to recover the parameters of an ordinal model using only the thresholds to get a feel for the cumulative family. Traditionally, in Bambi if we wanted to recover the parameters of the likelihood, we would use an intercept only model and write the formula as <code>response ~ 1</code> where <code>1</code> indicates to include the intercept. However, in the case of ordinal regression, the thresholds “take the place” of the intercept. Thus, we can write the formula as <code>response ~ 0</code> to indicate that we do not want to include an intercept. To fit a cumulative ordinal model, we pass <code>family="cumulative"</code>. To compare the thresholds only model, we compute the empirical log-cumulative-odds of the categories directly from the data below and generate a bar plot of the response probabilities.</p>
 <div id="cell-8" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>pr_k <span class="op">=</span> trolly.response.value_counts().sort_index().values <span class="op">/</span> trolly.shape[<span class="dv">0</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>pr_k <span class="op">=</span> trolly.response.value_counts().sort_index().values <span class="op">/</span> trolly.shape[<span class="dv">0</span>]</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>cum_pr_k <span class="op">=</span> np.cumsum(pr_k)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>logit_func <span class="op">=</span> <span class="kw">lambda</span> x: np.log(x <span class="op">/</span> (<span class="dv">1</span> <span class="op">-</span> x))</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>cum_logit <span class="op">=</span> logit_func(cum_pr_k)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>cum_logit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>cum_logit</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>/tmp/ipykernel_66844/1548491577.py:3: RuntimeWarning: invalid value encountered in log
   logit_func = lambda x: np.log(x / (1 - x))</code></pre>
@@ -619,11 +615,11 @@ Categories (7, int64): [1 &lt; 2 &lt; 3 &lt; 4 &lt; 5 &lt; 6 &lt; 7]</code></pre
 </div>
 </div>
 <div id="cell-9" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>plt.bar(np.arange(<span class="dv">1</span>, <span class="dv">8</span>), pr_k)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Probability"</span>)</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Response"</span>)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Empirical probability of each response category"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Empirical probability of each response category"</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -633,8 +629,8 @@ Categories (7, int64): [1 &lt; 2 &lt; 3 &lt; 4 &lt; 5 &lt; 6 &lt; 7]</code></pre
 </div>
 </div>
 <div id="cell-10" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"response ~ 0"</span>, data<span class="op">=</span>trolly, family<span class="op">=</span><span class="st">"cumulative"</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"response ~ 0"</span>, data<span class="op">=</span>trolly, family<span class="op">=</span><span class="st">"cumulative"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
@@ -660,7 +656,7 @@ NUTS: [threshold]</code></pre>
 </div>
 <p>Below, the components of the model are outputed. Notice how the thresholds are a grid of six values ranging from -2 to 2.</p>
 <div id="cell-12" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>model</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="7">
 <pre><code>       Formula: response ~ 0
         Family: cumulative
@@ -678,12 +674,12 @@ NUTS: [threshold]</code></pre>
 </div>
 </div>
 <div id="cell-13" class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>az.summary(idata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>az.summary(idata)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="8">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -700,7 +696,7 @@ NUTS: [threshold]</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[0]</td>
+<th data-quarto-table-cell-role="th">threshold[0]</th>
 <td>-1.917</td>
 <td>0.030</td>
 <td>-1.973</td>
@@ -712,7 +708,7 @@ NUTS: [threshold]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[1]</td>
+<th data-quarto-table-cell-role="th">threshold[1]</th>
 <td>-1.267</td>
 <td>0.024</td>
 <td>-1.310</td>
@@ -724,7 +720,7 @@ NUTS: [threshold]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[2]</td>
+<th data-quarto-table-cell-role="th">threshold[2]</th>
 <td>-0.718</td>
 <td>0.022</td>
 <td>-0.760</td>
@@ -736,7 +732,7 @@ NUTS: [threshold]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[3]</td>
+<th data-quarto-table-cell-role="th">threshold[3]</th>
 <td>0.249</td>
 <td>0.020</td>
 <td>0.212</td>
@@ -748,7 +744,7 @@ NUTS: [threshold]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[4]</td>
+<th data-quarto-table-cell-role="th">threshold[4]</th>
 <td>0.891</td>
 <td>0.022</td>
 <td>0.850</td>
@@ -760,7 +756,7 @@ NUTS: [threshold]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[5]</td>
+<th data-quarto-table-cell-role="th">threshold[5]</th>
 <td>1.771</td>
 <td>0.028</td>
 <td>1.721</td>
@@ -780,7 +776,7 @@ NUTS: [threshold]</code></pre>
 <p>Viewing the summary dataframe, we see a total of six <code>response_threshold</code> coefficients. Why six? Remember, we get the last parameter for free. Since there are seven categories, we only need six cutpoints. The index (using zero based indexing) of the <code>response_threshold</code> indicates the category that the threshold is associated with. Comparing to the empirical log-cumulative-odds computation above, the mean of the posterior distribution for each category is close to the empirical value.</p>
 <p>As the the log cumulative link is used, we need to apply the inverse of the logit function to transform back to cumulative probabilities. Below, we plot the cumulative probabilities for each category.</p>
 <div id="cell-15" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>expit_func <span class="op">=</span> <span class="kw">lambda</span> x: <span class="dv">1</span> <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> np.exp(<span class="op">-</span>x))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>expit_func <span class="op">=</span> <span class="kw">lambda</span> x: <span class="dv">1</span> <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> np.exp(<span class="op">-</span>x))</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>cumprobs <span class="op">=</span> expit_func(idata.posterior.threshold).mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>))</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>cumprobs <span class="op">=</span> np.append(cumprobs, <span class="dv">1</span>)</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -788,7 +784,7 @@ NUTS: [threshold]</code></pre>
 <span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">sorted</span>(trolly.response.unique()), cumprobs, marker<span class="op">=</span><span class="st">'o'</span>)</span>
 <span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Cumulative probability"</span>)</span>
 <span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Response category"</span>)</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Cumulative probabilities of response categories"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Cumulative probabilities of response categories"</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -798,14 +794,14 @@ NUTS: [threshold]</code></pre>
 </div>
 </div>
 <div id="cell-16" class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">6</span>):</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    outcome <span class="op">=</span> expit_func(idata.posterior.threshold).sel(threshold_dim<span class="op">=</span>i).to_numpy().flatten()</span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    ax.hist(outcome, bins<span class="op">=</span><span class="dv">15</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="ss">f"Category: </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Probability"</span>)</span>
 <span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Count"</span>)</span>
 <span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Cumulative Probability by Category"</span>)</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>ax.legend(bbox_to_anchor<span class="op">=</span>(<span class="fl">1.04</span>, <span class="dv">1</span>), loc<span class="op">=</span><span class="st">"upper left"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>ax.legend(bbox_to_anchor<span class="op">=</span>(<span class="fl">1.04</span>, <span class="dv">1</span>), loc<span class="op">=</span><span class="st">"upper left"</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -816,7 +812,7 @@ NUTS: [threshold]</code></pre>
 </div>
 <p>We can take the derivative of the cumulative probabilities to get the posterior probabilities for each category. Notice how the posterior probabilities in the barplot below are close to the empirical probabilities in barplot above.</p>
 <div id="cell-18" class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># derivative</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># derivative</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>ddx <span class="op">=</span> np.diff(cumprobs)</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>probs <span class="op">=</span> np.insert(ddx, <span class="dv">0</span>, cumprobs[<span class="dv">0</span>])</span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -824,7 +820,7 @@ NUTS: [threshold]</code></pre>
 <span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>plt.bar(<span class="bu">sorted</span>(trolly.response.unique()), probs)</span>
 <span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Probability"</span>)</span>
 <span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Response category"</span>)</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Posterior Probability of each response category"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Posterior Probability of each response category"</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -846,12 +842,12 @@ NUTS: [threshold]</code></pre>
 <p>The same predictor term <span class="math inline">\(\eta\)</span> is subtracted from each threshold because if we decrease the log-cumulative-odds of every outcome value <span class="math inline">\(k\)</span> below the maximum, this shifts probability mass upwards towards higher outcome values. Thus, positive <span class="math inline">\(\beta\)</span> values correspond to increasing <span class="math inline">\(x\)</span>, which is associated with an increase in the mean response <span class="math inline">\(Y\)</span>. The parameters to be estimated from the model are the thresholds <span class="math inline">\(\tau\)</span> and the predictor terms <span class="math inline">\(\eta\)</span> coefficients.</p>
 <p>To add predictors for ordinal models in Bambi, we continue to use the formula interface.</p>
 <div id="cell-21" class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"response ~ 0 + action + intention + contact + action:intention + contact:intention"</span>, </span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>trolly, </span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">"cumulative"</span></span>
 <span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
@@ -875,16 +871,16 @@ NUTS: [threshold, action, intention, contact, action:intention, contact:intentio
 </div>
 <p>In the summary dataframe below, we only select the predictor variables as the cutpoints are not of interest at the moment.</p>
 <div id="cell-23" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>az.summary(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>az.summary(</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    idata, </span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"action"</span>, <span class="st">"intention"</span>, <span class="st">"contact"</span>, </span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>               <span class="st">"action:intention"</span>, <span class="st">"contact:intention"</span>]</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="13">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -901,7 +897,7 @@ NUTS: [threshold, action, intention, contact, action:intention, contact:intentio
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">action[1]</td>
+<th data-quarto-table-cell-role="th">action[1]</th>
 <td>-0.464</td>
 <td>0.055</td>
 <td>-0.563</td>
@@ -913,7 +909,7 @@ NUTS: [threshold, action, intention, contact, action:intention, contact:intentio
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">intention[1]</td>
+<th data-quarto-table-cell-role="th">intention[1]</th>
 <td>-0.275</td>
 <td>0.060</td>
 <td>-0.393</td>
@@ -925,7 +921,7 @@ NUTS: [threshold, action, intention, contact, action:intention, contact:intentio
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">contact[1]</td>
+<th data-quarto-table-cell-role="th">contact[1]</th>
 <td>-0.324</td>
 <td>0.071</td>
 <td>-0.462</td>
@@ -937,7 +933,7 @@ NUTS: [threshold, action, intention, contact, action:intention, contact:intentio
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">action:intention[1, 1]</td>
+<th data-quarto-table-cell-role="th">action:intention[1, 1]</th>
 <td>-0.454</td>
 <td>0.082</td>
 <td>-0.605</td>
@@ -949,7 +945,7 @@ NUTS: [threshold, action, intention, contact, action:intention, contact:intentio
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">contact:intention[1, 1]</td>
+<th data-quarto-table-cell-role="th">contact:intention[1, 1]</th>
 <td>-1.278</td>
 <td>0.101</td>
 <td>-1.467</td>
@@ -968,14 +964,14 @@ NUTS: [threshold, action, intention, contact, action:intention, contact:intentio
 </div>
 <p>The posterior distribution of the slopes are all negative indicating that each of these story features reduces the rating—the acceptability of the story. Below, a forest plot is used to make this insight more clear.</p>
 <div id="cell-25" class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>az.plot_forest(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>az.plot_forest(</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    idata,</span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    combined<span class="op">=</span><span class="va">True</span>,</span>
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"action"</span>, <span class="st">"intention"</span>, <span class="st">"contact"</span>, </span>
 <span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>               <span class="st">"action:intention"</span>, <span class="st">"contact:intention"</span>],</span>
 <span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>),</span>
 <span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    textsize<span class="op">=</span><span class="dv">11</span></span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -986,14 +982,14 @@ NUTS: [threshold, action, intention, contact, action:intention, contact:intentio
 </div>
 <p>Again, we can plot the cumulative probability of each category. Compared to the same plot above, notice how most of the category probabilities have been shifted to the left. Additionally, there is more uncertainty for category 3, 4, and 5.</p>
 <div id="cell-27" class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">6</span>):</span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    outcome <span class="op">=</span> expit_func(idata.posterior.threshold).sel(threshold_dim<span class="op">=</span>i).to_numpy().flatten()</span>
 <span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    ax.hist(outcome, bins<span class="op">=</span><span class="dv">15</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="ss">f"Category: </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Probability"</span>)</span>
 <span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Count"</span>)</span>
 <span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Cumulative Probability by Category"</span>)</span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>ax.legend(bbox_to_anchor<span class="op">=</span>(<span class="fl">1.04</span>, <span class="dv">1</span>), loc<span class="op">=</span><span class="st">"upper left"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>ax.legend(bbox_to_anchor<span class="op">=</span>(<span class="fl">1.04</span>, <span class="dv">1</span>), loc<span class="op">=</span><span class="st">"upper left"</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1007,7 +1003,7 @@ NUTS: [threshold, action, intention, contact, action:intention, contact:intentio
 <h3 class="anchored" data-anchor-id="posterior-predictive-distribution">Posterior predictive distribution</h3>
 <p>To get a sense of how well the ordinal model fits the data, we can plot samples from the posterior predictive distribution. To plot the samples, a utility function is defined below to assist in the plotting of discrete values.</p>
 <div id="cell-29" class="cell" data-execution_count="16">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> adjust_lightness(color, amount<span class="op">=</span><span class="fl">0.5</span>):</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> adjust_lightness(color, amount<span class="op">=</span><span class="fl">0.5</span>):</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> matplotlib.colors <span class="im">as</span> mc</span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> colorsys</span>
 <span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
@@ -1054,17 +1050,17 @@ NUTS: [threshold, action, intention, contact, action:intention, contact:intentio
 <span id="cb26-45"><a href="#cb26-45" aria-hidden="true" tabindex="-1"></a>        Line2D([], [], label<span class="op">=</span><span class="st">"Posterior predictive median"</span>, color<span class="op">=</span>colors[<span class="dv">4</span>], lw<span class="op">=</span><span class="dv">2</span>)</span>
 <span id="cb26-46"><a href="#cb26-46" aria-hidden="true" tabindex="-1"></a>    ]</span>
 <span id="cb26-47"><a href="#cb26-47" aria-hidden="true" tabindex="-1"></a>    ax.legend(handles<span class="op">=</span>handles)</span>
-<span id="cb26-48"><a href="#cb26-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ax</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb26-48"><a href="#cb26-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ax</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="cell-30" class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>idata_pps <span class="op">=</span> model.predict(idata<span class="op">=</span>idata, kind<span class="op">=</span><span class="st">"response"</span>, inplace<span class="op">=</span><span class="va">False</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>idata_pps <span class="op">=</span> model.predict(idata<span class="op">=</span>idata, kind<span class="op">=</span><span class="st">"response"</span>, inplace<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>bins <span class="op">=</span> np.arange(<span class="dv">7</span>)</span>
 <span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
 <span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> plot_ppc_discrete(idata_pps, bins, ax)</span>
 <span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Response category"</span>)</span>
 <span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Count"</span>)</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Cumulative model - Posterior Predictive Distribution"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Cumulative model - Posterior Predictive Distribution"</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1090,15 +1086,15 @@ NUTS: [threshold, action, intention, contact, action:intention, contact:intentio
 <h3 class="anchored" data-anchor-id="human-resources-attrition-dataset">Human resources attrition dataset</h3>
 <p>To illustrate an sequential model with a stopping ratio link function, we will use data from the IBM human resources employee attrition and performance <a href="https://www.kaggle.com/datasets/pavansubhasht/ibm-hr-analytics-attrition-dataset">dataset</a>. The original dataset contains 1470 rows and 35 columns. However, our goal is to model the total working years of employees using age as a predictor. This data lends itself to a sequential model as the response, total working years, is a sequential process. In order to have 10 years of working experience, it is necessarily true that the employee had 9 years of working experience. Additionally, age is choosen as a predictor as it is positively correlated with total working years.</p>
 <div id="cell-33" class="cell" data-execution_count="18">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>attrition <span class="op">=</span> pd.read_csv(<span class="st">"data/hr_employee_attrition.tsv.txt"</span>, sep<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>attrition <span class="op">=</span> pd.read_csv(<span class="st">"data/hr_employee_attrition.tsv.txt"</span>, sep<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>)</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>attrition <span class="op">=</span> attrition[attrition[<span class="st">"Attrition"</span>] <span class="op">==</span> <span class="st">"No"</span>]</span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>attrition[<span class="st">"YearsAtCompany"</span>] <span class="op">=</span> pd.Categorical(attrition[<span class="st">"YearsAtCompany"</span>], ordered<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>attrition[[<span class="st">"YearsAtCompany"</span>, <span class="st">"Age"</span>]].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>attrition[[<span class="st">"YearsAtCompany"</span>, <span class="st">"Age"</span>]].head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="18">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -1108,27 +1104,27 @@ NUTS: [threshold, action, intention, contact, action:intention, contact:intentio
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">1</td>
+<th data-quarto-table-cell-role="th">1</th>
 <td>10</td>
 <td>49</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
+<th data-quarto-table-cell-role="th">3</th>
 <td>8</td>
 <td>33</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
+<th data-quarto-table-cell-role="th">4</th>
 <td>2</td>
 <td>27</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">5</td>
+<th data-quarto-table-cell-role="th">5</th>
 <td>7</td>
 <td>32</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">6</td>
+<th data-quarto-table-cell-role="th">6</th>
 <td>1</td>
 <td>59</td>
 </tr>
@@ -1140,13 +1136,13 @@ NUTS: [threshold, action, intention, contact, action:intention, contact:intentio
 </div>
 <p>Below, the empirical probabilities of the response categories are computed. Employees are most likely to stay at the company between 1 and 10 years.</p>
 <div id="cell-35" class="cell" data-execution_count="19">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>pr_k <span class="op">=</span> attrition.YearsAtCompany.value_counts().sort_index().values <span class="op">/</span> attrition.shape[<span class="dv">0</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>pr_k <span class="op">=</span> attrition.YearsAtCompany.value_counts().sort_index().values <span class="op">/</span> attrition.shape[<span class="dv">0</span>]</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
 <span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>plt.bar(np.arange(<span class="dv">0</span>, <span class="dv">36</span>), pr_k)</span>
 <span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Response category"</span>)</span>
 <span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Probability"</span>)</span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Empirical probability of each response category"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Empirical probability of each response category"</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1161,12 +1157,12 @@ NUTS: [threshold, action, intention, contact, action:intention, contact:intentio
 <p>Before we fit the sequential model, it’s worth mentioning that the default priors for the thresholds in a sequential model are different than the cumulative model. In the cumulative model, the default prior for the thresholds is a Normal distribution with a grid of evenly spaced <span class="math inline">\(\mu\)</span> where an ordered transformation is applied to ensure the ordering of the values. However, in the sequential model, the ordering of the thresholds does not matter. Thus, the default prior for the thresholds is a Normal distribution with a zero <span class="math inline">\(\mu\)</span> vector of length <span class="math inline">\(k - 1\)</span> where <span class="math inline">\(k\)</span> is the number of response levels. Refer to the <a href="https://bambinos.github.io/bambi/notebooks/getting_started.html#specifying-priors">getting started</a> docs if you need a refresher on priors in Bambi.</p>
 <p>Subsequently, fitting a sequential model is similar to fitting a cumulative model. The only difference is that we pass <code>family="sratio"</code> to the <code>bambi.Model</code> constructor.</p>
 <div id="cell-37" class="cell" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>sequence_model <span class="op">=</span> bmb.Model(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>sequence_model <span class="op">=</span> bmb.Model(</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"YearsAtCompany ~ 0 + TotalWorkingYears"</span>, </span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>attrition,</span>
 <span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">"sratio"</span></span>
 <span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>sequence_idata <span class="op">=</span> sequence_model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>sequence_idata <span class="op">=</span> sequence_model.fit(random_seed<span class="op">=</span><span class="dv">1234</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
@@ -1185,7 +1181,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 </div>
 </div>
 <div id="cell-38" class="cell" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>sequence_model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>sequence_model</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="21">
 <pre><code>       Formula: YearsAtCompany ~ 0 + TotalWorkingYears
         Family: sratio
@@ -1205,12 +1201,12 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 </div>
 </div>
 <div id="cell-39" class="cell" data-execution_count="22">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>az.summary(sequence_idata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>az.summary(sequence_idata)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="22">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -1227,7 +1223,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[0]</td>
+<th data-quarto-table-cell-role="th">threshold[0]</th>
 <td>-2.519</td>
 <td>0.193</td>
 <td>-2.861</td>
@@ -1239,7 +1235,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[1]</td>
+<th data-quarto-table-cell-role="th">threshold[1]</th>
 <td>-1.055</td>
 <td>0.109</td>
 <td>-1.260</td>
@@ -1251,7 +1247,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[2]</td>
+<th data-quarto-table-cell-role="th">threshold[2]</th>
 <td>-1.013</td>
 <td>0.117</td>
 <td>-1.240</td>
@@ -1263,7 +1259,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[3]</td>
+<th data-quarto-table-cell-role="th">threshold[3]</th>
 <td>-0.757</td>
 <td>0.113</td>
 <td>-0.974</td>
@@ -1275,7 +1271,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[4]</td>
+<th data-quarto-table-cell-role="th">threshold[4]</th>
 <td>-0.756</td>
 <td>0.125</td>
 <td>-0.995</td>
@@ -1287,7 +1283,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[5]</td>
+<th data-quarto-table-cell-role="th">threshold[5]</th>
 <td>0.251</td>
 <td>0.108</td>
 <td>0.056</td>
@@ -1299,7 +1295,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[6]</td>
+<th data-quarto-table-cell-role="th">threshold[6]</th>
 <td>-0.505</td>
 <td>0.145</td>
 <td>-0.787</td>
@@ -1311,7 +1307,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[7]</td>
+<th data-quarto-table-cell-role="th">threshold[7]</th>
 <td>-0.083</td>
 <td>0.140</td>
 <td>-0.331</td>
@@ -1323,7 +1319,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[8]</td>
+<th data-quarto-table-cell-role="th">threshold[8]</th>
 <td>0.033</td>
 <td>0.147</td>
 <td>-0.236</td>
@@ -1335,7 +1331,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[9]</td>
+<th data-quarto-table-cell-role="th">threshold[9]</th>
 <td>0.389</td>
 <td>0.154</td>
 <td>0.100</td>
@@ -1347,7 +1343,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[10]</td>
+<th data-quarto-table-cell-role="th">threshold[10]</th>
 <td>1.272</td>
 <td>0.154</td>
 <td>0.975</td>
@@ -1359,7 +1355,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[11]</td>
+<th data-quarto-table-cell-role="th">threshold[11]</th>
 <td>0.438</td>
 <td>0.220</td>
 <td>0.022</td>
@@ -1371,7 +1367,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[12]</td>
+<th data-quarto-table-cell-role="th">threshold[12]</th>
 <td>-0.113</td>
 <td>0.294</td>
 <td>-0.690</td>
@@ -1383,7 +1379,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[13]</td>
+<th data-quarto-table-cell-role="th">threshold[13]</th>
 <td>0.520</td>
 <td>0.260</td>
 <td>0.008</td>
@@ -1395,7 +1391,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[14]</td>
+<th data-quarto-table-cell-role="th">threshold[14]</th>
 <td>0.398</td>
 <td>0.288</td>
 <td>-0.166</td>
@@ -1407,7 +1403,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[15]</td>
+<th data-quarto-table-cell-role="th">threshold[15]</th>
 <td>0.795</td>
 <td>0.273</td>
 <td>0.311</td>
@@ -1419,7 +1415,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[16]</td>
+<th data-quarto-table-cell-role="th">threshold[16]</th>
 <td>0.433</td>
 <td>0.328</td>
 <td>-0.160</td>
@@ -1431,7 +1427,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[17]</td>
+<th data-quarto-table-cell-role="th">threshold[17]</th>
 <td>0.255</td>
 <td>0.378</td>
 <td>-0.420</td>
@@ -1443,7 +1439,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[18]</td>
+<th data-quarto-table-cell-role="th">threshold[18]</th>
 <td>0.807</td>
 <td>0.344</td>
 <td>0.134</td>
@@ -1455,7 +1451,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[19]</td>
+<th data-quarto-table-cell-role="th">threshold[19]</th>
 <td>0.797</td>
 <td>0.359</td>
 <td>0.146</td>
@@ -1467,7 +1463,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[20]</td>
+<th data-quarto-table-cell-role="th">threshold[20]</th>
 <td>2.205</td>
 <td>0.275</td>
 <td>1.683</td>
@@ -1479,7 +1475,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[21]</td>
+<th data-quarto-table-cell-role="th">threshold[21]</th>
 <td>1.841</td>
 <td>0.356</td>
 <td>1.173</td>
@@ -1491,7 +1487,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[22]</td>
+<th data-quarto-table-cell-role="th">threshold[22]</th>
 <td>2.433</td>
 <td>0.365</td>
 <td>1.685</td>
@@ -1503,7 +1499,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[23]</td>
+<th data-quarto-table-cell-role="th">threshold[23]</th>
 <td>0.038</td>
 <td>0.736</td>
 <td>-1.279</td>
@@ -1515,7 +1511,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[24]</td>
+<th data-quarto-table-cell-role="th">threshold[24]</th>
 <td>1.600</td>
 <td>0.521</td>
 <td>0.619</td>
@@ -1527,7 +1523,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[25]</td>
+<th data-quarto-table-cell-role="th">threshold[25]</th>
 <td>1.528</td>
 <td>0.577</td>
 <td>0.471</td>
@@ -1539,7 +1535,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[26]</td>
+<th data-quarto-table-cell-role="th">threshold[26]</th>
 <td>1.734</td>
 <td>0.625</td>
 <td>0.539</td>
@@ -1551,7 +1547,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[27]</td>
+<th data-quarto-table-cell-role="th">threshold[27]</th>
 <td>1.055</td>
 <td>0.758</td>
 <td>-0.287</td>
@@ -1563,7 +1559,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[28]</td>
+<th data-quarto-table-cell-role="th">threshold[28]</th>
 <td>1.154</td>
 <td>0.782</td>
 <td>-0.348</td>
@@ -1575,7 +1571,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[29]</td>
+<th data-quarto-table-cell-role="th">threshold[29]</th>
 <td>0.564</td>
 <td>0.827</td>
 <td>-1.042</td>
@@ -1587,7 +1583,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[30]</td>
+<th data-quarto-table-cell-role="th">threshold[30]</th>
 <td>1.270</td>
 <td>0.783</td>
 <td>-0.215</td>
@@ -1599,7 +1595,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[31]</td>
+<th data-quarto-table-cell-role="th">threshold[31]</th>
 <td>1.374</td>
 <td>0.829</td>
 <td>-0.310</td>
@@ -1611,7 +1607,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[32]</td>
+<th data-quarto-table-cell-role="th">threshold[32]</th>
 <td>2.667</td>
 <td>0.710</td>
 <td>1.306</td>
@@ -1623,7 +1619,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">threshold[33]</td>
+<th data-quarto-table-cell-role="th">threshold[33]</th>
 <td>0.860</td>
 <td>0.966</td>
 <td>-0.988</td>
@@ -1635,7 +1631,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">threshold[34]</td>
+<th data-quarto-table-cell-role="th">threshold[34]</th>
 <td>1.789</td>
 <td>0.909</td>
 <td>0.112</td>
@@ -1647,7 +1643,7 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">TotalWorkingYears</td>
+<th data-quarto-table-cell-role="th">TotalWorkingYears</th>
 <td>0.127</td>
 <td>0.006</td>
 <td>0.116</td>
@@ -1666,13 +1662,13 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 </div>
 <p>The coefficients are still on the logits scale, so we need to apply the inverse of the logit function to transform back to probabilities. Below, we plot the probabilities for each category.</p>
 <div id="cell-41" class="cell" data-execution_count="23">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>probs <span class="op">=</span> expit_func(sequence_idata.posterior.threshold).mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>probs <span class="op">=</span> expit_func(sequence_idata.posterior.threshold).mean((<span class="st">"chain"</span>, <span class="st">"draw"</span>))</span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>probs <span class="op">=</span> np.append(probs, <span class="dv">1</span>)</span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
 <span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">sorted</span>(attrition.YearsAtCompany.unique()), probs, marker<span class="op">=</span><span class="st">'o'</span>)</span>
 <span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Probability"</span>)</span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Response category"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Response category"</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1687,14 +1683,14 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <h3 class="anchored" data-anchor-id="posterior-predictive-samples">Posterior predictive samples</h3>
 <p>Again, using the posterior predictive samples, we can visualize the model fit against the observed data. In the case of the sequential model, the model does an alright job of capturing the observed frequencies of the categories. For pedagogical purposes, this fit is sufficient.</p>
 <div id="cell-44" class="cell" data-execution_count="24">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>idata_pps <span class="op">=</span> model.predict(idata<span class="op">=</span>idata, kind<span class="op">=</span><span class="st">"response"</span>, inplace<span class="op">=</span><span class="va">False</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>idata_pps <span class="op">=</span> model.predict(idata<span class="op">=</span>idata, kind<span class="op">=</span><span class="st">"response"</span>, inplace<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>bins <span class="op">=</span> np.arange(<span class="dv">35</span>)</span>
 <span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
 <span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> plot_ppc_discrete(idata_pps, bins, ax)</span>
 <span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Response category"</span>)</span>
 <span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Count"</span>)</span>
-<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Sequential model - Posterior Predictive Distribution"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Sequential model - Posterior Predictive Distribution"</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1710,8 +1706,8 @@ NUTS: [threshold, TotalWorkingYears]</code></pre>
 <p>This notebook demonstrated how to fit cumulative and sequential ordinal regression models using Bambi. Cumulative models focus on modeling the cumulative probabilities of an ordinal outcome variable taking on values up to and including a certain category, whereas a sequential model focuses on modeling the probability that an ordinal outcome variable stops at a particular category, rather than continuing to higher categories. To achieve this, both models assume that the reponse variable originates from a categorization of a latent continuous variable <span class="math inline">\(Z\)</span>. However, the cumulative model assumes that there are <span class="math inline">\(K\)</span> thresholds <span class="math inline">\(\tau_k\)</span> that partition <span class="math inline">\(Z\)</span> into <span class="math inline">\(K+1\)</span> observable, ordered categories of <span class="math inline">\(Y\)</span>. The sequential model assumes that for every category <span class="math inline">\(k\)</span> there is a latent continuous variable <span class="math inline">\(Z\)</span> that determines the transition between categories <span class="math inline">\(k\)</span> and <span class="math inline">\(k+1\)</span>; thus, a threshold <span class="math inline">\(\tau\)</span> belongs to each latent process.</p>
 <p>Cumulative models can be used in situations where the outcome variable is on the Likert scale, and you are interested in understanding the impact of predictors on the probability of reaching or exceeding specific categories. Sequential models are particularly useful when you are interested in understanding the predictors that influence the decision to stop at a specific response level. It’s well-suited for analyzing data where categories represent stages, and the focus is on the transitions between these stages.</p>
 <div id="cell-46" class="cell" data-execution_count="25">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Last updated: Tue Dec 16 2025
 
@@ -1785,13 +1781,14 @@ Watermark: 2.5.0
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

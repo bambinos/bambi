@@ -7,86 +7,86 @@ interpret.plot_comparisons(
     contrast,
     conditional=None,
     average_by=None,
-    comparison_type='diff',
-    sample_new_groups=False,
+    target='mean',
+    pps=False,
+    comparison='diff',
     use_hdi=True,
-    prob=None,
-    legend=True,
+    prob=az.rcParams['stats.ci_prob'],
     transforms=None,
-    ax=None,
+    sample_new_groups=False,
     fig_kwargs=None,
     subplot_kwargs=None,
 )
 ```
 
-Plot Conditional Adjusted Comparisons
+Plot conditional adjusted comparisons.
 
 ## Parameters {.doc-section .doc-section-parameters}
 
-<code>[**model**]{.parameter-name} [:]{.parameter-annotation-sep} [[bambi](`bambi`).[Model](`bambi.Model`)]{.parameter-annotation}</code>
+<code>[**model**]{.parameter-name} [:]{.parameter-annotation-sep} [[Model](`bambi.models.Model`)]{.parameter-annotation}</code>
 
-:   The model for which we want to plot the predictions.
+:   The fitted Bambi model.
 
-<code>[**idata**]{.parameter-name} [:]{.parameter-annotation-sep} [[arviz](`arviz`).[InferenceData](`arviz.InferenceData`)]{.parameter-annotation}</code>
+<code>[**idata**]{.parameter-name} [:]{.parameter-annotation-sep} [[InferenceData](`arviz.InferenceData`)]{.parameter-annotation}</code>
 
-:   The InferenceData object that contains the samples from the posterior distribution of the model.
+:   InferenceData object containing the posterior samples.
 
-<code>[**contrast**]{.parameter-name} [:]{.parameter-annotation-sep} [([str](`str`), [dict](`dict`), [list](`list`))]{.parameter-annotation}</code>
+<code>[**contrast**]{.parameter-name} [:]{.parameter-annotation-sep} [[contrastParam](`contrastParam`)]{.parameter-annotation}</code>
 
-:   The predictor name whose contrast we would like to compare.
+:   Variable(s) to create contrasts for.
 
-<code>[**conditional**]{.parameter-name} [:]{.parameter-annotation-sep} [([str](`str`), [dict](`dict`), [list](`list`))]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+<code>[**conditional**]{.parameter-name} [:]{.parameter-annotation-sep} [[ConditionalParam](`ConditionalParam`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
 
-:   The covariates we would like to condition on. If dict, keys are the covariate names and values are the values to condition on.
+:   Variables to condition on for comparisons.
 
-<code>[**average_by**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`) \| [list](`list`) \| None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+<code>[**average_by**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`) or [list](`list`) or [bool](`bool`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
 
-:   The covariates we would like to average by. The passed covariate(s) will marginalize over the other covariates in the model. Defaults to `None`.
+:   Variables to average comparisons over.
 
-<code>[**comparison_type**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'diff\']{.parameter-default}</code>
+<code>[**target**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'mean\']{.parameter-default}</code>
 
-:   The type of comparison to plot. Defaults to 'diff'.
+:   The target parameter to compare. Default is "mean".
 
-<code>[**sample_new_groups**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [False]{.parameter-default}</code>
+<code>[**pps**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [False]{.parameter-default}</code>
 
-:   If the model contains group-level effects, and data is passed for unseen groups, whether to sample from the new groups. Defaults to `False`.
+:   Whether to use posterior predictive samples. Default is False.
+
+<code>[**comparison**]{.parameter-name} [:]{.parameter-annotation-sep} [[ComparisonFunc](`bambi.interpret.ops.ComparisonFunc`) or [str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'diff\']{.parameter-default}</code>
+
+:   Comparison function or string name. Built-in options: "diff" (difference), "ratio" (ratio), "lift" (relative difference). Default is "diff". Custom functions should accept (reference, contrast) DataArrays and return a DataArray.
 
 <code>[**use_hdi**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
 
-:   Whether to compute the highest density interval (defaults to True) or the quantiles.
+:   Whether to use highest density interval. Default is True.
 
-<code>[**prob**]{.parameter-name} [:]{.parameter-annotation-sep} [[float](`float`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+<code>[**prob**]{.parameter-name} [:]{.parameter-annotation-sep} [[float](`float`) or [list](`list`)\[[float](`float`)\]]{.parameter-annotation} [ = ]{.parameter-default-sep} [az.rcParams\[\'stats.ci_prob\'\]]{.parameter-default}</code>
 
-:   The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94. Changing the global variable `az.rcParam["stats.ci_prob"]` affects this default.
+:   Probability or list of probabilities for credible intervals. Default is from arviz rcParams. When a list is provided, nested bands with decreasing opacity are drawn.
 
-<code>[**legend**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
+<code>[**transforms**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
 
-:   Whether to automatically include a legend in the plot. Defaults to `True`.
+:   Dictionary of transformations to apply to comparisons.
 
-<code>[**transforms**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+<code>[**sample_new_groups**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [False]{.parameter-default}</code>
 
-:   Transformations that are applied to each of the variables being plotted. The keys are the name of the variables, and the values are functions to be applied. Defaults to `None`.
+:   Whether to sample new group levels. Default is False.
 
-<code>[**ax**]{.parameter-name} [:]{.parameter-annotation-sep} [[matplotlib](`matplotlib`).[axes](`matplotlib.axes`).[_subplots](`matplotlib.axes._subplots`).[AxesSubplot](`matplotlib.axes._subplots.AxesSubplot`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+<code>[**fig_kwargs**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
 
-:   A matplotlib axes object or a sequence of them. If None, this function instantiates a new axes object. Defaults to `None`.
+:   Additional keyword arguments for figure customization. Use the 'theme' key to pass a dictionary of matplotlib rc parameters.
 
-<code>[**fig_kwargs**]{.parameter-name} [:]{.parameter-annotation-sep} [[optional](`optional`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+<code>[**subplot_kwargs**]{.parameter-name} [:]{.parameter-annotation-sep} [[Mapping](`typing.Mapping`)\[[str](`str`), [str](`str`)\] or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
 
-:   Keyword arguments passed to the matplotlib figure function as a dict. For example, `fig_kwargs=dict(figsize=(11, 8)), sharey=True` would make the figure 11 inches wide by 8 inches high and would share the y-axis values.
-
-<code>[**subplot_kwargs**]{.parameter-name} [:]{.parameter-annotation-sep} [[optional](`optional`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
-
-:   Keyword arguments used to determine the covariates used for the horizontal, group, and panel axes. For example, `subplot_kwargs=dict(main="x", group="y", panel="z")` would plot the horizontal axis as `x`, the color (hue) as `y`, and the panel axis as `z`.
+:   Overrides default plotting sequence (main, group, panel).
 
 ## Returns {.doc-section .doc-section-returns}
 
-<code>[]{.parameter-name} [:]{.parameter-annotation-sep} [([matplotlib](`matplotlib`).[figure](`matplotlib.figure`).[Figure](`matplotlib.figure.Figure`), [matplotlib](`matplotlib`).[axes](`matplotlib.axes`).[_subplots](`matplotlib.axes._subplots`).[AxesSubplot](`matplotlib.axes._subplots.AxesSubplot`))]{.parameter-annotation}</code>
+<code>[]{.parameter-name} [:]{.parameter-annotation-sep} [[Plot](`seaborn.objects.Plot`)]{.parameter-annotation}</code>
 
-:   A tuple with the figure and the axes.
+:   A Seaborn objects Plot. In Jupyter notebooks, the plot automatically displays. In scripts, call `.show()` to display. The returned Plot object can be customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
 
 ## Raises {.doc-section .doc-section-raises}
 
 <code>[[ValueError](`ValueError`)]{.parameter-annotation}</code>
 
-:   If the number of contrast levels is greater than 2 and `average_by` is `None`. If `conditional` and `average_by` are both `None`. If length of `conditional` is greater than 3 and `average_by` is `None`. If `average_by` is `True`. If main covariate is not numeric or categoric.
+:   If more than 3 conditional variables are provided without averaging.
