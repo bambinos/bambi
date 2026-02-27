@@ -79,7 +79,6 @@ bambi = { path = ".", editable = true }
 
 ## Dependencies from conda channels
 [tool.pixi.feature.dev.dependencies]
-black = "25.*"
 pre-commit = "4.*"
 pylint = "3.3.*"
 
@@ -98,6 +97,9 @@ seaborn = ">=0.13.2,<0.14"
 lifelines = ">=0.30.0,<0.31"
 python-graphviz = ">=0.21,<0.22"
 griffe = ">=1, <2"
+
+[tool.pixi.feature.dev.pypi-dependencies]
+black = { version = "==25.*", extras = ["jupyter"] }
 
 [tool.pixi.feature.docs.pypi-dependencies]
 # We need a new release of quartodoc (after 0.11.1)
