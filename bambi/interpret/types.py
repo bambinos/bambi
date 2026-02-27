@@ -366,7 +366,7 @@ class SlopeVariable:
 
 
 class Result(NamedTuple):
-    """The result of an predictions, comparisons, or slopes computation.
+    """The result of a prediction, comparison, or slope computation.
 
     A `Result` contains a high-level summary dataframe and the original draws (samples)
     used to compute that summary.
