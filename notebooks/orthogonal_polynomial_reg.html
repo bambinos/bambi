@@ -65,7 +65,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
 <link href="../notebooks/plot_predictions.html" rel="next">
-<link href="../notebooks/survival_model.html" rel="prev">
+<link href="../notebooks/survival_continuous_time_notebook.html" rel="prev">
 <link href="../logos/favicon.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -410,6 +410,18 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="../notebooks/survival_model.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Survival Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/survival_discrete_time_notebook.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Discrete time hazards and survival analysis</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/survival_continuous_time_notebook.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Continuous time hazards and survival analysis</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -1044,7 +1056,7 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <div id="87bd479f-83ed-4457-90fb-aa7e6dca81e7" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> <span class="dv">3</span> <span class="op">*</span> x2  <span class="op">+</span> x</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>), sharey<span class="op">=</span><span class="st">'row'</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>), sharey<span class="op">=</span><span class="st">'row'</span>, layout<span class="op">=</span><span class="st">"constrained"</span>)</span>
 <span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot configurations - variable, label, linear fit tuple</span></span>
 <span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>plots <span class="op">=</span> [</span>
@@ -1066,8 +1078,7 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> plot_data[<span class="dv">1</span>] <span class="op">==</span> <span class="st">'Orthogonalized $x^2$'</span>:</span>
 <span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>        ax.axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'k'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)  <span class="co"># Add vertical line at x=0</span></span>
 <span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1088,7 +1099,7 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>residuals <span class="op">=</span> y <span class="op">-</span> y_pred</span>
 <span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot x_orth vs y with linear fit</span></span>
-<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>), layout<span class="op">=</span><span class="st">"constrained"</span>)</span>
 <span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">1</span>)</span>
 <span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>plt.scatter(x_orth, y, label<span class="op">=</span><span class="st">'Original data'</span>)</span>
 <span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>plt.plot(x_orth, y_pred, color<span class="op">=</span><span class="st">'C1'</span>, label<span class="op">=</span><span class="st">'Fitted line'</span>)</span>
@@ -1105,8 +1116,7 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'$x^2$ Orth vs Residuals'</span>)</span>
 <span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>plt.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'black'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
 <span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1129,7 +1139,7 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>x2_orth <span class="op">=</span> x_orthogonalized[:, <span class="dv">1</span>]</span>
 <span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>x3_orth <span class="op">=</span> x_orthogonalized[:, <span class="dv">2</span>]</span>
 <span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">8</span>), sharey<span class="op">=</span><span class="st">'row'</span>)</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">8</span>), sharey<span class="op">=</span><span class="st">'row'</span>, layout<span class="op">=</span><span class="st">"constrained"</span>)</span>
 <span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot configurations</span></span>
 <span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>plots <span class="op">=</span> [</span>
@@ -1156,8 +1166,7 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <span id="cb33-36"><a href="#cb33-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> title <span class="op">==</span> <span class="st">'$x^3$ Orth vs y'</span>:</span>
 <span id="cb33-37"><a href="#cb33-37" aria-hidden="true" tabindex="-1"></a>        ax.axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'k'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)  <span class="co"># Add vertical line at x=0</span></span>
 <span id="cb33-38"><a href="#cb33-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-39"><a href="#cb33-39" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb33-40"><a href="#cb33-40" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb33-39"><a href="#cb33-39" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1183,7 +1192,7 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>second_order_residuals <span class="op">=</span> residuals <span class="op">-</span> residuals_pred</span>
 <span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot x_orth vs y with linear fit</span></span>
-<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">5</span>))</span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">5</span>), layout<span class="op">=</span><span class="st">"constrained"</span>)</span>
 <span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">1</span>)</span>
 <span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(x<span class="op">=</span>x_orth, y<span class="op">=</span>y_cubic, hue<span class="op">=</span>np.arange(<span class="bu">len</span>(x_orth)), palette<span class="op">=</span><span class="st">"viridis"</span>, legend<span class="op">=</span><span class="va">False</span>)</span>
@@ -1213,8 +1222,7 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <span id="cb34-43"><a href="#cb34-43" aria-hidden="true" tabindex="-1"></a>plt.annotate(<span class="st">'Point hue denotes index'</span>, </span>
 <span id="cb34-44"><a href="#cb34-44" aria-hidden="true" tabindex="-1"></a>             xy<span class="op">=</span>(<span class="fl">0.99</span>, <span class="fl">0.05</span>), ha<span class="op">=</span><span class="st">'right'</span>, xycoords<span class="op">=</span><span class="st">'axes fraction'</span>, fontsize<span class="op">=</span><span class="dv">14</span>, color<span class="op">=</span><span class="st">'black'</span>)</span>
 <span id="cb34-45"><a href="#cb34-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-46"><a href="#cb34-46" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb34-47"><a href="#cb34-47" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb34-46"><a href="#cb34-46" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1325,7 +1333,7 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>df_mpg <span class="op">=</span> df_mpg.dropna(subset<span class="op">=</span>[<span class="st">"horsepower"</span>, <span class="st">"mpg"</span>])</span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">6</span>))</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">6</span>), layout<span class="op">=</span><span class="st">"constrained"</span>)</span>
 <span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">1</span>)</span>
 <span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>sns.regplot(data<span class="op">=</span>df_mpg, x<span class="op">=</span><span class="st">"horsepower"</span>, y<span class="op">=</span><span class="st">"mpg"</span>, line_kws<span class="op">=</span>{<span class="st">"color"</span>: <span class="st">"firebrick"</span>})</span>
 <span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a></span>
@@ -1335,8 +1343,7 @@ alpha: [3. 3. 3. 3.]</code></pre>
 <span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Count'</span>)</span>
 <span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Histogram of MPG'</span>)</span>
 <span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -2285,8 +2292,8 @@ Watermark: 2.5.0
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../notebooks/survival_model.html" class="pagination-link" aria-label="Survival Models">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Survival Models</span>
+      <a href="../notebooks/survival_continuous_time_notebook.html" class="pagination-link" aria-label="Continuous time hazards and survival analysis">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Continuous time hazards and survival analysis</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
@@ -2302,7 +2309,7 @@ Watermark: 2.5.0
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>© Copyright 2025, The developers of Bambi.</p>
+<p>© Copyright 2026, The developers of Bambi.</p>
 </div>
     <div class="nav-footer-right">
       &nbsp;
