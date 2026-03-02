@@ -78,7 +78,7 @@ class Model:
         second a lambda function expressing the desired constraint.
         If a constraint involves n variables, you can pass n 2-tuples or pass a tuple which first
         element is an n-tuple and second element is a lambda function with n arguments. The number
-        and order of the lambda function has to match the number and order of the variables names.
+        and order of the lambda function has to match the number and order of the variable names.
     dropna : bool, optional
         When `True`, rows with any missing values in either the predictors or outcome are
         automatically dropped from t, optionalhe dataset in a listwise manner.
@@ -652,9 +652,9 @@ class Model:
             distribution. Defaults to `None` which means to include both observed and
             unobserved RVs.
         filter_vars : {"like", "regex"} or None, optional
-            If `None`, interpret `var_names` as the real variables names.
-            If `"like"`, interpret `var_names` as substrings of the real variables names.
-            If `"regex"`, interpret `var_names` as regular expressions on the real variables names.
+            If `None`, interpret `var_names` as the real variable names.
+            If `"like"`, interpret `var_names` as substrings of the real variable names.
+            If `"regex"`, interpret `var_names` as regular expressions on the real variable names.
             Forwarded to [](`arviz_plots.plot_dist`).
         kind : str, optional
             Type of plot to display (`"kde"` or `"hist"`). For discrete variables this argument
