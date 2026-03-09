@@ -4,7 +4,7 @@ import pytensor.tensor as pt
 
 def probit(x):
     """Probit function that ensures result is in (0, 1)."""
-    eps = np.finfo(np.float64).eps
+    eps = np.finfo(np.float64).eps  # pylint: disable=no-member
     result = 0.5 + 0.5 * pt.erf(x / pt.sqrt(2))
     result = pt.switch(pt.eq(result, 0), eps, result)
     result = pt.switch(pt.eq(result, 1), 1 - eps, result)
@@ -14,7 +14,7 @@ def probit(x):
 
 def cloglog(x):
     """Cloglog function that ensures result is in (0, 1)."""
-    eps = np.finfo(np.float64).eps
+    eps = np.finfo(np.float64).eps  # pylint: disable=no-member
     result = 1 - pt.exp(-pt.exp(x))
     result = pt.switch(pt.eq(result, 0), eps, result)
     result = pt.switch(pt.eq(result, 1), 1 - eps, result)
@@ -24,7 +24,7 @@ def cloglog(x):
 
 def logit(x):
     """Logit function that ensures result is in (0, 1)."""
-    eps = np.finfo(np.float64).eps
+    eps = np.finfo(np.float64).eps  # pylint: disable=no-member
     result = pt.sigmoid(x)
     result = pt.switch(pt.eq(result, 0), eps, result)
     result = pt.switch(pt.eq(result, 1), 1 - eps, result)
