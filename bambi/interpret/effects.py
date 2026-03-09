@@ -326,8 +326,8 @@ def _build_predictions(
     conditional : str, list, dict, or None
         Variables to condition on.
     target : str
-        Which quantity to extract. ``"response_params"`` (default) for the posterior of the
-        parent parameter, ``"response"`` for posterior predictive samples, or a distributional
+        Which quantity to extract. `response_params` (default) for the posterior of the
+        parent parameter, `response` for posterior predictive samples, or a distributional
         component name.
     transforms : dict or None
         Dictionary of transformations.
