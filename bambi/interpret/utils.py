@@ -19,12 +19,23 @@ class TargetInfo(NamedTuple):
 
     `interpret` allows users to plot target quantities such as posterior parameters,
     and or the posterior predictive.
+
+    Parameters
+    ----------
+    response_name : str
+        Key for transforms dict lookup
+    var_name : str
+        Variable name to extract from idata[group]
+    group : str
+        `posterior` or `posterior_predictive`
+    predict_kind : str
+        `response_params` or `response` for model.predict()
     """
 
-    response_name: str  # Key for transforms dict lookup
-    var_name: str  # Variable name to extract from idata[group]
-    group: str  # "posterior" or "posterior_predictive"
-    predict_kind: str  # "response_params" or "response" for model.predict()
+    response_name: str
+    var_name: str
+    group: str
+    predict_kind: str
 
 
 def create_inference_data(preds_idata: InferenceData, preds_data: DataFrame) -> InferenceData:
