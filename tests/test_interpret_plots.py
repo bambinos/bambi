@@ -23,7 +23,7 @@ class TestCommon:
     and 'plot_slopes' such as figure object and uncertainty arguments.
     """
 
-    @pytest.mark.parametrize("target", ["response_params", "response"])
+    @pytest.mark.parametrize("target", ["mean", "mpg"])
     def test_use_hdi(self, mtcars_fixture, target):
         model, idata = mtcars_fixture
         result = plot_comparisons(model, idata, "hp", "am", use_hdi=False)
@@ -33,7 +33,7 @@ class TestCommon:
         result = plot_slopes(model, idata, "hp", "am", use_hdi=False)
         assert isinstance(result, Plot)
 
-    @pytest.mark.parametrize("target", ["response_params", "response"])
+    @pytest.mark.parametrize("target", ["mean", "mpg"])
     def test_hdi_prob(self, mtcars_fixture, target):
         model, idata = mtcars_fixture
         result = plot_comparisons(model, idata, "am", "hp", prob=0.8)
@@ -121,7 +121,7 @@ class TestPredictions:
     and panel variables.
     """
 
-    @pytest.mark.parametrize("target", ["response_params", "response"])
+    @pytest.mark.parametrize("target", ["mean", "mpg"])
     @pytest.mark.parametrize(
         "covariates",
         (
@@ -136,7 +136,7 @@ class TestPredictions:
         result = plot_predictions(model, idata, covariates, target=target)
         assert isinstance(result, Plot)
 
-    @pytest.mark.parametrize("target", ["response_params", "response"])
+    @pytest.mark.parametrize("target", ["mean", "mpg"])
     @pytest.mark.parametrize(
         "covariates",
         (
@@ -151,7 +151,7 @@ class TestPredictions:
         result = plot_predictions(model, idata, covariates, target=target)
         assert isinstance(result, Plot)
 
-    @pytest.mark.parametrize("target", ["response_params", "response"])
+    @pytest.mark.parametrize("target", ["mean", "mpg"])
     @pytest.mark.parametrize(
         "covariates",
         (["hp", "cyl", "gear"], ["cyl", "hp", "gear"], ["cyl", "gear", "hp"]),
@@ -161,7 +161,7 @@ class TestPredictions:
         result = plot_predictions(model, idata, covariates, target=target)
         assert isinstance(result, Plot)
 
-    @pytest.mark.parametrize("target", ["response_params", "response"])
+    @pytest.mark.parametrize("target", ["mean", "mpg"])
     @pytest.mark.parametrize(
         "conditional",
         [
@@ -186,7 +186,7 @@ class TestPredictions:
         result = plot_predictions(model, idata, None, average_by)
         assert isinstance(result, Plot)
 
-    @pytest.mark.parametrize("target", ["response_params", "response"])
+    @pytest.mark.parametrize("target", ["mean", "mpg"])
     def test_fig_kwargs(self, mtcars_fixture, target):
         model, idata = mtcars_fixture
         result = plot_predictions(
@@ -198,7 +198,7 @@ class TestPredictions:
         )
         assert isinstance(result, Plot)
 
-    @pytest.mark.parametrize("target", ["response_params", "response"])
+    @pytest.mark.parametrize("target", ["mean", "mpg"])
     def test_subplot_kwargs(self, mtcars_fixture, target):
         model, idata = mtcars_fixture
         result = plot_predictions(
@@ -210,7 +210,7 @@ class TestPredictions:
         )
         assert isinstance(result, Plot)
 
-    @pytest.mark.parametrize("target", ["response_params", "response"])
+    @pytest.mark.parametrize("target", ["mean", "mpg"])
     @pytest.mark.parametrize(
         "transforms",
         (
@@ -224,7 +224,7 @@ class TestPredictions:
         result = plot_predictions(model, idata, ["hp"], target=target, transforms=transforms)
         assert isinstance(result, Plot)
 
-    @pytest.mark.parametrize("target", ["response_params", "response"])
+    @pytest.mark.parametrize("target", ["mean", "y"])
     def test_multiple_outputs_with_alias(self, target):
         """Test plot cap default and specified values for target argument"""
         rng = np.random.default_rng(121195)
@@ -448,7 +448,7 @@ class TestComparisons:
 
     def test_target_response(self, mtcars_fixture):
         model, idata = mtcars_fixture
-        result = plot_comparisons(model, idata, "hp", "am", target="response")
+        result = plot_comparisons(model, idata, "hp", "am", target="mpg")
         assert isinstance(result, Plot)
 
     def test_custom_callable(self, mtcars_fixture):
@@ -576,7 +576,7 @@ class TestSlopes:
 
     def test_target_response(self, mtcars_fixture):
         model, idata = mtcars_fixture
-        result = plot_slopes(model, idata, "hp", "am", target="response")
+        result = plot_slopes(model, idata, "hp", "am", target="mpg")
         assert isinstance(result, Plot)
 
     def test_custom_callable(self, mtcars_fixture):
