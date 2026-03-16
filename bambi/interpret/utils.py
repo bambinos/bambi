@@ -1,5 +1,4 @@
 # pylint: disable = too-many-nested-blocks
-import warnings
 from typing import Any, Callable, NamedTuple, Optional
 
 import numpy as np
@@ -29,7 +28,7 @@ class TargetInfo(NamedTuple):
     group : str
         `posterior` or `posterior_predictive`
     predict_kind : str
-        `response_params` or `response` for model.predict()
+        `response_params` or `response` — passed to model.predict()
     """
 
     response_name: str
@@ -91,14 +90,10 @@ def resolve_target(model: Model, target: str) -> TargetInfo:
     model : Model
         The fitted Bambi model.
     target : str
-        Which quantity to extract. Options:
-
-        - `response_params` (default): posterior of the parent parameter (e.g. mu).
-          Corresponds to `model.predict(kind="response_params")`.
-        - `response`: posterior predictive samples.
-          Corresponds to `model.predict(kind="response")`.
-        - `mean`: deprecated alias for `response_params`.
-        - A distributional component name (e.g. `alpha`): posterior of that component.
+        Which quantity to extract. `"mean"` (default) for the posterior of the parent
+        parameter (e.g. `mu`). Pass the response variable name (e.g. `"mpg"`) for
+        posterior predictive samples. Pass a distributional component name (e.g.
+        `"sigma"`) for the posterior of that component.
 
     Returns
     -------
@@ -106,22 +101,11 @@ def resolve_target(model: Model, target: str) -> TargetInfo:
         A named tuple with `response_name`, `var_name`, `group`, and `predict_kind`.
     """
     response_name = get_aliased_name(model.response_component.term)
+
+    if target == response_name:
+        return TargetInfo(response_name, response_name, "posterior_predictive", "response")
     match target:
-        case "response_params":
-            return TargetInfo(
-                response_name,
-                model.family.likelihood.parent,
-                "posterior",
-                "response_params",
-            )
-        case "response":
-            return TargetInfo(response_name, response_name, "posterior_predictive", "response")
         case "mean":
-            warnings.warn(
-                "target='mean' is deprecated. Use target='response_params'.",
-                FutureWarning,
-                stacklevel=3,
-            )
             return TargetInfo(
                 response_name,
                 model.family.likelihood.parent,

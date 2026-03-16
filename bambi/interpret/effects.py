@@ -326,9 +326,9 @@ def _build_predictions(
     conditional : str, list, dict, or None
         Variables to condition on.
     target : str
-        Which quantity to extract. `response_params` (default) for the posterior of the
-        parent parameter, `response` for posterior predictive samples, or a distributional
-        component name.
+        Which quantity to extract. `"mean"` (default) for the posterior of the parent
+        parameter, the response variable name for posterior predictive samples, or a
+        distributional component name.
     transforms : dict or None
         Dictionary of transformations.
     sample_new_groups : bool
@@ -390,7 +390,7 @@ def predictions(
     idata: InferenceData,
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list[str] | None = None,
-    target: str = "response_params",
+    target: str = "mean",
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
@@ -409,9 +409,10 @@ def predictions(
     average_by : str, list or None
         Variables to average predictions over.
     target : str
-        Which quantity to extract. `response_params` (default) for the posterior of the
-        parent parameter (e.g. `mu`), `response` for posterior predictive samples, or a
-        distributional component name (e.g. `alpha`). Default is `response_params`.
+        Which quantity to extract. `mean` (default) for the posterior of the parent
+        parameter (e.g. `mu`). Pass the response variable name (e.g. `mpg`) for posterior
+        predictive samples. Pass a distributional component name (e.g. `sigma`) for the
+        posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
     prob : float or list[float]
@@ -471,7 +472,7 @@ def plot_predictions(
     idata: InferenceData,
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list | bool | None = None,
-    target: str = "response_params",
+    target: str = "mean",
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
@@ -492,9 +493,10 @@ def plot_predictions(
     average_by : str or list or bool or None
         Variables to average predictions over.
     target : str
-        Which quantity to extract. `response_params` (default) for the posterior of the
-        parent parameter (e.g. `mu`), `response` for posterior predictive samples, or a
-        distributional component name (e.g. `alpha`). Default is `response_params`.
+        Which quantity to extract. `mean` (default) for the posterior of the parent
+        parameter (e.g. `mu`). Pass the response variable name (e.g. `mpg`) for posterior
+        predictive samples. Pass a distributional component name (e.g. `sigma`) for the
+        posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
     prob : float or list[float]
@@ -552,7 +554,7 @@ def comparisons(
     contrast: str | dict[str, np.ndarray | list | int | float],
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list[str] | None = None,
-    target: str = "response_params",
+    target: str = "mean",
     comparison: ComparisonFunc | str = "diff",
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
@@ -574,9 +576,10 @@ def comparisons(
     average_by : str, list or None
         Variables to average comparisons over.
     target : str
-        Which quantity to extract. `response_params` (default) for the posterior of the
-        parent parameter (e.g. `mu`), `response` for posterior predictive samples, or a
-        distributional component name (e.g. `alpha`). Default is `response_params`.
+        Which quantity to extract. `mean` (default) for the posterior of the parent
+        parameter (e.g. `mu`). Pass the response variable name (e.g. `mpg`) for posterior
+        predictive samples. Pass a distributional component name (e.g. `sigma`) for the
+        posterior of that component.
     comparison : ComparisonFunc or str
         Comparison function or string name. Built-in options: "diff" (difference),
         "ratio" (ratio), "lift" (relative difference). Default is "diff".
@@ -657,7 +660,7 @@ def plot_comparisons(
     contrast: str | dict[str, np.ndarray | list | int | float],
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list | bool | None = None,
-    target: str = "response_params",
+    target: str = "mean",
     comparison: ComparisonFunc | str = "diff",
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
@@ -681,9 +684,10 @@ def plot_comparisons(
     average_by : str or list or bool or None
         Variables to average comparisons over.
     target : str
-        Which quantity to extract. `response_params` (default) for the posterior of the
-        parent parameter (e.g. `mu`), `response` for posterior predictive samples, or a
-        distributional component name (e.g. `alpha`). Default is `response_params`.
+        Which quantity to extract. `mean` (default) for the posterior of the parent
+        parameter (e.g. `mu`). Pass the response variable name (e.g. `mpg`) for posterior
+        predictive samples. Pass a distributional component name (e.g. `sigma`) for the
+        posterior of that component.
     comparison : ComparisonFunc or str
         Comparison function or string name. Built-in options: "diff" (difference),
         "ratio" (ratio), "lift" (relative difference). Default is "diff".
@@ -749,7 +753,7 @@ def slopes(
     average_by: str | list[str] | None = None,
     eps: float = 1e-4,
     slope: str | SlopeFunc = "dydx",
-    target: str = "response_params",
+    target: str = "mean",
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
@@ -783,9 +787,10 @@ def slopes(
         'eydx' - unit change in wrt associated with a percent change in response.
         'dyex' - percent change in wrt associated with a unit change in response.
     target : str
-        Which quantity to extract. `response_params` (default) for the posterior of the
-        parent parameter (e.g. `mu`), `response` for posterior predictive samples, or a
-        distributional component name (e.g. `alpha`). Default is `response_params`.
+        Which quantity to extract. `mean` (default) for the posterior of the parent
+        parameter (e.g. `mu`). Pass the response variable name (e.g. `mpg`) for posterior
+        predictive samples. Pass a distributional component name (e.g. `sigma`) for the
+        posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
     prob : float or list[float]
@@ -869,7 +874,7 @@ def plot_slopes(
     average_by: str | list | bool | None = None,
     eps: float = 1e-4,
     slope: str | SlopeFunc = "dydx",
-    target: str = "response_params",
+    target: str = "mean",
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
@@ -896,9 +901,10 @@ def plot_slopes(
     slope : str or SlopeFunc
         The type of slope to compute. Default is 'dydx'.
     target : str
-        Which quantity to extract. `response_params` (default) for the posterior of the
-        parent parameter (e.g. `mu`), `response` for posterior predictive samples, or a
-        distributional component name (e.g. `alpha`). Default is `response_params`.
+        Which quantity to extract. `mean` (default) for the posterior of the parent
+        parameter (e.g. `mu`). Pass the response variable name (e.g. `mpg`) for posterior
+        predictive samples. Pass a distributional component name (e.g. `sigma`) for the
+        posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
     prob : float or list[float]
