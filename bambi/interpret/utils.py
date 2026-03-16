@@ -101,9 +101,6 @@ def resolve_target(model: Model, target: str) -> TargetInfo:
         A named tuple with `response_name`, `var_name`, `group`, and `predict_kind`.
     """
     response_name = get_aliased_name(model.response_component.term)
-
-    if target == response_name:
-        return TargetInfo(response_name, response_name, "posterior_predictive", "response")
     match target:
         case "mean":
             return TargetInfo(
@@ -112,6 +109,8 @@ def resolve_target(model: Model, target: str) -> TargetInfo:
                 "posterior",
                 "response_params",
             )
+        case t if t == response_name:
+            return TargetInfo(response_name, response_name, "posterior_predictive", "response")
         case _:
             component = model.components[target]
             if component.alias:
