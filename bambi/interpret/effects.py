@@ -409,9 +409,9 @@ def predictions(
     average_by : str, list or None
         Variables to average predictions over.
     target : str
-        Which quantity to extract. `mean` (default) for the posterior of the parent
-        parameter (e.g. `mu`). Pass the response variable name (e.g. `mpg`) for posterior
-        predictive samples. Pass a distributional component name (e.g. `sigma`) for the
+        Which quantity to extract. `"mean"` (default) for the posterior of the parent
+        parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior
+        predictive samples. Pass a distributional component name (e.g. `"sigma"`) for the
         posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
