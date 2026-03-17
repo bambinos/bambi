@@ -272,7 +272,6 @@ def plot(
     plot = plot.share(x=config.figure.sharex, y=config.figure.sharey)
     # Add a main layer (line or stripplot based on dtype)
     plot = _add_main_layer(plot, data, config)
-
     # Adjust figure labels
     plot = plot.label(
         x=config.figure.xlabel or config.subplot.main,

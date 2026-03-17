@@ -1,5 +1,5 @@
 # pylint: disable = too-many-nested-blocks
-from typing import Any, Callable, Optional
+from typing import Any, Callable, NamedTuple, Optional
 
 import numpy as np
 import xarray as xr
@@ -11,6 +11,30 @@ from pandas.core.groupby import DataFrameGroupBy, SeriesGroupBy
 
 from bambi.models import Model
 from bambi.utils import get_aliased_name
+
+
+class TargetInfo(NamedTuple):
+    """Information regarding which type of prediction is required based on a `target`.
+
+    `interpret` allows users to plot target quantities such as posterior parameters,
+    and or the posterior predictive.
+
+    Parameters
+    ----------
+    response_name : str
+        Key for transforms dict lookup
+    var_name : str
+        Variable name to extract from idata[group]
+    group : str
+        `posterior` or `posterior_predictive`
+    predict_kind : str
+        `response_params` or `response` — passed to model.predict()
+    """
+
+    response_name: str
+    var_name: str
+    group: str
+    predict_kind: str
 
 
 def create_inference_data(preds_idata: InferenceData, preds_data: DataFrame) -> InferenceData:
@@ -57,39 +81,43 @@ def create_inference_data(preds_idata: InferenceData, preds_data: DataFrame) -> 
     return new_grid_idata
 
 
-def get_response_and_target(model: Model, target: str) -> tuple[str, str | None]:
-    """Get the response name and target parameter from the model.
+def resolve_target(model: Model, target: str) -> TargetInfo:
+    """Resolve the target parameter into the arguments required to pass to the predict
+    method of a Bambi model.
 
     Parameters
     ----------
     model : Model
         The fitted Bambi model.
     target : str
-        Target model parameter (e.g., 'mean', or a distributional component name).
+        Which quantity to extract. `"mean"` for the posterior of the parent
+        parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for
+        posterior predictive samples. Pass a distributional component name (e.g.
+        `"sigma"`) for the posterior of that component.
 
     Returns
     -------
-    tuple[str, str or None]
-        A tuple containing the response name and the target parameter name.
-        If target is 'mean', returns the response name and the parent parameter.
-        Otherwise, returns the component alias (or response name) and the target (or None).
+    TargetInfo
+        A named tuple with `response_name`, `var_name`, `group`, and `predict_kind`.
     """
+    response_name = get_aliased_name(model.response_component.term)
     match target:
         case "mean":
-            return (
-                get_aliased_name(model.response_component.term),
+            return TargetInfo(
+                response_name,
                 model.family.likelihood.parent,
+                "posterior",
+                "response_params",
             )
+        case t if t == response_name:
+            return TargetInfo(response_name, response_name, "posterior_predictive", "response")
         case _:
             component = model.components[target]
-            return (
-                (
-                    get_aliased_name(component)
-                    if component.alias
-                    else get_aliased_name(model.response_component.term)
-                ),
-                None if component.alias else target,
-            )
+            if component.alias:
+                alias = get_aliased_name(component)
+                return TargetInfo(alias, alias, "posterior", "response_params")
+            else:
+                return TargetInfo(response_name, target, "posterior", "response_params")
 
 
 def aggregate(

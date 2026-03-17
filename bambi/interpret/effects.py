@@ -29,8 +29,8 @@ from bambi.interpret.utils import (
     aggregate,
     create_inference_data,
     get_model_covariates,
-    get_response_and_target,
     identity,
+    resolve_target,
 )
 from bambi.interpret.validate import validate_prob
 from bambi.models import Model
@@ -306,7 +306,6 @@ def _build_predictions(
     focal_variable: pd.Series,
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]],
     target: str,
-    pps: bool,
     transforms: dict | None,
     sample_new_groups: bool,
 ) -> tuple[InferenceData, DataFrame, list[str], str, str, Callable]:
@@ -327,9 +326,9 @@ def _build_predictions(
     conditional : str, list, dict, or None
         Variables to condition on.
     target : str
-        The target parameter to predict.
-    pps : bool
-        Whether to use posterior predictive samples.
+        Which quantity to extract. `"mean"` for the posterior of the parent
+        parameter, the response variable name for posterior predictive samples, or a
+        distributional component name.
     transforms : dict or None
         Dictionary of transformations.
     sample_new_groups : bool
@@ -338,12 +337,12 @@ def _build_predictions(
     Returns
     -------
     tuple
-        (compare_idata, preds_data, context_columns, var, group, response_transform)
+        (compare_idata, preds_data, context_columns, var_name, group, response_transform)
     """
     transforms = transforms or {}
 
-    response_name, target = get_response_and_target(model, target)
-    response_transform = transforms.get(response_name, identity)
+    target_info = resolve_target(model, target)
+    response_transform = transforms.get(target_info.response_name, identity)
 
     cond = ConditionalVariables.from_param(model.data, conditional)
     covariates = get_model_covariates(model).tolist()
@@ -372,13 +371,18 @@ def _build_predictions(
         "sample_new_groups": sample_new_groups,
         "inplace": False,
     }
-    preds_idata = model.predict(**pred_kwargs, **({} if not pps else {"kind": "response"}))
-    group = "posterior_predictive" if pps else "posterior"
-    var = response_name if pps or target is None else target
+    preds_idata = model.predict(**pred_kwargs, kind=target_info.predict_kind)
 
     compare_idata = create_inference_data(preds_idata, preds_data)
 
-    return compare_idata, preds_data, context_columns, var, group, response_transform
+    return (
+        compare_idata,
+        preds_data,
+        context_columns,
+        target_info.var_name,
+        target_info.group,
+        response_transform,
+    )
 
 
 def predictions(
@@ -387,7 +391,6 @@ def predictions(
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list[str] | None = None,
     target: str = "mean",
-    pps: bool = False,
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
@@ -406,9 +409,10 @@ def predictions(
     average_by : str, list or None
         Variables to average predictions over.
     target : str
-        The target parameter to predict. Default is "mean".
-    pps : bool
-        Whether to use posterior predictive samples. Default is False.
+        Which quantity to extract. `"mean"` (default) for the posterior of the parent
+        parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior
+        predictive samples. Pass a distributional component name (e.g. `"sigma"`) for the
+        posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
     prob : float or list[float]
@@ -433,8 +437,8 @@ def predictions(
 
     transforms = transforms or {}
 
-    response_name, target = get_response_and_target(model, target)
-    response_transform = transforms.get(response_name, identity)
+    target_info = resolve_target(model, target)
+    response_transform = transforms.get(target_info.response_name, identity)
 
     cond = ConditionalVariables.from_param(model.data, conditional)
     covariates = get_model_covariates(model).tolist()
@@ -454,10 +458,8 @@ def predictions(
         "sample_new_groups": sample_new_groups,
         "inplace": False,
     }
-    idata = model.predict(**pred_kwargs, **({} if not pps else {"kind": "response"}))
-    group = "posterior_predictive" if pps else "posterior"
-    var = response_name if pps or target is None else target
-    y_hat = idata[group][var]
+    idata = model.predict(**pred_kwargs, kind=target_info.predict_kind)
+    y_hat = idata[target_info.group][target_info.var_name]
 
     stats_data = get_summary_stats(response_transform(y_hat), prob, use_hdi)
     summary_df = aggregate(data=preds_data.join(stats_data, on=None), by=average_by)
@@ -471,7 +473,6 @@ def plot_predictions(
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list | bool | None = None,
     target: str = "mean",
-    pps: bool = False,
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
@@ -492,9 +493,10 @@ def plot_predictions(
     average_by : str or list or bool or None
         Variables to average predictions over.
     target : str
-        The target parameter to predict. Default is "mean".
-    pps : bool
-        Whether to use posterior predictive samples. Default is False.
+        Which quantity to extract. `"mean"` (default) for the posterior of the parent
+        parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior
+        predictive samples. Pass a distributional component name (e.g. `"sigma"`) for the
+        posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
     prob : float or list[float]
@@ -531,7 +533,6 @@ def plot_predictions(
         conditional=conditional,
         average_by=average_by,
         target=target,
-        pps=pps,
         use_hdi=use_hdi,
         prob=prob,
         transforms=transforms,
@@ -554,7 +555,6 @@ def comparisons(
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list[str] | None = None,
     target: str = "mean",
-    pps: bool = False,
     comparison: ComparisonFunc | str = "diff",
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
@@ -576,9 +576,10 @@ def comparisons(
     average_by : str, list or None
         Variables to average comparisons over.
     target : str
-        The target parameter to compare. Default is "mean".
-    pps : bool
-        Whether to use posterior predictive samples. Default is False.
+        Which quantity to extract. `"mean"` (default) for the posterior of the parent
+        parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior
+        predictive samples. Pass a distributional component name (e.g. `"sigma"`) for the
+        posterior of that component.
     comparison : ComparisonFunc or str
         Comparison function or string name. Built-in options: "diff" (difference),
         "ratio" (ratio), "lift" (relative difference). Default is "diff".
@@ -616,7 +617,6 @@ def comparisons(
         con.variable,
         conditional,
         target,
-        pps,
         transforms,
         sample_new_groups,
     )
@@ -661,7 +661,6 @@ def plot_comparisons(
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list | bool | None = None,
     target: str = "mean",
-    pps: bool = False,
     comparison: ComparisonFunc | str = "diff",
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
@@ -685,9 +684,10 @@ def plot_comparisons(
     average_by : str or list or bool or None
         Variables to average comparisons over.
     target : str
-        The target parameter to compare. Default is "mean".
-    pps : bool
-        Whether to use posterior predictive samples. Default is False.
+        Which quantity to extract. `"mean"` (default) for the posterior of the parent
+        parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior
+        predictive samples. Pass a distributional component name (e.g. `"sigma"`) for the
+        posterior of that component.
     comparison : ComparisonFunc or str
         Comparison function or string name. Built-in options: "diff" (difference),
         "ratio" (ratio), "lift" (relative difference). Default is "diff".
@@ -729,7 +729,6 @@ def plot_comparisons(
         conditional=conditional,
         average_by=average_by,
         target=target,
-        pps=pps,
         comparison=comparison,
         use_hdi=use_hdi,
         prob=prob,
@@ -755,7 +754,6 @@ def slopes(
     eps: float = 1e-4,
     slope: str | SlopeFunc = "dydx",
     target: str = "mean",
-    pps: bool = False,
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
@@ -789,9 +787,10 @@ def slopes(
         'eydx' - unit change in wrt associated with a percent change in response.
         'dyex' - percent change in wrt associated with a unit change in response.
     target : str
-        The target parameter to compute slopes for. Default is "mean".
-    pps : bool
-        Whether to use posterior predictive samples. Default is False.
+        Which quantity to extract. `"mean"` (default) for the posterior of the parent
+        parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior
+        predictive samples. Pass a distributional component name (e.g. `"sigma"`) for the
+        posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
     prob : float or list[float]
@@ -825,7 +824,6 @@ def slopes(
         wrt_var.variable,
         conditional,
         target,
-        pps,
         transforms,
         sample_new_groups,
     )
@@ -877,7 +875,6 @@ def plot_slopes(
     eps: float = 1e-4,
     slope: str | SlopeFunc = "dydx",
     target: str = "mean",
-    pps: bool = False,
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
@@ -904,9 +901,10 @@ def plot_slopes(
     slope : str or SlopeFunc
         The type of slope to compute. Default is 'dydx'.
     target : str
-        The target parameter to compute slopes for. Default is "mean".
-    pps : bool
-        Whether to use posterior predictive samples. Default is False.
+        Which quantity to extract. `"mean"` (default) for the posterior of the parent
+        parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior
+        predictive samples. Pass a distributional component name (e.g. `"sigma"`) for the
+        posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
     prob : float or list[float]
@@ -945,7 +943,6 @@ def plot_slopes(
         eps=eps,
         slope=slope,
         target=target,
-        pps=pps,
         use_hdi=use_hdi,
         prob=prob,
         transforms=transforms,
