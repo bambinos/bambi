@@ -623,14 +623,14 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"021397618cbd468ebea682ae3cb0080a","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"59040ff869d64dfa8271938843d4a6e8","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 6 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 8 seconds.</code></pre>
 </div>
 </div>
 <p>We can print the Bambi model object to obtain the model components. Below, we see that the Gaussian linear model uses an identity link function that results in no transformation of the linear predictor to the mean of the outcome variable, and the distrbution of the likelihood is Gaussian.</p>
@@ -650,9 +650,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 </div>
 <p>The plot above shows that as <code>hp</code> increases, the mean <code>mpg</code> decreases. As stated above, this insight was obtained by creating the reference grid and then using the fitted model to compute the predicted values of the model parameter, in this example <code>mpg</code>, at each value of the reference grid.</p>
 <p>By default, <code>plot_predictions</code> uses the highest density interval (HDI) of the posterior distribution to compute the credible interval of the conditional adjusted predictions. The HDI is a Bayesian analog to the frequentist confidence interval. The HDI is the shortest interval that contains a specified probability of the posterior distribution. By default, <code>plot_predictions</code> uses the 94% HDI.</p>
-<p><code>plot_predictions</code> uses the posterior distribution by default to visualize some mean outcome parameter . However, the posterior predictive distribution can also be plotted by specifying <code>pps=True</code> where <code>pps</code> stands for posterior predictive samples of the response variable.</p>
+<p><code>plot_predictions</code> uses the posterior distribution by default to visualize the mean outcome parameter (i.e., <code>target="mean"</code>). However, the posterior predictive distribution can also be plotted by specifying <code>target="mpg"</code>, which draws samples from the full response distribution rather than just the mean parameter.</p>
 <div id="cell-12" class="cell" data-execution_count="4">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, <span class="st">"hp"</span>, pps<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, <span class="st">"hp"</span>, target<span class="op">=</span><span class="st">"mpg"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 <figure class="figure">
@@ -661,10 +661,10 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 </div>
 </div>
 </div>
-<p>Here, we notice that the uncertainty in the conditional adjusted predictions is much larger than the uncertainty when <code>pps=False</code>. This is because the posterior predictive distribution accounts for the uncertainty in the model parameters and the uncertainty in the data. Whereas, the posterior distribution only accounts for the uncertainty in the model parameters.</p>
+<p>Here, we notice that the uncertainty in the conditional adjusted predictions is much larger than the uncertainty when using the default <code>target="mean"</code>. This is because the posterior predictive distribution accounts for the uncertainty in the model parameters and the uncertainty in the data. Whereas, the posterior distribution only accounts for the uncertainty in the model parameters.</p>
 <p>Additionally, <code>predictions</code> can be called to obtain the computed result directly. <code>predictions</code> returns a <code>Result</code> named tuple with two fields: <code>summary</code> and <code>draws</code>. The <code>summary</code> field is a pandas DataFrame containing the point estimates (posterior mean) and credible intervals for each row of the prediction grid. The <code>draws</code> field is an <code>arviz.InferenceData</code> object containing the full posterior samples used to compute the summary. The <code>summary</code> is useful for quick inspection and tabular reporting, while <code>draws</code> gives access to the complete posterior distribution for custom analyses or visualizations beyond the default summary statistics. The covariate columns in the summary dataframe are used to create the plot.</p>
 <div id="cell-14" class="cell" data-execution_count="5">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> bmb.interpret.predictions(model, idata, <span class="st">"hp"</span>, pps<span class="op">=</span><span class="va">True</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> bmb.interpret.predictions(model, idata, <span class="st">"hp"</span>, target<span class="op">=</span><span class="st">"mpg"</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>result.summary.head(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="5">
 <div>
@@ -675,9 +675,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
 <th data-quarto-table-cell-role="th">hp</th>
-<th data-quarto-table-cell-role="th">wt</th>
 <th data-quarto-table-cell-role="th">cyl</th>
 <th data-quarto-table-cell-role="th">gear</th>
+<th data-quarto-table-cell-role="th">wt</th>
 <th data-quarto-table-cell-role="th">estimate</th>
 <th data-quarto-table-cell-role="th">lower_3.0%</th>
 <th data-quarto-table-cell-role="th">upper_97.0%</th>
@@ -687,102 +687,102 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">0</th>
 <td>52.0</td>
-<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>21.769389</td>
-<td>15.155025</td>
-<td>27.801078</td>
+<td>3.21725</td>
+<td>21.681850</td>
+<td>15.166327</td>
+<td>27.932473</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">1</th>
 <td>57.775509</td>
-<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>21.620118</td>
-<td>15.204532</td>
-<td>27.527416</td>
+<td>3.21725</td>
+<td>21.612198</td>
+<td>15.171167</td>
+<td>27.710238</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">2</th>
 <td>63.551022</td>
-<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>21.423064</td>
-<td>15.840489</td>
-<td>27.677644</td>
+<td>3.21725</td>
+<td>21.368589</td>
+<td>15.167547</td>
+<td>27.418414</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">3</th>
 <td>69.32653</td>
-<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>21.245396</td>
-<td>15.536568</td>
-<td>27.416478</td>
+<td>3.21725</td>
+<td>21.118299</td>
+<td>15.240909</td>
+<td>27.289663</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">4</th>
 <td>75.102043</td>
-<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>21.031391</td>
-<td>15.176853</td>
-<td>27.166209</td>
+<td>3.21725</td>
+<td>20.888421</td>
+<td>14.790522</td>
+<td>26.376599</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">5</th>
 <td>80.877548</td>
-<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>20.793708</td>
-<td>15.066254</td>
-<td>26.569833</td>
+<td>3.21725</td>
+<td>20.706621</td>
+<td>14.619215</td>
+<td>26.124102</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">6</th>
 <td>86.653061</td>
-<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>20.570593</td>
-<td>14.985099</td>
-<td>26.452294</td>
+<td>3.21725</td>
+<td>20.535748</td>
+<td>14.170284</td>
+<td>25.975069</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">7</th>
 <td>92.428574</td>
-<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>20.396766</td>
-<td>14.969660</td>
-<td>26.324485</td>
+<td>3.21725</td>
+<td>20.325674</td>
+<td>14.758248</td>
+<td>25.752243</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">8</th>
 <td>98.204086</td>
-<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>20.233286</td>
-<td>14.416709</td>
-<td>25.516963</td>
+<td>3.21725</td>
+<td>20.165396</td>
+<td>14.737571</td>
+<td>25.633363</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">9</th>
 <td>103.979591</td>
-<td>3.21725</td>
 <td>high</td>
 <td>A</td>
-<td>20.017851</td>
-<td>14.435007</td>
-<td>25.197021</td>
+<td>3.21725</td>
+<td>19.967282</td>
+<td>14.396180</td>
+<td>25.330355</td>
 </tr>
 </tbody>
 </table>
@@ -877,9 +877,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <td>1.5</td>
 <td>low</td>
 <td>A</td>
-<td>27.304564</td>
-<td>23.784165</td>
-<td>31.096134</td>
+<td>27.302567</td>
+<td>23.779355</td>
+<td>31.279921</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">1</th>
@@ -887,9 +887,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <td>1.5</td>
 <td>medium</td>
 <td>A</td>
-<td>25.533856</td>
-<td>21.281893</td>
-<td>29.731329</td>
+<td>25.520421</td>
+<td>20.970180</td>
+<td>29.633584</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">2</th>
@@ -897,9 +897,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <td>1.5</td>
 <td>high</td>
 <td>A</td>
-<td>26.518628</td>
-<td>21.860110</td>
-<td>31.027315</td>
+<td>26.488713</td>
+<td>21.682401</td>
+<td>30.870333</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">3</th>
@@ -907,9 +907,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <td>3.5</td>
 <td>low</td>
 <td>A</td>
-<td>19.841018</td>
-<td>16.525156</td>
-<td>23.657704</td>
+<td>19.816026</td>
+<td>16.520639</td>
+<td>23.370692</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">4</th>
@@ -917,9 +917,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <td>3.5</td>
 <td>medium</td>
 <td>A</td>
-<td>18.070310</td>
-<td>15.677600</td>
-<td>20.494219</td>
+<td>18.033880</td>
+<td>15.754388</td>
+<td>20.591446</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">5</th>
@@ -927,9 +927,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <td>3.5</td>
 <td>high</td>
 <td>A</td>
-<td>19.055082</td>
-<td>15.840995</td>
-<td>22.335915</td>
+<td>19.002172</td>
+<td>15.638381</td>
+<td>22.185714</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">6</th>
@@ -937,9 +937,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <td>1.5</td>
 <td>low</td>
 <td>A</td>
-<td>26.042278</td>
-<td>22.086353</td>
-<td>30.095061</td>
+<td>26.052900</td>
+<td>21.968129</td>
+<td>30.092588</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">7</th>
@@ -947,9 +947,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <td>1.5</td>
 <td>medium</td>
 <td>A</td>
-<td>24.271569</td>
-<td>20.205680</td>
-<td>28.536662</td>
+<td>24.270754</td>
+<td>20.375174</td>
+<td>28.660645</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">8</th>
@@ -957,9 +957,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <td>1.5</td>
 <td>high</td>
 <td>A</td>
-<td>25.256342</td>
-<td>20.972653</td>
-<td>29.383861</td>
+<td>25.239046</td>
+<td>20.935151</td>
+<td>29.297051</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">9</th>
@@ -967,9 +967,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <td>3.5</td>
 <td>low</td>
 <td>A</td>
-<td>19.230260</td>
-<td>15.792725</td>
-<td>23.272200</td>
+<td>19.219721</td>
+<td>15.631405</td>
+<td>22.792257</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">10</th>
@@ -977,9 +977,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <td>3.5</td>
 <td>medium</td>
 <td>A</td>
-<td>17.459552</td>
-<td>15.049397</td>
-<td>20.008033</td>
+<td>17.437575</td>
+<td>15.096732</td>
+<td>19.889231</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">11</th>
@@ -987,9 +987,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <td>3.5</td>
 <td>high</td>
 <td>A</td>
-<td>18.444324</td>
-<td>15.721322</td>
-<td>21.136251</td>
+<td>18.405867</td>
+<td>15.498032</td>
+<td>20.902462</td>
 </tr>
 </tbody>
 </table>
@@ -1034,9 +1034,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <td>B</td>
 <td>110.0</td>
 <td>2.620</td>
-<td>22.216063</td>
-<td>19.981414</td>
-<td>24.313267</td>
+<td>22.235413</td>
+<td>20.137992</td>
+<td>24.374622</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">1</th>
@@ -1044,9 +1044,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <td>B</td>
 <td>110.0</td>
 <td>2.875</td>
-<td>21.305996</td>
-<td>19.187946</td>
-<td>23.226495</td>
+<td>21.322531</td>
+<td>19.262133</td>
+<td>23.233959</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">2</th>
@@ -1054,9 +1054,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <td>B</td>
 <td>93.0</td>
 <td>2.320</td>
-<td>25.903324</td>
-<td>24.249935</td>
-<td>27.619540</td>
+<td>25.926058</td>
+<td>24.242364</td>
+<td>27.590406</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">3</th>
@@ -1064,9 +1064,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <td>A</td>
 <td>110.0</td>
 <td>3.215</td>
-<td>18.782065</td>
-<td>16.333854</td>
-<td>21.195922</td>
+<td>18.756008</td>
+<td>16.329689</td>
+<td>21.104195</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">4</th>
@@ -1074,9 +1074,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <td>A</td>
 <td>175.0</td>
 <td>3.440</td>
-<td>16.915349</td>
-<td>15.295208</td>
-<td>18.617812</td>
+<td>16.917122</td>
+<td>15.331732</td>
+<td>18.602223</td>
 </tr>
 </tbody>
 </table>
@@ -1171,9 +1171,9 @@ NUTS: [sigma, hp, wt, hp:wt, cyl, gear]</code></pre>
 <tbody>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">0</th>
-<td>20.058967</td>
-<td>17.899689</td>
-<td>22.247408</td>
+<td>20.065272</td>
+<td>17.898009</td>
+<td>22.21864</td>
 </tr>
 </tbody>
 </table>
@@ -1231,7 +1231,7 @@ NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"474e615d1ecb4b94814f5ce6da6e3f65","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"45a6ed0296124ff49d17038503e13baf","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
@@ -1267,9 +1267,8 @@ NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    model_interaction, </span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    idata_interaction, </span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"math"</span>, </span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    pps<span class="op">=</span><span class="va">False</span></span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"math"</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="16">
 <div>
 <figure class="figure">
@@ -1283,9 +1282,8 @@ NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    model_interaction, </span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    idata_interaction, </span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"math"</span>, <span class="st">"prog"</span>], </span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    pps<span class="op">=</span><span class="va">False</span></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"math"</span>, <span class="st">"prog"</span>]</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="17">
 <div>
 <figure class="figure">
@@ -1295,16 +1293,16 @@ NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
 </div>
 </div>
 <p>Passing specific <code>subplot_kwargs</code> can allow for a more interpretable plot. Especially when the posterior predictive distribution plot results in overlapping credible intervals.</p>
-<div id="cell-40" class="cell" data-execution_count="18">
+<div id="cell-40" class="cell" data-execution_count="20">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    model_interaction, </span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    idata_interaction, </span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>[<span class="st">"math"</span>, <span class="st">"prog"</span>],</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    pps<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    target<span class="op">=</span><span class="st">"daysabs"</span>,</span>
 <span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    subplot_kwargs<span class="op">=</span>{<span class="st">"main"</span>: <span class="st">"math"</span>, <span class="st">"group"</span>: <span class="st">"prog"</span>, <span class="st">"panel"</span>: <span class="st">"prog"</span>},</span>
 <span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"theme"</span>: {<span class="st">"figure.figsize"</span>: (<span class="dv">8</span>, <span class="dv">4</span>)}}</span>
 <span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="18">
+<div class="cell-output cell-output-display" data-execution_count="20">
 <div>
 <figure class="figure">
 <p><img src="plot_predictions_files/figure-html/cell-19-output-1.png" width="883" height="369" class="figure-img"></p>
@@ -1316,7 +1314,7 @@ NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
 <section id="logistic-regression" class="level2">
 <h2 class="anchored" data-anchor-id="logistic-regression">Logistic Regression</h2>
 <p>To further demonstrate the <code>plot_predictions</code> function, we will implement a logistic regression model. This example is taken from the marginaleffects <code>plot_predictions</code> <a href="https://marginaleffects.com/chapters/predictions.html#conditional-predictions">documentation</a>. The internet movie database, http://imdb.com/, is a website devoted to collecting movie data supplied by studios and fans. It claims to be the biggest movie database on the web and is run by Amazon. The movies in this dataset were selected for inclusion if they had a known length and had been rated by at least one imdb user. The dataset below contains 28,819 rows and 24 columns. The variables of interest in the dataset are the following: - title. Title of the movie. - year. Year of release. - budget. Total budget (if known) in US dollars - length. Length in minutes. - rating. Average IMDB user rating. - votes. Number of IMDB users who rated this movie. - r1-10. Multiplying by ten gives percentile (to nearest 10%) of users who rated this movie a 1. - mpaa. MPAA rating. - action, animation, comedy, drama, documentary, romance, short. Binary variables represent- ing if movie was classified as belonging to that genre.</p>
-<div id="cell-42" class="cell" data-execution_count="19">
+<div id="cell-42" class="cell" data-execution_count="21">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">"https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2movies/movies.csv"</span>)</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"style"</span>] <span class="op">=</span> <span class="st">"Other"</span></span>
@@ -1430,7 +1428,7 @@ NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
         Finished Chains:
         <span id="active-chains">4</span>
     </p>
-    <p>Sampling for 42 seconds</p>
+    <p>Sampling for a minute</p>
     <p>
         Estimated Time to Completion:
         <span id="eta">now</span>
@@ -1457,19 +1455,8 @@ NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
                     </td>
                     <td>2000</td>
                     <td>0</td>
-                    <td>0.36</td>
-                    <td>39</td>
-                </tr>
-            
-                <tr>
-                    <td class="progress-cell">
-                        <progress max="2000" value="2000">
-                        </progress>
-                    </td>
-                    <td>2000</td>
-                    <td>0</td>
-                    <td>0.40</td>
-                    <td>3</td>
+                    <td>0.38</td>
+                    <td>7</td>
                 </tr>
             
                 <tr>
@@ -1480,7 +1467,7 @@ NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
                     <td>2000</td>
                     <td>0</td>
                     <td>0.34</td>
-                    <td>11</td>
+                    <td>15</td>
                 </tr>
             
                 <tr>
@@ -1490,8 +1477,19 @@ NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
                     </td>
                     <td>2000</td>
                     <td>0</td>
-                    <td>0.38</td>
-                    <td>31</td>
+                    <td>0.36</td>
+                    <td>7</td>
+                </tr>
+            
+                <tr>
+                    <td class="progress-cell">
+                        <progress max="2000" value="2000">
+                        </progress>
+                    </td>
+                    <td>2000</td>
+                    <td>0</td>
+                    <td>0.40</td>
+                    <td>15</td>
                 </tr>
             
             
@@ -1501,9 +1499,9 @@ NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
 </div>
 </div>
 <p>The logistic regression model uses a logit link function and a Bernoulli likelihood. Therefore, the link scale is the log-odds of a successful response and the response scale is the probability of a successful response.</p>
-<div id="cell-44" class="cell" data-execution_count="20">
+<div id="cell-44" class="cell" data-execution_count="22">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>model</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="20">
+<div class="cell-output cell-output-display" data-execution_count="22">
 <pre><code>       Formula: certified_fresh ~ 0 + scale(length) * style
         Family: bernoulli
           Link: p = logit
@@ -1520,9 +1518,9 @@ NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
 </div>
 </div>
 <p>Again, by default, the <code>plot_predictions</code> function plots the mean outcome on the response scale. Therefore, the plot below shows the probability of a successful response <code>certified_fresh</code> as a function of <code>length</code>.</p>
-<div id="cell-46" class="cell" data-execution_count="21">
+<div id="cell-46" class="cell" data-execution_count="23">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, <span class="st">"length"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="21">
+<div class="cell-output cell-output-display" data-execution_count="23">
 <div>
 <figure class="figure">
 <p><img src="plot_predictions_files/figure-html/cell-22-output-1.png" width="599" height="445" class="figure-img"></p>
@@ -1531,9 +1529,9 @@ NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
 </div>
 </div>
 <p>Additionally, we can see how the probability of <code>certified_fresh</code> varies as a function of categorical covariates.</p>
-<div id="cell-48" class="cell" data-execution_count="22">
+<div id="cell-48" class="cell" data-execution_count="24">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, <span class="st">"style"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="22">
+<div class="cell-output cell-output-display" data-execution_count="24">
 <div>
 <figure class="figure">
 <p><img src="plot_predictions_files/figure-html/cell-23-output-1.png" width="599" height="445" class="figure-img"></p>
@@ -1544,8 +1542,8 @@ NUTS: [alpha, prog, scale(math), prog:scale(math)]</code></pre>
 </section>
 <section id="plotting-other-model-parameters" class="level2">
 <h2 class="anchored" data-anchor-id="plotting-other-model-parameters">Plotting other model parameters</h2>
-<p><code>plot_predictions</code> also has the argument <code>target</code> where <code>target</code> determines what parameter of the response distribution is plotted as a function of the explanatory variables. This argument is useful in distributional models, i.e., when the response distribution contains a parameter for location, scale and or shape. The default of this argument is <code>mean</code> and passing a parameter into <code>target</code> only works when the argument <code>pps=False</code> because when <code>pps=True</code> the posterior predictive distribution is plotted and thus, can only refer to the outcome variable (instead of any of the parameters of the response distribution). For this example, we will simulate our own dataset.</p>
-<div id="cell-50" class="cell" data-execution_count="23">
+<p><code>plot_predictions</code> also has the argument <code>target</code> where <code>target</code> determines what parameter of the response distribution is plotted as a function of the explanatory variables. This argument is useful in distributional models, i.e., when the response distribution contains a parameter for location, scale and or shape. The default value is <code>"mean"</code>, which plots the mean parameter of the response distribution. Setting <code>target="mpg"</code> plots the posterior predictive distribution, which refers to the full response variable rather than any individual parameter. For this example, we will simulate our own dataset.</p>
+<div id="cell-50" class="cell" data-execution_count="25">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">121195</span>)</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">200</span></span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>a, b <span class="op">=</span> <span class="fl">0.5</span>, <span class="fl">1.1</span></span>
@@ -1564,20 +1562,20 @@ NUTS: [Intercept, x, alpha_Intercept, alpha_x]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"01f4a58e4747486090fbf9e61cbf165b","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"3ea6a06256524689a1ba6833b10666ce","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.
-There were 10 divergences after tuning. Increase `target_accept` or reparameterize.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1 seconds.
+There were 4 divergences after tuning. Increase `target_accept` or reparameterize.</code></pre>
 </div>
 </div>
-<div id="cell-51" class="cell" data-execution_count="24">
+<div id="cell-51" class="cell" data-execution_count="26">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>model</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="24">
+<div class="cell-output cell-output-display" data-execution_count="26">
 <pre><code>       Formula: y ~ x
                 alpha ~ x
         Family: gamma
@@ -1599,10 +1597,10 @@ There were 10 divergences after tuning. Increase `target_accept` or reparameteri
 </div>
 </div>
 <p>The model we defined uses a <code>gamma</code> distribution parameterized by <code>alpha</code> and <code>mu</code> where <code>alpha</code> utilizes a log link and <code>mu</code> goes through an inverse link. Therefore, we can plot either: (1) the <code>mu</code> of the response distribution (which is the default), or (2) <code>alpha</code> of the response distribution as a function of the explanatory variable <span class="math inline">\(x\)</span>.</p>
-<div id="cell-53" class="cell" data-execution_count="25">
+<div id="cell-53" class="cell" data-execution_count="27">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First, the mean of the response (default)</span></span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, <span class="st">"x"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="25">
+<div class="cell-output cell-output-display" data-execution_count="27">
 <div>
 <figure class="figure">
 <p><img src="plot_predictions_files/figure-html/cell-26-output-1.png" width="599" height="445" class="figure-img"></p>
@@ -1610,11 +1608,11 @@ There were 10 divergences after tuning. Increase `target_accept` or reparameteri
 </div>
 </div>
 </div>
-<p>Below, instead of plotting the default target, <code>target=mean</code>, we set <code>target=alpha</code> to visualize how the model parameter <code>alpha</code> varies as a function of the <code>x</code> predictor.</p>
-<div id="cell-55" class="cell" data-execution_count="26">
+<p>Below, instead of plotting the default target (<code>target="mean"</code>), we set <code>target="alpha"</code> to visualize how the model parameter <code>alpha</code> varies as a function of the <code>x</code> predictor.</p>
+<div id="cell-55" class="cell" data-execution_count="28">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Second, another param. of the distribution: alpha</span></span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(model, idata, <span class="st">"x"</span>, target<span class="op">=</span><span class="st">"alpha"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="26">
+<div class="cell-output cell-output-display" data-execution_count="28">
 <div>
 <figure class="figure">
 <p><img src="plot_predictions_files/figure-html/cell-27-output-1.png" width="599" height="445" class="figure-img"></p>
@@ -1622,22 +1620,22 @@ There were 10 divergences after tuning. Increase `target_accept` or reparameteri
 </div>
 </div>
 </div>
-<div id="cell-56" class="cell" data-execution_count="27">
+<div id="cell-56" class="cell" data-execution_count="29">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Wed Feb 18 2026
+<pre><code>Last updated: Mon, 16 Mar 2026
 
 Python implementation: CPython
-Python version       : 3.13.9
-IPython version      : 9.6.0
+Python version       : 3.13.12
+IPython version      : 9.10.0
 
-numpy     : 2.3.3
-bambi     : 0.16.1.dev42+g0d5870261.d20260218
+bambi     : 0.1.dev891+g05567136c.d20260223
+matplotlib: 3.10.8
+numpy     : 2.3.5
 pandas    : 2.3.3
-matplotlib: 3.10.7
 
-Watermark: 2.5.0
+Watermark: 2.6.0
 </code></pre>
 </div>
 </div>

@@ -572,7 +572,7 @@ window.Quarto = {
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    .add(so.Line(color<span class="op">=</span><span class="st">"black"</span>), data<span class="op">=</span>{<span class="st">"x"</span>: x, <span class="st">"f"</span>: f}, x<span class="op">=</span><span class="st">"x"</span>, y<span class="op">=</span><span class="st">"f"</span>)</span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/tmp/ipykernel_23545/2331844340.py:9: DeprecationWarning: __array__ implementation doesn't accept a copy keyword, so passing copy=False failed. __array__ must implement 'dtype' and 'copy' keyword arguments. To learn more, see the migration guide https://numpy.org/devdocs/numpy_2_0_migration_guide.html#adapting-to-changes-in-the-copy-keyword
+<pre><code>/var/folders/zf/8rkyygg940vcg480mvkfqwl40000gn/T/ipykernel_28336/2331844340.py:9: DeprecationWarning: __array__ implementation doesn't accept a copy keyword, so passing copy=False failed. __array__ must implement 'dtype' and 'copy' keyword arguments. To learn more, see the migration guide https://numpy.org/devdocs/numpy_2_0_migration_guide.html#adapting-to-changes-in-the-copy-keyword
   X = np.array(dm.common)</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="2">
@@ -615,20 +615,18 @@ NUTS: [sigma, hsgp(x, m=10, c=2)_sigma, hsgp(x, m=10, c=2)_ell, hsgp(x, m=10, c=
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"835b18a1c33947698a133864a92d218f","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"47f9435e05384bf29e2e3e454c81fac1","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.
-There were 896 divergences after tuning. Increase `target_accept` or reparameterize.
-The rhat statistic is larger than 1.01 for some parameters. This indicates problems during sampling. See https://arxiv.org/abs/1903.08008 for details
-The effective sample size per chain is smaller than 100 for some parameters.  A higher number is needed for reliable rhat and ess computation. See https://arxiv.org/abs/1903.08008 for details</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 3 seconds.
+There were 458 divergences after tuning. Increase `target_accept` or reparameterize.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>896</code></pre>
+<pre><code>458</code></pre>
 </div>
 </div>
 <div id="cell-10" class="cell" data-execution_count="5">
@@ -683,22 +681,22 @@ NUTS: [sigma, hsgp(x, m=10, c=2)_sigma, hsgp(x, m=10, c=2)_ell, hsgp(x, m=10, c=
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"01ed8a0ffc6f4122a32b42ad6e32cf6c","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"8da16c659e4643be9295466436532bdf","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/home/tomas/Desktop/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pymc/step_methods/hmc/quadpotential.py:316: RuntimeWarning: overflow encountered in dot
+<pre><code>/Users/hslu-n0006897/projects/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pymc/step_methods/hmc/quadpotential.py:316: RuntimeWarning: overflow encountered in dot
   return 0.5 * np.dot(x, v_out)</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 4 seconds.
-There were 47 divergences after tuning. Increase `target_accept` or reparameterize.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 7 seconds.
+There were 42 divergences after tuning. Increase `target_accept` or reparameterize.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>47</code></pre>
+<pre><code>42</code></pre>
 </div>
 </div>
 <div id="cell-15" class="cell" data-execution_count="8">
@@ -753,18 +751,18 @@ NUTS: [sigma, hsgp(x, m=10, c=2, centered=True)_sigma, hsgp(x, m=10, c=2, center
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"2cf80be6d0e34e9ba1d8014e339d025d","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"7c9f432ba66e48f49631d8aad75a8fea","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/home/tomas/Desktop/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pymc/step_methods/hmc/quadpotential.py:316: RuntimeWarning: overflow encountered in dot
+<pre><code>/Users/hslu-n0006897/projects/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pymc/step_methods/hmc/quadpotential.py:316: RuntimeWarning: overflow encountered in dot
   return 0.5 * np.dot(x, v_out)</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 3 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 6 seconds.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0</code></pre>
@@ -795,13 +793,13 @@ NUTS: [sigma, hsgp(x, m=10, c=2, centered=True)_sigma, hsgp(x, m=10, c=2, center
 </div>
 </div>
 </div>
-<p>On top of that, we can also get a visualization with intervals of the posterior predictive distribution, for a grid of predictor values. To get that, we just pass <code>pps=True</code> (from posterior predictive samples) to <code>plot_predictions</code>.</p>
+<p>On top of that, we can also get a visualization with intervals of the posterior predictive distribution, for a grid of predictor values. To get that, we just pass <code>target="y"</code> to <code>plot_predictions</code>.</p>
 <div id="cell-24" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> plot_predictions(</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>model,</span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>idata,</span>
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="st">"x"</span>,</span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    pps<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    target<span class="op">=</span><span class="st">"y"</span>,</span>
 <span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"xlabel"</span>: <span class="st">"Predictor"</span>, <span class="st">"ylabel"</span>: <span class="st">"Observed"</span>}</span>
 <span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>(</span>
@@ -938,19 +936,12 @@ NUTS: [sigma, hsgp(x, m=10, c=2, centered=True)_sigma, hsgp(x, m=10, c=2, center
             sigma ~ HalfNormal(sigma: 1.0)</code></pre>
 </div>
 </div>
-<div id="cell-33" class="cell" data-execution_count="17">
+<div id="cell-33" class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>model.build()</span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="17">
-<div>
-<figure class="figure">
-<p><img src="hsgp_1d_files/figure-html/cell-18-output-1.svg" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
 </div>
 <p>See how nicer are the names for the HSGP contribution parameters with the alias!</p>
-<div id="cell-35" class="cell" data-execution_count="18">
+<div id="cell-35" class="cell" data-execution_count="29">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(target_accept<span class="op">=</span><span class="fl">0.95</span>, random_seed<span class="op">=</span><span class="dv">121195</span>)</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(idata.sample_stats.diverging.<span class="bu">sum</span>().item())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
@@ -960,26 +951,26 @@ NUTS: [sigma, hsgp_sigma, hsgp_ell, hsgp_weights_raw]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"04c0ca93524c45cca0fdb06ef5237ee9","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"8d5968eb392747209532c7c73b380f96","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/home/tomas/Desktop/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pymc/step_methods/hmc/quadpotential.py:316: RuntimeWarning: overflow encountered in dot
+<pre><code>/Users/hslu-n0006897/projects/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pymc/step_methods/hmc/quadpotential.py:316: RuntimeWarning: overflow encountered in dot
   return 0.5 * np.dot(x, v_out)
-/home/tomas/Desktop/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pymc/step_methods/hmc/quadpotential.py:316: RuntimeWarning: overflow encountered in dot
+/Users/hslu-n0006897/projects/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pymc/step_methods/hmc/quadpotential.py:316: RuntimeWarning: overflow encountered in dot
   return 0.5 * np.dot(x, v_out)</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 6 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 15 seconds.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0</code></pre>
 </div>
 </div>
-<div id="cell-36" class="cell" data-execution_count="19">
+<div id="cell-36" class="cell" data-execution_count="30">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    idata,</span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"hsgp_weights"</span>, <span class="st">"hsgp_sigma"</span>, <span class="st">"hsgp_ell"</span>, <span class="st">"sigma"</span>],</span>
@@ -997,10 +988,10 @@ NUTS: [sigma, hsgp_sigma, hsgp_ell, hsgp_weights_raw]</code></pre>
 <p><strong>Note:</strong> At this point we have used the term ‘basis vector’ several times. This concept is very close to the concept of ‘basis functions’. The difference is that the ‘basis vector’ is a ‘basis function’ already evaluated at a set of points. In this case, the set of points is made by the values of the numerical predictor <code>x2</code>.</p>
 <p>Do you remember how easy was it to use <code>plot_predictions()</code> above? Should it be harder now? Well, the answer will surprise you: No!</p>
 <p>All we need to do is pass a second variable name, which is then mapped to the color in the visualization. Voilà!</p>
-<div id="cell-39" class="cell" data-execution_count="20">
+<div id="cell-39" class="cell" data-execution_count="31">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> plot_predictions(model, idata, [<span class="st">"x2"</span>, <span class="st">"fac"</span>])</span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>p.add(so.Dots(alpha<span class="op">=</span><span class="fl">0.7</span>, pointsize<span class="op">=</span><span class="dv">6</span>), data<span class="op">=</span>data, x<span class="op">=</span><span class="st">"x2"</span>, y<span class="op">=</span><span class="st">"y"</span>, color<span class="op">=</span><span class="st">"fac"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="20">
+<div class="cell-output cell-output-display" data-execution_count="31">
 <div>
 <figure class="figure">
 <p><img src="hsgp_1d_files/figure-html/cell-21-output-1.png" width="672" height="445" class="figure-img"></p>
@@ -1009,7 +1000,7 @@ NUTS: [sigma, hsgp_sigma, hsgp_ell, hsgp_weights_raw]</code></pre>
 </div>
 </div>
 <p>We can go one step further and modify the model to use different covariance functions for the different groups. For that purpose, we pass <code>share_cov=False</code>. As always, Bambi takes care of all the details.</p>
-<div id="cell-41" class="cell" data-execution_count="21">
+<div id="cell-41" class="cell" data-execution_count="32">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>prior_hsgp <span class="op">=</span> {</span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"Exponential"</span>, lam<span class="op">=</span><span class="dv">1</span>),</span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ell"</span>: bmb.Prior(<span class="st">"Exponential"</span>, lam<span class="op">=</span><span class="dv">3</span>)</span>
@@ -1021,7 +1012,7 @@ NUTS: [sigma, hsgp_sigma, hsgp_ell, hsgp_weights_raw]</code></pre>
 <span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"y ~ 0 + hsgp(x2, by=fac, m=12, c=1.5, share_cov=False)"</span>, data, priors<span class="op">=</span>priors)</span>
 <span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>model.set_alias({<span class="st">"hsgp(x2, by=fac, m=12, c=1.5, share_cov=False)"</span>: <span class="st">"hsgp"</span>})</span>
 <span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>model</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="21">
+<div class="cell-output cell-output-display" data-execution_count="32">
 <pre><code>       Formula: y ~ 0 + hsgp(x2, by=fac, m=12, c=1.5, share_cov=False)
         Family: gaussian
           Link: mu = identity
@@ -1038,19 +1029,12 @@ NUTS: [sigma, hsgp_sigma, hsgp_ell, hsgp_weights_raw]</code></pre>
             sigma ~ HalfNormal(sigma: 1.0)</code></pre>
 </div>
 </div>
-<div id="cell-42" class="cell" data-execution_count="22">
+<div id="cell-42" class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>model.build()</span>
 <span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="22">
-<div>
-<figure class="figure">
-<p><img src="hsgp_1d_files/figure-html/cell-23-output-1.svg" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
 </div>
 <p>Have a closer look at the model graph. See that the <code>hsgp_sigma</code> and <code>hsgp_ell</code> parameters are no longer scalar. There are three of each, one for each group.</p>
-<div id="cell-44" class="cell" data-execution_count="23">
+<div id="cell-44" class="cell" data-execution_count="34">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(target_accept<span class="op">=</span><span class="fl">0.95</span>, random_seed<span class="op">=</span><span class="dv">121195</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Initializing NUTS using jitter+adapt_diag...
@@ -1059,23 +1043,23 @@ NUTS: [sigma, hsgp_sigma, hsgp_ell, hsgp_weights_raw]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"a5d87912c7bb440bb36a65533cfdd7f3","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"1edfc3281a4e40f4a9b7359b117754b3","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/home/tomas/Desktop/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pymc/step_methods/hmc/quadpotential.py:316: RuntimeWarning: overflow encountered in dot
+<pre><code>/Users/hslu-n0006897/projects/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pymc/step_methods/hmc/quadpotential.py:316: RuntimeWarning: overflow encountered in dot
   return 0.5 * np.dot(x, v_out)
-/home/tomas/Desktop/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pymc/step_methods/hmc/quadpotential.py:316: RuntimeWarning: overflow encountered in dot
+/Users/hslu-n0006897/projects/bambi/.pixi/envs/dev/lib/python3.13/site-packages/pymc/step_methods/hmc/quadpotential.py:316: RuntimeWarning: overflow encountered in dot
   return 0.5 * np.dot(x, v_out)</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 10 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 14 seconds.</code></pre>
 </div>
 </div>
-<div id="cell-45" class="cell" data-execution_count="24">
+<div id="cell-45" class="cell" data-execution_count="35">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(</span>
 <span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>    idata,</span>
 <span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"hsgp_ell"</span>, <span class="st">"hsgp_sigma"</span>, <span class="st">"sigma"</span>],</span>
@@ -1091,7 +1075,7 @@ NUTS: [sigma, hsgp_sigma, hsgp_ell, hsgp_weights_raw]</code></pre>
 </div>
 <p>In fact, we can see not all the groups have similar posteriors for the covariance function parameters when they are allowed to vary.</p>
 <p>Before closing the article, it’s worth looking at a particular but not uncommon pattern when using the HSGP approximation. Let’s have a look at the posterior distributions for the weights of the basis.</p>
-<div id="cell-47" class="cell" data-execution_count="25">
+<div id="cell-47" class="cell" data-execution_count="36">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(idata, var_names<span class="op">=</span>[<span class="st">"hsgp_weights"</span>], backend_kwargs<span class="op">=</span>{<span class="st">"layout"</span>: <span class="st">"constrained"</span>})<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
@@ -1103,7 +1087,7 @@ NUTS: [sigma, hsgp_sigma, hsgp_ell, hsgp_weights_raw]</code></pre>
 </div>
 <p>Looks like some distributions are extremely flat, and others are extremely tight around zero.</p>
 <p>To investigate this further we can manually plot the posterior for the first J basis vectors and see what they look like.</p>
-<div id="cell-49" class="cell" data-execution_count="26">
+<div id="cell-49" class="cell" data-execution_count="37">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>basis_n <span class="op">=</span> <span class="dv">6</span></span>
 <span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">1</span>, figsize <span class="op">=</span> (<span class="dv">7</span>, <span class="dv">10</span>))</span>
 <span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
@@ -1125,7 +1109,7 @@ NUTS: [sigma, hsgp_sigma, hsgp_ell, hsgp_weights_raw]</code></pre>
 </div>
 <p>Indeed, we can see that, at least for the first group, the posterior of the weights start being too tight around zero when we consider the 6th basis vector. But the posteriors for the weights of the previous basis vectors look nice.</p>
 <p>To confirm our thought, let’s increase the value of <code>basis_n</code> to 9 and see what happens.</p>
-<div id="cell-51" class="cell" data-execution_count="27">
+<div id="cell-51" class="cell" data-execution_count="38">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>basis_n <span class="op">=</span> <span class="dv">9</span></span>
 <span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">1</span>, figsize <span class="op">=</span> (<span class="dv">7</span>, <span class="dv">10</span>))</span>
 <span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
@@ -1146,25 +1130,27 @@ NUTS: [sigma, hsgp_sigma, hsgp_ell, hsgp_weights_raw]</code></pre>
 </div>
 </div>
 <p>Alright, that’s too spiky! Nonetheless, we don’t see that happening for the third group yet, indicating the higher number of basis vectors is more appropriate for this group.</p>
-<div id="cell-53" class="cell" data-execution_count="28">
+<div id="cell-53" class="cell" data-execution_count="39">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
 <span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Wed Feb 18 2026
+<pre><code>The watermark extension is already loaded. To reload it, use:
+  %reload_ext watermark
+Last updated: Mon, 16 Mar 2026
 
 Python implementation: CPython
-Python version       : 3.13.9
-IPython version      : 9.6.0
+Python version       : 3.13.12
+IPython version      : 9.10.0
 
-pandas    : 2.3.3
-bambi     : 0.16.1.dev36+ge11a3bf70.d20260218
-arviz     : 0.22.0
-numpy     : 2.3.3
-matplotlib: 3.10.7
-seaborn   : 0.13.2
+arviz     : 0.23.4
+bambi     : 0.1.dev891+g05567136c.d20260223
 formulae  : 0.6.2
+matplotlib: 3.10.8
+numpy     : 2.3.5
+pandas    : 2.3.3
+seaborn   : 0.13.2
 
-Watermark: 2.5.0
+Watermark: 2.6.0
 </code></pre>
 </div>
 </div>

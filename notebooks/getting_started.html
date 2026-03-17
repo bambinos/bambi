@@ -656,7 +656,7 @@ Tip
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><a href="https://python.arviz.org/en/stable/api/generated/arviz.InferenceData.html#arviz.InferenceData"><code>InferenceData</code></a> is a rich data structure to store and manipulate data such as posterior samples, prior/posterior predictive samples, observations, etc. It is based on <a href="https://docs.xarray.dev/en/stable/">xarray</a>, a library offering N-dimensional labeled arrays (you can think of it as a generalization of both Numpy arrays and Pandas data frames). To learn how to perform common operations with <code>InferenceData</code>, like indexing, selection etc. please check <a href="https://python.arviz.org/en/latest/getting_started/WorkingWithInferenceData.html">this</a> and for details of the <code>InferenceData</code> Schema see this <a href="https://python.arviz.org/en/latest/schema/schema.html">specification</a>.</p>
+<p><code>InferenceData</code> is a rich data structure to store and manipulate data such as posterior samples, prior/posterior predictive samples, observations, etc. It is based on <a href="https://docs.xarray.dev/en/stable/">xarray</a>, a library offering N-dimensional labeled arrays (you can think of it as a generalization of both Numpy arrays and Pandas data frames). To learn how to perform common operations with <code>InferenceData</code>, like indexing, selection etc. please check <a href="https://python.arviz.org/en/latest/getting_started/WorkingWithInferenceData.html">this</a> and for details of the <code>InferenceData</code> Schema see this <a href="https://python.arviz.org/en/latest/schema/schema.html">specification</a>.</p>
 </div>
 </div>
 <p>The <a href="../api/Model.html#bambi.Model.fit"><code>fit</code></a> method accepts optional keyword arguments to pass onto PyMC’s <a href="https://www.pymc.io/projects/docs/en/stable/api/generated/pymc.sample.html#pymc.sample"><code>sample</code></a> function, so any arguments accepted by <code>sample</code> can be specified here. We can also explicitly set the number of draws via the <code>draws</code> argument. For example, if we call <code>fit(draws=2000, chains=2)</code>, the PyMC sampler will sample two chains in parallel, drawing 2,000 draws for each one. We could also specify starting parameter values, the step function to use, and so on (for full details, see the <a href="https://www.pymc.io/projects/docs/en/stable/api/generated/pymc.sample.html#pymc.sample">PyMC documentation</a>).</p>
@@ -1037,11 +1037,11 @@ NUTS: [Intercept, scale(gre), gpa, rank]</code></pre>
 </section>
 <section id="results" class="level2">
 <h2 class="anchored" data-anchor-id="results">Results</h2>
-<p>When a model is fitted, it returns an <a href="https://python.arviz.org/en/stable/api/generated/arviz.InferenceData.html#arviz.InferenceData"><code>InferenceData</code></a> object containing data related to the model and the posterior. This object can be passed to many functions in ArviZ to obtain numerical and visuals diagnostics and plot in general.</p>
+<p>When a model is fitted, it returns an <code>InferenceData</code> object containing data related to the model and the posterior. This object can be passed to many functions in ArviZ to obtain numerical and visuals diagnostics and plot in general.</p>
 </section>
 <section id="plotting" class="level2">
 <h2 class="anchored" data-anchor-id="plotting">Plotting</h2>
-<p>To visualize a plot of the posterior estimates and sample traces for all parameters, simply pass the <a href="https://python.arviz.org/en/stable/api/generated/arviz.InferenceData.html#arviz.InferenceData"><code>InferenceData</code></a> object to the ArviZ function <a href="https://python.arviz.org/en/stable/api/generated/arviz.plot_trace.html#arviz.plot_trace"><code>az.plot_trace</code></a>:</p>
+<p>To visualize a plot of the posterior estimates and sample traces for all parameters, simply pass the <code>InferenceData</code> object to the ArviZ function <a href="https://python.arviz.org/en/stable/projects/plots/en/stable/api/generated/arviz_plots.plot_trace.html#arviz.plot_trace"><code>az.plot_trace</code></a>:</p>
 <div id="cell-41" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>az.plot_rank_dist(results)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
@@ -1056,7 +1056,7 @@ NUTS: [Intercept, scale(gre), gpa, rank]</code></pre>
 </section>
 <section id="summarizing" class="level2">
 <h2 class="anchored" data-anchor-id="summarizing">Summarizing</h2>
-<p>If you prefer numerical summaries of the posterior estimates, you can use the <a href="https://python.arviz.org/en/stable/api/generated/arviz.summary.html#arviz.summary"><code>az.summary</code></a> function from ArviZ which provides a pandas DataFrame with some key summary and diagnostics info on the model parameters, such as the 94% highest posterior density intervals.</p>
+<p>If you prefer numerical summaries of the posterior estimates, you can use the <a href="https://python.arviz.org/en/stable/projects/stats/en/stable/api/generated/arviz_stats.summary.html#arviz.summary"><code>az.summary</code></a> function from ArviZ which provides a pandas DataFrame with some key summary and diagnostics info on the model parameters, such as the 94% highest posterior density intervals.</p>
 <div id="cell-43" class="cell" data-execution_count="18">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>az.summary(results)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="18">

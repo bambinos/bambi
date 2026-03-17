@@ -8,7 +8,6 @@ interpret.comparisons(
     conditional=None,
     average_by=None,
     target='mean',
-    pps=False,
     comparison='diff',
     use_hdi=True,
     prob=az.rcParams['stats.ci_prob'],
@@ -43,11 +42,7 @@ Compute conditional adjusted comparisons.
 
 <code>[**target**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'mean\']{.parameter-default}</code>
 
-:   The target parameter to compare. Default is "mean".
-
-<code>[**pps**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [False]{.parameter-default}</code>
-
-:   Whether to use posterior predictive samples. Default is False.
+:   Which quantity to extract. `"mean"` (default) for the posterior of the parent parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior predictive samples. Pass a distributional component name (e.g. `"sigma"`) for the posterior of that component.
 
 <code>[**comparison**]{.parameter-name} [:]{.parameter-annotation-sep} [[ComparisonFunc](`bambi.interpret.ops.ComparisonFunc`) or [str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'diff\']{.parameter-default}</code>
 
