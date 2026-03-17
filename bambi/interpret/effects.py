@@ -684,9 +684,9 @@ def plot_comparisons(
     average_by : str or list or bool or None
         Variables to average comparisons over.
     target : str
-        Which quantity to extract. `mean` (default) for the posterior of the parent
-        parameter (e.g. `mu`). Pass the response variable name (e.g. `mpg`) for posterior
-        predictive samples. Pass a distributional component name (e.g. `sigma`) for the
+        Which quantity to extract. `"mean"` (default) for the posterior of the parent
+        parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior
+        predictive samples. Pass a distributional component name (e.g. `"sigma"`) for the
         posterior of that component.
     comparison : ComparisonFunc or str
         Comparison function or string name. Built-in options: "diff" (difference),
