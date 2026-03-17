@@ -90,7 +90,7 @@ def resolve_target(model: Model, target: str) -> TargetInfo:
     model : Model
         The fitted Bambi model.
     target : str
-        Which quantity to extract. `"mean"` (default) for the posterior of the parent
+        Which quantity to extract. `"mean"` for the posterior of the parent
         parameter (e.g. `mu`). Pass the response variable name (e.g. `"mpg"`) for
         posterior predictive samples. Pass a distributional component name (e.g.
         `"sigma"`) for the posterior of that component.
