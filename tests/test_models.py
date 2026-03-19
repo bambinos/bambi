@@ -1420,3 +1420,14 @@ def test_weighted(mock_pymc_sample):
     idata = model.fit(chains=2)
     model.predict(idata, kind="response")
     model.predict(idata, kind="response", data=data)
+
+
+def test_categorical_encoding_zero_sum():
+    data = pd.DataFrame(
+        {"y": [1, 2, 3, 4], "x": [10, 20, 30, 40], "cat": ["a", "b", "a", "b"]}
+    )
+
+    model = bmb.Model("y ~ x + cat", data, categorical_encoding="zero-sum")
+    model.build()
+
+    assert model.categorical_encoding == "zero-sum"
