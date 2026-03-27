@@ -4,6 +4,8 @@
 import logging
 import warnings
 
+from tqdm.auto import tqdm
+
 from copy import deepcopy
 from importlib.metadata import version
 
@@ -866,6 +868,7 @@ class Model:
         include_group_specific=True,
         sample_new_groups=False,
         random_seed=None,
+        progressbar=True,
     ):
         """Predict method for Bambi models
 
@@ -904,6 +907,10 @@ class Model:
             The method implemented is equivalent to `sample_new_levels="uncertainty"` in brms.
         random_seed : int, RandomState or Generator, optional
             Seed for the random number generator.
+        progressbar : bool, optional
+            Whether to display a progress bar during prediction. Defaults to `True`.
+            Set to `False` to suppress the progress bar. Uses `tqdm.auto` so it renders
+            correctly in both terminals and Jupyter notebooks.
 
         Returns
         -------
@@ -936,6 +943,7 @@ class Model:
             include_group_specific=include_group_specific,
             sample_new_groups=sample_new_groups,
             random_seed=random_seed,
+            progressbar=progressbar,
         )
 
         # Only if requested predict the predictive distribution
@@ -1072,6 +1080,7 @@ class Model:
         include_group_specific=True,
         sample_new_groups=False,
         random_seed=None,
+        progressbar=True,
     ):
         """Computes the parameters of the likelihood (response distribution)
 
@@ -1085,8 +1094,19 @@ class Model:
         hsgp_dict = {}  # To store the HSGP contributions (they are added to the posterior dataset)
         response_dim = "__obs__"
 
-        for name, component in self.distributional_components.items():
+        components_iter = self.distributional_components.items()
+        if progressbar:
+            components_iter = tqdm(
+                list(components_iter),
+                total=len(self.distributional_components),
+                desc="Predicting",
+                unit="component",
+            )
+
+        for name, component in components_iter:
             var_name = component.alias if component.alias else name
+            if progressbar:
+                components_iter.set_postfix({"name": var_name})
             means_dict[var_name] = component.predict(
                 idata, data, include_group_specific, hsgp_dict, sample_new_groups, random_seed
             )
