@@ -5,9 +5,9 @@ from typing import Callable, NamedTuple
 
 import numpy as np
 import pandas as pd
-from arviz import InferenceData
 from pandas import DataFrame, Series
 from pandas.api.types import is_float_dtype, is_integer_dtype, is_numeric_dtype
+from xarray import DataTree
 
 from bambi.interpret.validate import (
     Values,
@@ -373,4 +373,4 @@ class Result(NamedTuple):
     """
 
     summary: DataFrame
-    draws: InferenceData
+    draws: DataTree

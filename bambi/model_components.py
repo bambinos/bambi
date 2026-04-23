@@ -8,7 +8,7 @@ from bambi.defaults import get_default_prior
 from bambi.families import univariate, multivariate
 from bambi.priors import Prior
 from bambi.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, OffsetTerm, ResponseTerm
-from bambi.utils import get_aliased_name, is_hsgp_term
+from bambi.utils import get_aliased_name, is_hsgp_term, as_dataset
 
 
 class ConstantComponent:
@@ -137,7 +137,7 @@ class DistributionalComponent:
         random_seed=None,
     ):
         linear_predictor = 0
-        posterior = idata.posterior
+        posterior = as_dataset(idata.posterior)
         in_sample = data is None
 
         # Prepare dims objects

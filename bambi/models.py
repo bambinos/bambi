@@ -22,6 +22,7 @@ from bambi.formula import Formula, check_ordinal_formula
 from bambi.priors import Prior, PriorScaler
 from bambi.transformations import transformations_namespace
 from bambi.utils import (
+    as_dataset,
     clean_formula_lhs,
     get_aliased_name,
     indentify,
@@ -848,10 +849,10 @@ class Model:
             var_names = [name for name in var_names if not name.endswith("_offset")]
 
         idata = pm.sample_prior_predictive(
-            samples=draws, var_names=var_names, model=self.backend.model, random_seed=random_seed
+            draws=draws, var_names=var_names, model=self.backend.model, random_seed=random_seed
         )
 
-        for group in idata.groups():
+        for group in idata.children:
             getattr(idata, group).attrs["modeling_interface"] = "bambi"
             getattr(idata, group).attrs["modeling_interface_version"] = __version__
 
@@ -954,10 +955,10 @@ class Model:
             posterior_predictive = posterior_predictive.to_dataset(name=response_aliased_name)
 
             if "posterior_predictive" in idata:
-                del idata.posterior_predictive
+                del idata["posterior_predictive"]
 
-            idata.add_groups({"posterior_predictive": posterior_predictive})
-            idata.posterior_predictive = idata.posterior_predictive.assign_attrs(
+            idata["posterior_predictive"] = posterior_predictive
+            idata["posterior_predictive"] = idata["posterior_predictive"].ds.assign_attrs(
                 modeling_interface="bambi", modeling_interface_version=__version__
             )
 
@@ -1053,10 +1054,10 @@ class Model:
         log_likelihood = log_likelihood.to_dataset(name=response_aliased_name)
 
         if "log_likelihood" in idata:
-            del idata.log_likelihood
+            del idata["log_likelihood"]
 
-        idata.add_groups({"log_likelihood": log_likelihood})
-        idata.log_likelihood = idata.log_likelihood.assign_attrs(
+        idata["log_likelihood"] = log_likelihood
+        idata["log_likelihood"] = idata["log_likelihood"].ds.assign_attrs(
             modeling_interface="bambi", modeling_interface_version=__version__
         )
 
@@ -1091,19 +1092,23 @@ class Model:
                 idata, data, include_group_specific, hsgp_dict, sample_new_groups, random_seed
             )
 
-            # Drop var/dim if already present. Needed for out-of-sample predictions.
-            if var_name in idata.posterior.data_vars:
-                idata.posterior = idata.posterior.drop_vars(var_name)
+        # Build the updated posterior dataset from the DataTree child
+        posterior = as_dataset(idata["posterior"])
 
-        if response_dim in idata.posterior.dims:
-            idata.posterior = idata.posterior.drop_dims(response_dim)
+        # Drop var/dim if already present. Needed for out-of-sample predictions.
+        for var_name in means_dict:
+            if var_name in posterior.data_vars:
+                posterior = posterior.drop_vars(var_name)
+
+        if response_dim in posterior.dims:
+            posterior = posterior.drop_dims(response_dim)
 
         # Use the first DataArray to get the number of observations
         obs_n = len(list(means_dict.values())[0].coords.get(response_dim))
-        idata.posterior = idata.posterior.assign_coords({response_dim: list(range(obs_n))})
+        posterior = posterior.assign_coords({response_dim: list(range(obs_n))})
 
         for name, value in means_dict.items():
-            idata.posterior[name] = value
+            posterior[name] = value
 
         # Add HSGP contributions to the posterior dataset
         for component in self.distributional_components.values():
@@ -1112,9 +1117,9 @@ class Model:
                 if term is None:
                     continue
                 term_aliased_name = get_aliased_name(term)
-                idata.posterior[term_aliased_name] = hsgp_contribution.transpose(
-                    "chain", "draw", ...
-                )
+                posterior[term_aliased_name] = hsgp_contribution.transpose("chain", "draw", ...)
+
+        idata["posterior"] = posterior
 
         return idata
 
