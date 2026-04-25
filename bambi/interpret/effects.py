@@ -26,7 +26,7 @@ from bambi.interpret.types import (
 )
 from bambi.interpret.utils import (
     aggregate,
-    create_inference_data,
+    create_datatree,
     get_model_covariates,
     identity,
     resolve_target,
@@ -373,7 +373,7 @@ def _build_predictions(
     }
     preds_idata = model.predict(**pred_kwargs, kind=target_info.predict_kind)
 
-    compare_idata = create_inference_data(preds_idata, preds_data)
+    compare_idata = create_datatree(preds_idata, preds_data)
 
     return (
         compare_idata,

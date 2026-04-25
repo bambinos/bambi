@@ -36,7 +36,7 @@ class TargetInfo(NamedTuple):
     predict_kind: str
 
 
-def create_inference_data(preds_idata: xr.DataTree, preds_data: DataFrame) -> xr.DataTree:
+def create_datatree(preds_idata: xr.DataTree, preds_data: DataFrame) -> xr.DataTree:
     """Create a new DataTree object by replacing the observed_data group with the
     `preds_data`.
 
