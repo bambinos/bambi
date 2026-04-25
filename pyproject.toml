@@ -115,23 +115,23 @@ numpyro = ">=0.19,<0.20"
 numba = ">=0.61.2"
 nutpie = ">=0.15,<0.16"
 
-[tool.pixi.feature.py311.dependencies]
-python = "~=3.12.0"
-
 [tool.pixi.feature.py312.dependencies]
 python = "~=3.12.0"
 
 [tool.pixi.feature.py313.dependencies]
 python = "~=3.13.0"
 
+# [tool.pixi.feature.py314.dependencies]
+# python = "~=3.14.0"
+
 
 [tool.pixi.environments]
 default = { solve-group = "default" }
 dev = { features = ["dev", "test", "docs", "jax", "nutpie"], solve-group = "default" }
 # Only used for testing purposes
-py311 = {features = ["dev", "test", "docs", "jax", "nutpie", "py311"]}
 py312 = {features = ["dev", "test", "docs", "jax", "nutpie", "py312"]}
 py313 = {features = ["dev", "test", "docs", "jax", "nutpie", "py313"]}
+# py314 = {features = ["dev", "test", "docs", "jax", "nutpie", "py314"]}
 
 [tool.pixi.feature.dev.tasks]
 pre-commit-setup = "pre-commit install"
