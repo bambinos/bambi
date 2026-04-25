@@ -3,7 +3,6 @@ from typing import Any, Callable, NamedTuple, Optional
 
 import numpy as np
 import xarray as xr
-from arviz import InferenceData
 from formulae.terms.call import Call
 from formulae.terms.call_resolver import LazyVariable
 from pandas import DataFrame, Series
@@ -37,46 +36,56 @@ class TargetInfo(NamedTuple):
     predict_kind: str
 
 
-def create_inference_data(preds_idata: InferenceData, preds_data: DataFrame) -> InferenceData:
-    """Create a new InferenceData object by replacing the observed_data group with the
+def create_datatree(preds_idata: xr.DataTree, preds_data: DataFrame) -> xr.DataTree:
+    """Create a new DataTree object by replacing the observed_data group with the
     `preds_data`.
 
     Parameters
     ----------
-    preds_idata : InferenceData
-        The InferenceData object containing posterior samples.
+    preds_idata : DataTree
+        The DataTree object containing posterior samples.
     preds_data : DataFrame
         The DataFrame to use as the new observed_data group.
 
     Returns
     -------
-    InferenceData
-        A new InferenceData object with the observed_data group replaced by preds_data.
+    DataTree
+        A new DataTree object with the observed_data group replaced by preds_data.
 
     Raises
     ------
     ValueError
-        If the InferenceData object does not contain an 'observed_data' group.
+        If the DataTree object does not contain an 'observed_data' group.
     NotImplementedError
-        If the InferenceData object has more than one coordinate.
+        If the DataTree object has more than one coordinate.
     """
     new_grid_idata = preds_idata.copy()
     xr_df = xr.Dataset.from_dataframe(preds_data)
 
-    if "observed_data" in new_grid_idata.groups():
+    if "data" in new_grid_idata.children:
+        coordinate_name = list(new_grid_idata["data"].coords)
+        # Delete the pandas-based data group and add the preds xr.Dataset
+        del new_grid_idata["data"]
+        new_grid_idata["data"] = xr_df
+    elif "observed_data" in new_grid_idata.children:
         coordinate_name = list(new_grid_idata["observed_data"].coords)
-        # Delete the Pandas-based observed_data group and add the preds xr.Dataset
-        del new_grid_idata.observed_data
-        new_grid_idata.add_groups(data=xr_df)
+        # Delete the pandas-based observed_data group and add the preds xr.Dataset
+        del new_grid_idata["observed_data"]
+        new_grid_idata["observed_data"] = xr_df
+        new_grid_idata["data"] = new_grid_idata["observed_data"].ds
     else:
-        raise ValueError("InferenceData object does not contain a 'data' or 'observed_data' group.")
+        raise ValueError("DataTree object does not contain a 'data' or 'observed_data' group.")
 
     if len(coordinate_name) > 1:
         raise NotImplementedError("Only one coordinate is currently supported.")
     coordinate_name = coordinate_name[0]
 
-    # Rename index to match coordinate name in other InferenceData groups
-    new_grid_idata.data = new_grid_idata.data.rename({"index": coordinate_name})
+    # Rename index to match coordinate name in other DataTree groups.
+    data_group = new_grid_idata["data"].ds
+    if "index" in data_group.dims and coordinate_name != "index":
+        new_grid_idata["data"] = data_group.rename({"index": coordinate_name})
+        if "observed_data" in new_grid_idata.children:
+            new_grid_idata["observed_data"] = new_grid_idata["data"].ds
 
     return new_grid_idata
 
