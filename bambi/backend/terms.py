@@ -192,7 +192,6 @@ class GroupSpecificTerm:
             else:
                 dist_kwargs[key] = value
 
-        # Per-prior override takes precedence; otherwise fall back to the model-level default.
         effective_nc = prior.noncentered if prior.noncentered is not None else self.noncentered
 
         if effective_nc and any(isinstance(v, pt.TensorVariable) for v in dist_kwargs.values()):
@@ -207,9 +206,8 @@ class GroupSpecificTerm:
                 return pm.Deterministic(label, offset * sigma, dims=dims)
 
             raise NotImplementedError(
-                f"Non-centered parametrization for '{label}' requires a Normal prior with a "
-                f"random sigma hyperprior; got prior '{prior.name}'. Set noncentered=False on "
-                f"this prior (or on the Model) to use the centered parametrization."
+                f"Non-centered parametrization is only supported for Normal priors; "
+                f"got '{prior.name}'. Set noncentered=False to use the centered parametrization."
             )
 
         distribution = get_distribution_from_prior(prior)

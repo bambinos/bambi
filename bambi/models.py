@@ -89,13 +89,10 @@ class Model:
         explicitly set by the user will always take precedence over default priors.
     noncentered : bool or dict[str, bool], optional
         Default parameterization for group-specific terms with random hyperpriors.
-        If `True` (default), uses a non-centered parameterization for normal hyperpriors on
-        grouped parameters; if `False`, the naive (centered) parameterization is used.
-        Can also be a `dict` keyed by component (response-parameter) name — e.g.
-        ``noncentered={"mu": True, "sigma": False}`` for a Gaussian distributional model —
-        which sets the default independently per parameter. Missing dict keys fall back to
-        `True` (the historical default); unknown keys raise. Per-prior overrides via
-        ``bmb.Prior(..., noncentered=True/False)`` still take precedence over this setting.
+        `True` (default) uses non-centered; `False` uses centered. Can also be a `dict`
+        keyed by component name (e.g. `{"mu": True, "sigma": False}`) for per-parameter
+        defaults; missing keys default to `True`, unknown keys raise. Per-`Prior`
+        `noncentered=` overrides this setting.
     center_predictors : bool, optional
         If `True` (default), and if there is an intercept in the common terms, the data is
         centered by subtracting the mean. The centering is undone after sampling to provide
@@ -245,13 +242,6 @@ class Model:
         self._build_priors()
 
     def _noncentered_default_for(self, component_name):
-        """Resolve the model-level noncentered default for a given component.
-
-        Returns the value of `self.noncentered` when it's a bool, or
-        `self.noncentered.get(component_name, True)` when it's a dict (missing
-        keys default to `True`, matching the historical model-wide default).
-        Per-`Prior` `noncentered` values still override this in the backend.
-        """
         if isinstance(self.noncentered, dict):
             return self.noncentered.get(component_name, True)
         return self.noncentered
