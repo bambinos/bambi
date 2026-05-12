@@ -15,16 +15,23 @@ class Prior:
     dist : pymc.Distribution or callable or None, optional
         A callable that returns a valid PyMC distribution. The signature must contain `name`,
         `dims`, and `shape`, as well as its own keyworded arguments.
+    noncentered : bool or None, optional
+        Per-prior override for non-centered parameterization of group-specific terms. When
+        `None` (default), the value of `Model.noncentered` is used. When `True` or `False`,
+        this prior's setting overrides the model-level default. Only meaningful on the prior
+        of a group-specific term; ignored otherwise. `noncentered=True` still requires a
+        Normal prior with a random `sigma` hyperprior; `noncentered=False` works for any prior.
     kwargs : dict
         Optional keywords specifying the parameters of the named distribution.
     """
 
-    def __init__(self, name, auto_scale=True, dist=None, **kwargs):
+    def __init__(self, name, auto_scale=True, dist=None, noncentered=None, **kwargs):
         self.name = name
         self.auto_scale = auto_scale
         self.args = {}
         self.update(**kwargs)
         self.dist = dist
+        self.noncentered = noncentered
 
     def update(self, **kwargs):
         """Update the arguments of the prior with additional arguments
@@ -57,6 +64,8 @@ class Prior:
                 for k, v in self.args.items()
             ]
         )
+        if self.noncentered is not None:
+            args = f"{args}, noncentered: {self.noncentered}" if args else f"noncentered: {self.noncentered}"
         return f"{self.name}({args})"
 
     def __repr__(self):
