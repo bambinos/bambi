@@ -88,8 +88,12 @@ class Model:
         (to be weakly informative) any time default priors are used. Note that any priors
         explicitly set by the user will always take precedence over default priors.
     noncentered : bool, optional
+        Model-level default for non-centered parameterization of group-specific terms.
         If `True` (default), uses a non-centered parameterization for normal hyperpriors on
-        grouped parameters. If `False`, naive (centered) parameterization is used.
+        grouped parameters. If `False`, the naive (centered) parameterization is used.
+        This setting can be overridden per-prior by passing ``noncentered=True/False`` to a
+        ``bmb.Prior`` instance assigned to a group-specific term; the prior-level setting
+        takes precedence over this model-level default.
     center_predictors : bool, optional
         If `True` (default), and if there is an intercept in the common terms, the data is
         centered by subtracting the mean. The centering is undone after sampling to provide

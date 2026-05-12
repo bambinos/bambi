@@ -1,3 +1,13 @@
+# Unreleased
+
+## New features
+
+* Per-prior control of non-centered parameterization. `bmb.Prior` now accepts a `noncentered` keyword (`None` by default, inheriting `Model.noncentered`; `True` / `False` overrides). This lets users mix centered and non-centered parameterizations across group-specific terms within a single model — for example, a hierarchical DDM with non-centered drift but centered threshold. The existing model-level `Model.noncentered` flag continues to act as the default for any prior that does not set the field.
+
+## Maintenance and fixes
+
+* Relax the non-Normal `NotImplementedError` for group-specific hyperpriors. Non-Normal priors with random hyperpriors (e.g. `StudentT` with a random scale) now build cleanly under the centered parameterization when noncentering is not requested. The error still fires when `noncentered=True` is set on a non-Normal prior, with an improved message that names the offending prior and points users at `noncentered=False`.
+
 <a id="0.18.0"></a>
 # [Bambi 0.18.0](https://github.com/bambinos/bambi/releases/tag/0.18.0) - 2026-05-19
 
