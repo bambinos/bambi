@@ -5,8 +5,6 @@ default, ``True``/``False`` overrides) and the relaxed centered fallback that no
 accepts non-Normal priors when noncentering is not requested.
 """
 
-import re
-
 import pytest
 
 import bambi as bmb
@@ -159,8 +157,13 @@ def test_non_normal_prior_with_noncentered_true_raises(data_random_n100):
         data_random_n100,
         priors={"continuous2|binary_cat": prior},
     )
-    with pytest.raises(NotImplementedError, match=re.compile("StudentT.*Normal", re.DOTALL)):
+    with pytest.raises(NotImplementedError) as excinfo:
         model.build()
+    msg = str(excinfo.value)
+    # The improved error message names both the requested prior and the constraint.
+    assert "StudentT" in msg
+    assert "Normal" in msg
+    assert "noncentered=False" in msg
 
 
 def test_predict_and_omit_offsets_with_mixed_noncentering(
