@@ -3,6 +3,7 @@
 ## New features
 
 * Per-prior control of non-centered parameterization. `bmb.Prior` now accepts a `noncentered` keyword (`None` by default, inheriting `Model.noncentered`; `True` / `False` overrides). This lets users mix centered and non-centered parameterizations across group-specific terms within a single model — for example, a hierarchical DDM with non-centered drift but centered threshold. The existing model-level `Model.noncentered` flag continues to act as the default for any prior that does not set the field.
+* `Model.noncentered` now also accepts a `dict[str, bool]` keyed by component (response-parameter) name — e.g. `noncentered={"mu": True, "sigma": False}` for a Gaussian distributional model, or `{"v": True, "a": False, "t": False, "z": True}` for a DDM via HSSM. Provides per-parameter defaults without writing one nested per-Prior entry per term. Missing keys fall back to `True` (the historical default); unknown keys raise immediately, listing the valid component names. Per-Prior overrides still win over the dict entry.
 
 ## Maintenance and fixes
 

@@ -121,6 +121,78 @@ def test_mixed_noncentering_across_distributional_components(data_random_n100):
     assert offsets == {"1|binary_cat_offset"}
 
 
+def test_component_dict_sets_per_parameter_default(data_random_n100):
+    """`Model(noncentered={"mu": True, "sigma": False})` sets a per-component
+    default that applies in the absence of a per-Prior override.
+    """
+    formula = bmb.Formula(
+        "continuous1 ~ 1 + (1|binary_cat)",
+        "sigma ~ 1 + (1|binary_cat)",
+    )
+    model = bmb.Model(
+        formula,
+        data_random_n100,
+        noncentered={"mu": True, "sigma": False},
+    )
+    model.build()
+    offsets = {v for v in _named_vars(model) if v.endswith("_offset")}
+    # Parent (mu) component noncentered → offset present.
+    # Auxiliary (sigma) component centered → no offset.
+    assert offsets == {"1|binary_cat_offset"}
+
+
+def test_component_dict_missing_key_defaults_to_true(data_random_n100):
+    """When a dict is provided but a component is missing, the historical
+    default `True` is used for that component (back-compat with old code that
+    only specified per-parameter overrides for the parameter they cared about).
+    """
+    formula = bmb.Formula(
+        "continuous1 ~ 1 + (1|binary_cat)",
+        "sigma ~ 1 + (1|binary_cat)",
+    )
+    model = bmb.Model(
+        formula,
+        data_random_n100,
+        # Only `sigma` is specified; `mu` falls back to True.
+        noncentered={"sigma": False},
+    )
+    model.build()
+    offsets = {v for v in _named_vars(model) if v.endswith("_offset")}
+    assert offsets == {"1|binary_cat_offset"}
+
+
+def test_per_prior_still_overrides_component_dict(data_random_n100):
+    """Per-Prior `noncentered=` wins over the component-dict default."""
+    formula = bmb.Formula(
+        "continuous1 ~ 1 + (1|binary_cat)",
+        "sigma ~ 1 + (1|binary_cat)",
+    )
+    priors = {
+        # Force the parent's term back to centered even though dict says True.
+        "1|binary_cat": _hyper_normal(noncentered=False),
+    }
+    model = bmb.Model(
+        formula,
+        data_random_n100,
+        priors=priors,
+        noncentered={"mu": True, "sigma": True},
+    )
+    model.build()
+    offsets = {v for v in _named_vars(model) if v.endswith("_offset")}
+    # Parent's term explicitly centered via per-Prior; sigma still noncentered.
+    assert offsets == {"sigma_1|binary_cat_offset"}
+
+
+def test_component_dict_rejects_unknown_keys(data_random_n100):
+    """Dict keys must match real component names; typos raise."""
+    with pytest.raises(ValueError, match=r"Unknown component name\(s\) in `noncentered`"):
+        bmb.Model(
+            "continuous1 ~ 1 + (1|binary_cat)",
+            data_random_n100,
+            noncentered={"vv": True},  # 'vv' is not a Gaussian component
+        )
+
+
 def test_non_normal_prior_with_noncentered_false_builds(data_random_n100):
     """Non-Normal priors with random hyperpriors must build under explicit
     noncentered=False (previously raised NotImplementedError).

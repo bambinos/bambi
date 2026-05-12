@@ -142,8 +142,9 @@ class DistributionalComponent:
         predictors = []
         group_indexes = []
 
+        noncentered_default = bmb_model._noncentered_default_for(self.component.name)
         for term in self.component.group_specific_terms.values():
-            group_specific_term = GroupSpecificTerm(term, bmb_model.noncentered)
+            group_specific_term = GroupSpecificTerm(term, noncentered_default)
             # Add coords
             for name, values in group_specific_term.coords.items():
                 if name not in pymc_backend.model.coords:

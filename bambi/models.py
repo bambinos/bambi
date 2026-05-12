@@ -87,13 +87,15 @@ class Model:
         If `True` (default), priors are automatically rescaled to the data
         (to be weakly informative) any time default priors are used. Note that any priors
         explicitly set by the user will always take precedence over default priors.
-    noncentered : bool, optional
-        Model-level default for non-centered parameterization of group-specific terms.
+    noncentered : bool or dict[str, bool], optional
+        Default parameterization for group-specific terms with random hyperpriors.
         If `True` (default), uses a non-centered parameterization for normal hyperpriors on
-        grouped parameters. If `False`, the naive (centered) parameterization is used.
-        This setting can be overridden per-prior by passing ``noncentered=True/False`` to a
-        ``bmb.Prior`` instance assigned to a group-specific term; the prior-level setting
-        takes precedence over this model-level default.
+        grouped parameters; if `False`, the naive (centered) parameterization is used.
+        Can also be a `dict` keyed by component (response-parameter) name — e.g.
+        ``noncentered={"mu": True, "sigma": False}`` for a Gaussian distributional model —
+        which sets the default independently per parameter. Missing dict keys fall back to
+        `True` (the historical default); unknown keys raise. Per-prior overrides via
+        ``bmb.Prior(..., noncentered=True/False)`` still take precedence over this setting.
     center_predictors : bool, optional
         If `True` (default), and if there is an intercept in the common terms, the data is
         centered by subtracting the mean. The centering is undone after sampling to provide
@@ -230,8 +232,29 @@ class Model:
             component_prior = priors.get(name, None)
             self.components[name] = ConstantComponent(name, component_prior, self)
 
+        # Validate per-component noncentered dict, now that all components are known.
+        if isinstance(self.noncentered, dict):
+            unknown = set(self.noncentered) - set(self.components)
+            if unknown:
+                raise ValueError(
+                    f"Unknown component name(s) in `noncentered`: {sorted(unknown)}. "
+                    f"Valid component names for this model: {sorted(self.components)}."
+                )
+
         # Build priors
         self._build_priors()
+
+    def _noncentered_default_for(self, component_name):
+        """Resolve the model-level noncentered default for a given component.
+
+        Returns the value of `self.noncentered` when it's a bool, or
+        `self.noncentered.get(component_name, True)` when it's a dict (missing
+        keys default to `True`, matching the historical model-wide default).
+        Per-`Prior` `noncentered` values still override this in the backend.
+        """
+        if isinstance(self.noncentered, dict):
+            return self.noncentered.get(component_name, True)
+        return self.noncentered
 
     def fit(
         self,
