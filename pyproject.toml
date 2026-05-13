@@ -41,7 +41,7 @@ jax = [
 ]
 nutpie = [
     "numba>=0.61.2",
-    "nutpie @ git+https://github.com/pymc-devs/nutpie.git",
+    "nutpie>=0.16.10,<1",
 ]
 
 [project.urls]
@@ -113,10 +113,7 @@ numpyro = ">=0.19,<0.20"
 
 [tool.pixi.feature.nutpie.dependencies]
 numba = ">=0.61.2"
-# nutpie = ">=0.15,<0.16"
-
-[tool.pixi.feature.nutpie.pypi-dependencies]
-nutpie = { git = "https://github.com/pymc-devs/nutpie.git" }
+nutpie = ">=0.16.10,<1"
 
 [tool.pixi.feature.py312.dependencies]
 python = "~=3.12.0"
@@ -124,8 +121,8 @@ python = "~=3.12.0"
 [tool.pixi.feature.py313.dependencies]
 python = "~=3.13.0"
 
-# [tool.pixi.feature.py314.dependencies]
-# python = "~=3.14.0"
+[tool.pixi.feature.py314.dependencies]
+python = "~=3.14.0"
 
 
 [tool.pixi.environments]
@@ -134,7 +131,7 @@ dev = { features = ["dev", "test", "docs", "jax", "nutpie"], solve-group = "defa
 # Only used for testing purposes
 py312 = {features = ["dev", "test", "docs", "jax", "nutpie", "py312"]}
 py313 = {features = ["dev", "test", "docs", "jax", "nutpie", "py313"]}
-# py314 = {features = ["dev", "test", "docs", "jax", "nutpie", "py314"]}
+py314 = {features = ["dev", "test", "docs", "jax", "nutpie", "py314"]}
 
 [tool.pixi.feature.dev.tasks]
 pre-commit-setup = "pre-commit install"
