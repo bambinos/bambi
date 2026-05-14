@@ -121,8 +121,8 @@ python = "~=3.12.0"
 [tool.pixi.feature.py313.dependencies]
 python = "~=3.13.0"
 
-[tool.pixi.feature.py314.dependencies]
-python = "~=3.14.0"
+# [tool.pixi.feature.py314.dependencies]
+# python = "~=3.14.0"
 
 
 [tool.pixi.environments]
@@ -131,7 +131,7 @@ dev = { features = ["dev", "test", "docs", "jax", "nutpie"], solve-group = "defa
 # Only used for testing purposes
 py312 = {features = ["dev", "test", "docs", "jax", "nutpie", "py312"]}
 py313 = {features = ["dev", "test", "docs", "jax", "nutpie", "py313"]}
-py314 = {features = ["dev", "test", "docs", "jax", "nutpie", "py314"]}
+# py314 = {features = ["dev", "test", "docs", "jax", "nutpie", "py314"]}
 
 [tool.pixi.feature.dev.tasks]
 pre-commit-setup = "pre-commit install"
