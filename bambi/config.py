@@ -5,7 +5,7 @@ class Config:
     When a user tries to set a configuration variable to a non-supported value, it raises an error.
     """
 
-    __FIELDS = {"INTERPRET_VERBOSE": (True, False), "SPARSE_DOT": (False, True)}
+    __FIELDS = {"INTERPRET_VERBOSE": (True, False), "SPARSE_DOT": (False, True, None)}
 
     def __init__(self, config_dict: dict = None):
         config_dict = {} if config_dict is None else config_dict

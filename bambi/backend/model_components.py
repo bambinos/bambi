@@ -6,10 +6,8 @@ from pytensor import sparse as ps
 
 from bambi.backend.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, InterceptTerm, ResponseTerm
 from bambi.backend.utils import get_distribution_from_prior
-from bambi.config import config as bmb_config
 from bambi.families.multivariate import MultivariateFamily
 from bambi.families.univariate import Categorical, Cumulative, StoppingRatio
-
 
 ORDINAL_FAMILIES = (Cumulative, StoppingRatio)
 
@@ -154,7 +152,7 @@ class DistributionalComponent:
             predictors.append(term.predictor)
             group_indexes.append(term.group_index)
 
-        if bmb_config["SPARSE_DOT"]:
+        if bmb_model.sparse_dot:
             coefs_reshaped = []
             for coef in coefs:
                 if as_multivariate and coef.ndim == 3:
