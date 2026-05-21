@@ -127,7 +127,7 @@ def test_prior_eq():
 
 
 def test_prior_noncentered_field():
-    # Default is None (inherit Model.noncentered)
+    # Default is None
     prior_default = bmb.Prior("Normal", mu=0, sigma=1)
     assert prior_default.noncentered is None
 
