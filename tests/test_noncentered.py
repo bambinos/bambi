@@ -36,6 +36,7 @@ def test_per_prior_false_beats_model_true(data_random_n100):
         "continuous1 ~ continuous2 + (continuous2|binary_cat)",
         data_random_n100,
         priors=priors,
+        noncentered=True,
     )
     model.build()
     assert "continuous2|binary_cat_offset" not in _named_vars(model)
@@ -180,9 +181,7 @@ def test_non_normal_prior_with_noncentered_true_raises(data_random_n100):
         model.build()
 
 
-def test_predict_and_omit_offsets_with_mixed_noncentering(
-    data_random_n100, mock_pymc_sample
-):
+def test_predict_and_omit_offsets_with_mixed_noncentering(data_random_n100, mock_pymc_sample):
     priors = {
         "1|binary_cat": _hyper_normal(noncentered=True),
         "continuous2|binary_cat": _hyper_normal(noncentered=False),
