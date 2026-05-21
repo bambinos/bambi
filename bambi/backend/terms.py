@@ -207,7 +207,7 @@ class GroupSpecificTerm:
 
             raise NotImplementedError(
                 f"The non-centered parametrization is only supported "
-                "for Normal priors, got {prior.name}."
+                f"for Normal priors, got {prior.name}."
             )
 
         distribution = get_distribution_from_prior(prior)
