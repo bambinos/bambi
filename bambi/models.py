@@ -241,7 +241,7 @@ class Model:
         # Build priors
         self._build_priors()
 
-    def _noncentered_default_for(self, component_name):
+    def noncentered_default_for(self, component_name):
         if isinstance(self.noncentered, dict):
             return self.noncentered.get(component_name, True)
         return self.noncentered
