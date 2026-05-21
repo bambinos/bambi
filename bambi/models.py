@@ -88,7 +88,7 @@ class Model:
         (to be weakly informative) any time default priors are used. Note that any priors
         explicitly set by the user will always take precedence over default priors.
     noncentered : bool or dict[str, bool], optional
-        Default parameterization for group-specific terms with random hyperpriors.
+        Default parameterization for group-specific terms.
         `True` (default) uses non-centered; `False` uses centered. Can also be a `dict`
         keyed by component name (e.g. `{"mu": True, "sigma": False}`) for per-parameter
         defaults; missing keys default to `True`, unknown keys raise. Per-`Prior`
