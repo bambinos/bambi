@@ -206,8 +206,7 @@ class GroupSpecificTerm:
                 return pm.Deterministic(label, offset * sigma, dims=dims)
 
             raise NotImplementedError(
-                f"Non-centered parametrization is only supported for Normal priors; "
-                f"got '{prior.name}'. Set noncentered=False to use the centered parametrization."
+                f"The non-centered parametrization is only supported for Normal priors, got {prior.name}."
             )
 
         distribution = get_distribution_from_prior(prior)

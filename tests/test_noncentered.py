@@ -173,12 +173,11 @@ def test_non_normal_prior_with_noncentered_true_raises(data_random_n100):
         data_random_n100,
         priors={"continuous2|binary_cat": prior},
     )
-    with pytest.raises(NotImplementedError) as excinfo:
+    with pytest.raises(
+        NotImplementedError,
+        match=r"non-centered parametrization is only supported for Normal priors, got StudentT",
+    ):
         model.build()
-    msg = str(excinfo.value)
-    assert "StudentT" in msg
-    assert "Normal" in msg
-    assert "noncentered=False" in msg
 
 
 def test_predict_and_omit_offsets_with_mixed_noncentering(
