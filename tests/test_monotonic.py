@@ -124,7 +124,7 @@ def test_fit_recovers_category_means(data_ordered):
 
     posterior = idata.posterior
     assert "mo(income)_simplex" in posterior.data_vars
-    assert "mo(income)_b" in posterior.data_vars
+    assert "mo(income)_slope" in posterior.data_vars
 
     simplex = posterior["mo(income)_simplex"]
     assert simplex.dims == ("chain", "draw", "mo(income)_simplex_dim")
@@ -135,7 +135,7 @@ def test_fit_recovers_category_means(data_ordered):
 
     # Reconstruct category means and check we recover the truth
     intercept = posterior["Intercept"].mean().item()
-    slope = posterior["mo(income)_b"].mean().item()
+    slope = posterior["mo(income)_slope"].mean().item()
     s_mean = simplex.mean(("chain", "draw")).to_numpy()
     cumsum = np.concatenate([[0.0], np.cumsum(s_mean)])
     fitted = intercept + slope * 3 * cumsum
@@ -249,8 +249,8 @@ def test_shared_id_creates_single_simplex(data_two_ordered):
     assert "mo(income1, id='shape')_simplex" not in named
     assert "mo(income2, id='shape')_simplex" not in named
     # But each term has its own slope
-    assert "mo(income1, id='shape')_b" in named
-    assert "mo(income2, id='shape')_b" in named
+    assert "mo(income1, id='shape')_slope" in named
+    assert "mo(income2, id='shape')_slope" in named
 
 
 def test_shared_id_inconsistent_K_raises():
@@ -316,8 +316,8 @@ def test_shared_id_recovers_truth(data_two_ordered):
     np.testing.assert_allclose(s, [30.0 / 45, 10.0 / 45, 5.0 / 45], atol=0.05)
     # Both slopes should land near 15
     for term_name in (
-        "mo(income1, id='shape')_b",
-        "mo(income2, id='shape')_b",
+        "mo(income1, id='shape')_slope",
+        "mo(income2, id='shape')_slope",
     ):
         assert post[term_name].mean().item() == pytest.approx(15.0, abs=1.5)
 
@@ -344,11 +344,11 @@ def test_set_alias_renames_simplex_and_slope(data_ordered):
     named = list(model.backend.model.named_vars)
     # Aliased names appear
     assert "income_effect_simplex" in named
-    assert "income_effect_b" in named
+    assert "income_effect_slope" in named
     assert "income_effect" in named  # the Deterministic for the contribution
     # The original (un-aliased) names should NOT be present
     assert "mo(income)_simplex" not in named
-    assert "mo(income)_b" not in named
+    assert "mo(income)_slope" not in named
     # And the coord dim is aliased too
     assert "income_effect_simplex_dim" in model.backend.model.coords
 
@@ -362,7 +362,7 @@ def test_set_alias_fit_then_predict(data_ordered):
     )
     post = idata.posterior
     assert "income_effect_simplex" in post.data_vars
-    assert "income_effect_b" in post.data_vars
+    assert "income_effect_slope" in post.data_vars
 
     new_df = pd.DataFrame(
         {"income": pd.Categorical(LEVELS, categories=LEVELS, ordered=True)}
@@ -426,7 +426,7 @@ def test_mo_continuous_interaction_build(data_mo_x):
     assert "mo(income):x" in interaction_terms
     named = list(model.backend.model.named_vars)
     # Slope for the interaction
-    assert "mo(income):x_b" in named
+    assert "mo(income):x_slope" in named
     # Independent simplices for the main and interaction (no id=)
     assert "mo(income)_simplex" in named
     assert "mo(income):x_simplex_0" in named
@@ -440,9 +440,9 @@ def test_mo_continuous_interaction_recovers_truth(data_mo_x):
     post = idata.posterior
     assert post["Intercept"].mean().item() == pytest.approx(5.0, abs=1.0)
     assert post["x"].mean().item() == pytest.approx(4.0, abs=0.5)
-    assert post["mo(income)_b"].mean().item() == pytest.approx(15.0, abs=1.5)
+    assert post["mo(income)_slope"].mean().item() == pytest.approx(15.0, abs=1.5)
     # Interaction slope is on the main-effect scale: 0.2 * 45 / D = 3
-    assert post["mo(income):x_b"].mean().item() == pytest.approx(3.0, abs=0.6)
+    assert post["mo(income):x_slope"].mean().item() == pytest.approx(3.0, abs=0.6)
 
 
 def test_mo_categorical_interaction_with_shared_id(data_mo_g):
@@ -454,7 +454,7 @@ def test_mo_categorical_interaction_with_shared_id(data_mo_g):
     assert "simplex_inc" in named
     assert "mo(income, id='inc'):g_simplex_0" not in named
     # Vector slope for the 2 dummies of g
-    assert "mo(income, id='inc'):g_b" in named
+    assert "mo(income, id='inc'):g_slope" in named
 
 
 def test_mo_categorical_interaction_recovers_truth(data_mo_g):
@@ -468,9 +468,9 @@ def test_mo_categorical_interaction_recovers_truth(data_mo_g):
     simplex = post["simplex_inc"].mean(("chain", "draw")).to_numpy()
     np.testing.assert_allclose(simplex, [30.0 / 45, 10.0 / 45, 5.0 / 45], atol=0.05)
     # Main slope is the g1 effect (= 15)
-    assert post["mo(income, id='inc')_b"].mean().item() == pytest.approx(15.0, abs=1.5)
-    # Interaction has dims (g_b_dim,) of length 2: g2 and g3 excess slopes
-    interaction = post["mo(income, id='inc'):g_b"].mean(("chain", "draw")).to_numpy()
+    assert post["mo(income, id='inc')_slope"].mean().item() == pytest.approx(15.0, abs=1.5)
+    # Interaction has dims (g_slope_dim,) of length 2: g2 and g3 excess slopes
+    interaction = post["mo(income, id='inc'):g_slope"].mean(("chain", "draw")).to_numpy()
     # The order matches the dummy columns (treatment coding: g2 dummy first, g3 second)
     # g2 excess: 0.5 * 15 = 7.5; g3 excess: -0.5 * 15 = -7.5
     np.testing.assert_allclose(interaction, [7.5, -7.5], atol=1.0)
@@ -526,7 +526,7 @@ def test_mo_group_specific_recovers_truth(data_mo_gs):
         target_accept=0.95,
     )
     post = idata.posterior
-    main_slope = post["mo(income)_b"].mean().item()
+    main_slope = post["mo(income)_slope"].mean().item()
     r_g = post["mo(income)|g"].mean(("chain", "draw")).to_numpy()
     totals = main_slope + r_g
     truth = np.array([15.0, 19.5, 10.5, 22.5, 7.5])

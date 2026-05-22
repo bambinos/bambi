@@ -412,7 +412,7 @@ class DistributionalComponent:
 
             term_aliased_name = get_aliased_name(term)
             simplex = posterior[term.simplex_name]
-            slope = posterior[f"{term_aliased_name}_b"]
+            slope = posterior[f"{term_aliased_name}_slope"]
 
             # cumulative sum along the simplex dim, prepended with 0 so codes==0 -> 0
             simplex_np = simplex.to_numpy()  # (chain, draw, D)
@@ -481,7 +481,7 @@ class DistributionalComponent:
                 mono_factor = gathered if mono_factor is None else mono_factor * gathered
 
             # Slope is shape (k,)  -- per-column
-            slope = posterior[f"{term_aliased_name}_b"]  # dims (chain, draw, [slope_dim])
+            slope = posterior[f"{term_aliased_name}_slope"]  # dims (chain, draw, [slope_dim])
             slope_np = slope.to_numpy()  # (chain, draw, k) or (chain, draw)
             if slope_np.ndim == 2:
                 slope_np = slope_np[..., None]  # (chain, draw, 1)

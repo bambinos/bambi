@@ -520,7 +520,7 @@ class MonotonicTerm:
                 self.simplex_registry[self.term.id] = simplex
 
         slope = pm.Normal(
-            f"{label}_b",
+            f"{label}_slope",
             mu=slope_prior.args.get("mu", 0.0),
             sigma=slope_prior.args.get("sigma", 1.0),
         )
@@ -573,7 +573,7 @@ class MonotonicInteractionTerm:
         coords = {}
         # Need a coord for the slope dim when k > 1 (multi-column interaction)
         if self.ncols > 1:
-            coords[f"{self.name}_b_dim"] = np.arange(self.ncols)
+            coords[f"{self.name}_slope_dim"] = np.arange(self.ncols)
         # Simplex coords for each non-shared mo() component
         for mc in self.term.mono_components:
             if mc["id"] is not None:
@@ -617,11 +617,11 @@ class MonotonicInteractionTerm:
             "sigma": slope_prior.args.get("sigma", 1.0),
         }
         if self.ncols == 1:
-            slope = pm.Normal(f"{label}_b", **slope_kwargs)
+            slope = pm.Normal(f"{label}_slope", **slope_kwargs)
             other_dot = self.other_factor[:, 0]  # (n,)
             contribution = mono_factor * other_dot * slope
         else:
-            slope = pm.Normal(f"{label}_b", dims=(f"{label}_b_dim",), **slope_kwargs)
+            slope = pm.Normal(f"{label}_slope", dims=(f"{label}_slope_dim",), **slope_kwargs)
             # sum_k slope[k] * other_factor[i, k] = other_factor @ slope
             other_dot = pt.as_tensor(self.other_factor) @ slope  # (n,)
             contribution = mono_factor * other_dot
