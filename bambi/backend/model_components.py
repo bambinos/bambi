@@ -9,6 +9,7 @@ from bambi.backend.terms import (
     GroupSpecificTerm,
     HSGPTerm,
     InterceptTerm,
+    MonotonicGroupSpecificTerm,
     MonotonicInteractionTerm,
     MonotonicTerm,
     ResponseTerm,
@@ -153,6 +154,20 @@ class DistributionalComponent:
                 if name not in pymc_backend.model.coords:
                     pymc_backend.model.add_coords({name: values})
             self.output += monotonic_term.build(bmb_model)
+
+        # Group-specific mo() terms (mo(x) | g). They reuse simplex_registry so
+        # id= on a standalone term can be shared with the group-specific simplex.
+        if self.component.monotonic_group_specific_terms:
+            for term in self.component.monotonic_group_specific_terms.values():
+                backend_term = MonotonicGroupSpecificTerm(
+                    term,
+                    simplex_registry=simplex_registry,
+                    noncentered=bmb_model.noncentered,
+                )
+                for coord_name, values in backend_term.coords.items():
+                    if coord_name not in pymc_backend.model.coords:
+                        pymc_backend.model.add_coords({coord_name: values})
+                self.output += backend_term.build(bmb_model)
 
         # Interaction terms (e.g., mo(x):z). They reuse simplex_registry so an
         # id-shared mo() in an interaction picks up the same Dirichlet as the

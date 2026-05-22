@@ -11,6 +11,7 @@ from bambi.terms import (
     CommonTerm,
     GroupSpecificTerm,
     HSGPTerm,
+    MonotonicGroupSpecificTerm,
     MonotonicInteractionTerm,
     MonotonicTerm,
     OffsetTerm,
@@ -21,6 +22,7 @@ from bambi.utils import (
     is_hsgp_term,
     is_monotonic_term,
     is_monotonic_interaction_term,
+    is_monotonic_group_specific_term,
     as_dataset,
 )
 
@@ -121,7 +123,10 @@ class DistributionalComponent:
     def add_group_specific_terms(self, priors):
         for name, term in self.design.group.terms.items():
             prior = priors.pop(name, priors.get("group_specific", None))
-            self.terms[name] = GroupSpecificTerm(term, prior, self.prefix)
+            if is_monotonic_group_specific_term(term):
+                self.terms[name] = MonotonicGroupSpecificTerm(term, prior, self.prefix)
+            else:
+                self.terms[name] = GroupSpecificTerm(term, prior, self.prefix)
 
     def add_hsgp_terms(self, priors):
         for name, term in self.design.common.terms.items():
@@ -152,6 +157,14 @@ class DistributionalComponent:
 
     def build_priors(self):
         for term in self.terms.values():
+            if isinstance(term, MonotonicGroupSpecificTerm):
+                defaults = get_default_prior("monotonic_group_specific", D=term.D)
+                user_prior = term.prior or {}
+                for prior_obj in user_prior.values():
+                    if isinstance(prior_obj, Prior):
+                        prior_obj.auto_scale = False
+                term.prior = {**defaults, **user_prior}
+                continue
             if isinstance(term, GroupSpecificTerm):
                 kind = "group_specific"
             elif isinstance(term, CommonTerm) and term.kind == "intercept":
@@ -265,7 +278,12 @@ class DistributionalComponent:
                 monotonic_dict,
             )
 
-        if self.design.group and include_group_specific:
+        if include_group_specific:
+            linear_predictor += self.predict_monotonic_group_specific(
+                posterior, data, in_sample, monotonic_dict
+            )
+
+        if self.design.group and include_group_specific and self.group_specific_terms:
             linear_predictor += self.predict_group_specific(
                 posterior=posterior,
                 data=data,
@@ -503,6 +521,53 @@ class DistributionalComponent:
 
         return linear_predictor
 
+    def predict_monotonic_group_specific(self, posterior, data, in_sample, monotonic_dict):
+        """Contribution of all ``(mo(x) | g)`` terms for in-sample or new data."""
+        import pandas as pd  # local import to keep this method self-contained
+
+        linear_predictor = 0
+        response_dim = "__obs__"
+        for term_name, term in self.monotonic_group_specific_terms.items():
+            term_aliased_name = get_aliased_name(term)
+
+            if in_sample:
+                codes = term.codes
+                group_index = term.group_index
+            else:
+                codes = _reencode_mo_for_new_data(
+                    term.transform, term.term.expr.components[0], data
+                )
+                factor_name = next(iter(term.term.factor.var_names))
+                stored_groups = list(term.groups)
+                recoded = pd.Categorical(data[factor_name], categories=stored_groups)
+                if (np.asarray(recoded.codes) == -1).any():
+                    bad = pd.Series(data[factor_name])[recoded.codes == -1].unique()
+                    raise ValueError(
+                        f"'(mo(x) | g)' got unseen groups for '{factor_name}': "
+                        f"{sorted(bad)}"
+                    )
+                group_index = np.asarray(recoded.codes).astype("int64")
+
+            # Simplex partial sums (chain, draw, n)
+            simplex_np = np.asarray(posterior[term.simplex_name])  # (chain, draw, D)
+            cumsum = np.cumsum(simplex_np, axis=-1)
+            zero = np.zeros(cumsum.shape[:-1] + (1,))
+            cumsum = np.concatenate([zero, cumsum], axis=-1)  # (chain, draw, D+1)
+            partial = term.D * np.take(cumsum, codes, axis=-1)  # (chain, draw, n)
+
+            # Per-group slope draws
+            r_g_np = np.asarray(posterior[term_aliased_name])  # (chain, draw, n_groups)
+            r_g_obs = np.take(r_g_np, group_index, axis=-1)  # (chain, draw, n)
+
+            contribution_np = partial * r_g_obs
+            contribution = xr.DataArray(
+                contribution_np, dims=("chain", "draw", response_dim)
+            )
+            linear_predictor += contribution
+            if monotonic_dict is not None:
+                monotonic_dict[term_name] = contribution
+        return linear_predictor
+
     def predict_group_specific(
         self,
         posterior,
@@ -584,6 +649,18 @@ class DistributionalComponent:
 
         u = np.concatenate(u_arrays, axis=-1)
         u = xr.DataArray(u, dims=u_dims)
+
+        # Remove columns that belong to MonotonicGroupSpecificTerms (their
+        # contribution is computed separately in predict_monotonic_group_specific).
+        mono_gs_slices = [
+            self.design.group.slices[name] for name in self.monotonic_group_specific_terms
+        ]
+        if mono_gs_slices:
+            Z = Z.toarray() if hasattr(Z, "toarray") else np.asarray(Z)
+            Z = np.delete(Z, np.r_[tuple(mono_gs_slices)], axis=1)
+            import scipy.sparse as _sp  # local
+            Z = _sp.csr_matrix(Z)
+
         # NOTE: xarray supports sparse matrices from the 'sparse' package, not from SciPy.
         Z = xr.DataArray(sparse.COO.from_scipy_sparse(Z), dims=design_matrix_dims)
         # Ensure the result's `.data` is a dense NumPy array.
@@ -729,8 +806,17 @@ class DistributionalComponent:
 
     @property
     def group_specific_terms(self):
-        """Return dict of all group specific effects in model component."""
+        """Return dict of all *regular* group-specific effects in model component."""
         return {k: v for (k, v) in self.terms.items() if isinstance(v, GroupSpecificTerm)}
+
+    @property
+    def monotonic_group_specific_terms(self):
+        """Return dict of all group-specific monotonic ``(mo(x)|g)`` terms."""
+        return {
+            k: v
+            for (k, v) in self.terms.items()
+            if isinstance(v, MonotonicGroupSpecificTerm)
+        }
 
     @property
     def offset_terms(self):

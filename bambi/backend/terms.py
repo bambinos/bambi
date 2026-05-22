@@ -637,6 +637,80 @@ class MonotonicInteractionTerm:
         return pm.Deterministic(label, contribution, dims=("__obs__",))
 
 
+class MonotonicGroupSpecificTerm:
+    """Backend builder for ``(mo(x) | g)`` — group-specific monotonic effect.
+
+    Emits a shared Dirichlet simplex (reusing the registry, so id= or a
+    standalone mo() can share it), plus per-group slopes ``r_g`` using
+    bambi's standard non-centered parameterization. The contribution is
+
+        r_g[group_index[i]] * D * cumsum(simplex)[codes[i]]
+    """
+
+    def __init__(self, term, simplex_registry, noncentered=True):
+        self.term = term
+        self.simplex_registry = simplex_registry
+        self.noncentered = noncentered
+
+    @property
+    def name(self):
+        if self.term.alias:
+            return self.term.alias
+        return self.term.name
+
+    @property
+    def coords(self):
+        coords = {}
+        coords[self.term.factor_dim] = list(self.term.groups)
+        coords[self.term.simplex_dim] = np.asarray(self.term.mo_levels[1:])
+        return coords
+
+    def build(self, spec):  # pylint: disable=unused-argument
+        label = self.name
+        D = self.term.D
+        codes = self.term.codes
+        group_index = self.term.group_index
+
+        # --- Simplex (possibly reused via id=) ---
+        simplex_prior = self.term.prior["simplex"]
+        simplex_name = self.term.simplex_name
+        simplex_dim = self.term.simplex_dim
+        tx_id = self.term.id
+        if tx_id is not None and tx_id in self.simplex_registry:
+            simplex = self.simplex_registry[tx_id]
+        else:
+            simplex = pm.Dirichlet(
+                simplex_name, a=simplex_prior.args["a"], dims=(simplex_dim,)
+            )
+            if tx_id is not None:
+                self.simplex_registry[tx_id] = simplex
+
+        # --- Per-group slope r_g with hierarchical Normal/HalfNormal prior ---
+        slope_prior = self.term.prior["slope"]
+        # Build hyperprior sigma (e.g. HalfNormal). Inherit hierarchy from the
+        # Prior dict structure: slope = Normal(mu=0, sigma=Prior("HalfNormal", ...))
+        sigma_arg = slope_prior.args.get("sigma")
+        if isinstance(sigma_arg, Prior):
+            sigma_dist = get_distribution_from_prior(sigma_arg)
+            sigma = sigma_dist(f"{label}_sigma", **sigma_arg.args)
+        else:
+            sigma = sigma_arg
+        mu = slope_prior.args.get("mu", 0.0)
+
+        factor_dim = self.term.factor_dim
+        if self.noncentered and isinstance(sigma, pt.TensorVariable):
+            offset = pm.Normal(f"{label}_offset", mu=0, sigma=1, dims=(factor_dim,))
+            r_g = pm.Deterministic(label, offset * sigma + mu, dims=(factor_dim,))
+        else:
+            r_g = pm.Normal(label, mu=mu, sigma=sigma, dims=(factor_dim,))
+
+        # --- Contribution ---
+        cumsum = pt.concatenate([pt.zeros(1, dtype=simplex.dtype), pt.cumsum(simplex)])
+        partial_sum = D * cumsum[codes]  # (n,)
+        contribution = r_g[group_index] * partial_sum
+        return pm.Deterministic(f"{label}_contribution", contribution, dims=("__obs__",))
+
+
 class HSGPTerm:
     """A term that is compiled to an HSGP term in PyMC
 

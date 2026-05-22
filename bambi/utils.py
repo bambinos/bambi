@@ -187,6 +187,19 @@ def is_monotonic_interaction_term(term):
     return any(is_monotonic_component(c) for c in term.components)
 
 
+def is_monotonic_group_specific_term(term):
+    """Determines if a formulae group-specific term is ``(mo(x) | g)``.
+
+    The term must have an ``.expr`` consisting of a single Monotonic call component.
+    """
+    if not (hasattr(term, "expr") and hasattr(term, "factor")):
+        return False
+    expr = term.expr
+    if not hasattr(expr, "components") or len(expr.components) != 1:
+        return False
+    return is_monotonic_component(expr.components[0])
+
+
 def remove_common_intercept(dm: fm.matrices.DesignMatrices) -> fm.matrices.DesignMatrices:
     """Removes the intercept from the common design matrix
 

@@ -437,6 +437,131 @@ def test_mo_categorical_interaction_recovers_truth(data_mo_g):
     np.testing.assert_allclose(interaction, [7.5, -7.5], atol=1.0)
 
 
+# ---------------------------------------------------------------------------
+# Group-specific monotonic tests: (mo(x) | g)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture(scope="module")
+def data_mo_gs():
+    """Five groups, each with a per-group monotonic slope; same simplex shape."""
+    rng = np.random.default_rng(2026)
+    n = 800
+    g_levels = [f"g{i}" for i in range(1, 6)]
+    group = pd.Categorical(rng.choice(g_levels, n), categories=g_levels)
+    income = pd.Categorical(rng.choice(LEVELS, n), categories=LEVELS, ordered=True)
+    codes = np.asarray(income.codes)
+    shape = np.array([0.0, 30.0, 40.0, 45.0])
+    slope_per_group = {"g1": 1.0, "g2": 1.3, "g3": 0.7, "g4": 1.5, "g5": 0.5}
+    g_mult = np.array([slope_per_group[g] for g in group])
+    mu = 5.0 + shape[codes] * g_mult
+    y = mu + rng.normal(0, 3, n)
+    return pd.DataFrame({"y": y, "income": income, "g": group})
+
+
+def test_mo_group_specific_build(data_mo_gs):
+    model = bmb.Model("y ~ mo(income) + (mo(income) | g)", data_mo_gs)
+    model.build()
+    gs_terms = model.components["mu"].monotonic_group_specific_terms
+    assert "mo(income)|g" in gs_terms
+    term = gs_terms["mo(income)|g"]
+    assert term.K == 4
+    assert term.D == 3
+    assert list(term.groups) == ["g1", "g2", "g3", "g4", "g5"]
+
+    named = list(model.backend.model.named_vars)
+    assert "mo(income)|g" in named  # per-group slope vector
+    assert "mo(income)|g_sigma" in named  # hyperprior
+    assert "mo(income)|g_simplex" in named  # this term's own simplex
+    assert "mo(income)_simplex" in named  # main effect simplex (independent)
+
+
+def test_mo_group_specific_recovers_truth(data_mo_gs):
+    model = bmb.Model("y ~ mo(income) + (mo(income) | g)", data_mo_gs)
+    idata = model.fit(
+        tune=800,
+        draws=800,
+        chains=2,
+        random_seed=42,
+        progressbar=False,
+        target_accept=0.95,
+    )
+    post = idata.posterior
+    main_slope = post["mo(income)_b"].mean().item()
+    r_g = post["mo(income)|g"].mean(("chain", "draw")).to_numpy()
+    totals = main_slope + r_g
+    truth = np.array([15.0, 19.5, 10.5, 22.5, 7.5])
+    np.testing.assert_allclose(totals, truth, atol=2.0)
+
+
+def test_mo_group_specific_only(data_mo_gs):
+    """(mo(x) | g) without a main mo(x) effect."""
+    model = bmb.Model("y ~ (mo(income) | g)", data_mo_gs)
+    model.build()
+    assert "mo(income)|g" in model.components["mu"].monotonic_group_specific_terms
+    # Implicit (1|g) was added by formulae
+    assert "1|g" in model.components["mu"].group_specific_terms
+
+
+def test_mo_group_specific_predict_new_data(data_mo_gs):
+    model = bmb.Model("y ~ (mo(income) | g)", data_mo_gs)
+    idata = model.fit(
+        tune=400,
+        draws=400,
+        chains=2,
+        random_seed=42,
+        progressbar=False,
+        target_accept=0.95,
+    )
+    g_levels = ["g1", "g2", "g3", "g4", "g5"]
+    new_df = pd.DataFrame(
+        {
+            "income": pd.Categorical(LEVELS * 5, categories=LEVELS, ordered=True),
+            "g": pd.Categorical(np.repeat(g_levels, 4), categories=g_levels),
+        }
+    )
+    idata_new = model.predict(
+        idata, kind="response_params", data=new_df, inplace=False
+    )
+    mu_new = idata_new.posterior["mu"].mean(("chain", "draw")).to_numpy()
+    assert mu_new.shape == (20,)
+    # Monotonic within each group
+    for i in range(5):
+        block = mu_new[i * 4 : (i + 1) * 4]
+        assert np.all(np.diff(block) >= 0), f"non-monotonic block at group {i}"
+
+
+def test_mo_group_specific_unseen_group_raises(data_mo_gs):
+    model = bmb.Model("y ~ (mo(income) | g)", data_mo_gs)
+    idata = model.fit(
+        tune=200, draws=200, chains=2, random_seed=42, progressbar=False
+    )
+    bad_df = pd.DataFrame(
+        {
+            "income": pd.Categorical(
+                [LEVELS[0]] * 3, categories=LEVELS, ordered=True
+            ),
+            "g": pd.Categorical(["unseen_g"] * 3),
+        }
+    )
+    with pytest.raises(ValueError, match="unseen groups"):
+        model.predict(idata, kind="response_params", data=bad_df, inplace=False)
+
+
+def test_mo_group_specific_shared_id_with_main(data_mo_gs):
+    """When (mo(x, id='s') | g) and mo(x, id='s') share id, only ONE simplex is built."""
+    model = bmb.Model(
+        "y ~ mo(income, id='s') + (mo(income, id='s') | g)", data_mo_gs
+    )
+    model.build()
+    named = list(model.backend.model.named_vars)
+    # ONE shared simplex
+    assert "simplex_s" in named
+    # No per-term simplex
+    assert "mo(income, id='s')_simplex" not in named
+    assert "mo(income, id='s')|g_simplex" not in named
+
+
 def test_mo_interaction_predict_new_data(data_mo_x):
     model = bmb.Model("y ~ mo(income) * x", data_mo_x)
     idata = model.fit(
