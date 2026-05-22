@@ -154,9 +154,7 @@ def test_predict_in_sample_and_new_data(data_ordered):
     assert mu.shape == (len(data_ordered),)
 
     # Out-of-sample: one row per level
-    new_df = pd.DataFrame(
-        {"income": pd.Categorical(LEVELS, categories=LEVELS, ordered=True)}
-    )
+    new_df = pd.DataFrame({"income": pd.Categorical(LEVELS, categories=LEVELS, ordered=True)})
     idata_new = model.predict(idata, kind="response_params", data=new_df, inplace=False)
     mu_new = idata_new.posterior["mu"].mean(("chain", "draw")).to_numpy()
     assert mu_new.shape == (4,)
@@ -190,11 +188,7 @@ def test_mo_combined_with_common_term():
     rng = np.random.default_rng(2026)
     income = pd.Categorical(rng.choice(LEVELS, 300), categories=LEVELS, ordered=True)
     x = rng.normal(size=300)
-    y = (
-        np.array([MEANS[i] for i in income])
-        + 4.0 * x
-        + rng.normal(0, 3, 300)
-    )
+    y = np.array([MEANS[i] for i in income]) + 4.0 * x + rng.normal(0, 3, 300)
     df = pd.DataFrame({"y": y, "income": income, "x": x})
 
     model = bmb.Model("y ~ x + mo(income)", df)
@@ -250,9 +244,7 @@ def data_two_ordered():
 
 
 def test_shared_id_creates_single_simplex(data_two_ordered):
-    model = bmb.Model(
-        "y ~ mo(income1, id='shape') + mo(income2, id='shape')", data_two_ordered
-    )
+    model = bmb.Model("y ~ mo(income1, id='shape') + mo(income2, id='shape')", data_two_ordered)
     model.build()
     named = list(model.backend.model.named_vars)
     # Exactly one shared Dirichlet
@@ -276,9 +268,7 @@ def test_shared_id_inconsistent_K_raises():
                 categories=["x", "y", "z"],
                 ordered=True,
             ),
-            "b": pd.Categorical(
-                rng.choice(LEVELS, n), categories=LEVELS, ordered=True
-            ),
+            "b": pd.Categorical(rng.choice(LEVELS, n), categories=LEVELS, ordered=True),
         }
     )
     with pytest.raises(ValueError, match="inconsistent K"):
@@ -315,12 +305,8 @@ def test_shared_id_conflicting_priors_raise(data_two_ordered):
 
 
 def test_shared_id_recovers_truth(data_two_ordered):
-    model = bmb.Model(
-        "y ~ mo(income1, id='shape') + mo(income2, id='shape')", data_two_ordered
-    )
-    idata = model.fit(
-        tune=600, draws=600, chains=2, random_seed=42, progressbar=False
-    )
+    model = bmb.Model("y ~ mo(income1, id='shape') + mo(income2, id='shape')", data_two_ordered)
+    idata = model.fit(tune=600, draws=600, chains=2, random_seed=42, progressbar=False)
     post = idata.posterior
     assert "simplex_shape" in post.data_vars
     # Posterior mean of simplex should be near [30,10,5]/45
@@ -339,9 +325,7 @@ def test_id_kwarg_validation():
     df = pd.DataFrame(
         {
             "y": rng.normal(size=50),
-            "x": pd.Categorical(
-                rng.choice(LEVELS, 50), categories=LEVELS, ordered=True
-            ),
+            "x": pd.Categorical(rng.choice(LEVELS, 50), categories=LEVELS, ordered=True),
         }
     )
     with pytest.raises(ValueError, match="'id'.*must be a string"):
@@ -369,19 +353,13 @@ def test_set_alias_fit_then_predict(data_ordered):
     """End-to-end: aliasing survives ``fit`` + ``predict`` on new data."""
     model = bmb.Model("y ~ mo(income)", data_ordered)
     model.set_alias({"mo(income)": "income_effect"})
-    idata = model.fit(
-        tune=400, draws=400, chains=2, random_seed=42, progressbar=False
-    )
+    idata = model.fit(tune=400, draws=400, chains=2, random_seed=42, progressbar=False)
     post = idata.posterior
     assert "income_effect_simplex" in post.data_vars
     assert "income_effect_slope" in post.data_vars
 
-    new_df = pd.DataFrame(
-        {"income": pd.Categorical(LEVELS, categories=LEVELS, ordered=True)}
-    )
-    idata_new = model.predict(
-        idata, kind="response_params", data=new_df, inplace=False
-    )
+    new_df = pd.DataFrame({"income": pd.Categorical(LEVELS, categories=LEVELS, ordered=True)})
+    idata_new = model.predict(idata, kind="response_params", data=new_df, inplace=False)
     mu_new = idata_new.posterior["mu"].mean(("chain", "draw")).to_numpy()
     assert mu_new.shape == (4,)
     assert np.all(np.diff(mu_new) > 0)  # monotonic increasing
@@ -412,9 +390,7 @@ def test_set_alias_on_group_specific(data_ordered):
     """``set_alias`` on a (mo(x) | g) term must rename the simplex variable,
     the simplex coord, AND the factor coord."""
     rng = np.random.default_rng(0)
-    df = data_ordered.assign(
-        g=pd.Categorical(rng.choice(["g1", "g2", "g3"], len(data_ordered)))
-    )
+    df = data_ordered.assign(g=pd.Categorical(rng.choice(["g1", "g2", "g3"], len(data_ordered))))
     model = bmb.Model("y ~ (mo(income) | g)", df)
     model.set_alias({"mo(income)|g": "income_by_group"})
     model.build()
@@ -491,9 +467,7 @@ def test_mo_continuous_interaction_build(data_mo_x):
 
 def test_mo_continuous_interaction_recovers_truth(data_mo_x):
     model = bmb.Model("y ~ mo(income) * x", data_mo_x)
-    idata = model.fit(
-        tune=600, draws=600, chains=2, random_seed=42, progressbar=False
-    )
+    idata = model.fit(tune=600, draws=600, chains=2, random_seed=42, progressbar=False)
     post = idata.posterior
     assert post["Intercept"].mean().item() == pytest.approx(5.0, abs=1.0)
     assert post["x"].mean().item() == pytest.approx(4.0, abs=0.5)
@@ -517,9 +491,7 @@ def test_mo_categorical_interaction_with_shared_id(data_mo_g):
 def test_mo_categorical_interaction_recovers_truth(data_mo_g):
     formula = "y ~ mo(income, id='inc') + mo(income, id='inc'):g"
     model = bmb.Model(formula, data_mo_g)
-    idata = model.fit(
-        tune=600, draws=600, chains=2, random_seed=42, progressbar=False
-    )
+    idata = model.fit(tune=600, draws=600, chains=2, random_seed=42, progressbar=False)
     post = idata.posterior
     assert post["Intercept"].mean().item() == pytest.approx(5.0, abs=1.0)
     simplex = post["simplex_inc"].mean(("chain", "draw")).to_numpy()
@@ -616,9 +588,7 @@ def test_mo_group_specific_predict_new_data(data_mo_gs):
             "g": pd.Categorical(np.repeat(g_levels, 4), categories=g_levels),
         }
     )
-    idata_new = model.predict(
-        idata, kind="response_params", data=new_df, inplace=False
-    )
+    idata_new = model.predict(idata, kind="response_params", data=new_df, inplace=False)
     mu_new = idata_new.posterior["mu"].mean(("chain", "draw")).to_numpy()
     assert mu_new.shape == (20,)
     # Monotonic within each group
@@ -629,14 +599,10 @@ def test_mo_group_specific_predict_new_data(data_mo_gs):
 
 def test_mo_group_specific_unseen_group_raises(data_mo_gs):
     model = bmb.Model("y ~ (mo(income) | g)", data_mo_gs)
-    idata = model.fit(
-        tune=200, draws=200, chains=2, random_seed=42, progressbar=False
-    )
+    idata = model.fit(tune=200, draws=200, chains=2, random_seed=42, progressbar=False)
     bad_df = pd.DataFrame(
         {
-            "income": pd.Categorical(
-                [LEVELS[0]] * 3, categories=LEVELS, ordered=True
-            ),
+            "income": pd.Categorical([LEVELS[0]] * 3, categories=LEVELS, ordered=True),
             "g": pd.Categorical(["unseen_g"] * 3),
         }
     )
@@ -646,9 +612,7 @@ def test_mo_group_specific_unseen_group_raises(data_mo_gs):
 
 def test_mo_group_specific_shared_id_with_main(data_mo_gs):
     """When (mo(x, id='s') | g) and mo(x, id='s') share id, only ONE simplex is built."""
-    model = bmb.Model(
-        "y ~ mo(income, id='s') + (mo(income, id='s') | g)", data_mo_gs
-    )
+    model = bmb.Model("y ~ mo(income, id='s') + (mo(income, id='s') | g)", data_mo_gs)
     model.build()
     named = list(model.backend.model.named_vars)
     # ONE shared simplex
@@ -660,18 +624,14 @@ def test_mo_group_specific_shared_id_with_main(data_mo_gs):
 
 def test_mo_interaction_predict_new_data(data_mo_x):
     model = bmb.Model("y ~ mo(income) * x", data_mo_x)
-    idata = model.fit(
-        tune=400, draws=400, chains=2, random_seed=42, progressbar=False
-    )
+    idata = model.fit(tune=400, draws=400, chains=2, random_seed=42, progressbar=False)
     new_df = pd.DataFrame(
         {
             "income": pd.Categorical(LEVELS, categories=LEVELS, ordered=True),
             "x": [0.0, 1.0, -1.0, 0.5],
         }
     )
-    idata_new = model.predict(
-        idata, kind="response_params", data=new_df, inplace=False
-    )
+    idata_new = model.predict(idata, kind="response_params", data=new_df, inplace=False)
     mu = idata_new.posterior["mu"].mean(("chain", "draw")).to_numpy()
     assert mu.shape == (4,)
     # Sanity: at x=0 with income=below_20 (code=0), mu = intercept ~ 5
