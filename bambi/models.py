@@ -1312,6 +1312,15 @@ def hsgp_repr(term) -> str:
     return "\n".join(output_list)
 
 
+def monotonic_repr(term) -> str:
+    """Get a string representation of a Bambi monotonic ``mo()`` term."""
+    if term.prior is None:
+        body = ["    (defaults set at build time)"]
+    else:
+        body = [f"    {key} ~ {value}" for key, value in term.prior.items()]
+    return "\n".join([term.name, *body])
+
+
 def make_priors_summary(component: DistributionalComponent) -> str:
     """Get a summary of terms and priors in a distributional component."""
     # Common effects
@@ -1330,11 +1339,21 @@ def make_priors_summary(component: DistributionalComponent) -> str:
     # HSGP
     hsgp = [hsgp_repr(term) for term in component.hsgp_terms.values()]
 
+    # Monotonic terms (mo(x), mo(x):z, (mo(x)|g))
+    monotonic = [monotonic_repr(term) for term in component.monotonic_terms.values()]
+    monotonic.extend(
+        monotonic_repr(term) for term in component.monotonic_interaction_terms.values()
+    )
+    monotonic.extend(
+        monotonic_repr(term) for term in component.monotonic_group_specific_terms.values()
+    )
+
     priors_dict = {
         "Common-level effects": priors_common,
         "Group-level effects": priors_group,
         "Offset effects": offsets,
         "HSGP contributions": hsgp,
+        "Monotonic effects": monotonic,
     }
 
     priors_list = []

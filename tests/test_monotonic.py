@@ -207,6 +207,18 @@ def test_mo_combined_with_common_term():
     assert "mo(income)_simplex" in posterior.data_vars
 
 
+def test_model_repr_shows_monotonic_section(data_ordered):
+    """``print(model)`` must include a 'Monotonic effects' section with the slope
+    and simplex priors."""
+    model = bmb.Model("y ~ mo(income)", data_ordered)
+    model.build()
+    text = str(model)
+    assert "Monotonic effects" in text
+    assert "mo(income)" in text
+    assert "simplex ~ Dirichlet" in text
+    assert "slope ~ Normal" in text
+
+
 def test_distributional_use_in_auxiliary_dpar(data_ordered):
     formula = bmb.Formula("y ~ 1", "sigma ~ mo(income)")
     model = bmb.Model(formula, data_ordered, family="gaussian")
