@@ -359,6 +359,102 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
         return output
 
 
+@register_stateful_transform
+class Monotonic:
+    """Stateful transform for monotonic effects ``mo(x)``.
+
+    Mirrors brms' ``mo()``: the user passes an ordered predictor (integer or ordered
+    categorical), and the linear predictor contribution becomes ``b * D * sum(zeta[1:x])``
+    where ``zeta`` is a length-``D`` simplex (``D = K - 1`` for ``K`` categories) and ``b``
+    is a scalar slope. See Bürkner & Charpentier (2020).
+
+    On the first call (during ``Model`` construction), this transform records the levels
+    of the predictor and returns an ``(n, 1)`` array of zero-indexed integer codes. On
+    subsequent calls (e.g. during ``evaluate_new_data`` for prediction) it re-encodes
+    the input against the stored levels and raises on unseen categories/values.
+    """
+
+    __transform_name__ = "mo"
+
+    def __init__(self):
+        self.levels = None
+        self.min_value = None
+        self.kind = None  # "ordered" or "integer"
+        self.K = None  # number of distinct categories
+        self.D = None  # K - 1 (length of the simplex)
+        self.params_set = False
+
+    def __call__(self, x, id=None):  # pylint: disable=redefined-builtin
+        # ``id`` is accepted for forward compatibility with brms' shared-simplex
+        # mechanism but is not used in this MVP.
+        del id
+
+        if isinstance(x, pd.Series):
+            values = x
+        else:
+            values = pd.Series(np.asarray(x))
+
+        if self.params_set:
+            codes = self._encode(values)
+        else:
+            codes = self._fit_and_encode(values)
+
+        return codes.reshape(-1, 1).astype("float64")
+
+    def _fit_and_encode(self, values):
+        dtype = values.dtype
+        if isinstance(dtype, pd.CategoricalDtype):
+            if not dtype.ordered:
+                raise ValueError(
+                    "'mo()' requires an ordered categorical predictor. "
+                    "Use 'pd.Categorical(..., ordered=True)' or pass an integer predictor."
+                )
+            self.kind = "ordered"
+            self.levels = np.asarray(dtype.categories)
+            codes = values.cat.codes.to_numpy()
+        elif pd.api.types.is_integer_dtype(values):
+            self.kind = "integer"
+            uniques = np.sort(values.dropna().unique())
+            self.min_value = int(uniques[0])
+            self.levels = uniques
+            codes = values.to_numpy() - self.min_value
+        else:
+            raise ValueError(
+                "'mo()' requires an integer or ordered categorical predictor; "
+                f"got dtype {dtype!r}."
+            )
+
+        if (codes < 0).any():
+            raise ValueError("'mo()' received negative or missing values in its predictor.")
+
+        self.K = int(len(self.levels))
+        if self.K < 2:
+            raise ValueError("'mo()' requires a predictor with at least 2 distinct values.")
+        self.D = self.K - 1
+        self.params_set = True
+        return codes.astype("int64")
+
+    def _encode(self, values):
+        if self.kind == "ordered":
+            recoded = pd.Categorical(values, categories=self.levels, ordered=True)
+            codes = recoded.codes
+            if (codes == -1).any():
+                bad = np.array(values)[codes == -1]
+                raise ValueError(
+                    f"'mo()' received unseen categories at prediction time: {sorted(set(bad))}"
+                )
+            return codes.astype("int64")
+        # integer kind
+        codes = values.to_numpy() - self.min_value
+        max_code = self.D
+        if (codes < 0).any() or (codes > max_code).any():
+            bad = values[(codes < 0) | (codes > max_code)].unique()
+            raise ValueError(
+                f"'mo()' received values outside the range seen at fit time: {sorted(bad)}"
+            )
+        return codes.astype("int64")
+
+
 def as_matrix(x):
     """Converts array to matrix
 

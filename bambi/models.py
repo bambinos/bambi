@@ -1084,12 +1084,19 @@ class Model:
         """
         means_dict = {}
         hsgp_dict = {}  # To store the HSGP contributions (they are added to the posterior dataset)
+        monotonic_dict = {}  # Same idea for mo() contributions
         response_dim = "__obs__"
 
         for name, component in self.distributional_components.items():
             var_name = component.alias if component.alias else name
             means_dict[var_name] = component.predict(
-                idata, data, include_group_specific, hsgp_dict, sample_new_groups, random_seed
+                idata,
+                data,
+                include_group_specific,
+                hsgp_dict,
+                sample_new_groups,
+                random_seed,
+                monotonic_dict=monotonic_dict,
             )
 
         # Build the updated posterior dataset from the DataTree child
@@ -1118,6 +1125,17 @@ class Model:
                     continue
                 term_aliased_name = get_aliased_name(term)
                 posterior[term_aliased_name] = hsgp_contribution.transpose("chain", "draw", ...)
+
+        # Add monotonic contributions to the posterior dataset
+        for component in self.distributional_components.values():
+            for name, monotonic_contribution in monotonic_dict.items():
+                term = component.monotonic_terms.get(name, None)
+                if term is None:
+                    continue
+                term_aliased_name = get_aliased_name(term)
+                posterior[term_aliased_name] = monotonic_contribution.transpose(
+                    "chain", "draw", ...
+                )
 
         idata["posterior"] = posterior
 

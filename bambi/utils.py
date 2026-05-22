@@ -7,7 +7,7 @@ import formulae as fm
 import numpy as np
 from xarray import DataTree
 
-from bambi.transformations import HSGP
+from bambi.transformations import HSGP, Monotonic
 
 
 def listify(obj):
@@ -158,6 +158,18 @@ def is_hsgp_term(term):
     if not is_stateful_transform(component):
         return False
     return isinstance(component.call.stateful_transform, HSGP)
+
+
+def is_monotonic_term(term):
+    """Determines if formulae term represents a monotonic ``mo()`` term."""
+    if not is_single_component(term):
+        return False
+    component = term.components[0]
+    if not is_call_component(component):
+        return False
+    if not is_stateful_transform(component):
+        return False
+    return isinstance(component.call.stateful_transform, Monotonic)
 
 
 def remove_common_intercept(dm: fm.matrices.DesignMatrices) -> fm.matrices.DesignMatrices:

@@ -477,6 +477,57 @@ class ResponseTerm:
         return kwargs
 
 
+class MonotonicTerm:
+    """A term that compiles to a monotonic ``mo()`` effect in PyMC.
+
+    The contribution to the linear predictor is ``slope * D * cumsum(simplex)[codes]``,
+    where ``simplex`` is a length-``D`` Dirichlet variable and ``slope`` is a scalar
+    Normal. This mirrors brms' ``mo()`` parameterization.
+
+    Parameters
+    ----------
+    term : bambi.terms.MonotonicTerm
+        The bambi-side monotonic term, carrying its priors and predictor codes.
+    """
+
+    def __init__(self, term):
+        self.term = term
+        self.coords = self.term.coords.copy()
+        if self.term.alias:
+            self.coords[f"{self.term.alias}_simplex_dim"] = self.coords.pop(
+                f"{self.term.name}_simplex_dim"
+            )
+
+    def build(self, spec):  # pylint: disable=unused-argument
+        label = self.name
+        D = self.term.D
+        codes = self.term.codes  # (n,) int64
+
+        simplex_prior = self.term.prior["simplex"]
+        slope_prior = self.term.prior["slope"]
+
+        simplex_dim = f"{label}_simplex_dim"
+        simplex = pm.Dirichlet(
+            f"{label}_simplex", a=simplex_prior.args["a"], dims=(simplex_dim,)
+        )
+        slope = pm.Normal(
+            f"{label}_b",
+            mu=slope_prior.args.get("mu", 0.0),
+            sigma=slope_prior.args.get("sigma", 1.0),
+        )
+
+        # Cumulative-sum trick: prepend a zero so that codes==0 yields 0 contribution.
+        cumsum = pt.concatenate([pt.zeros(1, dtype=simplex.dtype), pt.cumsum(simplex)])
+        contribution = slope * D * cumsum[codes]
+        return pm.Deterministic(label, contribution, dims=("__obs__",))
+
+    @property
+    def name(self):
+        if self.term.alias:
+            return self.term.alias
+        return self.term.name
+
+
 class HSGPTerm:
     """A term that is compiled to an HSGP term in PyMC
 

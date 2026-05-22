@@ -164,6 +164,22 @@ class PriorScaler:
                 sigma[i] = self.get_slope_sigma(value)
         term.prior.args["sigma"].update(sigma=np.squeeze(np.atleast_1d(sigma)))
 
+    def scale_monotonic(self, term):
+        """Scale the slope prior of a monotonic ``mo()`` term.
+
+        The contribution to the linear predictor is ``slope * D * cumsum(simplex)``
+        whose range is ``[0, slope * D]``. We pick a slope sigma so this range covers
+        roughly ``STD * response_std`` on the response scale — i.e. the same logic as
+        the slope scaling for a continuous predictor with std equal to ``D``.
+        """
+        slope_prior = term.prior.get("slope") if isinstance(term.prior, dict) else None
+        if slope_prior is None or slope_prior.name != "Normal":
+            return
+        if not getattr(slope_prior, "auto_scale", True):
+            return
+        sigma = self.STD * self.response_std / max(term.D, 1)
+        slope_prior.update(mu=0.0, sigma=float(sigma))
+
     def scale_threshold(self):
         if isinstance(self.model.family, Cumulative):
             threshold = self.model.components["threshold"]
@@ -191,6 +207,10 @@ class PriorScaler:
         for term in self.parent_component.common_terms.values():
             if hasattr(term.prior, "auto_scale") and term.prior.auto_scale:
                 self.scale_common(term)
+
+        # Scale monotonic mo() terms
+        for term in self.parent_component.monotonic_terms.values():
+            self.scale_monotonic(term)
 
         # Scale intercept
         if self.has_intercept:

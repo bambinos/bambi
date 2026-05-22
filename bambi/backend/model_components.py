@@ -4,7 +4,14 @@ import scipy as sp
 from pytensor import tensor as pt
 from pytensor import sparse as ps
 
-from bambi.backend.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, InterceptTerm, ResponseTerm
+from bambi.backend.terms import (
+    CommonTerm,
+    GroupSpecificTerm,
+    HSGPTerm,
+    InterceptTerm,
+    MonotonicTerm,
+    ResponseTerm,
+)
 from bambi.backend.utils import get_distribution_from_prior
 from bambi.config import config as bmb_config
 from bambi.families.multivariate import MultivariateFamily
@@ -57,6 +64,7 @@ class DistributionalComponent:
             self.build_offsets()
             self.build_common_terms(pymc_backend, bmb_model)
             self.build_hsgp_terms(bmb_model, pymc_backend)
+            self.build_monotonic_terms(bmb_model, pymc_backend)
             self.build_group_specific_terms(pymc_backend, bmb_model)
 
     def build_intercept(self, bmb_model):
@@ -124,6 +132,19 @@ class DistributionalComponent:
                 if name not in pymc_backend.model.coords:
                     pymc_backend.model.add_coords({name: values})
             self.output += hsgp_term.build(bmb_model)
+
+    def build_monotonic_terms(self, bmb_model, pymc_backend):
+        """Add monotonic ``mo()`` term contributions to the PyMC model.
+
+        Each monotonic term contributes ``slope * D * cumsum(simplex)[codes]`` to the
+        linear predictor.
+        """
+        for term in self.component.monotonic_terms.values():
+            monotonic_term = MonotonicTerm(term)
+            for name, values in monotonic_term.coords.items():
+                if name not in pymc_backend.model.coords:
+                    pymc_backend.model.add_coords({name: values})
+            self.output += monotonic_term.build(bmb_model)
 
     def build_group_specific_terms(self, pymc_backend, bmb_model):
         """Add group-specific (random or varying) terms to the PyMC model

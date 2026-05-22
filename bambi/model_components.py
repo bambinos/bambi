@@ -7,8 +7,15 @@ import xarray as xr
 from bambi.defaults import get_default_prior
 from bambi.families import univariate, multivariate
 from bambi.priors import Prior
-from bambi.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, OffsetTerm, ResponseTerm
-from bambi.utils import get_aliased_name, is_hsgp_term, as_dataset
+from bambi.terms import (
+    CommonTerm,
+    GroupSpecificTerm,
+    HSGPTerm,
+    MonotonicTerm,
+    OffsetTerm,
+    ResponseTerm,
+)
+from bambi.utils import get_aliased_name, is_hsgp_term, is_monotonic_term, as_dataset
 
 
 class ConstantComponent:
@@ -67,6 +74,7 @@ class DistributionalComponent:
         if self.design.common:
             self.add_common_terms(priors)
             self.add_hsgp_terms(priors)
+            self.add_monotonic_terms(priors)
 
         if self.design.group:
             self.add_group_specific_terms(priors)
@@ -74,6 +82,8 @@ class DistributionalComponent:
     def add_common_terms(self, priors):
         for name, term in self.design.common.terms.items():
             if is_hsgp_term(term):
+                continue
+            if is_monotonic_term(term):
                 continue
             prior = priors.pop(name, priors.get("common", None))
             if isinstance(prior, Prior):
@@ -100,6 +110,12 @@ class DistributionalComponent:
                 prior = priors.pop(name, None)
                 self.terms[name] = HSGPTerm(term, prior, self.prefix)
 
+    def add_monotonic_terms(self, priors):
+        for name, term in self.design.common.terms.items():
+            if is_monotonic_term(term):
+                prior = priors.pop(name, None)
+                self.terms[name] = MonotonicTerm(term, prior, self.prefix)
+
     def build_priors(self):
         for term in self.terms.values():
             if isinstance(term, GroupSpecificTerm):
@@ -111,6 +127,15 @@ class DistributionalComponent:
             elif isinstance(term, HSGPTerm):
                 if term.prior is None:
                     term.prior = get_default_prior("hsgp", cov_func=term.cov)
+                continue
+            elif isinstance(term, MonotonicTerm):
+                defaults = get_default_prior("monotonic", D=term.D)
+                user_prior = term.prior or {}
+                # Mark any user-supplied priors as already-final so the auto-scaler skips them.
+                for prior_obj in user_prior.values():
+                    if isinstance(prior_obj, Prior):
+                        prior_obj.auto_scale = False
+                term.prior = {**defaults, **user_prior}
                 continue
             else:
                 kind = "common"
@@ -135,6 +160,7 @@ class DistributionalComponent:
         hsgp_dict=None,
         sample_new_groups=False,
         random_seed=None,
+        monotonic_dict=None,
     ):
         linear_predictor = 0
         posterior = as_dataset(idata.posterior)
@@ -161,7 +187,13 @@ class DistributionalComponent:
 
         if self.design.common:
             linear_predictor += self.predict_common(
-                posterior, data, in_sample, to_stack_dims, design_matrix_dims, hsgp_dict
+                posterior,
+                data,
+                in_sample,
+                to_stack_dims,
+                design_matrix_dims,
+                hsgp_dict,
+                monotonic_dict,
             )
 
         if self.design.group and include_group_specific:
@@ -206,7 +238,14 @@ class DistributionalComponent:
         return response
 
     def predict_common(
-        self, posterior, data, in_sample, to_stack_dims, design_matrix_dims, hsgp_dict
+        self,
+        posterior,
+        data,
+        in_sample,
+        to_stack_dims,
+        design_matrix_dims,
+        hsgp_dict,
+        monotonic_dict=None,
     ):
         x_offsets = []
         linear_predictor = 0
@@ -274,11 +313,41 @@ class DistributionalComponent:
             # Add contribution to the linear predictor
             linear_predictor += hsgp_contribution
 
-        # Remove columns of X that are associated with HSGP contributions
+        # Add monotonic mo() contributions to the linear predictor
+        monotonic_slices = []
+        for term_name, term in self.monotonic_terms.items():
+            term_slice = self.design.common.slices[term_name]
+            codes = np.asarray(X[:, term_slice]).squeeze().astype("int64")
+            monotonic_slices.append(term_slice)
+
+            term_aliased_name = get_aliased_name(term)
+            simplex_dim = f"{term_aliased_name}_simplex_dim"
+            simplex = posterior[f"{term_aliased_name}_simplex"]
+            slope = posterior[f"{term_aliased_name}_b"]
+
+            # cumulative sum along the simplex dim, prepended with 0 so codes==0 -> 0
+            simplex_np = simplex.to_numpy()  # (chain, draw, D)
+            cumsum = np.cumsum(simplex_np, axis=-1)
+            zero = np.zeros(cumsum.shape[:-1] + (1,))
+            cumsum = np.concatenate([zero, cumsum], axis=-1)  # (chain, draw, D+1)
+
+            # Gather along the simplex axis with the observation codes
+            contribution_np = term.D * np.take(cumsum, codes, axis=-1)
+            contribution = xr.DataArray(
+                contribution_np,
+                dims=("chain", "draw", response_dim),
+            )
+            mo_contribution = slope * contribution
+            if monotonic_dict is not None:
+                monotonic_dict[term_name] = mo_contribution
+            linear_predictor += mo_contribution
+
+        # Remove columns of X that are associated with HSGP or monotonic contributions.
         # All the slices _must be_ deleted at the same time. Otherwise the slice objects don't
         # reflect the right columns of X at the time they're used
-        if hsgp_slices:
-            X = np.delete(X, np.r_[tuple(hsgp_slices)], axis=1)
+        drop_slices = hsgp_slices + monotonic_slices
+        if drop_slices:
+            X = np.delete(X, np.r_[tuple(drop_slices)], axis=1)
 
         if self.common_terms or self.intercept_term:
             # Create DataArray
@@ -535,6 +604,11 @@ class DistributionalComponent:
     def hsgp_terms(self):
         """Return dict of all HSGP terms in model."""
         return {k: v for (k, v) in self.terms.items() if isinstance(v, HSGPTerm)}
+
+    @property
+    def monotonic_terms(self):
+        """Return dict of all monotonic mo() terms in model."""
+        return {k: v for (k, v) in self.terms.items() if isinstance(v, MonotonicTerm)}
 
 
 class ResponseComponent:

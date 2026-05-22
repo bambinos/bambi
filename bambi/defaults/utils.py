@@ -1,5 +1,6 @@
 from bambi.defaults.distributions import SETTINGS_DISTRIBUTIONS
 from bambi.defaults.hsgp import HSGP_COV_PARAMS_DEFAULT_PRIORS
+from bambi.defaults.monotonic import generate_prior_monotonic
 
 from bambi.families import Likelihood
 from bambi.priors import Prior
@@ -103,6 +104,8 @@ def get_default_prior(term_type, **kwargs):
         prior = generate_prior("Normal", sigma="HalfFlat")
     elif term_type == "hsgp":
         prior = generate_prior_hsgp(kwargs["cov_func"])
+    elif term_type == "monotonic":
+        prior = generate_prior_monotonic(kwargs["D"])
     else:
         raise ValueError("Unrecognized term type.")
     return prior
