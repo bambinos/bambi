@@ -1,5 +1,7 @@
 """Default prior configuration for monotonic ``mo()`` terms."""
 
+# pylint: disable = invalid-name
+
 import numpy as np
 
 from bambi.priors.prior import Prior

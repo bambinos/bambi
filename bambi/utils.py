@@ -160,7 +160,7 @@ def is_hsgp_term(term):
     return isinstance(component.call.stateful_transform, HSGP)
 
 
-def is_monotonic_component(component):
+def is_monotonic_component(component) -> bool:
     """Whether a formulae component is a Monotonic stateful-transform call."""
     if not is_call_component(component):
         return False
@@ -169,16 +169,17 @@ def is_monotonic_component(component):
     return isinstance(component.call.stateful_transform, Monotonic)
 
 
-def is_monotonic_term(term):
-    """Determines if formulae term represents a single-component monotonic ``mo()`` term."""
+def is_monotonic_term(term) -> bool:
+    """Determine if a formulae term represents a single-component ``mo(x)`` term."""
     if not is_single_component(term):
         return False
     return is_monotonic_component(term.components[0])
 
 
-def is_monotonic_interaction_term(term):
-    """Determines if formulae term is an interaction that contains at least one
-    monotonic ``mo()`` component, e.g. ``mo(x):z`` or ``mo(x):mo(y)``.
+def is_monotonic_interaction_term(term) -> bool:
+    """Determine if a formulae term is an interaction containing at least one ``mo()``.
+
+    Examples that match: ``mo(x):z``, ``mo(x):g``, ``mo(x):mo(y)``.
     """
     if not hasattr(term, "components") or len(term.components) < 2:
         return False
@@ -187,10 +188,11 @@ def is_monotonic_interaction_term(term):
     return any(is_monotonic_component(c) for c in term.components)
 
 
-def is_monotonic_group_specific_term(term):
-    """Determines if a formulae group-specific term is ``(mo(x) | g)``.
+def is_monotonic_group_specific_term(term) -> bool:
+    """Determine if a formulae group-specific term is ``(mo(x) | g)``.
 
-    The term must have an ``.expr`` consisting of a single Monotonic call component.
+    The term must have an ``.expr`` consisting of a single ``Monotonic`` call
+    component.
     """
     if not (hasattr(term, "expr") and hasattr(term, "factor")):
         return False

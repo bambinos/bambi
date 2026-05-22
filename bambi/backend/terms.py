@@ -492,20 +492,17 @@ class MonotonicTerm:
 
     def __init__(self, term, simplex_registry=None):
         self.term = term
+        # ``self.term.coords`` already honors the term's alias (the front-end
+        # ``simplex_dim`` property does), so just copy.
         self.coords = self.term.coords.copy()
         # ``simplex_registry`` maps shared-id strings to already-built Dirichlet
         # tensors so multiple terms with the same id reuse one simplex. ``None``
         # means each term builds its own.
         self.simplex_registry = simplex_registry if simplex_registry is not None else {}
-        # Aliases on the term retarget the per-term simplex_dim, not the shared one.
-        if self.term.alias and self.term.id is None:
-            self.coords[f"{self.term.alias}_simplex_dim"] = self.coords.pop(
-                self.term.simplex_dim
-            )
 
-    def build(self, spec):  # pylint: disable=unused-argument
+    def build(self, spec):  # pylint: disable=unused-argument,invalid-name
         label = self.name
-        D = self.term.D
+        D = self.term.D  # pylint: disable=invalid-name
         codes = self.term.codes  # (n,) int64
 
         simplex_prior = self.term.prior["simplex"]
@@ -518,9 +515,7 @@ class MonotonicTerm:
         if self.term.id is not None and self.term.id in self.simplex_registry:
             simplex = self.simplex_registry[self.term.id]
         else:
-            simplex = pm.Dirichlet(
-                simplex_name, a=simplex_prior.args["a"], dims=(simplex_dim,)
-            )
+            simplex = pm.Dirichlet(simplex_name, a=simplex_prior.args["a"], dims=(simplex_dim,))
             if self.term.id is not None:
                 self.simplex_registry[self.term.id] = simplex
 
@@ -587,14 +582,15 @@ class MonotonicInteractionTerm:
                 coords[f"{self.name}_simplex_{mc['idx']}_dim"] = np.asarray(mc["levels"][1:])
         return coords
 
-    def build(self, spec):  # pylint: disable=unused-argument
+    def build(self, spec):  # pylint: disable=unused-argument,invalid-name
         label = self.name
 
-        # Build per-component partial-sum factor mono_factor[i] = prod_m D_m * cumsum(simp_m)[codes_m[i]]
+        # Build per-component partial-sum factor:
+        # mono_factor[i] = prod_m D_m * cumsum(simp_m)[codes_m[i]]
         mono_factor = None
         for mc in self.term.mono_components:
             codes = mc["codes"]
-            D = mc["D"]
+            D = mc["D"]  # pylint: disable=invalid-name
             tx_id = mc["id"]
             if tx_id is not None:
                 simplex_name = f"simplex_{tx_id}"
@@ -607,9 +603,7 @@ class MonotonicInteractionTerm:
                 simplex = self.simplex_registry[tx_id]
             else:
                 # Default Dirichlet(1, ..., 1)
-                simplex = pm.Dirichlet(
-                    simplex_name, a=np.ones(D), dims=(simplex_dim,)
-                )
+                simplex = pm.Dirichlet(simplex_name, a=np.ones(D), dims=(simplex_dim,))
                 if tx_id is not None:
                     self.simplex_registry[tx_id] = simplex
             cumsum = pt.concatenate([pt.zeros(1, dtype=simplex.dtype), pt.cumsum(simplex)])
@@ -627,9 +621,7 @@ class MonotonicInteractionTerm:
             other_dot = self.other_factor[:, 0]  # (n,)
             contribution = mono_factor * other_dot * slope
         else:
-            slope = pm.Normal(
-                f"{label}_b", dims=(f"{label}_b_dim",), **slope_kwargs
-            )
+            slope = pm.Normal(f"{label}_b", dims=(f"{label}_b_dim",), **slope_kwargs)
             # sum_k slope[k] * other_factor[i, k] = other_factor @ slope
             other_dot = pt.as_tensor(self.other_factor) @ slope  # (n,)
             contribution = mono_factor * other_dot
@@ -665,9 +657,9 @@ class MonotonicGroupSpecificTerm:
         coords[self.term.simplex_dim] = np.asarray(self.term.mo_levels[1:])
         return coords
 
-    def build(self, spec):  # pylint: disable=unused-argument
+    def build(self, spec):  # pylint: disable=unused-argument,invalid-name
         label = self.name
-        D = self.term.D
+        D = self.term.D  # pylint: disable=invalid-name
         codes = self.term.codes
         group_index = self.term.group_index
 
@@ -679,9 +671,7 @@ class MonotonicGroupSpecificTerm:
         if tx_id is not None and tx_id in self.simplex_registry:
             simplex = self.simplex_registry[tx_id]
         else:
-            simplex = pm.Dirichlet(
-                simplex_name, a=simplex_prior.args["a"], dims=(simplex_dim,)
-            )
+            simplex = pm.Dirichlet(simplex_name, a=simplex_prior.args["a"], dims=(simplex_dim,))
             if tx_id is not None:
                 self.simplex_registry[tx_id] = simplex
 

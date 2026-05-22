@@ -2,6 +2,8 @@ import sparse
 
 import formulae as fm
 import numpy as np
+import pandas as pd
+import scipy.sparse as sp_sparse
 import xarray as xr
 
 from bambi.defaults import get_default_prior
@@ -148,11 +150,12 @@ class DistributionalComponent:
             if isinstance(term, MonotonicTerm) and term.id is not None:
                 groups.setdefault(term.id, []).append((name, term))
         for id_name, members in groups.items():
-            Ks = {t.K for _, t in members}
-            if len(Ks) > 1:
+            k_values = {t.K for _, t in members}
+            if len(k_values) > 1:
                 raise ValueError(
-                    f"mo() terms sharing id={id_name!r} have inconsistent K values: {Ks}. "
-                    "All terms in a shared-simplex group must have the same number of levels."
+                    f"mo() terms sharing id={id_name!r} have inconsistent K values: "
+                    f"{k_values}. All terms in a shared-simplex group must have the "
+                    "same number of levels."
                 )
 
     def build_priors(self):
@@ -201,16 +204,16 @@ class DistributionalComponent:
         # Unify simplex priors across shared-id groups: if any member has a
         # user-supplied simplex prior, apply it to the whole group; raise on conflicts.
         groups = {}
-        for name, term in self.terms.items():
+        for term in self.terms.values():
             if isinstance(term, MonotonicTerm) and term.id is not None:
                 groups.setdefault(term.id, []).append(term)
         for id_name, members in groups.items():
-            D = members[0].D
+            simplex_len = members[0].D
             user_simplex_priors = [
                 t.prior["simplex"]
                 for t in members
-                if t.prior["simplex"].args["a"].shape != (D,)
-                or not np.array_equal(t.prior["simplex"].args["a"], np.ones(D))
+                if t.prior["simplex"].args["a"].shape != (simplex_len,)
+                or not np.array_equal(t.prior["simplex"].args["a"], np.ones(simplex_len))
             ]
             if not user_simplex_priors:
                 continue
@@ -468,9 +471,7 @@ class DistributionalComponent:
                 else:
                     # Standalone (no id) simplex inside an interaction. The interaction
                     # builder names it after the interaction term + component index.
-                    simplex_var = posterior[
-                        f"{term_aliased_name}_simplex_{mc['idx']}"
-                    ]
+                    simplex_var = posterior[f"{term_aliased_name}_simplex_{mc['idx']}"]
                 simplex_np = simplex_var.to_numpy()  # (chain, draw, D)
                 cumsum = np.cumsum(simplex_np, axis=-1)
                 zero = np.zeros(cumsum.shape[:-1] + (1,))
@@ -523,8 +524,6 @@ class DistributionalComponent:
 
     def predict_monotonic_group_specific(self, posterior, data, in_sample, monotonic_dict):
         """Contribution of all ``(mo(x) | g)`` terms for in-sample or new data."""
-        import pandas as pd  # local import to keep this method self-contained
-
         linear_predictor = 0
         response_dim = "__obs__"
         for term_name, term in self.monotonic_group_specific_terms.items():
@@ -543,8 +542,7 @@ class DistributionalComponent:
                 if (np.asarray(recoded.codes) == -1).any():
                     bad = pd.Series(data[factor_name])[recoded.codes == -1].unique()
                     raise ValueError(
-                        f"'(mo(x) | g)' got unseen groups for '{factor_name}': "
-                        f"{sorted(bad)}"
+                        f"'(mo(x) | g)' got unseen groups for '{factor_name}': " f"{sorted(bad)}"
                     )
                 group_index = np.asarray(recoded.codes).astype("int64")
 
@@ -560,9 +558,7 @@ class DistributionalComponent:
             r_g_obs = np.take(r_g_np, group_index, axis=-1)  # (chain, draw, n)
 
             contribution_np = partial * r_g_obs
-            contribution = xr.DataArray(
-                contribution_np, dims=("chain", "draw", response_dim)
-            )
+            contribution = xr.DataArray(contribution_np, dims=("chain", "draw", response_dim))
             linear_predictor += contribution
             if monotonic_dict is not None:
                 monotonic_dict[term_name] = contribution
@@ -658,8 +654,7 @@ class DistributionalComponent:
         if mono_gs_slices:
             Z = Z.toarray() if hasattr(Z, "toarray") else np.asarray(Z)
             Z = np.delete(Z, np.r_[tuple(mono_gs_slices)], axis=1)
-            import scipy.sparse as _sp  # local
-            Z = _sp.csr_matrix(Z)
+            Z = sp_sparse.csr_matrix(Z)
 
         # NOTE: xarray supports sparse matrices from the 'sparse' package, not from SciPy.
         Z = xr.DataArray(sparse.COO.from_scipy_sparse(Z), dims=design_matrix_dims)
@@ -812,11 +807,7 @@ class DistributionalComponent:
     @property
     def monotonic_group_specific_terms(self):
         """Return dict of all group-specific monotonic ``(mo(x)|g)`` terms."""
-        return {
-            k: v
-            for (k, v) in self.terms.items()
-            if isinstance(v, MonotonicGroupSpecificTerm)
-        }
+        return {k: v for (k, v) in self.terms.items() if isinstance(v, MonotonicGroupSpecificTerm)}
 
     @property
     def offset_terms(self):
@@ -836,9 +827,7 @@ class DistributionalComponent:
     @property
     def monotonic_interaction_terms(self):
         """Return dict of all monotonic-interaction terms in model."""
-        return {
-            k: v for (k, v) in self.terms.items() if isinstance(v, MonotonicInteractionTerm)
-        }
+        return {k: v for (k, v) in self.terms.items() if isinstance(v, MonotonicInteractionTerm)}
 
 
 class ResponseComponent:

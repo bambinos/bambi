@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 
@@ -361,31 +363,125 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
 
 @register_stateful_transform
 class Monotonic:
-    """Stateful transform for monotonic effects ``mo(x)``.
+    """Stateful transform for monotonic effects, ``mo(x)``.
 
-    Mirrors brms' ``mo()``: the user passes an ordered predictor (integer or ordered
-    categorical), and the linear predictor contribution becomes ``b * D * sum(zeta[1:x])``
-    where ``zeta`` is a length-``D`` simplex (``D = K - 1`` for ``K`` categories) and ``b``
-    is a scalar slope. See Bürkner & Charpentier (2020).
+    Mirrors brms' ``mo()`` term. The predictor ``x`` must be an integer or ordered
+    categorical with ``K`` distinct values. The contribution to the linear predictor is
 
-    On the first call (during ``Model`` construction), this transform records the levels
-    of the predictor and returns an ``(n, 1)`` array of zero-indexed integer codes. On
-    subsequent calls (e.g. during ``evaluate_new_data`` for prediction) it re-encodes
-    the input against the stored levels and raises on unseen categories/values.
+    .. math::
+
+        b \\cdot D \\cdot \\sum_{i=1}^{x_n} \\zeta_i
+
+    where ``b`` is a scalar slope, ``\\zeta`` is a length-``D`` simplex
+    (``D = K - 1``) representing the relative size of each "step" between adjacent
+    levels, and ``D`` rescales the cumulative sum so the contribution at the highest
+    level equals ``b``. The simplex carries a Dirichlet prior; by default
+    ``\\zeta \\sim \\text{Dirichlet}(1, \\ldots, 1)``.
+
+    On the first call (during ``Model`` construction), this transform records the
+    distinct levels of the predictor and returns an ``(n, 1)`` array of zero-indexed
+    integer codes. On subsequent calls — e.g. when ``Model.predict`` evaluates the
+    design on new data — it re-encodes the input against the stored levels and raises
+    a ``ValueError`` on unseen categories or out-of-range integers.
+
+    Attributes
+    ----------
+    levels : numpy.ndarray or None
+        Distinct levels of the predictor, in ascending order. ``None`` until the
+        first call.
+    K : int or None
+        Number of distinct levels (set on the first call).
+    D : int or None
+        Length of the simplex, ``K - 1`` (set on the first call).
+    kind : str or None
+        Either ``"ordered"`` (for ``pd.Categorical(ordered=True)`` predictors) or
+        ``"integer"`` (for integer-dtype predictors).
+    id : str or None
+        Optional shared-simplex group identifier; multiple ``mo()`` terms tagged
+        with the same ``id=`` share a single Dirichlet variable when the model is
+        built. See Bürkner & Charpentier (2020) for the "conditional monotonicity"
+        motivation.
+    min_value : int or None
+        For integer predictors, the value mapped to code ``0``. ``None`` for
+        ordered-categorical predictors.
+
+    See Also
+    --------
+    bambi.terms.MonotonicTerm : standalone ``mo(x)`` main-effect term.
+    bambi.terms.MonotonicInteractionTerm : ``mo(x):z`` interaction term.
+    bambi.terms.MonotonicGroupSpecificTerm : ``(mo(x) | g)`` group-specific term.
+
+    References
+    ----------
+    Bürkner, P.-C., & Charpentier, E. (2020). Modelling monotonic effects of
+    ordinal predictors in Bayesian regression models. *British Journal of
+    Mathematical and Statistical Psychology*, 73(3), 420-451.
+    https://doi.org/10.1111/bmsp.12195
+
+    Examples
+    --------
+    Fit a model with a monotonic effect of an ordered categorical predictor:
+
+    >>> import bambi as bmb
+    >>> import pandas as pd, numpy as np
+    >>> rng = np.random.default_rng(0)
+    >>> levels = ["low", "mid", "high"]
+    >>> df = pd.DataFrame({
+    ...     "y": rng.normal(size=60),
+    ...     "income": pd.Categorical(rng.choice(levels, 60),
+    ...                              categories=levels, ordered=True),
+    ... })
+    >>> model = bmb.Model("y ~ mo(income)", df)
+
+    Share a single simplex across two ``mo()`` terms via ``id=``:
+
+    >>> bmb.Model(
+    ...     "y ~ mo(income, id='shape') + mo(income, id='shape'):x",
+    ...     df.assign(x=rng.normal(size=60)),
+    ... )                                                           # doctest: +SKIP
     """
 
     __transform_name__ = "mo"
 
     def __init__(self):
-        self.levels = None
-        self.min_value = None
-        self.kind = None  # "ordered" or "integer"
-        self.K = None  # number of distinct categories
-        self.D = None  # K - 1 (length of the simplex)
-        self.id = None  # optional shared-simplex group id (brms-style)
-        self.params_set = False
+        self.levels: Optional[np.ndarray] = None
+        self.min_value: Optional[int] = None
+        self.kind: Optional[str] = None
+        self.K: Optional[int] = None
+        self.D: Optional[int] = None
+        self.id: Optional[str] = None
+        self.params_set: bool = False
 
-    def __call__(self, x, id=None):  # pylint: disable=redefined-builtin
+    def __call__(
+        self, x, id: Optional[str] = None
+    ) -> np.ndarray:  # pylint: disable=redefined-builtin
+        """Evaluate the monotonic transform on a predictor.
+
+        Parameters
+        ----------
+        x : array-like
+            The predictor. Must be either an integer array/Series, or a
+            ``pandas.Categorical`` with ``ordered=True``.
+        id : str, optional
+            If provided, this ``mo()`` instance joins the shared-simplex group
+            named ``id``. All ``mo()`` terms sharing an id reuse a single
+            Dirichlet variable in the fitted model (see brms's "conditional
+            monotonicity" mechanism).
+
+        Returns
+        -------
+        numpy.ndarray
+            Float-64 array of shape ``(n, 1)`` containing zero-indexed integer
+            codes (as floats, to satisfy ``formulae``'s expected output dtype).
+
+        Raises
+        ------
+        ValueError
+            If ``id`` is given but isn't a string, or if ``x`` is not an integer
+            or ordered-categorical predictor, or if the predictor has fewer than
+            two distinct values, or — on subsequent calls (new data) — if ``x``
+            contains an unseen category or an out-of-range integer.
+        """
         if id is not None and not isinstance(id, str):
             raise ValueError("'id' for mo() must be a string or None.")
         # Record the id only on the first call (it stays stable across re-evals).

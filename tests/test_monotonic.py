@@ -336,6 +336,45 @@ def test_id_kwarg_validation():
         bmb.Model("y ~ mo(x, id=1)", df)
 
 
+def test_set_alias_renames_simplex_and_slope(data_ordered):
+    """``set_alias`` must propagate to the simplex and slope variable names."""
+    model = bmb.Model("y ~ mo(income)", data_ordered)
+    model.set_alias({"mo(income)": "income_effect"})
+    model.build()
+    named = list(model.backend.model.named_vars)
+    # Aliased names appear
+    assert "income_effect_simplex" in named
+    assert "income_effect_b" in named
+    assert "income_effect" in named  # the Deterministic for the contribution
+    # The original (un-aliased) names should NOT be present
+    assert "mo(income)_simplex" not in named
+    assert "mo(income)_b" not in named
+    # And the coord dim is aliased too
+    assert "income_effect_simplex_dim" in model.backend.model.coords
+
+
+def test_set_alias_fit_then_predict(data_ordered):
+    """End-to-end: aliasing survives ``fit`` + ``predict`` on new data."""
+    model = bmb.Model("y ~ mo(income)", data_ordered)
+    model.set_alias({"mo(income)": "income_effect"})
+    idata = model.fit(
+        tune=400, draws=400, chains=2, random_seed=42, progressbar=False
+    )
+    post = idata.posterior
+    assert "income_effect_simplex" in post.data_vars
+    assert "income_effect_b" in post.data_vars
+
+    new_df = pd.DataFrame(
+        {"income": pd.Categorical(LEVELS, categories=LEVELS, ordered=True)}
+    )
+    idata_new = model.predict(
+        idata, kind="response_params", data=new_df, inplace=False
+    )
+    mu_new = idata_new.posterior["mu"].mean(("chain", "draw")).to_numpy()
+    assert mu_new.shape == (4,)
+    assert np.all(np.diff(mu_new) > 0)  # monotonic increasing
+
+
 def test_unshared_id_is_independent_per_term(data_ordered):
     """No id= means each term gets its own simplex (existing behavior)."""
     model = bmb.Model("y ~ mo(income)", data_ordered)

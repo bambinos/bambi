@@ -12,6 +12,7 @@ from bambi.terms._monotonic_helpers import (
 )
 
 
+# pylint: disable = invalid-name
 class MonotonicTerm(BaseTerm):
     """Representation of a monotonic-effect term as in ``brms::mo()``.
 
@@ -45,7 +46,10 @@ class MonotonicTerm(BaseTerm):
 
     @term.setter
     def term(self, value):
-        assert isinstance(value, formulae.terms.terms.Term)
+        if not isinstance(value, formulae.terms.terms.Term):
+            raise TypeError(
+                f"'MonotonicTerm.term' must be a formulae Term, got {type(value).__name__}."
+            )
         self._term = value
 
     @property
@@ -54,9 +58,7 @@ class MonotonicTerm(BaseTerm):
 
     @prior.setter
     def prior(self, value):
-        self._prior = validate_prior_dict(
-            value, self._ALLOWED_PRIOR_KEYS, self._PRIOR_KIND_LABEL
-        )
+        self._prior = validate_prior_dict(value, self._ALLOWED_PRIOR_KEYS, self._PRIOR_KIND_LABEL)
 
     @property
     def data(self):
@@ -109,16 +111,26 @@ class MonotonicTerm(BaseTerm):
 
     @property
     def simplex_name(self):
-        name, _dim = simplex_names(self.id, self.name)
-        return name
+        """PyMC variable name for the simplex.
+
+        For shared-id terms this is ``simplex_<id>`` (the id is the user's
+        chosen identifier and is not affected by aliases). For un-shared terms
+        it honors ``self.alias`` if set so that ``set_alias`` propagates to the
+        simplex variable in the posterior.
+        """
+        name_to_use = self.alias if self.alias else self.name
+        sname, _dim = simplex_names(self.id, name_to_use)
+        return sname
 
     @property
     def simplex_dim(self):
-        _name, dim = simplex_names(self.id, self.name)
-        return dim
+        """Coord name for the simplex elements (honors ``self.alias``)."""
+        name_to_use = self.alias if self.alias else self.name
+        _name, sdim = simplex_names(self.id, name_to_use)
+        return sdim
 
     @property
     def coords(self):
-        # One coord for the simplex elements. Each element is the "step" from one
-        # category to the next, so we label by destination level.
+        # One coord for the simplex elements. Each element is the "step" from
+        # one category to the next, so we label by destination level.
         return {self.simplex_dim: np.asarray(self.levels[1:])}

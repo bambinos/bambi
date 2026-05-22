@@ -10,7 +10,6 @@ import numpy as np
 
 from bambi.priors.prior import Prior
 
-
 VALID_MONOTONIC_PRIOR_VALUES = (Prior, int, float, np.ndarray, type(None))
 
 
@@ -38,9 +37,7 @@ def extract_component_info(call_component, idx: int = 0) -> dict:
     }
 
 
-def validate_prior_dict(
-    value, allowed_keys: Iterable[str], kind_label: str
-) -> Optional[dict]:
+def validate_prior_dict(value, allowed_keys: Iterable[str], kind_label: str) -> Optional[dict]:
     """Validate a user-supplied prior dict for a monotonic term.
 
     Returns ``None`` if the input is ``None``; otherwise returns the dict
@@ -70,10 +67,13 @@ def validate_prior_dict(
             f"Unknown keys in {kind_label} prior dict: {sorted(unknown)}. "
             f"Allowed keys: {sorted(allowed)}."
         )
-    for v in value.values():
-        assert isinstance(
-            v, VALID_MONOTONIC_PRIOR_VALUES
-        ), f"Prior values must be one of {VALID_MONOTONIC_PRIOR_VALUES}"
+    for key, v in value.items():
+        if not isinstance(v, VALID_MONOTONIC_PRIOR_VALUES):
+            allowed = ", ".join(t.__name__ for t in VALID_MONOTONIC_PRIOR_VALUES if t is not None)
+            raise TypeError(
+                f"Prior for '{key}' in {kind_label} must be one of ({allowed}, None); "
+                f"got {type(v).__name__}."
+            )
     return value
 
 

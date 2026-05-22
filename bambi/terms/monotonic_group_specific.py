@@ -12,6 +12,7 @@ from bambi.terms._monotonic_helpers import (
 )
 
 
+# pylint: disable = invalid-name
 class MonotonicGroupSpecificTerm(BaseTerm):
     """Group-specific monotonic effect, ``(mo(x) | g)``.
 
@@ -57,7 +58,11 @@ class MonotonicGroupSpecificTerm(BaseTerm):
 
     @term.setter
     def term(self, value):
-        assert isinstance(value, formulae.terms.terms.GroupSpecificTerm)
+        if not isinstance(value, formulae.terms.terms.GroupSpecificTerm):
+            raise TypeError(
+                "'MonotonicGroupSpecificTerm.term' must be a formulae "
+                f"GroupSpecificTerm, got {type(value).__name__}."
+            )
         self._term = value
 
     @property
@@ -66,9 +71,7 @@ class MonotonicGroupSpecificTerm(BaseTerm):
 
     @prior.setter
     def prior(self, value):
-        self._prior = validate_prior_dict(
-            value, self._ALLOWED_PRIOR_KEYS, self._PRIOR_KIND_LABEL
-        )
+        self._prior = validate_prior_dict(value, self._ALLOWED_PRIOR_KEYS, self._PRIOR_KIND_LABEL)
 
     @property
     def data(self):

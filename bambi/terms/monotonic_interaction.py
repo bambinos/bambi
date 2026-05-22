@@ -14,6 +14,7 @@ from bambi.terms._monotonic_helpers import (
 from bambi.utils import is_monotonic_component
 
 
+# pylint: disable = invalid-name
 class MonotonicInteractionTerm(BaseTerm):
     """An interaction term containing at least one ``mo()`` component.
 
@@ -55,9 +56,7 @@ class MonotonicInteractionTerm(BaseTerm):
             if is_monotonic_component(comp)
         ]
         if not self._mono:
-            raise AssertionError(
-                "MonotonicInteractionTerm built with no mo() components"
-            )
+            raise AssertionError("MonotonicInteractionTerm built with no mo() components")
 
     @property
     def term(self):
@@ -65,7 +64,11 @@ class MonotonicInteractionTerm(BaseTerm):
 
     @term.setter
     def term(self, value):
-        assert isinstance(value, formulae.terms.terms.Term)
+        if not isinstance(value, formulae.terms.terms.Term):
+            raise TypeError(
+                "'MonotonicInteractionTerm.term' must be a formulae Term, "
+                f"got {type(value).__name__}."
+            )
         self._term = value
 
     @property
@@ -74,9 +77,7 @@ class MonotonicInteractionTerm(BaseTerm):
 
     @prior.setter
     def prior(self, value):
-        self._prior = validate_prior_dict(
-            value, self._ALLOWED_PRIOR_KEYS, self._PRIOR_KIND_LABEL
-        )
+        self._prior = validate_prior_dict(value, self._ALLOWED_PRIOR_KEYS, self._PRIOR_KIND_LABEL)
 
     @property
     def data(self):

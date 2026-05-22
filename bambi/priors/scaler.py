@@ -167,10 +167,36 @@ class PriorScaler:
     def scale_monotonic(self, term):
         """Scale the slope prior of a monotonic ``mo()`` term.
 
-        The contribution to the linear predictor is ``slope * D * cumsum(simplex)``
-        whose range is ``[0, slope * D]``. We pick a slope sigma so this range covers
-        roughly ``STD * response_std`` on the response scale — i.e. the same logic as
-        the slope scaling for a continuous predictor with std equal to ``D``.
+        Parameters
+        ----------
+        term : bambi.terms.MonotonicTerm
+            The monotonic term whose slope prior should be auto-scaled.
+
+        Notes
+        -----
+        The monotonic contribution to the linear predictor is
+        ``slope * D * cumsum(simplex)[codes]``, whose range across observations
+        is ``[0, slope * D]`` (since ``cumsum(simplex)`` runs from 0 at code 0
+        to 1 at the top code, and ``D`` scales it back to ``[0, slope * D]``).
+
+        This mirrors the slope-scaling formula bambi already uses for
+        continuous predictors,
+        ``sigma = STD * sd(y) / sd(x)``. The "effective" predictor here is the
+        cumulative-sum factor ``D * cumsum(simplex)``, which by construction has
+        range ``[0, D]``; we use ``D`` in the denominator as a proxy for that
+        spread. The result is a slope prior wide enough that the full
+        contribution can span roughly ``STD * sd(y)`` on the response scale
+        without overwhelming the data, matching the looseness of the
+        continuous-slope default.
+
+        Auto-scaling is skipped when the user supplies a non-Normal slope prior
+        or has explicitly set ``auto_scale=False``.
+
+        References
+        ----------
+        Bürkner, P.-C., & Charpentier, E. (2020). Modelling monotonic effects of
+        ordinal predictors in Bayesian regression models. *British Journal of
+        Mathematical and Statistical Psychology*, 73(3), 420-451.
         """
         slope_prior = term.prior.get("slope") if isinstance(term.prior, dict) else None
         if slope_prior is None or slope_prior.name != "Normal":
