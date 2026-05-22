@@ -5,7 +5,7 @@ from pytensor import tensor as pt
 from pytensor import sparse as ps
 
 from bambi.backend.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, InterceptTerm, ResponseTerm
-from bambi.backend.utils import get_distribution_from_prior
+from bambi.backend.utils import get_distribution_from_prior, noncentered_default_for
 from bambi.config import config as bmb_config
 from bambi.families.multivariate import MultivariateFamily
 from bambi.families.univariate import Categorical, Cumulative, StoppingRatio
@@ -142,7 +142,7 @@ class DistributionalComponent:
         predictors = []
         group_indexes = []
 
-        noncentered_default = bmb_model.noncentered_default_for(self.component.name)
+        noncentered_default = noncentered_default_for(bmb_model, self.component.name)
         for term in self.component.group_specific_terms.values():
             group_specific_term = GroupSpecificTerm(term, noncentered_default)
             # Add coords

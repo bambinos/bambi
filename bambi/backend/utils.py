@@ -202,3 +202,15 @@ def make_weighted_distribution(dist: pm.Distribution):
             )
 
     return WeightedDistribution
+
+
+def noncentered_default_for(bmb_model, component_name):
+    """Resolve the model-level noncentered default for a given component.
+
+    `Model.noncentered` may be a single bool that applies to every component,
+    or a dict mapping component names to per-component bools. This helper
+    handles both cases; missing dict keys default to `True`.
+    """
+    if isinstance(bmb_model.noncentered, dict):
+        return bmb_model.noncentered.get(component_name, True)
+    return bmb_model.noncentered
