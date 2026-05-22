@@ -503,6 +503,18 @@ class TestGaussian(FitPredictParent):
         idata = self.fit(model)
         self.predict_oos(model, idata)
 
+    def test_predict_progressbar(self, data_crossed):
+        """Test that model.predict runs without error with progressbar=True and progressbar=False.
+
+        Relates to GitHub Issue #818.
+        """
+        model = bmb.Model("Y ~ continuous", data_crossed)
+        idata = self.fit(model)
+
+        # Both modes should execute without raising any exception
+        model.predict(idata, progressbar=True)
+        model.predict(idata, progressbar=False)
+
 
 @pytest.mark.usefixtures("mock_pymc_sample")
 class TestBernoulli(FitPredictParent):
