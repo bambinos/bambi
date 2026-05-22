@@ -387,6 +387,51 @@ def test_set_alias_fit_then_predict(data_ordered):
     assert np.all(np.diff(mu_new) > 0)  # monotonic increasing
 
 
+def test_set_alias_on_interaction(data_ordered):
+    """``set_alias`` on a monotonic interaction term must rename slope, simplex,
+    and the contribution Deterministic."""
+    rng = np.random.default_rng(0)
+    df = data_ordered.assign(x=rng.normal(size=len(data_ordered)))
+    model = bmb.Model("y ~ mo(income) * x", df)
+    model.set_alias({"mo(income)": "inc", "mo(income):x": "inc_x"})
+    model.build()
+    named = list(model.backend.model.named_vars)
+    assert "inc_slope" in named
+    assert "inc_simplex" in named
+    assert "inc_x_slope" in named
+    assert "inc_x_simplex_0" in named  # independent simplex for the interaction
+    assert "inc" in named  # main-effect deterministic
+    assert "inc_x" in named  # interaction deterministic
+    # Old names are gone
+    assert "mo(income)_slope" not in named
+    assert "mo(income):x_slope" not in named
+    assert "mo(income)_simplex" not in named
+
+
+def test_set_alias_on_group_specific(data_ordered):
+    """``set_alias`` on a (mo(x) | g) term must rename the simplex variable,
+    the simplex coord, AND the factor coord."""
+    rng = np.random.default_rng(0)
+    df = data_ordered.assign(
+        g=pd.Categorical(rng.choice(["g1", "g2", "g3"], len(data_ordered)))
+    )
+    model = bmb.Model("y ~ (mo(income) | g)", df)
+    model.set_alias({"mo(income)|g": "income_by_group"})
+    model.build()
+    named = list(model.backend.model.named_vars)
+    coords = list(model.backend.model.coords)
+    # Aliased
+    assert "income_by_group" in named  # r_g vector
+    assert "income_by_group_sigma" in named
+    assert "income_by_group_offset" in named
+    assert "income_by_group_simplex" in named
+    assert "income_by_group_simplex_dim" in coords
+    assert "income_by_group__factor_dim" in coords
+    # Un-aliased names should be gone
+    assert "mo(income)|g_simplex" not in named
+    assert "mo(income)|g_simplex_dim" not in coords
+
+
 def test_unshared_id_is_independent_per_term(data_ordered):
     """No id= means each term gets its own simplex (existing behavior)."""
     model = bmb.Model("y ~ mo(income)", data_ordered)

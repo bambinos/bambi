@@ -135,18 +135,32 @@ class MonotonicGroupSpecificTerm(BaseTerm):
 
     @property
     def simplex_name(self):
-        name, _dim = simplex_names(self.id, self.name)
+        """PyMC variable name for the simplex.
+
+        Honors ``self.alias`` (unless an ``id=`` is set, in which case the
+        simplex name follows the shared-id convention).
+        """
+        name_to_use = self.alias if self.alias else self.name
+        name, _dim = simplex_names(self.id, name_to_use)
         return name
 
     @property
     def simplex_dim(self):
-        _name, dim = simplex_names(self.id, self.name)
+        """Coord name for the simplex elements (honors ``self.alias``)."""
+        name_to_use = self.alias if self.alias else self.name
+        _name, dim = simplex_names(self.id, name_to_use)
         return dim
 
     @property
     def factor_dim(self):
-        # Reuse the same naming convention bambi uses for regular group-specific terms,
-        # so xarray downstream tooling stays consistent.
+        """Coord name for the grouping factor levels.
+
+        Matches bambi's regular ``GroupSpecificTerm`` convention: when an alias
+        is set the dim is ``{alias}__factor_dim``; otherwise it is
+        ``{factor}__factor_dim`` derived from the formula's RHS.
+        """
+        if self.alias:
+            return f"{self.alias}__factor_dim"
         _, factor = self.name.split("|", 1)
         return f"{factor}__factor_dim"
 
