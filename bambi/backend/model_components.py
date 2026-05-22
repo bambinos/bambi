@@ -9,6 +9,7 @@ from bambi.backend.terms import (
     GroupSpecificTerm,
     HSGPTerm,
     InterceptTerm,
+    MonotonicInteractionTerm,
     MonotonicTerm,
     ResponseTerm,
 )
@@ -137,14 +138,37 @@ class DistributionalComponent:
         """Add monotonic ``mo()`` term contributions to the PyMC model.
 
         Each monotonic term contributes ``slope * D * cumsum(simplex)[codes]`` to the
-        linear predictor.
+        linear predictor. Terms sharing an ``id`` share a single Dirichlet simplex.
+        Interaction terms (e.g. ``mo(x):z``) get their own per-column slopes and
+        reuse simplices via the same registry.
         """
-        for term in self.component.monotonic_terms.values():
-            monotonic_term = MonotonicTerm(term)
+        simplex_registry = {}
+        # Build id-grouped terms first so the Dirichlet is named after the
+        # group (rather than after whichever term happens to come first).
+        bmb_terms = list(self.component.monotonic_terms.values())
+        ordered = sorted(bmb_terms, key=lambda t: (t.id is None, t.name))
+        for term in ordered:
+            monotonic_term = MonotonicTerm(term, simplex_registry=simplex_registry)
             for name, values in monotonic_term.coords.items():
                 if name not in pymc_backend.model.coords:
                     pymc_backend.model.add_coords({name: values})
             self.output += monotonic_term.build(bmb_model)
+
+        # Interaction terms (e.g., mo(x):z). They reuse simplex_registry so an
+        # id-shared mo() in an interaction picks up the same Dirichlet as the
+        # corresponding standalone term.
+        if self.component.monotonic_interaction_terms:
+            dm = self.component.design.common
+            for name, term in self.component.monotonic_interaction_terms.items():
+                term_slice = dm.slices[name]
+                design_slice = dm.design_matrix[:, term_slice]
+                backend_term = MonotonicInteractionTerm(
+                    term, design_slice=design_slice, simplex_registry=simplex_registry
+                )
+                for coord_name, values in backend_term.coords.items():
+                    if coord_name not in pymc_backend.model.coords:
+                        pymc_backend.model.add_coords({coord_name: values})
+                self.output += backend_term.build(bmb_model)
 
     def build_group_specific_terms(self, pymc_backend, bmb_model):
         """Add group-specific (random or varying) terms to the PyMC model

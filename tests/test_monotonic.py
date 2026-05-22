@@ -216,3 +216,242 @@ def test_distributional_use_in_auxiliary_dpar(data_ordered):
     term = sigma_component.monotonic_terms["mo(income)"]
     assert term.prefix == "sigma"
     assert term.name == "sigma_mo(income)"
+
+
+# ---------------------------------------------------------------------------
+# id= shared-simplex tests (conditional monotonicity)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture(scope="module")
+def data_two_ordered():
+    """Two ordered predictors that share the same monotonic 'shape' so a shared
+    simplex should fit well."""
+    rng = np.random.default_rng(2026)
+    n = 500
+    income1 = pd.Categorical(rng.choice(LEVELS, n), categories=LEVELS, ordered=True)
+    income2 = pd.Categorical(rng.choice(LEVELS, n), categories=LEVELS, ordered=True)
+    shape = np.array([0.0, 30.0, 40.0, 45.0])  # steps 30, 10, 5
+    mean = shape[np.asarray(income1.codes)] + shape[np.asarray(income2.codes)]
+    y = mean + rng.normal(0, 5, n)
+    return pd.DataFrame({"y": y, "income1": income1, "income2": income2})
+
+
+def test_shared_id_creates_single_simplex(data_two_ordered):
+    model = bmb.Model(
+        "y ~ mo(income1, id='shape') + mo(income2, id='shape')", data_two_ordered
+    )
+    model.build()
+    named = list(model.backend.model.named_vars)
+    # Exactly one shared Dirichlet
+    assert "simplex_shape" in named
+    # Per-term simplices should NOT exist when id is shared
+    assert "mo(income1, id='shape')_simplex" not in named
+    assert "mo(income2, id='shape')_simplex" not in named
+    # But each term has its own slope
+    assert "mo(income1, id='shape')_b" in named
+    assert "mo(income2, id='shape')_b" in named
+
+
+def test_shared_id_inconsistent_K_raises():
+    rng = np.random.default_rng(0)
+    n = 100
+    df = pd.DataFrame(
+        {
+            "y": rng.normal(size=n),
+            "a": pd.Categorical(
+                rng.choice(["x", "y", "z"], n),
+                categories=["x", "y", "z"],
+                ordered=True,
+            ),
+            "b": pd.Categorical(
+                rng.choice(LEVELS, n), categories=LEVELS, ordered=True
+            ),
+        }
+    )
+    with pytest.raises(ValueError, match="inconsistent K"):
+        bmb.Model("y ~ mo(a, id='same') + mo(b, id='same')", df)
+
+
+def test_shared_id_unified_custom_prior(data_two_ordered):
+    custom = bmb.Prior("Dirichlet", a=np.array([1.0, 2.0, 1.0]))
+    model = bmb.Model(
+        "y ~ mo(income1, id='shape') + mo(income2, id='shape')",
+        data_two_ordered,
+        priors={"mo(income1, id='shape')": {"simplex": custom}},
+    )
+    model.build()
+    # Both terms now reference the same Dirichlet args
+    t1 = model.components["mu"].monotonic_terms["mo(income1, id='shape')"]
+    t2 = model.components["mu"].monotonic_terms["mo(income2, id='shape')"]
+    np.testing.assert_array_equal(t1.prior["simplex"].args["a"], [1, 2, 1])
+    np.testing.assert_array_equal(t2.prior["simplex"].args["a"], [1, 2, 1])
+
+
+def test_shared_id_conflicting_priors_raise(data_two_ordered):
+    p1 = bmb.Prior("Dirichlet", a=np.array([1.0, 2.0, 1.0]))
+    p2 = bmb.Prior("Dirichlet", a=np.array([1.0, 1.0, 5.0]))
+    with pytest.raises(ValueError, match="conflicting simplex priors"):
+        bmb.Model(
+            "y ~ mo(income1, id='shape') + mo(income2, id='shape')",
+            data_two_ordered,
+            priors={
+                "mo(income1, id='shape')": {"simplex": p1},
+                "mo(income2, id='shape')": {"simplex": p2},
+            },
+        )
+
+
+def test_shared_id_recovers_truth(data_two_ordered):
+    model = bmb.Model(
+        "y ~ mo(income1, id='shape') + mo(income2, id='shape')", data_two_ordered
+    )
+    idata = model.fit(
+        tune=600, draws=600, chains=2, random_seed=42, progressbar=False
+    )
+    post = idata.posterior
+    assert "simplex_shape" in post.data_vars
+    # Posterior mean of simplex should be near [30,10,5]/45
+    s = post["simplex_shape"].mean(("chain", "draw")).to_numpy()
+    np.testing.assert_allclose(s, [30.0 / 45, 10.0 / 45, 5.0 / 45], atol=0.05)
+    # Both slopes should land near 15
+    for term_name in (
+        "mo(income1, id='shape')_b",
+        "mo(income2, id='shape')_b",
+    ):
+        assert post[term_name].mean().item() == pytest.approx(15.0, abs=1.5)
+
+
+def test_id_kwarg_validation():
+    rng = np.random.default_rng(0)
+    df = pd.DataFrame(
+        {
+            "y": rng.normal(size=50),
+            "x": pd.Categorical(
+                rng.choice(LEVELS, 50), categories=LEVELS, ordered=True
+            ),
+        }
+    )
+    with pytest.raises(ValueError, match="'id'.*must be a string"):
+        bmb.Model("y ~ mo(x, id=1)", df)
+
+
+def test_unshared_id_is_independent_per_term(data_ordered):
+    """No id= means each term gets its own simplex (existing behavior)."""
+    model = bmb.Model("y ~ mo(income)", data_ordered)
+    model.build()
+    named = list(model.backend.model.named_vars)
+    assert "mo(income)_simplex" in named
+    # No accidental shared registry
+    assert not any(v.startswith("simplex_") for v in named)
+
+
+# ---------------------------------------------------------------------------
+# Interaction tests: mo() * continuous, mo() * categorical, mo() : mo()
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture(scope="module")
+def data_mo_x():
+    """mo(income) * x with known coefficients."""
+    rng = np.random.default_rng(2026)
+    n = 600
+    income = pd.Categorical(rng.choice(LEVELS, n), categories=LEVELS, ordered=True)
+    x = rng.normal(size=n)
+    shape = np.array([0.0, 30.0, 40.0, 45.0])
+    codes = np.asarray(income.codes)
+    mu = 5.0 + shape[codes] + 4.0 * x + 0.2 * shape[codes] * x
+    y = mu + rng.normal(0, 3, n)
+    return pd.DataFrame({"y": y, "income": income, "x": x})
+
+
+@pytest.fixture(scope="module")
+def data_mo_g():
+    """mo(income, id='inc') + mo(income, id='inc'):g with known multipliers."""
+    rng = np.random.default_rng(2026)
+    n = 800
+    income = pd.Categorical(rng.choice(LEVELS, n), categories=LEVELS, ordered=True)
+    g = pd.Categorical(rng.choice(["g1", "g2", "g3"], n))
+    shape = np.array([0.0, 30.0, 40.0, 45.0])
+    codes = np.asarray(income.codes)
+    g_mult = np.where(g == "g1", 1.0, np.where(g == "g2", 1.5, 0.5))
+    mu = 5.0 + shape[codes] * g_mult
+    y = mu + rng.normal(0, 3, n)
+    return pd.DataFrame({"y": y, "income": income, "g": g})
+
+
+def test_mo_continuous_interaction_build(data_mo_x):
+    model = bmb.Model("y ~ mo(income) * x", data_mo_x)
+    model.build()
+    interaction_terms = model.components["mu"].monotonic_interaction_terms
+    assert "mo(income):x" in interaction_terms
+    named = list(model.backend.model.named_vars)
+    # Slope for the interaction
+    assert "mo(income):x_b" in named
+    # Independent simplices for the main and interaction (no id=)
+    assert "mo(income)_simplex" in named
+    assert "mo(income):x_simplex_0" in named
+
+
+def test_mo_continuous_interaction_recovers_truth(data_mo_x):
+    model = bmb.Model("y ~ mo(income) * x", data_mo_x)
+    idata = model.fit(
+        tune=600, draws=600, chains=2, random_seed=42, progressbar=False
+    )
+    post = idata.posterior
+    assert post["Intercept"].mean().item() == pytest.approx(5.0, abs=1.0)
+    assert post["x"].mean().item() == pytest.approx(4.0, abs=0.5)
+    assert post["mo(income)_b"].mean().item() == pytest.approx(15.0, abs=1.5)
+    # Interaction slope is on the main-effect scale: 0.2 * 45 / D = 3
+    assert post["mo(income):x_b"].mean().item() == pytest.approx(3.0, abs=0.6)
+
+
+def test_mo_categorical_interaction_with_shared_id(data_mo_g):
+    formula = "y ~ mo(income, id='inc') + mo(income, id='inc'):g"
+    model = bmb.Model(formula, data_mo_g)
+    model.build()
+    named = list(model.backend.model.named_vars)
+    # ONE shared simplex used by both the main and the interaction
+    assert "simplex_inc" in named
+    assert "mo(income, id='inc'):g_simplex_0" not in named
+    # Vector slope for the 2 dummies of g
+    assert "mo(income, id='inc'):g_b" in named
+
+
+def test_mo_categorical_interaction_recovers_truth(data_mo_g):
+    formula = "y ~ mo(income, id='inc') + mo(income, id='inc'):g"
+    model = bmb.Model(formula, data_mo_g)
+    idata = model.fit(
+        tune=600, draws=600, chains=2, random_seed=42, progressbar=False
+    )
+    post = idata.posterior
+    assert post["Intercept"].mean().item() == pytest.approx(5.0, abs=1.0)
+    simplex = post["simplex_inc"].mean(("chain", "draw")).to_numpy()
+    np.testing.assert_allclose(simplex, [30.0 / 45, 10.0 / 45, 5.0 / 45], atol=0.05)
+    # Main slope is the g1 effect (= 15)
+    assert post["mo(income, id='inc')_b"].mean().item() == pytest.approx(15.0, abs=1.5)
+    # Interaction has dims (g_b_dim,) of length 2: g2 and g3 excess slopes
+    interaction = post["mo(income, id='inc'):g_b"].mean(("chain", "draw")).to_numpy()
+    # The order matches the dummy columns (treatment coding: g2 dummy first, g3 second)
+    # g2 excess: 0.5 * 15 = 7.5; g3 excess: -0.5 * 15 = -7.5
+    np.testing.assert_allclose(interaction, [7.5, -7.5], atol=1.0)
+
+
+def test_mo_interaction_predict_new_data(data_mo_x):
+    model = bmb.Model("y ~ mo(income) * x", data_mo_x)
+    idata = model.fit(
+        tune=400, draws=400, chains=2, random_seed=42, progressbar=False
+    )
+    new_df = pd.DataFrame(
+        {
+            "income": pd.Categorical(LEVELS, categories=LEVELS, ordered=True),
+            "x": [0.0, 1.0, -1.0, 0.5],
+        }
+    )
+    idata_new = model.predict(
+        idata, kind="response_params", data=new_df, inplace=False
+    )
+    mu = idata_new.posterior["mu"].mean(("chain", "draw")).to_numpy()
+    assert mu.shape == (4,)
+    # Sanity: at x=0 with income=below_20 (code=0), mu = intercept ~ 5
+    assert abs(mu[0] - 5.0) < 2.0

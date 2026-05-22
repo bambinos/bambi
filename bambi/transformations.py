@@ -382,12 +382,15 @@ class Monotonic:
         self.kind = None  # "ordered" or "integer"
         self.K = None  # number of distinct categories
         self.D = None  # K - 1 (length of the simplex)
+        self.id = None  # optional shared-simplex group id (brms-style)
         self.params_set = False
 
     def __call__(self, x, id=None):  # pylint: disable=redefined-builtin
-        # ``id`` is accepted for forward compatibility with brms' shared-simplex
-        # mechanism but is not used in this MVP.
-        del id
+        if id is not None and not isinstance(id, str):
+            raise ValueError("'id' for mo() must be a string or None.")
+        # Record the id only on the first call (it stays stable across re-evals).
+        if not self.params_set:
+            self.id = id
 
         if isinstance(x, pd.Series):
             values = x

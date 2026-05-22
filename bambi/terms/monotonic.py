@@ -111,13 +111,168 @@ class MonotonicTerm(BaseTerm):
         return self._mo_attrs["kind"]
 
     @property
+    def id(self):
+        """Optional shared-simplex group id (brms-style)."""
+        return self._mo_attrs["id"]
+
+    @property
+    def simplex_name(self):
+        """Name of the PyMC simplex variable.
+
+        For shared-id terms, this is ``simplex_<id>`` so a single Dirichlet is
+        emitted and reused. For un-shared terms, it's ``{term.name}_simplex``.
+        """
+        if self.id is not None:
+            return f"simplex_{self.id}"
+        return f"{self.name}_simplex"
+
+    @property
+    def simplex_dim(self):
+        if self.id is not None:
+            return f"simplex_{self.id}_dim"
+        return f"{self.name}_simplex_dim"
+
+    @property
     def coords(self):
         # One coord for the simplex elements. Each element is the "step" from one
         # category to the next, so we label by destination level.
         levels = self.levels
-        # levels is either the categorical levels or the sorted unique integers; we
-        # label the D simplex entries by levels[1:] (the "to" side of each step).
-        return {f"{self.name}_simplex_dim": np.asarray(levels[1:])}
+        return {self.simplex_dim: np.asarray(levels[1:])}
+
+
+class MonotonicInteractionTerm(BaseTerm):
+    """An interaction term containing at least one ``mo()`` component.
+
+    The linear-predictor contribution for a row ``i`` is
+
+        sum_k slope_k * (prod_m D_m * cumsum(simplex_m)[codes_m[i]]) * other_factor[i, k]
+
+    where the product is over the ``mo()`` components in the interaction,
+    ``other_factor`` is the matrix of the non-mo factors (recovered from the
+    formulae design-matrix slice by dividing out the raw mo codes), and ``k``
+    indexes the columns of the interaction design slice (single column for
+    interactions with continuous variables, multiple for categorical).
+
+    Each mo() component carries its own simplex (or a shared one when ``id=`` is
+    set), reusing the same simplex registry as standalone ``MonotonicTerm``s.
+
+    Parameters
+    ----------
+    term : formulae.terms.terms.Term
+        The interaction term.
+    prior : dict or None
+        Optional ``{"slope": Prior}``. Simplex priors are taken from id-matched
+        terms; if no id is set on a mo() component, the default Dirichlet(1) is
+        used.
+    prefix : str, optional
+        Prefix for non-parent distributional components.
+    """
+
+    def __init__(self, term, prior, prefix=None):
+        self.term = term
+        self.prior = prior
+        self.prefix = prefix
+        self._init_components()
+
+    def _init_components(self):
+        from bambi.utils import is_monotonic_component  # local import to avoid cycle
+
+        mono = []
+        for i, comp in enumerate(self.term.components):
+            if is_monotonic_component(comp):
+                tx = comp.call.stateful_transform
+                codes = np.asarray(comp.value).squeeze().astype("int64")
+                mono.append(
+                    {
+                        "idx": i,
+                        "transform": tx,
+                        "codes": codes,
+                        "D": tx.D,
+                        "K": tx.K,
+                        "levels": tx.levels,
+                        "id": tx.id,
+                    }
+                )
+        if not mono:
+            raise AssertionError("MonotonicInteractionTerm built with no mo() components")
+        self._mono = mono
+
+    @property
+    def term(self):
+        return self._term
+
+    @term.setter
+    def term(self, value):
+        assert isinstance(value, formulae.terms.terms.Term)
+        self._term = value
+
+    @property
+    def prior(self):
+        return self._prior
+
+    @prior.setter
+    def prior(self, value):
+        if value is None:
+            self._prior = None
+            return
+        if not isinstance(value, dict):
+            raise ValueError(
+                "The prior for a monotonic interaction must be a dict with key 'slope' or None."
+            )
+        unknown = set(value) - {"slope"}
+        if unknown:
+            raise ValueError(
+                f"Unknown keys in monotonic-interaction prior dict: {sorted(unknown)}. "
+                "Only 'slope' is configurable here; simplex priors are set on the standalone "
+                "mo() term (using id= to share)."
+            )
+        for v in value.values():
+            assert isinstance(
+                v, VALID_MONOTONIC_PRIOR_VALUES
+            ), f"Prior values must be one of {VALID_MONOTONIC_PRIOR_VALUES}"
+        self._prior = value
+
+    @property
+    def data(self):
+        # Full interaction design-matrix slice as formulae built it.
+        # Shape (n, k) where k is the number of dummy columns. Note: each row's
+        # values include the raw mo() codes multiplied in -- we undo that during
+        # build/predict.
+        return None  # Not used directly; we work off the design slice in the component.
+
+    @property
+    def name(self):
+        if self.prefix:
+            return f"{self.prefix}_{self.term.name}"
+        return self.term.name
+
+    @property
+    def shape(self):
+        # Derived later from the design matrix when needed.
+        return (None, None)
+
+    @property
+    def categorical(self):
+        return False
+
+    @property
+    def levels(self):
+        return None
+
+    @property
+    def mono_components(self):
+        return self._mono
+
+    @property
+    def all_ids(self):
+        return [m["id"] for m in self._mono]
+
+    @property
+    def D_product(self):
+        D = 1
+        for m in self._mono:
+            D *= m["D"]
+        return D
 
 
 def _get_monotonic_attributes(term):
@@ -129,4 +284,5 @@ def _get_monotonic_attributes(term):
         "D": attrs["D"],
         "kind": attrs["kind"],
         "min_value": attrs["min_value"],
+        "id": attrs.get("id"),
     }

@@ -160,16 +160,31 @@ def is_hsgp_term(term):
     return isinstance(component.call.stateful_transform, HSGP)
 
 
-def is_monotonic_term(term):
-    """Determines if formulae term represents a monotonic ``mo()`` term."""
-    if not is_single_component(term):
-        return False
-    component = term.components[0]
+def is_monotonic_component(component):
+    """Whether a formulae component is a Monotonic stateful-transform call."""
     if not is_call_component(component):
         return False
     if not is_stateful_transform(component):
         return False
     return isinstance(component.call.stateful_transform, Monotonic)
+
+
+def is_monotonic_term(term):
+    """Determines if formulae term represents a single-component monotonic ``mo()`` term."""
+    if not is_single_component(term):
+        return False
+    return is_monotonic_component(term.components[0])
+
+
+def is_monotonic_interaction_term(term):
+    """Determines if formulae term is an interaction that contains at least one
+    monotonic ``mo()`` component, e.g. ``mo(x):z`` or ``mo(x):mo(y)``.
+    """
+    if not hasattr(term, "components") or len(term.components) < 2:
+        return False
+    if getattr(term, "kind", None) != "interaction":
+        return False
+    return any(is_monotonic_component(c) for c in term.components)
 
 
 def remove_common_intercept(dm: fm.matrices.DesignMatrices) -> fm.matrices.DesignMatrices:

@@ -11,11 +11,28 @@ from bambi.terms import (
     CommonTerm,
     GroupSpecificTerm,
     HSGPTerm,
+    MonotonicInteractionTerm,
     MonotonicTerm,
     OffsetTerm,
     ResponseTerm,
 )
-from bambi.utils import get_aliased_name, is_hsgp_term, is_monotonic_term, as_dataset
+from bambi.utils import (
+    get_aliased_name,
+    is_hsgp_term,
+    is_monotonic_term,
+    is_monotonic_interaction_term,
+    as_dataset,
+)
+
+
+def _reencode_mo_for_new_data(transform, component, data):
+    """Re-emit mo() codes for new data using the stateful transform's stored levels.
+
+    ``component`` is the formulae Call object; ``data`` is the new pandas DataFrame.
+    """
+    var_name = next(iter(component.var_names))
+    codes = transform(data[var_name])  # shape (n, 1), float64
+    return np.asarray(codes).squeeze().astype("int64")
 
 
 class ConstantComponent:
@@ -85,6 +102,8 @@ class DistributionalComponent:
                 continue
             if is_monotonic_term(term):
                 continue
+            if is_monotonic_interaction_term(term):
+                continue
             prior = priors.pop(name, priors.get("common", None))
             if isinstance(prior, Prior):
                 any_hyperprior = any(isinstance(x, Prior) for x in prior.args.values())
@@ -115,6 +134,21 @@ class DistributionalComponent:
             if is_monotonic_term(term):
                 prior = priors.pop(name, None)
                 self.terms[name] = MonotonicTerm(term, prior, self.prefix)
+            elif is_monotonic_interaction_term(term):
+                prior = priors.pop(name, None)
+                self.terms[name] = MonotonicInteractionTerm(term, prior, self.prefix)
+        # Validate shared-id groups have compatible structure
+        groups = {}
+        for name, term in self.terms.items():
+            if isinstance(term, MonotonicTerm) and term.id is not None:
+                groups.setdefault(term.id, []).append((name, term))
+        for id_name, members in groups.items():
+            Ks = {t.K for _, t in members}
+            if len(Ks) > 1:
+                raise ValueError(
+                    f"mo() terms sharing id={id_name!r} have inconsistent K values: {Ks}. "
+                    "All terms in a shared-simplex group must have the same number of levels."
+                )
 
     def build_priors(self):
         for term in self.terms.values():
@@ -137,9 +171,44 @@ class DistributionalComponent:
                         prior_obj.auto_scale = False
                 term.prior = {**defaults, **user_prior}
                 continue
+            elif isinstance(term, MonotonicInteractionTerm):
+                # Only the slope prior is configurable on interaction terms; simplex
+                # priors live on the standalone mo() (or shared via id=).
+                user_prior = term.prior or {}
+                for prior_obj in user_prior.values():
+                    if isinstance(prior_obj, Prior):
+                        prior_obj.auto_scale = False
+                defaults = {"slope": Prior("Normal", mu=0.0, sigma=1.0)}
+                term.prior = {**defaults, **user_prior}
+                continue
             else:
                 kind = "common"
             term.prior = prepare_prior(term.prior, kind, self.spec.auto_scale)
+
+        # Unify simplex priors across shared-id groups: if any member has a
+        # user-supplied simplex prior, apply it to the whole group; raise on conflicts.
+        groups = {}
+        for name, term in self.terms.items():
+            if isinstance(term, MonotonicTerm) and term.id is not None:
+                groups.setdefault(term.id, []).append(term)
+        for id_name, members in groups.items():
+            D = members[0].D
+            user_simplex_priors = [
+                t.prior["simplex"]
+                for t in members
+                if t.prior["simplex"].args["a"].shape != (D,)
+                or not np.array_equal(t.prior["simplex"].args["a"], np.ones(D))
+            ]
+            if not user_simplex_priors:
+                continue
+            first = user_simplex_priors[0]
+            for other in user_simplex_priors[1:]:
+                if not np.array_equal(other.args["a"], first.args["a"]):
+                    raise ValueError(
+                        f"mo() terms sharing id={id_name!r} have conflicting simplex priors."
+                    )
+            for t in members:
+                t.prior = {**t.prior, "simplex": first}
 
     def update_priors(self, priors):
         """Update priors.
@@ -321,8 +390,7 @@ class DistributionalComponent:
             monotonic_slices.append(term_slice)
 
             term_aliased_name = get_aliased_name(term)
-            simplex_dim = f"{term_aliased_name}_simplex_dim"
-            simplex = posterior[f"{term_aliased_name}_simplex"]
+            simplex = posterior[term.simplex_name]
             slope = posterior[f"{term_aliased_name}_b"]
 
             # cumulative sum along the simplex dim, prepended with 0 so codes==0 -> 0
@@ -342,10 +410,79 @@ class DistributionalComponent:
                 monotonic_dict[term_name] = mo_contribution
             linear_predictor += mo_contribution
 
+        # Monotonic interaction terms (e.g. mo(x):z, mo(x):mo(y))
+        monotonic_interaction_slices = []
+        for term_name, term in self.monotonic_interaction_terms.items():
+            term_slice = self.design.common.slices[term_name]
+            x_slice = np.asarray(X[:, term_slice], dtype=float)  # (n, k)
+            monotonic_interaction_slices.append(term_slice)
+
+            term_aliased_name = get_aliased_name(term)
+            # Per-row product of raw mo() codes that formulae multiplied into the slice
+            code_product = np.ones(x_slice.shape[0], dtype=float)
+            for mc in term.mono_components:
+                # Recompute codes from this row of new data: we already have them stored
+                # on the component when in-sample; for new data, re-evaluate.
+                if in_sample:
+                    codes_m = mc["codes"]
+                else:
+                    # Re-encode through the stateful transform (which has the levels stored)
+                    codes_m = _reencode_mo_for_new_data(
+                        mc["transform"], term.term.components[mc["idx"]], data
+                    )
+                    mc["codes_new"] = codes_m  # cache for the contribution math below
+                code_product *= codes_m
+
+            # Recover the "other-factor" matrix: divide each row by code_product
+            safe_codes = np.where(code_product == 0, 1.0, code_product)
+            other_factor = x_slice / safe_codes[:, None]
+            other_factor = np.where(
+                code_product[:, None] == 0, 0.0, other_factor
+            )  # zero rows where any code is 0
+
+            # Compute prod_m D_m * cumsum(simplex_m)[codes_m] per draw
+            mono_factor = None
+            for mc in term.mono_components:
+                tx_id = mc["id"]
+                # The simplex's variable name follows the same rule as MonotonicTerm.simplex_name
+                if tx_id is not None:
+                    simplex_var = posterior[f"simplex_{tx_id}"]
+                else:
+                    # Standalone (no id) simplex inside an interaction. The interaction
+                    # builder names it after the interaction term + component index.
+                    simplex_var = posterior[
+                        f"{term_aliased_name}_simplex_{mc['idx']}"
+                    ]
+                simplex_np = simplex_var.to_numpy()  # (chain, draw, D)
+                cumsum = np.cumsum(simplex_np, axis=-1)
+                zero = np.zeros(cumsum.shape[:-1] + (1,))
+                cumsum = np.concatenate([zero, cumsum], axis=-1)  # (chain, draw, D+1)
+                codes_m = mc["codes"] if in_sample else mc["codes_new"]
+                gathered = mc["D"] * np.take(cumsum, codes_m, axis=-1)  # (chain, draw, n)
+                mono_factor = gathered if mono_factor is None else mono_factor * gathered
+
+            # Slope is shape (k,)  -- per-column
+            slope = posterior[f"{term_aliased_name}_b"]  # dims (chain, draw, [slope_dim])
+            slope_np = slope.to_numpy()  # (chain, draw, k) or (chain, draw)
+            if slope_np.ndim == 2:
+                slope_np = slope_np[..., None]  # (chain, draw, 1)
+
+            # contribution[chain, draw, n] = sum_k slope[k] * mono_factor[n] * other_factor[n, k]
+            # = mono_factor[chain, draw, n] * sum_k slope[chain, draw, k] * other_factor[n, k]
+            other_sum = np.einsum("nk,cdk->cdn", other_factor, slope_np)
+            contribution_np = mono_factor * other_sum
+            contribution = xr.DataArray(
+                contribution_np,
+                dims=("chain", "draw", response_dim),
+            )
+            linear_predictor += contribution
+            if monotonic_dict is not None:
+                monotonic_dict[term_name] = contribution
+
         # Remove columns of X that are associated with HSGP or monotonic contributions.
         # All the slices _must be_ deleted at the same time. Otherwise the slice objects don't
         # reflect the right columns of X at the time they're used
-        drop_slices = hsgp_slices + monotonic_slices
+        drop_slices = hsgp_slices + monotonic_slices + monotonic_interaction_slices
         if drop_slices:
             X = np.delete(X, np.r_[tuple(drop_slices)], axis=1)
 
@@ -609,6 +746,13 @@ class DistributionalComponent:
     def monotonic_terms(self):
         """Return dict of all monotonic mo() terms in model."""
         return {k: v for (k, v) in self.terms.items() if isinstance(v, MonotonicTerm)}
+
+    @property
+    def monotonic_interaction_terms(self):
+        """Return dict of all monotonic-interaction terms in model."""
+        return {
+            k: v for (k, v) in self.terms.items() if isinstance(v, MonotonicInteractionTerm)
+        }
 
 
 class ResponseComponent:
