@@ -416,9 +416,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dd>
 <p>If <code>True</code> (default), priors are automatically rescaled to the data (to be weakly informative) any time default priors are used. Note that any priors explicitly set by the user will always take precedence over default priors.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>noncentered</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dt><code><span class="parameter-name"><strong>noncentered</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a> or <a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a href="https://docs.python.org/3/library/functions.html#bool">bool</a>]</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>
-<p>If <code>True</code> (default), uses a non-centered parameterization for normal hyperpriors on grouped parameters. If <code>False</code>, naive (centered) parameterization is used.</p>
+<p>Default parameterization for group-specific terms. <code>True</code> (default) uses non-centered; <code>False</code> uses centered. Can also be a <code>dict</code> keyed by component name (e.g.&nbsp;<code>{"mu": True, "sigma": False}</code>) for per-parameter defaults; missing keys default to <code>True</code>, unknown keys raise. Per-<code>Prior</code> <code>noncentered=</code> overrides this setting.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>center_predictors</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>

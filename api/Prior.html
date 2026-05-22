@@ -353,7 +353,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="bambi.Prior" class="level1">
 <h1>Prior</h1>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Prior(name, auto_scale<span class="op">=</span><span class="va">True</span>, dist<span class="op">=</span><span class="va">None</span>, <span class="op">**</span>kwargs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Prior(name, auto_scale<span class="op">=</span><span class="va">True</span>, dist<span class="op">=</span><span class="va">None</span>, noncentered<span class="op">=</span><span class="va">None</span>, <span class="op">**</span>kwargs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Abstract specification of a term prior</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
@@ -369,6 +369,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dt><code><span class="parameter-name"><strong>dist</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>pymc</code>.<a href="https://www.pymc.io/projects/docs/en/stable/api/distributions/generated/pymc.Distribution.html#pymc.Distribution">Distribution</a> or <a href="https://docs.python.org/3/library/functions.html#callable">callable</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>A callable that returns a valid PyMC distribution. The signature must contain <code>name</code>, <code>dims</code>, and <code>shape</code>, as well as its own keyworded arguments.</p>
+</dd>
+<dt><code><span class="parameter-name"><strong>noncentered</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>Per-prior override for non-centered parameterization on a group-specific term. <code>None</code> (default) inherits <code>Model.noncentered</code>; <code>True</code>/<code>False</code> overrides it.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>kwargs</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">{}</span></code></dt>
 <dd>

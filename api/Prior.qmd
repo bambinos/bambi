@@ -1,7 +1,7 @@
 # Prior { #bambi.Prior }
 
 ```python
-Prior(name, auto_scale=True, dist=None, **kwargs)
+Prior(name, auto_scale=True, dist=None, noncentered=None, **kwargs)
 ```
 
 Abstract specification of a term prior
@@ -19,6 +19,10 @@ Abstract specification of a term prior
 <code>[**dist**]{.parameter-name} [:]{.parameter-annotation-sep} [[pymc](`pymc`).[Distribution](`pymc.Distribution`) or [callable](`callable`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
 
 :   A callable that returns a valid PyMC distribution. The signature must contain `name`, `dims`, and `shape`, as well as its own keyworded arguments.
+
+<code>[**noncentered**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   Per-prior override for non-centered parameterization on a group-specific term. `None` (default) inherits `Model.noncentered`; `True`/`False` overrides it.
 
 <code>[**kwargs**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [{}]{.parameter-default}</code>
 
