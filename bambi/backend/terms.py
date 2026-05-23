@@ -693,9 +693,7 @@ class MonotonicGroupSpecificTerm:
         # Honour per-prior `noncentered` override (introduced upstream in #983),
         # falling back to the component-level default passed by the orchestrator.
         effective_nc = (
-            slope_prior.noncentered
-            if slope_prior.noncentered is not None
-            else self.noncentered
+            slope_prior.noncentered if slope_prior.noncentered is not None else self.noncentered
         )
         factor_dim = self.term.factor_dim
         if effective_nc and isinstance(sigma, pt.TensorVariable):

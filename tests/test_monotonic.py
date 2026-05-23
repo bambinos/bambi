@@ -622,6 +622,52 @@ def test_mo_group_specific_shared_id_with_main(data_mo_gs):
     assert "mo(income, id='s')|g_simplex" not in named
 
 
+def test_mo_group_specific_per_prior_noncentered_override(data_mo_gs):
+    """A user can force the centered parameterization on a (mo(x)|g) slope by
+    setting ``noncentered=False`` on the slope ``Prior``. This relies on the
+    per-prior noncentered override introduced upstream in #983; the monotonic
+    group-specific builder honours it the same way the regular
+    ``GroupSpecificTerm`` does.
+    """
+    # Default: non-centered (offset variable is emitted)
+    model_default = bmb.Model("y ~ (mo(income) | g)", data_mo_gs)
+    model_default.build()
+    named_default = list(model_default.backend.model.named_vars)
+    assert "mo(income)|g_offset" in named_default
+    assert "mo(income)|g" in named_default
+    assert "mo(income)|g_sigma" in named_default
+
+    # Per-prior override: noncentered=False on the slope forces centered
+    slope_prior = bmb.Prior(
+        "Normal",
+        mu=0.0,
+        sigma=bmb.Prior("HalfNormal", sigma=1.0),
+        noncentered=False,
+    )
+    priors = {"mo(income)|g": {"slope": slope_prior}}
+    model_centered = bmb.Model("y ~ (mo(income) | g)", data_mo_gs, priors=priors)
+    model_centered.build()
+    named_centered = list(model_centered.backend.model.named_vars)
+    # No offset variable now -- direct Normal sampling
+    assert "mo(income)|g_offset" not in named_centered
+    # The per-group slope vector and hyperprior are still there
+    assert "mo(income)|g" in named_centered
+    assert "mo(income)|g_sigma" in named_centered
+
+    # Explicit noncentered=True acts like the default (offset emitted)
+    slope_prior_nc = bmb.Prior(
+        "Normal",
+        mu=0.0,
+        sigma=bmb.Prior("HalfNormal", sigma=1.0),
+        noncentered=True,
+    )
+    model_nc = bmb.Model(
+        "y ~ (mo(income) | g)", data_mo_gs, priors={"mo(income)|g": {"slope": slope_prior_nc}}
+    )
+    model_nc.build()
+    assert "mo(income)|g_offset" in list(model_nc.backend.model.named_vars)
+
+
 def test_mo_interaction_predict_new_data(data_mo_x):
     model = bmb.Model("y ~ mo(income) * x", data_mo_x)
     idata = model.fit(tune=400, draws=400, chains=2, random_seed=42, progressbar=False)
