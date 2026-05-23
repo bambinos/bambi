@@ -452,9 +452,8 @@ class Monotonic:
         self.id: Optional[str] = None
         self.params_set: bool = False
 
-    def __call__(
-        self, x, id: Optional[str] = None
-    ) -> np.ndarray:  # pylint: disable=redefined-builtin
+    # pylint: disable-next=redefined-builtin
+    def __call__(self, x, id: Optional[str] = None) -> np.ndarray:
         """Evaluate the monotonic transform on a predictor.
 
         Parameters
