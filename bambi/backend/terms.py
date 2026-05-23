@@ -192,7 +192,9 @@ class GroupSpecificTerm:
             else:
                 dist_kwargs[key] = value
 
-        if self.noncentered and any(isinstance(v, pt.TensorVariable) for v in dist_kwargs.values()):
+        effective_nc = prior.noncentered if prior.noncentered is not None else self.noncentered
+
+        if effective_nc and any(isinstance(v, pt.TensorVariable) for v in dist_kwargs.values()):
             # non-centered is only relevant when distribution arguments are random variables.
             if (
                 prior.name == "Normal"
@@ -204,7 +206,8 @@ class GroupSpecificTerm:
                 return pm.Deterministic(label, offset * sigma, dims=dims)
 
             raise NotImplementedError(
-                "The non-centered parametrization is only supported for Normal priors"
+                f"The non-centered parametrization is only supported "
+                f"for Normal priors, got {prior.name}."
             )
 
         distribution = get_distribution_from_prior(prior)
@@ -687,8 +690,15 @@ class MonotonicGroupSpecificTerm:
             sigma = sigma_arg
         mu = slope_prior.args.get("mu", 0.0)
 
+        # Honour per-prior `noncentered` override (introduced upstream in #983),
+        # falling back to the component-level default passed by the orchestrator.
+        effective_nc = (
+            slope_prior.noncentered
+            if slope_prior.noncentered is not None
+            else self.noncentered
+        )
         factor_dim = self.term.factor_dim
-        if self.noncentered and isinstance(sigma, pt.TensorVariable):
+        if effective_nc and isinstance(sigma, pt.TensorVariable):
             offset = pm.Normal(f"{label}_offset", mu=0, sigma=1, dims=(factor_dim,))
             r_g = pm.Deterministic(label, offset * sigma + mu, dims=(factor_dim,))
         else:

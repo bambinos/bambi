@@ -1,3 +1,14 @@
+# Unreleased
+
+## New features
+
+* `bmb.Prior` accepts a `noncentered` keyword to override `Model.noncentered` per group-specific term.
+* `Model.noncentered` accepts a `dict` keyed by component name (e.g. `{"mu": True, "sigma": False}`).
+
+## Maintenance and fixes
+
+* Non-Normal priors with random hyperpriors now build under the centered parameterization.
+
 <a id="0.18.0"></a>
 # [Bambi 0.18.0](https://github.com/bambinos/bambi/releases/tag/0.18.0) - 2026-05-19
 

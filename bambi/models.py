@@ -87,9 +87,12 @@ class Model:
         If `True` (default), priors are automatically rescaled to the data
         (to be weakly informative) any time default priors are used. Note that any priors
         explicitly set by the user will always take precedence over default priors.
-    noncentered : bool, optional
-        If `True` (default), uses a non-centered parameterization for normal hyperpriors on
-        grouped parameters. If `False`, naive (centered) parameterization is used.
+    noncentered : bool or dict[str, bool], optional
+        Default parameterization for group-specific terms.
+        `True` (default) uses non-centered; `False` uses centered. Can also be a `dict`
+        keyed by component name (e.g. `{"mu": True, "sigma": False}`) for per-parameter
+        defaults; missing keys default to `True`, unknown keys raise. Per-`Prior`
+        `noncentered=` overrides this setting.
     center_predictors : bool, optional
         If `True` (default), and if there is an intercept in the common terms, the data is
         centered by subtracting the mean. The centering is undone after sampling to provide
@@ -225,6 +228,15 @@ class Model:
         for name in auxiliary_parameters:
             component_prior = priors.get(name, None)
             self.components[name] = ConstantComponent(name, component_prior, self)
+
+        # Validate per-component noncentered dict, now that all components are known.
+        if isinstance(self.noncentered, dict):
+            unknown = set(self.noncentered) - set(self.components)
+            if unknown:
+                raise ValueError(
+                    f"Unknown component name(s) in `noncentered`: {sorted(unknown)}. "
+                    f"Valid component names for this model: {sorted(self.components)}."
+                )
 
         # Build priors
         self._build_priors()

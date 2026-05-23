@@ -14,7 +14,7 @@ from bambi.backend.terms import (
     MonotonicTerm,
     ResponseTerm,
 )
-from bambi.backend.utils import get_distribution_from_prior
+from bambi.backend.utils import get_distribution_from_prior, noncentered_default_for
 from bambi.config import config as bmb_config
 from bambi.families.multivariate import MultivariateFamily
 from bambi.families.univariate import Categorical, Cumulative, StoppingRatio
@@ -157,11 +157,12 @@ class DistributionalComponent:
         # Group-specific mo() terms (mo(x) | g). They reuse simplex_registry so
         # id= on a standalone term can be shared with the group-specific simplex.
         if self.component.monotonic_group_specific_terms:
+            noncentered_default = noncentered_default_for(bmb_model, self.component.name)
             for term in self.component.monotonic_group_specific_terms.values():
                 backend_term = MonotonicGroupSpecificTerm(
                     term,
                     simplex_registry=simplex_registry,
-                    noncentered=bmb_model.noncentered,
+                    noncentered=noncentered_default,
                 )
                 for coord_name, values in backend_term.coords.items():
                     if coord_name not in pymc_backend.model.coords:
@@ -201,8 +202,9 @@ class DistributionalComponent:
         predictors = []
         group_indexes = []
 
+        noncentered_default = noncentered_default_for(bmb_model, self.component.name)
         for term in self.component.group_specific_terms.values():
-            group_specific_term = GroupSpecificTerm(term, bmb_model.noncentered)
+            group_specific_term = GroupSpecificTerm(term, noncentered_default)
             # Add coords
             for name, values in group_specific_term.coords.items():
                 if name not in pymc_backend.model.coords:
