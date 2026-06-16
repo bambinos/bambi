@@ -8,6 +8,7 @@
 ## Maintenance and fixes
 
 * Non-Normal priors with random hyperpriors now build under the centered parameterization.
+* `Model.fit` now warns when `nuts_sampler_kwargs` is passed while using the default PyMC sampler, steering users to pass NUTS settings such as `target_accept` directly. Routing them through `nuts_sampler_kwargs` is silently ignored on PyMC < 6 and deprecated on PyMC >= 6.
 
 <a id="0.18.0"></a>
 # [Bambi 0.18.0](https://github.com/bambinos/bambi/releases/tag/0.18.0) - 2026-05-19
