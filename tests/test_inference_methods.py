@@ -1,5 +1,3 @@
-import warnings
-
 import bambi as bmb
 import numpy as np
 import pandas as pd
@@ -104,41 +102,59 @@ def test_legacy_nuts_numpyro_warning(data_random_n100):
         model.fit(inference_method="numpyro_nuts", draws=10, tune=10)
 
 
-# Distinctive phrase from Bambi's own warning, so we don't match PyMC's separate
-# `nuts_sampler_kwargs`-deprecation FutureWarning (which also fires on PyMC >= 6).
-_NSK_WARNING = "not recommended with the default PyMC sampler"
-
-
-def test_nuts_sampler_kwargs_on_pymc_warns(data_random_n100):
-    """Routing NUTS settings through ``nuts_sampler_kwargs`` on the default PyMC sampler warns.
-
-    Guards the footgun where settings like ``target_accept`` placed in
-    ``nuts_sampler_kwargs`` are silently ignored (PyMC < 6) or deprecated (PyMC >= 6),
-    instead of being passed directly to ``Model.fit()``.
-    """
+def test_nuts_parameter_for_default_sampler(data_random_n100):
+    """NUTS settings passed via nuts={} are forwarded to pm.sample and take effect."""
     model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
-    with pytest.warns(UserWarning, match=_NSK_WARNING):
-        model.fit(
+    idata = model.fit(
+        inference_method="pymc",
+        draws=10,
+        tune=10,
+        nuts={"target_accept": 0.95},
+    )
+    assert idata is not None
+
+
+def test_nuts_none_is_noop(data_random_n100):
+    """Omitting nuts (defaults to None) runs without error."""
+    model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
+    idata = model.fit(inference_method="pymc", draws=10, tune=10)
+    assert idata is not None
+
+
+def test_nuts_parameter_forwarded_to_external_samplers(data_random_n100):
+    """nuts={} is forwarded as-is to _run_mcmc for external samplers."""
+    import bambi.backend.pymc as _bpymc
+    import unittest.mock as mock
+
+    model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
+    captured = {}
+
+    def patched(self, *args, **kwargs):
+        captured.update(kwargs)
+        raise SystemExit
+
+    with mock.patch.object(_bpymc.PyMCModel, "_run_mcmc", patched):
+        try:
+            model.fit(
+                inference_method="nutpie",
+                draws=10,
+                tune=10,
+                nuts={"target_accept": 0.95},
+            )
+        except SystemExit:
+            pass
+
+    assert captured.get("nuts") == {"target_accept": 0.95}
+
+
+def test_nuts_sampler_kwargs_deprecated(data_random_n100):
+    """nuts_sampler_kwargs triggers a FutureWarning and is merged into nuts."""
+    model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
+    with pytest.warns(FutureWarning, match="nuts_sampler_kwargs.*deprecated"):
+        idata = model.fit(
             inference_method="pymc",
             draws=10,
             tune=10,
             nuts_sampler_kwargs={"target_accept": 0.95},
         )
-
-
-def test_target_accept_directly_does_not_warn(data_random_n100):
-    """Passing NUTS settings directly is the supported path and must not raise our warning."""
-    model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
-    with warnings.catch_warnings(record=True) as records:
-        warnings.simplefilter("always")
-        model.fit(inference_method="pymc", draws=10, tune=10, target_accept=0.95)
-    assert not any(_NSK_WARNING in str(record.message) for record in records)
-
-
-def test_empty_nuts_sampler_kwargs_does_not_warn(data_random_n100):
-    """An empty / falsy ``nuts_sampler_kwargs`` does not trigger our warning."""
-    model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
-    with warnings.catch_warnings(record=True) as records:
-        warnings.simplefilter("always")
-        model.fit(inference_method="pymc", draws=10, tune=10, nuts_sampler_kwargs={})
-    assert not any(_NSK_WARNING in str(record.message) for record in records)
+    assert idata is not None

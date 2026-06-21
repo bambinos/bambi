@@ -3,22 +3,24 @@
 # pylint: disable=too-many-positional-arguments
 import logging
 import warnings
-
 from copy import deepcopy
 from importlib.metadata import version
 
 import formulae as fm
-import pymc as pm
 import pandas as pd
-
+import pymc as pm
 from arviz_plots import plot_dist
 from arviz_stats import residual_r2
 
 from bambi.backend import PyMCModel
 from bambi.defaults import get_builtin_family
-from bambi.model_components import ConstantComponent, DistributionalComponent, ResponseComponent
 from bambi.families import Family, univariate
 from bambi.formula import Formula, check_ordinal_formula
+from bambi.model_components import (
+    ConstantComponent,
+    DistributionalComponent,
+    ResponseComponent,
+)
 from bambi.priors import Prior, PriorScaler
 from bambi.transformations import transformations_namespace
 from bambi.utils import (
@@ -168,7 +170,11 @@ class Model:
             # linear dependencies with the cutpoints.
             # Then the intercept is removed from the design matrix because of the cutpoints.
             design = fm.design_matrices(
-                self.formula.main + " + 1", self.data, na_action, 1, additional_namespace
+                self.formula.main + " + 1",
+                self.data,
+                na_action,
+                1,
+                additional_namespace,
             )
             design = remove_common_intercept(design)
         else:
@@ -210,7 +216,11 @@ class Model:
 
             # Create design matrix, only for the response part
             design = fm.design_matrices(
-                clean_formula_lhs(extra_formula), self.data, na_action, 1, additional_namespace
+                clean_formula_lhs(extra_formula),
+                self.data,
+                na_action,
+                1,
+                additional_namespace,
             )
 
             # If priors were not passed, pass an empty dictionary
@@ -255,6 +265,7 @@ class Model:
         chains=None,
         cores=None,
         random_seed=None,
+        nuts=None,
         **kwargs,
     ):
         """Fit the model using PyMC
@@ -320,8 +331,11 @@ class Model:
             in the system unless there are more than 4 CPUs, in which case it is set to 4.
         random_seed : int or list of ints, optional
             A list is accepted if cores is greater than one.
+        nuts : dict, optional
+            A dictionary of NUTS sampler settings passed directly to `pm.sample(nuts=...)`, e.g.
+            `model.fit(nuts={"target_accept": 0.9, "max_treedepth": 12})`.
         kwargs : dict
-            For other kwargs see the documentation for `PyMC.sample()`.
+            For other kwargs see the documentation for ``pm.sample()``.
 
         Returns
         -------
@@ -339,6 +353,19 @@ class Model:
                     FutureWarning,
                 )
                 inference_method = method
+
+        if "nuts_sampler_kwargs" in kwargs:
+            warnings.warn(
+                "'nuts_sampler_kwargs' is deprecated. Pass NUTS settings via the 'nuts' parameter "
+                "instead, e.g. model.fit(nuts={'target_accept': 0.9}).",
+                FutureWarning,
+                stacklevel=2,
+            )
+            legacy = kwargs.pop("nuts_sampler_kwargs")
+            if nuts is None:
+                nuts = legacy
+            else:
+                nuts = {**legacy, **nuts}
 
         if not self.built:
             self.build()
@@ -371,6 +398,7 @@ class Model:
             chains=chains,
             cores=cores,
             random_seed=random_seed,
+            nuts=nuts,
             **kwargs,
         )
 
@@ -789,7 +817,8 @@ class Model:
 
         if flat_rvs:
             _log.info(
-                "Variables %s have flat priors, and hence they are not plotted", ", ".join(flat_rvs)
+                "Variables %s have flat priors, and hence they are not plotted",
+                ", ".join(flat_rvs),
             )
 
         if omit_offsets:
@@ -861,7 +890,10 @@ class Model:
             var_names = [name for name in var_names if not name.endswith("_offset")]
 
         idata = pm.sample_prior_predictive(
-            draws=draws, var_names=var_names, model=self.backend.model, random_seed=random_seed
+            draws=draws,
+            var_names=var_names,
+            model=self.backend.model,
+            random_seed=random_seed,
         )
 
         for group in idata.children:
@@ -1101,7 +1133,12 @@ class Model:
         for name, component in self.distributional_components.items():
             var_name = component.alias if component.alias else name
             means_dict[var_name] = component.predict(
-                idata, data, include_group_specific, hsgp_dict, sample_new_groups, random_seed
+                idata,
+                data,
+                include_group_specific,
+                hsgp_dict,
+                sample_new_groups,
+                random_seed,
             )
 
         # Build the updated posterior dataset from the DataTree child
@@ -1300,7 +1337,10 @@ def prior_repr(term) -> str:
 
 def hsgp_repr(term) -> str:
     """Get a string representation of a Bambi HSGP term."""
-    output_list = [f"cov: {term.cov}", *[f"{key} ~ {value}" for key, value in term.prior.items()]]
+    output_list = [
+        f"cov: {term.cov}",
+        *[f"{key} ~ {value}" for key, value in term.prior.items()],
+    ]
     output_list = ["    " + element for element in output_list]
     output_list.insert(0, term.name)
     return "\n".join(output_list)

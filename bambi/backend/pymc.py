@@ -113,6 +113,7 @@ class PyMCModel:
         chains=None,
         cores=None,
         random_seed=None,
+        nuts=None,
         **kwargs,
     ):
         """Run PyMC sampler."""
@@ -161,6 +162,7 @@ class PyMCModel:
                 chains=chains,
                 cores=cores,
                 random_seed=random_seed,
+                nuts=nuts,
                 sampler_backend=inference_method,
                 **kwargs,
             )
@@ -203,25 +205,10 @@ class PyMCModel:
         chains,
         cores,
         random_seed,
+        nuts,
         sampler_backend,
         **kwargs,
     ):
-        # Routing NUTS settings (most commonly `target_accept`) through
-        # `nuts_sampler_kwargs` is a footgun with the default PyMC sampler: PyMC < 6
-        # silently ignores it, so the setting never takes effect, while PyMC >= 6
-        # deprecates it in favor of `pm.sample(nuts=...)`. Bambi users don't call
-        # `pm.sample` directly, so steer them to the supported, version-independent
-        # path: pass these settings straight to `Model.fit()`.
-        if sampler_backend == "pymc" and kwargs.get("nuts_sampler_kwargs"):
-            warnings.warn(
-                "Passing NUTS settings through `nuts_sampler_kwargs` is not recommended with the "
-                "default PyMC sampler (PyMC < 6 silently ignores it; PyMC >= 6 deprecates it). "
-                "Pass settings such as `target_accept` directly to `Model.fit()` instead, e.g. "
-                "`model.fit(target_accept=0.9)`.",
-                UserWarning,
-                stacklevel=2,
-            )
-
         # Don't include the parameters of the likelihood, which are deterministics.
         # They can take lot of space in the trace and increase RAM requirements.
         vars_to_sample = get_default_varnames(
@@ -234,6 +221,11 @@ class PyMCModel:
             is_deterministic = variable in self.model.deterministics
             if is_likelihood_param and is_deterministic:
                 vars_to_sample.remove(name)
+
+        # pm.sample routes nuts settings via kwargs.pop("nuts", {}); only inject when provided
+        # to avoid passing nuts=None which causes pm.sample's internal nuts_kwargs.copy() to fail.
+        if nuts is not None:
+            kwargs["nuts"] = nuts
 
         with self.model:
             try:
