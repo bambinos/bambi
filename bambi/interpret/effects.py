@@ -12,8 +12,6 @@ from seaborn.objects import Plot
 from xarray import DataArray
 
 from bambi.interpret.ops import (
-    ComparisonFunc,
-    SlopeFunc,
     get_comparison_func,
     get_slope_func,
 )
@@ -555,7 +553,7 @@ def comparisons(
     average_by: str | list[str] | None = None,
     target: str = "mean",
     pps: bool = False,
-    comparison: ComparisonFunc | str = "diff",
+    comparison: Callable[[DataArray, DataArray], DataArray] | str = "diff",
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
@@ -579,7 +577,7 @@ def comparisons(
         The target parameter to compare. Default is "mean".
     pps : bool
         Whether to use posterior predictive samples. Default is False.
-    comparison : ComparisonFunc or str
+    comparison : Callable[[DataArray, DataArray], DataArray] or str
         Comparison function or string name. Built-in options: "diff" (difference),
         "ratio" (ratio), "lift" (relative difference). Default is "diff".
         Custom functions should accept (reference, contrast) DataArrays and return a DataArray.
@@ -662,7 +660,7 @@ def plot_comparisons(
     average_by: str | list | bool | None = None,
     target: str = "mean",
     pps: bool = False,
-    comparison: ComparisonFunc | str = "diff",
+    comparison: Callable[[DataArray, DataArray], DataArray] | str = "diff",
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
@@ -688,7 +686,7 @@ def plot_comparisons(
         The target parameter to compare. Default is "mean".
     pps : bool
         Whether to use posterior predictive samples. Default is False.
-    comparison : ComparisonFunc or str
+    comparison : Callable[[DataArray, DataArray], DataArray] or str
         Comparison function or string name. Built-in options: "diff" (difference),
         "ratio" (ratio), "lift" (relative difference). Default is "diff".
         Custom functions should accept (reference, contrast) DataArrays and return a DataArray.
@@ -753,7 +751,7 @@ def slopes(
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list[str] | None = None,
     eps: float = 1e-4,
-    slope: str | SlopeFunc = "dydx",
+    slope: str | Callable[[DataArray, DataArray, DataArray], DataArray] = "dydx",
     target: str = "mean",
     pps: bool = False,
     use_hdi: bool = True,
@@ -782,12 +780,11 @@ def slopes(
         Variables to average slopes over.
     eps : float
         Perturbation size for finite differencing. Default is 1e-4.
-    slope : str or SlopeFunc
-        The type of slope to compute. Default is 'dydx'. Built-in options:
-        'dydx' - unit change in wrt associated with a unit change in response.
-        'eyex' - percent change in wrt associated with a percent change in response.
-        'eydx' - unit change in wrt associated with a percent change in response.
-        'dyex' - percent change in wrt associated with a unit change in response.
+    slope : str or Callable[[DataArray, DataArray, DataArray], DataArray]
+        Slope function or string name. Built-in options: "dydx" (unit/unit),
+        "eyex" (percent/percent), "eydx" (unit/percent), "dyex" (percent/unit).
+        Default is "dydx". Custom functions should accept (derivative, x, y) DataArrays
+        and return a DataArray.
     target : str
         The target parameter to compute slopes for. Default is "mean".
     pps : bool
@@ -875,7 +872,7 @@ def plot_slopes(
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list | bool | None = None,
     eps: float = 1e-4,
-    slope: str | SlopeFunc = "dydx",
+    slope: str | Callable[[DataArray, DataArray, DataArray], DataArray] = "dydx",
     target: str = "mean",
     pps: bool = False,
     use_hdi: bool = True,
@@ -901,8 +898,11 @@ def plot_slopes(
         Variables to average slopes over.
     eps : float
         Perturbation size for finite differencing. Default is 1e-4.
-    slope : str or SlopeFunc
-        The type of slope to compute. Default is 'dydx'.
+    slope : str or Callable[[DataArray, DataArray, DataArray], DataArray]
+        Slope function or string name. Built-in options: "dydx" (unit/unit),
+        "eyex" (percent/percent), "eydx" (unit/percent), "dyex" (percent/unit).
+        Default is "dydx". Custom functions should accept (derivative, x, y) DataArrays
+        and return a DataArray.
     target : str
         The target parameter to compute slopes for. Default is "mean".
     pps : bool
