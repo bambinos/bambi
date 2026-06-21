@@ -10,7 +10,7 @@ requires = ["setuptools>=61.0", "setuptools_scm>=8"]
 [project]
 name = "bambi"
 description = "BAyesian Model Building Interface in Python"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 readme = "README.md"
 license = { file = "LICENSE" }
 dynamic = ["version"]
@@ -22,12 +22,13 @@ maintainers = [
 ]
 
 dependencies = [
-    "arviz_plots>=0.8.0,<1",
+    "arviz_plots>=1.0.0,<2.0.0",
     "formulae>=0.6.0,<0.7.0",
     "graphviz",
     "matplotlib>=3.9.0",
     "pandas>=1.0.0",
-    "pymc>=5.27.0,<6",
+    "pytensor>=3.0.0,<4.0.0",  
+    "pymc>=6.0.0,<7.0.0",
     "seaborn>=0.13.2,<0.14",
     "sparse>=0.17.0,<0.18",
 ]
@@ -40,7 +41,7 @@ jax = [
 ]
 nutpie = [
     "numba>=0.61.2",
-    "nutpie>=0.15,<0.16",
+    "nutpie>=0.16.10,<1",
 ]
 
 [project.urls]
@@ -79,7 +80,6 @@ bambi = { path = ".", editable = true }
 
 ## Dependencies from conda channels
 [tool.pixi.feature.dev.dependencies]
-black = "25.*"
 pre-commit = "4.*"
 pylint = "3.3.*"
 
@@ -99,6 +99,9 @@ lifelines = ">=0.30.0,<0.31"
 python-graphviz = ">=0.21,<0.22"
 griffe = ">=1, <2"
 
+[tool.pixi.feature.dev.pypi-dependencies]
+black = { version = "==25.*", extras = ["jupyter"] }
+
 [tool.pixi.feature.docs.pypi-dependencies]
 # We need a new release of quartodoc (after 0.11.1)
 quartodoc = { git = "https://github.com/machow/quartodoc.git", rev = "fc9f3cca3c2f930e53c6c7079e41333a13ed0461" }
@@ -110,10 +113,7 @@ numpyro = ">=0.19,<0.20"
 
 [tool.pixi.feature.nutpie.dependencies]
 numba = ">=0.61.2"
-nutpie = ">=0.15,<0.16"
-
-[tool.pixi.feature.py311.dependencies]
-python = "~=3.11.0"
+nutpie = ">=0.16.10,<1"
 
 [tool.pixi.feature.py312.dependencies]
 python = "~=3.12.0"
@@ -121,14 +121,17 @@ python = "~=3.12.0"
 [tool.pixi.feature.py313.dependencies]
 python = "~=3.13.0"
 
+# [tool.pixi.feature.py314.dependencies]
+# python = "~=3.14.0"
+
 
 [tool.pixi.environments]
 default = { solve-group = "default" }
 dev = { features = ["dev", "test", "docs", "jax", "nutpie"], solve-group = "default" }
 # Only used for testing purposes
-py311 = {features = ["dev", "test", "docs", "jax", "nutpie", "py311"]}
 py312 = {features = ["dev", "test", "docs", "jax", "nutpie", "py312"]}
 py313 = {features = ["dev", "test", "docs", "jax", "nutpie", "py313"]}
+# py314 = {features = ["dev", "test", "docs", "jax", "nutpie", "py314"]}
 
 [tool.pixi.feature.dev.tasks]
 pre-commit-setup = "pre-commit install"

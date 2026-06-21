@@ -23,7 +23,7 @@ from bambi.backend.model_components import (
     DistributionalComponent,
     ResponseComponent,
 )
-from bambi.utils import get_aliased_name
+from bambi.utils import get_aliased_name, as_dataset
 
 _log = logging.getLogger("bambi")
 
@@ -263,18 +263,21 @@ class PyMCModel:
         # Before doing anything, make sure we compute deterministics.
         # But, don't include those determinisics for parameters of the likelihood.
 
-        for group in idata.groups():
-            getattr(idata, group).attrs["modeling_interface"] = "bambi"
-            getattr(idata, group).attrs["modeling_interface_version"] = __version__
+        for group in idata.children:
+            idata[group] = as_dataset(idata[group]).assign_attrs(
+                modeling_interface="bambi", modeling_interface_version=__version__
+            )
+
+        posterior = as_dataset(idata["posterior"])
 
         if omit_offsets:
-            offset_vars = [var for var in idata.posterior.data_vars if var.endswith("_offset")]
-            idata.posterior = idata.posterior.drop_vars(offset_vars)
+            offset_vars = [var for var in posterior.data_vars if var.endswith("_offset")]
+            posterior = posterior.drop_vars(offset_vars)
 
         dims_original = list(self.model.coords)
 
         # Don't select dims that are in the model but unused in the posterior
-        dims_original = [dim for dim in dims_original if dim in idata.posterior.dims]
+        dims_original = [dim for dim in dims_original if dim in posterior.dims]
 
         # This does not add any new coordinate, it just changes the order so the ones
         # ending in "__factor_dim" are placed after the others.
@@ -286,8 +289,8 @@ class PyMCModel:
         dims_new = ["chain", "draw"] + dims_original + dims_group
 
         # Drop unused dimensions before transposing
-        dims_to_drop = [dim for dim in idata.posterior.dims if dim not in dims_new]
-        idata.posterior = idata.posterior.drop_dims(dims_to_drop).transpose(*dims_new)
+        dims_to_drop = [dim for dim in posterior.dims if dim not in dims_new]
+        posterior = posterior.drop_dims(dims_to_drop).transpose(*dims_new)
 
         # Compute the actual intercept in all distributional components that have an intercept
         for pymc_component in self.distributional_components.values():
@@ -297,8 +300,8 @@ class PyMCModel:
                 and bambi_component.common_terms
                 and self.spec.center_predictors
             ):
-                chain_n = len(idata.posterior["chain"])
-                draw_n = len(idata.posterior["draw"])
+                chain_n = len(posterior["chain"])
+                draw_n = len(posterior["draw"])
                 shape, dims = (chain_n, draw_n), ("chain", "draw")
                 X = pymc_component.design_matrix_without_intercept
 
@@ -313,11 +316,15 @@ class PyMCModel:
                     shape += (len(levels),)
                     dims += tuple(response_coords)
 
-                posterior = idata.posterior.stack(samples=dims)
-                coefs = np.vstack([np.atleast_2d(posterior[name].values) for name in common_terms])
+                posterior_stacked = posterior.stack(samples=dims)
+                coefs = np.vstack(
+                    [np.atleast_2d(posterior_stacked[name].values) for name in common_terms]
+                )
                 name = get_aliased_name(bambi_component.intercept_term)
                 center_factor = np.dot(X.mean(0), coefs).reshape(shape)
-                idata.posterior[name] = idata.posterior[name] - center_factor
+                posterior[name] = posterior[name] - center_factor
+
+        idata["posterior"] = posterior
 
         if include_response_params:
             self.spec.predict(idata)
@@ -444,7 +451,7 @@ def _posterior_samples_to_idata(samples, model):
             var_samples = samples[i][size : size + new_size]
             value.append(var_samples.reshape(shape))
             size += new_size
-        strace.record(point=dict(zip(varnames, value)))
+        strace.record(point=dict(zip(varnames, value)), in_warmup=False)
 
     idata = pm.to_inference_data(pm.backends.base.MultiTrace([strace]), model=model)
     return idata

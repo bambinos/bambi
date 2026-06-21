@@ -386,7 +386,7 @@ def test_custom_likelihood_function(mock_pymc_sample):
     model.build()
     assert_ip_dlogp(model)
     model.fit(chains=2)
-    assert model.backend.model.observed_RVs[0].str_repr() == "y ~ Normal(mu, sigma)"
+    assert model.backend.model.observed_RVs[0].str_repr() == "y ~ Normal(f(Intercept, x), sigma)"
 
 
 def test_extra_namespace():

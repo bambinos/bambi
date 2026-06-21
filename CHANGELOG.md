@@ -1,3 +1,45 @@
+# Unreleased
+
+## New features
+
+* `bmb.Prior` accepts a `noncentered` keyword to override `Model.noncentered` per group-specific term.
+* `Model.noncentered` accepts a `dict` keyed by component name (e.g. `{"mu": True, "sigma": False}`).
+
+## Maintenance and fixes
+
+* Non-Normal priors with random hyperpriors now build under the centered parameterization.
+
+<a id="0.18.0"></a>
+# [Bambi 0.18.0](https://github.com/bambinos/bambi/releases/tag/0.18.0) - 2026-05-19
+
+## What's Changed
+
+### Maintenance and fixes
+
+* Fix tests and update CI to run Pixi v0.62.2 and setup-pixi v0.9.2 by [@tomicapretto](https://github.com/tomicapretto) in [#960](https://github.com/bambinos/bambi/pull/960)
+* Test on numba backend by [@ricardoV94](https://github.com/ricardoV94) in [#955](https://github.com/bambinos/bambi/pull/955)
+* Fix horseshoe prior by [@aloctavodia](https://github.com/aloctavodia) in [#969](https://github.com/bambinos/bambi/pull/969)
+* Interpret refactor by [@GStechschulte](https://github.com/GStechschulte) in [#971](https://github.com/bambinos/bambi/pull/971)
+* Remove pps and update target params in interpret effects signatures by [@GStechschulte](https://github.com/GStechschulte) in [#977](https://github.com/bambinos/bambi/pull/977)
+* Update to work with last version of arviz, pymc and pytensor by [@aloctavodia](https://github.com/aloctavodia) in [#980](https://github.com/bambinos/bambi/pull/980)
+* Use pymc 6 by [@aloctavodia](https://github.com/aloctavodia) in [#984](https://github.com/bambinos/bambi/pull/984)
+
+### Documentation
+
+* Wording correction: a HSGP -> an HSGP by [@star1327p](https://github.com/star1327p) in [#963](https://github.com/bambinos/bambi/pull/963)
+* Render unordered lists in docstrings and fix changelog update by [@tomicapretto](https://github.com/tomicapretto) in [#964](https://github.com/bambinos/bambi/pull/964)
+* Fixed, Random Effects and Mundlak Machines Example by [@juanitorduz](https://github.com/juanitorduz) in [#965](https://github.com/bambinos/bambi/pull/965)
+* Add discrete time notebook by [@NathanielF](https://github.com/NathanielF) in [#967](https://github.com/bambinos/bambi/pull/967)
+* Minor correction to documentation by [@star1327p](https://github.com/star1327p) in [#975](https://github.com/bambinos/bambi/pull/975)
+
+## New Contributors
+* [@ricardoV94](https://github.com/ricardoV94) made their first contribution in [#955](https://github.com/bambinos/bambi/pull/955)
+
+**Full Changelog**: https://github.com/bambinos/bambi/compare/0.17.1...0.18.0
+
+[Changes][0.18.0]
+
+
 <a id="0.17.2"></a>
 # [Bambi 0.17.2](https://github.com/bambinos/bambi/releases/tag/0.17.2) - 2026-01-16
 
@@ -558,6 +600,7 @@ Release 0.0.5
 [Changes][0.0.5]
 
 
+[0.18.0]: https://github.com/bambinos/bambi/compare/0.17.2...0.18.0
 [0.17.2]: https://github.com/bambinos/bambi/compare/0.17.1...0.17.2
 [0.17.1]: https://github.com/bambinos/bambi/compare/0.16.0...0.17.1
 [0.16.0]: https://github.com/bambinos/bambi/compare/0.15.0...0.16.0

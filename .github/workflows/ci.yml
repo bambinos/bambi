@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pixi-env: ["py311", "py312", "py313"]
+        pixi-env: ["py312", "py313"]
         pytensor-linker: ["cvm", "numba"]
 
     name: CI on ${{ matrix.pixi-env }} | ${{ matrix.pytensor-linker }}

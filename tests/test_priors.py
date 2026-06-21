@@ -126,6 +126,31 @@ def test_prior_eq():
     assert prior1 != "bmb.Prior"
 
 
+def test_prior_noncentered_field():
+    # Default is None
+    prior_default = bmb.Prior("Normal", mu=0, sigma=1)
+    assert prior_default.noncentered is None
+
+    # Explicit True / False are stored as-is
+    prior_true = bmb.Prior("Normal", mu=0, sigma=1, noncentered=True)
+    prior_false = bmb.Prior("Normal", mu=0, sigma=1, noncentered=False)
+    assert prior_true.noncentered is True
+    assert prior_false.noncentered is False
+
+    # Equality reflects the new field
+    assert prior_true == bmb.Prior("Normal", mu=0, sigma=1, noncentered=True)
+    assert prior_true != prior_false
+    assert prior_default != prior_true
+    assert prior_default != prior_false
+
+    # __str__ / __repr__ stay unchanged when noncentered is None,
+    # and append the field only when explicitly set
+    assert str(prior_default) == "Normal(mu: 0.0, sigma: 1.0)"
+    assert str(prior_true) == "Normal(mu: 0.0, sigma: 1.0, noncentered: True)"
+    assert str(prior_false) == "Normal(mu: 0.0, sigma: 1.0, noncentered: False)"
+    assert str(prior_true) == repr(prior_true)
+
+
 def test_family_link_unsupported():
     prior = bmb.Prior("CheeseWhiz", holes=0, taste=-10)
     likelihood = bmb.Likelihood("Cheese", parent="holes", params=["holes", "milk"])

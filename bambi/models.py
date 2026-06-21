@@ -22,6 +22,7 @@ from bambi.formula import Formula, check_ordinal_formula
 from bambi.priors import Prior, PriorScaler
 from bambi.transformations import transformations_namespace
 from bambi.utils import (
+    as_dataset,
     clean_formula_lhs,
     get_aliased_name,
     indentify,
@@ -78,7 +79,7 @@ class Model:
         second a lambda function expressing the desired constraint.
         If a constraint involves n variables, you can pass n 2-tuples or pass a tuple which first
         element is an n-tuple and second element is a lambda function with n arguments. The number
-        and order of the lambda function has to match the number and order of the variables names.
+        and order of the lambda function has to match the number and order of the variable names.
     dropna : bool, optional
         When `True`, rows with any missing values in either the predictors or outcome are
         automatically dropped from t, optionalhe dataset in a listwise manner.
@@ -86,9 +87,12 @@ class Model:
         If `True` (default), priors are automatically rescaled to the data
         (to be weakly informative) any time default priors are used. Note that any priors
         explicitly set by the user will always take precedence over default priors.
-    noncentered : bool, optional
-        If `True` (default), uses a non-centered parameterization for normal hyperpriors on
-        grouped parameters. If `False`, naive (centered) parameterization is used.
+    noncentered : bool or dict[str, bool], optional
+        Default parameterization for group-specific terms.
+        `True` (default) uses non-centered; `False` uses centered. Can also be a `dict`
+        keyed by component name (e.g. `{"mu": True, "sigma": False}`) for per-parameter
+        defaults; missing keys default to `True`, unknown keys raise. Per-`Prior`
+        `noncentered=` overrides this setting.
     center_predictors : bool, optional
         If `True` (default), and if there is an intercept in the common terms, the data is
         centered by subtracting the mean. The centering is undone after sampling to provide
@@ -224,6 +228,15 @@ class Model:
         for name in auxiliary_parameters:
             component_prior = priors.get(name, None)
             self.components[name] = ConstantComponent(name, component_prior, self)
+
+        # Validate per-component noncentered dict, now that all components are known.
+        if isinstance(self.noncentered, dict):
+            unknown = set(self.noncentered) - set(self.components)
+            if unknown:
+                raise ValueError(
+                    f"Unknown component name(s) in `noncentered`: {sorted(unknown)}. "
+                    f"Valid component names for this model: {sorted(self.components)}."
+                )
 
         # Build priors
         self._build_priors()
@@ -652,9 +665,9 @@ class Model:
             distribution. Defaults to `None` which means to include both observed and
             unobserved RVs.
         filter_vars : {"like", "regex"} or None, optional
-            If `None`, interpret `var_names` as the real variables names.
-            If `"like"`, interpret `var_names` as substrings of the real variables names.
-            If `"regex"`, interpret `var_names` as regular expressions on the real variables names.
+            If `None`, interpret `var_names` as the real variable names.
+            If `"like"`, interpret `var_names` as substrings of the real variable names.
+            If `"regex"`, interpret `var_names` as regular expressions on the real variable names.
             Forwarded to [](`arviz_plots.plot_dist`).
         kind : str, optional
             Type of plot to display (`"kde"` or `"hist"`). For discrete variables this argument
@@ -848,10 +861,10 @@ class Model:
             var_names = [name for name in var_names if not name.endswith("_offset")]
 
         idata = pm.sample_prior_predictive(
-            samples=draws, var_names=var_names, model=self.backend.model, random_seed=random_seed
+            draws=draws, var_names=var_names, model=self.backend.model, random_seed=random_seed
         )
 
-        for group in idata.groups():
+        for group in idata.children:
             getattr(idata, group).attrs["modeling_interface"] = "bambi"
             getattr(idata, group).attrs["modeling_interface_version"] = __version__
 
@@ -954,10 +967,10 @@ class Model:
             posterior_predictive = posterior_predictive.to_dataset(name=response_aliased_name)
 
             if "posterior_predictive" in idata:
-                del idata.posterior_predictive
+                del idata["posterior_predictive"]
 
-            idata.add_groups({"posterior_predictive": posterior_predictive})
-            idata.posterior_predictive = idata.posterior_predictive.assign_attrs(
+            idata["posterior_predictive"] = posterior_predictive
+            idata["posterior_predictive"] = idata["posterior_predictive"].ds.assign_attrs(
                 modeling_interface="bambi", modeling_interface_version=__version__
             )
 
@@ -1053,10 +1066,10 @@ class Model:
         log_likelihood = log_likelihood.to_dataset(name=response_aliased_name)
 
         if "log_likelihood" in idata:
-            del idata.log_likelihood
+            del idata["log_likelihood"]
 
-        idata.add_groups({"log_likelihood": log_likelihood})
-        idata.log_likelihood = idata.log_likelihood.assign_attrs(
+        idata["log_likelihood"] = log_likelihood
+        idata["log_likelihood"] = idata["log_likelihood"].ds.assign_attrs(
             modeling_interface="bambi", modeling_interface_version=__version__
         )
 
@@ -1091,19 +1104,23 @@ class Model:
                 idata, data, include_group_specific, hsgp_dict, sample_new_groups, random_seed
             )
 
-            # Drop var/dim if already present. Needed for out-of-sample predictions.
-            if var_name in idata.posterior.data_vars:
-                idata.posterior = idata.posterior.drop_vars(var_name)
+        # Build the updated posterior dataset from the DataTree child
+        posterior = as_dataset(idata["posterior"])
 
-        if response_dim in idata.posterior.dims:
-            idata.posterior = idata.posterior.drop_dims(response_dim)
+        # Drop var/dim if already present. Needed for out-of-sample predictions.
+        for var_name in means_dict:
+            if var_name in posterior.data_vars:
+                posterior = posterior.drop_vars(var_name)
+
+        if response_dim in posterior.dims:
+            posterior = posterior.drop_dims(response_dim)
 
         # Use the first DataArray to get the number of observations
         obs_n = len(list(means_dict.values())[0].coords.get(response_dim))
-        idata.posterior = idata.posterior.assign_coords({response_dim: list(range(obs_n))})
+        posterior = posterior.assign_coords({response_dim: list(range(obs_n))})
 
         for name, value in means_dict.items():
-            idata.posterior[name] = value
+            posterior[name] = value
 
         # Add HSGP contributions to the posterior dataset
         for component in self.distributional_components.values():
@@ -1112,9 +1129,9 @@ class Model:
                 if term is None:
                     continue
                 term_aliased_name = get_aliased_name(term)
-                idata.posterior[term_aliased_name] = hsgp_contribution.transpose(
-                    "chain", "draw", ...
-                )
+                posterior[term_aliased_name] = hsgp_contribution.transpose("chain", "draw", ...)
+
+        idata["posterior"] = posterior
 
         return idata
 

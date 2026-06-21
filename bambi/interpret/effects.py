@@ -6,10 +6,9 @@ import arviz as az
 import numpy as np
 import pandas as pd
 import xarray as xr
-from arviz import InferenceData
 from pandas import DataFrame
 from seaborn.objects import Plot
-from xarray import DataArray
+from xarray import DataArray, DataTree
 
 from bambi.interpret.ops import (
     get_comparison_func,
@@ -25,13 +24,14 @@ from bambi.interpret.types import (
 )
 from bambi.interpret.utils import (
     aggregate,
-    create_inference_data,
+    create_datatree,
     get_model_covariates,
-    get_response_and_target,
     identity,
+    resolve_target,
 )
 from bambi.interpret.validate import validate_prob
 from bambi.models import Model
+from bambi.utils import as_dataset
 
 
 def _determine_plot_vars(
@@ -104,16 +104,16 @@ def _extract_dim_columns(summary_df: DataFrame, var_names: list[str]) -> list[st
 
 
 def filter_draws(
-    val: Any, idata: InferenceData, group: str, target: str, variable: pd.Series
+    val: Any, idata: DataTree, group: str, target: str, variable: pd.Series
 ) -> DataArray:
-    """Filter draws from an InferenceData group based on variable values.
+    """Filter draws from an DataTree group based on variable values.
 
     Parameters
     ----------
     val : Any
         The value to filter by.
-    idata : InferenceData
-        The InferenceData object containing the draws.
+    idata : DataTree
+        The DataTree object containing the draws.
     group : str
         The name of the group to filter from (e.g., 'posterior', 'posterior_predictive').
     target : str
@@ -127,11 +127,12 @@ def filter_draws(
         An xarray DataArray containing the filtered draws.
     """
     coordinate_name = list(idata["data"].coords)[0]
+    data_group = as_dataset(idata["data"])
 
     # Get indices where condition is true
     # np.logical_and.reduce is useful if there are multiple conditions (contrast values)
-    idx = np.where(np.logical_and.reduce([idata["data"][variable.name] == val]))[0]
-    draws = idata[group].isel({coordinate_name: idx})[target]
+    idx = np.where(np.logical_and.reduce([data_group[variable.name] == val]))[0]
+    draws = as_dataset(idata[group]).isel({coordinate_name: idx})[target]
 
     # In the case of main and or parent parameters (e.g., distributional models)
     if coordinate_name in draws.coords:
@@ -142,18 +143,18 @@ def filter_draws(
 
 
 def compare(
-    idata: InferenceData,
+    idata: DataTree,
     contrast: ComparisonVariable,
     target: str,
     group: str,
     comparison_fn: Callable,
 ) -> dict[str, DataArray]:
-    """Compare samples in an InferenceData group given a `ComparisonVariable`.
+    """Compare samples in a DataTree group given a `ComparisonVariable`.
 
     Parameters
     ----------
-    idata : InferenceData
-        The InferenceData object containing the samples to compare.
+    idata : DataTree
+        The DataTree object containing the samples to compare.
     contrast : ComparisonVariable
     The ComparisonVariable specifying the variable to create contrasts for.
     target : str
@@ -235,15 +236,14 @@ def _compute_bounds(x: DataArray, prob: float, use_hdi: bool) -> DataFrame:
     upper_bound = 1 - lower_bound
 
     if use_hdi:
-        hdi = az.hdi(x, hdi_prob=prob)
-        var_name = list(hdi.data_vars)[0]
+        hdi = az.hdi(x, prob=prob)
         bounds = (
-            hdi.to_dataframe()
-            .unstack(level="hdi")[var_name]
+            hdi.to_series()
+            .unstack(level="ci_bound")
             .rename(
                 columns={
                     "lower": f"lower_{lower_bound * 100}%",
-                    "higher": f"upper_{upper_bound * 100}%",
+                    "upper": f"upper_{upper_bound * 100}%",
                 }
             )
         )
@@ -300,14 +300,13 @@ def get_summary_stats(x: DataArray, prob: float | list[float], use_hdi: bool = T
 
 def _build_predictions(
     model: Model,
-    idata: InferenceData,
+    idata: DataTree,
     focal_variable: pd.Series,
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]],
     target: str,
-    pps: bool,
     transforms: dict | None,
     sample_new_groups: bool,
-) -> tuple[InferenceData, DataFrame, list[str], str, str, Callable]:
+) -> tuple[DataTree, DataFrame, list[str], str, str, Callable]:
     """Shared prediction pipeline for comparisons and slopes.
 
     Resolves variables, builds the data grid, runs model predictions,
@@ -317,17 +316,17 @@ def _build_predictions(
     ----------
     model : Model
         The fitted Bambi model.
-    idata : InferenceData
-        InferenceData object containing the posterior samples.
+    idata : DataTree
+        DataTree object containing the posterior samples.
     focal_variable : Series
         The focal variable values (contrast values for comparisons,
         [x, x+eps] pairs for slopes).
     conditional : str, list, dict, or None
         Variables to condition on.
     target : str
-        The target parameter to predict.
-    pps : bool
-        Whether to use posterior predictive samples.
+        Which quantity to extract. `"mean"` for the posterior of the parent
+        parameter, the response variable name for posterior predictive samples, or a
+        distributional component name.
     transforms : dict or None
         Dictionary of transformations.
     sample_new_groups : bool
@@ -336,12 +335,12 @@ def _build_predictions(
     Returns
     -------
     tuple
-        (compare_idata, preds_data, context_columns, var, group, response_transform)
+        (compare_idata, preds_data, context_columns, var_name, group, response_transform)
     """
     transforms = transforms or {}
 
-    response_name, target = get_response_and_target(model, target)
-    response_transform = transforms.get(response_name, identity)
+    target_info = resolve_target(model, target)
+    response_transform = transforms.get(target_info.response_name, identity)
 
     cond = ConditionalVariables.from_param(model.data, conditional)
     covariates = get_model_covariates(model).tolist()
@@ -370,22 +369,26 @@ def _build_predictions(
         "sample_new_groups": sample_new_groups,
         "inplace": False,
     }
-    preds_idata = model.predict(**pred_kwargs, **({} if not pps else {"kind": "response"}))
-    group = "posterior_predictive" if pps else "posterior"
-    var = response_name if pps or target is None else target
+    preds_idata = model.predict(**pred_kwargs, kind=target_info.predict_kind)
 
-    compare_idata = create_inference_data(preds_idata, preds_data)
+    compare_idata = create_datatree(preds_idata, preds_data)
 
-    return compare_idata, preds_data, context_columns, var, group, response_transform
+    return (
+        compare_idata,
+        preds_data,
+        context_columns,
+        target_info.var_name,
+        target_info.group,
+        response_transform,
+    )
 
 
 def predictions(
     model: Model,
-    idata: InferenceData,
+    idata: DataTree,
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list[str] | None = None,
     target: str = "mean",
-    pps: bool = False,
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
@@ -397,16 +400,17 @@ def predictions(
     ----------
     model : Model
         The fitted Bambi model.
-    idata : InferenceData
-        InferenceData object containing the posterior samples.
+    idata : DataTree
+        DataTree object containing the posterior samples.
     conditional : ConditionalParam
         Variables to condition on for predictions.
     average_by : str, list or None
         Variables to average predictions over.
     target : str
-        The target parameter to predict. Default is "mean".
-    pps : bool
-        Whether to use posterior predictive samples. Default is False.
+        Which quantity to extract. `"mean"` (default) for the posterior of the parent
+        parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior
+        predictive samples. Pass a distributional component name (e.g. `"sigma"`) for the
+        posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
     prob : float or list[float]
@@ -431,8 +435,8 @@ def predictions(
 
     transforms = transforms or {}
 
-    response_name, target = get_response_and_target(model, target)
-    response_transform = transforms.get(response_name, identity)
+    target_info = resolve_target(model, target)
+    response_transform = transforms.get(target_info.response_name, identity)
 
     cond = ConditionalVariables.from_param(model.data, conditional)
     covariates = get_model_covariates(model).tolist()
@@ -452,10 +456,8 @@ def predictions(
         "sample_new_groups": sample_new_groups,
         "inplace": False,
     }
-    idata = model.predict(**pred_kwargs, **({} if not pps else {"kind": "response"}))
-    group = "posterior_predictive" if pps else "posterior"
-    var = response_name if pps or target is None else target
-    y_hat = idata[group][var]
+    idata = model.predict(**pred_kwargs, kind=target_info.predict_kind)
+    y_hat = as_dataset(idata[target_info.group])[target_info.var_name]
 
     stats_data = get_summary_stats(response_transform(y_hat), prob, use_hdi)
     summary_df = aggregate(data=preds_data.join(stats_data, on=None), by=average_by)
@@ -465,11 +467,10 @@ def predictions(
 
 def plot_predictions(
     model: Model,
-    idata: InferenceData,
+    idata: DataTree,
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list | bool | None = None,
     target: str = "mean",
-    pps: bool = False,
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
@@ -483,16 +484,17 @@ def plot_predictions(
     ----------
     model : Model
         The fitted Bambi model.
-    idata : InferenceData
-        InferenceData object containing the posterior samples.
+    idata : DataTree
+        DataTree object containing the posterior samples.
     conditional : ConditionalParam
         Variables to condition on for predictions.
     average_by : str or list or bool or None
         Variables to average predictions over.
     target : str
-        The target parameter to predict. Default is "mean".
-    pps : bool
-        Whether to use posterior predictive samples. Default is False.
+        Which quantity to extract. `"mean"` (default) for the posterior of the parent
+        parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior
+        predictive samples. Pass a distributional component name (e.g. `"sigma"`) for the
+        posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
     prob : float or list[float]
@@ -529,7 +531,6 @@ def plot_predictions(
         conditional=conditional,
         average_by=average_by,
         target=target,
-        pps=pps,
         use_hdi=use_hdi,
         prob=prob,
         transforms=transforms,
@@ -547,7 +548,7 @@ def plot_predictions(
 
 def comparisons(
     model: Model,
-    idata: InferenceData,
+    idata: DataTree,
     contrast: str | dict[str, np.ndarray | list | int | float],
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list[str] | None = None,
@@ -565,8 +566,8 @@ def comparisons(
     ----------
     model : Model
         The fitted Bambi model.
-    idata : InferenceData
-        InferenceData object containing the posterior samples.
+    idata : DataTree
+        DataTree object containing the posterior samples.
     contrast : ContrastParam
         Variable(s) to create contrasts for.
     conditional : ConditionalParam
@@ -614,7 +615,6 @@ def comparisons(
         con.variable,
         conditional,
         target,
-        pps,
         transforms,
         sample_new_groups,
     )
@@ -654,7 +654,7 @@ def comparisons(
 
 def plot_comparisons(
     model: Model,
-    idata: InferenceData,
+    idata: DataTree,
     contrast: str | dict[str, np.ndarray | list | int | float],
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list | bool | None = None,
@@ -674,8 +674,8 @@ def plot_comparisons(
     ----------
     model : Model
         The fitted Bambi model.
-    idata : InferenceData
-        InferenceData object containing the posterior samples.
+    idata : DataTree
+        DataTree object containing the posterior samples.
     contrast : contrastParam
         Variable(s) to create contrasts for.
     conditional : ConditionalParam
@@ -727,7 +727,6 @@ def plot_comparisons(
         conditional=conditional,
         average_by=average_by,
         target=target,
-        pps=pps,
         comparison=comparison,
         use_hdi=use_hdi,
         prob=prob,
@@ -746,14 +745,13 @@ def plot_comparisons(
 
 def slopes(
     model: Model,
-    idata: InferenceData,
+    idata: DataTree,
     wrt: str | dict[str, float | int],
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list[str] | None = None,
     eps: float = 1e-4,
     slope: str | Callable[[DataArray, DataArray, DataArray], DataArray] = "dydx",
     target: str = "mean",
-    pps: bool = False,
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
@@ -768,8 +766,8 @@ def slopes(
     ----------
     model : Model
         The fitted Bambi model.
-    idata : InferenceData
-        InferenceData object containing the posterior samples.
+    idata : DataTree
+        DataTree object containing the posterior samples.
     wrt : str or dict
         The predictor variable to compute the slope with respect to. Either a variable
         name (uses mean/mode as evaluation point) or a single-entry dict mapping
@@ -786,9 +784,10 @@ def slopes(
         Default is "dydx". Custom functions should accept (derivative, x, y) DataArrays
         and return a DataArray.
     target : str
-        The target parameter to compute slopes for. Default is "mean".
-    pps : bool
-        Whether to use posterior predictive samples. Default is False.
+        Which quantity to extract. `"mean"` (default) for the posterior of the parent
+        parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior
+        predictive samples. Pass a distributional component name (e.g. `"sigma"`) for the
+        posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
     prob : float or list[float]
@@ -822,7 +821,6 @@ def slopes(
         wrt_var.variable,
         conditional,
         target,
-        pps,
         transforms,
         sample_new_groups,
     )
@@ -867,14 +865,13 @@ def slopes(
 
 def plot_slopes(
     model: Model,
-    idata: InferenceData,
+    idata: DataTree,
     wrt: str | dict[str, float | int],
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list | bool | None = None,
     eps: float = 1e-4,
     slope: str | Callable[[DataArray, DataArray, DataArray], DataArray] = "dydx",
     target: str = "mean",
-    pps: bool = False,
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
@@ -888,8 +885,8 @@ def plot_slopes(
     ----------
     model : Model
         The fitted Bambi model.
-    idata : InferenceData
-        InferenceData object containing the posterior samples.
+    idata : DataTree
+        DataTree object containing the posterior samples.
     wrt : str or dict
         The predictor variable to compute the slope with respect to.
     conditional : ConditionalParam
@@ -904,9 +901,10 @@ def plot_slopes(
         Default is "dydx". Custom functions should accept (derivative, x, y) DataArrays
         and return a DataArray.
     target : str
-        The target parameter to compute slopes for. Default is "mean".
-    pps : bool
-        Whether to use posterior predictive samples. Default is False.
+        Which quantity to extract. `"mean"` (default) for the posterior of the parent
+        parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior
+        predictive samples. Pass a distributional component name (e.g. `"sigma"`) for the
+        posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
     prob : float or list[float]
@@ -945,7 +943,6 @@ def plot_slopes(
         eps=eps,
         slope=slope,
         target=target,
-        pps=pps,
         use_hdi=use_hdi,
         prob=prob,
         transforms=transforms,

@@ -684,10 +684,10 @@ class TestPoisson(FitPredictParent):
         assert pps.observed_data["count"].shape == (120,)
 
         pps = model1.prior_predictive(draws=200, var_names=["count"], random_seed=1234)
-        assert pps.groups() == ["prior_predictive", "observed_data"]
+        assert set(pps.children) == {"prior_predictive", "observed_data", "prior"}
 
         pps = model1.prior_predictive(draws=200, var_names=["Intercept"], random_seed=1234)
-        assert pps.groups() == ["prior", "observed_data"]
+        assert set(pps.children) == {"prior_predictive", "observed_data", "prior"}
 
         # Now test posterior predictive
         # Fit again to make sure we fix the number of chains

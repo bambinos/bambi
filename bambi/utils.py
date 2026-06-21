@@ -5,6 +5,7 @@ import textwrap
 
 import formulae as fm
 import numpy as np
+from xarray import DataTree
 
 from bambi.transformations import HSGP
 
@@ -180,3 +181,8 @@ def response_evaluate_new_data(model, data):
     # We add an intercept to have a valid formula, but it's not used
     dm = fm.design_matrices(name + " ~ 1", data, env=env)
     return np.asarray(dm.response)
+
+
+def as_dataset(group):
+    """Return a Dataset from either a DataTree group or a Dataset."""
+    return group.ds if isinstance(group, DataTree) else group
