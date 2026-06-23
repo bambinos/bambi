@@ -725,7 +725,6 @@ def plot_comparisons(
         conditional=conditional,
         average_by=average_by,
         target=target,
-        pps=pps,
         comparison=comparison,
         use_hdi=use_hdi,
         prob=prob,
