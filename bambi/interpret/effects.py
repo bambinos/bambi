@@ -43,7 +43,7 @@ def _determine_plot_vars(
 
     Parameters
     ----------
-    conditional : ConditionalParam
+    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
         User-specified conditional variables.
     average_by : str, list, or None
         Variables to average over.
@@ -402,7 +402,7 @@ def predictions(
         The fitted Bambi model.
     idata : DataTree
         DataTree object containing the posterior samples.
-    conditional : ConditionalParam
+    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
         Variables to condition on for predictions.
     average_by : str, list or None
         Variables to average predictions over.
@@ -423,8 +423,9 @@ def predictions(
 
     Returns
     -------
-    DataFrame
-        A DataFrame containing the conditional adjusted predictions with summary statistics.
+    Result
+        A named tuple with `.summary` (DataFrame of summary statistics) and
+        `.draws` (DataTree of raw posterior draws).
 
     Raises
     ------
@@ -486,7 +487,7 @@ def plot_predictions(
         The fitted Bambi model.
     idata : DataTree
         DataTree object containing the posterior samples.
-    conditional : ConditionalParam
+    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
         Variables to condition on for predictions.
     average_by : str or list or bool or None
         Variables to average predictions over.
@@ -568,9 +569,9 @@ def comparisons(
         The fitted Bambi model.
     idata : DataTree
         DataTree object containing the posterior samples.
-    contrast : ContrastParam
+    contrast : str or dict[str, ndarray or list or int or float]
         Variable(s) to create contrasts for.
-    conditional : ConditionalParam
+    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
         Variables to condition on for comparisons.
     average_by : str, list or None
         Variables to average comparisons over.
@@ -594,8 +595,9 @@ def comparisons(
 
     Returns
     -------
-    DataFrame
-        A DataFrame containing the conditional adjusted comparisons with summary statistics.
+    Result
+        A named tuple with `.summary` (DataFrame of summary statistics) and
+        `.draws` (DataTree of raw posterior draws).
 
     Raises
     ------
@@ -676,9 +678,9 @@ def plot_comparisons(
         The fitted Bambi model.
     idata : DataTree
         DataTree object containing the posterior samples.
-    contrast : contrastParam
+    contrast : str or dict[str, ndarray or list or int or float]
         Variable(s) to create contrasts for.
-    conditional : ConditionalParam
+    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
         Variables to condition on for comparisons.
     average_by : str or list or bool or None
         Variables to average comparisons over.
@@ -689,7 +691,6 @@ def plot_comparisons(
     comparison : Callable[[DataArray, DataArray], DataArray] or str
         Comparison function or string name. Built-in options: "diff" (difference),
         "ratio" (ratio), "lift" (relative difference). Default is "diff".
-        Custom functions should accept (reference, contrast) DataArrays and return a DataArray.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
     prob : float or list[float]
@@ -727,6 +728,7 @@ def plot_comparisons(
         conditional=conditional,
         average_by=average_by,
         target=target,
+        pps=pps,
         comparison=comparison,
         use_hdi=use_hdi,
         prob=prob,
@@ -772,7 +774,7 @@ def slopes(
         The predictor variable to compute the slope with respect to. Either a variable
         name (uses mean/mode as evaluation point) or a single-entry dict mapping
         variable name to a specific evaluation point.
-    conditional : ConditionalParam
+    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
         Variables to condition on for slopes.
     average_by : str, list or None
         Variables to average slopes over.
@@ -800,8 +802,9 @@ def slopes(
 
     Returns
     -------
-    DataFrame
-        A DataFrame containing the conditional adjusted slopes with summary statistics.
+    Result
+        A named tuple with `.summary` (DataFrame of summary statistics) and
+        `.draws` (DataTree of raw posterior draws).
 
     Raises
     ------
@@ -889,17 +892,16 @@ def plot_slopes(
         DataTree object containing the posterior samples.
     wrt : str or dict
         The predictor variable to compute the slope with respect to.
-    conditional : ConditionalParam
+    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
         Variables to condition on for slopes.
     average_by : str or list or bool or None
         Variables to average slopes over.
     eps : float
         Perturbation size for finite differencing. Default is 1e-4.
-    slope : str or Callable[[DataArray, DataArray, DataArray], DataArray]
+    slope : Callable[[DataArray, DataArray, DataArray], DataArray] or str
         Slope function or string name. Built-in options: "dydx" (unit/unit),
         "eyex" (percent/percent), "eydx" (unit/percent), "dyex" (percent/unit).
-        Default is "dydx". Custom functions should accept (derivative, x, y) DataArrays
-        and return a DataArray.
+        Default is "dydx".
     target : str
         Which quantity to extract. `"mean"` (default) for the posterior of the parent
         parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior
