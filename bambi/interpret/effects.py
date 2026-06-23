@@ -554,7 +554,6 @@ def comparisons(
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list[str] | None = None,
     target: str = "mean",
-    pps: bool = False,
     comparison: Callable[[DataArray, DataArray], DataArray] | str = "diff",
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
@@ -577,8 +576,6 @@ def comparisons(
         Variables to average comparisons over.
     target : str
         The target parameter to compare. Default is "mean".
-    pps : bool
-        Whether to use posterior predictive samples. Default is False.
     comparison : Callable[[DataArray, DataArray], DataArray] or str
         Comparison function or string name. Built-in options: "diff" (difference),
         "ratio" (ratio), "lift" (relative difference). Default is "diff".
@@ -661,7 +658,6 @@ def plot_comparisons(
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list | bool | None = None,
     target: str = "mean",
-    pps: bool = False,
     comparison: Callable[[DataArray, DataArray], DataArray] | str = "diff",
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
@@ -685,9 +681,10 @@ def plot_comparisons(
     average_by : str or list or bool or None
         Variables to average comparisons over.
     target : str
-        The target parameter to compare. Default is "mean".
-    pps : bool
-        Whether to use posterior predictive samples. Default is False.
+        Which quantity to extract. `"mean"` (default) for the posterior of the parent
+        parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior
+        predictive samples. Pass a distributional component name (e.g. `"sigma"`) for the
+        posterior of that component.
     comparison : Callable[[DataArray, DataArray], DataArray] or str
         Comparison function or string name. Built-in options: "diff" (difference),
         "ratio" (ratio), "lift" (relative difference). Default is "diff".
