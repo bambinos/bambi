@@ -28,11 +28,11 @@ Compute conditional adjusted comparisons.
 
 :   DataTree object containing the posterior samples.
 
-<code>[**contrast**]{.parameter-name} [:]{.parameter-annotation-sep} [[ContrastParam](`ContrastParam`)]{.parameter-annotation}</code>
+<code>[**contrast**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`) or [dict](`dict`)\[[str](`str`), [ndarray](`ndarray`) or [list](`list`) or [int](`int`) or [float](`float`)\]]{.parameter-annotation}</code>
 
 :   Variable(s) to create contrasts for.
 
-<code>[**conditional**]{.parameter-name} [:]{.parameter-annotation-sep} [[ConditionalParam](`ConditionalParam`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+<code>[**conditional**]{.parameter-name} [:]{.parameter-annotation-sep} [str, list\[str\], dict\[str, ndarray or list or int or float\], or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
 
 :   Variables to condition on for comparisons.
 
@@ -42,9 +42,9 @@ Compute conditional adjusted comparisons.
 
 <code>[**target**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'mean\']{.parameter-default}</code>
 
-:   Which quantity to extract. `"mean"` (default) for the posterior of the parent parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior predictive samples. Pass a distributional component name (e.g. `"sigma"`) for the posterior of that component.
+:   The target parameter to compare. Default is "mean".
 
-<code>[**comparison**]{.parameter-name} [:]{.parameter-annotation-sep} [[ComparisonFunc](`bambi.interpret.ops.ComparisonFunc`) or [str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'diff\']{.parameter-default}</code>
+<code>[**comparison**]{.parameter-name} [:]{.parameter-annotation-sep} [[Callable](`typing.Callable`)\[\[[DataArray](`xarray.DataArray`), [DataArray](`xarray.DataArray`)\], [DataArray](`xarray.DataArray`)\] or [str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'diff\']{.parameter-default}</code>
 
 :   Comparison function or string name. Built-in options: "diff" (difference), "ratio" (ratio), "lift" (relative difference). Default is "diff". Custom functions should accept (reference, contrast) DataArrays and return a DataArray.
 
@@ -66,9 +66,9 @@ Compute conditional adjusted comparisons.
 
 ## Returns {.doc-section .doc-section-returns}
 
-<code>[]{.parameter-name} [:]{.parameter-annotation-sep} [[DataFrame](`pandas.DataFrame`)]{.parameter-annotation}</code>
+<code>[]{.parameter-name} [:]{.parameter-annotation-sep} [[Result](`bambi.interpret.types.Result`)]{.parameter-annotation}</code>
 
-:   A DataFrame containing the conditional adjusted comparisons with summary statistics.
+:   A named tuple with `.summary` (DataFrame of summary statistics) and `.draws` (DataTree of raw posterior draws).
 
 ## Raises {.doc-section .doc-section-raises}
 

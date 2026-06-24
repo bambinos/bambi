@@ -35,7 +35,7 @@ Plot conditional adjusted slopes.
 
 :   The predictor variable to compute the slope with respect to.
 
-<code>[**conditional**]{.parameter-name} [:]{.parameter-annotation-sep} [[ConditionalParam](`ConditionalParam`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+<code>[**conditional**]{.parameter-name} [:]{.parameter-annotation-sep} [str, list\[str\], dict\[str, ndarray or list or int or float\], or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
 
 :   Variables to condition on for slopes.
 
@@ -47,9 +47,9 @@ Plot conditional adjusted slopes.
 
 :   Perturbation size for finite differencing. Default is 1e-4.
 
-<code>[**slope**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`) or [SlopeFunc](`bambi.interpret.ops.SlopeFunc`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'dydx\']{.parameter-default}</code>
+<code>[**slope**]{.parameter-name} [:]{.parameter-annotation-sep} [[Callable](`typing.Callable`)\[\[[DataArray](`xarray.DataArray`), [DataArray](`xarray.DataArray`), [DataArray](`xarray.DataArray`)\], [DataArray](`xarray.DataArray`)\] or [str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'dydx\']{.parameter-default}</code>
 
-:   The type of slope to compute. Default is 'dydx'.
+:   Slope function or string name. Built-in options: "dydx" (unit/unit), "eyex" (percent/percent), "eydx" (unit/percent), "dyex" (percent/unit). Default is "dydx".
 
 <code>[**target**]{.parameter-name} [:]{.parameter-annotation-sep} [[str](`str`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [\'mean\']{.parameter-default}</code>
 
