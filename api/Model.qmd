@@ -140,6 +140,7 @@ Model.fit(
     chains=None,
     cores=None,
     random_seed=None,
+    nuts=None,
     **kwargs,
 )
 ```
@@ -215,9 +216,13 @@ Fit the model using PyMC
 
 :   A list is accepted if cores is greater than one.
 
+<code>[**nuts**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
+
+:   A dictionary of NUTS sampler settings passed directly to `pm.sample(nuts=...)`, e.g. `model.fit(nuts={"target_accept": 0.9, "max_treedepth": 12})`.
+
 <code>[**kwargs**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [{}]{.parameter-default}</code>
 
-:   For other kwargs see the documentation for `PyMC.sample()`.
+:   For other kwargs see the documentation for ``pm.sample()``.
 
 #### Returns {.doc-section .doc-section-returns}
 

@@ -535,8 +535,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    chains<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    cores<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>kwargs,</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    nuts<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>kwargs,</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Fit the model using PyMC</p>
 <section id="parameters-2" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
@@ -601,9 +602,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dd>
 <p>A list is accepted if cores is greater than one.</p>
 </dd>
+<dt><code><span class="parameter-name"><strong>nuts</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dd>
+<p>A dictionary of NUTS sampler settings passed directly to <code>pm.sample(nuts=...)</code>, e.g.&nbsp;<code>model.fit(nuts={"target_accept": 0.9, "max_treedepth": 12})</code>.</p>
+</dd>
 <dt><code><span class="parameter-name"><strong>kwargs</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">{}</span></code></dt>
 <dd>
-<p>For other kwargs see the documentation for <code>PyMC.sample()</code>.</p>
+<p>For other kwargs see the documentation for <code>pm.sample()</code>.</p>
 </dd>
 </dl>
 </section>

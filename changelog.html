@@ -139,6 +139,7 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="maintenance-and-fixes">Maintenance and fixes</h2>
 <ul>
 <li>Non-Normal priors with random hyperpriors now build under the centered parameterization.</li>
+<li><code>Model.fit</code> now warns when <code>nuts_sampler_kwargs</code> is passed while using the default PyMC sampler, steering users to pass NUTS settings such as <code>target_accept</code> directly. Routing them through <code>nuts_sampler_kwargs</code> is silently ignored on PyMC &lt; 6 and deprecated on PyMC &gt;= 6.</li>
 </ul>
 </section>
 </section>
