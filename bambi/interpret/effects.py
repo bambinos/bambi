@@ -11,8 +11,6 @@ from seaborn.objects import Plot
 from xarray import DataArray, DataTree
 
 from bambi.interpret.ops import (
-    ComparisonFunc,
-    SlopeFunc,
     get_comparison_func,
     get_slope_func,
 )
@@ -45,7 +43,7 @@ def _determine_plot_vars(
 
     Parameters
     ----------
-    conditional : ConditionalParam
+    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
         User-specified conditional variables.
     average_by : str, list, or None
         Variables to average over.
@@ -404,7 +402,7 @@ def predictions(
         The fitted Bambi model.
     idata : DataTree
         DataTree object containing the posterior samples.
-    conditional : ConditionalParam
+    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
         Variables to condition on for predictions.
     average_by : str, list or None
         Variables to average predictions over.
@@ -425,8 +423,9 @@ def predictions(
 
     Returns
     -------
-    DataFrame
-        A DataFrame containing the conditional adjusted predictions with summary statistics.
+    Result
+        A named tuple with `.summary` (DataFrame of summary statistics) and
+        `.draws` (DataTree of raw posterior draws).
 
     Raises
     ------
@@ -488,7 +487,7 @@ def plot_predictions(
         The fitted Bambi model.
     idata : DataTree
         DataTree object containing the posterior samples.
-    conditional : ConditionalParam
+    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
         Variables to condition on for predictions.
     average_by : str or list or bool or None
         Variables to average predictions over.
@@ -555,7 +554,7 @@ def comparisons(
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list[str] | None = None,
     target: str = "mean",
-    comparison: ComparisonFunc | str = "diff",
+    comparison: Callable[[DataArray, DataArray], DataArray] | str = "diff",
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
@@ -569,18 +568,15 @@ def comparisons(
         The fitted Bambi model.
     idata : DataTree
         DataTree object containing the posterior samples.
-    contrast : ContrastParam
+    contrast : str or dict[str, ndarray or list or int or float]
         Variable(s) to create contrasts for.
-    conditional : ConditionalParam
+    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
         Variables to condition on for comparisons.
     average_by : str, list or None
         Variables to average comparisons over.
     target : str
-        Which quantity to extract. `"mean"` (default) for the posterior of the parent
-        parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior
-        predictive samples. Pass a distributional component name (e.g. `"sigma"`) for the
-        posterior of that component.
-    comparison : ComparisonFunc or str
+        The target parameter to compare. Default is "mean".
+    comparison : Callable[[DataArray, DataArray], DataArray] or str
         Comparison function or string name. Built-in options: "diff" (difference),
         "ratio" (ratio), "lift" (relative difference). Default is "diff".
         Custom functions should accept (reference, contrast) DataArrays and return a DataArray.
@@ -596,8 +592,9 @@ def comparisons(
 
     Returns
     -------
-    DataFrame
-        A DataFrame containing the conditional adjusted comparisons with summary statistics.
+    Result
+        A named tuple with `.summary` (DataFrame of summary statistics) and
+        `.draws` (DataTree of raw posterior draws).
 
     Raises
     ------
@@ -661,7 +658,7 @@ def plot_comparisons(
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list | bool | None = None,
     target: str = "mean",
-    comparison: ComparisonFunc | str = "diff",
+    comparison: Callable[[DataArray, DataArray], DataArray] | str = "diff",
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
@@ -677,9 +674,9 @@ def plot_comparisons(
         The fitted Bambi model.
     idata : DataTree
         DataTree object containing the posterior samples.
-    contrast : contrastParam
+    contrast : str or dict[str, ndarray or list or int or float]
         Variable(s) to create contrasts for.
-    conditional : ConditionalParam
+    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
         Variables to condition on for comparisons.
     average_by : str or list or bool or None
         Variables to average comparisons over.
@@ -688,10 +685,9 @@ def plot_comparisons(
         parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior
         predictive samples. Pass a distributional component name (e.g. `"sigma"`) for the
         posterior of that component.
-    comparison : ComparisonFunc or str
+    comparison : Callable[[DataArray, DataArray], DataArray] or str
         Comparison function or string name. Built-in options: "diff" (difference),
         "ratio" (ratio), "lift" (relative difference). Default is "diff".
-        Custom functions should accept (reference, contrast) DataArrays and return a DataArray.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
     prob : float or list[float]
@@ -752,7 +748,7 @@ def slopes(
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list[str] | None = None,
     eps: float = 1e-4,
-    slope: str | SlopeFunc = "dydx",
+    slope: str | Callable[[DataArray, DataArray, DataArray], DataArray] = "dydx",
     target: str = "mean",
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
@@ -774,18 +770,17 @@ def slopes(
         The predictor variable to compute the slope with respect to. Either a variable
         name (uses mean/mode as evaluation point) or a single-entry dict mapping
         variable name to a specific evaluation point.
-    conditional : ConditionalParam
+    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
         Variables to condition on for slopes.
     average_by : str, list or None
         Variables to average slopes over.
     eps : float
         Perturbation size for finite differencing. Default is 1e-4.
-    slope : str or SlopeFunc
-        The type of slope to compute. Default is 'dydx'. Built-in options:
-        'dydx' - unit change in wrt associated with a unit change in response.
-        'eyex' - percent change in wrt associated with a percent change in response.
-        'eydx' - unit change in wrt associated with a percent change in response.
-        'dyex' - percent change in wrt associated with a unit change in response.
+    slope : str or Callable[[DataArray, DataArray, DataArray], DataArray]
+        Slope function or string name. Built-in options: "dydx" (unit/unit),
+        "eyex" (percent/percent), "eydx" (unit/percent), "dyex" (percent/unit).
+        Default is "dydx". Custom functions should accept (derivative, x, y) DataArrays
+        and return a DataArray.
     target : str
         Which quantity to extract. `"mean"` (default) for the posterior of the parent
         parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior
@@ -803,8 +798,9 @@ def slopes(
 
     Returns
     -------
-    DataFrame
-        A DataFrame containing the conditional adjusted slopes with summary statistics.
+    Result
+        A named tuple with `.summary` (DataFrame of summary statistics) and
+        `.draws` (DataTree of raw posterior draws).
 
     Raises
     ------
@@ -873,7 +869,7 @@ def plot_slopes(
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
     average_by: str | list | bool | None = None,
     eps: float = 1e-4,
-    slope: str | SlopeFunc = "dydx",
+    slope: str | Callable[[DataArray, DataArray, DataArray], DataArray] = "dydx",
     target: str = "mean",
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
@@ -892,14 +888,16 @@ def plot_slopes(
         DataTree object containing the posterior samples.
     wrt : str or dict
         The predictor variable to compute the slope with respect to.
-    conditional : ConditionalParam
+    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
         Variables to condition on for slopes.
     average_by : str or list or bool or None
         Variables to average slopes over.
     eps : float
         Perturbation size for finite differencing. Default is 1e-4.
-    slope : str or SlopeFunc
-        The type of slope to compute. Default is 'dydx'.
+    slope : Callable[[DataArray, DataArray, DataArray], DataArray] or str
+        Slope function or string name. Built-in options: "dydx" (unit/unit),
+        "eyex" (percent/percent), "eydx" (unit/percent), "dyex" (percent/unit).
+        Default is "dydx".
     target : str
         Which quantity to extract. `"mean"` (default) for the posterior of the parent
         parameter (e.g. `"mu"`). Pass the response variable name (e.g. `"mpg"`) for posterior

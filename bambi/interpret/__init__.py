@@ -1,4 +1,5 @@
 from bambi.interpret.effects import (
+    Result,
     comparisons,
     plot_comparisons,
     plot_predictions,
@@ -14,4 +15,5 @@ __all__ = [
     "plot_comparisons",
     "plot_predictions",
     "plot_slopes",
+    "Result",
 ]

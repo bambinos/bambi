@@ -113,6 +113,7 @@ class PyMCModel:
         chains=None,
         cores=None,
         random_seed=None,
+        nuts=None,
         **kwargs,
     ):
         """Run PyMC sampler."""
@@ -161,6 +162,7 @@ class PyMCModel:
                 chains=chains,
                 cores=cores,
                 random_seed=random_seed,
+                nuts=nuts,
                 sampler_backend=inference_method,
                 **kwargs,
             )
@@ -203,6 +205,7 @@ class PyMCModel:
         chains,
         cores,
         random_seed,
+        nuts,
         sampler_backend,
         **kwargs,
     ):
@@ -218,6 +221,11 @@ class PyMCModel:
             is_deterministic = variable in self.model.deterministics
             if is_likelihood_param and is_deterministic:
                 vars_to_sample.remove(name)
+
+        # pm.sample routes nuts settings via kwargs.pop("nuts", {}); only inject when provided
+        # to avoid passing nuts=None which causes pm.sample's internal nuts_kwargs.copy() to fail.
+        if nuts is not None:
+            kwargs["nuts"] = nuts
 
         with self.model:
             try:

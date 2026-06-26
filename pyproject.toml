@@ -27,7 +27,7 @@ dependencies = [
     "graphviz",
     "matplotlib>=3.9.0",
     "pandas>=1.0.0",
-    "pytensor>=3.0.0,<4.0.0",  
+    "pytensor>=3.0.0,<4.0.0",
     "pymc>=6.0.0,<7.0.0",
     "seaborn>=0.13.2,<0.14",
     "sparse>=0.17.0,<0.18",
@@ -77,6 +77,9 @@ bambi = { path = ".", editable = true }
 
 [tool.pixi.dependencies]
 # NOTE: We get all dependencies we need through installation of Bambi itself
+# Pixi's dual solver runs conda first resulting in conda pinning arviz to 0.23.4
+# but Bambi needs the versions below to satisfy PyMC 6.0.0 requirements
+arviz = ">=1.1.0,<2.0.0"
 
 ## Dependencies from conda channels
 [tool.pixi.feature.dev.dependencies]
