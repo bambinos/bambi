@@ -9,6 +9,7 @@ from importlib.metadata import version
 import formulae as fm
 import pandas as pd
 import pymc as pm
+import xarray as xr
 from arviz_plots import plot_dist
 from arviz_stats import residual_r2
 
@@ -1102,6 +1103,65 @@ class Model:
 
         idata["log_likelihood"] = log_likelihood
         idata["log_likelihood"] = idata["log_likelihood"].ds.assign_attrs(
+            modeling_interface="bambi", modeling_interface_version=__version__
+        )
+
+        if inplace:
+            return None
+        else:
+            return idata
+
+    def compute_log_prior(self, idata, inplace=True):
+        """Compute the model's log-prior
+
+        **NOTE**: This is a new feature and it may not work in all cases.
+
+        Parameters
+        ----------
+        idata : InferenceData
+            The `InferenceData` instance returned by `.fit()`.
+        inplace : bool, optional
+            If `True` it will modify `idata` in-place. Otherwise, it will return a copy of
+            `idata` with the `log_prior` group added.
+
+        Returns
+        -------
+        InferenceData or None
+        """
+        if not self.built:
+            self.build()
+
+        if not inplace:
+            idata = deepcopy(idata)
+
+        pymc_model = self.backend.model
+        posterior = idata.posterior
+
+        log_prior_vars = {}
+
+        for rv in pymc_model.unobserved_RVs:
+            # Skip deterministics since their density is not part of the prior.
+            if rv in pymc_model.deterministics:
+                continue
+
+            name = rv.name
+
+            # Skip variables not present in the posterior (e.g. offsets dropped via omit_offsets)
+            if name not in posterior:
+                continue
+
+            values = posterior[name]
+            logp = pm.logp(rv, values.to_numpy()).eval()
+
+            log_prior_vars[name] = xr.DataArray(logp, dims=values.dims, coords=values.coords)
+
+        log_prior = xr.Dataset(log_prior_vars)
+
+        if "log_prior" in idata:
+            del idata["log_prior"]
+
+        idata["log_prior"] = log_prior
+        idata["log_prior"] = idata["log_prior"].ds.assign_attrs(
             modeling_interface="bambi", modeling_interface_version=__version__
         )
 
