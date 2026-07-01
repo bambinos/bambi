@@ -12,6 +12,8 @@ import pymc as pm
 import xarray as xr
 from arviz_plots import plot_dist
 from arviz_stats import residual_r2
+from pymc.backends.arviz import apply_function_over_dataset, coords_and_dims_for_inferencedata
+from pymc.model.transform.conditioning import remove_value_transforms
 
 from bambi.backend import PyMCModel
 from bambi.defaults import get_builtin_family
@@ -1114,8 +1116,6 @@ class Model:
     def compute_log_prior(self, idata, inplace=True):
         """Compute the model's log-prior
 
-        **NOTE**: This is a new feature and it may not work in all cases.
-
         Parameters
         ----------
         idata : InferenceData
@@ -1135,27 +1135,42 @@ class Model:
             idata = deepcopy(idata)
 
         pymc_model = self.backend.model
-        posterior = idata.posterior
 
-        log_prior_vars = {}
+        # Here we reproduce the logic of `compute_log_density`/`compute_log_prior`
+        # in PyMC. The reason to not use those and pass `var_names` is that the filter
+        # is applied to the output, but not to the input variables. This cause trouble for us
+        # because we need to exclude variables that are not part of the posterior like `*_offset`.
+        umodel = remove_value_transforms(pymc_model)
+        coords, dims = coords_and_dims_for_inferencedata(umodel)
 
-        for rv in pymc_model.unobserved_RVs:
-            # Skip deterministics since their density is not part of the prior.
-            if rv in pymc_model.deterministics:
-                continue
+        det_names = {d.name for d in pymc_model.deterministics}
+        posterior = as_dataset(idata["posterior"])
 
-            name = rv.name
+        target_rvs = [
+            rv for rv in umodel.free_RVs if rv.name not in det_names and rv.name in posterior
+        ]
+        target_names = [rv.name for rv in target_rvs]
+        value_vars = [umodel.rvs_to_values[rv] for rv in target_rvs]
 
-            # Skip variables not present in the posterior (e.g. offsets dropped via omit_offsets)
-            if name not in posterior:
-                continue
+        elemwise_logprior_fn = umodel.compile_fn(
+            inputs=value_vars,
+            outs=umodel.logp(vars=target_rvs, sum=False),
+            on_unused_input="ignore",
+        )
+        input_dataset = posterior[target_names].astype(
+            {vv.name: vv.type.dtype for vv in value_vars}, copy=False
+        )
+        logdens = apply_function_over_dataset(
+            elemwise_logprior_fn,
+            input_dataset,
+            output_var_names=target_names,
+            sample_dims=("chain", "draw"),
+            dims=dims,
+            coords=coords,
+            progressbar=False,
+        )
 
-            values = posterior[name]
-            logp = pm.logp(rv, values.to_numpy()).eval()
-
-            log_prior_vars[name] = xr.DataArray(logp, dims=values.dims, coords=values.coords)
-
-        log_prior = xr.Dataset(log_prior_vars)
+        log_prior = xr.Dataset({name: logdens[name] for name in target_names})
 
         if "log_prior" in idata:
             del idata["log_prior"]
