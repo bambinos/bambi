@@ -7,7 +7,7 @@ import bambi as bmb
 @pytest.mark.usefixtures("mock_pymc_sample")
 def test_inplace(data_beetle):
     model = bmb.Model("prop(y, n) ~ x", data_beetle, family="binomial")
-    idata = model.fit(tune=20, draws=20, chains=1, random_seed=1234)
+    idata = model.fit(tune=500, draws=100, chains=4)
 
     assert "log_prior" not in idata
     assert model.compute_log_prior(idata, inplace=True) is None
