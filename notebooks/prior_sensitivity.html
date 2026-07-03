@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Hierarchical Linear Regression (Sleepstudy example) – Bambi</title>
+<title>Prior and likelihood sensitivity checks – Bambi</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -64,8 +64,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../notebooks/radon_example.html" rel="next">
-<link href="../notebooks/multi-level_regression.html" rel="prev">
+<link href="../notebooks/kulprit.html" rel="next">
+<link href="../notebooks/plot_slopes.html" rel="prev">
 <link href="../logos/favicon.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -189,7 +189,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/ESCS_multiple_regression.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/sleepstudy.html">Hierarchical Linear Regression (Sleepstudy example)</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/prior_sensitivity.html">Sensitivity analysis</a></li><li class="breadcrumb-item"><a href="../notebooks/prior_sensitivity.html">Prior and likelihood sensitivity checks</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -209,13 +209,13 @@ window.Quarto = {
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
  <span class="menu-text">Linear regression models</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">
@@ -236,7 +236,7 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/sleepstudy.html" class="sidebar-item-text sidebar-link active">
+  <a href="../notebooks/sleepstudy.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Hierarchical Linear Regression (Sleepstudy example)</span></a>
   </div>
 </li>
@@ -463,16 +463,16 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
  <span class="menu-text">Sensitivity analysis</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../notebooks/prior_sensitivity.html" class="sidebar-item-text sidebar-link">
+  <a href="../notebooks/prior_sensitivity.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Prior and likelihood sensitivity checks</span></a>
   </div>
 </li>
@@ -522,19 +522,21 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#load-data" id="toc-load-data" class="nav-link active" data-scroll-target="#load-data">Load data</a></li>
-  <li><a href="#explore-data" id="toc-explore-data" class="nav-link" data-scroll-target="#explore-data">Explore data</a></li>
-  <li><a href="#the-model" id="toc-the-model" class="nav-link" data-scroll-target="#the-model">The model</a></li>
-  <li><a href="#analyze-results" id="toc-analyze-results" class="nav-link" data-scroll-target="#analyze-results">Analyze results</a></li>
+  <li><a href="#body-fat-example" id="toc-body-fat-example" class="nav-link active" data-scroll-target="#body-fat-example">Body fat example</a>
+  <ul class="collapse">
+  <li><a href="#adjusting-the-prior" id="toc-adjusting-the-prior" class="nav-link" data-scroll-target="#adjusting-the-prior">Adjusting the prior</a></li>
+  </ul></li>
+  <li><a href="#non-interpretable-parameters-and-derived-quantities" id="toc-non-interpretable-parameters-and-derived-quantities" class="nav-link" data-scroll-target="#non-interpretable-parameters-and-derived-quantities">Non-interpretable parameters and derived quantities</a></li>
+  <li><a href="#computing-derived-quantities" id="toc-computing-derived-quantities" class="nav-link" data-scroll-target="#computing-derived-quantities">Computing derived quantities</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/ESCS_multiple_regression.html">Linear regression models</a></li><li class="breadcrumb-item"><a href="../notebooks/sleepstudy.html">Hierarchical Linear Regression (Sleepstudy example)</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/prior_sensitivity.html">Sensitivity analysis</a></li><li class="breadcrumb-item"><a href="../notebooks/prior_sensitivity.html">Prior and likelihood sensitivity checks</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Hierarchical Linear Regression (Sleepstudy example)</h1>
+<h1 class="title">Prior and likelihood sensitivity checks</h1>
 </div>
 
 
@@ -551,23 +553,78 @@ window.Quarto = {
 </header>
 
 
-<div id="cell-2" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz.preview <span class="im">as</span> az</span>
+<div id="a7168a89" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>SEED <span class="op">=</span> <span class="dv">1211</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-variat"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-variat"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>SEED <span class="op">=</span> <span class="dv">9846</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>In this example we are going to use <strong>sleepstudy</strong> dataset. It is derived from the study described in <a href="https://pubmed.ncbi.nlm.nih.gov/12603781/">Belenky et al.&nbsp;(2003)</a> and popularized in the <a href="https://CRAN.R-project.org/package=lme4">lme4</a> R package. This dataset contains the average reaction time per day (in milliseconds) on a series of tests for the most sleep-deprived group in a sleep deprivation study. The first two days of the study are considered as adaptation and training, the third day is a baseline, and sleep deprivation started after day 3. The subjects in this group were restricted to 3 hours of sleep per night.</p>
-<section id="load-data" class="level2">
-<h2 class="anchored" data-anchor-id="load-data">Load data</h2>
-<p>The <strong>sleepstudy</strong> dataset can be loaded using the <code>load_data()</code> function:</p>
-<div id="cell-6" class="cell" data-execution_count="2">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> bmb.load_data(<span class="st">"sleepstudy"</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="2">
+<p>Determining the sensitivity of the posterior to perturbations of the prior is an important part of building Bayesian models. The traditional way to assess the prior sensitivity is to compare the posterior obtained using two or more priors. For instance, we could compare the posterior computed using the automatic prior computed by Bambi against a prior that we have chosen based on our knowledge of the problem. Such comparisons can be done visually using a forest plot or some numerical summary. Ideally, we should report the results of this analysis, so that others can also understand how robust the model is to different prior choices.</p>
+<p>The same approach can be applied to the likelihood, so we can discuss the sensitivity of the posterior to the likelihood, the prior or both.</p>
+<p>In this notebook we will discuss a method proposed by <a href="https://link.springer.com/article/10.1007/s11222-023-10366-5">Kallioinen et al</a> and implemented in ArviZ. The method offers visual and numerical diagnostics that can alert us of potential prior-data conflict or likelihood noninformativity. What makes this approach very practical is that we only need to fit a model once, and without explicitly modifying the prior or likelihood, we can assess the effect of changing them. This can be very useful when we do not have and explicit alternative prior or likelihood to compare against, or when we want a more systematic approach to assess the sensitivity of the posterior to the prior and likelihood. If you have reasons to explicitly compare results under different priors you should do so.</p>
+<p>For details on how the method works you can read the <a href="https://link.springer.com/article/10.1007/s11222-023-10366-5">scientific paper</a> or consult the <a href="https://arviz-devs.github.io/EABM/Chapters/Sensitivity_checks.html">EABM guide</a> for an overview of the methods implemented in ArviZ.</p>
+<section id="body-fat-example" class="level2">
+<h2 class="anchored" data-anchor-id="body-fat-example">Body fat example</h2>
+<p>For this example we will use the bodyfat <a href="https://www.tandfonline.com/doi/full/10.1080/10691898.1996.11910505">data set</a>. The aim of the analysis is to predict an expensive and cumbersome water immersion measurement of body fat percentage (observed variable named <code>siri</code>) from a set of thirteen easier to measure characteristics, including age, height, weight, and circumferences of various body parts.</p>
+<p>Let’s start by loading the data and creating a <code>siri</code> variable for the response and a <code>body_fat</code> variable for the predictors. We center the predictors.</p>
+<div id="735d2581" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>body_fat <span class="op">=</span> pd.read_csv(<span class="st">"data/body_fat.csv"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>covars <span class="op">=</span> body_fat.columns.difference([<span class="st">"siri"</span>])</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>body_fat[covars] <span class="op">=</span> body_fat[covars] <span class="op">-</span> body_fat[covars].mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We are going to start by assuming that a resonable prior for all coefficients is Normal(0, 1). With that in mind, we will fit the following linear regression model:</p>
+<p><span class="math display">\[
+\begin{aligned}
+    \beta_0 &amp;\sim t_3(0, 9.2) \\
+    \beta_k &amp;\sim \mathcal{N}(0, 1) \\
+    \sigma &amp;\sim t_{3}^{+}(9.2) \\
+    \mu &amp;= β_0 + β X^T \\
+    \text{siri} &amp;\sim \mathcal{N}(\mu, \sigma)
+\end{aligned}
+\]</span></p>
+<p>For the prior (and likelihood) sensitivity method to work we need to ensure that the <code>DataTree</code> object includes the groups log-prior and log-likelihood.</p>
+<div id="01db8506" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Intercept"</span>: bmb.Prior(<span class="st">"StudentT"</span>, nu<span class="op">=</span><span class="dv">3</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="fl">9.2</span>),</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigma"</span>: bmb.Prior(<span class="st">"HalfStudentT"</span>, nu<span class="op">=</span><span class="dv">3</span>, sigma<span class="op">=</span><span class="fl">9.2</span>),</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"common"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">1</span>),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>model_bf_00 <span class="op">=</span> bmb.Model(<span class="ss">f"siri ~ </span><span class="sc">{</span><span class="st">' + '</span><span class="sc">.</span>join(covars)<span class="sc">}</span><span class="ss">"</span>, data<span class="op">=</span>body_fat, priors<span class="op">=</span>priors)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>dt_bf_00 <span class="op">=</span> model_bf_00.fit(random_seed<span class="op">=</span>SEED)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>model_bf_00.compute_log_likelihood(dt_bf_00)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>model_bf_00.compute_log_prior(dt_bf_00)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [sigma, Intercept, abdomen, age, ankle, biceps, chest, forearm, height, hip, knee, neck, thigh, weight, wrist]</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"918e3d6d32864ec3a0f6803b8eb58e64","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 6 seconds.</code></pre>
+</div>
+</div>
+<p>We can now use the <code>psense_summary</code> function from ArviZ to perform a numerical sensitivity analysis. This function returns a four-column DataFrame. For most of the time is enough to look at the first and fourth columns. The first column is the name of the variable, and the fourth column alerts us of potential problems.</p>
+<p>The second and third columns are the values of Cumulative Jensen-Shannon (CJS) divergence for the prior and likelihood, respectively. This is a measure of the sensitivity of the posterior to perturbations of the prior and likelihood. For details on how the CJS is computed you can read the <a href="https://link.springer.com/article/10.1007/s11222-023-10366-5">scientific paper</a> or consult the <a href="https://arviz-devs.github.io/EABM/Chapters/Sensitivity_checks.html">EABM guide</a>.</p>
+<p>For the <span class="math inline">\(\beta\)</span> coefficient <code>wrist</code> we can see that we may have a potential prior-data conflict.</p>
+<div id="f8404510" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>az.psense_summary(dt_bf_00, var_names<span class="op">=</span>[<span class="st">"~mu"</span>], round_to<span class="op">=</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>We detected potential issues. For more information on how to interpret the results, please check
+https://arviz-devs.github.io/EABM/Chapters/Sensitivity_checks.html#interpreting-sensitivity-diagnostics-summary
+or read original paper https://doi.org/10.1007/s11222-023-10366-5</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 
 
@@ -575,196 +632,163 @@ window.Quarto = {
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">Reaction</th>
-<th data-quarto-table-cell-role="th">Days</th>
-<th data-quarto-table-cell-role="th">Subject</th>
+<th data-quarto-table-cell-role="th">prior</th>
+<th data-quarto-table-cell-role="th">likelihood</th>
+<th data-quarto-table-cell-role="th">diagnosis</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>249.5600</td>
-<td>0</td>
-<td>308</td>
+<th data-quarto-table-cell-role="th">sigma</th>
+<td>0.01</td>
+<td>0.17</td>
+<td>✓</td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>258.7047</td>
-<td>1</td>
-<td>308</td>
+<th data-quarto-table-cell-role="th">Intercept</th>
+<td>0.01</td>
+<td>0.10</td>
+<td>✓</td>
 </tr>
 <tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>250.8006</td>
-<td>2</td>
-<td>308</td>
+<th data-quarto-table-cell-role="th">abdomen</th>
+<td>0.00</td>
+<td>0.11</td>
+<td>✓</td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>321.4398</td>
-<td>3</td>
-<td>308</td>
+<th data-quarto-table-cell-role="th">age</th>
+<td>0.03</td>
+<td>0.11</td>
+<td>✓</td>
 </tr>
 <tr class="odd">
-<th data-quarto-table-cell-role="th">4</th>
-<td>356.8519</td>
-<td>4</td>
-<td>308</td>
+<th data-quarto-table-cell-role="th">ankle</th>
+<td>0.02</td>
+<td>0.13</td>
+<td>✓</td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">...</th>
-<td>...</td>
-<td>...</td>
-<td>...</td>
+<th data-quarto-table-cell-role="th">biceps</th>
+<td>0.01</td>
+<td>0.10</td>
+<td>✓</td>
 </tr>
 <tr class="odd">
-<th data-quarto-table-cell-role="th">175</th>
-<td>329.6076</td>
-<td>5</td>
-<td>372</td>
+<th data-quarto-table-cell-role="th">chest</th>
+<td>0.01</td>
+<td>0.10</td>
+<td>✓</td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">176</th>
-<td>334.4818</td>
-<td>6</td>
-<td>372</td>
+<th data-quarto-table-cell-role="th">forearm</th>
+<td>0.02</td>
+<td>0.11</td>
+<td>✓</td>
 </tr>
 <tr class="odd">
-<th data-quarto-table-cell-role="th">177</th>
-<td>343.2199</td>
-<td>7</td>
-<td>372</td>
+<th data-quarto-table-cell-role="th">height</th>
+<td>0.01</td>
+<td>0.10</td>
+<td>✓</td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">178</th>
-<td>369.1417</td>
-<td>8</td>
-<td>372</td>
+<th data-quarto-table-cell-role="th">hip</th>
+<td>0.01</td>
+<td>0.10</td>
+<td>✓</td>
 </tr>
 <tr class="odd">
-<th data-quarto-table-cell-role="th">179</th>
-<td>364.1236</td>
-<td>9</td>
-<td>372</td>
+<th data-quarto-table-cell-role="th">knee</th>
+<td>0.01</td>
+<td>0.10</td>
+<td>✓</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">neck</th>
+<td>0.01</td>
+<td>0.10</td>
+<td>✓</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">thigh</th>
+<td>0.01</td>
+<td>0.12</td>
+<td>✓</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">weight</th>
+<td>0.02</td>
+<td>0.10</td>
+<td>✓</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">wrist</th>
+<td>0.11</td>
+<td>0.16</td>
+<td>potential prior-data conflict</td>
 </tr>
 </tbody>
 </table>
 
-<p>180 rows × 3 columns</p>
 </div>
 </div>
 </div>
-<p>The response variable is <code>Reaction</code>, the average of the reaction time measurements on a given subject for a given day. The two covariates are <code>Days</code>, the number of days of sleep deprivation, and <code>Subject</code>, the identifier of the subject on which the observation was made.</p>
-</section>
-<section id="explore-data" class="level2">
-<h2 class="anchored" data-anchor-id="explore-data">Explore data</h2>
-<p>Let’s get started by displaying the data in a multi-panel layout. There’s a panel for each subject in the study. This allows us to observe and compare the association of Days and Reaction between subjects.</p>
-<div id="cell-9" class="cell" data-execution_count="3">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_data(data):</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">9</span>, figsize<span class="op">=</span>(<span class="dv">16</span>, <span class="fl">7.5</span>), sharey<span class="op">=</span><span class="va">True</span>, sharex<span class="op">=</span><span class="va">True</span>, dpi<span class="op">=</span><span class="dv">300</span>, constrained_layout<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    fig.subplots_adjust(left<span class="op">=</span><span class="fl">0.075</span>, right<span class="op">=</span><span class="fl">0.975</span>, bottom<span class="op">=</span><span class="fl">0.075</span>, top<span class="op">=</span><span class="fl">0.925</span>, wspace<span class="op">=</span><span class="fl">0.03</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    axes_flat <span class="op">=</span> axes.ravel()</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, subject <span class="kw">in</span> <span class="bu">enumerate</span>(data[<span class="st">"Subject"</span>].unique()):</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        ax <span class="op">=</span> axes_flat[i]</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        idx <span class="op">=</span> data.index[data[<span class="st">"Subject"</span>] <span class="op">==</span> subject].tolist()</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        days <span class="op">=</span> data.loc[idx, <span class="st">"Days"</span>].values</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        reaction <span class="op">=</span> data.loc[idx, <span class="st">"Reaction"</span>].values</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Plot observed data points</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        ax.scatter(days, reaction, color<span class="op">=</span><span class="st">"C0"</span>, ec<span class="op">=</span><span class="st">"black"</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Add a title</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        ax.set_title(<span class="ss">f"Subject: </span><span class="sc">{</span>subject<span class="sc">}</span><span class="ss">"</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    ax.xaxis.set_ticks([<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">8</span>])</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    fig.text(<span class="fl">0.5</span>, <span class="dv">0</span>, <span class="st">"Days"</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    fig.text(<span class="fl">0.02</span>, <span class="fl">0.5</span>, <span class="st">"Reaction time (ms)"</span>, rotation<span class="op">=</span><span class="dv">90</span>, fontsize<span class="op">=</span><span class="dv">14</span>, va<span class="op">=</span><span class="st">"center"</span>)</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> axes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div id="cell-10" class="cell" data-execution_count="4">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>plot_data(data)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>We can also evaluate the effect of power-scaling visually with the function <code>plot_psense_dist</code>. Internally this function produce a perturbation of the prior and likelihood by scaling them with a power <span class="math inline">\(\alpha\)</span>. A value of <span class="math inline">\(\alpha\)</span> greater than 1 strengthens the prior or likelihood, while a value of <span class="math inline">\(\alpha\)</span> less than 1 weakens them. The figure below displays the posterior marginal for 3 values of <span class="math inline">\(\alpha\)</span>, 0.8 (red), 1 (black) and 1.25 (blue). <code>plot_psense_dist</code> allow as to choose different representations including KDEs and ECDFs. We can see that the posterior is sensitive to both prior and likelihood power-scaling, and that it shifts right (towards zero) as the prior is strengthened, and left (away from zero) as the likelihood is strengthened.</p>
+<div id="55349c16" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>az.plot_psense_dist(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    dt_bf_00,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"wrist"</span>],</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">"ecdf"</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="sleepstudy_files/figure-html/cell-5-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="prior_sensitivity_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>For most of the subjects, there’s a clear positive association between Days and Reaction time. Reaction times increase as people accumulate more days of sleep deprivation. Participants differ in the initial reaction times as well as in the association between sleep deprivation and reaction time. Reaction times increase faster for some subjects and slower for others. Finally, the relationship between Days and Reaction time presents some deviations from linearity within the panels, but these are neither substantial nor systematic.</p>
-</section>
-<section id="the-model" class="level2">
-<h2 class="anchored" data-anchor-id="the-model">The model</h2>
-<p>Our main goal is to measure the association between Days and Reaction times. We are interested both in the common effect across all subjects, as well as the effects associated with each individual. To do this, we’re going to use a hierarchical linear regression model that includes the effect of a common intercept and slope, as well as intercepts and slopes specific to each subject. These types of effects are also known as fixed and random effects in the statistical literature.</p>
-<p>The model can be written as follows:</p>
-<p><span class="math display">\[
-\begin{aligned}
-\text{Reaction}_i &amp; \sim \text{Normal}(\mu_i, \sigma) \\
-\mu_i &amp; = \beta_{\text{Intercept}[i]} + \beta_{\text{Days}[i]}\text{Days}_i \\
-\beta_{\text{Intercept}[i]} &amp; = \beta_{\text{Intercept}} + \alpha_{\text{Intercept}_i}\\
-\beta_{\text{Days}[i]} &amp; = \beta_{\text{Days}} + \alpha_{\text{Days}_i}\\
-\end{aligned}
-\]</span></p>
-<p>where <span class="math inline">\(\beta_{\text{Intercept}}\)</span> and <span class="math inline">\(\beta_{\text{Days}}\)</span> are the intercept and day slope effects common to all subjects in the study, and <span class="math inline">\(\alpha_{\text{Intercept}_i}\)</span> and <span class="math inline">\(\alpha_{\text{Days}_i}\)</span> are the subject-specific intercept and slope effects. These group-specific effects represent the deviation of each subject from the average behavior.</p>
-<p>Note we’re not describing the prior distributions for <span class="math inline">\(\beta_{\text{Intercept}}\)</span>, <span class="math inline">\(\beta_{\text{Days}}\)</span>, <span class="math inline">\(\alpha_{\text{Intercept}_i}\)</span>, <span class="math inline">\(\alpha_{\text{Days}_i}\)</span>, and <span class="math inline">\(\sigma\)</span> because we’re going to use default priors in Bambi.</p>
-<p>Next, let’s create the Bambi model. Here we use the formula syntax to specify the model in a clear and concise manner. The term on the left side of <code>~</code> tells <code>Reaction</code> is the response variable. The <code>Days</code> term on the right-hand side tells we want to include a slope effect for the <code>Days</code> variable common to all subjects. <code>(Days | Subject)</code> indicates the <code>Days</code> slope for a given subject is going to consist of the common slope plus a deviation specific to that subject. The common and subject-specific intercepts are added implicitly. We could suppress them by adding a <code>0</code> on the common or the group-specific part of the formula (e.g.&nbsp;<code>0 + Days + (0 + Days|Subject)</code>).</p>
-<p>If we wanted subject-specific intercepts, but not subjec-specific slopes we would have written <code>Reaction ~ Days + (1 | Subject)</code> and if we wanted slopes specific to each <code>Subject</code> without including a <code>Subject</code> specific intercept, we would write <code>Reaction ~ Days + (0 + Days | Subject)</code>.</p>
-<p>That’s been quite a long introduction for the model. Let’s write it down in code now:</p>
-<div id="cell-14" class="cell" data-execution_count="5">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"Reaction ~ 1 + Days + (Days | Subject)"</span>, data, categorical<span class="op">=</span><span class="st">"Subject"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>A description of the model and the priors can be obtained by simply printing the <code>model</code> object</p>
-<div id="cell-16" class="cell" data-execution_count="6">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>model</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="6">
-<pre><code>       Formula: Reaction ~ 1 + Days + (Days | Subject)
-        Family: gaussian
-          Link: mu = identity
-  Observations: 180
-        Priors: 
-    target = mu
-        Common-level effects
-            Intercept ~ Normal(mu: 298.5079, sigma: 261.0092)
-            Days ~ Normal(mu: 0.0, sigma: 48.8915)
-        
-        Group-level effects
-            1|Subject ~ Normal(mu: 0.0, sigma: HalfNormal(sigma: 261.0092))
-            Days|Subject ~ Normal(mu: 0.0, sigma: HalfNormal(sigma: 48.8915))
-        
-        Auxiliary parameters
-            sigma ~ HalfStudentT(nu: 4.0, sigma: 56.1721)</code></pre>
+<p>We can also use the <code>plot_psense_quantities</code> function to display quantities of interest like the mean, median, standard deviation, etc. We can then evaluate how much the quantities of interest change when we perturb the prior and likelihood. To get a reference for the relative effect size of the perturbations the function also shows the ±2 Monte Carlo standard errors (MCSE) of the base posterior quantity. We can see that power-scaling the prior and likelihood pulls the posterior mean in opposite directions. This suggests there might be a potential mismatch or conflict between the prior and the likelihood.</p>
+<div id="190596c6" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>az.plot_psense_quantities(dt_bf_00, var_names<span class="op">=</span>[<span class="st">"wrist"</span>])<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="prior_sensitivity_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></p>
+</figure>
 </div>
 </div>
-<p>There we see the formula used to specify the model, the name of the response distribution (<code>Gaussian</code>), the link function (<code>identity</code>), together with the number of observations (<code>180</code>). Below, we have a description of the prior distributions for the different terms in the model. This tells Bambi is using <code>Normal</code> priors for both common and group-specific terms, and a <code>HalfStudentT</code> distribution for the residual error term of the linear regression.</p>
-<p>Now it’s time to hit the inference button. In Bambi, it is as simple as using the <code>.fit()</code> method. This returns an <code>InferenceData</code> object from the ArviZ library. The <code>draws=2000</code> argument asks the sampler to obtain 2000 draws from the posterior for each chain.</p>
-<div id="cell-19" class="cell" data-execution_count="7">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(draws<span class="op">=</span><span class="dv">2000</span>, random_seed<span class="op">=</span>SEED)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="adjusting-the-prior" class="level3">
+<h3 class="anchored" data-anchor-id="adjusting-the-prior">Adjusting the prior</h3>
+<p>As there is prior sensitivity arising from prior-data conflict, which is unexpected and unintentional as our priors were chosen to be weakly informative, we consider modifying the priors. On inspecting the raw data, we see that although the predictor variables are all measured on similar scales, the variances of the variables differ substantially. For example, the variance of wrist circumference is 0.83, while the variance of abdomen is 102.65. This leads to our chosen prior to be unintentionally informative for some regression coefficients, including wrist, while being weakly informative for others</p>
+<p>Let see what happens if we use the default priors computed by Bambi, which are designed to be very weakly informative.</p>
+<div id="0baf2d5d" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>model_bf_01 <span class="op">=</span> bmb.Model(<span class="ss">f"siri ~ </span><span class="sc">{</span><span class="st">' + '</span><span class="sc">.</span>join(covars)<span class="sc">}</span><span class="ss">"</span>, data<span class="op">=</span>body_fat)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>dt_bf_01 <span class="op">=</span> model_bf_01.fit(random_seed<span class="op">=</span>SEED)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>model_bf_01.compute_log_likelihood(dt_bf_01)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>model_bf_01.compute_log_prior(dt_bf_01)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [sigma, Intercept, Days, 1|Subject_sigma, 1|Subject_offset, Days|Subject_sigma, Days|Subject_offset]</code></pre>
+NUTS: [sigma, Intercept, abdomen, age, ankle, biceps, chest, forearm, height, hip, knee, neck, thigh, weight, wrist]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"65448fabbb3f4f8fa24ffa979db04d77","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"c5f710fc40dc4360a5e44005f99f0224","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 8 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 7 seconds.</code></pre>
 </div>
 </div>
-</section>
-<section id="analyze-results" class="level2">
-<h2 class="anchored" data-anchor-id="analyze-results">Analyze results</h2>
-<p>First of all, let’s obtain a summary of the posterior distribution of the <code>Intercept</code> and <code>Days</code> effects.</p>
-<div id="cell-21" class="cell" data-execution_count="8">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>az.summary(idata, var_names<span class="op">=</span>[<span class="st">"Intercept"</span>, <span class="st">"Days"</span>], kind<span class="op">=</span><span class="st">"stats"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Now we can perform the sensitivity analysis again. We can see that we managed to remove the warning!</p>
+<div id="7788ddf4" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>az.psense_summary(dt_bf_01, var_names<span class="op">=</span>[<span class="st">"~mu"</span>], round_to<span class="op">=</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="8">
 <div>
 
@@ -773,26 +797,101 @@ NUTS: [sigma, Intercept, Days, 1|Subject_sigma, 1|Subject_offset, Days|Subject_s
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">mean</th>
-<th data-quarto-table-cell-role="th">sd</th>
-<th data-quarto-table-cell-role="th">eti89_lb</th>
-<th data-quarto-table-cell-role="th">eti89_ub</th>
+<th data-quarto-table-cell-role="th">prior</th>
+<th data-quarto-table-cell-role="th">likelihood</th>
+<th data-quarto-table-cell-role="th">diagnosis</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<th data-quarto-table-cell-role="th">Intercept</th>
-<td>251.29</td>
-<td>7.51</td>
-<td>239.26</td>
-<td>263.21</td>
+<th data-quarto-table-cell-role="th">sigma</th>
+<td>0.0</td>
+<td>0.21</td>
+<td>✓</td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">Days</th>
-<td>10.50</td>
-<td>1.72</td>
-<td>7.79</td>
-<td>13.23</td>
+<th data-quarto-table-cell-role="th">Intercept</th>
+<td>0.0</td>
+<td>0.10</td>
+<td>✓</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">abdomen</th>
+<td>0.0</td>
+<td>0.09</td>
+<td>✓</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">age</th>
+<td>0.0</td>
+<td>0.11</td>
+<td>✓</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">ankle</th>
+<td>0.0</td>
+<td>0.11</td>
+<td>✓</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">biceps</th>
+<td>0.0</td>
+<td>0.09</td>
+<td>✓</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">chest</th>
+<td>0.0</td>
+<td>0.11</td>
+<td>✓</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">forearm</th>
+<td>0.0</td>
+<td>0.10</td>
+<td>✓</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">height</th>
+<td>0.0</td>
+<td>0.09</td>
+<td>✓</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">hip</th>
+<td>0.0</td>
+<td>0.10</td>
+<td>✓</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">knee</th>
+<td>0.0</td>
+<td>0.10</td>
+<td>✓</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">neck</th>
+<td>0.0</td>
+<td>0.10</td>
+<td>✓</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">thigh</th>
+<td>0.0</td>
+<td>0.11</td>
+<td>✓</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">weight</th>
+<td>0.0</td>
+<td>0.10</td>
+<td>✓</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">wrist</th>
+<td>0.0</td>
+<td>0.10</td>
+<td>✓</td>
 </tr>
 </tbody>
 </table>
@@ -800,99 +899,165 @@ NUTS: [sigma, Intercept, Days, 1|Subject_sigma, 1|Subject_offset, Days|Subject_s
 </div>
 </div>
 </div>
-<p>On average, people’s average reaction time at the beginning of the study is between 235 and 265 milliseconds. With every extra day of sleep deprivation, the mean reaction times increase, on average, between 7.2 and 13.9 milliseconds.</p>
-<p>So far so good with the interpretation of the common effects. It’s quite straightforward and simple. But this analysis would be incomplete and misleading if we don’t evaluate the subject-specific terms we added to the model. These terms are telling us how much subjects differ from each other in terms of the initial reaction time and the association between days of sleep deprivation and reaction times.</p>
-<p>Below we use ArviZ to obtain a traceplot of the subject-specific intercepts <code>1|Subject</code> and slopes <code>Days|Subject</code>. This traceplot contains two columns. On the left, we have the posterior distributions that we analyze below, and on the right, we have the draws from the posterior in the order the sampler draw them for us. The stationary random pattern, or white noise appearence, tells us the sampler converged and the chains mixed well.</p>
-<p>From the range of the posteriors of the subject-specific intercepts we can see the initial mean reaction time for a given subject can differ substantially from the general mean we see in the table above. There’s also a large difference in the slopes. Some subjects see their reaction times increase quite rapidly as they’re deprived from sleep, while others have a better tolerance and get worse more slowly. Finally, from the pink posterior centered at ~ -11, there seems to be one person who gets better at reaction times. Looks like they took this as a serious challenge!</p>
-<p>In summary, the model is capturing the behavior we saw in the data exploration stage. People differ both in the initial reaction times as well as in how these reaction times are affected by the successive days of sleep deprivation.</p>
-<div id="cell-23" class="cell" data-execution_count="9">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace_dist(idata, var_names<span class="op">=</span>[<span class="st">"1|Subject"</span>, <span class="st">"Days|Subject"</span>])<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>We can see that after changing the prior, the posterior mean for <code>wrist</code> changes from -1.45 to -1.86, indicating that the base prior was indeed unintentionally informative and in conflict with the data, pulling the estimate towards zero.</p>
+<p>As previously, we can also evaluate the effect of power-scaling visually with the function <code>plot_psense_dist</code>. From <strong>?@fig-posterior-sensitivity_bf_01</strong> we can see a better overlap between the posterior distributions, compared to the original prior.</p>
+<div id="b938aa25" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>az.plot_psense_dist(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    dt_bf_01,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"wrist"</span>],</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">"ecdf"</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="sleepstudy_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="prior_sensitivity_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>So far, we’ve made the following conclusions</p>
+<p>In terms or the mean for <code>wrist</code>, we can see that there is no longer prior or likelihood sensitivity, indicating no prior-data conflict. For the standard deviation, likelihood sensitivity remains, indicating that the likelihood is informative.</p>
+<div id="882d80e4" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>az.plot_psense_quantities(dt_bf_01, var_names<span class="op">=</span>[<span class="st">"wrist"</span>])<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="prior_sensitivity_files/figure-html/cell-11-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In this example, we have “thrown the baby out with the bathwater” by switching entirely from custom priors to default ones. In a more realistic scenario, you might instead want to change the priors to better reflect your domain expertise, rather than simply accepting the defaults. After all, for some reason, you chose those priors in the first place! But the focus of the example is to illustrate the process of prior sensitivity analysis and how to interpret the results.</p>
+<p>To help clarify how to use this (or other tools for prior sensitivity analysis), here are a few key points:</p>
 <ul>
-<li>People’s mean reaction time increase as they are deprived from sleep.</li>
-<li>People have different reaction times in the beginning of the study.</li>
-<li>Some people are more affected by sleep deprivation than others.</li>
+<li><p><strong>Default priors aren’t always the best</strong>, but they’re often a reasonable starting point.</p></li>
+<li><p><strong>Whenever you’re using priors, it’s a good idea to check for prior sensitivity.</strong> The defaults provided by Bambi tend to be vague, so prior-data conflict is unlikely, but it’s still possible for some models.</p></li>
+<li><p><strong>If you do detect a prior-data conflict, consider the following:</strong></p>
+<ul>
+<li>Adjust the priors to make them less informative, unless you have a strong reason to keep them as is. Remember, <strong>you</strong> are responsible for your model, not some algorithm!</li>
+<li>If you modify the priors, base those changes on domain knowledge, or statistical knowledge. Tweaking priors just to make diagnostics “look good” is a bad practice. This principle applies to all forms of prior sensitivity checks, not just the one shown here, and to other diagnostics as well (e.g., MCMC sampling diagnostics). Diagnostics alert us of potential problems, but prior specification (and other modeling choices) should be guided by your understanding of the problem.</li>
+</ul></li>
 </ul>
-<p>But there’s another question we haven’t answered yet: Are the initial reaction times associated with how much the sleep deprivation affects the evolution of reaction times? Let’s create a scatterplot to visualize the joint posterior of the subject-specific intercepts and slopes. This chart uses different colors for the individuals.</p>
-<div id="cell-25" class="cell" data-execution_count="10">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#  extract a subsample from the posterior and stack the chain and draw dims </span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>posterior <span class="op">=</span> az.extract(idata, num_samples<span class="op">=</span><span class="dv">500</span>)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>_, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>idata.posterior.plot.scatter(</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">"1|Subject"</span>, y<span class="op">=</span><span class="st">"Days|Subject"</span>,</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    hue<span class="op">=</span><span class="st">"Subject__factor_dim"</span>,</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    add_colorbar<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    add_legend<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    cmap<span class="op">=</span><span class="st">"tab20"</span>,</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    edgecolors<span class="op">=</span><span class="st">"none"</span>,</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    alpha<span class="op">=</span><span class="fl">0.2</span>,</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>)                      </span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>ax.axhline(c<span class="op">=</span><span class="st">"0.25"</span>, ls<span class="op">=</span><span class="st">"--"</span>)</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>ax.axvline(c<span class="op">=</span><span class="st">"0.25"</span>, ls<span class="op">=</span><span class="st">"--"</span>)</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Subject-specific intercept"</span>)</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Subject-specific slope"</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display">
+</section>
+</section>
+<section id="non-interpretable-parameters-and-derived-quantities" class="level2">
+<h2 class="anchored" data-anchor-id="non-interpretable-parameters-and-derived-quantities">Non-interpretable parameters and derived quantities</h2>
+<p>In many cases, instead of looking at the posterior distribution of the model parameters, we will be interested in derived quantities. For instance, predictive performance measures, such as the Bayesian R², the RMSE or the log-score. Or maybe predictions, including predictions evaluated at specific values of the predictors, like the median of one or more predictors.</p>
+<p>Evaluating the sensitivity of derived quantities can be useful in at least two scenarios:</p>
+<ol type="1">
+<li><p>When the model parameters are not directly interpretable. For example, the coefficient for splines are not only not directly interpretable, they are not relevant <em>per se</em>, they are just an “intermediate step” to get a smooth and flexible function. The same applies to Gaussian processes (GPs), Bayesian additive regression trees (BART), polynomials, etc. If the parameters are not directly interpretable, we can exclude them from these sensitivity checks, and instead focus on the derived quantities.</p></li>
+<li><p>When we are interested in a quantity that is more relevant or easier to explain to our audience. Sometimes we don’t care about the parameters of a model, irrespective of whether they are interpretable or not. This could happen if we are focused on a quantity that is of interest or easier to interpret for our audience, like the R². This could also be the case when our focus is on predictions. If those cases, we may decide to focus on the sensitivity checks for the derived quantities and, if they are ok, ignore the ones for the model parameters, even if they are interpretable. If the checks for the derived quantities are not ok, we may need to go back and check the model parameters, in particular if they are interpretable.</p></li>
+</ol>
+</section>
+<section id="computing-derived-quantities" class="level2">
+<h2 class="anchored" data-anchor-id="computing-derived-quantities">Computing derived quantities</h2>
+<p>Let’s illustrate this with an example. We will use the same model we used in the previous section, but instead of looking at the posterior distribution of the parameters, we will focus on the following derived quantities:</p>
+<ul>
+<li>Predictions at the median, minimum and maximum values of each covariate.</li>
+<li>The Bayesian R².</li>
+<li>The log-score. This is the sum of the log-likelihood over all observations.</li>
+</ul>
+<p>We are going to start by computing predictions at <code>new_data</code>. In this case, we will use the median, min, and max values of each covariate. For your particular use case, you may want to use different values, like quantiles of any other specific values of interest.</p>
+<div id="9f802630" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    [body_fat[covars].<span class="bu">min</span>(), body_fat[covars].median(), body_fat[covars].<span class="bu">min</span>()],</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    index<span class="op">=</span>[<span class="st">"min"</span>, <span class="st">"median"</span>, <span class="st">"max"</span>],</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>new_pred <span class="op">=</span> model_bf_01.predict(</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    dt_bf_01, kind<span class="op">=</span><span class="st">"response"</span>, data<span class="op">=</span>new_data, inplace<span class="op">=</span><span class="va">False</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>).posterior_predictive[<span class="st">"siri"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Even when these are predictions we are going to manually add them as posterior quantities, so that we can use the same functions as before to visualize and analyze them.</p>
+<div id="a0443447" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>dt_bf_01.posterior[<span class="st">"at_min"</span>] <span class="op">=</span> new_pred.sel(__obs__<span class="op">=</span><span class="dv">0</span>, drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>dt_bf_01.posterior[<span class="st">"at_median"</span>] <span class="op">=</span> new_pred.sel(__obs__<span class="op">=</span><span class="dv">1</span>, drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>dt_bf_01.posterior[<span class="st">"at_max"</span>] <span class="op">=</span> new_pred.sel(__obs__<span class="op">=</span><span class="dv">2</span>, drop<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We can ask ArviZ, to compute the Bayesian R² for us, as long as we provide a DataTree with both observed and predicted data. So, let’s compute the predictions.</p>
+<div id="a641e2f8" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>model_bf_01.predict(dt_bf_01, kind<span class="op">=</span><span class="st">"response"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Then we compute the Bayesian R². And we add it to the posterior.</p>
+<div id="cbc6bbe2" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>r2_da <span class="op">=</span> az.ndarray_to_dataarray(</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    az.bayesian_r2(dt_bf_01, pred_mean<span class="op">=</span><span class="st">"mu"</span>, scale<span class="op">=</span><span class="st">"sigma"</span>, summary<span class="op">=</span><span class="va">False</span>).reshape(<span class="dv">4</span>, <span class="dv">1000</span>),</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    var_name<span class="op">=</span><span class="st">"r2"</span>,</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>dt_bf_01.posterior[<span class="st">"r2_score"</span>] <span class="op">=</span> r2_da</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>To compute the log-score we just sum the poin-twise log-likelihood evaluations along the observations. In other words we compute one log-likelihood value per MCMC step.</p>
+<div id="a0021d43" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>dt_bf_01.posterior[<span class="st">"log_score"</span>] <span class="op">=</span> dt_bf_01.log_likelihood.<span class="bu">sum</span>(<span class="st">"__obs__"</span>)[<span class="st">"siri"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Once we have added the derived quantities we can call <code>psense_summary</code> (or the others <code>psense_*</code> functions) as usual:</p>
+<div id="db0eabf0" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>az.psense_summary(dt_bf_01, var_names<span class="op">=</span>[<span class="st">"r2_score"</span>, <span class="st">"log_score"</span>, <span class="st">"at_min"</span>, <span class="st">"at_median"</span>, <span class="st">"at_max"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
 <div>
-<figure class="figure">
-<p><img src="sleepstudy_files/figure-html/cell-11-output-1.png" class="img-fluid figure-img"></p>
-</figure>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">prior</th>
+<th data-quarto-table-cell-role="th">likelihood</th>
+<th data-quarto-table-cell-role="th">diagnosis</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">r2_score</th>
+<td>0.001</td>
+<td>0.152</td>
+<td>✓</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">log_score</th>
+<td>0.002</td>
+<td>0.658</td>
+<td>✓</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">at_min</th>
+<td>0.000</td>
+<td>0.033</td>
+<td>✓</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">at_median</th>
+<td>0.000</td>
+<td>0.029</td>
+<td>✓</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">at_max</th>
+<td>0.000</td>
+<td>0.026</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+
 </div>
 </div>
 </div>
-<p>If we look at the bigger picture, i.e omitting the groups, we can conclude there’s no association between the intercept and slope. In other words, having lower or higher intial reaction times does not say anything about how much sleep deprivation affects the average reaction time on a given subject.</p>
-<p>On the other hand, if we look at the joint posterior for a given individual, we can see a negative correlation between the intercept and the slope. This is telling that, conditional on a given subject, the intercept and slope posteriors are not independent. However, it doesn’t imply anything about the overall relationship between the intercept and the slope, which is what we need if we want to know whether the initial time is associated with how much sleep deprivation affects the reaction time.</p>
-<p>To conclude with this example, we’re going create the same plot we created in the beginning with the mean regression lines and a credible bands for them.</p>
-<div id="cell-27" class="cell" data-execution_count="11">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>model.predict(idata)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>axes <span class="op">=</span> plot_data(data)</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>reaction_mean <span class="op">=</span> az.extract(idata)[<span class="st">"mu"</span>].values</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> subject, ax <span class="kw">in</span> <span class="bu">zip</span>(data[<span class="st">"Subject"</span>].unique(), axes.ravel()):</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> data.index[data[<span class="st">"Subject"</span>] <span class="op">==</span> subject].tolist()</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    days <span class="op">=</span> data.loc[idx, <span class="st">"Days"</span>].values</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    lower <span class="op">=</span> np.percentile(reaction_mean[idx], <span class="dv">5</span>, axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    upper <span class="op">=</span> np.percentile(reaction_mean[idx], <span class="dv">95</span>, axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    ax.fill_between(days, lower, upper, color<span class="op">=</span><span class="st">"C0"</span>, alpha<span class="op">=</span><span class="fl">0.25</span>)</span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    ax.plot(days, reaction_mean[idx].mean(axis<span class="op">=</span><span class="dv">1</span>), color<span class="op">=</span><span class="st">"C0"</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="sleepstudy_files/figure-html/cell-12-output-1.png" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
-<div id="cell-28" class="cell" data-execution_count="12">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>We see no signs of data-conflict or likelihood noninformativity, we can visually check this, but given these values we should expect the distributions of the derived quantities to very similar across the different priors.</p>
+<div id="5d79c461" class="cell" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Tue Dec 02 2025
+<pre><code>Last updated: Thu, 02 Jul 2026
 
 Python implementation: CPython
-Python version       : 3.13.0
-IPython version      : 9.1.0
+Python version       : 3.14.4
+IPython version      : 9.12.0
 
-bambi     : 0.16.0
-numpy     : 2.2.4
-matplotlib: 3.10.1
-arviz     : 0.21.0
+arviz : 1.2.0
+bambi : 0.18.1.dev6+ga9b7ef490.d20260701
+pandas: 3.0.2
 
-Watermark: 2.5.0
+Watermark: 2.6.0
 </code></pre>
 </div>
 </div>
@@ -1303,13 +1468,13 @@ Watermark: 2.5.0
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../notebooks/multi-level_regression.html" class="pagination-link" aria-label="Hierarchical Linear Regression (Pigs dataset)">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Hierarchical Linear Regression (Pigs dataset)</span>
+      <a href="../notebooks/plot_slopes.html" class="pagination-link" aria-label="Plot Slopes">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Plot Slopes</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../notebooks/radon_example.html" class="pagination-link" aria-label="Hierarchical Linear Regression (Radon Contamination dataset)">
-        <span class="nav-page-text">Hierarchical Linear Regression (Radon Contamination dataset)</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../notebooks/kulprit.html" class="pagination-link" aria-label="Kulprit Examples">
+        <span class="nav-page-text">Kulprit Examples</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
