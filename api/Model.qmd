@@ -75,6 +75,7 @@ Specification of model class
 | --- | --- |
 | [build](#bambi.Model.build) | Set up the model for sampling/fitting |
 | [compute_log_likelihood](#bambi.Model.compute_log_likelihood) | Compute the model's log-likelihood |
+| [compute_log_prior](#bambi.Model.compute_log_prior) | Compute the model's log-prior |
 | [fit](#bambi.Model.fit) | Fit the model using PyMC |
 | [graph](#bambi.Model.graph) | Produce a graphviz Digraph from a built Bambi model. |
 | [plot_priors](#bambi.Model.plot_priors) | Samples from the prior distribution and plots its marginals. |
@@ -117,6 +118,30 @@ Compute the model's log-likelihood
 <code>[**inplace**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
 
 :   If `True` it will modify `idata` in-place. Otherwise, it will return a copy of `idata` with the `log_likelihood` group added.
+
+#### Returns {.doc-section .doc-section-returns}
+
+<code>[]{.parameter-name} [:]{.parameter-annotation-sep} [[InferenceData](`InferenceData`) or None]{.parameter-annotation}</code>
+
+:   
+
+### compute_log_prior { #bambi.Model.compute_log_prior }
+
+```python
+Model.compute_log_prior(idata, inplace=True)
+```
+
+Compute the model's log-prior
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+<code>[**idata**]{.parameter-name} [:]{.parameter-annotation-sep} [[InferenceData](`InferenceData`)]{.parameter-annotation}</code>
+
+:   The `InferenceData` instance returned by `.fit()`.
+
+<code>[**inplace**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [True]{.parameter-default}</code>
+
+:   If `True` it will modify `idata` in-place. Otherwise, it will return a copy of `idata` with the `log_prior` group added.
 
 #### Returns {.doc-section .doc-section-returns}
 
