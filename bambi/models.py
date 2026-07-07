@@ -7,6 +7,7 @@ from copy import deepcopy
 from importlib.metadata import version
 
 import formulae as fm
+import numpy as np
 import pandas as pd
 import pymc as pm
 import xarray as xr
@@ -1303,6 +1304,59 @@ class Model:
             graphviz_.render(filename=name, format=fmt, cleanup=True)
 
         return graphviz
+
+    def _re_center_intercept(self, idata):
+        """Re-center the intercept in ``idata.posterior`` so it matches the PyMC value variable.
+
+        Parameters
+        ----------
+        idata : DataTree
+            A DataTree
+
+        Returns
+        -------
+        InferenceData or DataTree
+            A deep copy of ``idata`` with the intercept of every distributional
+            component that has both an intercept and common terms re-centered.
+        """
+        if not self.center_predictors or self.backend is None:
+            return idata
+
+        idata_corrected = deepcopy(idata)
+        posterior = idata_corrected.posterior
+
+        for pymc_component in self.backend.distributional_components.values():
+            bambi_component = pymc_component.component
+            if not (
+                bambi_component.intercept_term
+                and bambi_component.common_terms
+                and pymc_component.design_matrix_without_intercept is not None
+            ):
+                continue
+
+            chain_n = posterior["chain"].size
+            draw_n = posterior["draw"].size
+            shape, dims = (chain_n, draw_n), ("chain", "draw")
+            x_uncentered = pymc_component.design_matrix_without_intercept
+
+            common_term_names = [get_aliased_name(t) for t in bambi_component.common_terms.values()]
+
+            response_coords = self.response_component.term.coords
+            if response_coords:
+                levels = list(response_coords.values())[0]
+                shape += (len(levels),)
+                dims += tuple(response_coords)
+
+            posterior_stacked = posterior.to_dataset().stack(samples=dims)
+            coefs = np.vstack(
+                [np.atleast_2d(posterior_stacked[name].values) for name in common_term_names]
+            )
+            intercept_name = get_aliased_name(bambi_component.intercept_term)
+            center_factor = np.dot(x_uncentered.mean(0), coefs).reshape(shape)
+            posterior[intercept_name] = posterior[intercept_name] + center_factor
+
+        idata_corrected["posterior"] = posterior
+        return idata_corrected
 
     @property
     def formula(self):
