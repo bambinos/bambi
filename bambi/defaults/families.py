@@ -7,6 +7,7 @@ from bambi.families.univariate import (
     Binomial,
     Categorical,
     Cumulative,
+    ExGaussian,
     Exponential,
     Gamma,
     Gaussian,
@@ -106,6 +107,16 @@ BUILTIN_FAMILIES = {
         },
         "link": {"a": "log"},
         "family": DirichletMultinomial,
+    },
+    "exgaussian": {
+        "likelihood": {
+            "name": "ExGaussian",
+            "params": ["mu", "sigma", "nu"],
+            "parent": "mu",
+        },
+        "link": {"mu": "identity", "sigma": "log", "nu": "log"},
+        "family": ExGaussian,
+        "default_priors": {"sigma": "HalfNormal", "nu": "HalfNormal"},
     },
     "exponential": {
         "likelihood": {

@@ -271,6 +271,10 @@ class Exponential(UnivariateFamily):
         return kwargs
 
 
+class ExGaussian(UnivariateFamily):
+    SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "sigma": ["log"], "nu": ["log"]}
+
+
 class Gamma(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "alpha": ["log"]}
 

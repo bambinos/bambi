@@ -254,6 +254,7 @@ def test_hyperprior_on_common_effect(data_random_n100):
     "family",
     [
         "asymmetriclaplace",
+        "exgaussian",
         "gaussian",
         "negativebinomial",
         "bernoulli",
@@ -274,6 +275,7 @@ def test_links(data_random_n100):
         "asymmetriclaplace": ["identity", "log", "inverse"],
         "bernoulli": ["identity", "logit", "probit", "cloglog"],
         "beta": ["logit", "probit", "cloglog"],
+        "exgaussian": ["identity", "log", "inverse"],
         "gamma": ["identity", "inverse", "log"],
         "gaussian": ["identity", "log", "inverse"],
         "negativebinomial": ["identity", "log", "cloglog"],
@@ -295,6 +297,7 @@ def test_bad_links(data_random_n100):
     FAMILIES = {
         "bernoulli": ["inverse", "inverse_squared", "log"],
         "beta": ["inverse", "inverse_squared", "log"],
+        "exgaussian": ["logit", "probit", "cloglog"],
         "gamma": ["logit", "probit", "cloglog"],
         "gaussian": ["logit", "probit", "cloglog"],
         "negativebinomial": ["logit", "probit", "inverse", "inverse_squared"],

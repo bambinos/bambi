@@ -807,6 +807,21 @@ class TestVonMises(FitPredictParent):
         ).item()
 
 
+@pytest.mark.usefixtures("mock_pymc_sample")
+class TestExGaussian(FitPredictParent):
+    def test_exgaussian_regression(self):
+        rng = np.random.default_rng(1234)
+        # Reaction time like data: Gaussian component plus exponential component
+        x = rng.normal(size=100)
+        y = 0.4 + 0.2 * x + rng.normal(0, 0.05, size=100) + rng.exponential(0.15, size=100)
+        data = pd.DataFrame({"y": y, "x": x})
+        model = bmb.Model("y ~ x", data, family="exgaussian")
+        idata = self.fit(model)
+        assert set(idata.posterior.data_vars) == {"Intercept", "x", "sigma", "nu"}
+        idata = self.predict_oos(model, idata)
+        assert "y" in idata.posterior_predictive
+
+
 # NOTE: We don't use mock_pymc_sample because the assertion needs actual posterior samples to work.
 class TestAsymmetricLaplace(FitPredictParent):
     # This test doesn't follow the previous pattern but it works...
