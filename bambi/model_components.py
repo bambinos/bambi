@@ -2,13 +2,41 @@ import sparse
 
 import formulae as fm
 import numpy as np
+import pandas as pd
+import scipy.sparse as sp_sparse
 import xarray as xr
 
 from bambi.defaults import get_default_prior
 from bambi.families import univariate, multivariate
 from bambi.priors import Prior
-from bambi.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, OffsetTerm, ResponseTerm
-from bambi.utils import get_aliased_name, is_hsgp_term, as_dataset
+from bambi.terms import (
+    CommonTerm,
+    GroupSpecificTerm,
+    HSGPTerm,
+    MonotonicGroupSpecificTerm,
+    MonotonicInteractionTerm,
+    MonotonicTerm,
+    OffsetTerm,
+    ResponseTerm,
+)
+from bambi.utils import (
+    get_aliased_name,
+    is_hsgp_term,
+    is_monotonic_term,
+    is_monotonic_interaction_term,
+    is_monotonic_group_specific_term,
+    as_dataset,
+)
+
+
+def _reencode_mo_for_new_data(transform, component, data):
+    """Re-emit mo() codes for new data using the stateful transform's stored levels.
+
+    ``component`` is the formulae Call object; ``data`` is the new pandas DataFrame.
+    """
+    var_name = next(iter(component.var_names))
+    codes = transform(data[var_name])  # shape (n, 1), float64
+    return np.asarray(codes).squeeze().astype("int64")
 
 
 class ConstantComponent:
@@ -67,6 +95,7 @@ class DistributionalComponent:
         if self.design.common:
             self.add_common_terms(priors)
             self.add_hsgp_terms(priors)
+            self.add_monotonic_terms(priors)
 
         if self.design.group:
             self.add_group_specific_terms(priors)
@@ -74,6 +103,10 @@ class DistributionalComponent:
     def add_common_terms(self, priors):
         for name, term in self.design.common.terms.items():
             if is_hsgp_term(term):
+                continue
+            if is_monotonic_term(term):
+                continue
+            if is_monotonic_interaction_term(term):
                 continue
             prior = priors.pop(name, priors.get("common", None))
             if isinstance(prior, Prior):
@@ -92,7 +125,10 @@ class DistributionalComponent:
     def add_group_specific_terms(self, priors):
         for name, term in self.design.group.terms.items():
             prior = priors.pop(name, priors.get("group_specific", None))
-            self.terms[name] = GroupSpecificTerm(term, prior, self.prefix)
+            if is_monotonic_group_specific_term(term):
+                self.terms[name] = MonotonicGroupSpecificTerm(term, prior, self.prefix)
+            else:
+                self.terms[name] = GroupSpecificTerm(term, prior, self.prefix)
 
     def add_hsgp_terms(self, priors):
         for name, term in self.design.common.terms.items():
@@ -100,8 +136,38 @@ class DistributionalComponent:
                 prior = priors.pop(name, None)
                 self.terms[name] = HSGPTerm(term, prior, self.prefix)
 
+    def add_monotonic_terms(self, priors):
+        for name, term in self.design.common.terms.items():
+            if is_monotonic_term(term):
+                prior = priors.pop(name, None)
+                self.terms[name] = MonotonicTerm(term, prior, self.prefix)
+            elif is_monotonic_interaction_term(term):
+                prior = priors.pop(name, None)
+                self.terms[name] = MonotonicInteractionTerm(term, prior, self.prefix)
+        # Validate shared-id groups have compatible structure
+        groups = {}
+        for name, term in self.terms.items():
+            if isinstance(term, MonotonicTerm) and term.id is not None:
+                groups.setdefault(term.id, []).append((name, term))
+        for id_name, members in groups.items():
+            k_values = {t.K for _, t in members}
+            if len(k_values) > 1:
+                raise ValueError(
+                    f"mo() terms sharing id={id_name!r} have inconsistent K values: "
+                    f"{k_values}. All terms in a shared-simplex group must have the "
+                    "same number of levels."
+                )
+
     def build_priors(self):
         for term in self.terms.values():
+            if isinstance(term, MonotonicGroupSpecificTerm):
+                defaults = get_default_prior("monotonic_group_specific", D=term.D)
+                user_prior = term.prior or {}
+                for prior_obj in user_prior.values():
+                    if isinstance(prior_obj, Prior):
+                        prior_obj.auto_scale = False
+                term.prior = {**defaults, **user_prior}
+                continue
             if isinstance(term, GroupSpecificTerm):
                 kind = "group_specific"
             elif isinstance(term, CommonTerm) and term.kind == "intercept":
@@ -112,9 +178,53 @@ class DistributionalComponent:
                 if term.prior is None:
                     term.prior = get_default_prior("hsgp", cov_func=term.cov)
                 continue
+            elif isinstance(term, MonotonicTerm):
+                defaults = get_default_prior("monotonic", D=term.D)
+                user_prior = term.prior or {}
+                # Mark any user-supplied priors as already-final so the auto-scaler skips them.
+                for prior_obj in user_prior.values():
+                    if isinstance(prior_obj, Prior):
+                        prior_obj.auto_scale = False
+                term.prior = {**defaults, **user_prior}
+                continue
+            elif isinstance(term, MonotonicInteractionTerm):
+                # Only the slope prior is configurable on interaction terms; simplex
+                # priors live on the standalone mo() (or shared via id=).
+                user_prior = term.prior or {}
+                for prior_obj in user_prior.values():
+                    if isinstance(prior_obj, Prior):
+                        prior_obj.auto_scale = False
+                defaults = {"slope": Prior("Normal", mu=0.0, sigma=1.0)}
+                term.prior = {**defaults, **user_prior}
+                continue
             else:
                 kind = "common"
             term.prior = prepare_prior(term.prior, kind, self.spec.auto_scale)
+
+        # Unify simplex priors across shared-id groups: if any member has a
+        # user-supplied simplex prior, apply it to the whole group; raise on conflicts.
+        groups = {}
+        for term in self.terms.values():
+            if isinstance(term, MonotonicTerm) and term.id is not None:
+                groups.setdefault(term.id, []).append(term)
+        for id_name, members in groups.items():
+            simplex_len = members[0].D
+            user_simplex_priors = [
+                t.prior["simplex"]
+                for t in members
+                if t.prior["simplex"].args["a"].shape != (simplex_len,)
+                or not np.array_equal(t.prior["simplex"].args["a"], np.ones(simplex_len))
+            ]
+            if not user_simplex_priors:
+                continue
+            first = user_simplex_priors[0]
+            for other in user_simplex_priors[1:]:
+                if not np.array_equal(other.args["a"], first.args["a"]):
+                    raise ValueError(
+                        f"mo() terms sharing id={id_name!r} have conflicting simplex priors."
+                    )
+            for t in members:
+                t.prior = {**t.prior, "simplex": first}
 
     def update_priors(self, priors):
         """Update priors.
@@ -135,6 +245,7 @@ class DistributionalComponent:
         hsgp_dict=None,
         sample_new_groups=False,
         random_seed=None,
+        monotonic_dict=None,
     ):
         linear_predictor = 0
         posterior = as_dataset(idata.posterior)
@@ -161,10 +272,21 @@ class DistributionalComponent:
 
         if self.design.common:
             linear_predictor += self.predict_common(
-                posterior, data, in_sample, to_stack_dims, design_matrix_dims, hsgp_dict
+                posterior,
+                data,
+                in_sample,
+                to_stack_dims,
+                design_matrix_dims,
+                hsgp_dict,
+                monotonic_dict,
             )
 
-        if self.design.group and include_group_specific:
+        if include_group_specific:
+            linear_predictor += self.predict_monotonic_group_specific(
+                posterior, data, in_sample, monotonic_dict
+            )
+
+        if self.design.group and include_group_specific and self.group_specific_terms:
             linear_predictor += self.predict_group_specific(
                 posterior=posterior,
                 data=data,
@@ -206,7 +328,14 @@ class DistributionalComponent:
         return response
 
     def predict_common(
-        self, posterior, data, in_sample, to_stack_dims, design_matrix_dims, hsgp_dict
+        self,
+        posterior,
+        data,
+        in_sample,
+        to_stack_dims,
+        design_matrix_dims,
+        hsgp_dict,
+        monotonic_dict=None,
     ):
         x_offsets = []
         linear_predictor = 0
@@ -274,11 +403,107 @@ class DistributionalComponent:
             # Add contribution to the linear predictor
             linear_predictor += hsgp_contribution
 
-        # Remove columns of X that are associated with HSGP contributions
+        # Add monotonic mo() contributions to the linear predictor
+        monotonic_slices = []
+        for term_name, term in self.monotonic_terms.items():
+            term_slice = self.design.common.slices[term_name]
+            codes = np.asarray(X[:, term_slice]).squeeze().astype("int64")
+            monotonic_slices.append(term_slice)
+
+            term_aliased_name = get_aliased_name(term)
+            simplex = posterior[term.simplex_name]
+            slope = posterior[f"{term_aliased_name}_slope"]
+
+            # cumulative sum along the simplex dim, prepended with 0 so codes==0 -> 0
+            simplex_np = simplex.to_numpy()  # (chain, draw, D)
+            cumsum = np.cumsum(simplex_np, axis=-1)
+            zero = np.zeros(cumsum.shape[:-1] + (1,))
+            cumsum = np.concatenate([zero, cumsum], axis=-1)  # (chain, draw, D+1)
+
+            # Gather along the simplex axis with the observation codes
+            contribution_np = term.D * np.take(cumsum, codes, axis=-1)
+            contribution = xr.DataArray(
+                contribution_np,
+                dims=("chain", "draw", response_dim),
+            )
+            mo_contribution = slope * contribution
+            if monotonic_dict is not None:
+                monotonic_dict[term_name] = mo_contribution
+            linear_predictor += mo_contribution
+
+        # Monotonic interaction terms (e.g. mo(x):z, mo(x):mo(y))
+        monotonic_interaction_slices = []
+        for term_name, term in self.monotonic_interaction_terms.items():
+            term_slice = self.design.common.slices[term_name]
+            x_slice = np.asarray(X[:, term_slice], dtype=float)  # (n, k)
+            monotonic_interaction_slices.append(term_slice)
+
+            term_aliased_name = get_aliased_name(term)
+            # Per-row product of raw mo() codes that formulae multiplied into the slice
+            code_product = np.ones(x_slice.shape[0], dtype=float)
+            for mc in term.mono_components:
+                # Recompute codes from this row of new data: we already have them stored
+                # on the component when in-sample; for new data, re-evaluate.
+                if in_sample:
+                    codes_m = mc["codes"]
+                else:
+                    # Re-encode through the stateful transform (which has the levels stored)
+                    codes_m = _reencode_mo_for_new_data(
+                        mc["transform"], term.term.components[mc["idx"]], data
+                    )
+                    mc["codes_new"] = codes_m  # cache for the contribution math below
+                code_product *= codes_m
+
+            # Recover the "other-factor" matrix: divide each row by code_product
+            safe_codes = np.where(code_product == 0, 1.0, code_product)
+            other_factor = x_slice / safe_codes[:, None]
+            other_factor = np.where(
+                code_product[:, None] == 0, 0.0, other_factor
+            )  # zero rows where any code is 0
+
+            # Compute prod_m D_m * cumsum(simplex_m)[codes_m] per draw
+            mono_factor = None
+            for mc in term.mono_components:
+                tx_id = mc["id"]
+                # The simplex's variable name follows the same rule as MonotonicTerm.simplex_name
+                if tx_id is not None:
+                    simplex_var = posterior[f"simplex_{tx_id}"]
+                else:
+                    # Standalone (no id) simplex inside an interaction. The interaction
+                    # builder names it after the interaction term + component index.
+                    simplex_var = posterior[f"{term_aliased_name}_simplex_{mc['idx']}"]
+                simplex_np = simplex_var.to_numpy()  # (chain, draw, D)
+                cumsum = np.cumsum(simplex_np, axis=-1)
+                zero = np.zeros(cumsum.shape[:-1] + (1,))
+                cumsum = np.concatenate([zero, cumsum], axis=-1)  # (chain, draw, D+1)
+                codes_m = mc["codes"] if in_sample else mc["codes_new"]
+                gathered = mc["D"] * np.take(cumsum, codes_m, axis=-1)  # (chain, draw, n)
+                mono_factor = gathered if mono_factor is None else mono_factor * gathered
+
+            # Slope is shape (k,)  -- per-column
+            slope = posterior[f"{term_aliased_name}_slope"]  # dims (chain, draw, [slope_dim])
+            slope_np = slope.to_numpy()  # (chain, draw, k) or (chain, draw)
+            if slope_np.ndim == 2:
+                slope_np = slope_np[..., None]  # (chain, draw, 1)
+
+            # contribution[chain, draw, n] = sum_k slope[k] * mono_factor[n] * other_factor[n, k]
+            # = mono_factor[chain, draw, n] * sum_k slope[chain, draw, k] * other_factor[n, k]
+            other_sum = np.einsum("nk,cdk->cdn", other_factor, slope_np)
+            contribution_np = mono_factor * other_sum
+            contribution = xr.DataArray(
+                contribution_np,
+                dims=("chain", "draw", response_dim),
+            )
+            linear_predictor += contribution
+            if monotonic_dict is not None:
+                monotonic_dict[term_name] = contribution
+
+        # Remove columns of X that are associated with HSGP or monotonic contributions.
         # All the slices _must be_ deleted at the same time. Otherwise the slice objects don't
         # reflect the right columns of X at the time they're used
-        if hsgp_slices:
-            X = np.delete(X, np.r_[tuple(hsgp_slices)], axis=1)
+        drop_slices = hsgp_slices + monotonic_slices + monotonic_interaction_slices
+        if drop_slices:
+            X = np.delete(X, np.r_[tuple(drop_slices)], axis=1)
 
         if self.common_terms or self.intercept_term:
             # Create DataArray
@@ -295,6 +520,48 @@ class DistributionalComponent:
         if x_offsets:
             linear_predictor += np.column_stack(x_offsets).sum(axis=1)[:, np.newaxis, np.newaxis]
 
+        return linear_predictor
+
+    def predict_monotonic_group_specific(self, posterior, data, in_sample, monotonic_dict):
+        """Contribution of all ``(mo(x) | g)`` terms for in-sample or new data."""
+        linear_predictor = 0
+        response_dim = "__obs__"
+        for term_name, term in self.monotonic_group_specific_terms.items():
+            term_aliased_name = get_aliased_name(term)
+
+            if in_sample:
+                codes = term.codes
+                group_index = term.group_index
+            else:
+                codes = _reencode_mo_for_new_data(
+                    term.transform, term.term.expr.components[0], data
+                )
+                factor_name = next(iter(term.term.factor.var_names))
+                stored_groups = list(term.groups)
+                recoded = pd.Categorical(data[factor_name], categories=stored_groups)
+                if (np.asarray(recoded.codes) == -1).any():
+                    bad = pd.Series(data[factor_name])[recoded.codes == -1].unique()
+                    raise ValueError(
+                        f"'(mo(x) | g)' got unseen groups for '{factor_name}': " f"{sorted(bad)}"
+                    )
+                group_index = np.asarray(recoded.codes).astype("int64")
+
+            # Simplex partial sums (chain, draw, n)
+            simplex_np = np.asarray(posterior[term.simplex_name])  # (chain, draw, D)
+            cumsum = np.cumsum(simplex_np, axis=-1)
+            zero = np.zeros(cumsum.shape[:-1] + (1,))
+            cumsum = np.concatenate([zero, cumsum], axis=-1)  # (chain, draw, D+1)
+            partial = term.D * np.take(cumsum, codes, axis=-1)  # (chain, draw, n)
+
+            # Per-group slope draws
+            r_g_np = np.asarray(posterior[term_aliased_name])  # (chain, draw, n_groups)
+            r_g_obs = np.take(r_g_np, group_index, axis=-1)  # (chain, draw, n)
+
+            contribution_np = partial * r_g_obs
+            contribution = xr.DataArray(contribution_np, dims=("chain", "draw", response_dim))
+            linear_predictor += contribution
+            if monotonic_dict is not None:
+                monotonic_dict[term_name] = contribution
         return linear_predictor
 
     def predict_group_specific(
@@ -378,6 +645,17 @@ class DistributionalComponent:
 
         u = np.concatenate(u_arrays, axis=-1)
         u = xr.DataArray(u, dims=u_dims)
+
+        # Remove columns that belong to MonotonicGroupSpecificTerms (their
+        # contribution is computed separately in predict_monotonic_group_specific).
+        mono_gs_slices = [
+            self.design.group.slices[name] for name in self.monotonic_group_specific_terms
+        ]
+        if mono_gs_slices:
+            Z = Z.toarray() if hasattr(Z, "toarray") else np.asarray(Z)
+            Z = np.delete(Z, np.r_[tuple(mono_gs_slices)], axis=1)
+            Z = sp_sparse.csr_matrix(Z)
+
         # NOTE: xarray supports sparse matrices from the 'sparse' package, not from SciPy.
         Z = xr.DataArray(sparse.COO.from_scipy_sparse(Z), dims=design_matrix_dims)
         # Ensure the result's `.data` is a dense NumPy array.
@@ -523,8 +801,13 @@ class DistributionalComponent:
 
     @property
     def group_specific_terms(self):
-        """Return dict of all group specific effects in model component."""
+        """Return dict of all *regular* group-specific effects in model component."""
         return {k: v for (k, v) in self.terms.items() if isinstance(v, GroupSpecificTerm)}
+
+    @property
+    def monotonic_group_specific_terms(self):
+        """Return dict of all group-specific monotonic ``(mo(x)|g)`` terms."""
+        return {k: v for (k, v) in self.terms.items() if isinstance(v, MonotonicGroupSpecificTerm)}
 
     @property
     def offset_terms(self):
@@ -535,6 +818,16 @@ class DistributionalComponent:
     def hsgp_terms(self):
         """Return dict of all HSGP terms in model."""
         return {k: v for (k, v) in self.terms.items() if isinstance(v, HSGPTerm)}
+
+    @property
+    def monotonic_terms(self):
+        """Return dict of all monotonic mo() terms in model."""
+        return {k: v for (k, v) in self.terms.items() if isinstance(v, MonotonicTerm)}
+
+    @property
+    def monotonic_interaction_terms(self):
+        """Return dict of all monotonic-interaction terms in model."""
+        return {k: v for (k, v) in self.terms.items() if isinstance(v, MonotonicInteractionTerm)}
 
 
 class ResponseComponent:

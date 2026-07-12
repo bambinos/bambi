@@ -1203,6 +1203,7 @@ class Model:
         """
         means_dict = {}
         hsgp_dict = {}  # To store the HSGP contributions (they are added to the posterior dataset)
+        monotonic_dict = {}  # Same idea for mo() contributions
         response_dim = "__obs__"
 
         for name, component in self.distributional_components.items():
@@ -1214,6 +1215,7 @@ class Model:
                 hsgp_dict,
                 sample_new_groups,
                 random_seed,
+                monotonic_dict=monotonic_dict,
             )
 
         # Build the updated posterior dataset from the DataTree child
@@ -1242,6 +1244,17 @@ class Model:
                     continue
                 term_aliased_name = get_aliased_name(term)
                 posterior[term_aliased_name] = hsgp_contribution.transpose("chain", "draw", ...)
+
+        # Add monotonic contributions to the posterior dataset
+        for component in self.distributional_components.values():
+            for name, monotonic_contribution in monotonic_dict.items():
+                term = component.monotonic_terms.get(name, None)
+                if term is None:
+                    continue
+                term_aliased_name = get_aliased_name(term)
+                posterior[term_aliased_name] = monotonic_contribution.transpose(
+                    "chain", "draw", ...
+                )
 
         idata["posterior"] = posterior
 
@@ -1421,6 +1434,15 @@ def hsgp_repr(term) -> str:
     return "\n".join(output_list)
 
 
+def monotonic_repr(term) -> str:
+    """Get a string representation of a Bambi monotonic ``mo()`` term."""
+    if term.prior is None:
+        body = ["    (defaults set at build time)"]
+    else:
+        body = [f"    {key} ~ {value}" for key, value in term.prior.items()]
+    return "\n".join([term.name, *body])
+
+
 def make_priors_summary(component: DistributionalComponent) -> str:
     """Get a summary of terms and priors in a distributional component."""
     # Common effects
@@ -1439,11 +1461,21 @@ def make_priors_summary(component: DistributionalComponent) -> str:
     # HSGP
     hsgp = [hsgp_repr(term) for term in component.hsgp_terms.values()]
 
+    # Monotonic terms (mo(x), mo(x):z, (mo(x)|g))
+    monotonic = [monotonic_repr(term) for term in component.monotonic_terms.values()]
+    monotonic.extend(
+        monotonic_repr(term) for term in component.monotonic_interaction_terms.values()
+    )
+    monotonic.extend(
+        monotonic_repr(term) for term in component.monotonic_group_specific_terms.values()
+    )
+
     priors_dict = {
         "Common-level effects": priors_common,
         "Group-level effects": priors_group,
         "Offset effects": offsets,
         "HSGP contributions": hsgp,
+        "Monotonic effects": monotonic,
     }
 
     priors_list = []

@@ -164,6 +164,48 @@ class PriorScaler:
                 sigma[i] = self.get_slope_sigma(value)
         term.prior.args["sigma"].update(sigma=np.squeeze(np.atleast_1d(sigma)))
 
+    def scale_monotonic(self, term):
+        """Scale the slope prior of a monotonic ``mo()`` term.
+
+        Parameters
+        ----------
+        term : bambi.terms.MonotonicTerm
+            The monotonic term whose slope prior should be auto-scaled.
+
+        Notes
+        -----
+        The monotonic contribution to the linear predictor is
+        ``slope * D * cumsum(simplex)[codes]``, whose range across observations
+        is ``[0, slope * D]`` (since ``cumsum(simplex)`` runs from 0 at code 0
+        to 1 at the top code, and ``D`` scales it back to ``[0, slope * D]``).
+
+        This mirrors the slope-scaling formula bambi already uses for
+        continuous predictors,
+        ``sigma = STD * sd(y) / sd(x)``. The "effective" predictor here is the
+        cumulative-sum factor ``D * cumsum(simplex)``, which by construction has
+        range ``[0, D]``; we use ``D`` in the denominator as a proxy for that
+        spread. The result is a slope prior wide enough that the full
+        contribution can span roughly ``STD * sd(y)`` on the response scale
+        without overwhelming the data, matching the looseness of the
+        continuous-slope default.
+
+        Auto-scaling is skipped when the user supplies a non-Normal slope prior
+        or has explicitly set ``auto_scale=False``.
+
+        References
+        ----------
+        Bürkner, P.-C., & Charpentier, E. (2020). Modelling monotonic effects of
+        ordinal predictors in Bayesian regression models. *British Journal of
+        Mathematical and Statistical Psychology*, 73(3), 420-451.
+        """
+        slope_prior = term.prior.get("slope") if isinstance(term.prior, dict) else None
+        if slope_prior is None or slope_prior.name != "Normal":
+            return
+        if not getattr(slope_prior, "auto_scale", True):
+            return
+        sigma = self.STD * self.response_std / max(term.D, 1)
+        slope_prior.update(mu=0.0, sigma=float(sigma))
+
     def scale_threshold(self):
         if isinstance(self.model.family, Cumulative):
             threshold = self.model.components["threshold"]
@@ -191,6 +233,10 @@ class PriorScaler:
         for term in self.parent_component.common_terms.values():
             if hasattr(term.prior, "auto_scale") and term.prior.auto_scale:
                 self.scale_common(term)
+
+        # Scale monotonic mo() terms
+        for term in self.parent_component.monotonic_terms.values():
+            self.scale_monotonic(term)
 
         # Scale intercept
         if self.has_intercept:

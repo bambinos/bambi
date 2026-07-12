@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 
@@ -357,6 +359,198 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
         else:
             raise ValueError(f"Wrong shape: {shape}")
         return output
+
+
+@register_stateful_transform
+class Monotonic:
+    """Stateful transform for monotonic effects, ``mo(x)``.
+
+    Mirrors brms' ``mo()`` term. The predictor ``x`` must be an integer or ordered
+    categorical with ``K`` distinct values. The contribution to the linear predictor is
+
+    .. math::
+
+        b \\cdot D \\cdot \\sum_{i=1}^{x_n} \\zeta_i
+
+    where ``b`` is a scalar slope, ``\\zeta`` is a length-``D`` simplex
+    (``D = K - 1``) representing the relative size of each "step" between adjacent
+    levels, and ``D`` rescales the cumulative sum so the contribution at the highest
+    level equals ``b``. The simplex carries a Dirichlet prior; by default
+    ``\\zeta \\sim \\text{Dirichlet}(1, \\ldots, 1)``.
+
+    On the first call (during ``Model`` construction), this transform records the
+    distinct levels of the predictor and returns an ``(n, 1)`` array of zero-indexed
+    integer codes. On subsequent calls — e.g. when ``Model.predict`` evaluates the
+    design on new data — it re-encodes the input against the stored levels and raises
+    a ``ValueError`` on unseen categories or out-of-range integers.
+
+    Attributes
+    ----------
+    levels : numpy.ndarray or None
+        Distinct levels of the predictor, in ascending order. ``None`` until the
+        first call.
+    K : int or None
+        Number of distinct levels (set on the first call).
+    D : int or None
+        Length of the simplex, ``K - 1`` (set on the first call).
+    kind : str or None
+        Either ``"ordered"`` (for ``pd.Categorical(ordered=True)`` predictors) or
+        ``"integer"`` (for integer-dtype predictors).
+    id : str or None
+        Optional shared-simplex group identifier; multiple ``mo()`` terms tagged
+        with the same ``id=`` share a single Dirichlet variable when the model is
+        built. See Bürkner & Charpentier (2020) for the "conditional monotonicity"
+        motivation.
+    min_value : int or None
+        For integer predictors, the value mapped to code ``0``. ``None`` for
+        ordered-categorical predictors.
+
+    See Also
+    --------
+    bambi.terms.MonotonicTerm : standalone ``mo(x)`` main-effect term.
+    bambi.terms.MonotonicInteractionTerm : ``mo(x):z`` interaction term.
+    bambi.terms.MonotonicGroupSpecificTerm : ``(mo(x) | g)`` group-specific term.
+
+    References
+    ----------
+    Bürkner, P.-C., & Charpentier, E. (2020). Modelling monotonic effects of
+    ordinal predictors in Bayesian regression models. *British Journal of
+    Mathematical and Statistical Psychology*, 73(3), 420-451.
+    https://doi.org/10.1111/bmsp.12195
+
+    Examples
+    --------
+    Fit a model with a monotonic effect of an ordered categorical predictor:
+
+    >>> import bambi as bmb
+    >>> import pandas as pd, numpy as np
+    >>> rng = np.random.default_rng(0)
+    >>> levels = ["low", "mid", "high"]
+    >>> df = pd.DataFrame({
+    ...     "y": rng.normal(size=60),
+    ...     "income": pd.Categorical(rng.choice(levels, 60),
+    ...                              categories=levels, ordered=True),
+    ... })
+    >>> model = bmb.Model("y ~ mo(income)", df)
+
+    Share a single simplex across two ``mo()`` terms via ``id=``:
+
+    >>> bmb.Model(
+    ...     "y ~ mo(income, id='shape') + mo(income, id='shape'):x",
+    ...     df.assign(x=rng.normal(size=60)),
+    ... )                                                           # doctest: +SKIP
+    """
+
+    __transform_name__ = "mo"
+
+    def __init__(self):
+        self.levels: Optional[np.ndarray] = None
+        self.min_value: Optional[int] = None
+        self.kind: Optional[str] = None
+        self.K: Optional[int] = None
+        self.D: Optional[int] = None
+        self.id: Optional[str] = None
+        self.params_set: bool = False
+
+    # pylint: disable-next=redefined-builtin
+    def __call__(self, x, id: Optional[str] = None) -> np.ndarray:
+        """Evaluate the monotonic transform on a predictor.
+
+        Parameters
+        ----------
+        x : array-like
+            The predictor. Must be either an integer array/Series, or a
+            ``pandas.Categorical`` with ``ordered=True``.
+        id : str, optional
+            If provided, this ``mo()`` instance joins the shared-simplex group
+            named ``id``. All ``mo()`` terms sharing an id reuse a single
+            Dirichlet variable in the fitted model (see brms's "conditional
+            monotonicity" mechanism).
+
+        Returns
+        -------
+        numpy.ndarray
+            Float-64 array of shape ``(n, 1)`` containing zero-indexed integer
+            codes (as floats, to satisfy ``formulae``'s expected output dtype).
+
+        Raises
+        ------
+        ValueError
+            If ``id`` is given but isn't a string, or if ``x`` is not an integer
+            or ordered-categorical predictor, or if the predictor has fewer than
+            two distinct values, or — on subsequent calls (new data) — if ``x``
+            contains an unseen category or an out-of-range integer.
+        """
+        if id is not None and not isinstance(id, str):
+            raise ValueError("'id' for mo() must be a string or None.")
+        # Record the id only on the first call (it stays stable across re-evals).
+        if not self.params_set:
+            self.id = id
+
+        if isinstance(x, pd.Series):
+            values = x
+        else:
+            values = pd.Series(np.asarray(x))
+
+        if self.params_set:
+            codes = self._encode(values)
+        else:
+            codes = self._fit_and_encode(values)
+
+        return codes.reshape(-1, 1).astype("float64")
+
+    def _fit_and_encode(self, values):
+        dtype = values.dtype
+        if isinstance(dtype, pd.CategoricalDtype):
+            if not dtype.ordered:
+                raise ValueError(
+                    "'mo()' requires an ordered categorical predictor. "
+                    "Use 'pd.Categorical(..., ordered=True)' or pass an integer predictor."
+                )
+            self.kind = "ordered"
+            self.levels = np.asarray(dtype.categories)
+            codes = values.cat.codes.to_numpy()
+        elif pd.api.types.is_integer_dtype(values):
+            self.kind = "integer"
+            uniques = np.sort(values.dropna().unique())
+            self.min_value = int(uniques[0])
+            self.levels = uniques
+            codes = values.to_numpy() - self.min_value
+        else:
+            raise ValueError(
+                "'mo()' requires an integer or ordered categorical predictor; "
+                f"got dtype {dtype!r}."
+            )
+
+        if (codes < 0).any():
+            raise ValueError("'mo()' received negative or missing values in its predictor.")
+
+        self.K = int(len(self.levels))
+        if self.K < 2:
+            raise ValueError("'mo()' requires a predictor with at least 2 distinct values.")
+        self.D = self.K - 1
+        self.params_set = True
+        return codes.astype("int64")
+
+    def _encode(self, values):
+        if self.kind == "ordered":
+            recoded = pd.Categorical(values, categories=self.levels, ordered=True)
+            codes = recoded.codes
+            if (codes == -1).any():
+                bad = np.array(values)[codes == -1]
+                raise ValueError(
+                    f"'mo()' received unseen categories at prediction time: {sorted(set(bad))}"
+                )
+            return codes.astype("int64")
+        # integer kind
+        codes = values.to_numpy() - self.min_value
+        max_code = self.D
+        if (codes < 0).any() or (codes > max_code).any():
+            bad = values[(codes < 0) | (codes > max_code)].unique()
+            raise ValueError(
+                f"'mo()' received values outside the range seen at fit time: {sorted(bad)}"
+            )
+        return codes.astype("int64")
 
 
 def as_matrix(x):

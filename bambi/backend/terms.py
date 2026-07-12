@@ -480,6 +480,235 @@ class ResponseTerm:
         return kwargs
 
 
+class MonotonicTerm:
+    """A term that compiles to a monotonic ``mo()`` effect in PyMC.
+
+    The contribution to the linear predictor is ``slope * D * cumsum(simplex)[codes]``,
+    where ``simplex`` is a length-``D`` Dirichlet variable and ``slope`` is a scalar
+    Normal. This mirrors brms' ``mo()`` parameterization.
+
+    Parameters
+    ----------
+    term : bambi.terms.MonotonicTerm
+        The bambi-side monotonic term, carrying its priors and predictor codes.
+    """
+
+    def __init__(self, term, simplex_registry=None):
+        self.term = term
+        # ``self.term.coords`` already honors the term's alias (the front-end
+        # ``simplex_dim`` property does), so just copy.
+        self.coords = self.term.coords.copy()
+        # ``simplex_registry`` maps shared-id strings to already-built Dirichlet
+        # tensors so multiple terms with the same id reuse one simplex. ``None``
+        # means each term builds its own.
+        self.simplex_registry = simplex_registry if simplex_registry is not None else {}
+
+    def build(self, spec):  # pylint: disable=unused-argument,invalid-name
+        label = self.name
+        D = self.term.D  # pylint: disable=invalid-name
+        codes = self.term.codes  # (n,) int64
+
+        simplex_prior = self.term.prior["simplex"]
+        slope_prior = self.term.prior["slope"]
+
+        simplex_dim = self.term.simplex_dim
+        simplex_name = self.term.simplex_name
+
+        # Reuse a shared simplex if this term's id has already been built
+        if self.term.id is not None and self.term.id in self.simplex_registry:
+            simplex = self.simplex_registry[self.term.id]
+        else:
+            simplex = pm.Dirichlet(simplex_name, a=simplex_prior.args["a"], dims=(simplex_dim,))
+            if self.term.id is not None:
+                self.simplex_registry[self.term.id] = simplex
+
+        slope = pm.Normal(
+            f"{label}_slope",
+            mu=slope_prior.args.get("mu", 0.0),
+            sigma=slope_prior.args.get("sigma", 1.0),
+        )
+
+        # Cumulative-sum trick: prepend a zero so that codes==0 yields 0 contribution.
+        cumsum = pt.concatenate([pt.zeros(1, dtype=simplex.dtype), pt.cumsum(simplex)])
+        contribution = slope * D * cumsum[codes]
+        return pm.Deterministic(label, contribution, dims=("__obs__",))
+
+    @property
+    def name(self):
+        if self.term.alias:
+            return self.term.alias
+        return self.term.name
+
+
+class MonotonicInteractionTerm:
+    """Backend builder for a monotonic-interaction term.
+
+    Contribution per row ``i``:
+
+        sum_k slope[k] * (prod_m D_m * cumsum(simplex_m)[codes_m[i]]) * other_factor[i, k]
+
+    where ``other_factor[i, k] = design_slice[i, k] / prod_m codes_m[i]`` (and 0
+    where any mo() code is 0 — that row contributes nothing anyway).
+    """
+
+    def __init__(self, term, design_slice, simplex_registry):
+        self.term = term  # bambi.terms.MonotonicInteractionTerm
+        self.design_slice = np.asarray(design_slice, dtype=float)  # (n, k)
+        self.simplex_registry = simplex_registry
+        # Precompute "other-factor" matrix and per-component codes (in-sample data only)
+        code_product = np.ones(self.design_slice.shape[0], dtype=float)
+        for mc in self.term.mono_components:
+            code_product *= mc["codes"]
+        safe_codes = np.where(code_product == 0, 1.0, code_product)
+        other_factor = self.design_slice / safe_codes[:, None]
+        other_factor[code_product == 0, :] = 0.0
+        self.other_factor = other_factor  # (n, k)
+        self.ncols = self.design_slice.shape[1]
+
+    @property
+    def name(self):
+        if self.term.alias:
+            return self.term.alias
+        return self.term.name
+
+    @property
+    def coords(self):
+        coords = {}
+        # Need a coord for the slope dim when k > 1 (multi-column interaction)
+        if self.ncols > 1:
+            coords[f"{self.name}_slope_dim"] = np.arange(self.ncols)
+        # Simplex coords for each non-shared mo() component
+        for mc in self.term.mono_components:
+            if mc["id"] is not None:
+                coords[f"simplex_{mc['id']}_dim"] = np.asarray(mc["levels"][1:])
+            else:
+                coords[f"{self.name}_simplex_{mc['idx']}_dim"] = np.asarray(mc["levels"][1:])
+        return coords
+
+    def build(self, spec):  # pylint: disable=unused-argument,invalid-name
+        label = self.name
+
+        # Build per-component partial-sum factor:
+        # mono_factor[i] = prod_m D_m * cumsum(simp_m)[codes_m[i]]
+        mono_factor = None
+        for mc in self.term.mono_components:
+            codes = mc["codes"]
+            D = mc["D"]  # pylint: disable=invalid-name
+            tx_id = mc["id"]
+            if tx_id is not None:
+                simplex_name = f"simplex_{tx_id}"
+                simplex_dim = f"simplex_{tx_id}_dim"
+            else:
+                simplex_name = f"{label}_simplex_{mc['idx']}"
+                simplex_dim = f"{label}_simplex_{mc['idx']}_dim"
+            # Reuse a registered simplex if available
+            if tx_id is not None and tx_id in self.simplex_registry:
+                simplex = self.simplex_registry[tx_id]
+            else:
+                # Default Dirichlet(1, ..., 1)
+                simplex = pm.Dirichlet(simplex_name, a=np.ones(D), dims=(simplex_dim,))
+                if tx_id is not None:
+                    self.simplex_registry[tx_id] = simplex
+            cumsum = pt.concatenate([pt.zeros(1, dtype=simplex.dtype), pt.cumsum(simplex)])
+            gathered = D * cumsum[codes]
+            mono_factor = gathered if mono_factor is None else mono_factor * gathered
+
+        # Slope(s): one per design column
+        slope_prior = self.term.prior["slope"]
+        slope_kwargs = {
+            "mu": slope_prior.args.get("mu", 0.0),
+            "sigma": slope_prior.args.get("sigma", 1.0),
+        }
+        if self.ncols == 1:
+            slope = pm.Normal(f"{label}_slope", **slope_kwargs)
+            other_dot = self.other_factor[:, 0]  # (n,)
+            contribution = mono_factor * other_dot * slope
+        else:
+            slope = pm.Normal(f"{label}_slope", dims=(f"{label}_slope_dim",), **slope_kwargs)
+            # sum_k slope[k] * other_factor[i, k] = other_factor @ slope
+            other_dot = pt.as_tensor(self.other_factor) @ slope  # (n,)
+            contribution = mono_factor * other_dot
+
+        return pm.Deterministic(label, contribution, dims=("__obs__",))
+
+
+class MonotonicGroupSpecificTerm:
+    """Backend builder for ``(mo(x) | g)`` — group-specific monotonic effect.
+
+    Emits a shared Dirichlet simplex (reusing the registry, so id= or a
+    standalone mo() can share it), plus per-group slopes ``r_g`` using
+    bambi's standard non-centered parameterization. The contribution is
+
+        r_g[group_index[i]] * D * cumsum(simplex)[codes[i]]
+    """
+
+    def __init__(self, term, simplex_registry, noncentered=True):
+        self.term = term
+        self.simplex_registry = simplex_registry
+        self.noncentered = noncentered
+
+    @property
+    def name(self):
+        if self.term.alias:
+            return self.term.alias
+        return self.term.name
+
+    @property
+    def coords(self):
+        coords = {}
+        coords[self.term.factor_dim] = list(self.term.groups)
+        coords[self.term.simplex_dim] = np.asarray(self.term.mo_levels[1:])
+        return coords
+
+    def build(self, spec):  # pylint: disable=unused-argument,invalid-name
+        label = self.name
+        D = self.term.D  # pylint: disable=invalid-name
+        codes = self.term.codes
+        group_index = self.term.group_index
+
+        # --- Simplex (possibly reused via id=) ---
+        simplex_prior = self.term.prior["simplex"]
+        simplex_name = self.term.simplex_name
+        simplex_dim = self.term.simplex_dim
+        tx_id = self.term.id
+        if tx_id is not None and tx_id in self.simplex_registry:
+            simplex = self.simplex_registry[tx_id]
+        else:
+            simplex = pm.Dirichlet(simplex_name, a=simplex_prior.args["a"], dims=(simplex_dim,))
+            if tx_id is not None:
+                self.simplex_registry[tx_id] = simplex
+
+        # --- Per-group slope r_g with hierarchical Normal/HalfNormal prior ---
+        slope_prior = self.term.prior["slope"]
+        # Build hyperprior sigma (e.g. HalfNormal). Inherit hierarchy from the
+        # Prior dict structure: slope = Normal(mu=0, sigma=Prior("HalfNormal", ...))
+        sigma_arg = slope_prior.args.get("sigma")
+        if isinstance(sigma_arg, Prior):
+            sigma_dist = get_distribution_from_prior(sigma_arg)
+            sigma = sigma_dist(f"{label}_sigma", **sigma_arg.args)
+        else:
+            sigma = sigma_arg
+        mu = slope_prior.args.get("mu", 0.0)
+
+        # Honour per-prior `noncentered` override (introduced upstream in #983),
+        # falling back to the component-level default passed by the orchestrator.
+        effective_nc = (
+            slope_prior.noncentered if slope_prior.noncentered is not None else self.noncentered
+        )
+        factor_dim = self.term.factor_dim
+        if effective_nc and isinstance(sigma, pt.TensorVariable):
+            offset = pm.Normal(f"{label}_offset", mu=0, sigma=1, dims=(factor_dim,))
+            r_g = pm.Deterministic(label, offset * sigma + mu, dims=(factor_dim,))
+        else:
+            r_g = pm.Normal(label, mu=mu, sigma=sigma, dims=(factor_dim,))
+
+        # --- Contribution ---
+        cumsum = pt.concatenate([pt.zeros(1, dtype=simplex.dtype), pt.cumsum(simplex)])
+        partial_sum = D * cumsum[codes]  # (n,)
+        contribution = r_g[group_index] * partial_sum
+        return pm.Deterministic(f"{label}_contribution", contribution, dims=("__obs__",))
+
+
 class HSGPTerm:
     """A term that is compiled to an HSGP term in PyMC
 
