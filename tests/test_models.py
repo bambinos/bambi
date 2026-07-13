@@ -822,6 +822,21 @@ class TestExGaussian(FitPredictParent):
         assert "y" in idata.posterior_predictive
 
 
+@pytest.mark.usefixtures("mock_pymc_sample")
+class TestLogNormal(FitPredictParent):
+    def test_lognormal_regression_rng(self):
+        rng = np.random.default_rng(1234)
+        # Positive, right-skewed outcome: exp of a linear predictor plus noise
+        x = rng.normal(size=100)
+        y = np.exp(0.4 + 0.2 * x + rng.normal(0, 0.2, size=100))
+        data = pd.DataFrame({"y": y, "x": x})
+        model = bmb.Model("y ~ x", data, family="lognormal")
+        idata = self.fit(model)
+        assert set(idata.posterior.data_vars) == {"Intercept", "x", "sigma"}
+        idata = self.predict_oos(model, idata)
+        assert "y" in idata.posterior_predictive
+
+
 # NOTE: We don't use mock_pymc_sample because the assertion needs actual posterior samples to work.
 class TestAsymmetricLaplace(FitPredictParent):
     # This test doesn't follow the previous pattern but it works...

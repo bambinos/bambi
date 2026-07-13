@@ -337,6 +337,10 @@ class HurdlePoisson(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log"], "psi": ["logit", "probit", "cloglog"]}
 
 
+class LogNormal(UnivariateFamily):
+    SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "sigma": ["log"]}
+
+
 class NegativeBinomial(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log", "cloglog"], "alpha": ["log"]}
 
