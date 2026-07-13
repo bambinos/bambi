@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from bambi.priors.prior import Prior
 from bambi.utils import indentify, multilinify
 
+
 VALID_PRIORS = (Prior, int, float, type(None))
 
 

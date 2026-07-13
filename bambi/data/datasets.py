@@ -10,6 +10,7 @@ from urllib.request import urlretrieve
 
 import pandas as pd
 
+
 FileMetadata = namedtuple("FileMetadata", ["filename", "url", "checksum", "description"])
 DATASETS = {
     "my_data": FileMetadata(

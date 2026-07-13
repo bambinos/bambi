@@ -10,6 +10,7 @@ from bambi.config import config as bmb_config
 from bambi.families.multivariate import MultivariateFamily
 from bambi.families.univariate import Categorical, Cumulative, StoppingRatio
 
+
 ORDINAL_FAMILIES = (Cumulative, StoppingRatio)
 
 

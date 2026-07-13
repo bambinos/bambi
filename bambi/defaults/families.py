@@ -30,6 +30,7 @@ from bambi.families.univariate import (
 )
 from bambi.families.multivariate import Multinomial, DirichletMultinomial
 
+
 # fmt: off
 BUILTIN_FAMILIES = {
     "asymmetriclaplace": {
