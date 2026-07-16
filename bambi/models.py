@@ -1353,7 +1353,7 @@ class Model:
             )
             intercept_name = get_aliased_name(bambi_component.intercept_term)
             center_factor = np.dot(x_uncentered.mean(0), coefs).reshape(shape)
-            posterior[intercept_name] = posterior[intercept_name] + center_factor
+            posterior[intercept_name] = posterior[intercept_name] - center_factor
 
         idata_corrected["posterior"] = posterior
         return idata_corrected
