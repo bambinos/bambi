@@ -17,6 +17,7 @@ from pymc.backends.arviz import apply_function_over_dataset, coords_and_dims_for
 from pymc.model.transform.conditioning import remove_value_transforms
 
 from bambi.backend import PyMCModel
+from bambi.config import config
 from bambi.defaults import get_builtin_family
 from bambi.families import Family, univariate
 from bambi.formula import Formula, check_ordinal_formula
@@ -63,9 +64,15 @@ class Model:
         `"poisson"`, `"t"`, and `"wald"`. Defaults to `"gaussian"`.
     priors : dict, optional
         Optional specification of priors for one or more terms. A dictionary where the keys are
-        the names of terms in the model, "common," or "group_specific" and the values are
-        instances of class `Prior`. If priors are unset, use automatic priors inspired by
-        the R rstanarm library.
+        the names of terms in the model, "common," "group_specific," or the name of a model
+        component, and the values are instances of class `Prior`. A distributional component
+        name (e.g. "sigma" when it is modeled with a formula) maps to a nested dictionary of
+        the same form; a constant component name maps directly to a `Prior`, a number, or an
+        array. If priors are unset, use automatic priors inspired by the R rstanarm library.
+        Names that don't match any term or component are reported with a warning; set
+        `bmb.config["UNUSED_PRIORS"]` to `"error"` or `"ignore"` to change that.
+        Bare term priors can be combined with priors nested under the parent component. If both
+        specify the same term, the nested parent prior takes precedence.
     link : str or dict of str to str, optional
         The name of the link function to use. Valid names are `"cloglog"`, `"identity"`,
         `"inverse_squared"`, `"inverse"`, `"log"`, `"logit"`, `"probit"`, and
@@ -192,10 +199,11 @@ class Model:
                 "Please specify an outcome variable using the formula interface."
             )
 
-        if self.family.likelihood.parent in priors:
-            parent_priors = priors[self.family.likelihood.parent]
-        else:
-            parent_priors = priors
+        # Merge bare term priors with nested parent priors; nested entries take precedence.
+        parent_name = self.family.likelihood.parent
+        parent_priors = {name: prior for name, prior in priors.items() if name != parent_name}
+        if parent_name in priors:
+            parent_priors.update(priors[parent_name])
 
         # Add response component
         self.response_component = ResponseComponent(design.response, self)
@@ -242,6 +250,9 @@ class Model:
         for name in auxiliary_parameters:
             component_prior = priors.get(name, None)
             self.components[name] = ConstantComponent(name, component_prior, self)
+
+        # Validate prior names, now that every component and its terms are known.
+        self._check_prior_names(priors)
 
         # Validate per-component noncentered dict, now that all components are known.
         if isinstance(self.noncentered, dict):
@@ -421,13 +432,20 @@ class Model:
         Parameters
         ----------
         priors : dict or None, optional
-            Dictionary of priors to update. Keys are names of terms to update; values are the new
-            priors (either a `Prior` instance, or an int or float that scales the default priors).
+            Dictionary of priors to update. Accepts the same specification as the `priors`
+            argument of `Model`, and entries here take precedence over the `common` and
+            `group_specific` arguments. Names that don't match any term or component are
+            reported with a warning; set `bmb.config["UNUSED_PRIORS"]` to `"error"` or
+            `"ignore"` to change that.
         common : Prior, int, float or None, optional
             A prior specification to apply to all common terms included in the model.
         group_specific : Prior, int, float or None, optional
             A prior specification to apply to all group specific terms included in the model.
         """
+        if priors is not None:
+            # Validate before touching any state, so a rejected call leaves the model as it was.
+            self._check_prior_names(priors)
+
         kwargs = dict(zip(["priors", "common", "group_specific"], [priors, common, group_specific]))
         self._added_priors.update(kwargs)
         self._build_priors()  # After updating, we need to rebuild priors.
@@ -460,13 +478,47 @@ class Model:
             self.scaler = PriorScaler(self)
             self.scaler.scale()
 
+    def _check_prior_names(self, priors):
+        """Report names in `priors` that don't match any term or component."""
+        behavior = config["UNUSED_PRIORS"]
+        if behavior == "ignore":
+            return
+
+        parent_name = self.family.likelihood.parent
+        valid = (
+            set(self.components)
+            | set(self.components[parent_name].terms)
+            | {"common", "group_specific"}
+        )
+
+        unused = []
+        for name, value in priors.items():
+            if name not in valid:
+                unused.append(name)
+            elif isinstance(value, dict) and name in self.distributional_components:
+                nested_valid = set(self.components[name].terms) | {"common", "group_specific"}
+                unused.extend(f"{name}.{n}" for n in sorted(set(value) - nested_valid))
+
+        if not unused:
+            return
+
+        message = f"Unused name(s) in `priors`: {sorted(unused)}."
+        hint = ' Set `bmb.config["UNUSED_PRIORS"]` to change this.'
+        if behavior == "warn":
+            warnings.warn(message + " They will be ignored." + hint, UserWarning)
+        else:
+            raise ValueError(f"{message} Valid names for this model: {sorted(valid)}.{hint}")
+
     def _set_priors(self, priors=None, common=None, group_specific=None):
         """Internal version of `set_priors()`, with same arguments.
 
         Runs during `Model._build_priors()`.
         """
-        # 'common' and 'group_specific' only apply to the parent component
-        parent_component = self.components[self.family.likelihood.parent]
+        # Arguments `common` and `group_specific` only affect the parent component.
+        # Same names could also be used in a nested dictionary for other distributional components.
+        parent_name = self.family.likelihood.parent
+        parent_component = self.components[parent_name]
+
         if common is not None:
             for term in parent_component.common_terms.values():
                 term.prior = common
@@ -476,23 +528,26 @@ class Model:
                 term.prior = group_specific
 
         if priors is not None:
-            priors = deepcopy(priors)
+            # `normalized_priors` maps component names to their prior specifications:
+            #   - a term-to-prior dict for distributional components,
+            #   - a single prior for constant components.
+            # Bare term priors are merged into the parent component, with explicitly nested
+            # parent priors taking precedence.
+            normalized_priors = {name: priors[name] for name in self.components if name in priors}
+            parent_priors = {
+                name: prior for name, prior in priors.items() if name not in self.components
+            }
+            if parent_name in normalized_priors:
+                parent_priors.update(normalized_priors[parent_name])
+            normalized_priors[parent_name] = parent_priors
 
-            # The only distributional component is the parent term
-            if len(self.distributional_components) == 1:
-                # Update priors of the constant components
-                for name, component in self.constant_components.items():
-                    prior = priors.pop(name) if name in priors else None
-                    if prior:
-                        component.update_priors(prior)
-                # Pass all the other priors to the parent component
-                parent_component.update_priors(priors)
-            # There are more than one distributional components.
-            else:
-                for name, component in self.components.items():
-                    prior = priors.get(name)
-                    if prior:
-                        component.update_priors(prior)
+            # Make sure mutation of Prior objects within update_priors does not have side effects.
+            normalized_priors = deepcopy(normalized_priors)
+
+            for name, component in self.components.items():
+                prior = normalized_priors.get(name)
+                if prior is not None:
+                    component.update_priors(prior)
 
     def _set_family(self, family, link):
         """Set the Family of the model
