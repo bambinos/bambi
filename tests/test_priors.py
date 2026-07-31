@@ -216,13 +216,6 @@ def test_set_priors(data_random_n100):
     assert parent_component.terms["1|categorical1"].prior == gp_prior
 
 
-def test_set_prior_unexisting_term(data_random_n100):
-    prior = bmb.Prior("Uniform", lower=0, upper=50)
-    model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
-    with pytest.raises(KeyError):
-        model.set_priors(priors={"z": prior})
-
-
 def test_response_prior(data_random_n100):
     priors = {"sigma": bmb.Prior("Uniform", lower=0, upper=50)}
     model = bmb.Model("count2 ~ continuous1", data_random_n100, priors=priors)
@@ -340,3 +333,147 @@ def test_custom_prior(data_random_n100):
     model = bmb.Model("continuous1 ~ continuous2", data_random_n100, priors=priors)
     model.build()
     assert model.backend.model.free_RVs[-1].str_repr() == "continuous2 ~ Normal(0, 5)"
+
+
+def test_unused_prior_in_model_warns(data_random_n100):
+    # Issue #815: this used to be silently ignored, so the model was fit with the automatic prior.
+    prior = bmb.Prior("Normal", mu=0, sigma=1)
+    with pytest.warns(UserWarning, match=r"Unused name\(s\) in `priors`: \['TYPO'\]"):
+        bmb.Model("continuous1 ~ continuous2", data_random_n100, priors={"TYPO": prior})
+
+
+def test_unused_prior_error_mode(data_random_n100, monkeypatch):
+    monkeypatch.setattr(bmb.config, "UNUSED_PRIORS", "error")
+    prior = bmb.Prior("Normal", mu=0, sigma=1)
+    with pytest.raises(ValueError, match=r"Unused name\(s\) in `priors`: \['TYPO'\]") as info:
+        bmb.Model("continuous1 ~ continuous2", data_random_n100, priors={"TYPO": prior})
+
+    message = str(info.value)
+    assert "continuous2" in message
+    assert "Intercept" in message
+    assert "UNUSED_PRIORS" in message
+
+
+def test_unused_prior_ignore_mode(data_random_n100, monkeypatch, recwarn):
+    monkeypatch.setattr(bmb.config, "UNUSED_PRIORS", "ignore")
+    prior = bmb.Prior("Normal", mu=0, sigma=1)
+    bmb.Model("continuous1 ~ continuous2", data_random_n100, priors={"TYPO": prior})
+    assert not [w for w in recwarn.list if "Unused name" in str(w.message)]
+
+
+def test_bare_prior_with_named_parent(data_random_n100, monkeypatch):
+    monkeypatch.setattr(bmb.config, "UNUSED_PRIORS", "error")
+    intercept_prior = bmb.Prior("Normal", mu=0, sigma=1)
+    slope_prior = bmb.Prior("Normal", mu=0, sigma=2)
+    bare_slope_prior = bmb.Prior("Normal", mu=0, sigma=3)
+    model = bmb.Model(
+        "continuous1 ~ continuous2",
+        data_random_n100,
+        priors={
+            "mu": {"continuous2": slope_prior},
+            "Intercept": intercept_prior,
+            "continuous2": bare_slope_prior,
+        },
+    )
+
+    intercept_prior.auto_scale = False
+    slope_prior.auto_scale = False
+    assert model.components["mu"].terms["Intercept"].prior == intercept_prior
+    assert model.components["mu"].terms["continuous2"].prior == slope_prior
+
+
+def test_set_bare_prior_with_named_parent(data_random_n100):
+    intercept_prior = bmb.Prior("Normal", mu=0, sigma=1)
+    slope_prior = bmb.Prior("Normal", mu=0, sigma=2)
+    bare_slope_prior = bmb.Prior("Normal", mu=0, sigma=3)
+    model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
+    model.set_priors(
+        priors={
+            "mu": {"continuous2": slope_prior},
+            "Intercept": intercept_prior,
+            "continuous2": bare_slope_prior,
+        }
+    )
+
+    intercept_prior.auto_scale = False
+    slope_prior.auto_scale = False
+    assert model.components["mu"].terms["Intercept"].prior == intercept_prior
+    assert model.components["mu"].terms["continuous2"].prior == slope_prior
+
+
+def test_unused_prior_nested_component(data_random_n100, monkeypatch):
+    monkeypatch.setattr(bmb.config, "UNUSED_PRIORS", "error")
+    prior = bmb.Prior("Normal", mu=0, sigma=1)
+    formula = bmb.Formula("continuous1 ~ continuous2", "sigma ~ continuous2")
+    with pytest.raises(ValueError, match=r"sigma\.TYPO"):
+        bmb.Model(formula, data_random_n100, priors={"sigma": {"TYPO": prior}})
+
+
+def test_model_applies_bare_and_component_priors(data_random_n100, monkeypatch):
+    monkeypatch.setattr(bmb.config, "UNUSED_PRIORS", "error")
+    prior = bmb.Prior("Normal", mu=0, sigma=7.5)
+    formula = bmb.Formula("continuous1 ~ continuous2", "sigma ~ continuous2")
+    model = bmb.Model(
+        formula,
+        data_random_n100,
+        priors={"continuous2": prior, "sigma": {"continuous2": prior}},
+    )
+    prior.auto_scale = False  # the one in the model is set to False
+    assert model.components["mu"].terms["continuous2"].prior == prior
+    assert model.components["sigma"].terms["continuous2"].prior == prior
+
+
+def test_set_priors_applies_bare_terms_with_several_components(data_random_n100):
+    # `_set_priors` used to dispatch strictly by component name here, so a bare term name was
+    # silently dropped while `Model(priors=...)` applied it.
+    prior = bmb.Prior("Normal", mu=0, sigma=7.5)
+    formula = bmb.Formula("continuous1 ~ continuous2", "sigma ~ continuous2")
+    model = bmb.Model(formula, data_random_n100)
+    model.set_priors(priors={"continuous2": prior})
+    prior.auto_scale = False
+    assert model.components["mu"].terms["continuous2"].prior == prior
+
+
+@pytest.mark.parametrize(
+    "priors, component",
+    [
+        ({"common": "PLACEHOLDER"}, "mu"),  # applies to the intercept too, as at construction
+        ({"sigma": {"common": "PLACEHOLDER"}}, "sigma"),  # same rule inside a named component
+    ],
+)
+def test_set_priors_common_key_matches_model(data_random_n100, priors, component):
+    # The "common" key must behave identically at construction and via set_priors -- including
+    # the intercept, which the `common` *argument* deliberately does not touch.
+    prior = bmb.Prior("Normal", mu=0, sigma=7.5)
+    priors = {k: (prior if v == "PLACEHOLDER" else {"common": prior}) for k, v in priors.items()}
+    formula = bmb.Formula("continuous1 ~ continuous2", "sigma ~ continuous2")
+
+    via_init = bmb.Model(formula, data_random_n100, priors=priors)
+    via_set = bmb.Model(formula, data_random_n100)
+    via_set.set_priors(priors=priors)
+
+    for name in ("Intercept", "continuous2"):
+        expected = via_init.components[component].terms[name].prior
+        assert via_set.components[component].terms[name].prior == expected
+
+
+def test_set_priors_dict_wins_over_arguments(data_random_n100):
+    # Entries in `priors` take precedence over the `common`/`group_specific` arguments, just as
+    # term-specific entries always have.
+    keyed = bmb.Prior("Normal", mu=0, sigma=7.5)
+    argued = bmb.Prior("Normal", mu=0, sigma=1.5)
+    model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
+    model.set_priors(priors={"common": keyed}, common=argued)
+    keyed.auto_scale = False
+    assert model.components["mu"].terms["continuous2"].prior == keyed
+
+
+def test_group_specific_key_in_model(data_random_n100):
+    gs_prior = bmb.Prior("Normal", mu=0, sigma=bmb.Prior("HalfNormal", sigma=1))
+    model = bmb.Model(
+        "continuous1 ~ continuous2 + (1|binary_cat)",
+        data_random_n100,
+        priors={"group_specific": gs_prior},
+    )
+    gs_prior.auto_scale = False
+    assert model.components["mu"].terms["1|binary_cat"].prior == gs_prior

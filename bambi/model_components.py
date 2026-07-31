@@ -75,7 +75,7 @@ class DistributionalComponent:
         for name, term in self.design.common.terms.items():
             if is_hsgp_term(term):
                 continue
-            prior = priors.pop(name, priors.get("common", None))
+            prior = priors.get(name, priors.get("common", None))
             if isinstance(prior, Prior):
                 any_hyperprior = any(isinstance(x, Prior) for x in prior.args.values())
                 if any_hyperprior:
@@ -91,13 +91,13 @@ class DistributionalComponent:
 
     def add_group_specific_terms(self, priors):
         for name, term in self.design.group.terms.items():
-            prior = priors.pop(name, priors.get("group_specific", None))
+            prior = priors.get(name, priors.get("group_specific", None))
             self.terms[name] = GroupSpecificTerm(term, prior, self.prefix)
 
     def add_hsgp_terms(self, priors):
         for name, term in self.design.common.terms.items():
             if is_hsgp_term(term):
-                prior = priors.pop(name, None)
+                prior = priors.get(name, None)
                 self.terms[name] = HSGPTerm(term, prior, self.prefix)
 
     def build_priors(self):
@@ -119,13 +119,25 @@ class DistributionalComponent:
     def update_priors(self, priors):
         """Update priors.
 
+        Priors specified by term name take precedence, while `"common"` and `"group_specific"`
+        apply to all remaining terms of the corresponding kind.
+
         Parameters
         ----------
         priors : dict
             Names are terms, values are priors
         """
-        for name, value in priors.items():
-            self.terms[name].prior = value
+        common = priors.get("common")
+        group_specific = priors.get("group_specific")
+        for name, term in self.terms.items():
+            if name in priors:
+                term.prior = priors[name]
+            elif isinstance(term, GroupSpecificTerm):
+                if group_specific is not None:
+                    term.prior = group_specific
+            elif isinstance(term, CommonTerm) and term.kind != "offset":
+                if common is not None:
+                    term.prior = common
 
     def predict(
         self,

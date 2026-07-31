@@ -32,3 +32,16 @@ def test_config():
 
     with pytest.raises(KeyError, match="'DOESNT_EXIST' is not a valid configuration option"):
         config.DOESNT_EXIST = "anything"
+
+
+def test_config_unused_priors():
+    config = Config()
+
+    assert config["UNUSED_PRIORS"] == "warn"
+
+    for value in ("warn", "ignore", "error"):
+        config["UNUSED_PRIORS"] = value
+        assert config.UNUSED_PRIORS == value
+
+    with pytest.raises(ValueError, match="silent is not a valid value for 'UNUSED_PRIORS'"):
+        config.UNUSED_PRIORS = "silent"
