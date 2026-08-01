@@ -40,7 +40,8 @@ jax = [
     "numpyro>=0.19,<0.20",
 ]
 nutpie = [
-    "numba>=0.61.2",
+    # Capped because pytensor requires numba<=0.65.1; numba 0.66.0 makes the solve unsatisfiable.
+    "numba>=0.61.2,<0.66",
     "nutpie>=0.16.10,<1",
 ]
 
@@ -115,7 +116,8 @@ jax = ">=0.7,<0.8"
 numpyro = ">=0.19,<0.20"
 
 [tool.pixi.feature.nutpie.dependencies]
-numba = ">=0.61.2"
+# See the note on the `nutpie` extra above: pytensor requires numba<=0.65.1.
+numba = ">=0.61.2,<0.66"
 nutpie = ">=0.16.10,<1"
 
 [tool.pixi.feature.py312.dependencies]
