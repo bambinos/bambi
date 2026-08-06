@@ -1366,50 +1366,75 @@ class Model:
         Parameters
         ----------
         idata : DataTree
-            A DataTree
+            The posterior samples as returned by ``Model.fit``.
 
         Returns
         -------
-        InferenceData or DataTree
-            A deep copy of ``idata`` with the intercept of every distributional
-            component that has both an intercept and common terms re-centered.
+        DataTree
+            A copy of ``idata`` where the intercept of every distributional component with
+            both an intercept and common terms includes the centering factor again, and the
+            offsets of non-centered group-specific terms are reconstructed. If there is
+            nothing to revert, ``idata`` is returned unchanged.
         """
-        if not self.center_predictors or self.backend is None:
+        if self.backend is None:
             return idata
 
-        idata_corrected = deepcopy(idata)
-        posterior = idata_corrected.posterior
+        posterior = as_dataset(idata["posterior"])
+        value_var_names = {value_var.name for value_var in self.backend.model.value_vars}
 
+        # Recover dropped offsets as `name / name_sigma` since `name = name_offset * name_sigma`
+        offsets = {}
         for pymc_component in self.backend.distributional_components.values():
-            bambi_component = pymc_component.component
-            if not (
-                bambi_component.intercept_term
-                and bambi_component.common_terms
-                and pymc_component.design_matrix_without_intercept is not None
-            ):
-                continue
+            for term in pymc_component.component.group_specific_terms.values():
+                term_name = get_aliased_name(term)
+                offset_name = f"{term_name}_offset"
+                if offset_name in value_var_names and offset_name not in posterior:
+                    sigma_name = f"{term_name}_{term.hyperprior_alias.get('sigma', 'sigma')}"
+                    offsets[offset_name] = (term_name, sigma_name)
 
-            chain_n = posterior["chain"].size
-            draw_n = posterior["draw"].size
-            shape, dims = (chain_n, draw_n), ("chain", "draw")
-            x_uncentered = pymc_component.design_matrix_without_intercept
+        # The backend reports `intercept - center_factor` so recompute the factor to add it back
+        center_factors = {}
+        if self.center_predictors:
+            for pymc_component in self.backend.distributional_components.values():
+                bambi_component = pymc_component.component
+                x_uncentered = pymc_component.design_matrix_without_intercept
+                if not (
+                    bambi_component.intercept_term
+                    and bambi_component.common_terms
+                    and x_uncentered is not None
+                ):
+                    continue
 
-            common_term_names = [get_aliased_name(t) for t in bambi_component.common_terms.values()]
+                shape, dims = (posterior["chain"].size, posterior["draw"].size), ("chain", "draw")
+                common_term_names = [
+                    get_aliased_name(t) for t in bambi_component.common_terms.values()
+                ]
 
-            response_coords = self.response_component.term.coords
-            if response_coords:
-                levels = list(response_coords.values())[0]
-                shape += (len(levels),)
-                dims += tuple(response_coords)
+                response_coords = self.response_component.term.coords
+                if response_coords:
+                    levels = list(response_coords.values())[0]
+                    shape += (len(levels),)
+                    dims += tuple(response_coords)
 
-            posterior_stacked = posterior.to_dataset().stack(samples=dims)
-            coefs = np.vstack(
-                [np.atleast_2d(posterior_stacked[name].values) for name in common_term_names]
-            )
-            intercept_name = get_aliased_name(bambi_component.intercept_term)
-            center_factor = np.dot(x_uncentered.mean(0), coefs).reshape(shape)
-            posterior[intercept_name] = posterior[intercept_name] - center_factor
+                posterior_stacked = posterior.stack(samples=dims)
+                coefs = np.vstack(
+                    [np.atleast_2d(posterior_stacked[name].values) for name in common_term_names]
+                )
+                intercept_name = get_aliased_name(bambi_component.intercept_term)
+                center_factors[intercept_name] = np.dot(x_uncentered.mean(0), coefs).reshape(shape)
 
+        if not center_factors and not offsets:
+            return idata
+
+        posterior = posterior.copy()
+
+        for name, center_factor in center_factors.items():
+            posterior[name] = posterior[name] + center_factor
+
+        for offset_name, (term_name, sigma_name) in offsets.items():
+            posterior[offset_name] = posterior[term_name] / posterior[sigma_name]
+
+        idata_corrected = idata.copy()
         idata_corrected["posterior"] = posterior
         return idata_corrected
 
