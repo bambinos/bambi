@@ -35,7 +35,7 @@ Specification of model class
 
 <code>[**priors**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
 
-:   Optional specification of priors for one or more terms. A dictionary where the keys are the names of terms in the model, "common," or "group_specific" and the values are instances of class `Prior`. If priors are unset, use automatic priors inspired by the R rstanarm library.
+:   Optional specification of priors for one or more terms. A dictionary where the keys are the names of terms in the model, "common," "group_specific," or the name of a model component, and the values are instances of class `Prior`. A distributional component name (e.g. "sigma" when it is modeled with a formula) maps to a nested dictionary of the same form; a constant component name maps directly to a `Prior`, a number, or an array. If priors are unset, use automatic priors inspired by the R rstanarm library. Names that don't match any term or component are reported with a warning; set `bmb.config["UNUSED_PRIORS"]` to `"error"` or `"ignore"` to change that. Bare term priors can be combined with priors nested under the parent component. If both specify the same term, the nested parent prior takes precedence.
 
 <code>[**link**]{.parameter-name} [:]{.parameter-annotation-sep} [str or dict of str to str]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
 
@@ -587,7 +587,7 @@ Set priors for one or more existing terms.
 
 <code>[**priors**]{.parameter-name} [:]{.parameter-annotation-sep} [[dict](`dict`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
 
-:   Dictionary of priors to update. Keys are names of terms to update; values are the new priors (either a `Prior` instance, or an int or float that scales the default priors).
+:   Dictionary of priors to update. Accepts the same specification as the `priors` argument of `Model`, and entries here take precedence over the `common` and `group_specific` arguments. Names that don't match any term or component are reported with a warning; set `bmb.config["UNUSED_PRIORS"]` to `"error"` or `"ignore"` to change that.
 
 <code>[**common**]{.parameter-name} [:]{.parameter-annotation-sep} [([Prior](`bambi.priors.Prior`), [int](`int`), [float](`float`) or None)]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
 

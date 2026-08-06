@@ -77,7 +77,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-20f73f4ddd74edeac38367b0f44e25f1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-611a15866b8cb7f57f4d69d58c0a9134.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -395,7 +395,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </dd>
 <dt><code><span class="parameter-name"><strong>priors</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>Optional specification of priors for one or more terms. A dictionary where the keys are the names of terms in the model, “common,” or “group_specific” and the values are instances of class <code>Prior</code>. If priors are unset, use automatic priors inspired by the R rstanarm library.</p>
+<p>Optional specification of priors for one or more terms. A dictionary where the keys are the names of terms in the model, “common,” “group_specific,” or the name of a model component, and the values are instances of class <code>Prior</code>. A distributional component name (e.g.&nbsp;“sigma” when it is modeled with a formula) maps to a nested dictionary of the same form; a constant component name maps directly to a <code>Prior</code>, a number, or an array. If priors are unset, use automatic priors inspired by the R rstanarm library. Names that don’t match any term or component are reported with a warning; set <code>bmb.config["UNUSED_PRIORS"]</code> to <code>"error"</code> or <code>"ignore"</code> to change that. Bare term priors can be combined with priors nested under the parent component. If both specify the same term, the nested parent prior takes precedence.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>link</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">str or dict of str to str</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
@@ -987,7 +987,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dl>
 <dt><code><span class="parameter-name"><strong>priors</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
-<p>Dictionary of priors to update. Keys are names of terms to update; values are the new priors (either a <code>Prior</code> instance, or an int or float that scales the default priors).</p>
+<p>Dictionary of priors to update. Accepts the same specification as the <code>priors</code> argument of <code>Model</code>, and entries here take precedence over the <code>common</code> and <code>group_specific</code> arguments. Names that don’t match any term or component are reported with a warning; set <code>bmb.config["UNUSED_PRIORS"]</code> to <code>"error"</code> or <code>"ignore"</code> to change that.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>common</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<code>Prior</code>, <a href="https://docs.python.org/3/library/functions.html#int">int</a>, <a href="https://docs.python.org/3/library/functions.html#float">float</a> or None)</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
