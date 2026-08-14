@@ -994,7 +994,7 @@
     "href": "notebooks/getting_started.html#user-guide",
     "title": "Getting Started",
     "section": "User Guide",
-    "text": "User Guide\n\nSetup\n\nimport arviz.preview as az\nimport bambi as bmb\nimport pandas as pd\n\n\naz.style.use(\"arviz-variat\")\n\n\n\nCreating a model\nCreating a new model in Bambi is simple:\n\n# Read in a tab-delimited file containing our data\ndata = pd.read_table(\"data/my_data.txt\", sep=\"\\t\")\n\n# Initialize the model\nmodel = bmb.Model(\"y ~ x + z\", data)\n\n# Inspect model object\nmodel\n\n       Formula: y ~ x + z\n        Family: gaussian\n          Link: mu = identity\n  Observations: 50\n        Priors: \n    target = mu\n        Common-level effects\n            Intercept ~ Normal(mu: 0.1852, sigma: 2.5649)\n            x ~ Normal(mu: 0.0, sigma: 2.231)\n            z ~ Normal(mu: 0.0, sigma: 2.4374)\n        \n        Auxiliary parameters\n            sigma ~ HalfStudentT(nu: 4.0, sigma: 1.013)\n\n\nTypically, we will initialize a Bambi Model by passing it a model formula and a pandas DataFrame. Other arguments such as family, priors, and link are available. By default, it uses family=\"gaussian\" which implies a linear regression with normal error. We get back a model that we can immediately fit by calling model.fit.\n\n\nData format\nAs with most mixed effect modeling packages, Bambi expects data in “long” format–meaning that each row should reflect a single observation at the most fine-grained level of analysis. For example, given a model where students are nested into classrooms and classrooms are nested into schools, we would want data with the following kind of structure:\n\n\n\n\nstudent\ngender\ngpa\nclass\nschool\n\n\n\n\n1\nF\n3.4\n1\n1\n\n\n2\nF\n3.7\n1\n1\n\n\n3\nM\n2.2\n1\n1\n\n\n4\nF\n3.9\n2\n1\n\n\n5\nM\n3.6\n2\n1\n\n\n6\nM\n3.5\n2\n1\n\n\n7\nF\n2.8\n3\n2\n\n\n8\nM\n3.9\n3\n2\n\n\n9\nF\n4.0\n3\n2"
+    "text": "User Guide\n\nSetup\n\nimport arviz as az\nimport bambi as bmb\nimport pandas as pd\n\n\naz.style.use(\"arviz-variat\")\n\n\n\nCreating a model\nCreating a new model in Bambi is simple:\n\n# Read in a tab-delimited file containing our data\ndata = pd.read_table(\"data/my_data.txt\", sep=\"\\t\")\n\n# Initialize the model\nmodel = bmb.Model(\"y ~ x + z\", data)\n\n# Inspect model object\nmodel\n\n       Formula: y ~ x + z\n        Family: gaussian\n          Link: mu = identity\n  Observations: 50\n        Priors: \n    target = mu\n        Common-level effects\n            Intercept ~ Normal(mu: 0.1852, sigma: 2.5649)\n            x ~ Normal(mu: 0.0, sigma: 2.231)\n            z ~ Normal(mu: 0.0, sigma: 2.4374)\n        \n        Auxiliary parameters\n            sigma ~ HalfStudentT(nu: 4.0, sigma: 1.013)\n\n\nTypically, we will initialize a Bambi Model by passing it a model formula and a pandas DataFrame. Other arguments such as family, priors, and link are available. By default, it uses family=\"gaussian\" which implies a linear regression with normal error. We get back a model that we can immediately fit by calling model.fit.\n\n\nData format\nAs with most mixed effect modeling packages, Bambi expects data in “long” format–meaning that each row should reflect a single observation at the most fine-grained level of analysis. For example, given a model where students are nested into classrooms and classrooms are nested into schools, we would want data with the following kind of structure:\n\n\n\n\nstudent\ngender\ngpa\nclass\nschool\n\n\n\n\n1\nF\n3.4\n1\n1\n\n\n2\nF\n3.7\n1\n1\n\n\n3\nM\n2.2\n1\n1\n\n\n4\nF\n3.9\n2\n1\n\n\n5\nM\n3.6\n2\n1\n\n\n6\nM\n3.5\n2\n1\n\n\n7\nF\n2.8\n3\n2\n\n\n8\nM\n3.9\n3\n2\n\n\n9\nF\n4.0\n3\n2"
   },
   {
     "objectID": "notebooks/getting_started.html#formula-based-specification",
@@ -1225,7 +1225,7 @@
     "href": "notebooks/ESCS_multiple_regression.html",
     "title": "Multiple linear regression",
     "section": "",
-    "text": "import arviz.preview as az\nimport bambi as bmb\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport pandas as pd\nimport statsmodels.api as sm\nimport xarray as xr\naz.style.use(\"arviz-variat\")\nSEED = 7355608",
+    "text": "import arviz as az\nimport bambi as bmb\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport pandas as pd\nimport statsmodels.api as sm\nimport xarray as xr\naz.style.use(\"arviz-variat\")\nSEED = 7355608",
     "crumbs": [
       "Examples",
       "Linear regression models",
@@ -2398,7 +2398,7 @@
     "href": "notebooks/fixed_random.html#prepare-notebook",
     "title": "Fixed, Random Effects and Mundlak Machines",
     "section": "Prepare Notebook",
-    "text": "Prepare Notebook\n\nfrom typing import Any\n\nimport arviz.preview as az\nimport bambi as bmb\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport pandas as pd\nimport pymc as pm\nimport seaborn as sns\nfrom pymc import do\n\naz.style.use(\"arviz-variat\")\nplt.rcParams[\"figure.figsize\"] = [7, 5]\nplt.rcParams[\"figure.dpi\"] = 100\nplt.rcParams[\"figure.facecolor\"] = \"white\"\n\n%config InlineBackend.figure_format = \"retina\"\n\n\nseed: int = 42\nrng: np.random.Generator = np.random.default_rng(seed=seed)",
+    "text": "Prepare Notebook\n\nfrom typing import Any\n\nimport arviz as az\nimport bambi as bmb\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport pandas as pd\nimport pymc as pm\nimport seaborn as sns\nfrom pymc import do\n\naz.style.use(\"arviz-variat\")\nplt.rcParams[\"figure.figsize\"] = [7, 5]\nplt.rcParams[\"figure.dpi\"] = 100\nplt.rcParams[\"figure.facecolor\"] = \"white\"\n\n%config InlineBackend.figure_format = \"retina\"\n\n\nseed: int = 42\nrng: np.random.Generator = np.random.default_rng(seed=seed)",
     "crumbs": [
       "Examples",
       "Linear regression models",
@@ -2724,7 +2724,7 @@
     "href": "notebooks/multi-level_regression.html",
     "title": "Hierarchical Linear Regression (Pigs dataset)",
     "section": "",
-    "text": "import arviz.preview as az\nimport bambi as bmb\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport pymc as pm\nimport statsmodels.api as sm\nimport seaborn.objects as so\n\naz.style.use(\"arviz-variat\")\nSEED = 2611\n\nWe’ll use a dataset included with statsmodels containing the growth curve of pigs.\nThis model aims to analyse how pig weight changes over time. We know each pig’s growth is unique; at the same time, these pigs belong to the same species/population, so there also lies some similarity among them. Hierarchical models are beneficial for these kinds of problems.\nThis notebook will demonstrate how to perform a Bayesian hierarchical linear regression in Bambi and PyMC.",
+    "text": "import arviz as az\nimport bambi as bmb\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport pymc as pm\nimport statsmodels.api as sm\nimport seaborn.objects as so\n\naz.style.use(\"arviz-variat\")\nSEED = 2611\n\nWe’ll use a dataset included with statsmodels containing the growth curve of pigs.\nThis model aims to analyse how pig weight changes over time. We know each pig’s growth is unique; at the same time, these pigs belong to the same species/population, so there also lies some similarity among them. Hierarchical models are beneficial for these kinds of problems.\nThis notebook will demonstrate how to perform a Bayesian hierarchical linear regression in Bambi and PyMC.",
     "crumbs": [
       "Examples",
       "Linear regression models",
@@ -2736,7 +2736,7 @@
     "href": "notebooks/multi-level_regression.html#prepare-notebook",
     "title": "Hierarchical Linear Regression (Pigs dataset)",
     "section": "",
-    "text": "import arviz.preview as az\nimport bambi as bmb\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport pymc as pm\nimport statsmodels.api as sm\nimport seaborn.objects as so\n\naz.style.use(\"arviz-variat\")\nSEED = 2611\n\nWe’ll use a dataset included with statsmodels containing the growth curve of pigs.\nThis model aims to analyse how pig weight changes over time. We know each pig’s growth is unique; at the same time, these pigs belong to the same species/population, so there also lies some similarity among them. Hierarchical models are beneficial for these kinds of problems.\nThis notebook will demonstrate how to perform a Bayesian hierarchical linear regression in Bambi and PyMC.",
+    "text": "import arviz as az\nimport bambi as bmb\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport pymc as pm\nimport statsmodels.api as sm\nimport seaborn.objects as so\n\naz.style.use(\"arviz-variat\")\nSEED = 2611\n\nWe’ll use a dataset included with statsmodels containing the growth curve of pigs.\nThis model aims to analyse how pig weight changes over time. We know each pig’s growth is unique; at the same time, these pigs belong to the same species/population, so there also lies some similarity among them. Hierarchical models are beneficial for these kinds of problems.\nThis notebook will demonstrate how to perform a Bayesian hierarchical linear regression in Bambi and PyMC.",
     "crumbs": [
       "Examples",
       "Linear regression models",
@@ -3200,7 +3200,7 @@
     "href": "notebooks/sleepstudy.html",
     "title": "Hierarchical Linear Regression (Sleepstudy example)",
     "section": "",
-    "text": "import arviz.preview as az\nimport bambi as bmb\nimport matplotlib.pyplot as plt\nimport numpy as np\n\nSEED = 1211\naz.style.use(\"arviz-variat\")\nIn this example we are going to use sleepstudy dataset. It is derived from the study described in Belenky et al. (2003) and popularized in the lme4 R package. This dataset contains the average reaction time per day (in milliseconds) on a series of tests for the most sleep-deprived group in a sleep deprivation study. The first two days of the study are considered as adaptation and training, the third day is a baseline, and sleep deprivation started after day 3. The subjects in this group were restricted to 3 hours of sleep per night.",
+    "text": "import arviz as az\nimport bambi as bmb\nimport matplotlib.pyplot as plt\nimport numpy as np\n\nSEED = 1211\naz.style.use(\"arviz-variat\")\nIn this example we are going to use sleepstudy dataset. It is derived from the study described in Belenky et al. (2003) and popularized in the lme4 R package. This dataset contains the average reaction time per day (in milliseconds) on a series of tests for the most sleep-deprived group in a sleep deprivation study. The first two days of the study are considered as adaptation and training, the third day is a baseline, and sleep deprivation started after day 3. The subjects in this group were restricted to 3 hours of sleep per night.",
     "crumbs": [
       "Examples",
       "Linear regression models",
