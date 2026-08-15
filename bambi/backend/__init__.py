@@ -1,3 +1,3 @@
-from .pymc import PyMCModel
+from bambi.backend.pymc import PyMCModel
 
 __all__ = ["PyMCModel"]
