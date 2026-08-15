@@ -66,6 +66,14 @@ class Cumulative(Family):
     }
 
 
+class ExGaussian(Family):
+    PARAMETERS = {
+        "mu": ParamSpec(links=["identity", "log", "inverse"]),
+        "sigma": ParamSpec(links=["log"]),
+        "nu": ParamSpec(links=["log"]),
+    }
+
+
 class Exponential(Family):
     PARAMETERS = {
         "mu": ParamSpec(links=["identity", "log", "inverse"]),
@@ -128,6 +136,13 @@ class Laplace(Family):
     PARAMETERS = {
         "mu": ParamSpec(links=["identity", "log", "inverse"]),
         "b": ParamSpec(links=["log"]),
+    }
+
+
+class LogNormal(Family):
+    PARAMETERS = {
+        "mu": ParamSpec(links=["identity", "log", "inverse"]),
+        "sigma": ParamSpec(links=["log"]),
     }
 
 

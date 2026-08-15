@@ -123,7 +123,10 @@ BUILTIN_FAMILIES = {
         },
         "link": {"mu": "identity", "sigma": "log", "nu": "log"},
         "family": ExGaussian,
-        "default_priors": {"sigma": "HalfNormal", "nu": "HalfNormal"},
+        "default_priors": {
+            "sigma": {"name": "HalfNormal", "sigma": 1},
+            "nu": {"name": "HalfNormal", "sigma": 1},
+        },
     },
     "exponential": {
         "likelihood": {
@@ -144,15 +147,15 @@ BUILTIN_FAMILIES = {
         "family": Gamma,
         "default_priors": {"alpha": {"name": "HalfCauchy", "beta": 1}},
     },
-    "lognormal":{
-        "likelihood":{
-            "name":"LogNormal",
-            "params":["mu","sigma"],
-            "parent":"mu",
+    "lognormal": {
+        "likelihood": {
+            "name": "LogNormal",
+            "params": ["mu", "sigma"],
+            "parent": "mu",
         },
-        "link":{"mu":"identity","sigma":"log"},
-        "family":LogNormal,
-        "default_priors":{"sigma":"HalfNormal"},
+        "link": {"mu": "identity", "sigma": "log"},
+        "family": LogNormal,
+        "default_priors": {"sigma": {"name": "HalfNormal", "sigma": 1}},
     },
     "gaussian": {
         "likelihood": {

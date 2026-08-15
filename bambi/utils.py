@@ -171,3 +171,8 @@ def remove_common_intercept(dm: fm.matrices.DesignMatrices) -> fm.matrices.Desig
     intercept_slice = dm.common.slices.pop("Intercept")
     dm.common.design_matrix = np.delete(dm.common.design_matrix, intercept_slice, axis=1)
     return dm
+
+
+def as_dataset(group):
+    """Return a Dataset from either a DataTree group or a Dataset."""
+    return group.ds if isinstance(group, DataTree) else group
