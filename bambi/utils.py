@@ -171,18 +171,3 @@ def remove_common_intercept(dm: fm.matrices.DesignMatrices) -> fm.matrices.Desig
     intercept_slice = dm.common.slices.pop("Intercept")
     dm.common.design_matrix = np.delete(dm.common.design_matrix, intercept_slice, axis=1)
     return dm
-
-
-def response_evaluate_new_data(model, data):
-    # TODO: Add "evaluate_new_data" to the response component in formulae, so we don't need this.
-    name = model.response_component.term.name
-    env = model.response_component.response.env
-
-    # We add an intercept to have a valid formula, but it's not used
-    dm = fm.design_matrices(name + " ~ 1", data, env=env)
-    return np.asarray(dm.response)
-
-
-def as_dataset(group):
-    """Return a Dataset from either a DataTree group or a Dataset."""
-    return group.ds if isinstance(group, DataTree) else group
