@@ -1,4 +1,5 @@
 from collections import namedtuple
+from sys import float_info
 
 import numpy as np
 
@@ -9,7 +10,7 @@ from bambi.utils import multilinify, indentify
 
 def force_within_unit_interval(x):
     """Make sure data in unit interval is in (0, 1)."""
-    eps = np.finfo(np.float64).eps  # pylint: disable=no-member
+    eps = float_info.epsilon
     x[x == 0] = eps
     x[x == 1] = 1 - eps
     return x
@@ -17,7 +18,7 @@ def force_within_unit_interval(x):
 
 def force_greater_than_zero(x):
     """Make sure data in positive reals is in (0, infty)."""
-    eps = np.finfo(np.float64).eps  # pylint: disable=no-member
+    eps = float_info.epsilon
     x[x == 0] = eps
     return x
 
@@ -91,7 +92,7 @@ def link_not_implemented(*args, **kwargs):
 
 # link: Known as g in the GLM literature. Maps the response to the linear predictor scale.
 # linkinv: Known as g^(-1) in the GLM literature. Maps the linear predictor to the response scale.
-LinksContainer = namedtuple("LinksContainer", ["link", "linkinv"])
+LinksContainer = namedtuple("LinksContainer", ["link", "inverse_link"])
 
 LINKS = {
     "cloglog": LinksContainer(cloglog, invcloglog),
@@ -120,38 +121,37 @@ class Link:
     ----------
     name : str
         The name of the link function. If it is a known name, it's not necessary to pass any
-        other arguments because functions are already defined internally. If not known, all of
-        `link`, `linkinv` and `linkinv_backend` must be specified.
+        other arguments because functions are already defined internally. If not known,
+        `inverse_link` must be specified.
     link : function or None, optional
         A function that maps the response to the linear predictor. Known as the :math:`g` function
-        in GLM jargon. Does not need to be specified when `name` is a known name.
-    linkinv : function or None, optional
+        in GLM jargon. It is optional for custom links because Bambi does not currently use it.
+    inverse_link : function or None, optional
         A function that maps the linear predictor to the response. Known as the :math:`g^{-1}`
-        function in GLM jargon. Does not need to be specified when `name` is a known name.
-    linkinv_backend : function or None, optional
-        Same than `linkinv` but must be something that works with PyMC backend (i.e. it must
-        work with PyTensor tensors). Does not need to be specified when `name` is a known
-        name.
+        function in GLM jargon. For custom links, it must be compatible with the active backend,
+        which is currently PyMC.
     """
 
-    def __init__(self, name, link=None, linkinv=None, linkinv_backend=None):
+    def __init__(self, name, link=None, inverse_link=None):
         self.name = name
         self.link = link
-        self.linkinv = linkinv
-        self.linkinv_backend = linkinv_backend
+        self.inverse_link = inverse_link
 
         if name in LINKS:
             self.link = LINKS[name].link
-            self.linkinv = LINKS[name].linkinv
+            self.inverse_link = LINKS[name].inverse_link
         else:
-            if not link or not linkinv or not linkinv_backend:
+            if inverse_link is None:
                 raise ValueError(
-                    f"Link name '{name}' is not supported and at least one of 'link', "
-                    "'linkinv' or 'linkinv_backend' are unspecified."
+                    f"Link name '{name}' is not supported and 'inverse_link' is unspecified."
                 )
 
     def __str__(self):
-        args = [f"name: {self.name}", f"link: {self.link}", f"linkinv: {self.linkinv}"]
+        args = [
+            f"name: {self.name}",
+            f"link: {self.link}",
+            f"inverse_link: {self.inverse_link}",
+        ]
         return f"{self.__class__.__name__}({indentify(multilinify(args))}\n)"
 
     def __repr__(self):
