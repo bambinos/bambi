@@ -28,9 +28,5 @@ class OffsetTerm(CommonTerm):
     def levels(self):
         return []
 
-    @property
-    def coords(self):
-        return {}
-
     def __str__(self):
         return self.make_str()

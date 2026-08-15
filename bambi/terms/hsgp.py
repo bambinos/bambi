@@ -159,14 +159,6 @@ class HSGPTerm(BaseTerm):
         return self.scale
 
     @property
-    def coords(self):
-        # This handles univariate and multivariate cases
-        coords = {f"{self.name}_weights_dim": np.arange(np.prod(self.m))}
-        if self.by_levels is not None:
-            coords[f"{self.name}_by"] = self.by_levels
-        return coords
-
-    @property
     def name(self):
         if self.prefix:
             return f"{self.prefix}_{self.term.name}"
