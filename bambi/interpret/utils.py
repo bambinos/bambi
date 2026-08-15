@@ -109,11 +109,11 @@ def resolve_target(model: Model, target: str) -> TargetInfo:
     TargetInfo
         A named tuple with `response_name`, `var_name`, `group`, and `predict_kind`.
     """
-    response_name = get_aliased_name(model.response_component.term)
+    response_name = get_aliased_name(model.response_term)
     match target:
         case "mean":
-            return TargetInfo(
-                response_name,
+            return (
+                get_aliased_name(model.response_term),
                 model.family.likelihood.parent,
                 "posterior",
                 "response_params",
@@ -121,12 +121,15 @@ def resolve_target(model: Model, target: str) -> TargetInfo:
         case t if t == response_name:
             return TargetInfo(response_name, response_name, "posterior_predictive", "response")
         case _:
-            component = model.components[target]
-            if component.alias:
-                alias = get_aliased_name(component)
-                return TargetInfo(alias, alias, "posterior", "response_params")
-            else:
-                return TargetInfo(response_name, target, "posterior", "response_params")
+            parameter = model.parameters[target]
+            return (
+                (
+                    get_aliased_name(parameter)
+                    if parameter.alias
+                    else get_aliased_name(model.response_term)
+                ),
+                None if parameter.alias else target,
+            )
 
 
 def aggregate(
@@ -176,7 +179,7 @@ def aggregate(
 
 
 def get_model_terms(model: Model) -> dict:
-    """Loop through the distributional components of a Bambi model and return terms.
+    """Loop through the conditional parameters of a Bambi model and return terms.
 
     Parameters
     ----------
@@ -186,10 +189,10 @@ def get_model_terms(model: Model) -> dict:
     Returns
     -------
     dict
-        A dictionary containing all terms from the model's distributional components.
+        A dictionary containing all terms from the model's conditional parameters.
     """
     terms = {}
-    for component in model.distributional_components.values():
+    for component in model.conditional_parameters.values():
         if component.design.common:
             terms.update(component.design.common.terms)
 
