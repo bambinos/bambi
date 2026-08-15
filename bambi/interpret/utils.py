@@ -14,8 +14,8 @@ from bambi.models import Model
 class TargetInfo(NamedTuple):
     """Information regarding which type of prediction is required based on a `target`.
 
-    `interpret` allows users to plot target quantities such as posterior parameters,
-    and or the posterior predictive.
+    `interpret` allows users to plot target quantities such as posterior parameters
+    or posterior predictive samples.
 
     Parameters
     ----------

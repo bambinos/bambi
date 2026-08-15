@@ -112,7 +112,7 @@ SlopeFunc = Callable[[DataArray, DataArray, DataArray], DataArray]
 
 
 def dydx(derivative: DataArray, x: DataArray, y: DataArray) -> DataArray:
-    """Unit change in x associated with a unit change in y.
+    """Unit change in y per unit change in x.
 
     Parameters
     ----------
@@ -132,7 +132,7 @@ def dydx(derivative: DataArray, x: DataArray, y: DataArray) -> DataArray:
 
 
 def eyex(derivative: DataArray, x: DataArray, y: DataArray) -> DataArray:
-    """Percent change in x associated with a percent change in y.
+    """Percent change in y per percent change in x.
 
     Parameters
     ----------
@@ -152,7 +152,7 @@ def eyex(derivative: DataArray, x: DataArray, y: DataArray) -> DataArray:
 
 
 def eydx(derivative: DataArray, x: DataArray, y: DataArray) -> DataArray:
-    """Unit change in x associated with a percent change in y.
+    """Percent change in y per unit change in x.
 
     Parameters
     ----------
@@ -172,7 +172,7 @@ def eydx(derivative: DataArray, x: DataArray, y: DataArray) -> DataArray:
 
 
 def dyex(derivative: DataArray, x: DataArray, y: DataArray) -> DataArray:
-    """Percent change in x associated with a unit change in y.
+    """Unit change in y per percent change in x.
 
     Parameters
     ----------

@@ -106,7 +106,7 @@ def _extract_dim_columns(summary_df: DataFrame, var_names: list[str]) -> list[st
 def filter_draws(
     val: Any, idata: DataTree, group: str, target: str, variable: pd.Series
 ) -> DataArray:
-    """Filter draws from an DataTree group based on variable values.
+    """Filter draws from a DataTree group based on variable values.
 
     Parameters
     ----------
@@ -305,7 +305,6 @@ def _build_predictions(
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]],
     target: str,
     transforms: dict | None,
-    sample_new_groups: bool,
 ) -> tuple[DataTree, DataFrame, list[str], str, str, Callable]:
     """Shared prediction pipeline for comparisons and slopes.
 
@@ -756,7 +755,7 @@ def slopes(
         Perturbation size for finite differencing. Default is 1e-4.
     slope : str or Callable[[DataArray, DataArray, DataArray], DataArray]
         Slope function or string name. Built-in options: "dydx" (unit/unit),
-        "eyex" (percent/percent), "eydx" (unit/percent), "dyex" (percent/unit).
+        "eyex" (percent/percent), "eydx" (percent/unit), "dyex" (unit/percent).
         Default is "dydx". Custom functions should accept (derivative, x, y) DataArrays
         and return a DataArray.
     target : str
@@ -870,7 +869,7 @@ def plot_slopes(
         Perturbation size for finite differencing. Default is 1e-4.
     slope : Callable[[DataArray, DataArray, DataArray], DataArray] or str
         Slope function or string name. Built-in options: "dydx" (unit/unit),
-        "eyex" (percent/percent), "eydx" (unit/percent), "dyex" (percent/unit).
+        "eyex" (percent/percent), "eydx" (percent/unit), "dyex" (unit/percent).
         Default is "dydx".
     target : str
         Which quantity to extract. `"mean"` (default) for the posterior of the parent
