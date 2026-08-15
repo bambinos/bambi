@@ -165,7 +165,9 @@ def build_distribution(
         else:
             kwargs[name] = shape_prior_arg(value, shape)
 
-    if noncentered and any(isinstance(v, pt.TensorVariable) for v in kwargs.values()):
+    effective_noncentered = prior.noncentered if prior.noncentered is not None else noncentered
+
+    if effective_noncentered and any(isinstance(v, pt.TensorVariable) for v in kwargs.values()):
         # non-centered is only relevant when distribution arguments are random variables.
         if prior.name == "Normal" and isinstance(kwargs.get("sigma", None), pt.TensorVariable):
             sigma = kwargs["sigma"]
@@ -175,7 +177,8 @@ def build_distribution(
             return rv
 
         raise NotImplementedError(
-            "The non-centered parametrization is only supported for Normal priors"
+            "The non-centered parametrization is only supported for Normal priors, "
+            f"got {prior.name}."
         )
 
     dist = get_distribution_from_prior(prior)
