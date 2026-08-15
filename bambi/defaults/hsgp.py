@@ -1,18 +1,16 @@
 """Default priors for parameters of covariance kernels in HSGP terms."""
 
-# fmt: off
 HSGP_COV_PARAMS_DEFAULT_PRIORS = {
     "ExpQuad": {
-        "sigma": "Exponential",
-        "ell": "InverseGamma"
+        "sigma": {"name": "Exponential", "lam": 1},
+        "ell": {"name": "InverseGamma", "alpha": 3, "beta": 2},
     },
     "Matern32": {
-        "sigma": "Exponential",
-        "ell": "InverseGamma"
+        "sigma": {"name": "Exponential", "lam": 1},
+        "ell": {"name": "InverseGamma", "alpha": 3, "beta": 2},
     },
     "Matern52": {
-        "sigma": "Exponential",
-        "ell": "InverseGamma"
+        "sigma": {"name": "Exponential", "lam": 1},
+        "ell": {"name": "InverseGamma", "alpha": 3, "beta": 2},
     },
 }
-# fmt: on

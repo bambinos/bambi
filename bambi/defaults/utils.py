@@ -1,44 +1,26 @@
-from bambi.defaults.distributions import SETTINGS_DISTRIBUTIONS
 from bambi.defaults.hsgp import HSGP_COV_PARAMS_DEFAULT_PRIORS
 
-from bambi.families import Likelihood
-from bambi.priors import Prior
+from bambi.families.likelihood import Likelihood
+from bambi.priors.prior import Prior
 
 
-def generate_prior(dist, **kwargs):
-    """Generate a Prior distribution.
+def _build_prior_from_spec(spec):
+    """Build a Prior instance from a dictionary specification."""
+    if not isinstance(spec, dict) or "name" not in spec:
+        raise ValueError(
+            "Prior specification must be a dictionary containing at least a 'name' key."
+        )
 
-    The parameter `kwargs` is used to pass hyperpriors that are assigned to the parameters of
-    the prior to be built.
+    kwargs = {}
+    for key, value in spec.items():
+        if key == "name":
+            continue
+        if isinstance(value, dict) and "name" in value:
+            kwargs[key] = _build_prior_from_spec(value)
+        else:
+            kwargs[key] = value
 
-    Parameters
-    ----------
-    dist : str, int, float
-        If a string, it is the name of the prior distribution with default values taken from
-        `SETTINGS_DISTRIBUTIONS`. If a number, it is a factor used to scale the standard deviation
-        of the priors generated automatically by Bambi.
-
-    Raises
-    ------
-    ValueError
-        If `dist` is not a string or a number.
-
-    Returns
-    -------
-    Prior
-        The Prior instance.
-    """
-
-    if not isinstance(dist, str | int | float):
-        raise ValueError("'dist' must be the name of a distribution or a numeric value.")
-
-    if isinstance(dist, str):
-        prior = Prior(dist, **SETTINGS_DISTRIBUTIONS[dist])
-        if kwargs:
-            prior.update(**{k: generate_prior(v) for k, v in kwargs.items()})
-    else:
-        prior = dist
-    return prior
+    return Prior(spec["name"], **kwargs)
 
 
 def generate_prior_hsgp(cov_name: str):
@@ -57,10 +39,17 @@ def generate_prior_hsgp(cov_name: str):
     dict of str to Prior
         The priors for the parameters of the covariance function
     """
+    if cov_name not in HSGP_COV_PARAMS_DEFAULT_PRIORS:
+        available = sorted(HSGP_COV_PARAMS_DEFAULT_PRIORS)
+        raise ValueError(
+            f"'{cov_name}' is not a valid HSGP covariance function. "
+            f"Available options are: {available}."
+        )
+
     config = HSGP_COV_PARAMS_DEFAULT_PRIORS[cov_name]
     priors = {}
-    for param, dist in config.items():
-        priors[param] = Prior(dist, **SETTINGS_DISTRIBUTIONS[dist])
+    for param, prior_spec in config.items():
+        priors[param] = _build_prior_from_spec(prior_spec)
     return priors
 
 
@@ -90,45 +79,22 @@ def get_default_prior(term_type, **kwargs):
 
     Returns
     -------
-    prior: Prior
+    prior : Prior
         The instance of Prior according to the `term_type`.
     """
     if term_type in ["intercept", "common"]:
-        prior = generate_prior("Normal")
+        prior = Prior("Normal", mu=0, sigma=1)
     elif term_type in ["intercept_flat", "common_flat"]:
-        prior = generate_prior("Flat")
+        prior = Prior("Flat")
     elif term_type == "group_specific":
-        prior = generate_prior("Normal", sigma="HalfNormal")
+        prior = Prior("Normal", mu=0, sigma=Prior("HalfNormal", sigma=1))
     elif term_type == "group_specific_flat":
-        prior = generate_prior("Normal", sigma="HalfFlat")
+        prior = Prior("Normal", mu=0, sigma=Prior("HalfFlat"))
     elif term_type == "hsgp":
         prior = generate_prior_hsgp(kwargs["cov_func"])
     else:
         raise ValueError("Unrecognized term type.")
     return prior
-
-
-def generate_likelihood(name, params, parent):
-    """Generate a Likelihood instance.
-
-    Parameters
-    ----------
-    name : str
-        The name of the likelihood function.
-    params : dict
-        Indicates the auxiliary parameters and the values for their default priors.
-        Keys are names of the parameters and values are passed to `generate_prior()` to obtain the
-        actual instance of `bambi.Prior`.
-    parent : str
-        The name of the parent parameter. In other words, the name of the mean parameter in the
-        likelihood function.
-
-    Returns
-    -------
-    bambi.Likelihood
-        The likelihood instance.
-    """
-    return Likelihood(name, params, parent)
 
 
 def generate_family(name, likelihood, link, family, default_priors=None):
@@ -152,8 +118,8 @@ def generate_family(name, likelihood, link, family, default_priors=None):
     bambi.Family
         The family instance.
     """
-    likelihood = generate_likelihood(**likelihood)
+    likelihood = Likelihood(**likelihood)
     family = family(name, likelihood, link)
     if default_priors:
-        family.set_default_priors({k: generate_prior(v) for k, v in default_priors.items()})
+        family.set_default_priors({k: _build_prior_from_spec(v) for k, v in default_priors.items()})
     return family
