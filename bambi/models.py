@@ -9,11 +9,8 @@ from importlib.metadata import version
 import formulae as fm
 import pandas as pd
 import pymc as pm
-import xarray as xr
 from arviz_plots import plot_dist
 from arviz_stats import residual_r2
-from pymc.backends.arviz import apply_function_over_dataset, coords_and_dims_for_inferencedata
-from pymc.model.transform.conditioning import remove_value_transforms
 
 from bambi.backend import PyMCModel
 from bambi.config import config
@@ -26,7 +23,6 @@ from bambi.priors import Prior, scale_priors
 from bambi.terms import ResponseTerm
 from bambi.transformations import transformations_namespace
 from bambi.utils import (
-    as_dataset,
     clean_formula_lhs,
     indentify,
     listify,
@@ -1123,59 +1119,7 @@ class Model:
         if not self.built:
             self.build()
 
-        if not inplace:
-            idata = deepcopy(idata)
-
-        pymc_model = self.backend.model
-
-        # Here we reproduce the logic of `compute_log_density`/`compute_log_prior`
-        # in PyMC. The reason to not use those and pass `var_names` is that the filter
-        # is applied to the output, but not to the input variables. This cause trouble for us
-        # because we need to exclude variables that are not part of the posterior like `*_offset`.
-        umodel = remove_value_transforms(pymc_model)
-        coords, dims = coords_and_dims_for_inferencedata(umodel)
-
-        det_names = {d.name for d in pymc_model.deterministics}
-        posterior = as_dataset(idata["posterior"])
-
-        target_rvs = [
-            rv for rv in umodel.free_RVs if rv.name not in det_names and rv.name in posterior
-        ]
-        target_names = [rv.name for rv in target_rvs]
-        value_vars = [umodel.rvs_to_values[rv] for rv in target_rvs]
-
-        elemwise_logprior_fn = umodel.compile_fn(
-            inputs=value_vars,
-            outs=umodel.logp(vars=target_rvs, sum=False),
-            on_unused_input="ignore",
-        )
-        input_dataset = posterior[target_names].astype(
-            {vv.name: vv.type.dtype for vv in value_vars}, copy=False
-        )
-        logdens = apply_function_over_dataset(
-            elemwise_logprior_fn,
-            input_dataset,
-            output_var_names=target_names,
-            sample_dims=("chain", "draw"),
-            dims=dims,
-            coords=coords,
-            progressbar=False,
-        )
-
-        log_prior = xr.Dataset({name: logdens[name] for name in target_names})
-
-        if "log_prior" in idata:
-            del idata["log_prior"]
-
-        idata["log_prior"] = log_prior
-        idata["log_prior"] = idata["log_prior"].ds.assign_attrs(
-            modeling_interface="bambi", modeling_interface_version=__version__
-        )
-
-        if inplace:
-            return None
-        else:
-            return idata
+        return self.backend.compute_log_prior(idata=idata, inplace=inplace)
 
     def graph(self, formatting="plain", name=None, figsize=None, dpi=300, fmt="png"):
         """Produce a graphviz Digraph from a built Bambi model.

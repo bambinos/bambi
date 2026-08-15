@@ -9,7 +9,10 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 import pymc as pm
+import xarray as xr
+from pymc.backends.arviz import apply_function_over_dataset, coords_and_dims_for_inferencedata
 from pymc.model.fgraph import fgraph_from_model, model_from_fgraph
+from pymc.model.transform.conditioning import remove_value_transforms
 from xarray import DataTree
 
 from bambi.backend.pymc.coords import coords_from_response
@@ -288,6 +291,56 @@ class PyMCModel:
             idata["log_likelihood"] = as_dataset(trace["log_likelihood"])
 
         idata["log_likelihood"] = as_dataset(idata["log_likelihood"]).assign_attrs(
+            modeling_interface="bambi", modeling_interface_version=__version__
+        )
+
+        if inplace:
+            return None
+
+        return idata
+
+    def compute_log_prior(self, idata, inplace: bool = True):
+        if not inplace:
+            idata = deepcopy(idata)
+
+        # Reproduce PyMC's compute_log_prior logic so we can exclude posterior variables
+        # that do not correspond to free random variables, such as omitted offsets.
+        model = self.model
+        untransformed_model = remove_value_transforms(model)
+        coords, dims = coords_and_dims_for_inferencedata(untransformed_model)
+
+        deterministic_names = {deterministic.name for deterministic in model.deterministics}
+        posterior = as_dataset(idata["posterior"])
+        target_rvs = [
+            rv
+            for rv in untransformed_model.free_RVs
+            if rv.name not in deterministic_names and rv.name in posterior
+        ]
+        target_names = [rv.name for rv in target_rvs]
+        value_vars = [untransformed_model.rvs_to_values[rv] for rv in target_rvs]
+
+        elemwise_logprior_fn = untransformed_model.compile_fn(
+            inputs=value_vars,
+            outs=untransformed_model.logp(vars=target_rvs, sum=False),
+            on_unused_input="ignore",
+        )
+        input_dataset = posterior[target_names].astype(
+            {value_var.name: value_var.type.dtype for value_var in value_vars}, copy=False
+        )
+        logdens = apply_function_over_dataset(
+            elemwise_logprior_fn,
+            input_dataset,
+            output_var_names=target_names,
+            sample_dims=("chain", "draw"),
+            dims=dims,
+            coords=coords,
+            progressbar=False,
+        )
+        log_prior = xr.Dataset({name: logdens[name] for name in target_names})
+
+        if "log_prior" in idata:
+            del idata["log_prior"]
+        idata["log_prior"] = log_prior.assign_attrs(
             modeling_interface="bambi", modeling_interface_version=__version__
         )
 
