@@ -1,207 +1,206 @@
-import numpy as np
-import pymc as pm
+import warnings
 
-from bambi.families.univariate import (
+import numpy as np
+
+from bambi.families.builtin import (
     Bernoulli,
     Binomial,
     Cumulative,
     Gaussian,
-    StoppingRatio,
     StudentT,
     VonMises,
 )
-from bambi.model_components import ConstantComponent
+from bambi.parameters import MarginalParameter
 from bambi.priors.prior import Prior
 
 
-class PriorScaler:
-    """Scale prior distributions parameters."""
+_NORMAL_STD = 2.5
 
-    # Standard deviation multipliefr.
-    STD = 2.5
 
-    def __init__(self, model):
-        self.model = model
-        self.response_component = model.response_component
-        self.parent_component = model.components[model.family.likelihood.parent]
-        self.has_intercept = self.parent_component.intercept_term is not None
-        self.priors = {}
+def _safe_inverse_std(x, context, axis=None):
+    x_std = np.std(x, axis=axis)
+    zero_std = np.isclose(x_std, 0)
 
-        # Compute mean and std of the response
-        if isinstance(self.model.family, (Gaussian, StudentT)):
-            self.response_mean = np.mean(self.response_component.term.data)
-            self.response_std = np.std(self.response_component.term.data)
+    if np.any(zero_std):
+        if np.ndim(x_std) == 0:
+            details = "std=0"
+            x_std = 1.0
         else:
-            self.response_mean = 0
-            self.response_std = 1
+            zero_count = int(np.sum(zero_std))
+            details = f"{zero_count} column(s) with std=0"
+            x_std = np.where(zero_std, 1.0, x_std)
 
-    def get_intercept_stats(self):
-        mu = self.response_mean
-        sigma = self.STD * self.response_std
-        # Only adjust sigma if there is at least one Normal prior for a common term.
-        if self.priors:
-            sigmas = np.hstack([prior["sigma"] for prior in self.priors.values()])
-            x_mean = np.hstack(
-                [self.parent_component.terms[term].data.mean(axis=0) for term in self.priors]
-            )
-            sigma = (sigma**2 + np.dot(sigmas**2, x_mean**2)) ** 0.5
+        warnings.warn(
+            f"Detected {details} while scaling priors for {context}. "
+            "Using std=1 for zero-variance data to avoid division by zero.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+
+    return 1 / x_std
+
+
+def _is_bernoulli_and_sigmoid_like(model):
+    is_bernoulli_like = isinstance(model.family, (Bernoulli, Binomial))
+    if not is_bernoulli_like:
+        return False
+
+    is_sigmoid_like = getattr(model.family.link.get("p"), "name", None) in ("logit", "probit")
+    return is_sigmoid_like
+
+
+def _get_normal_intercept_stats(common_terms, common_priors, response_mean, response_std):
+    """Compute the mean and scale for a Normal intercept prior."""
+    mu = response_mean
+    sigma = _NORMAL_STD * response_std
+
+    # Only adjust sigma if there is at least one Normal prior for a common term.
+    if common_priors:
+        sigmas = np.hstack([prior["sigma"] for prior in common_priors.values()])
+        x_mean = np.hstack([common_terms[term].data.mean(axis=0) for term in common_priors])
+        sigma = (sigma**2 + np.dot(sigmas**2, x_mean**2)) ** 0.5
+    return mu, sigma
+
+
+def _get_normal_slope_sigma(x, response_std):
+    """Compute the scale for a Normal slope prior."""
+    inv_x_std = _safe_inverse_std(x, context="a slope term")
+    return _NORMAL_STD * response_std * inv_x_std
+
+
+def _get_common_term_stats(term, model, response_std):
+    is_sigmoid_like = _is_bernoulli_and_sigmoid_like(model)
+    is_interaction = term.kind == "interaction"
+    is_categorical = term.categorical
+    all_categoric_interaction = is_interaction and all(
+        component.kind == "categoric" for component in term.term.components
+    )
+
+    if term.data.ndim == 1:
+        mu = 0
+        if not is_sigmoid_like:
+            sigma = _get_normal_slope_sigma(term.data, response_std)
+        elif all_categoric_interaction or is_categorical:
+            sigma = 1
+        else:
+            sigma = _safe_inverse_std(term.data, axis=0, context=f"common term '{term.name}'")
 
         return mu, sigma
 
-    def get_slope_sigma(self, x):
-        return self.STD * (self.response_std / np.std(x))
+    # 2D term
+    n_cols = term.data.shape[1]
+    mu = np.zeros(n_cols)
 
-    def scale_response(self):
-        # Here we would add cases for other families if we wanted
-        if isinstance(self.model.family, (Gaussian, StudentT)):
-            sigma = self.model.components["sigma"]
-            if (
-                isinstance(sigma, ConstantComponent)
-                and hasattr(sigma.prior, "auto_scale")  # not available when `.prior` is a scalar
-                and sigma.prior.auto_scale
-            ):
-                sigma.prior = Prior("HalfStudentT", nu=4, sigma=self.response_std)
-        elif isinstance(self.model.family, VonMises):
-            kappa = self.model.components["kappa"]
-            if (
-                isinstance(kappa, ConstantComponent)
-                and hasattr(kappa.prior, "auto_scale")  # not available when `.prior` is a scalar
-                and kappa.prior.auto_scale
-            ):
-                kappa.prior = Prior("HalfStudentT", nu=4, sigma=self.response_std)
+    if not is_sigmoid_like:
+        sigma = np.array([_get_normal_slope_sigma(col, response_std) for col in term.data.T])
+        return mu, sigma
 
-    def scale_intercept(self, term):
-        if term.prior.name != "Normal":
-            return
-        # Special case for logit/probit links with bernoulli or binomial family
-        if isinstance(self.model.family, (Bernoulli, Binomial)) and self.model.family.link[
-            "p"
-        ].name in ["logit", "probit"]:
-            mu = 0
-            sigma = 1.5
+    if all_categoric_interaction or is_categorical:
+        sigma = np.ones(n_cols)
+    elif is_interaction:
+        # Use std of the marginal numerical variable
+        shared_sigma = _safe_inverse_std(
+            np.sum(term.data, axis=1),
+            context=f"interaction term '{term.name}' (marginal numerical variable)",
+        )
+        sigma = np.full(n_cols, shared_sigma)
+    else:
+        sigma = _safe_inverse_std(term.data, axis=0, context=f"common term '{term.name}'")
+
+    return mu, sigma
+
+
+def _scale_marginal_parameters(model, response_std):
+    """Scale priors for response parameters when the family requires it."""
+    if isinstance(model.family, (Gaussian, StudentT)):
+        sigma = model.parameters["sigma"]
+        if isinstance(sigma, MarginalParameter) and getattr(sigma.prior, "auto_scale", False):
+            sigma.prior = Prior("HalfStudentT", nu=4, sigma=response_std)
+    elif isinstance(model.family, VonMises):
+        kappa = model.parameters["kappa"]
+        if isinstance(kappa, MarginalParameter) and getattr(kappa.prior, "auto_scale", False):
+            kappa.prior = Prior("HalfStudentT", nu=4, sigma=response_std)
+    elif isinstance(model.family, Cumulative):
+        threshold = model.parameters["threshold"]
+        is_constant = isinstance(threshold, MarginalParameter)
+        is_normal = threshold.prior.name == "Normal"
+        auto_scale = getattr(threshold.prior, "auto_scale", False)
+        if is_constant and is_normal and auto_scale:
+            response_level_n = len(model.response_term.levels)
+            mu = np.round(np.linspace(-2, 2, num=response_level_n - 1), 2)
+            threshold.prior.update(mu=mu, sigma=1, transform="ordered")
+
+
+def _scale_common_normal(model, term, response_std, common_priors):
+    mu, sigma = _get_common_term_stats(term, model, response_std)
+    common_priors[term.name] = {"mu": mu, "sigma": sigma}
+    term.prior.update(mu=mu, sigma=sigma)
+
+
+def _scale_intercept_normal(model, term, intercept_stats):
+    if _is_bernoulli_and_sigmoid_like(model):
+        mu, sigma = 0, 1.5
+    else:
+        mu, sigma = intercept_stats
+
+    term.prior.update(mu=mu, sigma=sigma)
+
+
+def _scale_group_specific_half_normal(term, intercept_stats, response_std):
+    if term.kind == "intercept":
+        _, sigma = intercept_stats
+    else:
+        # Recreate the corresponding common effect data.
+        if len(term.predictor.shape) == 2:
+            data_as_common = term.predictor
         else:
-            mu, sigma = self.get_intercept_stats()
-        term.prior.update(mu=mu, sigma=sigma)
+            data_as_common = term.predictor[:, None]
+        sigma = np.zeros(data_as_common.shape[1])
+        for i, value in enumerate(data_as_common.T):
+            sigma[i] = _get_normal_slope_sigma(value, response_std)
+    term.prior.args["sigma"].update(sigma=np.squeeze(np.atleast_1d(sigma)))
 
-    def scale_common(self, term):
-        if term.prior.name != "Normal":
-            return
 
-        if term.data.ndim == 1:
-            mu = 0
-            # Special case for logit/probit links with bernoulli or binomial family
-            if isinstance(self.model.family, (Bernoulli, Binomial)) and self.model.family.link[
-                "p"
-            ].name in ["logit", "probit"]:
-                # For interaction terms, distinguish cases where all factor terms are categorical
-                if term.kind == "interaction":
-                    all_categoric = all(
-                        component.kind == "categoric" for component in term.term.components
-                    )
-                    if all_categoric:
-                        sigma = 1
-                    else:
-                        sigma = 1 / np.std(term.data, axis=0)
-                # Single categorical term
-                elif term.categorical:
-                    sigma = 1
-                # Single numerical term
-                else:
-                    sigma = 1 / np.std(term.data, axis=0)
-            # If not, fall back to the regular case
-            else:
-                sigma = self.get_slope_sigma(term.data)
-        # It's a term that spans multiple columns of the design matrix
-        else:
-            mu = np.zeros(term.data.shape[1])
-            sigma = np.zeros(term.data.shape[1])
-            # Special case for logit/probit links with bernoulli or binomial family
-            if isinstance(self.model.family, (Bernoulli, Binomial)) and self.model.family.link[
-                "p"
-            ].name in ["logit", "probit"]:
-                # Iterate over columns in the data
-                for i, value in enumerate(term.data.T):
-                    if term.kind == "interaction":
-                        # Distinguish cases where all interaction factor terms are categorical
-                        all_categoric = all(
-                            component.kind == "categoric" for component in term.term.components
-                        )
-                        if all_categoric:
-                            sigma[i] = 1
-                        # It's the std dev of the marginal numerical variable (_not_ by group)
-                        else:
-                            sigma[i] = 1 / np.std(np.sum(term.data, axis=1))
-                    # Single categorical term
-                    elif term.categorical:
-                        sigma[i] = 1
-                    # Single numerical term
-                    else:
-                        sigma[i] = 1 / np.std(term.data, axis=0)
-            else:
-                for i, value in enumerate(term.data.T):
-                    sigma[i] = self.get_slope_sigma(value)
+def scale_priors(model):
+    main_parameter = model.parameters[model.family.likelihood.parent]
 
-        # Save and set prior
-        self.priors.update({term.name: {"mu": mu, "sigma": sigma}})
-        term.prior.update(mu=mu, sigma=sigma)
+    has_intercept = main_parameter.intercept_term is not None
+    common_terms = main_parameter.common_terms
+    common_priors = {}
 
-    def scale_group_specific(self, term):
-        if term.prior.args["sigma"].name != "HalfNormal":
-            return
+    if isinstance(model.family, (Gaussian, StudentT)):
+        response_mean = np.mean(model.response_term.data)
+        response_std = np.std(model.response_term.data)
+    else:
+        response_mean = 0
+        response_std = 1
 
-        # Handle intercepts
-        if term.kind == "intercept":
-            _, sigma = self.get_intercept_stats()
-        # Handle slopes
-        else:
-            # Recreate the corresponding common effect data
-            if len(term.predictor.shape) == 2:
-                data_as_common = term.predictor
-            else:
-                data_as_common = term.predictor[:, None]
-            sigma = np.zeros(data_as_common.shape[1])
-            for i, value in enumerate(data_as_common.T):
-                sigma[i] = self.get_slope_sigma(value)
-        term.prior.args["sigma"].update(sigma=np.squeeze(np.atleast_1d(sigma)))
+    # Scale marginal parameters
+    _scale_marginal_parameters(model, response_std)
 
-    def scale_threshold(self):
-        if isinstance(self.model.family, Cumulative):
-            threshold = self.model.components["threshold"]
-            if isinstance(threshold, ConstantComponent) and threshold.prior.auto_scale:
-                response_level_n = len(np.unique(self.response_component.term.data))
-                mu = np.round(np.linspace(-2, 2, num=response_level_n - 1), 2)
-                threshold.prior = Prior(
-                    "Normal",
-                    mu=mu,
-                    sigma=1,
-                    transform=pm.distributions.transforms.ordered,
-                )
-        elif isinstance(self.model.family, StoppingRatio):
-            threshold = self.model.components["threshold"]
-            if isinstance(threshold, ConstantComponent) and threshold.prior.auto_scale:
-                response_level_n = len(np.unique(self.response_component.term.data))
-                mu = np.zeros(response_level_n - 1)
-                threshold.prior = Prior("Normal", mu=mu, sigma=1)
+    # Scale common terms.
+    for term in main_parameter.common_terms.values():
+        auto_scale = getattr(term.prior, "auto_scale", False)
+        is_normal = getattr(term.prior, "name", None) == "Normal"
+        if auto_scale and is_normal:
+            _scale_common_normal(model, term, response_std, common_priors)
 
-    def scale(self):
-        # Scale response
-        self.scale_response()
+    # Statistics common to both intercept and group-specific terms
+    intercept_stats = _get_normal_intercept_stats(
+        common_terms, common_priors, response_mean, response_std
+    )
 
-        # Scale common terms
-        for term in self.parent_component.common_terms.values():
-            if hasattr(term.prior, "auto_scale") and term.prior.auto_scale:
-                self.scale_common(term)
+    # Scale intercept.
+    if has_intercept:
+        term = main_parameter.intercept_term
+        auto_scale = getattr(term.prior, "auto_scale", False)
+        is_normal = getattr(term.prior, "name", None) == "Normal"
+        if auto_scale and is_normal:
+            _scale_intercept_normal(model, term, intercept_stats)
 
-        # Scale intercept
-        if self.has_intercept:
-            term = self.parent_component.intercept_term
-            if term.prior.auto_scale:
-                self.scale_intercept(term)
-
-        # Scale group-specific terms
-        for term in self.parent_component.group_specific_terms.values():
-            if term.prior.auto_scale:
-                self.scale_group_specific(term)
-
-        # Scale threshold parameters in ordinal families
-        self.scale_threshold()
+    # Scale group-specific terms.
+    for term in main_parameter.group_specific_terms.values():
+        auto_scale = getattr(term.prior, "auto_scale", False)
+        is_half_normal = getattr(term.prior.args.get("sigma"), "name", None) == "HalfNormal"
+        if auto_scale and is_half_normal:
+            _scale_group_specific_half_normal(term, intercept_stats, response_std)
