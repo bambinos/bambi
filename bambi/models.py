@@ -293,7 +293,7 @@ class Model:
         discard_tuned_samples : bool, optional
             Whether to discard posterior samples of the tune interval. Defaults to `True`.
         omit_offsets : bool, optional
-            Omits offset terms in the `InferenceData` object returned when the model includes
+            Omits offset terms in the `DataTree` object returned when the model includes
             group specific effects. Defaults to `True`.
         include_mean : bool, optional, deprecated
             **This argument is deprecated and will be removed in future versions**.
@@ -350,8 +350,8 @@ class Model:
 
         Returns
         -------
-        `InferenceData` or `Approximation`
-            It returns an `InferenceData` if `inference_method` is `"pymc"`, `"nutpie"`,
+        `DataTree` or `Approximation`
+            It returns a `DataTree` if `inference_method` is `"pymc"`, `"nutpie"`,
             `"blackjax"`, `"numpyro"`, or `"laplace"`, and an `Approximation` object if  `"vi"`.
         """
         method = kwargs.pop("method", None)
@@ -943,8 +943,8 @@ class Model:
 
         Returns
         -------
-        InferenceData
-            `InferenceData` object with the groups `prior`, `prior_predictive` and
+        DataTree
+            `DataTree` object with the groups `prior`, `prior_predictive` and
             `observed_data`, and, when applicable, `constant_data`.
         """
         self._check_built()
@@ -985,8 +985,8 @@ class Model:
 
         Parameters
         ----------
-        idata : InferenceData
-            The `InferenceData` instance returned by `.fit()`.
+        idata : DataTree
+            The `DataTree` instance returned by `.fit()`.
         kind : str, optional
             Indicates the type of prediction required. Can be `"response_params"`,
             `"response"`, or `"response_latent"`. The first returns draws from the posterior
@@ -1013,7 +1013,7 @@ class Model:
 
         Returns
         -------
-        InferenceData or None
+        DataTree or None
         """
         if kind not in ("mean", "pps", "response_params", "response", "response_latent"):
             raise ValueError(
@@ -1048,8 +1048,8 @@ class Model:
 
         Parameters
         ----------
-        idata : InferenceData
-            The `InferenceData` instance returned by `.fit()`.
+        idata : DataTree
+            The `DataTree` instance returned by `.fit()`.
         data : pd.DataFrame or None, optional
             An optional data frame with values for the predictors and the response on which
             the model's log-likelihood function is evaluated.
@@ -1060,7 +1060,7 @@ class Model:
 
         Returns
         -------
-        InferenceData or None
+        DataTree or None
         """
         self._check_built()
         return self.backend.compute_log_likelihood(idata=idata, data=data, inplace=inplace)
@@ -1075,8 +1075,8 @@ class Model:
 
         Parameters
         ----------
-        idata : InferenceData
-            The `InferenceData` instance returned by `.fit()`. It should contain the
+        idata : DataTree
+            The `DataTree` instance returned by `.fit()`. It should contain the
             `posterior_predictive` group, otherwise it will be computed and added to `idata`.
         summary : bool, optional
             If `True`, it returns a summary of the Bayesian R². Otherwise, it returns the
@@ -1110,15 +1110,15 @@ class Model:
 
         Parameters
         ----------
-        idata : InferenceData
-            The `InferenceData` instance returned by `.fit()`.
+        idata : DataTree
+            The `DataTree` instance returned by `.fit()`.
         inplace : bool, optional
             If `True` it will modify `idata` in-place. Otherwise, it will return a copy of
             `idata` with the `log_prior` group added.
 
         Returns
         -------
-        InferenceData or None
+        DataTree or None
         """
         if not self.built:
             self.build()

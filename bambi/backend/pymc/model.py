@@ -9,8 +9,8 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 import pymc as pm
-import arviz as az
 from pymc.model.fgraph import fgraph_from_model, model_from_fgraph
+from xarray import DataTree
 
 from bambi.backend.pymc.coords import coords_from_response
 from bambi.backend.pymc.parameters import (
@@ -35,6 +35,7 @@ from bambi.backend.pymc.terms.response import (
     replace_response_variables,
 )
 from bambi.config import config as bmb_config
+from bambi.utils import as_dataset
 
 _logger = logging.getLogger("bambi")
 
@@ -197,23 +198,24 @@ class PyMCModel:
 
         for group in output_groups:
             if group in idata:
-                delattr(idata, group)
+                del idata[group]
 
         parameters_names = [param.label for param in self.spec.conditional_parameters.values()]
         responses_names = [self.spec.response_term.label]
 
         # If group-specific offsets are discarded, we add them back.
         # They are needed for the computation of deterministics (model parameters).
+        posterior = as_dataset(idata["posterior"])
         offset_values = {}
         for parameter_info in self._conditional_parameter_info.values():
             for term_info in parameter_info.group_specific_terms:
                 term = term_info.term
                 term_label = term.label
                 offset_name = f"{term_label}_offset"
-                if term.noncentered and offset_name not in idata.posterior:
+                if term.noncentered and offset_name not in posterior:
                     sigma_name = term.hyperprior_alias.get("sigma", "sigma")
                     offset_values[offset_name] = (
-                        idata.posterior[term_label] / idata.posterior[f"{term_label}_{sigma_name}"]
+                        posterior[term_label] / posterior[f"{term_label}_{sigma_name}"]
                     )
 
         if data is None:
@@ -256,7 +258,9 @@ class PyMCModel:
             idata = deepcopy(idata)
 
         if "log_likelihood" in idata:
-            del idata.log_likelihood
+            del idata["log_likelihood"]
+
+        posterior = as_dataset(idata["posterior"])
 
         offset_values = {}
         for parameter_info in self._conditional_parameter_info.values():
@@ -264,15 +268,16 @@ class PyMCModel:
                 term = term_info.term
                 term_label = term.label
                 offset_name = f"{term_label}_offset"
-                if term.noncentered and offset_name not in idata.posterior:
+                if term.noncentered and offset_name not in posterior:
                     sigma_name = term.hyperprior_alias.get("sigma", "sigma")
                     offset_values[offset_name] = (
-                        idata.posterior[term_label] / idata.posterior[f"{term_label}_{sigma_name}"]
+                        posterior[term_label] / posterior[f"{term_label}_{sigma_name}"]
                     )
 
         trace = idata
         if offset_values:
-            trace = az.InferenceData(posterior=idata.posterior.assign(offset_values))
+            trace = idata.copy()
+            trace["posterior"] = posterior.assign(offset_values)
 
         if data is None:
             self._compute_log_likelihood_in_sample(trace, progressbar)
@@ -280,9 +285,9 @@ class PyMCModel:
             self._compute_log_likelihood_out_of_sample(trace, data, progressbar)
 
         if offset_values:
-            idata.add_groups({"log_likelihood": trace.log_likelihood})
+            idata["log_likelihood"] = as_dataset(trace["log_likelihood"])
 
-        idata.log_likelihood.attrs.update(
+        idata["log_likelihood"] = as_dataset(idata["log_likelihood"]).assign_attrs(
             modeling_interface="bambi", modeling_interface_version=__version__
         )
 
@@ -303,9 +308,9 @@ class PyMCModel:
         progressbar,
     ) -> None:
         if offset_values:
-            posterior_for_prediction = idata.posterior.assign(offset_values)
+            posterior_for_prediction = as_dataset(idata["posterior"]).assign(offset_values)
         else:
-            posterior_for_prediction = idata.posterior
+            posterior_for_prediction = as_dataset(idata["posterior"])
 
         model = self.model
         if not include_group_specific:
@@ -319,7 +324,7 @@ class PyMCModel:
                 progressbar=progressbar,
                 merge_dataset=True,
             )
-        idata["posterior"] = idata.posterior.merge(
+        idata["posterior"] = as_dataset(idata["posterior"]).merge(
             posterior_for_prediction[parameters_names], compat="override"
         )
 
@@ -341,7 +346,7 @@ class PyMCModel:
                     random_seed=random_seed,
                 )
 
-            idata.add_groups({"posterior_predictive": predictions.posterior_predictive})
+            idata["posterior_predictive"] = as_dataset(predictions["posterior_predictive"])
 
     def _predict_out_of_sample(
         self,
@@ -363,7 +368,7 @@ class PyMCModel:
         if kind in ("response", "response_latent"):
             var_names += responses_names
 
-        trace = idata.posterior.assign(offset_values)
+        trace = as_dataset(idata["posterior"]).assign(offset_values)
 
         model, group_specific_state = _clone_model_with_group_specific_state(
             self._group_specific_state, self.model
@@ -397,9 +402,11 @@ class PyMCModel:
                 predictions=True,
             )
 
-        idata.add_groups({"predictions": predictions.predictions})
+        idata["predictions"] = as_dataset(predictions["predictions"])
         if "predictions_constant_data" in predictions:
-            idata.add_groups({"predictions_constant_data": predictions.predictions_constant_data})
+            idata["predictions_constant_data"] = as_dataset(
+                predictions["predictions_constant_data"]
+            )
 
     def _compute_log_likelihood_in_sample(self, trace, progressbar) -> None:
         with self.model:
@@ -523,9 +530,10 @@ class PyMCModel:
                 else:
                     raise
 
-        for group in idata.groups():
-            getattr(idata, group).attrs["modeling_interface"] = "bambi"
-            getattr(idata, group).attrs["modeling_interface_version"] = __version__
+        for group in idata.children:
+            idata[group] = as_dataset(idata[group]).assign_attrs(
+                modeling_interface="bambi", modeling_interface_version=__version__
+            )
 
         return idata
 
@@ -545,14 +553,14 @@ class PyMCModel:
         draws : int
             The number of samples to draw from the posterior distribution.
         omit_offsets : bool
-            Omits offset terms in the `InferenceData` object returned when the model includes
+            Omits offset terms in the `DataTree` object returned when the model includes
             group specific effects.
         include_response_params : bool
             Include parameters of the response distribution in the output.
 
         Returns
         -------
-        An ArviZ's InferenceData object.
+        A DataTree containing the posterior draws.
         """
         with self.model:
             maps = pm.find_MAP()
@@ -595,16 +603,17 @@ class PyMCModel:
         if include_response_params:
             with self.model:
                 posterior = pm.compute_deterministics(
-                    dataset=idata.posterior,
+                    dataset=as_dataset(idata["posterior"]),
                     var_names=response_parameter_names,
                     merge_dataset=True,
                     progressbar=False,
                 )
-            idata.posterior = posterior
+            idata["posterior"] = posterior
 
         if omit_offsets:
-            offset_vars = [var for var in idata.posterior.data_vars if var.endswith("_offset")]
-            idata.posterior = idata.posterior.drop_vars(offset_vars)
+            posterior = as_dataset(idata["posterior"])
+            offset_vars = [var for var in posterior.data_vars if var.endswith("_offset")]
+            idata["posterior"] = posterior.drop_vars(offset_vars)
 
         return idata
 
@@ -643,8 +652,8 @@ def _posterior_samples_to_idata(
     samples: np.ndarray,
     model: pm.Model,
     excluded_var_names: tuple[str, ...] = (),
-) -> az.InferenceData:
-    """Convert Laplace samples in value-variable space to `InferenceData`.
+) -> DataTree:
+    """Convert Laplace samples in value-variable space to a `DataTree`.
 
     Parameters
     ----------
@@ -658,7 +667,7 @@ def _posterior_samples_to_idata(
 
     Returns
     -------
-    az.InferenceData
+    DataTree
         Posterior draws converted to constrained variables and deterministics selected for the
         trace.
     """
