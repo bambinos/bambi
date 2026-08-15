@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import pytest
+import xarray as xr
 
 import bambi as bmb
 
@@ -148,31 +149,29 @@ def test_nuts_none_is_noop(data_random_n100, mock_pymc_sample):
     assert idata is not None
 
 
-def test_nuts_parameter_forwarded_to_external_samplers(data_random_n100):
-    """nuts={} is forwarded as-is to _run_mcmc for external samplers."""
-    import unittest.mock as mock
-
-    import bambi.backend.pymc as _bpymc
-
+@pytest.mark.parametrize("inference_method", ["pymc", "numpyro", "blackjax", "nutpie"])
+def test_nuts_parameter_forwarded_to_sampler(data_random_n100, inference_method, monkeypatch):
+    """nuts={} reaches pm.sample for every supported MCMC sampler."""
     model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
+    model.build()
     captured = {}
 
-    def patched(self, *args, **kwargs):
+    def mock_sample(**kwargs):
         captured.update(kwargs)
-        raise SystemExit
+        return xr.DataTree.from_dict({"posterior": xr.Dataset()})
 
-    with mock.patch.object(_bpymc.PyMCModel, "_run_mcmc", patched):
-        try:
-            model.fit(
-                inference_method="nutpie",
-                draws=10,
-                tune=10,
-                nuts={"target_accept": 0.95},
-            )
-        except SystemExit:
-            pass
+    monkeypatch.setattr(model.backend, "_check_dependencies", lambda _: None)
+    monkeypatch.setattr("bambi.backend.pymc.model.pm.sample", mock_sample)
 
-    assert captured.get("nuts") == {"target_accept": 0.95}
+    model.fit(
+        inference_method=inference_method,
+        draws=10,
+        tune=10,
+        nuts={"target_accept": 0.95},
+    )
+
+    assert captured["nuts_sampler"] == inference_method
+    assert captured["nuts"] == {"target_accept": 0.95}
 
 
 def test_nuts_sampler_kwargs_deprecated(data_random_n100, mock_pymc_sample):
@@ -187,3 +186,26 @@ def test_nuts_sampler_kwargs_deprecated(data_random_n100, mock_pymc_sample):
             nuts_sampler_kwargs={"target_accept": 0.95},
         )
     assert idata is not None
+
+
+def test_explicit_nuts_overrides_legacy_nuts_sampler_kwargs(data_random_n100, monkeypatch):
+    """Explicit nuts settings take precedence over legacy nuts_sampler_kwargs values."""
+    model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
+    model.build()
+    captured = {}
+
+    def mock_sample(**kwargs):
+        captured.update(kwargs)
+        return xr.DataTree.from_dict({"posterior": xr.Dataset()})
+
+    monkeypatch.setattr("bambi.backend.pymc.model.pm.sample", mock_sample)
+
+    with pytest.warns(FutureWarning, match="nuts_sampler_kwargs.*deprecated"):
+        model.fit(
+            draws=10,
+            tune=10,
+            nuts_sampler_kwargs={"target_accept": 0.8, "max_treedepth": 12},
+            nuts={"target_accept": 0.95},
+        )
+
+    assert captured["nuts"] == {"target_accept": 0.95, "max_treedepth": 12}
