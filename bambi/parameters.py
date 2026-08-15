@@ -49,7 +49,7 @@ class ConditionalParameter:
             if is_hsgp_term(term):
                 continue
 
-            prior = priors.pop(name, priors.get("common", None))
+            prior = priors.get(name, priors.get("common", None))
             if isinstance(prior, Prior):
                 if any(isinstance(x, Prior) for x in prior.args.values()):
                     raise ValueError(
@@ -69,13 +69,13 @@ class ConditionalParameter:
             noncentered = self.spec.noncentered
 
         for name, term in self.design.group.terms.items():
-            prior = priors.pop(name, priors.get("group_specific", None))
+            prior = priors.get(name, priors.get("group_specific", None))
             self.terms[name] = GroupSpecificTerm(term, prior, self.prefix, noncentered)
 
     def add_hsgp_terms(self, priors):
         for name, term in self.design.common.terms.items():
             if is_hsgp_term(term):
-                prior = priors.pop(name, None)
+                prior = priors.get(name, None)
                 self.terms[name] = HSGPTerm(term, prior, self.prefix)
 
     def build_priors(self):
@@ -96,8 +96,18 @@ class ConditionalParameter:
             term.prior = prepare_prior(term.prior, kind, self.spec.auto_scale)
 
     def update_priors(self, priors):
-        for name, value in priors.items():
-            self.terms[name].prior = value
+        common = priors.get("common")
+        group_specific = priors.get("group_specific")
+
+        for name, term in self.terms.items():
+            if name in priors:
+                term.prior = priors[name]
+            elif isinstance(term, GroupSpecificTerm):
+                if group_specific is not None:
+                    term.prior = group_specific
+            elif isinstance(term, CommonTerm) and term.kind != "offset":
+                if common is not None:
+                    term.prior = common
 
     @property
     def intercept_term(self):

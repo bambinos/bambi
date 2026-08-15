@@ -334,7 +334,8 @@ def test_custom_prior(data_random_n100):
     priors = {"continuous2": bmb.Prior("CustomPrior", mu=0, sigma=5, dist=CustomPrior)}
     model = bmb.Model("continuous1 ~ continuous2", data_random_n100, priors=priors)
     model.build()
-    assert model.backend.model.free_RVs[-1].str_repr() == "continuous2 ~ Normal(0, 5)"
+    coefficient = next(rv for rv in model.backend.model.free_RVs if rv.name == "continuous2")
+    assert coefficient.str_repr() == "continuous2 ~ Normal(0, 5)"
 
 
 def test_unused_prior_in_model_warns(data_random_n100):
@@ -380,8 +381,8 @@ def test_bare_prior_with_named_parent(data_random_n100, monkeypatch):
 
     intercept_prior.auto_scale = False
     slope_prior.auto_scale = False
-    assert model.components["mu"].terms["Intercept"].prior == intercept_prior
-    assert model.components["mu"].terms["continuous2"].prior == slope_prior
+    assert model.parameters["mu"].terms["Intercept"].prior == intercept_prior
+    assert model.parameters["mu"].terms["continuous2"].prior == slope_prior
 
 
 def test_set_bare_prior_with_named_parent(data_random_n100):
@@ -399,8 +400,8 @@ def test_set_bare_prior_with_named_parent(data_random_n100):
 
     intercept_prior.auto_scale = False
     slope_prior.auto_scale = False
-    assert model.components["mu"].terms["Intercept"].prior == intercept_prior
-    assert model.components["mu"].terms["continuous2"].prior == slope_prior
+    assert model.parameters["mu"].terms["Intercept"].prior == intercept_prior
+    assert model.parameters["mu"].terms["continuous2"].prior == slope_prior
 
 
 def test_unused_prior_nested_component(data_random_n100, monkeypatch):
@@ -421,8 +422,8 @@ def test_model_applies_bare_and_component_priors(data_random_n100, monkeypatch):
         priors={"continuous2": prior, "sigma": {"continuous2": prior}},
     )
     prior.auto_scale = False  # the one in the model is set to False
-    assert model.components["mu"].terms["continuous2"].prior == prior
-    assert model.components["sigma"].terms["continuous2"].prior == prior
+    assert model.parameters["mu"].terms["continuous2"].prior == prior
+    assert model.parameters["sigma"].terms["continuous2"].prior == prior
 
 
 def test_set_priors_applies_bare_terms_with_several_components(data_random_n100):
@@ -433,7 +434,7 @@ def test_set_priors_applies_bare_terms_with_several_components(data_random_n100)
     model = bmb.Model(formula, data_random_n100)
     model.set_priors(priors={"continuous2": prior})
     prior.auto_scale = False
-    assert model.components["mu"].terms["continuous2"].prior == prior
+    assert model.parameters["mu"].terms["continuous2"].prior == prior
 
 
 @pytest.mark.parametrize(
@@ -455,8 +456,8 @@ def test_set_priors_common_key_matches_model(data_random_n100, priors, component
     via_set.set_priors(priors=priors)
 
     for name in ("Intercept", "continuous2"):
-        expected = via_init.components[component].terms[name].prior
-        assert via_set.components[component].terms[name].prior == expected
+        expected = via_init.parameters[component].terms[name].prior
+        assert via_set.parameters[component].terms[name].prior == expected
 
 
 def test_set_priors_dict_wins_over_arguments(data_random_n100):
@@ -467,7 +468,7 @@ def test_set_priors_dict_wins_over_arguments(data_random_n100):
     model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
     model.set_priors(priors={"common": keyed}, common=argued)
     keyed.auto_scale = False
-    assert model.components["mu"].terms["continuous2"].prior == keyed
+    assert model.parameters["mu"].terms["continuous2"].prior == keyed
 
 
 def test_group_specific_key_in_model(data_random_n100):
@@ -478,4 +479,4 @@ def test_group_specific_key_in_model(data_random_n100):
         priors={"group_specific": gs_prior},
     )
     gs_prior.auto_scale = False
-    assert model.components["mu"].terms["1|binary_cat"].prior == gs_prior
+    assert model.parameters["mu"].terms["1|binary_cat"].prior == gs_prior

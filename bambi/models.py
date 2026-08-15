@@ -470,7 +470,7 @@ class Model:
             scale_priors(self)
 
     def _check_prior_names(self, priors):
-        """Report names in `priors` that don't match any term or component."""
+        """Report names in `priors` that don't match any term or parameter."""
         behavior = config["UNUSED_PRIORS"]
         if behavior == "ignore":
             return
@@ -505,7 +505,7 @@ class Model:
 
         Runs during `Model._build_priors()`.
         """
-        # Arguments `common` and `group_specific` only affect the parent component.
+        # Arguments `common` and `group_specific` only affect the parent parameter.
         parent_name = self.family.likelihood.parent
 
         # 'common' and 'group_specific' only apply to the parent parameter
@@ -539,20 +539,6 @@ class Model:
                 prior = normalized_priors.get(name)
                 if prior is not None:
                     component.update_priors(prior)
-            # The only conditional parameter is the parent parameter
-            if len(self.conditional_parameters) == 1:
-                for name, parameter in self.marginal_parameters.items():
-                    prior = priors.pop(name) if name in priors else None
-                    if prior:
-                        parameter.update_priors(prior)
-                # Pass all the other priors to the parent parameter
-                parent_parameter.update_priors(priors)
-            # There is more than one conditional parameter.
-            else:
-                for name, parameter in self.parameters.items():
-                    prior = priors.get(name)
-                    if prior:
-                        parameter.update_priors(prior)
 
     def _set_family(self, family, link):
         """Set the Family of the model
