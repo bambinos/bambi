@@ -23,25 +23,22 @@ maintainers = [
 
 dependencies = [
     "arviz_plots>=1.0.0,<2.0.0",
+    "arviz_stats>=1.0.0,<2.0.0",
     "formulae>=0.7.0,<0.8.0",
     "graphviz",
-    "matplotlib>=3.9.0,<3.11.0",
+    "matplotlib>=3.9.0,<3.12.0",
     "pandas>=1.0.0",
     "pytensor>=3.0.0,<4.0.0",
     "pymc>=6.0.0,<7.0.0",
     "seaborn>=0.13.2,<0.14",
-    "sparse>=0.17.0,<0.18",
 ]
 
 [project.optional-dependencies]
 jax = [
-    "blackjax>=1.2,<1.3",
-    "jax>=0.7,<0.8",
-    "numpyro>=0.19,<0.20",
+    "blackjax>=1.6,<1.7",
+    "numpyro>=0.21,<0.22",
 ]
 nutpie = [
-    # Capped because pytensor requires numba<=0.65.1; numba 0.66.0 makes the solve unsatisfiable.
-    "numba>=0.61.2,<0.66",
     "nutpie>=0.16.10,<1",
 ]
 
@@ -51,17 +48,8 @@ documentation = "https://bambinos.github.io/bambi"
 repository = "https://github.com/bambinos/bambi"
 changelog = "https://github.com/bambinos/bambi/blob/main/CHANGELOG.md"
 
-[tool.setuptools]
-packages = [
-    "bambi",
-    "bambi.backend",
-    "bambi.data",
-    "bambi.defaults",
-    "bambi.families",
-    "bambi.interpret",
-    "bambi.priors",
-    "bambi.terms",
-]
+[tool.setuptools.packages.find]
+include = ["bambi*"]
 
 
 # ------------------------------------------------------------------------------------------------ #
@@ -92,16 +80,16 @@ pytest = ">=8,<9"
 pytest-cov = ">=7,<8"
 
 [tool.pixi.feature.docs.dependencies]
-ipykernel = ">=6.30,<7"
-notebook = ">=7,<9"
-# quartodoc = ">=0.11,<0.12"
-ipywidgets = ">=8.1.7,<9"
-watermark = ">=2.5.0,<3"
-statsmodels = ">=0.14.5,<0.15"
-seaborn = ">=0.13.2,<0.14"
-lifelines = ">=0.30.0,<0.31"
-python-graphviz = ">=0.21,<0.22"
 griffe = ">=1, <2"
+ipykernel = ">=6.30,<7"
+ipywidgets = ">=8.1.7,<9"
+lifelines = ">=0.30.0,<0.31"
+notebook = ">=7,<9"
+python-graphviz = ">=0.21,<0.22"
+# quartodoc = ">=0.11,<0.12"
+seaborn = ">=0.13.2,<0.14"
+statsmodels = ">=0.14.5,<0.15"
+watermark = ">=2.5.0,<3"
 
 [tool.pixi.feature.dev.pypi-dependencies]
 black = { version = "==25.*", extras = ["jupyter"] }
@@ -111,13 +99,10 @@ black = { version = "==25.*", extras = ["jupyter"] }
 quartodoc = { git = "https://github.com/machow/quartodoc.git", rev = "fc9f3cca3c2f930e53c6c7079e41333a13ed0461" }
 
 [tool.pixi.feature.jax.dependencies]
-blackjax = ">=1.2,<1.3"
-jax = ">=0.7,<0.8"
-numpyro = ">=0.19,<0.20"
+blackjax = ">=1.6,<1.7"
+numpyro = ">=0.21,<0.22"
 
 [tool.pixi.feature.nutpie.dependencies]
-# See the note on the `nutpie` extra above: pytensor requires numba<=0.65.1.
-numba = ">=0.61.2,<0.66"
 nutpie = ">=0.16.10,<1"
 
 [tool.pixi.feature.py312.dependencies]
@@ -126,8 +111,8 @@ python = "~=3.12.0"
 [tool.pixi.feature.py313.dependencies]
 python = "~=3.13.0"
 
-# [tool.pixi.feature.py314.dependencies]
-# python = "~=3.14.0"
+[tool.pixi.feature.py314.dependencies]
+python = "~=3.14.0"
 
 
 [tool.pixi.environments]
@@ -136,7 +121,7 @@ dev = { features = ["dev", "test", "docs", "jax", "nutpie"], solve-group = "defa
 # Only used for testing purposes
 py312 = {features = ["dev", "test", "docs", "jax", "nutpie", "py312"]}
 py313 = {features = ["dev", "test", "docs", "jax", "nutpie", "py313"]}
-# py314 = {features = ["dev", "test", "docs", "jax", "nutpie", "py314"]}
+py314 = {features = ["dev", "test", "docs", "jax", "nutpie", "py314"]}
 
 [tool.pixi.feature.dev.tasks]
 pre-commit-setup = "pre-commit install"
@@ -206,9 +191,6 @@ good-names = [
     "nu",
     "ub",
     "eta",
-    "Z",
-    "X_terms",
-    "Z_terms",
 ]
 
 bad-names = ["foo", "bar", "baz", "toto", "tutu", "tata"]
