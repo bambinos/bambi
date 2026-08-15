@@ -5,15 +5,33 @@ import pandas as pd
 import pymc as pm
 
 from bambi.utils import listify
-from bambi.backend.pymc import probit, cloglog
-from bambi.backend.utils import make_weighted_distribution
-from bambi.transformations import censored, constrained, truncated, weighted
+from bambi.backend.pymc.links import cloglog, probit
+from bambi.backend.pymc.data import shape_common_data
+from bambi.backend.pymc.utils import make_weighted_distribution
+from bambi.transformations import censored, constrained, counts, truncated, weighted
 
 
 def test_listify():
     assert listify(None) == []
     assert listify([1, 2, 3]) == [1, 2, 3]
     assert listify("giraffe") == ["giraffe"]
+
+
+def test_shape_common_data_no_coords_single_column():
+    data = np.arange(5)[:, np.newaxis]
+
+    result = shape_common_data(data, {})
+
+    assert result.shape == (5,)
+    assert np.array_equal(result, np.arange(5))
+    assert result.dtype == float
+
+
+def test_shape_common_data_no_coords_multi_column():
+    data = np.arange(10).reshape(5, 2)
+
+    with pytest.raises(ValueError, match="without coordinates"):
+        shape_common_data(data, {})
 
 
 def test_probit():
@@ -30,8 +48,7 @@ def test_censored():
     df = pd.DataFrame(
         {
             "x": [1, 2, 3, 4, 5],
-            "y": [2, 3, 4, 5, 6],
-            "status": ["none", "right", "interval", "left", "none"],
+            "status": ["none", "right", "none", "left", "none"],
         }
     )
 
@@ -39,28 +56,46 @@ def test_censored():
 
     x = censored(df["x"], df["status"])
     assert x.shape == (5, 2)
-    assert (x[:, -1] == np.array([0, 1, 2, -1, 0])).all()
-
-    x = censored(df["x"], df["y"], df["status"])
-    assert x.shape == (5, 3)
-    assert (x[:, -1] == np.array([0, 1, 2, -1, 0])).all()
+    assert (x[:, -1] == np.array([0, 1, 0, -1, 0])).all()
 
     # Statuses are not the expected
     with pytest.raises(AssertionError, match="Statuses must be in"):
         censored(df_bad["x"], df_bad["status"])
 
-    # Upper bound is not always larger than lower bound
-    df_bad = pd.DataFrame({"l": [1, 2], "r": [1, 1], "status": ["foo", "bar"]})
-
-    with pytest.raises(AssertionError, match="Upper bound must be larger than lower bound"):
-        censored(df_bad["l"], df_bad["r"], df_bad["status"])
-
     # Bad number of arguments
-    with pytest.raises(ValueError, match="needs 2 or 3 argument values"):
+    with pytest.raises(TypeError, match="missing 1 required positional argument"):
         censored(df["x"])
 
-    with pytest.raises(ValueError, match="needs 2 or 3 argument values"):
-        censored(df["x"], df["x"], df["x"], df["x"])
+    with pytest.raises(TypeError, match="takes 2 positional arguments but 3 were given"):
+        censored(df["x"], df["x"], df["status"])
+
+    # Bad length
+    with pytest.raises(AssertionError):
+        censored(df["x"], df_bad["status"])
+
+    # Interval censoring is not supported
+    with pytest.raises(AssertionError, match="Statuses must be in"):
+        censored(df["x"], ["none", "right", "interval", "left", "none"])
+
+
+def test_counts():
+    y1 = np.array([1, 2, 3])
+    y2 = np.array([3, 4, 3])
+    totals = np.array([4, 6, 6])
+
+    result = counts(y1, y2)
+    assert np.array_equal(result, np.column_stack([y1, y2]))
+
+    assert np.array_equal(counts(y1, y2, n=totals), result)
+    assert np.array_equal(
+        counts(np.array([1, 2]), np.array([3, 2]), n=4), np.array([[1, 3], [2, 2]])
+    )
+
+    with pytest.raises(ValueError, match="must sum to 'n'"):
+        counts(y1, y2, n=5)
+
+    with pytest.raises(ValueError, match="length of 'n'"):
+        counts(y1, y2, n=np.array([4, 6]))
 
 
 def test_truncated():

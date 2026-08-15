@@ -237,9 +237,10 @@ class TestPredictions:
 
         formula = bmb.Formula("y ~ x", "alpha ~ x")
         model = bmb.Model(formula, data_gamma, family="gamma")
+        initvals = {"Intercept_centered": 1 / y.mean()}
 
         # Without alias
-        idata = model.fit(tune=100, draws=100, random_seed=1234)
+        idata = model.fit(tune=100, draws=100, random_seed=1234, initvals=initvals)
         # Test default target
         result = plot_predictions(model, idata, "x", target=target)
         assert isinstance(result, Plot)
@@ -250,7 +251,7 @@ class TestPredictions:
         # With alias
         alias = {"alpha": {"Intercept": "sd_intercept", "x": "sd_x", "alpha": "sd_alpha"}}
         model.set_alias(alias)
-        idata = model.fit(tune=100, draws=100, random_seed=1234)
+        idata = model.fit(tune=100, draws=100, random_seed=1234, initvals=initvals)
 
         # Test user supplied target argument
         result = plot_predictions(model, idata, "x", target="alpha")
@@ -259,16 +260,8 @@ class TestPredictions:
     def test_group_effects(self, sleep_study):
         model, idata = sleep_study
 
-        # contains new unseen data
-        result = plot_predictions(model, idata, ["Days", "Subject"], sample_new_groups=True)
+        result = plot_predictions(model, idata, ["Days", "Subject"])
         assert isinstance(result, Plot)
-
-        with pytest.raises(
-            ValueError,
-            match="There are new groups for the factors \('Subject',\) and 'sample_new_groups' is False.",
-        ):
-            # default: sample_new_groups=False
-            plot_predictions(model, idata, ["Days", "Subject"])
 
     @pytest.mark.parametrize(
         "covariates",
@@ -409,8 +402,7 @@ class TestComparisons:
     def test_group_effects(self, sleep_study):
         model, idata = sleep_study
 
-        # contains new unseen data
-        result = plot_comparisons(model, idata, "Days", "Subject", sample_new_groups=True)
+        result = plot_comparisons(model, idata, "Days", "Subject")
         assert isinstance(result, Plot)
         # user passed values seen in observed data
         result = plot_comparisons(
@@ -420,13 +412,6 @@ class TestComparisons:
             conditional={"Subject": [308, 335, 352, 372]},
         )
         assert isinstance(result, Plot)
-
-        with pytest.raises(
-            ValueError,
-            match="There are new groups for the factors \('Subject',\) and 'sample_new_groups' is False.",
-        ):
-            # default: sample_new_groups=False
-            plot_comparisons(model, idata, "Days", "Subject")
 
     @pytest.mark.parametrize(
         "contrast, conditional",
@@ -554,19 +539,11 @@ class TestSlopes:
     def test_group_effects(self, sleep_study):
         model, idata = sleep_study
 
-        # contains new unseen data
-        result = plot_slopes(model, idata, "Days", "Subject", sample_new_groups=True)
+        result = plot_slopes(model, idata, "Days", "Subject")
         assert isinstance(result, Plot)
         # user passed values seen in observed data
         result = plot_slopes(model, idata, wrt={"Days": 2}, conditional={"Subject": [308]})
         assert isinstance(result, Plot)
-
-        with pytest.raises(
-            ValueError,
-            match="There are new groups for the factors \('Subject',\) and 'sample_new_groups' is False.",
-        ):
-            # default: sample_new_groups=False
-            plot_slopes(model, idata, "Days", "Subject")
 
     def test_categorical_response(self, food_choice):
         model, idata = food_choice

@@ -67,6 +67,31 @@ def test_laplace_method(data_random_n100):
     assert hasattr(result, "posterior")
 
 
+def test_laplace_postprocesses_offsets_and_response_params(data_random_n100):
+    """Test Laplace applies posterior output options after computing deterministics."""
+    model = bmb.Model("continuous1 ~ 1 + (1|binary_cat)", data_random_n100)
+
+    idata = model.fit(
+        inference_method="laplace",
+        draws=5,
+        omit_offsets=True,
+        include_response_params=False,
+    )
+    assert not any(var.endswith("_offset") for var in idata.posterior.data_vars)
+    assert "mu" not in idata.posterior
+
+    idata = model.fit(
+        inference_method="laplace",
+        draws=5,
+        omit_offsets=False,
+        include_response_params=True,
+    )
+    assert {var for var in idata.posterior.data_vars if var.endswith("_offset")} == {
+        "1|binary_cat_offset"
+    }
+    assert idata.posterior["mu"].shape == (1, 5, len(data_random_n100))
+
+
 def test_invalid_method(data_random_n100):
     """Test that invalid inference methods raise ValueError."""
     model = bmb.Model("continuous1 ~ continuous2", data_random_n100)

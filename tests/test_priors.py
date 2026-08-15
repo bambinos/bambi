@@ -4,7 +4,7 @@ import bambi as bmb
 import numpy as np
 import pymc as pm
 import pandas as pd
-from scipy import special
+import pytensor.tensor as pt
 
 
 def test_prior_class():
@@ -69,7 +69,7 @@ def test_family_bad_priors(data_random_n100):
     likelihood = bmb.Likelihood("Normal", params=["mu", "sigma"], parent="mu")
     family = bmb.Family("MyNormal", likelihood, "identity")
     # Required prior is missing
-    with pytest.raises(ValueError, match="The component 'sigma' needs a prior."):
+    with pytest.raises(ValueError, match="The parameter 'sigma' needs a prior."):
         bmb.Model("continuous1 ~ continuous2", data_random_n100, family=family)
 
     # bmb.Prior is not a prior
@@ -86,10 +86,10 @@ def test_auto_scale(data_diabetes):
     # By default, should scale everything except custom bmb.Prior() objects
     priors = {"BP": bmb.Prior("Cauchy", alpha=1, beta=17.5)}
     model = bmb.Model("BMI ~ S1 + S2 + BP", data_diabetes, priors=priors)
-    parent_component = model.components[model.family.likelihood.parent]
-    p1 = parent_component.terms["S1"].prior
-    p2 = parent_component.terms["S2"].prior
-    p3 = parent_component.terms["BP"].prior
+    parent_parameter = model.parameters[model.family.likelihood.parent]
+    p1 = parent_parameter.terms["S1"].prior
+    p2 = parent_parameter.terms["S2"].prior
+    p3 = parent_parameter.terms["BP"].prior
     assert p1.name == p2.name == "Normal"
     assert 0 < p1.args["sigma"] < 1
     assert p2.args["sigma"] > p1.args["sigma"]
@@ -99,9 +99,9 @@ def test_auto_scale(data_diabetes):
     # With auto_scale off, custom priors are considered.
     priors = {"BP": bmb.Prior("Cauchy", alpha=1, beta=17.5)}
     model = bmb.Model("BMI ~ S1 + S2 + BP", data_diabetes, priors=priors, auto_scale=False)
-    parent_component = model.components[model.family.likelihood.parent]
-    p2_off = parent_component.terms["S2"].prior
-    p3_off = parent_component.terms["BP"].prior
+    parent_parameter = model.parameters[model.family.likelihood.parent]
+    p2_off = parent_parameter.terms["S2"].prior
+    p3_off = parent_parameter.terms["BP"].prior
     assert p2_off.name == "Flat"
     assert "sigma" not in p2_off.args
     assert p3_off.name == "Cauchy"
@@ -165,11 +165,13 @@ def test_family_link_unsupported():
 def test_custom_link(data_random_n100):
     likelihood = bmb.Likelihood("Bernoulli", parent="p")
     link = bmb.Link(
-        "my_logit", link=special.expit, linkinv=special.logit, linkinv_backend=pm.math.sigmoid
+        "my_logit",
+        inverse_link=lambda x: pt.zeros_like(x) + 0.25,
     )
     family = bmb.Family("bernoulli", likelihood, link)
     model = bmb.Model("binary_num ~ continuous1 + continuous2", data_random_n100, family=family)
     model.build()
+    assert np.allclose(model.backend.model["p"].eval(), 0.25)
 
 
 def test_family_bad_type():
@@ -194,7 +196,7 @@ def test_set_priors(data_random_n100):
 
     # Common
     model.set_priors(common=prior)
-    assert model.components[model.family.likelihood.parent].terms["continuous2"].prior == prior
+    assert model.parameters[model.family.likelihood.parent].terms["continuous2"].prior == prior
 
     # Group-specific
     with pytest.raises(ValueError, match="must have hyperpriors"):
@@ -202,7 +204,7 @@ def test_set_priors(data_random_n100):
 
     model.set_priors(group_specific=gp_prior)
     assert (
-        model.components[model.family.likelihood.parent].terms["1|categorical1"].prior == gp_prior
+        model.parameters[model.family.likelihood.parent].terms["1|categorical1"].prior == gp_prior
     )
 
     # By name
@@ -210,55 +212,55 @@ def test_set_priors(data_random_n100):
     model.set_priors(priors={"Intercept": prior})
     model.set_priors(priors={"continuous2": prior})
     model.set_priors(priors={"1|categorical1": gp_prior})
-    parent_component = model.components[model.family.likelihood.parent]
-    assert parent_component.terms["Intercept"].prior == prior
-    assert parent_component.terms["continuous2"].prior == prior
-    assert parent_component.terms["1|categorical1"].prior == gp_prior
+    parent_parameter = model.parameters[model.family.likelihood.parent]
+    assert parent_parameter.terms["Intercept"].prior == prior
+    assert parent_parameter.terms["continuous2"].prior == prior
+    assert parent_parameter.terms["1|categorical1"].prior == gp_prior
 
 
 def test_response_prior(data_random_n100):
     priors = {"sigma": bmb.Prior("Uniform", lower=0, upper=50)}
     model = bmb.Model("count2 ~ continuous1", data_random_n100, priors=priors)
     priors["sigma"].auto_scale = False  # the one in the model is set to False
-    assert model.constant_components["sigma"].prior == priors["sigma"]
+    assert model.marginal_parameters["sigma"].prior == priors["sigma"]
 
     priors = {"alpha": bmb.Prior("Uniform", lower=1, upper=20)}
     model = bmb.Model(
         "count2 ~ continuous1", data_random_n100, family="negativebinomial", priors=priors
     )
     priors["alpha"].auto_scale = False
-    assert model.constant_components["alpha"].prior == priors["alpha"]
+    assert model.marginal_parameters["alpha"].prior == priors["alpha"]
 
     priors = {"alpha": bmb.Prior("Uniform", lower=0, upper=50)}
     model = bmb.Model("count2 ~ continuous1", data_random_n100, family="gamma", priors=priors)
     priors["alpha"].auto_scale = False
-    assert model.constant_components["alpha"].prior == priors["alpha"]
+    assert model.marginal_parameters["alpha"].prior == priors["alpha"]
 
     priors = {"alpha": bmb.Prior("Uniform", lower=0, upper=50)}
     model = bmb.Model("count2 ~ continuous1", data_random_n100, family="gamma", priors=priors)
     priors["alpha"].auto_scale = False
-    assert model.constant_components["alpha"].prior == priors["alpha"]
+    assert model.marginal_parameters["alpha"].prior == priors["alpha"]
 
 
 def test_set_response_prior(data_random_n100):
     priors = {"sigma": bmb.Prior("Uniform", lower=0, upper=50)}
     model = bmb.Model("count2 ~ continuous1", data_random_n100)
     model.set_priors(priors)
-    assert model.constant_components["sigma"].prior == bmb.Prior(
+    assert model.marginal_parameters["sigma"].prior == bmb.Prior(
         "Uniform", False, lower=0, upper=50
     )
 
     priors = {"alpha": bmb.Prior("Uniform", lower=1, upper=20)}
     model = bmb.Model("count2 ~ continuous1", data_random_n100, family="negativebinomial")
     model.set_priors(priors)
-    assert model.constant_components["alpha"].prior == bmb.Prior(
+    assert model.marginal_parameters["alpha"].prior == bmb.Prior(
         "Uniform", False, lower=1, upper=20
     )
 
     priors = {"alpha": bmb.Prior("Uniform", lower=0, upper=50)}
     model = bmb.Model("count2 ~ continuous1", data_random_n100, family="gamma")
     model.set_priors(priors)
-    assert model.constant_components["alpha"].prior == bmb.Prior(
+    assert model.marginal_parameters["alpha"].prior == bmb.Prior(
         "Uniform", False, lower=0, upper=50
     )
 
@@ -275,31 +277,31 @@ def test_prior_shape():
     )
 
     model = bmb.Model("score ~ 0 + q", data)
-    parent_component = model.components[model.family.likelihood.parent]
-    assert parent_component.terms["q"].prior.args["mu"].shape == (5,)
-    assert parent_component.terms["q"].prior.args["sigma"].shape == (5,)
+    parent_parameter = model.parameters[model.family.likelihood.parent]
+    assert parent_parameter.terms["q"].prior.args["mu"].shape == (5,)
+    assert parent_parameter.terms["q"].prior.args["sigma"].shape == (5,)
 
     model = bmb.Model("score ~ q", data)
-    parent_component = model.components[model.family.likelihood.parent]
-    assert parent_component.terms["q"].prior.args["mu"].shape == (4,)
-    assert parent_component.terms["q"].prior.args["sigma"].shape == (4,)
+    parent_parameter = model.parameters[model.family.likelihood.parent]
+    assert parent_parameter.terms["q"].prior.args["mu"].shape == (4,)
+    assert parent_parameter.terms["q"].prior.args["sigma"].shape == (4,)
 
     model = bmb.Model("score ~ 0 + q:s", data)
-    parent_component = model.components[model.family.likelihood.parent]
-    assert parent_component.terms["q:s"].prior.args["mu"].shape == (15,)
-    assert parent_component.terms["q:s"].prior.args["sigma"].shape == (15,)
+    parent_parameter = model.parameters[model.family.likelihood.parent]
+    assert parent_parameter.terms["q:s"].prior.args["mu"].shape == (15,)
+    assert parent_parameter.terms["q:s"].prior.args["sigma"].shape == (15,)
 
     # "s" is automatically added to ensure full rank matrix
     model = bmb.Model("score ~ q:s", data)
-    parent_component = model.components[model.family.likelihood.parent]
-    assert parent_component.terms["Intercept"].prior.args["mu"].shape == ()
-    assert parent_component.terms["Intercept"].prior.args["sigma"].shape == ()
+    parent_parameter = model.parameters[model.family.likelihood.parent]
+    assert parent_parameter.terms["Intercept"].prior.args["mu"].shape == ()
+    assert parent_parameter.terms["Intercept"].prior.args["sigma"].shape == ()
 
-    assert parent_component.terms["s"].prior.args["mu"].shape == (2,)
-    assert parent_component.terms["s"].prior.args["sigma"].shape == (2,)
+    assert parent_parameter.terms["s"].prior.args["mu"].shape == (2,)
+    assert parent_parameter.terms["s"].prior.args["sigma"].shape == (2,)
 
-    assert parent_component.terms["q:s"].prior.args["mu"].shape == (12,)
-    assert parent_component.terms["q:s"].prior.args["sigma"].shape == (12,)
+    assert parent_parameter.terms["q:s"].prior.args["mu"].shape == (12,)
+    assert parent_parameter.terms["q:s"].prior.args["sigma"].shape == (12,)
 
 
 def test_set_priors_but_intercept(data_random_n100):
