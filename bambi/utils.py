@@ -111,25 +111,6 @@ def clean_formula_lhs(x):
     return x[position + 1 :]
 
 
-def get_aliased_name(term):
-    """Get the aliased name of a model term
-
-    Model terms have a name and, optionally, an alias. The alias is used as the "name" if it's
-    available. This is a helper that returns the right "name".
-
-    Parameters
-    ----------
-    term : BaseTerm
-        The term.
-
-    Returns
-    -------
-    str
-        The aliased name.
-    """
-    return term.alias if term.alias else term.name
-
-
 def is_single_component(term) -> bool:
     """Determines if formulae term contains a single component."""
     return hasattr(term, "components") and len(term.components) == 1
