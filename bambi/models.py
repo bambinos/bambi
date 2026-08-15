@@ -91,7 +91,7 @@ class Model:
         and order of the lambda function has to match the number and order of the variable names.
     dropna : bool, optional
         When `True`, rows with any missing values in either the predictors or outcome are
-        automatically dropped from t, optionalhe dataset in a listwise manner.
+        automatically dropped from the dataset in a listwise manner, optional.
     auto_scale : bool
         If `True` (default), priors are automatically rescaled to the data
         (to be weakly informative) any time default priors are used. Note that any priors
