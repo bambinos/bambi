@@ -7,7 +7,6 @@ from copy import deepcopy
 from importlib.metadata import version
 
 import formulae as fm
-import numpy as np
 import pandas as pd
 import pymc as pm
 import xarray as xr
@@ -19,19 +18,16 @@ from pymc.model.transform.conditioning import remove_value_transforms
 from bambi.backend import PyMCModel
 from bambi.config import config
 from bambi.defaults import get_builtin_family
-from bambi.families import Family, univariate
+from bambi.parameters import ConditionalParameter, MarginalParameter
+from bambi.families import Family
+from bambi.families.builtin import Bernoulli, Cumulative, StoppingRatio
 from bambi.formula import Formula, check_ordinal_formula
-from bambi.model_components import (
-    ConstantComponent,
-    DistributionalComponent,
-    ResponseComponent,
-)
-from bambi.priors import Prior, PriorScaler
+from bambi.priors import Prior, scale_priors
+from bambi.terms import ResponseTerm
 from bambi.transformations import transformations_namespace
 from bambi.utils import (
     as_dataset,
     clean_formula_lhs,
-    get_aliased_name,
     indentify,
     listify,
     remove_common_intercept,
@@ -40,7 +36,7 @@ from bambi.utils import (
 
 _log = logging.getLogger("bambi")
 
-ORDINAL_FAMILIES = (univariate.Cumulative, univariate.StoppingRatio)
+ORDINAL_FAMILIES = (Cumulative, StoppingRatio)
 
 __version__ = version("bambi")
 
@@ -109,7 +105,7 @@ class Model:
     center_predictors : bool, optional
         If `True` (default), and if there is an intercept in the common terms, the data is
         centered by subtracting the mean. The centering is undone after sampling to provide
-        the actual intercept in all distributional components that have an intercept. Note
+        the actual intercept in all conditional parameters that have an intercept. Note
         that this changes the interpretation of the prior on the intercept because it refers
         to the intercept of the centered data.
     extra_namespace : dict, optional
@@ -134,7 +130,7 @@ class Model:
         extra_namespace=None,
     ):
         # attributes that are set later
-        self.components = {}  # Constant and Distributional components
+        self.parameters = {}
         self.built = False  # build()
 
         # build() will loop over this, calling _set_priors()
@@ -174,7 +170,7 @@ class Model:
         # Create family
         self._set_family(family, link)
 
-        ## Main component
+        ## Main parameter
         if isinstance(self.family, ORDINAL_FAMILIES):
             self.formula = check_ordinal_formula(self.formula)
             # Notice the intercept is added so formulae constrains categorical predictors, avoiding
@@ -205,19 +201,19 @@ class Model:
         if parent_name in priors:
             parent_priors.update(priors[parent_name])
 
-        # Add response component
-        self.response_component = ResponseComponent(design.response, self)
+        # Add response
+        self.response_term = ResponseTerm(design.response)
 
-        # Add component for parent parameter
-        self.components[self.family.likelihood.parent] = DistributionalComponent(
+        # Add parent parameter
+        self.parameters[self.family.likelihood.parent] = ConditionalParameter(
             self.family.likelihood.parent, design, parent_priors, self, is_parent=True
         )
 
-        # Get auxiliary parameters, so we add either distributional components or constant ones
+        # Get auxiliary parameters, so we add either conditional or marginal parameters
         auxiliary_parameters = list(self.family.auxiliary_parameters)
 
-        ## Other components
-        ### Distributional
+        ## Other parameters
+        ### Conditional
         for name, extra_formula in zip(self.formula.additionals_lhs, self.formula.additionals):
             # Check 'name' is part of parameter values
             if name not in auxiliary_parameters:
@@ -236,31 +232,31 @@ class Model:
             )
 
             # If priors were not passed, pass an empty dictionary
-            component_priors = priors.get(name, {})
+            parameter_priors = priors.get(name, {})
 
-            # Create distributional component
-            self.components[name] = DistributionalComponent(
-                name, design, component_priors, self, is_parent=False
+            # Create conditional parameter
+            self.parameters[name] = ConditionalParameter(
+                name, design, parameter_priors, self, is_parent=False
             )
 
             # Remove parameter name from the list
             auxiliary_parameters.remove(name)
 
-        ### Constant
+        ### Marginal
         for name in auxiliary_parameters:
-            component_prior = priors.get(name, None)
-            self.components[name] = ConstantComponent(name, component_prior, self)
+            parameter_prior = priors.get(name, None)
+            self.parameters[name] = MarginalParameter(name, parameter_prior, self)
 
         # Validate prior names, now that every component and its terms are known.
         self._check_prior_names(priors)
 
-        # Validate per-component noncentered dict, now that all components are known.
+        # Validate per-parameter noncentered dict, now that all parameters are known.
         if isinstance(self.noncentered, dict):
-            unknown = set(self.noncentered) - set(self.components)
+            unknown = set(self.noncentered) - set(self.parameters)
             if unknown:
                 raise ValueError(
-                    f"Unknown component name(s) in `noncentered`: {sorted(unknown)}. "
-                    f"Valid component names for this model: {sorted(self.components)}."
+                    f"Unknown parameter name(s) in `noncentered`: {sorted(unknown)}. "
+                    f"Valid parameter names for this model: {sorted(self.parameters)}."
                 )
 
         # Build priors
@@ -386,11 +382,11 @@ class Model:
             self.build()
 
         # Tell user which event is being modeled
-        if isinstance(self.family, univariate.Bernoulli):
+        if isinstance(self.family, Bernoulli):
             _log.info(
                 "Modeling the probability that %s==%s",
-                self.response_component.term.name,
-                str(self.response_component.term.success),
+                self.response_term.name,
+                str(self.response_term.reference or 1),
             )
 
         if include_mean is not None:
@@ -422,8 +418,8 @@ class Model:
 
         Creates an instance of the underlying PyMC model and adds all the necessary terms to it.
         """
-        self.backend = PyMCModel()
-        self.backend.build(self)
+        self.backend = PyMCModel(self)
+        self.backend.build()
         self.built = True
 
     def set_priors(self, priors=None, common=None, group_specific=None):
@@ -457,26 +453,25 @@ class Model:
         self._set_priors(**self._added_priors)
 
         # Prepare all priors
-        for component in self.distributional_components.values():
-            component.build_priors()
+        for parameter in self.conditional_parameters.values():
+            parameter.build_priors()
 
-        for name, component in self.constant_components.items():
-            if isinstance(component.prior, Prior):
-                component.prior.auto_scale = False
-            elif isinstance(component.prior, (int, float)):
+        for name, parameter in self.marginal_parameters.items():
+            if isinstance(parameter.prior, Prior):
+                parameter.prior.auto_scale = False
+            elif isinstance(parameter.prior, (int, float)):
                 continue
-            elif component.prior is not None:
-                raise ValueError(f"'{component.prior}' is not a valid prior.")
+            elif parameter.prior is not None:
+                raise ValueError(f"'{parameter.prior}' is not a valid prior.")
             else:
                 default_prior = self.family.default_priors.get(name, None)
                 if default_prior is None:
-                    raise ValueError(f"The component '{name}' needs a prior.")
-                component.prior = default_prior
+                    raise ValueError(f"The parameter '{name}' needs a prior.")
+                parameter.prior = default_prior
 
         # Scale priors if there is at least one term in the model and auto_scale is True
         if self.auto_scale:
-            self.scaler = PriorScaler(self)
-            self.scaler.scale()
+            scale_priors(self)
 
     def _check_prior_names(self, priors):
         """Report names in `priors` that don't match any term or component."""
@@ -486,8 +481,8 @@ class Model:
 
         parent_name = self.family.likelihood.parent
         valid = (
-            set(self.components)
-            | set(self.components[parent_name].terms)
+            set(self.parameters)
+            | set(self.parameters[parent_name].terms)
             | {"common", "group_specific"}
         )
 
@@ -495,8 +490,8 @@ class Model:
         for name, value in priors.items():
             if name not in valid:
                 unused.append(name)
-            elif isinstance(value, dict) and name in self.distributional_components:
-                nested_valid = set(self.components[name].terms) | {"common", "group_specific"}
+            elif isinstance(value, dict) and name in self.conditional_parameters:
+                nested_valid = set(self.parameters[name].terms) | {"common", "group_specific"}
                 unused.extend(f"{name}.{n}" for n in sorted(set(value) - nested_valid))
 
         if not unused:
@@ -515,27 +510,27 @@ class Model:
         Runs during `Model._build_priors()`.
         """
         # Arguments `common` and `group_specific` only affect the parent component.
-        # Same names could also be used in a nested dictionary for other distributional components.
         parent_name = self.family.likelihood.parent
-        parent_component = self.components[parent_name]
 
+        # 'common' and 'group_specific' only apply to the parent parameter
+        parent_parameter = self.parameters[self.family.likelihood.parent]
         if common is not None:
-            for term in parent_component.common_terms.values():
+            for term in parent_parameter.common_terms.values():
                 term.prior = common
 
         if group_specific is not None:
-            for term in parent_component.group_specific_terms.values():
+            for term in parent_parameter.group_specific_terms.values():
                 term.prior = group_specific
 
         if priors is not None:
             # `normalized_priors` maps component names to their prior specifications:
-            #   - a term-to-prior dict for distributional components,
-            #   - a single prior for constant components.
+            #   - a term-to-prior dict for conditional parameters,
+            #   - a single prior for marginal parameters.
             # Bare term priors are merged into the parent component, with explicitly nested
             # parent priors taking precedence.
-            normalized_priors = {name: priors[name] for name in self.components if name in priors}
+            normalized_priors = {name: priors[name] for name in self.parameters if name in priors}
             parent_priors = {
-                name: prior for name, prior in priors.items() if name not in self.components
+                name: prior for name, prior in priors.items() if name not in self.parameters
             }
             if parent_name in normalized_priors:
                 parent_priors.update(normalized_priors[parent_name])
@@ -544,10 +539,24 @@ class Model:
             # Make sure mutation of Prior objects within update_priors does not have side effects.
             normalized_priors = deepcopy(normalized_priors)
 
-            for name, component in self.components.items():
+            for name, component in self.parameters.items():
                 prior = normalized_priors.get(name)
                 if prior is not None:
                     component.update_priors(prior)
+            # The only conditional parameter is the parent parameter
+            if len(self.conditional_parameters) == 1:
+                for name, parameter in self.marginal_parameters.items():
+                    prior = priors.pop(name) if name in priors else None
+                    if prior:
+                        parameter.update_priors(prior)
+                # Pass all the other priors to the parent parameter
+                parent_parameter.update_priors(priors)
+            # There is more than one conditional parameter.
+            else:
+                for name, parameter in self.parameters.items():
+                    prior = priors.get(name)
+                    if prior:
+                        parameter.update_priors(prior)
 
     def _set_family(self, family, link):
         """Set the Family of the model
@@ -611,17 +620,17 @@ class Model:
         # Keep track of any passed aliases that are not used
         missing_names = []
 
-        # If there is a single distributional component (the response)
+        # If there is a single conditional parameter (the response)
         #   * Keys are the names of the terms and the values are their aliases.
-        # If there are multiple distributional components
-        #   * Keys are the name of the components responses
-        #     * If it's a constant component, the value must be a string
-        #     * If it's a distributional component, the value must be a dictionary
+        # If there are multiple conditional parameters
+        #   * Keys are the names of the response parameters
+        #     * If it's a marginal parameter, the value must be a string
+        #     * If it's a conditional parameter, the value must be a dictionary
         #        * Here, names are term names, and values are their aliases
         #     * There's unavoidable redundancy in the response name
         #       "sigma": {"sigma": "alias"}}
-        if len(self.distributional_components) == 1:  # pylint: disable=too-many-nested-blocks
-            parent_component = self.components[self.family.likelihood.parent]
+        if len(self.conditional_parameters) == 1:  # pylint: disable=too-many-nested-blocks
+            parent_parameter = self.parameters[self.family.likelihood.parent]
             for name, alias in aliases.items():
                 assert isinstance(alias, str)
 
@@ -630,58 +639,58 @@ class Model:
 
                 # If it's the name of the parent parameter
                 if name == self.family.likelihood.parent:
-                    parent_component.alias = alias
+                    parent_parameter.alias = alias
                     is_used = True
 
-                if name in self.constant_components:
+                if name in self.marginal_parameters:
                     assert isinstance(alias, str)
-                    self.constant_components[name].alias = alias
+                    self.marginal_parameters[name].alias = alias
                     is_used = True
 
                 # If it's a term name
-                if name in parent_component.terms:
-                    parent_component.terms[name].alias = alias
+                if name in parent_parameter.terms:
+                    parent_parameter.terms[name].alias = alias
                     is_used = True
 
                 # Now add aliases for hyperpriors in group specific terms
-                for term in parent_component.group_specific_terms.values():
+                for term in parent_parameter.group_specific_terms.values():
                     if name in term.prior.args:
                         term.hyperprior_alias = {name: alias}
                         is_used = True
 
                 # If it's the name of the response
-                if name == self.response_component.response.name:
-                    self.response_component.term.alias = alias
+                if name == self.response_term.name:
+                    self.response_term.alias = alias
                     is_used = True
 
                 # Add any aliases not used in prior logic to unused alias list
                 if is_used is False:
                     missing_names.append(name)
         else:
-            for component_name, component_aliases in aliases.items():
-                if component_name in self.constant_components:
-                    assert isinstance(component_aliases, str)
-                    self.constant_components[component_name].alias = component_aliases
-                elif component_name == self.response_component.response.name:
-                    assert isinstance(component_aliases, str)
-                    self.response_component.term.alias = component_aliases
+            for parameter_name, parameter_aliases in aliases.items():
+                if parameter_name in self.marginal_parameters:
+                    assert isinstance(parameter_aliases, str)
+                    self.marginal_parameters[parameter_name].alias = parameter_aliases
+                elif parameter_name == self.response_term.name:
+                    assert isinstance(parameter_aliases, str)
+                    self.response_term.alias = parameter_aliases
                 else:
-                    assert isinstance(component_aliases, dict)
-                    assert component_name in self.distributional_components
-                    component = self.distributional_components[component_name]
-                    for name, alias in component_aliases.items():
+                    assert isinstance(parameter_aliases, dict)
+                    assert parameter_name in self.conditional_parameters
+                    parameter = self.conditional_parameters[parameter_name]
+                    for name, alias in parameter_aliases.items():
                         is_used = False
 
-                        if name in component.terms:
-                            component.terms[name].alias = alias
+                        if name in parameter.terms:
+                            parameter.terms[name].alias = alias
                             is_used = True
 
-                        # Useful for non-response distributional components
-                        if name == component.name:
-                            component.alias = alias
+                        # Useful for non-response conditional parameters
+                        if name == parameter.name:
+                            parameter.alias = alias
                             is_used = True
 
-                        for term in component.group_specific_terms.values():
+                        for term in parameter.group_specific_terms.values():
                             if name in term.prior.args:
                                 term.hyperprior_alias = {name: alias}
                                 is_used = True
@@ -886,8 +895,8 @@ class Model:
         if omit_group_specific:
             group_specific_var_names = [
                 name
-                for component in self.distributional_components.values()
-                for name in component.group_specific_terms
+                for parameter in self.conditional_parameters.values()
+                for name in parameter.group_specific_terms
             ]
             var_names = [name for name in var_names if name not in group_specific_var_names]
 
@@ -936,7 +945,7 @@ class Model:
         -------
         InferenceData
             `InferenceData` object with the groups `prior`, `prior_predictive` and
-            `observed_data`.
+            `observed_data`, and, when applicable, `constant_data`.
         """
         self._check_built()
 
@@ -968,7 +977,6 @@ class Model:
         data=None,
         inplace=True,
         include_group_specific=True,
-        sample_new_groups=False,
         random_seed=None,
     ):
         """Predict method for Bambi models
@@ -980,12 +988,11 @@ class Model:
         idata : InferenceData
             The `InferenceData` instance returned by `.fit()`.
         kind : str, optional
-            Indicates the type of prediction required. Can be `"response_params"` or
-            `"response"`. The first returns draws from the posterior distribution of the
-            likelihood parameters, while the latter returns the draws from the posterior
-            predictive distribution (i.e. the posterior probability distribution for a new
-            observation) in addition to the posterior distribution. Defaults to
-            `"response_params"`.
+            Indicates the type of prediction required. Can be `"response_params"`,
+            `"response"`, or `"response_latent"`. The first returns draws from the posterior
+            distribution of the likelihood parameters. The latter two return draws from the
+            posterior predictive distribution; `"response_latent"` uses the latent response
+            distribution for censored and truncated responses. Defaults to `"response_params"`.
         data : pd.DataFrame or None, optional
             An optional data frame with values for the predictors that are used to obtain
             out-of-sample predictions. If omitted, the original dataset is used.
@@ -993,19 +1000,14 @@ class Model:
             If `True` it will modify `idata` in-place. Otherwise, it will return a copy of
             `idata` with the predictions added. If `kind="response_params"`, a new variable
             with the name of the parent parameter, e.g. `"mu"` and `"sigma"` for a Gaussian
-            likelihood, or `"p"` for a Bernoulli likelihood, is added to the `posterior` group.
-            If `kind="response"`, it appends a `posterior_predictive` group to `idata`. If
-            any of these already exist, it will be overwritten.
+            likelihood, or `"p"` for a Bernoulli likelihood, is added to the `posterior` group
+            for in-sample predictions or to `predictions` for out-of-sample data. With
+            `kind="response"`, the draws are added to `posterior_predictive` in sample or to
+            `predictions` out of sample. Existing output groups are overwritten.
         include_group_specific : bool, optional
             Determines if predictions incorporate group-specific effects. If `False`, predictions
             are made with common effects only (i.e. group specific are set to zero). Defaults to
             `True`.
-        sample_new_groups : bool, optional
-            Specifies if it is allowed to obtain predictions for new groups of group-specific terms.
-            When `True`, each posterior sample for the new groups is drawn from the posterior
-            draws of a randomly selected existing group. Since different groups may be selected at
-            each draw, the end result represents the variation across existing groups.
-            The method implemented is equivalent to `sample_new_levels="uncertainty"` in brms.
         random_seed : int, RandomState or Generator, optional
             Seed for the random number generator.
 
@@ -1013,8 +1015,10 @@ class Model:
         -------
         InferenceData or None
         """
-        if kind not in ("mean", "pps", "response_params", "response"):
-            raise ValueError("'kind' must be one of 'response_params' or 'response'")
+        if kind not in ("mean", "pps", "response_params", "response", "response_latent"):
+            raise ValueError(
+                "'kind' must be one of 'response_params', 'response', or 'response_latent'"
+            )
 
         if kind == "mean":
             kind = "response_params"
@@ -1030,45 +1034,36 @@ class Model:
                 FutureWarning,
             )
 
-        if not inplace:
-            idata = deepcopy(idata)
-
-        # Populate the posterior in the InferenceData object with the likelihood parameters
-        idata = self._compute_likelihood_params(
+        return self.backend.predict(
             idata=idata,
             data=data,
             include_group_specific=include_group_specific,
-            sample_new_groups=sample_new_groups,
             random_seed=random_seed,
+            kind=kind,
+            inplace=inplace,
         )
 
-        # Only if requested predict the predictive distribution
-        if kind == "response":
-            response_aliased_name = get_aliased_name(self.response_component.term)
-            required_kwargs = {
-                "model": self,
-                "posterior": idata.posterior,
-                "random_seed": random_seed,
-            }
-            optional_kwargs = {"data": data}
+    def compute_log_likelihood(self, idata, data=None, inplace=True):
+        """Compute the model's log-likelihood
 
-            posterior_predictive = self.family.posterior_predictive(
-                **required_kwargs, **optional_kwargs
-            )
-            posterior_predictive = posterior_predictive.to_dataset(name=response_aliased_name)
+        Parameters
+        ----------
+        idata : InferenceData
+            The `InferenceData` instance returned by `.fit()`.
+        data : pd.DataFrame or None, optional
+            An optional data frame with values for the predictors and the response on which
+            the model's log-likelihood function is evaluated.
+            If omitted, the original dataset is used.
+        inplace : bool, optional
+            If `True` it will modify `idata` in-place. Otherwise, it will return a copy of
+            `idata` with the `log_likelihood` group added.
 
-            if "posterior_predictive" in idata:
-                del idata["posterior_predictive"]
-
-            idata["posterior_predictive"] = posterior_predictive
-            idata["posterior_predictive"] = idata["posterior_predictive"].ds.assign_attrs(
-                modeling_interface="bambi", modeling_interface_version=__version__
-            )
-
-        if inplace:
-            return None
-        else:
-            return idata
+        Returns
+        -------
+        InferenceData or None
+        """
+        self._check_built()
+        return self.backend.compute_log_likelihood(idata=idata, data=data, inplace=inplace)
 
     def r2_score(self, idata, summary=True):
         """R² for Bayesian regression models.
@@ -1099,7 +1094,7 @@ class Model:
         .. [1] Gelman et al. *R-squared for Bayesian regression models*.
             The American Statistician. 73(3) (2019). <https://doi.org/10.1080/00031305.2018.1549100>
         """
-        response_name = self.response_component.term.name
+        response_name = self.response_term.name
         pred_mean = self.family.likelihood.parent
 
         if pred_mean not in idata.posterior:
@@ -1109,65 +1104,6 @@ class Model:
         # family we could use residual_r2 as a fallback for families we don't have implemented
         # yet we may want to have an argument to compute the loo_r2 as well or a separate method
         return residual_r2(idata, pred_mean=pred_mean, obs_name=response_name, summary=summary)
-
-    def compute_log_likelihood(self, idata, data=None, inplace=True):
-        """Compute the model's log-likelihood
-
-        **NOTE**: This is a new feature and it may not work in all cases.
-
-        Parameters
-        ----------
-        idata : InferenceData
-            The `InferenceData` instance returned by `.fit()`.
-        data : pd.DataFrame or None, optional
-            An optional data frame with values for the predictors and the response on which
-            the model's log-likelihood function is evaluated.
-            If omitted, the original dataset is used.
-        inplace : bool, optional
-            If `True` it will modify `idata` in-place. Otherwise, it will return a copy of
-            `idata` with the `log_likelihood` group added.
-
-        Returns
-        -------
-        InferenceData or None
-        """
-
-        # These are not formal parameters because it does not make sense to...
-        #   1. compute the log-likelihood omitting the group-specific components of the model.
-        #   2. compute the log-likelihood on unseen groups.
-        include_group_specific = True
-        sample_new_groups = False
-
-        # Get the aliased response name
-        response_aliased_name = get_aliased_name(self.response_component.term)
-
-        if not inplace:
-            idata = deepcopy(idata)
-
-        # Populate the posterior in the InferenceData object with the likelihood parameters
-        idata = self._compute_likelihood_params(
-            idata=idata,
-            data=data,
-            include_group_specific=include_group_specific,
-            sample_new_groups=sample_new_groups,
-        )
-
-        required_kwargs = {"model": self, "posterior": idata.posterior, "data": data}
-        log_likelihood = self.family.log_likelihood(**required_kwargs)
-        log_likelihood = log_likelihood.to_dataset(name=response_aliased_name)
-
-        if "log_likelihood" in idata:
-            del idata["log_likelihood"]
-
-        idata["log_likelihood"] = log_likelihood
-        idata["log_likelihood"] = idata["log_likelihood"].ds.assign_attrs(
-            modeling_interface="bambi", modeling_interface_version=__version__
-        )
-
-        if inplace:
-            return None
-        else:
-            return idata
 
     def compute_log_prior(self, idata, inplace=True):
         """Compute the model's log-prior
@@ -1241,68 +1177,6 @@ class Model:
         else:
             return idata
 
-    def _compute_likelihood_params(
-        self,
-        idata,
-        data=None,
-        include_group_specific=True,
-        sample_new_groups=False,
-        random_seed=None,
-    ):
-        """Computes the parameters of the likelihood (response distribution)
-
-        This is a utility function that populates the posterior group in the InferenceData object
-        with variables required by the model likelihood. This is useful for both posterior
-        predictive sampling and the computation of the log-likelihood function.
-
-        It returns the updated InferenceData object.
-        """
-        means_dict = {}
-        hsgp_dict = {}  # To store the HSGP contributions (they are added to the posterior dataset)
-        response_dim = "__obs__"
-
-        for name, component in self.distributional_components.items():
-            var_name = component.alias if component.alias else name
-            means_dict[var_name] = component.predict(
-                idata,
-                data,
-                include_group_specific,
-                hsgp_dict,
-                sample_new_groups,
-                random_seed,
-            )
-
-        # Build the updated posterior dataset from the DataTree child
-        posterior = as_dataset(idata["posterior"])
-
-        # Drop var/dim if already present. Needed for out-of-sample predictions.
-        for var_name in means_dict:
-            if var_name in posterior.data_vars:
-                posterior = posterior.drop_vars(var_name)
-
-        if response_dim in posterior.dims:
-            posterior = posterior.drop_dims(response_dim)
-
-        # Use the first DataArray to get the number of observations
-        obs_n = len(list(means_dict.values())[0].coords.get(response_dim))
-        posterior = posterior.assign_coords({response_dim: list(range(obs_n))})
-
-        for name, value in means_dict.items():
-            posterior[name] = value
-
-        # Add HSGP contributions to the posterior dataset
-        for component in self.distributional_components.values():
-            for name, hsgp_contribution in hsgp_dict.items():
-                term = component.hsgp_terms.get(name, None)
-                if term is None:
-                    continue
-                term_aliased_name = get_aliased_name(term)
-                posterior[term_aliased_name] = hsgp_contribution.transpose("chain", "draw", ...)
-
-        idata["posterior"] = posterior
-
-        return idata
-
     def graph(self, formatting="plain", name=None, figsize=None, dpi=300, fmt="png"):
         """Produce a graphviz Digraph from a built Bambi model.
 
@@ -1360,84 +1234,6 @@ class Model:
 
         return graphviz
 
-    def _re_center_intercept(self, idata):
-        """Re-center the intercept in ``idata.posterior`` so it matches the PyMC value variable.
-
-        Parameters
-        ----------
-        idata : DataTree
-            The posterior samples as returned by ``Model.fit``.
-
-        Returns
-        -------
-        DataTree
-            A copy of ``idata`` where the intercept of every distributional component with
-            both an intercept and common terms includes the centering factor again, and the
-            offsets of non-centered group-specific terms are reconstructed. If there is
-            nothing to revert, ``idata`` is returned unchanged.
-        """
-        if self.backend is None:
-            return idata
-
-        posterior = as_dataset(idata["posterior"])
-        value_var_names = {value_var.name for value_var in self.backend.model.value_vars}
-
-        # Recover dropped offsets as `name / name_sigma` since `name = name_offset * name_sigma`
-        offsets = {}
-        for pymc_component in self.backend.distributional_components.values():
-            for term in pymc_component.component.group_specific_terms.values():
-                term_name = get_aliased_name(term)
-                offset_name = f"{term_name}_offset"
-                if offset_name in value_var_names and offset_name not in posterior:
-                    sigma_name = f"{term_name}_{term.hyperprior_alias.get('sigma', 'sigma')}"
-                    offsets[offset_name] = (term_name, sigma_name)
-
-        # The backend reports `intercept - center_factor` so recompute the factor to add it back
-        center_factors = {}
-        if self.center_predictors:
-            for pymc_component in self.backend.distributional_components.values():
-                bambi_component = pymc_component.component
-                x_uncentered = pymc_component.design_matrix_without_intercept
-                if not (
-                    bambi_component.intercept_term
-                    and bambi_component.common_terms
-                    and x_uncentered is not None
-                ):
-                    continue
-
-                shape, dims = (posterior["chain"].size, posterior["draw"].size), ("chain", "draw")
-                common_term_names = [
-                    get_aliased_name(t) for t in bambi_component.common_terms.values()
-                ]
-
-                response_coords = self.response_component.term.coords
-                if response_coords:
-                    levels = list(response_coords.values())[0]
-                    shape += (len(levels),)
-                    dims += tuple(response_coords)
-
-                posterior_stacked = posterior.stack(samples=dims)
-                coefs = np.vstack(
-                    [np.atleast_2d(posterior_stacked[name].values) for name in common_term_names]
-                )
-                intercept_name = get_aliased_name(bambi_component.intercept_term)
-                center_factors[intercept_name] = np.dot(x_uncentered.mean(0), coefs).reshape(shape)
-
-        if not center_factors and not offsets:
-            return idata
-
-        posterior = posterior.copy()
-
-        for name, center_factor in center_factors.items():
-            posterior[name] = posterior[name] + center_factor
-
-        for offset_name, (term_name, sigma_name) in offsets.items():
-            posterior[offset_name] = posterior[term_name] / posterior[sigma_name]
-
-        idata_corrected = idata.copy()
-        idata_corrected["posterior"] = posterior
-        return idata_corrected
-
     @property
     def formula(self):
         return self._formula
@@ -1452,21 +1248,21 @@ class Model:
             raise ValueError("'.formula' must be instance of 'str' or 'bambi.Formula'")
 
     def __str__(self):
-        # Empty list with the output components
+        # Empty list with the output parameters
         output_list = []
 
         # Build header
         parent_name = self.family.likelihood.parent
         formulas = self.formula.get_all_formulas()
         family_name = self.family.name
-        parent_component = self.components[parent_name]
+        parent_parameter = self.parameters[parent_name]
 
         links = [
             f"{key} = {value.name}"
             for key, value in self.family.link.items()
-            if key == parent_name or key in self.distributional_components
+            if key == parent_name or key in self.conditional_parameters
         ]
-        observations = self.response_component.term.data.shape[0]
+        observations = self.response_term.data.shape[0]
 
         header_dict = {
             "Formula: ": formulas,
@@ -1481,17 +1277,17 @@ class Model:
         for key, value in header_dict.items():
             output_list.append(key.rjust(width) + spacer.join(listify(value)))
 
-        # Build priors section. Make sure the parent component goes first.
-        priors_dict = {parent_name: make_priors_summary(parent_component)}
+        # Build priors section. Make sure the parent parameter goes first.
+        priors_dict = {parent_name: make_priors_summary(parent_parameter)}
 
-        for name, component in self.distributional_components.items():
-            if component.is_parent:
+        for name, parameter in self.conditional_parameters.items():
+            if parameter.is_parent:
                 continue
-            priors_dict[name] = make_priors_summary(component)
+            priors_dict[name] = make_priors_summary(parameter)
 
-        if self.constant_components:
+        if self.marginal_parameters:
             aux_str = "\n".join(
-                [prior_repr(component) for component in self.constant_components.values()]
+                [prior_repr(parameter) for parameter in self.marginal_parameters.values()]
             )
             aux_str = "Auxiliary parameters\n" + wrapify(indentify(aux_str, 4), 100, 4)
             priors_dict[parent_name] = priors_dict[parent_name] + "\n\n" + aux_str
@@ -1517,12 +1313,12 @@ class Model:
         return self.__str__()
 
     @property
-    def constant_components(self):
-        return {k: v for k, v in self.components.items() if isinstance(v, ConstantComponent)}
+    def marginal_parameters(self):
+        return {k: v for k, v in self.parameters.items() if isinstance(v, MarginalParameter)}
 
     @property
-    def distributional_components(self):
-        return {k: v for k, v in self.components.items() if isinstance(v, DistributionalComponent)}
+    def conditional_parameters(self):
+        return {k: v for k, v in self.parameters.items() if isinstance(v, ConditionalParameter)}
 
 
 def with_categorical_cols(data: pd.DataFrame, columns) -> pd.DataFrame:
@@ -1555,23 +1351,23 @@ def hsgp_repr(term) -> str:
     return "\n".join(output_list)
 
 
-def make_priors_summary(component: DistributionalComponent) -> str:
-    """Get a summary of terms and priors in a distributional component."""
+def make_priors_summary(parameter: ConditionalParameter) -> str:
+    """Get a summary of terms and priors in a conditional parameter."""
     # Common effects
     priors_common = [
-        prior_repr(term) for term in component.common_terms.values() if term.kind != "offset"
+        prior_repr(term) for term in parameter.common_terms.values() if term.kind != "offset"
     ]
-    if component.intercept_term:
-        priors_common.insert(0, prior_repr(component.intercept_term))
+    if parameter.intercept_term:
+        priors_common.insert(0, prior_repr(parameter.intercept_term))
 
     # Group-specific effects
-    priors_group = [prior_repr(term) for term in component.group_specific_terms.values()]
+    priors_group = [prior_repr(term) for term in parameter.group_specific_terms.values()]
 
     # Offsets
-    offsets = [f"{term.name} ~ 1" for term in component.offset_terms.values()]
+    offsets = [f"{term.name} ~ 1" for term in parameter.offset_terms.values()]
 
     # HSGP
-    hsgp = [hsgp_repr(term) for term in component.hsgp_terms.values()]
+    hsgp = [hsgp_repr(term) for term in parameter.hsgp_terms.values()]
 
     priors_dict = {
         "Common-level effects": priors_common,
