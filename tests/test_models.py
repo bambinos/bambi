@@ -673,10 +673,10 @@ class TestPoisson(FitPredictParent):
         assert pps.observed_data["count"].shape == (120,)
 
         pps = model1.prior_predictive(draws=200, var_names=["count"], random_seed=1234)
-        assert set(pps.children) == {"prior_predictive", "observed_data", "prior"}
+        assert set(pps.children) == {"prior_predictive", "observed_data", "prior", "constant_data"}
 
         pps = model1.prior_predictive(draws=200, var_names=["Intercept"], random_seed=1234)
-        assert set(pps.children) == {"prior_predictive", "observed_data", "prior"}
+        assert set(pps.children) == {"prior_predictive", "observed_data", "prior", "constant_data"}
 
         # Now test posterior predictive
         # Fit again to make sure we fix the number of chains
@@ -818,7 +818,13 @@ class TestExGaussian(FitPredictParent):
         data = pd.DataFrame({"y": y, "x": x})
         model = bmb.Model("y ~ x", data, family="exgaussian")
         idata = self.fit(model)
-        assert set(idata.posterior.data_vars) == {"Intercept", "x", "sigma", "nu"}
+        assert set(idata.posterior.data_vars) == {
+            "Intercept",
+            "Intercept_centered",
+            "x",
+            "sigma",
+            "nu",
+        }
         idata = self.predict_oos(model, idata)
         assert "y" in idata.posterior_predictive
 
@@ -833,7 +839,7 @@ class TestLogNormal(FitPredictParent):
         data = pd.DataFrame({"y": y, "x": x})
         model = bmb.Model("y ~ x", data, family="lognormal")
         idata = self.fit(model)
-        assert set(idata.posterior.data_vars) == {"Intercept", "x", "sigma"}
+        assert set(idata.posterior.data_vars) == {"Intercept", "Intercept_centered", "x", "sigma"}
         idata = self.predict_oos(model, idata)
         assert "y" in idata.posterior_predictive
 
