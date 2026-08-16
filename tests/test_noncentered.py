@@ -135,7 +135,7 @@ def test_per_prior_still_overrides_component_dict(data_random_n100):
 
 
 def test_component_dict_rejects_unknown_keys(data_random_n100):
-    with pytest.raises(ValueError, match=r"Unknown component name\(s\) in `noncentered`"):
+    with pytest.raises(ValueError, match=r"Unknown parameter name\(s\) in `noncentered`"):
         bmb.Model(
             "continuous1 ~ 1 + (1|binary_cat)",
             data_random_n100,
