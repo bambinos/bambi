@@ -1,6 +1,5 @@
 import logging
 import traceback
-import warnings
 from copy import deepcopy
 from importlib.metadata import version
 
@@ -47,13 +46,6 @@ __version__ = version("bambi")
 
 
 _SUPPORTED_METHODS = {"pymc", "numpyro", "blackjax", "nutpie", "vi", "laplace"}
-_DEPRECATION_MAP = {
-    "mcmc": "pymc",
-    "nuts_numpyro": "numpyro",
-    "numpyro_nuts": "numpyro",
-    "nuts_blackjax": "blackjax",
-    "blackjax_nuts": "blackjax",
-}
 
 
 class PyMCModel:
@@ -119,7 +111,7 @@ class PyMCModel:
         discard_tuned_samples=True,
         omit_offsets=True,
         include_response_params=False,
-        inference_method="pymc",
+        inference_method=None,
         init="auto",
         n_init=50000,
         random_seed=None,
@@ -127,26 +119,16 @@ class PyMCModel:
         **kwargs,
     ):
         """Run PyMC sampler."""
-        inference_method = inference_method.lower()
+        if inference_method is not None:
+            inference_method = inference_method.lower()
 
-        # Handle deprecated inference methods
-        if inference_method in _DEPRECATION_MAP:
-            new_method = _DEPRECATION_MAP[inference_method]
-            warnings.warn(
-                f"'{inference_method}' has been replaced by '{new_method}' and will be "
-                "removed in a future release.",
-                category=FutureWarning,
-            )
-            inference_method = new_method
-
-        # Validate the inference method
-        if inference_method not in _SUPPORTED_METHODS:
-            # Use sorted() for a predictable, user-friendly error message
-            supported = ", ".join(sorted(_SUPPORTED_METHODS))
-            raise ValueError(
-                f"'{inference_method}' is not a supported inference method. "
-                f"Must be one of: {supported}"
-            )
+            if inference_method not in _SUPPORTED_METHODS:
+                # Use sorted() for a predictable, user-friendly error message
+                supported = ", ".join(sorted(_SUPPORTED_METHODS))
+                raise ValueError(
+                    f"'{inference_method}' is not a supported inference method. "
+                    f"Must be one of: {supported}"
+                )
 
         # Ensure the appropriate dependencies are installed for the selected inference method
         self._check_dependencies(inference_method)
@@ -426,6 +408,7 @@ class PyMCModel:
         model, group_specific_state = _clone_model_with_group_specific_state(
             self._group_specific_state, self.model
         )
+        model = replace_response_variables(self.spec.response_term, model, kind)
         pm.set_data(new_data=new_data, coords=new_coords, model=model)
 
         if not include_group_specific:
@@ -440,7 +423,6 @@ class PyMCModel:
                     factor_plans, group_specific_state, model
                 )
 
-        model = replace_response_variables(self.spec.response_term, model, kind)
         interventions = build_response_interventions(self.spec.response_term, model, kind)
         if interventions:
             model = pm.do(model, interventions)

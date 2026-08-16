@@ -266,7 +266,7 @@ class Model:
         omit_offsets=True,
         include_mean=None,
         include_response_params=False,
-        inference_method="pymc",
+        inference_method=None,
         init="auto",
         n_init=50000,
         chains=None,
@@ -297,14 +297,14 @@ class Model:
         include_response_params : bool, optional
             Include parameters of the response distribution in the output. These usually take more
             space than other parameters as there's one of them per observation. Defaults to `False`.
-        inference_method : str, optional
-            The method to use for fitting the model. By default, `"pymc"`. This automatically
-            assigns an MCMC method best suited for each kind of variables, like NUTS for continuous
-            variables and Metropolis for non-binary discrete ones. NUTS implementations include
-            `"pymc"`, `"nutpie"`, `"blackjax"`, and `"numpyro"`. Alternatively, `"vi"`, in which
-            case the model will be fitted using variational inference as implemented in PyMC using
-            the `fit` function. Finally, `"laplace"`, in which case a Laplace approximation is used
-            and is not recommended other than for pedagogical use.
+        inference_method : str or None, optional
+            The method to use for fitting the model. If `None` (default), Bambi lets the backend
+            select the MCMC sampler: PyMC uses nutpie when it is installed and compatible with the
+            model and sampling options, otherwise it uses its built-in sampler. Pass `"pymc"` to
+            always use the built-in sampler. NUTS implementations include `"pymc"`, `"nutpie"`,
+            `"blackjax"`, and `"numpyro"`. Alternatively, `"vi"` fits the model using variational
+            inference as implemented in PyMC's `fit` function. Finally, `"laplace"` uses a Laplace
+            approximation and is not recommended other than for pedagogical use.
         init : str, optional
             Initialization method. Defaults to `"auto"`. The available methods are:
 
