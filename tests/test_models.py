@@ -826,7 +826,7 @@ class TestExGaussian(FitPredictParent):
             "nu",
         }
         idata = self.predict_oos(model, idata)
-        assert "y" in idata.posterior_predictive
+        assert "y" in idata["predictions"]
 
 
 @pytest.mark.usefixtures("mock_pymc_sample")
@@ -841,7 +841,7 @@ class TestLogNormal(FitPredictParent):
         idata = self.fit(model)
         assert set(idata.posterior.data_vars) == {"Intercept", "Intercept_centered", "x", "sigma"}
         idata = self.predict_oos(model, idata)
-        assert "y" in idata.posterior_predictive
+        assert "y" in idata["predictions"]
 
 
 # NOTE: We don't use mock_pymc_sample because the assertion needs actual posterior samples to work.
