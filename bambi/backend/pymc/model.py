@@ -755,7 +755,7 @@ def _posterior_samples_to_idata(
             var_samples = samples[i][size : size + new_size]
             value.append(var_samples.reshape(shape))
             size += new_size
-        strace.record(point=dict(zip(varnames, value)))
+        strace.record(point=dict(zip(varnames, value)), in_warmup=False)
 
     idata = pm.to_inference_data(pm.backends.base.MultiTrace([strace]), model=model)
     return idata
