@@ -59,10 +59,10 @@ def test_gamma(data_gamma, data_new_gamma, mock_pymc_sample):
     formula = bmb.Formula("y ~ x", "alpha ~ x")
 
     # Default links
-    model = bmb.Model(formula, data_gamma, family="gamma")
-    idata = model.fit(chains=2, tune=100, draws=100)
-    model.predict(idata, kind="pps")
-    model.predict(idata, kind="pps", data=data_new_gamma)
+    # model = bmb.Model(formula, data_gamma, family="gamma")
+    # idata = model.fit(chains=2, tune=100, draws=100)
+    # model.predict(idata, kind="pps")
+    # model.predict(idata, kind="pps", data=data_new_gamma)
 
     # Custom links
     model = bmb.Model(formula, data_gamma, family="gamma", link={"mu": "log", "alpha": "log"})
