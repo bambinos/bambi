@@ -35,8 +35,9 @@ dependencies = [
 
 [project.optional-dependencies]
 jax = [
-    "blackjax>=1.6,<1.7",
+    "blackjax>=1.5,<1.6",
     "numpyro>=0.21,<0.22",
+    "fastprogress",
 ]
 nutpie = [
     "nutpie>=0.16.10,<1",
@@ -99,8 +100,9 @@ black = { version = "==25.*", extras = ["jupyter"] }
 quartodoc = { git = "https://github.com/machow/quartodoc.git", rev = "fc9f3cca3c2f930e53c6c7079e41333a13ed0461" }
 
 [tool.pixi.feature.jax.dependencies]
-blackjax = ">=1.6,<1.7"
+blackjax = ">=1.5,<1.6"
 numpyro = ">=0.21,<0.22"
+fastprogress = "*"
 
 [tool.pixi.feature.nutpie.dependencies]
 nutpie = ">=0.16.10,<1"
