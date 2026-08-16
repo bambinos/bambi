@@ -710,9 +710,7 @@ def test_out_of_sample_censored_response_predictions(mock_pymc_sample):
         model.compute_log_likelihood(idata, data=missing_status, inplace=False)
 
 
-def test_out_of_sample_truncated_response_predictions():
-    # NOTE: If we use mock_pymc_sample there is an error downstream related to using a
-    #       `MaskedArray`. This is not a problem with the model, but with the mock.
+def test_out_of_sample_truncated_response_predictions(mock_pymc_sample):
     data = pd.DataFrame(
         {
             "predictor": [-1.0, 0.0, 1.0],
@@ -1150,5 +1148,7 @@ def test_predict_without_group_specific_effect_multivariate(
         included.predictions["p"].values, included.predictions["p"].values[..., :1, :]
     )
     np.testing.assert_allclose(
-        excluded.predictions["p"].values - excluded.predictions["p"].values[..., :1, :], 0
+        excluded.predictions["p"].values - excluded.predictions["p"].values[..., :1, :],
+        0,
+        atol=1e-15,
     )

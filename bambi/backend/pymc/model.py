@@ -1,5 +1,6 @@
 import logging
 import traceback
+import warnings
 from copy import deepcopy
 from importlib.metadata import version
 
@@ -10,6 +11,7 @@ import pandas as pd
 import pymc as pm
 import xarray as xr
 from pymc.backends.arviz import apply_function_over_dataset, coords_and_dims_for_inferencedata
+from pymc.exceptions import ShapeWarning
 from pymc.model.fgraph import fgraph_from_model, model_from_fgraph
 from pymc.model.transform.conditioning import remove_value_transforms
 from xarray import DataTree
@@ -46,6 +48,14 @@ __version__ = version("bambi")
 
 
 _SUPPORTED_METHODS = {"pymc", "numpyro", "blackjax", "nutpie", "vi", "laplace"}
+
+
+# CSR buffers share mutable dimensions and are always updated together by Bambi.
+warnings.filterwarnings(
+    "ignore",
+    message=r".*Remember to update that variable with the correct shape to avoid shape issues.*",
+    category=ShapeWarning,
+)
 
 
 class PyMCModel:
