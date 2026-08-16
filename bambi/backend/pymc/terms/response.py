@@ -353,7 +353,6 @@ def _build_new_censored_data(
     # For posterior prediction, these data only provide the observed response
     # distribution. Whether a latent response is requested is determined by
     # ``kind`` in ``Model.predict``, not by which response columns are present.
-    # Log-likelihood defaults status to "none".
     if purpose == "prediction":
         if kind == "response" and (
             value_name not in data.columns or status_name not in data.columns
@@ -368,15 +367,16 @@ def _build_new_censored_data(
             data_dict[value_name] = data[value_name].to_numpy()
             data_dict[status_name] = data[status_name].to_numpy()
     else:
-        if value_name not in data.columns:
-            raise ValueError(f"Response term variable '{value_name}' must be present in the data.")
+        missing_variables = [name for name in (value_name, status_name) if name not in data.columns]
+        if missing_variables:
+            names = ", ".join(repr(name) for name in missing_variables)
+            raise ValueError(
+                f"Censored response log-likelihood requires variables {names} in the data."
+            )
 
         should_evaluate = True
         data_dict[value_name] = data[value_name].to_numpy()
-        if status_name in data.columns:
-            data_dict[status_name] = data[status_name].to_numpy()
-        else:
-            data_dict[status_name] = np.full(n, "none")
+        data_dict[status_name] = data[status_name].to_numpy()
 
     if should_evaluate:
         response_data = term.eval_new_data(pd.DataFrame(data_dict))

@@ -705,6 +705,10 @@ def test_out_of_sample_censored_response_predictions(mock_pymc_sample):
     likelihood = model.compute_log_likelihood(idata, data=data, inplace=False)
     assert likelihood.log_likelihood[response].shape == (2, 4, len(data))
 
+    missing_status = data.drop(columns="status")
+    with pytest.raises(ValueError, match="Censored response log-likelihood requires variables"):
+        model.compute_log_likelihood(idata, data=missing_status, inplace=False)
+
 
 def test_out_of_sample_truncated_response_predictions():
     # NOTE: If we use mock_pymc_sample there is an error downstream related to using a
