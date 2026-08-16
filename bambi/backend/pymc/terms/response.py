@@ -113,13 +113,27 @@ Purpose = Literal["prediction", "log_likelihood"]
 def _untruncate_response(response_name: str, model: pm.Model) -> pm.Model:
     """Return a copy of `model` with one truncated response made latent.
 
-    The transformation preserves the response as an observed RV.
+    The transformation preserves the response as an observed RV and removes the now-disconnected
+    bound data containers.
     """
     fgraph, memo = fgraph_from_model(model)
     response = memo[model[response_name]]
     truncated_rv = response.owner.inputs[0]
     untruncated_rv = _get_untruncated_rv(truncated_rv)
     toposort_replace(fgraph, [(truncated_rv, untruncated_rv)], reverse=True)
+
+    response = model[response_name]
+    lower, upper = response.owner.inputs[-2:]
+    bound_data_names = {
+        bound.name
+        for bound in (lower, upper)
+        if bound.name is not None and bound.name.endswith("_data")
+    }
+
+    for index in reversed(range(len(fgraph.outputs))):
+        if fgraph.outputs[index].name in bound_data_names:
+            fgraph.remove_output(index)
+
     return model_from_fgraph(fgraph)
 
 
@@ -383,29 +397,35 @@ def _build_new_truncated_data(
     upper_name = call_args.get("ub", "")
     n = data.shape[0]
 
-    if purpose == "prediction" and kind == "response":
+    requires_bounds = purpose == "log_likelihood" or kind == "response"
+    if requires_bounds:
         missing_bounds = [name for name in (lower_name, upper_name) if name and name not in data]
         if missing_bounds:
             names = ", ".join(repr(name) for name in missing_bounds)
+            if purpose == "log_likelihood":
+                raise ValueError(
+                    f"Truncated response log-likelihood requires bound variables {names} in data."
+                )
             raise ValueError(
-                f"Truncated response predictions require bound variables {names} in the data. "
+                f"Truncated response predictions require bound variables {names} in data. "
                 "Use kind='response_latent' for latent predictions."
             )
 
+    if purpose == "prediction" and kind == "response_latent":
+        # The latent distribution is the untruncated base distribution, so its
+        # named bounds are neither required nor evaluated. The response data
+        # only keeps the cloned model's observation dimension in sync before
+        # the observed truncated RV is replaced.
+        return {value_name + "_data": np.full(n, term.data[0, 0])}
+
     # Re-evaluate the response call so transformed values and bounds stay consistent.
-    # Missing named bounds are represented by NaN. Literal bounds need no data value.
+    # Literal bounds need no data value.
     data_dict = {}
     if lower_name:
-        if lower_name in data.columns:
-            data_dict[lower_name] = data[lower_name].to_numpy()
-        else:
-            data_dict[lower_name] = np.full(n, np.nan)
+        data_dict[lower_name] = data[lower_name].to_numpy()
 
     if upper_name:
-        if upper_name in data.columns:
-            data_dict[upper_name] = data[upper_name].to_numpy()
-        else:
-            data_dict[upper_name] = np.full(n, np.nan)
+        data_dict[upper_name] = data[upper_name].to_numpy()
 
     if purpose == "prediction":
         value_data = np.full(n, term.data[0, 0])

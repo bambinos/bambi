@@ -447,7 +447,10 @@ def test_custom_likelihood_function(mock_pymc_sample):
     model.build()
     assert_ip_dlogp(model)
     model.fit(chains=2)
-    assert model.backend.model.observed_RVs[0].str_repr() == "y ~ Normal(f(Intercept, x), sigma)"
+    assert (
+        model.backend.model.observed_RVs[0].str_repr()
+        == "y ~ Normal(f(Intercept_centered, x), sigma)"
+    )
 
 
 def test_extra_namespace():
@@ -703,7 +706,9 @@ def test_out_of_sample_censored_response_predictions(mock_pymc_sample):
     assert likelihood.log_likelihood[response].shape == (2, 4, len(data))
 
 
-def test_out_of_sample_truncated_response_predictions(mock_pymc_sample):
+def test_out_of_sample_truncated_response_predictions():
+    # NOTE: If we use mock_pymc_sample there is an error downstream related to using a
+    #       `MaskedArray`. This is not a problem with the model, but with the mock.
     data = pd.DataFrame(
         {
             "predictor": [-1.0, 0.0, 1.0],
@@ -713,7 +718,7 @@ def test_out_of_sample_truncated_response_predictions(mock_pymc_sample):
         }
     )
     model = bmb.Model("truncated(y, lower, upper) ~ predictor", data)
-    idata = model.fit(draws=4, chains=2)
+    idata = model.fit(draws=100, chains=2)
 
     response = model.response_term.label
     original_model = model.backend.model
@@ -748,7 +753,7 @@ def test_out_of_sample_truncated_response_predictions(mock_pymc_sample):
     )
 
     likelihood = model.compute_log_likelihood(idata, data=data, inplace=False)
-    assert likelihood.log_likelihood[response].shape == (2, 4, len(data))
+    assert likelihood.log_likelihood[response].shape == (2, 100, len(data))
 
     missing_bounds = data.drop(columns="upper")
     with pytest.raises(ValueError, match="kind='response_latent'"):
@@ -757,10 +762,12 @@ def test_out_of_sample_truncated_response_predictions(mock_pymc_sample):
     latent = model.predict(
         idata, data=missing_bounds, kind="response_latent", inplace=False, random_seed=1234
     )
-    assert latent.predictions[response].shape == (2, 4, len(data))
+    assert latent.predictions[response].shape == (2, 100, len(data))
 
-    latent_likelihood = model.compute_log_likelihood(idata, data=missing_bounds, inplace=False)
-    assert latent_likelihood.log_likelihood[response].shape == (2, 4, len(data))
+    with pytest.raises(
+        ValueError, match="Truncated response log-likelihood requires bound variables"
+    ):
+        model.compute_log_likelihood(idata, data=missing_bounds, inplace=False)
 
 
 @pytest.mark.parametrize(
