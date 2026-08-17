@@ -156,4 +156,4 @@ def remove_common_intercept(dm: fm.matrices.DesignMatrices) -> fm.matrices.Desig
 
 def as_dataset(group):
     """Return a Dataset from either a DataTree group or a Dataset."""
-    return group.ds if isinstance(group, DataTree) else group
+    return group.to_dataset() if isinstance(group, DataTree) else group

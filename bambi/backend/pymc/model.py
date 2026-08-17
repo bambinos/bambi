@@ -367,8 +367,9 @@ class PyMCModel:
                 dataset=posterior_for_prediction,
                 var_names=parameters_names,
                 progressbar=progressbar,
-                merge_dataset=True,
+                extend_dataset=True,
             )
+
         idata["posterior"] = as_dataset(idata["posterior"]).merge(
             posterior_for_prediction[parameters_names], compat="override"
         )
@@ -650,7 +651,7 @@ class PyMCModel:
                 posterior = pm.compute_deterministics(
                     dataset=as_dataset(idata["posterior"]),
                     var_names=response_parameter_names,
-                    merge_dataset=True,
+                    extend_dataset=True,
                     progressbar=False,
                 )
             idata["posterior"] = posterior
