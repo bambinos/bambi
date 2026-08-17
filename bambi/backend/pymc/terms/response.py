@@ -618,7 +618,7 @@ def _build_new_generic_data(
                 # Formulae validates raw category labels before Bambi derives PyMC category indexes.
                 # Use a fitted level to evaluate a missing categorical response.
                 else (
-                    np.full(n, term.levels[0])
+                    np.full(n, term.reference)
                     if term.categorical
                     else np.zeros(n, dtype=term.data.dtype)
                 )
@@ -636,7 +636,10 @@ def _build_new_generic_data(
             )
         data_dict = {name: data[name].to_numpy() for name in var_names}
 
-    response_data = term.eval_new_data(pd.DataFrame(data_dict))
+    if purpose == "prediction" and term.categorical and term.levels is None:
+        response_data = np.ones(n, dtype=term.data.dtype)
+    else:
+        response_data = term.eval_new_data(pd.DataFrame(data_dict))
 
     if family.DATA_TYPE == ResponseType.BINARY and response_data.ndim > 1:
         index = term.levels.index(term.reference)

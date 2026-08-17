@@ -1435,6 +1435,23 @@ def test_categorical_prediction_without_response_column(mock_pymc_sample):
     assert result.predictions["p"].shape == (2, 4, 2, 3)
 
 
+def test_binary_categorical_prediction_without_response_column(mock_pymc_sample):
+    data = pd.DataFrame(
+        {
+            "vote": ["clinton", "trump", "clinton", "trump"],
+            "age": [21, 35, 47, 61],
+        }
+    )
+    model = bmb.Model("vote[clinton] ~ age", data, family="bernoulli")
+    idata = model.fit(draws=4, chains=2)
+
+    result = model.predict(idata, data=pd.DataFrame({"age": [30, 50]}), inplace=False)
+
+    assert model.response_term.levels is None
+    assert model.response_term.reference == "clinton"
+    assert result.predictions["p"].shape == (2, 4, 2)
+
+
 @pytest.mark.parametrize("sparse_dot", [False, True])
 def test_predict_new_groups_is_automatic(
     data_sleepstudy, mock_pymc_sample, monkeypatch, sparse_dot
