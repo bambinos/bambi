@@ -162,6 +162,22 @@ def test_m_good_shape(data_1d_multiple_groups, data_2d_multiple_groups):
     assert (np.array(m) == term.m).all()
 
 
+@pytest.mark.parametrize(
+    ("term_name", "groups_n"),
+    [
+        ("hsgp(x, y, c=1.5, m=10)", 1),
+        ("hsgp(x, y, by=group, c=1.5, m=10)", 3),
+    ],
+)
+def test_scalar_parameters_are_recycled_in_2d_hsgp(data_2d_multiple_groups, term_name, groups_n):
+    model = bmb.Model(f"outcome ~ 0 + {term_name}", data_2d_multiple_groups)
+    model.build()
+
+    term = model.parameters["mu"].terms[term_name]
+    np.testing.assert_array_equal(term.m, [10, 10])
+    np.testing.assert_allclose(term.c, np.full((groups_n, 2), 1.5))
+
+
 def test_c_good_shape(data_1d_multiple_groups, data_2d_multiple_groups):
     c = [[2], [1.5], [1.4]]  # (groups_n, variables_n)
     model = bmb.Model("y ~ 0 + hsgp(x2, by=fac, c=c, m=10)", data_1d_multiple_groups)

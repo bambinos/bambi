@@ -180,7 +180,9 @@ def build_covariance_function(term, model):
 
         params[param_name] = value
 
-    if not term.share_cov:
+    if term.share_cov:
+        params["input_dim"] = term.shape[1]
+    else:
         # squeeze makes sure the array is 0d when term.groups_n is 1
         params["input_dim"] = np.repeat(term.shape[1], term.groups_n).squeeze()
 

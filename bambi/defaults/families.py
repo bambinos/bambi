@@ -31,7 +31,6 @@ from bambi.families.builtin import (
     ZeroInflatedPoisson,
 )
 
-
 # fmt: off
 BUILTIN_FAMILIES = {
     "asymmetriclaplace": {

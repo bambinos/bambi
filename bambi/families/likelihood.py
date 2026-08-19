@@ -2,7 +2,6 @@ from collections import namedtuple
 
 from bambi.utils import multilinify, indentify
 
-
 DistSettings = namedtuple("DistSettings", ["params", "parent"])
 
 DISTRIBUTIONS = {

@@ -13,7 +13,6 @@ from bambi.families.builtin import (
 from bambi.parameters import MarginalParameter
 from bambi.priors.prior import Prior
 
-
 _NORMAL_STD = 2.5
 
 
