@@ -120,7 +120,7 @@ class TestGaussian(FitPredictParent):
     def test_cell_means_parameterization(self, data_crossed):
         model = bmb.Model("Y ~ 0 + threecats", data_crossed)
         idata = self.fit(model)
-        assert list(idata.posterior.coords["threecats_levels"]) == ["a", "b", "c"]
+        assert list(idata.posterior.coords["threecats_dim"]) == ["a", "b", "c"]
         self.predict_oos(model, idata)
 
     def test_2_factors_saturated(self, data_crossed):
@@ -134,13 +134,13 @@ class TestGaussian(FitPredictParent):
             "threecats:fourcats",
             "sigma",
         }
-        assert list(idata.posterior.coords["threecats_levels_reduced"]) == ["b", "c"]
-        assert list(idata.posterior.coords["fourcats_levels_reduced"]) == ["b", "c", "d"]
+        assert list(idata.posterior.coords["threecats_dim_reduced"]) == ["b", "c"]
+        assert list(idata.posterior.coords["fourcats_dim_reduced"]) == ["b", "c", "d"]
         assert idata.posterior["threecats:fourcats"].dims == (
             "chain",
             "draw",
-            "threecats_levels_reduced",
-            "fourcats_levels_reduced",
+            "threecats_dim_reduced",
+            "fourcats_dim_reduced",
         )
         self.predict_oos(model, idata)
 
@@ -153,13 +153,13 @@ class TestGaussian(FitPredictParent):
             "threecats:fourcats",
             "sigma",
         }
-        assert list(idata.posterior.coords["threecats_levels"]) == ["a", "b", "c"]
-        assert list(idata.posterior.coords["fourcats_levels_reduced"]) == ["b", "c", "d"]
+        assert list(idata.posterior.coords["threecats_dim"]) == ["a", "b", "c"]
+        assert list(idata.posterior.coords["fourcats_dim_reduced"]) == ["b", "c", "d"]
         assert idata.posterior["threecats:fourcats"].dims == (
             "chain",
             "draw",
-            "threecats_levels_reduced",
-            "fourcats_levels_reduced",
+            "threecats_dim_reduced",
+            "fourcats_dim_reduced",
         )
         self.predict_oos(model, idata)
 
@@ -170,18 +170,18 @@ class TestGaussian(FitPredictParent):
         assert idata.posterior["threecats:fourcats"].dims == (
             "chain",
             "draw",
-            "threecats_levels",
-            "fourcats_levels",
+            "threecats_dim",
+            "fourcats_dim",
         )
-        assert list(idata.posterior.coords["threecats_levels"]) == ["a", "b", "c"]
-        assert list(idata.posterior.coords["fourcats_levels"]) == ["a", "b", "c", "d"]
+        assert list(idata.posterior.coords["threecats_dim"]) == ["a", "b", "c"]
+        assert list(idata.posterior.coords["fourcats_dim"]) == ["a", "b", "c", "d"]
         self.predict_oos(model, idata)
 
     def test_cell_means_with_covariate(self, data_crossed):
         model = bmb.Model("Y ~ 0 + threecats + continuous", data_crossed)
         idata = self.fit(model)
         assert set(idata.posterior.data_vars) == {"threecats", "continuous", "sigma"}
-        assert list(idata.posterior.coords["threecats_levels"]) == ["a", "b", "c"]
+        assert list(idata.posterior.coords["threecats_dim"]) == ["a", "b", "c"]
         self.predict_oos(model, idata)
 
     def test_many_common_many_group_specific(self, data_crossed):
@@ -417,22 +417,22 @@ class TestGaussian(FitPredictParent):
         assert set(idata.posterior["threecats:fourcats|site"].coords) == {
             "chain",
             "draw",
-            "site_levels",
-            "threecats_levels_reduced",
-            "fourcats_levels_reduced",
+            "site_dim",
+            "threecats_dim_reduced",
+            "fourcats_dim_reduced",
         }
-        assert set(idata.posterior["1|site"].coords) == {"chain", "draw", "site_levels"}
+        assert set(idata.posterior["1|site"].coords) == {"chain", "draw", "site_dim"}
         assert set(idata.posterior["1|site_sigma"].coords) == {"chain", "draw"}
         assert set(idata.posterior["threecats:fourcats|site_sigma"].coords) == {
             "chain",
             "draw",
-            "threecats_levels_reduced",
-            "fourcats_levels_reduced",
+            "threecats_dim_reduced",
+            "fourcats_dim_reduced",
         }
 
-        assert set(idata.posterior["threecats_levels_reduced"].values) == {"b", "c"}
-        assert set(idata.posterior["fourcats_levels_reduced"].values) == {"b", "c", "d"}
-        assert set(idata.posterior["site_levels"].values) == {"0", "1", "2", "3", "4"}
+        assert set(idata.posterior["threecats_dim_reduced"].values) == {"b", "c"}
+        assert set(idata.posterior["fourcats_dim_reduced"].values) == {"b", "c", "d"}
+        assert set(idata.posterior["site_dim"].values) == {"0", "1", "2", "3", "4"}
 
     def test_fit_include_mean(self, data_crossed):
         draws = 100
@@ -892,19 +892,19 @@ class TestCategorical(FitPredictParent):
             assert list(idata.posterior[name].coords) == [
                 "chain",
                 "draw",
-                "rating_levels_reduced",
+                "rating_dim_reduced",
             ]
 
-        assert list(idata.posterior.coords["rating_levels_reduced"].values) == ["2", "3", "4"]
+        assert list(idata.posterior.coords["rating_dim_reduced"].values) == ["2", "3", "4"]
 
         idata = self.predict_oos(model, idata)
         assert list(idata.predictions["p"].coords) == [
             "chain",
             "draw",
             "__obs__",
-            "rating_levels",
+            "rating_dim",
         ]
-        assert list(idata.predictions.coords["rating_levels"].values) == ["1", "2", "3", "4"]
+        assert list(idata.predictions.coords["rating_dim"].values) == ["1", "2", "3", "4"]
         self.assert_mean_range(model, idata)
         self.assert_mean_sum(model, idata)
         self.assert_predictions_range(model, idata, len(np.unique(data_inhaler["rating"])))
@@ -918,31 +918,30 @@ class TestCategorical(FitPredictParent):
             assert set(idata.posterior[name].coords) == {
                 "chain",
                 "draw",
-                "rating_levels_reduced",
+                "rating_dim_reduced",
             }
 
         assert set(idata.posterior["1|subject"].coords) == {
             "chain",
             "draw",
-            "rating_levels_reduced",
-            "subject_levels",
+            "rating_dim_reduced",
+            "subject_dim",
         }
 
         assert (
-            idata.posterior["subject_levels"].values
-            == np.unique(data_inhaler["subject"]).astype(str)
+            idata.posterior["subject_dim"].values == np.unique(data_inhaler["subject"]).astype(str)
         ).all()
 
-        assert list(idata.posterior.coords["rating_levels_reduced"].values) == ["2", "3", "4"]
+        assert list(idata.posterior.coords["rating_dim_reduced"].values) == ["2", "3", "4"]
 
         idata = self.predict_oos(model, idata)
         assert set(idata.predictions["p"].coords) == {
             "chain",
             "draw",
             "__obs__",
-            "rating_levels",
+            "rating_dim",
         }
-        assert list(idata.predictions.coords["rating_levels"].values) == ["1", "2", "3", "4"]
+        assert list(idata.predictions.coords["rating_dim"].values) == ["1", "2", "3", "4"]
         self.assert_mean_range(model, idata)
         self.assert_mean_sum(model, idata)
         self.assert_predictions_range(model, idata, len(np.unique(data_inhaler["rating"])))
@@ -955,21 +954,21 @@ class TestCategorical(FitPredictParent):
         assert set(idata.posterior["group"].coords) == {
             "chain",
             "draw",
-            "response_levels_reduced",
-            "group_levels_reduced",
+            "response_dim_reduced",
+            "group_dim_reduced",
         }
         assert set(idata.posterior["city"].coords) == {
             "chain",
             "draw",
-            "response_levels_reduced",
-            "city_levels_reduced",
+            "response_dim_reduced",
+            "city_dim_reduced",
         }
-        assert list(idata.posterior["group_levels_reduced"].values) == ["group 2", "group 3"]
-        assert list(idata.posterior["city_levels_reduced"].values) == ["Rosario", "San Luis"]
-        assert list(idata.posterior["response_levels_reduced"].values) == ["B", "C", "D"]
+        assert list(idata.posterior["group_dim_reduced"].values) == ["group 2", "group 3"]
+        assert list(idata.posterior["city_dim_reduced"].values) == ["Rosario", "San Luis"]
+        assert list(idata.posterior["response_dim_reduced"].values) == ["B", "C", "D"]
 
         idata = self.predict_oos(model, idata)
-        assert list(idata.predictions["response_levels"].values) == ["A", "B", "C", "D"]
+        assert list(idata.predictions["response_dim"].values) == ["A", "B", "C", "D"]
         self.assert_mean_range(model, idata)
         self.assert_mean_sum(model, idata)
         self.assert_predictions_range(model, idata, 4)
@@ -1051,7 +1050,7 @@ class TestOrdinal(FitPredictParent):
         idata = self.fit(model, random_seed=1234)
         idata = self.predict_oos(model, idata)
 
-        assert np.allclose(idata.predictions["p"].sum("rating_levels").to_numpy(), 1)
+        assert np.allclose(idata.predictions["p"].sum("rating_dim").to_numpy(), 1)
         assert set(np.unique(idata.predictions["rating"])).issubset({0, 1, 2, 3})
 
     def test_cumulative_family_priors(self, data_inhaler):
@@ -1075,8 +1074,8 @@ class TestOrdinal(FitPredictParent):
         model.build()
 
         pymc_model = model.backend.model
-        assert pymc_model.named_vars_to_dims["threshold"] == ("threshold_levels",)
-        assert list(pymc_model.coords["threshold_levels"]) == ["1->2", "2->3", "3->4"]
+        assert pymc_model.named_vars_to_dims["threshold"] == ("threshold_dim",)
+        assert list(pymc_model.coords["threshold_dim"]) == ["1->2", "2->3", "3->4"]
         assert pymc_model.eval_rv_shapes()["threshold"] == (3,)
 
     def test_cumulative_accepts_pymc_ordered_transform(self, data_inhaler):

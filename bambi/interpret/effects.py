@@ -94,7 +94,7 @@ def _extract_dim_columns(summary_df: DataFrame, var_names: list[str]) -> list[st
     dim_cols = [
         col
         for col in summary_df.columns
-        if "dim" in col.lower()
+        if "_dim" in col.lower()
         and col not in metadata_cols
         and col not in var_names
         and not any(keyword in col for keyword in stat_keywords)

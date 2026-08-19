@@ -103,7 +103,7 @@ def test_additive_and_group_specific_terms_share_predictor_data():
     model.build()
 
     pymc_model = model.backend.model
-    assert pymc_model.named_vars_to_dims["g_data"] == ("__obs__", "g_levels_reduced")
+    assert pymc_model.named_vars_to_dims["g_data"] == ("__obs__", "g_dim_reduced")
     assert "g_2_data" not in pymc_model.named_vars
     assert_ip_dlogp(model)
 
