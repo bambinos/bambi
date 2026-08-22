@@ -1,4 +1,5 @@
 import numpy as np
+from formulae.terms.call_utils import CallVarsExtractor
 
 
 def coords_from_response(term, family):
@@ -11,7 +12,11 @@ def coords_from_response(term, family):
     else:
         levels = term.levels
 
-    if levels:
+    if term.is_cr:
+        # Competing-risks parameters are indexed by event cause, not by the response label.
+        cause_name = CallVarsExtractor(term.components[0].call).get()[2]
+        coords[f"{cause_name}_dim"] = levels
+    elif levels:
         coords[f"{term.name}_dim"] = levels
         if term.reference:
             # There's a restriction applied when there is a reference level

@@ -15,8 +15,9 @@ from pymc.model.fgraph import fgraph_from_model, model_from_fgraph
 from pymc.pytensorf import toposort_replace
 
 from bambi.backend.pymc.utils import (
-    make_weighted_distribution,
     get_distribution_from_likelihood,
+    make_competing_risks_distribution,
+    make_weighted_distribution,
 )
 from bambi.backend.pymc.transform import transforms_registry
 from bambi.families.family import Family
@@ -44,6 +45,13 @@ def build_response_term(
         dist = distribution.dist(**parameters)
         with model:
             pm.Censored(term.label, dist, **data_mapping, dims=dims)
+        return None
+
+    if term.is_cr:
+        data_mapping = _build_cr_data(term, dims, model)
+        competing_risks_dist = make_competing_risks_distribution(distribution)
+        with model:
+            competing_risks_dist(term.label, **parameters, **data_mapping, dims=dims)
         return None
 
     if term.is_truncated or term.is_constrained:
@@ -141,14 +149,14 @@ def replace_response_variables(
     term: ResponseTerm, model: pm.Model, kind: str | None = None
 ) -> pm.Model:
     """Apply response-variable replacements required by the current cloned data."""
-    if term.is_truncated and kind == "response_latent":
+    if term.is_truncated and kind == "response":
         return _untruncate_response(term.label, model)
 
     return model
 
 
 def build_response_interventions(
-    term: ResponseTerm, model: pm.Model, kind: str
+    term: ResponseTerm, model: pm.Model, family: Family, kind: str
 ) -> dict[pt.TensorVariable, pt.TensorVariable]:
     """Build `pm.do` response interventions for posterior prediction.
 
@@ -156,10 +164,38 @@ def build_response_interventions(
     updated.  This is important because the intervention uses the response data
     containers from that clone, rather than the data in the fitted model.
     """
-    if term.is_censored and kind == "response_latent":
+    if term.is_censored and kind == "response":
+        return _build_intervention_uncensored(term, model)
+
+    if term.is_censored and kind == "response_conditional":
         return _build_intervention_censored(term, model)
 
+    if term.is_cr and kind == "response_conditional":
+        return _build_intervention_competing_risks(term, model, family)
+
     return {}
+
+
+def get_response_prediction_names(term: ResponseTerm, kind: str) -> list[str]:
+    """Return the posterior-predictive variables associated with a response."""
+    if term.is_cr and kind == "time_and_cause":
+        return [f"{term.label}_time", f"{term.label}_cause"]
+    return [term.label]
+
+
+def build_response_prediction_variables(
+    term: ResponseTerm, model: pm.Model, family: Family, kind: str
+) -> None:
+    """Add posterior-predictive variables that differ from the observed response."""
+    if not term.is_cr or kind != "time_and_cause":
+        return
+
+    latent_times = _get_competing_risks_base_dist(model, family)
+
+    obs_dims = tuple(model.named_vars_to_dims[term.label])
+    with model:
+        pm.Deterministic(f"{term.label}_time", pt.min(latent_times, axis=-1), dims=obs_dims)
+        pm.Deterministic(f"{term.label}_cause", pt.argmin(latent_times, axis=-1) + 1, dims=obs_dims)
 
 
 def build_new_response_data(
@@ -174,6 +210,9 @@ def build_new_response_data(
 
     if term.is_censored:
         return _build_new_censored_data(term, data, purpose, kind)
+
+    if term.is_cr:
+        return _build_new_cr_data(term, data, purpose, kind)
 
     if term.is_truncated:
         return _build_new_truncated_data(term, data, purpose, kind)
@@ -216,7 +255,7 @@ def _get_untruncated_rv(truncated_rv: pt.TensorVariable) -> pt.TensorVariable:
 def _build_intervention_censored(
     term: ResponseTerm, model: pm.Model
 ) -> dict[pt.TensorVariable, pt.TensorVariable]:
-    """Replace a censored response with its conditional latent distribution."""
+    """Condition a censored response on its observed censoring restriction."""
     response = model[term.label]
     base_dist = response.owner.inputs[0]
     call_args = _get_call_bound_arguments(term)
@@ -234,6 +273,37 @@ def _build_intervention_censored(
     intervention = pm.Truncated.dist(base_dist, lower=lower, upper=upper)
 
     return {response: intervention}
+
+
+def _build_intervention_uncensored(
+    term: ResponseTerm, model: pm.Model
+) -> dict[pt.TensorVariable, pt.TensorVariable]:
+    """Replace a censored response with its underlying distribution."""
+    response = model[term.label]
+    return {response: response.owner.inputs[0]}
+
+
+def _get_competing_risks_base_dist(model: pm.Model, family: Family) -> pt.TensorVariable:
+    """Build the cause-specific latent event-time distribution."""
+    distribution = get_distribution_from_likelihood(family.likelihood)
+    parameters = {name: model[name] for name in family.likelihood.params}
+    transform_parameters = transforms_registry.get_parameter_transform(family)
+    if transform_parameters is not None:
+        parameters = transform_parameters(parameters)
+    return distribution.dist(**parameters)
+
+
+def _build_intervention_competing_risks(
+    term: ResponseTerm, model: pm.Model, family: Family
+) -> dict[pt.TensorVariable, pt.TensorVariable]:
+    """Condition a competing-risks response on its observed censoring status."""
+    response = model[term.label]
+    call_args = _get_call_bound_arguments(term)
+    observed = model[call_args["y"] + "_data"]
+    status = model[call_args["status"] + "_data"]
+    lower = pt.shape_padright(pt.switch(pt.eq(status, 1), observed, -np.inf))
+    latent_times = pm.Truncated.dist(_get_competing_risks_base_dist(model, family), lower=lower)
+    return {response: pt.min(latent_times, axis=-1)}
 
 
 def _build_censored_data(
@@ -258,6 +328,21 @@ def _build_censored_data(
         upper = pt.switch(is_right_censored, observed_data, np.inf)
 
     return {"lower": lower, "upper": upper, "observed": observed_data}
+
+
+def _build_cr_data(term: ResponseTerm, dims: tuple[str], model: pm.Model) -> dict:
+    """Build time, status, and cause data for a competing-risks likelihood."""
+    call_args = _get_call_bound_arguments(term)
+    value_name = call_args["y"]
+    status_name = call_args["status"]
+    cause_name = call_args["cause"]
+    observed = term.data[:, 0]
+    status = term.data[:, 1].astype(int)
+    cause = term.data[:, 2].astype(int)
+    observed_data = pm.Data(value_name + "_data", observed, dims=dims, model=model)
+    status_data = pm.Data(status_name + "_data", status, dims=dims, model=model)
+    cause_data = pm.Data(cause_name + "_data", cause, dims=dims, model=model)
+    return {"observed": observed_data, "status": status_data, "cause": cause_data}
 
 
 def _build_truncated_data(term: ResponseTerm, dims: tuple[str], model: pm.Model) -> dict:
@@ -350,19 +435,16 @@ def _build_new_censored_data(
     n = data.shape[0]
     data_dict = {}
 
-    # For posterior prediction, these data only provide the observed response
-    # distribution. Whether a latent response is requested is determined by
-    # ``kind`` in ``Model.predict``, not by which response columns are present.
     if purpose == "prediction":
-        if kind == "response" and (
+        if kind == "response_conditional" and (
             value_name not in data.columns or status_name not in data.columns
         ):
             raise ValueError(
-                "Censored response predictions require both "
+                "Conditional censored-response predictions require both "
                 f"'{value_name}' and '{status_name}' in the data. "
-                "Use kind='response_latent' for latent predictions."
+                "Use kind='response' for unconditional predictions."
             )
-        should_evaluate = value_name in data.columns and status_name in data.columns
+        should_evaluate = kind == "response_conditional"
         if should_evaluate:
             data_dict[value_name] = data[value_name].to_numpy()
             data_dict[status_name] = data[status_name].to_numpy()
@@ -388,6 +470,55 @@ def _build_new_censored_data(
     return {value_name + "_data": value, status_name + "_data": status}
 
 
+def _build_new_cr_data(
+    term: ResponseTerm, data: pd.DataFrame, purpose: Purpose, kind: str | None
+) -> dict:
+    """Update the response containers used by a competing-risks likelihood."""
+    call_args = _get_call_bound_arguments(term)
+    value_name = call_args["y"]
+    status_name = call_args["status"]
+    cause_name = call_args["cause"]
+    n = data.shape[0]
+
+    if purpose == "prediction" and kind != "response_conditional":
+        return {
+            value_name + "_data": np.full(n, term.data[0, 0]),
+            status_name + "_data": np.ones(n, dtype=int),
+            cause_name + "_data": np.zeros(n, dtype=int),
+        }
+
+    missing_variables = [
+        name for name in (value_name, status_name, cause_name) if name not in data.columns
+    ]
+    if missing_variables:
+        names = ", ".join(repr(name) for name in missing_variables)
+        if purpose == "log_likelihood":
+            raise ValueError(
+                f"Competing-risks log likelihood requires variables {names} in the data."
+            )
+        raise ValueError(
+            f"Conditional competing-risks predictions require variables {names} in the data. "
+            "Use kind='response' for unconditional predictions."
+        )
+    value = data[value_name].to_numpy()
+    status = data[status_name].to_numpy()
+    cause = data[cause_name].to_numpy()
+
+    response_data = term.eval_new_data(
+        pd.DataFrame({value_name: value, status_name: status, cause_name: cause})
+    )
+    value, status, cause = (
+        response_data[:, 0],
+        response_data[:, 1].astype(int),
+        response_data[:, 2].astype(int),
+    )
+    return {
+        value_name + "_data": value,
+        status_name + "_data": status,
+        cause_name + "_data": cause,
+    }
+
+
 def _build_new_truncated_data(
     term: ResponseTerm, data: pd.DataFrame, purpose: Purpose, kind: str | None
 ):
@@ -397,7 +528,7 @@ def _build_new_truncated_data(
     upper_name = call_args.get("ub", "")
     n = data.shape[0]
 
-    requires_bounds = purpose == "log_likelihood" or kind == "response"
+    requires_bounds = purpose == "log_likelihood" or kind == "response_conditional"
     if requires_bounds:
         missing_bounds = [name for name in (lower_name, upper_name) if name and name not in data]
         if missing_bounds:
@@ -408,14 +539,10 @@ def _build_new_truncated_data(
                 )
             raise ValueError(
                 f"Truncated response predictions require bound variables {names} in data. "
-                "Use kind='response_latent' for latent predictions."
+                "Use kind='response' for unconditional predictions."
             )
 
-    if purpose == "prediction" and kind == "response_latent":
-        # The latent distribution is the untruncated base distribution, so its
-        # named bounds are neither required nor evaluated. The response data
-        # only keeps the cloned model's observation dimension in sync before
-        # the observed truncated RV is replaced.
+    if purpose == "prediction" and kind == "response":
         return {value_name + "_data": np.full(n, term.data[0, 0])}
 
     # Re-evaluate the response call so transformed values and bounds stay consistent.
@@ -670,8 +797,15 @@ def _build_new_generic_data(
 
 def _get_call_bound_arguments(term: ResponseTerm) -> dict:
     component = term.components[0]
-    function = get_function_from_module(component.call.callee, component.env)
-    bound = inspect.signature(function).bind(*component.call.args, **component.call.kwargs)
-    parameters = list(dict(bound.arguments))
+    args = component.call.args
+    kwargs = component.call.kwargs
+    transform = get_function_from_module(component.call.callee, component.env)
+    if getattr(transform, "__stateful_transform__", False):
+        # Stateful transforms expose their input signature through `__call__`.
+        bound = inspect.signature(transform.__call__).bind(None, *args, **kwargs)
+        parameters = list(dict(bound.arguments))[1:]
+    else:
+        bound = inspect.signature(transform).bind(*args, **kwargs)
+        parameters = list(dict(bound.arguments))
     arguments = CallVarsExtractor(component.call).get()
     return dict(zip(parameters, arguments))

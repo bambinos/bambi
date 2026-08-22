@@ -3,7 +3,7 @@
 # pylint: disable=too-many-positional-arguments
 import logging
 import warnings
-from copy import deepcopy
+from copy import copy, deepcopy
 from importlib.metadata import version
 
 import formulae as fm
@@ -18,6 +18,7 @@ from bambi.defaults import get_builtin_family
 from bambi.parameters import ConditionalParameter, MarginalParameter
 from bambi.families import Family
 from bambi.families.builtin import Bernoulli, Cumulative, StoppingRatio
+from bambi.families.types import DimType
 from bambi.formula import Formula, check_ordinal_formula
 from bambi.priors import Prior, scale_priors
 from bambi.terms import ResponseTerm
@@ -199,6 +200,14 @@ class Model:
 
         # Add response
         self.response_term = ResponseTerm(design.response)
+
+        if self.response_term.is_cr:
+            # Competing risks use a model-local family with cause-specific parameters.
+            self.family = copy(self.family)
+            self.family.PARAMETERS = {
+                name: self.family.get_param_spec(name)._replace(ndim=1, coefs_dim=DimType.RESPONSE)
+                for name in self.family.likelihood.params
+            }
 
         # Add parent parameter
         self.parameters[self.family.likelihood.parent] = ConditionalParameter(
@@ -971,10 +980,22 @@ class Model:
             The `DataTree` instance returned by `.fit()`.
         kind : str, optional
             Indicates the type of prediction required. Can be `"response_params"`,
-            `"response"`, or `"response_latent"`. The first returns draws from the posterior
-            distribution of the likelihood parameters. The latter two return draws from the
-            posterior predictive distribution; `"response_latent"` uses the latent response
-            distribution for censored and truncated responses. Defaults to `"response_params"`.
+            `"response"`, `"response_conditional"`, or `"time_and_cause"`.
+
+            * `"response_params"` returns draws from the posterior distribution of the
+              likelihood parameters.
+            * `"response"` returns draws from the posterior predictive response distribution.
+              It is available for every response type and ignores censoring or truncation of the
+              observed response. For competing-risks responses, it draws the first-event time.
+            * `"response_conditional"` is available for censored, truncated, and competing-risks
+              responses only. For censored responses, it conditions the underlying response on the
+              observed censoring restriction. For truncated responses, it draws from the truncated
+              distribution. For competing risks, it conditions right-censored observations on the
+              first event occurring after the observed time. Exact events are drawn as `"response"`.
+            * `"time_and_cause"` is available for competing-risks responses only. It returns
+              first-event times and one-based cause codes in separate variables.
+
+            Defaults to `"response_params"`.
         data : pd.DataFrame or None, optional
             An optional data frame with values for the predictors that are used to obtain
             out-of-sample predictions. If omitted, the original dataset is used.
@@ -985,7 +1006,11 @@ class Model:
             likelihood, or `"p"` for a Bernoulli likelihood, is added to the `posterior` group
             for in-sample predictions or to `predictions` for out-of-sample data. With
             `kind="response"`, the draws are added to `posterior_predictive` in sample or to
-            `predictions` out of sample. Existing output groups are overwritten.
+            `predictions` out of sample. The same applies to
+            `kind="response_conditional"`. With `kind="time_and_cause"`, the
+            first-event times and cause codes are added as separate variables named
+            `<response>_time` and `<response>_cause`. Existing output groups are
+            overwritten.
         include_group_specific : bool, optional
             Determines if predictions incorporate group-specific effects. If `False`, predictions
             are made with common effects only (i.e. group specific are set to zero). Defaults to
@@ -997,9 +1022,30 @@ class Model:
         -------
         DataTree or None
         """
-        if kind not in ("mean", "pps", "response_params", "response", "response_latent"):
+        if kind not in (
+            "mean",
+            "pps",
+            "response_params",
+            "response",
+            "response_conditional",
+            "time_and_cause",
+        ):
             raise ValueError(
-                "'kind' must be one of 'response_params', 'response', or 'response_latent'"
+                "'kind' must be one of 'response_params', 'response', 'response_conditional', "
+                "or 'time_and_cause'"
+            )
+
+        if kind == "time_and_cause" and not self.response_term.is_cr:
+            raise ValueError("'kind=time_and_cause' is only available for competing-risks models.")
+
+        if kind == "response_conditional" and not (
+            self.response_term.is_censored
+            or self.response_term.is_truncated
+            or self.response_term.is_cr
+        ):
+            raise ValueError(
+                "'kind=response_conditional' is only available for censored, truncated, "
+                "or competing-risks models."
             )
 
         if kind == "mean":

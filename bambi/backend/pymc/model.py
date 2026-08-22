@@ -35,7 +35,9 @@ from bambi.backend.pymc.parameters.conditional import (
 from bambi.backend.pymc.terms import build_potentials, build_response_term
 from bambi.backend.pymc.terms.response import (
     build_new_response_data,
+    build_response_prediction_variables,
     build_response_interventions,
+    get_response_prediction_names,
     replace_response_variables,
 )
 from bambi.config import config as bmb_config
@@ -188,7 +190,7 @@ class PyMCModel:
         output_groups = ()
         if data is not None:
             output_groups = ("predictions", "predictions_constant_data")
-        elif kind in ("response", "response_latent"):
+        elif kind in ("response", "response_conditional", "time_and_cause"):
             output_groups = ("posterior_predictive",)
 
         for group in output_groups:
@@ -196,7 +198,7 @@ class PyMCModel:
                 del idata[group]
 
         parameters_names = [param.label for param in self.spec.conditional_parameters.values()]
-        responses_names = [self.spec.response_term.label]
+        responses_names = get_response_prediction_names(self.spec.response_term, kind)
 
         # If group-specific offsets are discarded, we add them back.
         # They are needed for the computation of deterministics (model parameters).
@@ -374,16 +376,19 @@ class PyMCModel:
             posterior_for_prediction[parameters_names], compat="override"
         )
 
-        if kind in ("response", "response_latent"):
+        if kind in ("response", "response_conditional", "time_and_cause"):
             prediction_model = pm.model.fgraph.clone_model(model)
             prediction_model = replace_response_variables(
                 self.spec.response_term, prediction_model, kind
             )
             interventions = build_response_interventions(
-                self.spec.response_term, prediction_model, kind
+                self.spec.response_term, prediction_model, self.spec.family, kind
             )
             if interventions:
                 prediction_model = pm.do(prediction_model, interventions)
+            build_response_prediction_variables(
+                self.spec.response_term, prediction_model, self.spec.family, kind
+            )
 
             with prediction_model:
                 predictions = pm.sample_posterior_predictive(
@@ -411,7 +416,7 @@ class PyMCModel:
             plan for plan in factor_plans if (plan.groups_index == -1).any() or plan.groups_new
         ]
         var_names = parameters_names[:]
-        if kind in ("response", "response_latent"):
+        if kind in ("response", "response_conditional", "time_and_cause"):
             var_names += responses_names
 
         trace = as_dataset(idata["posterior"]).assign(offset_values)
@@ -434,9 +439,12 @@ class PyMCModel:
                     factor_plans, group_specific_state, model
                 )
 
-        interventions = build_response_interventions(self.spec.response_term, model, kind)
+        interventions = build_response_interventions(
+            self.spec.response_term, model, self.spec.family, kind
+        )
         if interventions:
             model = pm.do(model, interventions)
+        build_response_prediction_variables(self.spec.response_term, model, self.spec.family, kind)
 
         with model:
             predictions = pm.sample_posterior_predictive(

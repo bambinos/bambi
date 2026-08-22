@@ -7,10 +7,14 @@ import bambi as bmb
 import numpy as np
 import pandas as pd
 import pymc as pm
+import pytensor
+import pytensor.tensor as pt
+from scipy import stats
 
 from bambi.terms import CommonTerm, GroupSpecificTerm
 from bambi.backend.pymc.parameters import remove_group_specific_contributions
 from bambi.backend.pymc.terms.response import _untruncate_response
+from bambi.backend.pymc.utils import _compute_logccdf, make_competing_risks_logp
 from formulae import design_matrices
 from pytensor.sparse import StructuredDot
 
@@ -393,6 +397,129 @@ def test_response_is_censored():
     assert dm.response_term.is_censored is True
 
 
+@pytest.mark.parametrize("family", ["exponential", "weibull", "lognormal", "gamma", "wald"])
+def test_competing_risks_response_data(family):
+    data = pd.DataFrame(
+        {
+            "time": [1.0, 2.0, 3.0, 4.0],
+            "status": ["right", "event", "event", "right"],
+            "cause": ["none", "cause_b", "cause_a", "none"],
+            "x": [0.0, 1.0, 2.0, 3.0],
+        }
+    )
+    kwargs = {"link": "log"} if family == "gamma" else {}
+    model = bmb.Model("cr(time, status, cause) ~ x", data, family=family, **kwargs)
+
+    assert model.response_term.is_cr is True
+    assert model.response_term.levels == ["cause_a", "cause_b"]
+    model.build()
+    assert "time_data" in model.backend.model.named_vars
+    assert "status_data" in model.backend.model.named_vars
+    assert "cause_data" in model.backend.model.named_vars
+    np.testing.assert_array_equal(model.backend.model["status_data"].get_value(), [1, 0, 0, 1])
+    np.testing.assert_array_equal(model.backend.model["cause_data"].get_value(), [0, 2, 1, 0])
+    assert tuple(model.backend.model["mu"].shape.eval()) == (len(data), 2)
+    assert model.backend.model.named_vars_to_dims["mu"] == ("__obs__", "cause_dim")
+    assert list(model.backend.model.coords["cause_dim"]) == ["cause_a", "cause_b"]
+    prediction_data, _, _ = model.backend._build_new_data(
+        pd.DataFrame({"x": [4.0, 5.0]}), "prediction", "response_params"
+    )
+    np.testing.assert_array_equal(prediction_data["status_data"], [1, 1])
+    np.testing.assert_array_equal(prediction_data["cause_data"], [0, 0])
+
+    conditional_data, _, _ = model.backend._build_new_data(
+        data.iloc[[1, 2]], "prediction", "response_conditional"
+    )
+    np.testing.assert_array_equal(conditional_data["time_data"], [2.0, 3.0])
+    np.testing.assert_array_equal(conditional_data["status_data"], [0, 0])
+    np.testing.assert_array_equal(conditional_data["cause_data"], [2, 1])
+
+    log_likelihood_data, _, _ = model.backend._build_new_data(data.iloc[[1]], "log_likelihood")
+    # `cause_b` remains code 2 even though `cause_a` is absent from this data frame.
+    np.testing.assert_array_equal(log_likelihood_data["cause_data"], [2])
+    assert np.isfinite(model.backend.model.compile_logp()(model.backend.model.initial_point()))
+
+
+def test_competing_risks_uses_cause_variable_for_coordinate_name():
+    data = pd.DataFrame(
+        {
+            "time": [1.0, 2.0],
+            "event_status": ["right", "event"],
+            "event_type": ["none", "cause_a"],
+        }
+    )
+    model = bmb.Model("cr(time, event_status, event_type) ~ 1", data, family="weibull")
+    model.build()
+
+    assert model.backend.model.named_vars_to_dims["mu"] == ("__obs__", "event_type_dim")
+    assert list(model.backend.model.coords["event_type_dim"]) == ["cause_a"]
+
+
+@pytest.mark.parametrize(
+    ("dist", "parameter_names", "parameters"),
+    [
+        (pm.Exponential, ["lam"], (np.array([[1.0, 1.0]]),)),
+        (pm.Weibull, ["alpha", "beta"], (np.array([[3.0, 0.7]]), np.array([[20.0, 10.0]]))),
+        (pm.LogNormal, ["mu", "sigma"], (np.array([[0.0, 0.0]]), np.array([[1.0, 1.0]]))),
+        (pm.Gamma, ["mu", "sigma"], (np.array([[1.0, 1.0]]), np.array([[1.0, 1.0]]))),
+        (pm.Wald, ["mu", "lam"], (np.array([[1.0, 1.0]]), np.array([[1.0, 1.0]]))),
+    ],
+)
+def test_competing_risks_logp_is_stable_in_the_upper_tail(dist, parameter_names, parameters):
+    logp = make_competing_risks_logp(dist, parameter_names)(
+        np.array([1000.0]),
+        *parameters,
+        status=np.array([1]),
+        cause=np.array([1]),
+    )
+    assert np.isfinite(pytensor.function([], logp, mode="FAST_COMPILE")()).all()
+
+
+@pytest.mark.parametrize(
+    ("dist", "parameter_names", "parameters", "reference_logsf"),
+    [
+        (
+            pm.Exponential,
+            ["lam"],
+            (0.7,),
+            lambda value: stats.expon.logsf(value, scale=1 / 0.7),
+        ),
+        (
+            pm.Weibull,
+            ["alpha", "beta"],
+            (0.7, 3.0),
+            lambda value: stats.weibull_min.logsf(value, c=0.7, scale=3.0),
+        ),
+        (
+            pm.LogNormal,
+            ["mu", "sigma"],
+            (0.2, 0.7),
+            lambda value: stats.lognorm.logsf(value, s=0.7, scale=np.exp(0.2)),
+        ),
+        (
+            pm.Gamma,
+            ["mu", "sigma"],
+            (2.0, 1.0),
+            lambda value: stats.gamma.logsf(value, a=4.0, scale=0.5),
+        ),
+        (
+            pm.Wald,
+            ["mu", "lam"],
+            (2.0, 3.0),
+            lambda value: stats.invgauss.logsf(value, mu=2 / 3, scale=3.0),
+        ),
+    ],
+)
+def test_competing_risks_logccdf_matches_scipy(dist, parameter_names, parameters, reference_logsf):
+    value = np.array([0.1, 1.0, 10.0, 100.0])
+    parameter_tensors = tuple(np.array([[parameter]]) for parameter in parameters)
+    base_dist = dist.dist(**dict(zip(parameter_names, parameter_tensors, strict=True)))
+    logccdf = _compute_logccdf(dist, base_dist, pt.shape_padright(value), parameter_tensors)
+    actual = pytensor.function([], logccdf, mode="FAST_COMPILE")()[:, 0]
+
+    np.testing.assert_allclose(actual, reference_logsf(value), rtol=1e-6, atol=1e-6)
+
+
 def test_response_is_truncated():
     df = pd.DataFrame({"x": [1, 2, 3, 4, 5]})
     dm = bmb.Model("truncated(x, 5.5) ~ 1", df)
@@ -649,7 +776,7 @@ def test_predict_truncated_response_scalar_bounds(mock_pymc_sample):
 
     assert "y_data" in model.backend.model.named_vars
 
-    result = model.predict(idata, kind="response", data=data.head(3), inplace=False)
+    result = model.predict(idata, kind="response_conditional", data=data.head(3), inplace=False)
     samples = result.predictions["truncated(y, -5, 5)"]
     assert samples.shape == (2, 4, 3)
     assert (samples > -5).all()
@@ -675,26 +802,26 @@ def test_out_of_sample_censored_response_predictions(mock_pymc_sample):
 
     in_sample = model.predict(idata, kind="response", inplace=False, random_seed=1234)
     in_sample_samples = in_sample.posterior_predictive[response].to_numpy()
-    assert (in_sample_samples[..., 0] >= data["y"].iloc[0]).all()
-    assert (in_sample_samples[..., 2] <= data["y"].iloc[2]).all()
+    assert in_sample_samples.shape == (2, 4, len(data))
 
-    in_sample_latent = model.predict(idata, kind="response_latent", inplace=False, random_seed=1234)
-    in_sample_latent_samples = in_sample_latent.posterior_predictive[response].to_numpy()
-    assert (in_sample_latent_samples[..., 0] <= data["y"].iloc[0]).all()
-    assert (in_sample_latent_samples[..., 2] >= data["y"].iloc[2]).all()
+    in_sample_conditional = model.predict(
+        idata, kind="response_conditional", inplace=False, random_seed=1234
+    )
+    in_sample_conditional_samples = in_sample_conditional.posterior_predictive[response].to_numpy()
+    assert (in_sample_conditional_samples[..., 0] <= data["y"].iloc[0]).all()
+    assert (in_sample_conditional_samples[..., 2] >= data["y"].iloc[2]).all()
 
     result = model.predict(idata, data=data, kind="response", inplace=False, random_seed=1234)
     samples = result.predictions[response].to_numpy()
 
-    assert (samples[..., 0] >= data["y"].iloc[0]).all()
-    assert (samples[..., 2] <= data["y"].iloc[2]).all()
+    assert samples.shape == (2, 4, len(data))
 
-    latent = model.predict(
-        idata, data=data, kind="response_latent", inplace=False, random_seed=1234
+    conditional = model.predict(
+        idata, data=data, kind="response_conditional", inplace=False, random_seed=1234
     )
-    latent_samples = latent.predictions[response].to_numpy()
-    assert (latent_samples[..., 0] <= data["y"].iloc[0]).all()
-    assert (latent_samples[..., 2] >= data["y"].iloc[2]).all()
+    conditional_samples = conditional.predictions[response].to_numpy()
+    assert (conditional_samples[..., 0] <= data["y"].iloc[0]).all()
+    assert (conditional_samples[..., 2] >= data["y"].iloc[2]).all()
     assert model.backend.model is original_model
     assert model.backend.model[response] is original_response
     np.testing.assert_array_equal(model.backend.model["y_data"].get_value(), original_y_data)
@@ -732,17 +859,17 @@ def test_out_of_sample_truncated_response_predictions(mock_pymc_sample):
     result = model.predict(idata, data=data, kind="response", inplace=False, random_seed=1234)
     samples = result.predictions[response].to_numpy()
 
-    assert (samples > data["lower"].to_numpy()[None, None, :]).all()
-    assert (samples < data["upper"].to_numpy()[None, None, :]).all()
-
-    latent = model.predict(
-        idata, data=data, kind="response_latent", inplace=False, random_seed=1234
-    )
-    latent_samples = latent.predictions[response].to_numpy()
-    outside_bounds = (latent_samples <= data["lower"].to_numpy()[None, None, :]) | (
-        latent_samples >= data["upper"].to_numpy()[None, None, :]
+    outside_bounds = (samples <= data["lower"].to_numpy()[None, None, :]) | (
+        samples >= data["upper"].to_numpy()[None, None, :]
     )
     assert outside_bounds.any()
+
+    conditional = model.predict(
+        idata, data=data, kind="response_conditional", inplace=False, random_seed=1234
+    )
+    conditional_samples = conditional.predictions[response].to_numpy()
+    assert (conditional_samples > data["lower"].to_numpy()[None, None, :]).all()
+    assert (conditional_samples < data["upper"].to_numpy()[None, None, :]).all()
 
     assert model.backend.model is original_model
     assert model.backend.model[response] is original_response
@@ -758,13 +885,11 @@ def test_out_of_sample_truncated_response_predictions(mock_pymc_sample):
     assert likelihood.log_likelihood[response].shape == (2, 100, len(data))
 
     missing_bounds = data.drop(columns="upper")
-    with pytest.raises(ValueError, match="kind='response_latent'"):
-        model.predict(idata, data=missing_bounds, kind="response", inplace=False)
+    result = model.predict(idata, data=missing_bounds, kind="response", inplace=False)
+    assert result.predictions[response].shape == (2, 100, len(data))
 
-    latent = model.predict(
-        idata, data=missing_bounds, kind="response_latent", inplace=False, random_seed=1234
-    )
-    assert latent.predictions[response].shape == (2, 100, len(data))
+    with pytest.raises(ValueError, match="Use kind='response' for unconditional predictions"):
+        model.predict(idata, data=missing_bounds, kind="response_conditional", inplace=False)
 
     with pytest.raises(
         ValueError, match="Truncated response log-likelihood requires bound variables"

@@ -7,6 +7,7 @@ import bambi as bmb
 import numpy as np
 import pandas as pd
 import pymc as pm
+import xarray as xr
 
 from bambi.terms import GroupSpecificTerm
 
@@ -1322,6 +1323,116 @@ def test_wald_family(data_n100, mock_pymc_sample):
 
     assert (0 < idata.predictions["mu"]).all()
     assert (0 < idata.predictions["y"]).all()
+
+
+def test_competing_risks_predictions(mock_pymc_sample):
+    data = pd.DataFrame(
+        {
+            "time": [1.0, 2.0, 3.0, 4.0],
+            "status": ["right", "event", "event", "right"],
+            "cause": ["none", "cause_b", "cause_a", "none"],
+            "x": [0.0, 1.0, 2.0, 3.0],
+        }
+    )
+    model = bmb.Model("cr(time, status, cause) ~ x", data, family="exponential")
+    idata = model.fit(draws=200, chains=2)
+    response = model.response_term.label
+
+    in_sample = model.predict(idata, kind="response", inplace=False, random_seed=1234)
+    assert in_sample.posterior_predictive[response].shape == (2, 200, len(data))
+
+    in_sample_conditional = model.predict(
+        idata, kind="response_conditional", inplace=False, random_seed=1234
+    )
+    conditional_times = in_sample_conditional.posterior_predictive[response]
+    assert conditional_times.shape == (2, 200, len(data))
+    assert (conditional_times[..., [0, 3]] >= data["time"].to_numpy()[[0, 3]] - 1e-3).all()
+
+    in_sample_time_and_cause = model.predict(
+        idata, kind="time_and_cause", inplace=False, random_seed=1234
+    )
+    event_times = in_sample_time_and_cause.posterior_predictive[f"{response}_time"]
+    assert event_times.shape == (2, 200, len(data))
+    assert (event_times > 0).all()
+    causes = in_sample_time_and_cause.posterior_predictive[f"{response}_cause"]
+    assert causes.shape == (2, 200, len(data))
+    assert np.isin(causes, [1, 2]).all()
+
+    new_data = pd.DataFrame({"x": [4.0, 5.0]})
+    out_of_sample = model.predict(
+        idata, data=new_data, kind="response", inplace=False, random_seed=1234
+    )
+    assert out_of_sample.predictions[response].shape == (2, 200, len(new_data))
+
+    with pytest.raises(ValueError, match="Conditional competing-risks predictions require"):
+        model.predict(idata, data=new_data, kind="response_conditional", inplace=False)
+
+    out_of_sample_conditional = model.predict(
+        idata, data=data, kind="response_conditional", inplace=False, random_seed=1234
+    )
+    conditional_times = out_of_sample_conditional.predictions[response]
+    assert conditional_times.shape == (2, 200, len(data))
+    assert (conditional_times[..., [0, 3]] >= data["time"].to_numpy()[[0, 3]] - 1e-3).all()
+
+    out_of_sample_time_and_cause = model.predict(
+        idata, data=new_data, kind="time_and_cause", inplace=False, random_seed=1234
+    )
+    assert out_of_sample_time_and_cause.predictions[f"{response}_time"].shape == (
+        2,
+        200,
+        len(new_data),
+    )
+    causes = out_of_sample_time_and_cause.predictions[f"{response}_cause"]
+    assert causes.shape == (2, 200, len(new_data))
+    assert np.isin(causes, [1, 2]).all()
+
+    log_likelihood = model.compute_log_likelihood(idata, data=data, inplace=False)
+    assert log_likelihood.log_likelihood[response].shape == (2, 200, len(data))
+
+    with pytest.raises(ValueError, match="requires variables 'time', 'status', 'cause'"):
+        model.compute_log_likelihood(idata, data=new_data, inplace=False)
+
+    non_cr_model = bmb.Model("y ~ 1", pd.DataFrame({"y": [0.0]}))
+
+    with pytest.raises(ValueError, match="only available for competing-risks"):
+        non_cr_model.predict(None, kind="time_and_cause")
+
+    with pytest.raises(ValueError, match="only available for censored, truncated"):
+        non_cr_model.predict(None, kind="response_conditional")
+
+
+def test_competing_risks_time_and_cause_predictions_match_exponential_distribution():
+    data = pd.DataFrame(
+        {
+            "time": [1.0, 2.0, 3.0, 4.0],
+            "status": ["right", "event", "event", "right"],
+            "cause": ["none", "cause_b", "cause_a", "none"],
+        }
+    )
+    model = bmb.Model("cr(time, status, cause) ~ 1", data, family="exponential")
+    model.build()
+
+    response = model.response_term.label
+    response_dim = f"{response}_dim"
+    # The exponential family models the mean, so these intercepts correspond to
+    # cause-specific rates 2 and 3. The first event is Exp(5), and cause 1 wins
+    # with probability 2 / 5.
+    posterior = xr.Dataset(
+        {
+            "Intercept": (
+                ("chain", "draw", response_dim),
+                np.broadcast_to(np.log([1 / 2, 1 / 3]), (1, 1000, 2)),
+            )
+        }
+    )
+    idata = xr.DataTree.from_dict({"posterior": posterior})
+
+    result = model.predict(idata, kind="time_and_cause", inplace=False, random_seed=1234)
+    times = result.posterior_predictive[f"{response}_time"]
+    causes = result.posterior_predictive[f"{response}_cause"]
+
+    np.testing.assert_allclose(times.mean(), 1 / 5, atol=0.015)
+    np.testing.assert_allclose((causes == 1).mean(), 2 / 5, atol=0.03)
 
 
 def test_predict_include_group_specific(data_random_n100):

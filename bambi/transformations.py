@@ -68,6 +68,88 @@ def censored(x, status):
 censored.__metadata__ = {"kind": "censored"}
 
 
+@register_stateful_transform
+class CR:
+    """Competing-risks response with separate time-status and cause encodings.
+
+    `status` describes the information available about the event time and must be one of
+    `"event"` or `"right"`. They are internally encoded as 0 and 1, respectively.
+    `cause` identifies the event type independently of `status`.
+    Known causes are encoded deterministically in sorted order as 1, 2, ...;
+    `"none"` is encoded as 0.
+
+    An exact event requires a known cause. A right-censored observation requires `cause="none"`.
+    Left censoring is not supported.
+
+    Returns
+    -------
+    np.ndarray
+        An array of shape `(n, 3)` containing event/censoring times, integer status codes, and
+        integer cause codes.
+    """
+
+    __transform_name__ = "cr"
+    __metadata__ = {"kind": "cr"}
+
+    def __init__(self):
+        self.cause_codes = None
+
+    def __call__(self, y, status, cause):
+        y = np.asarray(y)
+        status = np.asarray(status)
+        cause = np.asarray(cause)
+
+        if y.ndim != 1 or status.ndim != 1 or cause.ndim != 1:
+            raise ValueError("'cr' inputs must be one-dimensional.")
+
+        if len(y) != len(status) or len(y) != len(cause):
+            raise ValueError("'y', 'status', and 'cause' must have the same length.")
+
+        if pd.isna(status).any():
+            raise ValueError("'status' cannot contain missing values.")
+
+        if np.any(status == "left"):
+            raise ValueError("Left censoring is not supported for competing-risks responses.")
+
+        if pd.isna(cause).any():
+            raise ValueError("'cause' cannot contain missing values. Use 'none' instead.")
+
+        status_codes = {"event": 0, "right": 1}
+        unknown_statuses = set(status) - set(status_codes)
+        if unknown_statuses:
+            raise ValueError(
+                "'status' must contain only 'event' or 'right'; "
+                f"got {sorted(unknown_statuses, key=repr)!r}."
+            )
+
+        cause_is_none = cause == "none"
+        is_event = status == "event"
+        is_right = status == "right"
+        if np.any(is_event & cause_is_none):
+            raise ValueError("'cause' must not be 'none' when status is 'event'.")
+
+        if np.any(is_right & ~cause_is_none):
+            raise ValueError("'cause' must be 'none' when status is 'right'.")
+
+        if self.cause_codes is None:
+            cause_levels = sorted(set(cause[~cause_is_none]), key=repr)
+            if not cause_levels:
+                raise ValueError("A competing-risks response requires at least one observed cause.")
+            self.cause_codes = {level: code for code, level in enumerate(cause_levels, start=1)}
+
+        unknown_causes = set(cause[~cause_is_none]) - set(self.cause_codes)
+        if unknown_causes:
+            raise ValueError(
+                f"Unknown competing-risks cause level(s): {sorted(unknown_causes, key=repr)}"
+            )
+
+        # `column_stack` may promote codes to float; the backend casts them back to integers.
+        status_out = np.array([status_codes[level] for level in status], dtype=int)
+        cause_out = np.zeros(len(cause), dtype=int)
+        cause_out[~cause_is_none] = [self.cause_codes[level] for level in cause[~cause_is_none]]
+        return np.column_stack([y, status_out, cause_out])
+
+
 def truncated(x, lb=None, ub=None):
     """Construct array for a truncated response
 
@@ -430,6 +512,7 @@ transformations_namespace = {
     "c": c,
     "counts": counts,
     "censored": censored,
+    "cr": CR,
     "constrained": constrained,
     "truncated": truncated,
     "weighted": weighted,
