@@ -132,7 +132,8 @@ def _build_common_and_intercept(
         data = pt.concatenate(data_list, axis=1)  # (n, p)
 
         if center:
-            data_mean = data.mean(0)
+            # .eval() is required to not recompute the mean in out-of-sample predictions.
+            data_mean = data.mean(0).eval()
             data = data - data_mean
 
         # (n, ) or (n, K)
