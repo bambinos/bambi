@@ -25,6 +25,7 @@ from bambi.families.types import ResponseType
 from bambi.terms.response import ResponseTerm
 
 
+# pylint: disable=too-many-return-statements
 def build_response_term(
     term: ResponseTerm, parameters: dict, family: Family, model: pm.Model
 ) -> None:

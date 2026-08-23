@@ -562,7 +562,7 @@ class PyMCModel:
                     nuts_sampler=sampler_backend,
                     **kwargs,
                 )
-            except RuntimeError, ValueError:
+            except (RuntimeError, ValueError):
                 if "ValueError: Mass matrix contains" in traceback.format_exc() and init == "auto":
                     _logger.info(
                         "\nThe default initialization using init='auto' has failed, trying to "
