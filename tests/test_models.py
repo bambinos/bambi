@@ -1483,6 +1483,25 @@ def test_predict_offset(mock_pymc_sample):
     assert "1|group_offset" not in idata.posterior
 
 
+def test_offset_contributes_to_linear_predictor():
+    data = pd.DataFrame({"events": [1, 1], "exposure": [1.0, 100.0]})
+    model = bmb.Model("events ~ offset(np.log(exposure))", data, family="poisson")
+    model.build()
+
+    with model.backend.model:
+        mu = pm.draw(model.backend.model["mu"], draws=1, random_seed=121195)
+
+    np.testing.assert_allclose(mu[1] / mu[0], 100)
+
+    new_data = pd.DataFrame({"events": [1, 1], "exposure": [10.0, 1000.0]})
+    prediction_data, _, _ = model.backend._build_new_data(
+        new_data, purpose="prediction", kind="response_params"
+    )
+    np.testing.assert_allclose(
+        prediction_data["offset(np.log(exposure))_data"], np.log(new_data["exposure"])
+    )
+
+
 def test_group_specific_offsets_predictions_and_log_likelihood(mock_pymc_sample):
     rng = np.random.default_rng(121195)
     data = pd.DataFrame(

@@ -12,6 +12,7 @@ from bambi.backend.pymc.terms import (
     build_hsgp_term,
     build_intercept_term,
 )
+from bambi.backend.pymc.data import predictor_data_name, shape_common_data
 from bambi.backend.pymc.terms.info import CommonTermInfo, GroupSpecificTermInfo
 from bambi.backend.pymc.transform import transforms_registry
 from bambi.backend.pymc.utils import INVERSE_LINKS
@@ -61,6 +62,8 @@ def build_conditional_parameter(
         )
         value += group_specific_contribution
 
+    value += _build_offset_terms(parameter_info.offset_terms, model)
+
     for term_info in parameter_info.hsgp_terms:
         value += build_hsgp_term(term_info, param_spec, model)
 
@@ -102,6 +105,21 @@ def _ensure_2d(x: pt.Variable) -> pt.Variable:
     if x.ndim == 1:
         return x[:, np.newaxis]
     return x
+
+
+def _build_offset_terms(offset_terms: tuple[CommonTermInfo, ...], model: pm.Model) -> pt.Variable:
+    contribution = 0
+    for term_info in offset_terms:
+        term = term_info.term
+        data_name = predictor_data_name(term.label, term_info.data_dims, model)
+
+        if data_name not in model:
+            model.add_coords(term_info.coords)
+            data = shape_common_data(term.data, term_info.coords)
+            pm.Data(data_name, data, dims=term_info.data_dims, model=model)
+
+        contribution += model[data_name]
+    return contribution
 
 
 def _build_common_and_intercept(

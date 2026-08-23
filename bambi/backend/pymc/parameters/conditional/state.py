@@ -18,6 +18,7 @@ from bambi.parameters import ConditionalParameter
 class ConditionalParameterInfo:
     parameter: ConditionalParameter
     common_terms: tuple[CommonTermInfo, ...]
+    offset_terms: tuple[CommonTermInfo, ...]
     hsgp_terms: tuple[HSGPTermInfo, ...]
     group_specific_factors: tuple[GroupSpecificFactorInfo, ...]
 
@@ -129,6 +130,10 @@ def make_conditional_parameter_info(parameter: ConditionalParameter) -> Conditio
         CommonTermInfo(term=term, coords=coords_from_common(term))
         for term in parameter.common_terms.values()
     )
+    offset_terms = tuple(
+        CommonTermInfo(term=term, coords=coords_from_common(term))
+        for term in parameter.offset_terms.values()
+    )
     hsgp_terms = tuple(
         HSGPTermInfo(term=term, coords=coords_from_hsgp(term))
         for term in parameter.hsgp_terms.values()
@@ -145,6 +150,7 @@ def make_conditional_parameter_info(parameter: ConditionalParameter) -> Conditio
     return ConditionalParameterInfo(
         parameter=parameter,
         common_terms=common_terms,
+        offset_terms=offset_terms,
         hsgp_terms=hsgp_terms,
         group_specific_factors=group_specific_factors,
     )

@@ -204,7 +204,7 @@ def _build_new_non_group_specific_data(
 ) -> dict[str, np.ndarray]:
     data_dict: dict[str, np.ndarray] = {}
 
-    for term_info in parameter_info.common_terms:
+    for term_info in (*parameter_info.common_terms, *parameter_info.offset_terms):
         term = term_info.term
         term_data_name = predictor_data_name(term.label, term_info.data_dims, model)
         term_data_dims = model.named_vars_to_dims[term_data_name][1:]  # drop __obs__
