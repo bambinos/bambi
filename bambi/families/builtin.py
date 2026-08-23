@@ -146,6 +146,13 @@ class LogNormal(Family):
     }
 
 
+class LogLogistic(Family):
+    PARAMETERS = {
+        "mu": ParamSpec(links=["identity", "log", "inverse"]),
+        "alpha": ParamSpec(links=["log"]),
+    }
+
+
 class Poisson(Family):
     PARAMETERS = {
         "mu": ParamSpec(links=["identity", "log"]),

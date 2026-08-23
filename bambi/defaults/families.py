@@ -17,6 +17,7 @@ from bambi.families.builtin import (
     HurdleNegativeBinomial,
     HurdlePoisson,
     Laplace,
+    LogLogistic,
     LogNormal,
     Multinomial,
     NegativeBinomial,
@@ -155,6 +156,16 @@ BUILTIN_FAMILIES = {
         "link": {"mu": "identity", "sigma": "log"},
         "family": LogNormal,
         "default_priors": {"sigma": {"name": "HalfNormal", "sigma": 1}},
+    },
+    "loglogistic": {
+        "likelihood": {
+            "name": "LogLogistic",
+            "params": ["mu", "alpha"],
+            "parent": "mu",
+        },
+        "link": {"mu": "identity", "alpha": "log"},
+        "family": LogLogistic,
+        "default_priors": {"alpha": {"name": "HalfNormal", "sigma": 1}},
     },
     "gaussian": {
         "likelihood": {

@@ -282,6 +282,7 @@ def test_hyperprior_on_common_effect(data_random_n100):
         "asymmetriclaplace",
         "exgaussian",
         "gaussian",
+        "loglogistic",
         "lognormal",
         "negativebinomial",
         "bernoulli",
@@ -305,6 +306,7 @@ def test_links(data_random_n100):
         "exgaussian": ["identity", "log", "inverse"],
         "gamma": ["identity", "inverse", "log"],
         "gaussian": ["identity", "log", "inverse"],
+        "loglogistic": ["identity", "log", "inverse"],
         "lognormal": ["identity", "log", "inverse"],
         "negativebinomial": ["identity", "log", "cloglog"],
         "poisson": ["identity", "log"],
@@ -328,6 +330,7 @@ def test_bad_links(data_random_n100):
         "exgaussian": ["logit", "probit", "cloglog"],
         "gamma": ["logit", "probit", "cloglog"],
         "gaussian": ["logit", "probit", "cloglog"],
+        "loglogistic": ["logit", "probit", "cloglog"],
         "lognormal": ["logit", "probit", "cloglog"],
         "negativebinomial": ["logit", "probit", "inverse", "inverse_squared"],
         "poisson": ["logit", "probit", "cloglog", "inverse", "inverse_squared"],
@@ -441,7 +444,9 @@ def test_transformed_response_accepts_its_full_name_as_an_alias():
     assert model.response_term.label == "outcome"
 
 
-@pytest.mark.parametrize("family", ["exponential", "weibull", "lognormal", "gamma", "wald"])
+@pytest.mark.parametrize(
+    "family", ["exponential", "weibull", "lognormal", "loglogistic", "gamma", "wald"]
+)
 def test_competing_risks_response_data(family):
     data = pd.DataFrame(
         {

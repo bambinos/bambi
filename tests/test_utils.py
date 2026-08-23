@@ -4,11 +4,13 @@ import numpy as np
 import pandas as pd
 import preliz as pz
 import pymc as pm
+from scipy import stats
 
 from bambi.utils import listify
 from bambi.backend.pymc.links import cloglog, probit
 from bambi.backend.pymc.data import shape_common_data
 from bambi.backend.pymc.utils import (
+    LogLogistic,
     make_competing_risks_distribution,
     make_weighted_distribution,
 )
@@ -46,6 +48,25 @@ def test_probit():
 def test_cloglog():
     x = cloglog(np.random.normal(scale=10000, size=100)).eval()
     assert (x > 0).all() and (x < 1).all()
+
+
+def test_loglogistic_distribution():
+    mu, alpha = 0.7, 1.3
+    value = np.array([0.1, 1.0, 10.0])
+    dist = LogLogistic.dist(mu, alpha)
+
+    actual_logp = pm.logp(dist, value).eval()
+    actual_logcdf = pm.logcdf(dist, value).eval()
+    reference = stats.fisk(c=1 / alpha, scale=np.exp(mu))
+
+    np.testing.assert_allclose(actual_logp, reference.logpdf(value))
+    np.testing.assert_allclose(actual_logcdf, reference.logcdf(value))
+    assert np.isneginf(pm.logp(dist, 0).eval())
+    assert np.isneginf(pm.logcdf(dist, 0).eval())
+
+    draws = pm.draw(LogLogistic.dist(np.array([mu, mu]), alpha), draws=10, random_seed=42)
+    assert draws.shape == (10, 2)
+    assert (draws > 0).all()
 
 
 def test_censored():

@@ -1,9 +1,11 @@
 import inspect
 import functools
 
+import numpy as np
 import pymc as pm
 import pytensor.tensor as pt
-from pymc.distributions.dist_math import normal_lccdf
+from pymc.distributions.dist_math import check_parameters, normal_lccdf
+from pymc.distributions.shape_utils import rv_size_is_none
 from pytensor.tensor.special import softmax
 
 from bambi.backend.pymc.links import (
@@ -13,6 +15,71 @@ from bambi.backend.pymc.links import (
     logit,
     probit,
 )
+
+
+def loglogistic_logp(value, mu, alpha):
+    """Log-probability of the log-logistic distribution."""
+    z = (pt.log(value) - mu) / alpha
+    logp = z - pt.log(alpha) - pt.log(value) - 2 * pt.softplus(z)
+    logp = pt.switch(pt.gt(value, 0), logp, -np.inf)
+    return check_parameters(logp, alpha > 0, msg="alpha > 0")
+
+
+def loglogistic_logcdf(value, mu, alpha):
+    """Log-CDF of the log-logistic distribution."""
+    z = (pt.log(value) - mu) / alpha
+    logcdf = -pt.softplus(-z)
+    logcdf = pt.switch(pt.gt(value, 0), logcdf, -np.inf)
+    return check_parameters(logcdf, alpha > 0, msg="alpha > 0")
+
+
+def loglogistic_random(mu, alpha, rng=None, size=None):
+    """Draw log-logistic variates by exponentiating logistic variates."""
+    return np.exp(rng.logistic(loc=mu, scale=alpha, size=size))
+
+
+def loglogistic_support_point(_rv, size, mu, alpha):
+    """Return the median, a finite point in the distribution support."""
+    median = pt.exp(mu + pt.zeros_like(alpha))
+    if not rv_size_is_none(size):
+        median = pt.full(size, median)
+    return median
+
+
+class LogLogistic:
+    """Log-logistic distribution parameterized by log-location and scale.
+
+    Equivalently, the logarithm of a log-logistic random variable follows a
+    logistic distribution with location ``mu`` and scale ``alpha``.
+    """
+
+    def __new__(cls, name, mu, alpha, **kwargs):
+        return pm.CustomDist(
+            name,
+            mu,
+            alpha,
+            random=loglogistic_random,
+            logp=loglogistic_logp,
+            logcdf=loglogistic_logcdf,
+            support_point=loglogistic_support_point,
+            signature="(),()->()",
+            class_name=cls.__name__,
+            **kwargs,
+        )
+
+    @classmethod
+    def dist(cls, mu, alpha, **kwargs):
+        return pm.CustomDist.dist(
+            mu,
+            alpha,
+            random=loglogistic_random,
+            logp=loglogistic_logp,
+            logcdf=loglogistic_logcdf,
+            support_point=loglogistic_support_point,
+            signature="(),()->()",
+            class_name=cls.__name__,
+            **kwargs,
+        )
 
 
 def horseshoe(name, tau_nu=3, lam_nu=1, dims=None):
@@ -46,7 +113,12 @@ def horseshoe(name, tau_nu=3, lam_nu=1, dims=None):
     return beta
 
 
-MAPPING = {"Cumulative": pm.Categorical, "StoppingRatio": pm.Categorical, "Horseshoe": horseshoe}
+MAPPING = {
+    "Cumulative": pm.Categorical,
+    "StoppingRatio": pm.Categorical,
+    "Horseshoe": horseshoe,
+    "LogLogistic": LogLogistic,
+}
 
 INVERSE_LINKS = {
     "cloglog": cloglog,
