@@ -75,22 +75,23 @@ pre-commit = "4.*"
 pylint = "3.3.*"
 
 [tool.pixi.feature.test.dependencies]
+preliz = ">=0.27.1,<0.28"
 pytest = ">=8,<9"
 pytest-cov = ">=7,<8"
 pytest-forked = ">=1.7.5,<2"
 
 [tool.pixi.feature.docs.dependencies]
+# quartodoc = ">=0.11,<0.12"
 griffe = ">=1, <2"
 ipykernel = ">=6.30,<7"
 ipywidgets = ">=8.1.7,<9"
 lifelines = ">=0.30.0,<0.31"
 notebook = ">=7,<9"
+preliz = ">=0.27.1,<0.28"
 python-graphviz = ">=0.21,<0.22"
-# quartodoc = ">=0.11,<0.12"
 seaborn = ">=0.13.2,<0.14"
 statsmodels = ">=0.14.5,<0.15"
 watermark = ">=2.5.0,<3"
-preliz = ">=0.27.1,<0.28"
 
 [tool.pixi.feature.dev.pypi-dependencies]
 black = { version = ">=26.5.1, <27", extras = ["jupyter"] }
