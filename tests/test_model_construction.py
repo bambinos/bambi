@@ -397,6 +397,50 @@ def test_response_is_censored():
     assert dm.response_term.is_censored is True
 
 
+@pytest.mark.parametrize(
+    ("formula", "family", "response_name"),
+    [
+        ("censored(y, censoring) ~ 1", None, "y"),
+        ("truncated(y, lower, upper) ~ 1", None, "y"),
+        ("constrained(y, -1, 5) ~ 1", None, "y"),
+        ("weighted(y, weights) ~ 1", None, "y"),
+        ("counts(y1, y2, n=n) ~ 1", "multinomial", "y1_y2"),
+        ("prop(y, n) ~ 1", "binomial", "y"),
+        ("cr(time, event_status, cause) ~ 1", "weibull", "time"),
+    ],
+)
+def test_transformed_response_uses_observed_variable_name(formula, family, response_name):
+    data = pd.DataFrame(
+        {
+            "y": [1.0, 2.0, 3.0],
+            "censoring": ["none", "right", "left"],
+            "lower": [0.0, 0.0, 0.0],
+            "upper": [4.0, 4.0, 4.0],
+            "weights": [1.0, 1.0, 1.0],
+            "y1": [1, 2, 1],
+            "y2": [3, 2, 3],
+            "n": [4, 4, 4],
+            "time": [1.0, 2.0, 3.0],
+            "event_status": ["event", "right", "event"],
+            "cause": ["cause_a", "none", "cause_b"],
+        }
+    )
+    kwargs = {} if family is None else {"family": family}
+    model = bmb.Model(formula, data, **kwargs)
+
+    assert model.response_term.name == response_name
+    model.build()
+    assert response_name in model.backend.model.named_vars
+
+
+def test_transformed_response_accepts_its_full_name_as_an_alias():
+    data = pd.DataFrame({"y": [1.0, 2.0, 3.0], "status": ["none", "right", "none"]})
+    model = bmb.Model("censored(y, status) ~ 1", data)
+    model.set_alias({"censored(y, status)": "outcome"})
+
+    assert model.response_term.label == "outcome"
+
+
 @pytest.mark.parametrize("family", ["exponential", "weibull", "lognormal", "gamma", "wald"])
 def test_competing_risks_response_data(family):
     data = pd.DataFrame(
@@ -543,10 +587,10 @@ def test_counts_response_data():
 
     with pytest.warns(UserWarning, match="first training total"):
         prediction_data, _, _ = fixed_model.backend._build_new_data(data[["x"]], "prediction")
-    assert np.array_equal(prediction_data["counts(y1, y2)_data"].sum(axis=1), np.full(len(data), 4))
+    assert np.array_equal(prediction_data["y1_y2_data"].sum(axis=1), np.full(len(data), 4))
 
     log_likelihood_data, _, _ = fixed_model.backend._build_new_data(data, "log_likelihood")
-    assert np.array_equal(log_likelihood_data["counts(y1, y2)_data"], data[["y1", "y2"]])
+    assert np.array_equal(log_likelihood_data["y1_y2_data"], data[["y1", "y2"]])
 
     variable_model = bmb.Model("counts(y1, y2, n=n) ~ x", data, family="multinomial")
     variable_model.build()
@@ -732,15 +776,13 @@ def test_compute_log_likelihood_transformed_response(data_beetle, mock_pymc_samp
     assert {"y_data", "n_data"}.issubset(model.backend.model.named_vars)
 
     model.compute_log_likelihood(idata)
-    assert idata.log_likelihood["prop(y, n)"].shape == (2, 4, len(data_beetle))
+    assert idata.log_likelihood["y"].shape == (2, 4, len(data_beetle))
 
     same_data_result = model.compute_log_likelihood(idata, data=data_beetle, inplace=False)
-    assert (
-        same_data_result.log_likelihood["prop(y, n)"] == idata.log_likelihood["prop(y, n)"]
-    ).all()
+    assert (same_data_result.log_likelihood["y"] == idata.log_likelihood["y"]).all()
 
     result = model.compute_log_likelihood(idata, data=data_beetle.head(3), inplace=False)
-    assert result.log_likelihood["prop(y, n)"].shape == (2, 4, 3)
+    assert result.log_likelihood["y"].shape == (2, 4, 3)
 
 
 def test_predict_transformed_response_side_data(data_beetle, mock_pymc_sample):
@@ -750,7 +792,7 @@ def test_predict_transformed_response_side_data(data_beetle, mock_pymc_sample):
     assert {"y_data", "n_data"}.issubset(model.backend.model.named_vars)
 
     result = model.predict(idata, kind="response", data=data_beetle.head(3), inplace=False)
-    samples = result.predictions["prop(y, n)"]
+    samples = result.predictions["y"]
     assert samples.shape == (2, 4, 3)
     assert (samples <= data_beetle["n"].to_numpy()[:3][None, None, :]).all()
 
@@ -759,7 +801,7 @@ def test_predict_transformed_response_side_data(data_beetle, mock_pymc_sample):
     assert "y_data" in model.backend.model.named_vars
 
     result = model.predict(idata, kind="response", data=data_beetle.head(3), inplace=False)
-    samples = result.predictions["p(y, 62)"]
+    samples = result.predictions["y"]
     assert samples.shape == (2, 4, 3)
     assert (samples <= 62).all()
 
@@ -777,7 +819,7 @@ def test_predict_truncated_response_scalar_bounds(mock_pymc_sample):
     assert "y_data" in model.backend.model.named_vars
 
     result = model.predict(idata, kind="response_conditional", data=data.head(3), inplace=False)
-    samples = result.predictions["truncated(y, -5, 5)"]
+    samples = result.predictions["y"]
     assert samples.shape == (2, 4, 3)
     assert (samples > -5).all()
     assert (samples < 5).all()

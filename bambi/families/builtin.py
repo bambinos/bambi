@@ -219,7 +219,7 @@ class Multinomial(Family):
     }
 
     def get_levels(self, response):
-        labels = extract_argument_names(response.name, list(transformations_namespace))
+        labels = extract_argument_names(response.full_name, list(transformations_namespace))
         if labels:
             return labels
         return [str(level) for level in range(response.data.shape[1])]
@@ -232,7 +232,7 @@ class DirichletMultinomial(Family):
     }
 
     def get_levels(self, response):
-        levels = extract_argument_names(response.name, list(transformations_namespace))
+        levels = extract_argument_names(response.full_name, list(transformations_namespace))
         if levels:
             return levels
         return [str(level) for level in range(response.data.shape[1])]

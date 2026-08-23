@@ -27,6 +27,29 @@ class ResponseTerm(BaseTerm):
 
     @property
     def name(self):
+        """Name used for the response random variable.
+
+        Formulae names a call by its complete expression (for example,
+        ``censored(y, status)``). For a univariate response transformation,
+        the first argument is the observed response variable. A counts
+        response instead uses all its count variables, joined with underscores.
+        Both are clearer, stable names for the corresponding PyMC random
+        variable and its predictive samples.
+        """
+        if len(self.components) == 1:
+            component = self.components[0]
+            if hasattr(component, "call") and component.call.args:
+                if self.is_counts:
+                    return "_".join(argument.name for argument in component.call.args)
+                response = component.call.args[0]
+                response_name = getattr(response, "name", None)
+                if response_name:
+                    return response_name
+        return self.term.name
+
+    @property
+    def full_name(self):
+        """The response term name as written by formulae."""
         return self.term.name
 
     @property

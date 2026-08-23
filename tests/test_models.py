@@ -557,22 +557,18 @@ class TestBinomial(FitPredictParent):
         self.assert_mean_range(idata, "posterior")
         y_reshaped = data_beetle["n"].to_numpy()[None, None, :]
 
-        assert (idata.posterior_predictive["prop(y, n)"].to_numpy() <= y_reshaped).all()
-        assert (0 <= idata.posterior_predictive["prop(y, n)"].to_numpy()).all()
+        assert (idata.posterior_predictive["y"].to_numpy() <= y_reshaped).all()
+        assert (0 <= idata.posterior_predictive["y"].to_numpy()).all()
 
         y_reshaped = data_beetle["n"].to_numpy()[None, None, :3]
         idata = self.predict_oos(model, idata, data=model.data.head(3))
         self.assert_mean_range(idata, "predictions")
-        assert (idata.predictions["prop(y, n)"].to_numpy() <= y_reshaped).all()
+        assert (idata.predictions["y"].to_numpy() <= y_reshaped).all()
 
         # Test log-likelihood computation
         model.compute_log_likelihood(idata)
         idata_2 = model.compute_log_likelihood(idata, data=data_beetle, inplace=False)
-        assert (
-            (idata_2.log_likelihood["prop(y, n)"] == idata.log_likelihood["prop(y, n)"])
-            .all()
-            .item()
-        )
+        assert (idata_2.log_likelihood["y"] == idata.log_likelihood["y"]).all().item()
 
     def test_binomial_regression_constant(self, data_beetle):
         # Uses a constant instead of variable in data frame
@@ -580,18 +576,18 @@ class TestBinomial(FitPredictParent):
         idata = self.fit(model)
         model.predict(idata, kind="response")
         self.assert_mean_range(idata, "posterior")
-        assert (idata.posterior_predictive["p(y, 62)"].to_numpy() <= 62).all()
-        assert (0 <= idata.posterior_predictive["p(y, 62)"].to_numpy()).all()
+        assert (idata.posterior_predictive["y"].to_numpy() <= 62).all()
+        assert (0 <= idata.posterior_predictive["y"].to_numpy()).all()
 
         # Out of sample prediction
         idata = self.predict_oos(model, idata)
         self.assert_mean_range(idata, "predictions")
-        assert (idata.predictions["p(y, 62)"].to_numpy() <= 62).all()
+        assert (idata.predictions["y"].to_numpy() <= 62).all()
 
         # Test log-likelihood computation
         model.compute_log_likelihood(idata)
         idata_2 = model.compute_log_likelihood(idata, data=data_beetle, inplace=False)
-        assert (idata_2.log_likelihood["p(y, 62)"] == idata.log_likelihood["p(y, 62)"]).all().item()
+        assert (idata_2.log_likelihood["y"] == idata.log_likelihood["y"]).all().item()
 
 
 @pytest.mark.usefixtures("mock_pymc_sample")
@@ -1182,18 +1178,18 @@ class TestConstrainedResponse(FitPredictParent):
         model = bmb.Model("constrained(y, -5) ~ x", truncated_data, priors=priors)
         idata = self.fit(model, random_seed=121195)
         idata = self.predict_oos(model, idata)
-        assert idata.predictions["constrained(y, -5)"].to_numpy().min() > -5
+        assert idata.predictions["y"].to_numpy().min() > -5
 
         model = bmb.Model("constrained(y, ub=5) ~ x", truncated_data, priors=priors)
         idata = self.fit(model, random_seed=121195)
         idata = self.predict_oos(model, idata)
-        assert idata.predictions["constrained(y, ub=5)"].to_numpy().max() < 5
+        assert idata.predictions["y"].to_numpy().max() < 5
 
         model = bmb.Model("constrained(y, -5, 5) ~ x", truncated_data, priors=priors)
         idata = self.fit(model, random_seed=121195)
         idata = self.predict_oos(model, idata)
-        assert idata.predictions["constrained(y, -5, 5)"].to_numpy().min() > -5
-        assert idata.predictions["constrained(y, -5, 5)"].to_numpy().max() < 5
+        assert idata.predictions["y"].to_numpy().min() > -5
+        assert idata.predictions["y"].to_numpy().max() < 5
 
 
 @pytest.mark.usefixtures("mock_pymc_sample")
@@ -1226,7 +1222,7 @@ class TestMultinomial(FitPredictParent):
         # Log likelihood computation
         model.compute_log_likelihood(idata)
         idata_2 = model.compute_log_likelihood(idata, data=data_multinomial, inplace=False)
-        name = "counts(y1, y2, y3, y4)"
+        name = "y1_y2_y3_y4"
         assert (idata.log_likelihood[name] == idata_2.log_likelihood[name]).all().item()
 
     def test_categorical_predictors(self, data_multinomial):
@@ -1301,7 +1297,7 @@ class TestBetaBinomial(FitPredictParent):
         idata = self.fit(model)
         idata = self.predict_oos(model, idata, model.data)
         n = data_beetle["n"].to_numpy()
-        assert np.all(idata.predictions["prop(y, n)"].values <= n[np.newaxis, np.newaxis, :])
+        assert np.all(idata.predictions["y"].values <= n[np.newaxis, np.newaxis, :])
 
 
 def test_wald_family(data_n100, mock_pymc_sample):

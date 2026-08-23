@@ -650,7 +650,7 @@ class Model:
                         is_used = True
 
                 # If it's the name of the response
-                if name == self.response_term.name:
+                if name in (self.response_term.name, self.response_term.full_name):
                     self.response_term.alias = alias
                     is_used = True
 
@@ -662,7 +662,7 @@ class Model:
                 if parameter_name in self.marginal_parameters:
                     assert isinstance(parameter_aliases, str)
                     self.marginal_parameters[parameter_name].alias = parameter_aliases
-                elif parameter_name == self.response_term.name:
+                elif parameter_name in (self.response_term.name, self.response_term.full_name):
                     assert isinstance(parameter_aliases, str)
                     self.response_term.alias = parameter_aliases
                 else:
@@ -1010,7 +1010,9 @@ class Model:
             `kind="response_conditional"`. With `kind="time_and_cause"`, the
             first-event times and cause codes are added as separate variables named
             `<response>_time` and `<response>_cause`. Existing output groups are
-            overwritten.
+            overwritten. For a transformed univariate response, `<response>` is the first
+            argument of the transformation; for example, predictions from `censored(y, status)`
+            are named `y`. A `counts(y1, y2)` response is named `y1_y2`.
         include_group_specific : bool, optional
             Determines if predictions incorporate group-specific effects. If `False`, predictions
             are made with common effects only (i.e. group specific are set to zero). Defaults to
