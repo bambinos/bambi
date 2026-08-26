@@ -9,7 +9,7 @@ repos:
 
       - id: black-jupyter
         files: ^docs/notebooks/.*\.ipynb$
-        args: [--diff, --check, --color]
+        args: [--line-length=88, --diff, --check, --color]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
