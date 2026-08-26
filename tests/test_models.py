@@ -1321,7 +1321,7 @@ def test_wald_family(data_n100, mock_pymc_sample):
     assert (0 < idata.predictions["y"]).all()
 
 
-def test_competing_risks_predictions(mock_pymc_sample):
+def test_competing_risks_predictions():
     data = pd.DataFrame(
         {
             "time": [1.0, 2.0, 3.0, 4.0],
@@ -1331,7 +1331,7 @@ def test_competing_risks_predictions(mock_pymc_sample):
         }
     )
     model = bmb.Model("cr(time, status, cause) ~ x", data, family="exponential")
-    idata = model.fit(draws=200, chains=2)
+    idata = model.fit(draws=200, tune=200, chains=2, random_seed=1234)
     response = model.response_term.label
 
     in_sample = model.predict(idata, kind="response", inplace=False, random_seed=1234)
