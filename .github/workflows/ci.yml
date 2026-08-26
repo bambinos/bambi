@@ -37,6 +37,12 @@ jobs:
           pixi-version: v0.76.2
           environments: ${{ matrix.pixi-env }}
 
+      - name: Restore PyTensor compilation cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.pytensor
+          key: pytensor-${{ runner.os }}-${{ matrix.pixi-env }}-${{ matrix.pytensor-linker }}-${{ hashFiles('pyproject.toml') }}
+
       - name: Run pre-commit checks
         run: pixi run -e ${{ matrix.pixi-env }} pre-commit run --all
 
