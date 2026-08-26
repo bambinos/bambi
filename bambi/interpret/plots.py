@@ -6,8 +6,11 @@ from dataclasses import dataclass
 from functools import reduce
 from typing import Any, Mapping
 
+import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn.objects as so
+
+from matplotlib.figure import Figure
 from pandas import DataFrame
 from pandas.api.types import is_float_dtype, is_integer_dtype
 from seaborn.objects import Plot
@@ -240,7 +243,7 @@ def _add_main_layer(plot: Plot, data: DataFrame, config: PlottingConfig) -> Plot
 def plot(
     data: DataFrame,
     config: PlottingConfig,
-) -> Plot:
+) -> Figure:
     """Declaratively plot data according to a plotting configuration.
 
     Parameters
@@ -254,8 +257,8 @@ def plot(
 
     Returns
     -------
-    Plot
-        A Seaborn objects Plot displaying the information of an `interpret` summary DataFrame.
+    Figure
+        A Matplotlib Figure displaying the information of an `interpret` summary DataFrame.
 
     Raises
     ------
@@ -278,8 +281,16 @@ def plot(
         y=config.figure.ylabel or "estimate",
         title=config.figure.title,
     )
-    # Set plot theme (dict of matplotlib rc parameters)
+
+    # Start from active matplotlib theme.
+    plot = plot.theme(plt.rcParams.copy())
     if config.figure.theme:
         plot = plot.theme(config.figure.theme)
 
-    return plot
+    figure = plt.figure()
+    try:
+        plot.on(figure).plot()
+    finally:
+        plt.close(figure)
+
+    return figure

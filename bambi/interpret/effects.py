@@ -6,14 +6,12 @@ import arviz as az
 import numpy as np
 import pandas as pd
 import xarray as xr
+
+from matplotlib.figure import Figure
 from pandas import DataFrame
-from seaborn.objects import Plot
 from xarray import DataArray, DataTree
 
-from bambi.interpret.ops import (
-    get_comparison_func,
-    get_slope_func,
-)
+from bambi.interpret.ops import get_comparison_func, get_slope_func
 from bambi.interpret.plots import PlottingConfig, plot
 from bambi.interpret.types import (
     ComparisonVariable,
@@ -467,7 +465,7 @@ def plot_predictions(
     transforms: dict | None = None,
     fig_kwargs: Optional[dict[str, Any]] = None,
     subplot_kwargs: Optional[dict[str, str]] = None,
-) -> Plot:
+) -> Figure:
     """Plot conditional adjusted predictions.
 
     Parameters
@@ -501,10 +499,10 @@ def plot_predictions(
 
     Returns
     -------
-    Plot
-        A Seaborn objects Plot. In Jupyter notebooks, the plot automatically displays.
-        In scripts, call `.show()` to display. The returned Plot object can be
-        customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
+    Figure
+        A Matplotlib Figure. In Jupyter notebooks, the figure automatically displays.
+        In scripts, call `.show()` to display it. The returned Figure can be customized
+        through its axes (e.g., `figure.axes[0].set_title(...)`).
 
     Raises
     ------
@@ -646,7 +644,7 @@ def plot_comparisons(
     transforms: dict | None = None,
     fig_kwargs: Optional[dict[str, Any]] = None,
     subplot_kwargs: Optional[Mapping[str, str]] = None,
-) -> Plot:
+) -> Figure:
     """Plot conditional adjusted comparisons.
 
     Parameters
@@ -685,10 +683,10 @@ def plot_comparisons(
 
     Returns
     -------
-    Plot
-        A Seaborn objects Plot. In Jupyter notebooks, the plot automatically displays.
-        In scripts, call `.show()` to display. The returned Plot object can be
-        customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
+    Figure
+        A Matplotlib Figure. In Jupyter notebooks, the figure automatically displays.
+        In scripts, call `.show()` to display it. The returned Figure can be customized
+        through its axes (e.g., `figure.axes[0].set_title(...)`).
 
     Raises
     ------
@@ -850,7 +848,7 @@ def plot_slopes(
     transforms: dict | None = None,
     fig_kwargs: Optional[dict[str, Any]] = None,
     subplot_kwargs: Optional[Mapping[str, str]] = None,
-) -> Plot:
+) -> Figure:
     """Plot conditional adjusted slopes.
 
     Parameters
@@ -891,10 +889,10 @@ def plot_slopes(
 
     Returns
     -------
-    Plot
-        A Seaborn objects Plot. In Jupyter notebooks, the plot automatically displays.
-        In scripts, call `.show()` to display. The returned Plot object can be
-        customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
+    Figure
+        A Matplotlib Figure. In Jupyter notebooks, the figure automatically displays.
+        In scripts, call `.show()` to display it. The returned Figure can be customized
+        through its axes (e.g., `figure.axes[0].set_title(...)`).
 
     Raises
     ------
