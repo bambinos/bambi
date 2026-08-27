@@ -7,6 +7,7 @@ from matplotlib.figure import Figure
 
 import bambi as bmb
 from bambi.interpret import plot_comparisons, plot_predictions, plot_slopes
+from bambi.interpret.effects import predictions
 from bambi.interpret.plots import PlottingConfig, plot
 
 # Render plots to a buffer instead of rendering to stddout
@@ -313,6 +314,16 @@ class TestPredictions:
         model, idata = food_choice
         result = plot_predictions(model, idata, covariates)
         assert isinstance(result, Figure)
+
+    def test_categorical_response_summary_keeps_all_categories(self, food_choice):
+        model, idata = food_choice
+
+        result = predictions(model, idata, conditional={"length": [30.0, 50.0, 70.0]})
+        summary = result.summary
+
+        assert len(summary) == 9
+        assert (summary.groupby("length")["choice_dim"].nunique() == 3).all()
+        np.testing.assert_allclose(summary.groupby("length")["estimate"].sum(), 1)
 
     def test_term_transformations(self, formulae_transform, nonformulae_transform):
         model, idata = formulae_transform

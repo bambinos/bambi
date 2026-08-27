@@ -296,6 +296,24 @@ def get_summary_stats(x: DataArray, prob: float | list[float], use_hdi: bool = T
     return stats
 
 
+def _join_prediction_data(preds_data: DataFrame, stats_data: DataFrame) -> DataFrame:
+    """Attach output statistics to each row in a prediction grid.
+
+    A multivariate response has one row of summary statistics per output level,
+    while the prediction grid has one row per observation.
+    Repeat each grid row for its output levels before joining by position.
+    """
+    n_levels, remainder = divmod(len(stats_data), len(preds_data))
+    if remainder:
+        raise ValueError(
+            "The number of prediction statistics must be a multiple of the prediction grid size."
+        )
+
+    indexes = np.repeat(np.arange(len(preds_data)), n_levels)
+    expanded_data = preds_data.iloc[indexes].reset_index(drop=True)
+    return expanded_data.join(stats_data.reset_index(drop=True))
+
+
 def _build_predictions(
     model: Model,
     idata: DataTree,
@@ -449,7 +467,11 @@ def predictions(
     y_hat = as_dataset(idata[target_info.group])[target_info.var_name]
 
     stats_data = get_summary_stats(response_transform(y_hat), prob, use_hdi)
-    summary_df = aggregate(data=preds_data.join(stats_data, on=None), by=average_by)
+    summary_df = aggregate(
+        data=_join_prediction_data(preds_data, stats_data),
+        by=average_by,
+        preserve=_extract_dim_columns(stats_data, []),
+    )
 
     return Result(summary=summary_df, draws=idata)
 
@@ -614,14 +636,15 @@ def comparisons(
     # Comparison column name corresponds to the contrast values being compared (e.g., 1_vs_4)
     comparison_df = pd.concat(summary_draws, names=["comparison", "index"]).reset_index(level=0)
 
-    summary_df = (
-        preds_data.loc[preds_data[con.variable.name] == con.variable.iloc[0], context_columns]
-        .reset_index(drop=True)
-        .join(comparison_df, on=None)
-    )
+    context_rows = preds_data[con.variable.name] == con.variable.iloc[0]
+    summary_df = _join_prediction_data(preds_data.loc[context_rows, context_columns], comparison_df)
 
     summary_df = summary_df.rename(columns={"comparison": "value"})
-    summary_df = aggregate(data=summary_df, by=average_by, preserve=["value"])
+    summary_df = aggregate(
+        data=summary_df,
+        by=average_by,
+        preserve=["value", *_extract_dim_columns(comparison_df, [])],
+    )
 
     # Add summary metadata
     estimate_type = comparison if isinstance(comparison, str) else comparison.__name__
@@ -816,15 +839,14 @@ def slopes(
     # Compute summary statistics
     stats = get_summary_stats(scaled_draws, prob, use_hdi)
 
-    summary_df = (
-        preds_data.loc[preds_data[wrt_var.variable.name] == x_val, context_columns]
-        .reset_index(drop=True)
-        .join(stats, on=None)
-    )
-
     estimate_type = slope if isinstance(slope, str) else slope.__name__
 
-    summary_df = aggregate(data=summary_df, by=average_by)
+    context_rows = preds_data[wrt_var.variable.name] == x_val
+    summary_df = aggregate(
+        data=_join_prediction_data(preds_data.loc[context_rows, context_columns], stats),
+        by=average_by,
+        preserve=_extract_dim_columns(stats, []),
+    )
 
     # Add summary metadata
     summary_df.insert(0, "term", wrt_var.variable.name)
