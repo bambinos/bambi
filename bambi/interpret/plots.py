@@ -10,7 +10,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn.objects as so
 
-from matplotlib.figure import Figure
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure, SubFigure
 from pandas import DataFrame
 from pandas.api.types import is_float_dtype, is_integer_dtype
 from seaborn.objects import Plot
@@ -240,9 +241,20 @@ def _add_main_layer(plot: Plot, data: DataFrame, config: PlottingConfig) -> Plot
     return plot
 
 
+def _adjust_legend(figure: Figure) -> None:
+    # Reserve a right-side figure margin for seaborn legends.
+    if not figure.legends:
+        return
+    figure.subplots_adjust(right=0.8)
+    for legend in figure.legends:
+        legend.set_loc("center left")
+        legend.set_bbox_to_anchor((0.8, 0.5), transform=figure.transFigure)
+
+
 def plot(
     data: DataFrame,
     config: PlottingConfig,
+    on: Axes | Figure | SubFigure | None = None,
 ) -> Figure:
     """Declaratively plot data according to a plotting configuration.
 
@@ -254,6 +266,8 @@ def plot(
     config : PlottingConfig
         A plotting configuration used to build and customize the appearance of a Seaborn
         objects plotting specification.
+    on : Axes, Figure, SubFigure, or None
+        Matplotlib target on which to draw the plot. If None, a new figure is created.
 
     Returns
     -------
@@ -288,17 +302,16 @@ def plot(
         theme.update(config.figure.theme)
     plot = plot.theme(theme)
 
+    if on is not None:
+        plot.on(on).plot()
+        return on if isinstance(on, Figure) else on.figure
+
     # Create the target while the theme is active.
     with plt.rc_context(theme):
         figure = plt.figure()
         try:
             plot.on(figure).plot()
-            # Reserve a right-side figure margin for seaborn legends.
-            if figure.legends:
-                figure.subplots_adjust(right=0.8)
-                for legend in figure.legends:
-                    legend.set_loc("center left")
-                    legend.set_bbox_to_anchor((0.8, 0.5), transform=figure.transFigure)
+            _adjust_legend(figure)
         finally:
             plt.close(figure)
 

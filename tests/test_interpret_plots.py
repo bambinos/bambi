@@ -118,6 +118,24 @@ class TestCommon:
         plot.axes[0].set_title("Custom Slopes")
         assert plot.axes[0].get_title() == "Custom Slopes"
 
+    def test_plot_accepts_matplotlib_targets(self, mtcars_fixture):
+        model, idata = mtcars_fixture
+
+        axes_figure = Figure()
+        axes = axes_figure.subplots(1, 2, sharey=True)
+        assert plot_predictions(model, idata, "hp", on=axes[0]) is axes_figure
+        assert axes[0].get_xlabel() == "hp"
+        assert axes[1].get_xlabel() == ""
+
+        figure = Figure()
+        assert plot_predictions(model, idata, "hp", on=figure) is figure
+        assert figure.axes
+
+        parent_figure = Figure()
+        subfigure = parent_figure.subfigures()
+        assert plot_predictions(model, idata, "hp", on=subfigure) is parent_figure
+        assert subfigure.axes
+
     def test_plot_uses_active_matplotlib_style(self, mtcars_fixture):
         model, idata = mtcars_fixture
 

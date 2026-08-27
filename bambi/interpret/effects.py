@@ -7,7 +7,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from matplotlib.figure import Figure
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure, SubFigure
 from pandas import DataFrame
 from xarray import DataArray, DataTree
 
@@ -487,6 +488,7 @@ def plot_predictions(
     transforms: dict | None = None,
     fig_kwargs: Optional[dict[str, Any]] = None,
     subplot_kwargs: Optional[dict[str, str]] = None,
+    on: Axes | Figure | SubFigure | None = None,
 ) -> Figure:
     """Plot conditional adjusted predictions.
 
@@ -518,6 +520,8 @@ def plot_predictions(
         to pass a dictionary of matplotlib rc parameters.
     subplot_kwargs : dict or None
         Overrides default plotting sequence (main, group, panel).
+    on : Axes, Figure, SubFigure, or None
+        Matplotlib target on which to draw the plot. If None, a new figure is created.
 
     Returns
     -------
@@ -550,7 +554,7 @@ def plot_predictions(
 
     plot_config = PlottingConfig.from_params(all_var_names, subplot_kwargs, fig_kwargs)
 
-    return plot(result.summary, plot_config)
+    return plot(result.summary, plot_config, on=on)
 
 
 def comparisons(
@@ -667,6 +671,7 @@ def plot_comparisons(
     transforms: dict | None = None,
     fig_kwargs: Optional[dict[str, Any]] = None,
     subplot_kwargs: Optional[Mapping[str, str]] = None,
+    on: Axes | Figure | SubFigure | None = None,
 ) -> Figure:
     """Plot conditional adjusted comparisons.
 
@@ -703,6 +708,8 @@ def plot_comparisons(
         to pass a dictionary of matplotlib rc parameters.
     subplot_kwargs : Mapping[str, str] or None
         Overrides default plotting sequence (main, group, panel).
+    on : Axes, Figure, SubFigure, or None
+        Matplotlib target on which to draw the plot. If None, a new figure is created.
 
     Returns
     -------
@@ -737,7 +744,7 @@ def plot_comparisons(
 
     plot_config = PlottingConfig.from_params(all_var_names, subplot_kwargs, fig_kwargs)
 
-    return plot(result.summary, plot_config)
+    return plot(result.summary, plot_config, on=on)
 
 
 def slopes(
@@ -870,6 +877,7 @@ def plot_slopes(
     transforms: dict | None = None,
     fig_kwargs: Optional[dict[str, Any]] = None,
     subplot_kwargs: Optional[Mapping[str, str]] = None,
+    on: Axes | Figure | SubFigure | None = None,
 ) -> Figure:
     """Plot conditional adjusted slopes.
 
@@ -908,6 +916,8 @@ def plot_slopes(
         Additional keyword arguments for figure customization.
     subplot_kwargs : Mapping[str, str] or None
         Overrides default plotting sequence (main, group, panel).
+    on : Axes, Figure, SubFigure, or None
+        Matplotlib target on which to draw the plot. If None, a new figure is created.
 
     Returns
     -------
@@ -943,4 +953,4 @@ def plot_slopes(
 
     plot_config = PlottingConfig.from_params(all_var_names, subplot_kwargs, fig_kwargs)
 
-    return plot(result.summary, plot_config)
+    return plot(result.summary, plot_config, on=on)
