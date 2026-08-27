@@ -2,10 +2,12 @@ import matplotlib
 import numpy as np
 import pandas as pd
 import pytest
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 
 import bambi as bmb
 from bambi.interpret import plot_comparisons, plot_predictions, plot_slopes
+from bambi.interpret.plots import PlottingConfig, plot
 
 # Render plots to a buffer instead of rendering to stddout
 matplotlib.use("Agg")
@@ -122,6 +124,33 @@ class TestCommon:
             figure = plot_predictions(model, idata, "hp")
 
         assert figure.axes[0].get_facecolor() == matplotlib.colors.to_rgba("#123456")
+
+    def test_group_legend_stays_within_figure(self):
+        """Figure-targeted seaborn legends are explicitly repositioned."""
+        data = pd.DataFrame(
+            {
+                "x": [0.0, 1.0, 0.0, 1.0],
+                "group": ["a", "a", "b", "b"],
+                "estimate": [0.0, 1.0, 0.2, 1.2],
+                "lower_94%": [-0.1, 0.9, 0.1, 1.1],
+                "upper_94%": [0.1, 1.1, 0.3, 1.3],
+            }
+        )
+
+        config = PlottingConfig.from_params(
+            ["x", "group"], fig_kwargs={"theme": {"figure.figsize": (12, 4)}}
+        )
+        figure = plot(data, config)
+        canvas = FigureCanvasAgg(figure)
+        canvas.draw()
+        legend_bbox = figure.legends[0].get_window_extent(canvas.get_renderer())
+
+        assert tuple(figure.get_size_inches()) == (12.0, 4.0)
+        assert figure.axes[0].get_position().x1 == pytest.approx(0.8)
+        assert 0.8 * figure.bbox.width <= legend_bbox.x0
+        assert legend_bbox.x1 <= figure.bbox.x1
+        assert figure.bbox.y0 <= legend_bbox.y0
+        assert legend_bbox.y1 <= figure.bbox.y1
 
 
 class TestPredictions:

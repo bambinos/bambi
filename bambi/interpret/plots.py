@@ -283,14 +283,23 @@ def plot(
     )
 
     # Start from active matplotlib theme.
-    plot = plot.theme(plt.rcParams.copy())
+    theme = plt.rcParams.copy()
     if config.figure.theme:
-        plot = plot.theme(config.figure.theme)
+        theme.update(config.figure.theme)
+    plot = plot.theme(theme)
 
-    figure = plt.figure()
-    try:
-        plot.on(figure).plot()
-    finally:
-        plt.close(figure)
+    # Create the target while the theme is active.
+    with plt.rc_context(theme):
+        figure = plt.figure()
+        try:
+            plot.on(figure).plot()
+            # Reserve a right-side figure margin for seaborn legends.
+            if figure.legends:
+                figure.subplots_adjust(right=0.8)
+                for legend in figure.legends:
+                    legend.set_loc("center left")
+                    legend.set_bbox_to_anchor((0.8, 0.5), transform=figure.transFigure)
+        finally:
+            plt.close(figure)
 
     return figure
