@@ -283,7 +283,6 @@ def _recreate_legend(figure: Figure) -> None:
         labels.extend(text.get_text() for text in legend.get_texts())
 
     figure.legends.clear()
-    figure.subplots_adjust(right=0.8)
     figure.legend(
         handles,
         labels,
