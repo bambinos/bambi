@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, NamedTuple
+from typing import Callable, NamedTuple, Optional
 
 import numpy as np
 import pandas as pd
@@ -80,7 +80,7 @@ def _default_defaults(series: Series) -> Series:
 def _resolve_values(
     name: str,
     data: DataFrame,
-    values: Values | None,
+    values: Optional[Values],
     defaults: DefaultStrategy,
 ) -> Series:
     """Resolve a variable's values from user input or dtype-based defaults.
@@ -201,7 +201,7 @@ class ConditionalVariables:
     @staticmethod
     def from_param(
         data: DataFrame,
-        conditional: str | list[str] | dict[str, Values] | None,
+        conditional: Optional[str | list[str] | dict[str, Values]],
     ) -> ConditionalVariables:
         """Create ConditionalVariables from user input.
 

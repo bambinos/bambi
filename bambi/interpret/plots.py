@@ -4,7 +4,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from functools import reduce
-from typing import Any, Mapping
+from typing import Any, Mapping, Optional
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -24,14 +24,14 @@ class FigureConfig:
     sharex: bool = True
     sharey: bool = True
     alpha: float = 0.3
-    xlabel: str | None = None
-    ylabel: str | None = None
-    title: str | None = None
-    wrap: int | None = None
-    theme: dict[str, Any] | None = None
+    xlabel: Optional[str] = None
+    ylabel: Optional[str] = None
+    title: Optional[str] = None
+    wrap: Optional[int] = None
+    theme: Optional[dict[str, Any]] = None
 
     @staticmethod
-    def from_kwargs(kwargs: dict[str, Any] | None = None) -> FigureConfig:
+    def from_kwargs(kwargs: Optional[dict[str, Any]] = None) -> FigureConfig:
         """Create a FigureConfig from a dictionary of keyword arguments.
 
         Parameters
@@ -62,12 +62,12 @@ class SubplotConfig:
     """
 
     main: str
-    group: str | None = None
-    panel: str | None = None
+    group: Optional[str] = None
+    panel: Optional[str] = None
 
     @staticmethod
     def from_params(
-        var_names: list[str], overrides: Mapping[str, str] | None = None
+        var_names: list[str], overrides: Optional[Mapping[str, str]] = None
     ) -> SubplotConfig:
         """Create a SubplotConfig from variable names or overrides.
 
@@ -142,8 +142,8 @@ class PlottingConfig:
     @staticmethod
     def from_params(
         var_names: list[str],
-        subplot_kwargs: Mapping[str, str] | None = None,
-        fig_kwargs: dict[str, Any] | None = None,
+        subplot_kwargs: Optional[Mapping[str, str]] = None,
+        fig_kwargs: Optional[dict[str, Any]] = None,
     ) -> PlottingConfig:
         """Create a PlottingConfig from variable names and optional overrides.
 
@@ -254,7 +254,7 @@ def _adjust_legend(figure: Figure) -> None:
 def plot(
     data: DataFrame,
     config: PlottingConfig,
-    on: Axes | Figure | SubFigure | None = None,
+    on: Optional[Axes | Figure | SubFigure] = None,
 ) -> Figure:
     """Declaratively plot data according to a plotting configuration.
 

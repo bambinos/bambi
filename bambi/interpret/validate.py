@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 from numpy.typing import ArrayLike
@@ -8,7 +10,7 @@ from pandas.api.types import is_numeric_dtype
 Values = list[int | float | str] | ArrayLike | Series
 
 
-def validate_prob(prob: float | list[float] | None) -> list[float]:
+def validate_prob(prob: Optional[float | list[float]]) -> list[float]:
     """Validate and normalize the prob parameter.
 
     Parameters
@@ -114,7 +116,7 @@ def validate_category_values(values: Values, var_name: str, reference: Series) -
 def validate_numeric_values(
     values: Values,
     var_name: str,
-    target_dtype: np.dtype | None = None,
+    target_dtype: Optional[np.dtype] = None,
 ) -> Series:
     """Validates user-provided values against the original Pandas numerical values used to
     fit a Bambi model.
