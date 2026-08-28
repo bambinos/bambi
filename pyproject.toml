@@ -48,6 +48,9 @@ documentation = "https://bambinos.github.io/bambi"
 repository = "https://github.com/bambinos/bambi"
 changelog = "https://github.com/bambinos/bambi/blob/main/CHANGELOG.md"
 
+[dependency-groups]
+dev = ["jupyterlab-lsp>=5.3.0,<6", "python-lsp-server>=1.15.0,<2"]
+
 [tool.setuptools.packages.find]
 include = ["bambi*"]
 
@@ -120,11 +123,14 @@ python = "~=3.14.0"
 
 [tool.pixi.environments]
 default = { solve-group = "default" }
-dev = { features = ["dev", "test", "docs", "jax", "nutpie"], solve-group = "default" }
 # Only used for testing purposes
 py312 = {features = ["dev", "test", "docs", "jax", "nutpie", "py312"]}
 py313 = {features = ["dev", "test", "docs", "jax", "nutpie", "py313"]}
 py314 = {features = ["dev", "test", "docs", "jax", "nutpie", "py314"]}
+
+[tool.pixi.environments.dev]
+features = ["dev", "test", "docs", "jax", "nutpie"]
+solve-group = "default"
 
 [tool.pixi.feature.dev.tasks]
 pre-commit-setup = "pre-commit install"
