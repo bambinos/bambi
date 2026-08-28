@@ -182,7 +182,7 @@ class PyMCModel:
         random_seed=None,
         kind="response",
         inplace=True,
-        progressbar=True,
+        progressbar=False,
     ):
         if not inplace:
             idata = deepcopy(idata)
@@ -249,7 +249,7 @@ class PyMCModel:
         idata,
         data: Optional[pd.DataFrame],
         inplace: bool = True,
-        progressbar: bool = True,
+        progressbar: bool = False,
     ):
         if not inplace:
             idata = deepcopy(idata)
@@ -395,6 +395,7 @@ class PyMCModel:
                     trace=posterior_for_prediction,
                     var_names=responses_names,
                     random_seed=random_seed,
+                    progressbar=progressbar,
                 )
 
             idata["posterior_predictive"] = as_dataset(predictions["posterior_predictive"])

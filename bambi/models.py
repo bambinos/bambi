@@ -969,6 +969,7 @@ class Model:
         inplace=True,
         include_group_specific=True,
         random_seed=None,
+        progressbar=False,
     ):
         """Predict method for Bambi models
 
@@ -1019,6 +1020,8 @@ class Model:
             `True`.
         random_seed : int, RandomState or Generator, optional
             Seed for the random number generator.
+        progressbar : bool, optional
+            Whether to display a progress bar. Defaults to `False`.
 
         Returns
         -------
@@ -1071,9 +1074,10 @@ class Model:
             random_seed=random_seed,
             kind=kind,
             inplace=inplace,
+            progressbar=progressbar,
         )
 
-    def compute_log_likelihood(self, idata, data=None, inplace=True):
+    def compute_log_likelihood(self, idata, data=None, inplace=True, progressbar=False):
         """Compute the model's log-likelihood
 
         Parameters
@@ -1087,13 +1091,17 @@ class Model:
         inplace : bool, optional
             If `True` it will modify `idata` in-place. Otherwise, it will return a copy of
             `idata` with the `log_likelihood` group added.
+        progressbar : bool, optional
+            Whether to display the log-likelihood computation progress bar. Defaults to `False`.
 
         Returns
         -------
         DataTree or None
         """
         self._check_built()
-        return self.backend.compute_log_likelihood(idata=idata, data=data, inplace=inplace)
+        return self.backend.compute_log_likelihood(
+            idata=idata, data=data, inplace=inplace, progressbar=progressbar
+        )
 
     def r2_score(self, idata, summary=True):
         """R² for Bayesian regression models.

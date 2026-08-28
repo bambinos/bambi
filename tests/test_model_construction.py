@@ -775,6 +775,28 @@ def test_compute_log_likelihood(data_random_n100, mock_pymc_sample):
     assert idata.log_likelihood["continuous1"].shape == (2, 4, 10)
 
 
+def test_non_sampler_progressbars(data_random_n100, monkeypatch):
+    model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
+    model.build()
+    progressbars = {"predict": [], "log_likelihood": []}
+
+    def capture_predict(**kwargs):
+        progressbars["predict"].append(kwargs["progressbar"])
+
+    def capture_log_likelihood(**kwargs):
+        progressbars["log_likelihood"].append(kwargs["progressbar"])
+
+    monkeypatch.setattr(model.backend, "predict", capture_predict)
+    monkeypatch.setattr(model.backend, "compute_log_likelihood", capture_log_likelihood)
+
+    model.predict(idata=None)
+    model.predict(idata=None, progressbar=True)
+    model.compute_log_likelihood(idata=None)
+    model.compute_log_likelihood(idata=None, progressbar=True)
+
+    assert progressbars == {"predict": [False, True], "log_likelihood": [False, True]}
+
+
 def test_compute_log_likelihood_transformed_response(data_beetle, mock_pymc_sample):
     model = bmb.Model("prop(y, n) ~ x", data_beetle, family="binomial")
     idata = model.fit(draws=4, chains=2)
