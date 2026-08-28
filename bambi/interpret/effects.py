@@ -524,8 +524,8 @@ def plot_predictions(
     transforms : dict or None
         Dictionary of transformations to apply to predictions.
     fig_kwargs : dict or None
-        Additional keyword arguments for figure customization. Use the 'theme' key
-        to pass a dictionary of matplotlib rc parameters.
+        Additional keyword arguments for figure customization.
+        Use the 'theme' key to pass a dictionary of matplotlib rc parameters.
     subplot_kwargs : dict or None
         Overrides default plotting sequence (main, group, panel).
     on : Axes, Figure, SubFigure, or None
@@ -713,8 +713,8 @@ def plot_comparisons(
     transforms : dict or None
         Dictionary of transformations to apply to comparisons.
     fig_kwargs : dict or None
-        Additional keyword arguments for figure customization. Use the 'theme' key
-        to pass a dictionary of matplotlib rc parameters.
+        Additional keyword arguments for figure customization.
+        Use the 'theme' key to pass a dictionary of matplotlib rc parameters.
     subplot_kwargs : Mapping[str, str] or None
         Overrides default plotting sequence (main, group, panel).
     on : Axes, Figure, SubFigure, or None
@@ -924,6 +924,7 @@ def plot_slopes(
         Dictionary of transformations to apply to predictions before differencing.
     fig_kwargs : dict or None
         Additional keyword arguments for figure customization.
+        Use the 'theme' key to pass a dictionary of matplotlib rc parameters.
     subplot_kwargs : Mapping[str, str] or None
         Overrides default plotting sequence (main, group, panel).
     on : Axes, Figure, SubFigure, or None

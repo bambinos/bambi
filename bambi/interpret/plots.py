@@ -24,6 +24,7 @@ class FigureConfig:
     sharex: bool = True
     sharey: bool = True
     alpha: float = 0.3
+    legend: bool = True
     xlabel: Optional[str] = None
     ylabel: Optional[str] = None
     title: Optional[str] = None
@@ -184,7 +185,7 @@ def _get_interval_pairs(data: DataFrame, base_alpha: float) -> list[tuple[str, s
     Returns
     -------
     list[tuple[str, str, float, float]]
-        Each tuple is ``(lower_col, upper_col, alpha, linewidth)``.
+        Each tuple is `(lower_col, upper_col, alpha, linewidth)`.
     """
     lower_cols = [col for col in data.columns if col.startswith("lower_")]
     upper_cols = [col for col in data.columns if col.startswith("upper_")]
@@ -217,21 +218,32 @@ def _add_main_layer(plot: Plot, data: DataFrame, config: PlottingConfig) -> Plot
     match data[config.subplot.main].dtype:
         # Strip plot if categorical or integer dtype
         case dtype if isinstance(dtype, pd.CategoricalDtype) or is_integer_dtype(dtype):
-            plot = plot.add(so.Dot(), so.Dodge())
+            plot = plot.add(so.Dot(), so.Dodge(), legend=config.figure.legend)
             plot = reduce(
                 # Repeatedly add a the uncertainty Range to the plot never indexing into
                 # the alpha element because this is a strip plot
-                lambda p, iv: p.add(so.Range(linewidth=iv[3]), so.Dodge(), ymin=iv[0], ymax=iv[1]),
+                lambda p, iv: p.add(
+                    so.Range(linewidth=iv[3]),
+                    so.Dodge(),
+                    ymin=iv[0],
+                    ymax=iv[1],
+                    legend=config.figure.legend,
+                ),
                 intervals,
                 plot,
             )
         # Line plot if numeric dtype
         case dtype if is_float_dtype(dtype):
-            plot = plot.add(so.Line())
+            plot = plot.add(so.Line(), legend=config.figure.legend)
             # Repeatedly add the uncertainty Band to the plot never indexing into
             # the linewidth element because this is a line plot
             plot = reduce(
-                lambda p, iv: p.add(so.Band(alpha=iv[2]), ymin=iv[0], ymax=iv[1]),
+                lambda p, iv: p.add(
+                    so.Band(alpha=iv[2]),
+                    ymin=iv[0],
+                    ymax=iv[1],
+                    legend=config.figure.legend,
+                ),
                 intervals,
                 plot,
             )

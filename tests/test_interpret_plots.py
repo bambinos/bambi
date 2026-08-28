@@ -190,6 +190,22 @@ class TestCommon:
         assert figure.bbox.y0 <= legend_bbox.y0
         assert legend_bbox.y1 <= figure.bbox.y1
 
+    def test_legend_can_be_disabled_with_fig_kwargs(self):
+        data = pd.DataFrame(
+            {
+                "x": [0.0, 1.0, 0.0, 1.0],
+                "group": ["a", "a", "b", "b"],
+                "estimate": [0.0, 1.0, 0.2, 1.2],
+                "lower_94%": [-0.1, 0.9, 0.1, 1.1],
+                "upper_94%": [0.1, 1.1, 0.3, 1.3],
+            }
+        )
+        config = PlottingConfig.from_params(["x", "group"], fig_kwargs={"legend": False})
+
+        figure = plot(data, config)
+
+        assert not figure.legends
+
 
 class TestPredictions:
     """
