@@ -1,6 +1,7 @@
 import logging
 import traceback
 import warnings
+from contextlib import contextmanager
 from copy import deepcopy
 from importlib.metadata import version
 
@@ -58,6 +59,18 @@ warnings.filterwarnings(
     message=r".*Remember to update that variable with the correct shape to avoid shape issues.*",
     category=ShapeWarning,
 )
+
+
+@contextmanager
+def _suppress_logging():
+    """Temporarily silence logs emitted by non-sampling operations."""
+    logger = logging.getLogger("pymc")
+    level = logger.level
+    logger.setLevel(logging.CRITICAL + 1)
+    try:
+        yield
+    finally:
+        logger.setLevel(level)
 
 
 class PyMCModel:
@@ -229,12 +242,13 @@ class PyMCModel:
         if prior_only and not var_names:
             return None
 
-        idata = pm.sample_prior_predictive(
-            draws=draws,
-            var_names=var_names,
-            model=self.model,
-            random_seed=random_seed,
-        )
+        with _suppress_logging():
+            idata = pm.sample_prior_predictive(
+                draws=draws,
+                var_names=var_names,
+                model=self.model,
+                random_seed=random_seed,
+            )
 
         for group in idata.children:
             getattr(idata, group).attrs["modeling_interface"] = "bambi"
@@ -435,7 +449,7 @@ class PyMCModel:
             model = remove_group_specific_contributions(self._group_specific_state, model)
 
         # It's assumed the user always wants the parameter 'predictions' (mu, sigma, etc.)
-        with model:
+        with _suppress_logging(), model:
             posterior_for_prediction = pm.compute_deterministics(
                 dataset=posterior_for_prediction,
                 var_names=parameters_names,
@@ -461,7 +475,7 @@ class PyMCModel:
                 self.spec.response_term, prediction_model, self.spec.family, kind
             )
 
-            with prediction_model:
+            with _suppress_logging(), prediction_model:
                 predictions = pm.sample_posterior_predictive(
                     trace=posterior_for_prediction,
                     var_names=responses_names,
@@ -518,7 +532,7 @@ class PyMCModel:
             model = pm.do(model, interventions)
         build_response_prediction_variables(self.spec.response_term, model, self.spec.family, kind)
 
-        with model:
+        with _suppress_logging(), model:
             predictions = pm.sample_posterior_predictive(
                 trace=trace,
                 var_names=var_names,
@@ -535,7 +549,7 @@ class PyMCModel:
             )
 
     def _compute_log_likelihood_in_sample(self, trace, progressbar) -> None:
-        with self.model:
+        with _suppress_logging(), self.model:
             pm.compute_log_likelihood(
                 idata=trace, extend_inferencedata=True, progressbar=progressbar
             )
@@ -556,7 +570,7 @@ class PyMCModel:
         pm.set_data(new_data, coords=new_coords, model=model)
         model = replace_response_variables(self.spec.response_term, model)
 
-        with model:
+        with _suppress_logging(), model:
             pm.compute_log_likelihood(
                 idata=trace,
                 var_names=[self.spec.response_term.label],

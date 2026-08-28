@@ -797,6 +797,22 @@ def test_non_sampler_progressbars(data_random_n100, monkeypatch):
     assert progressbars == {"predict": [False, True], "log_likelihood": [False, True]}
 
 
+def test_non_sampler_operations_suppress_pymc_logs(data_random_n100, mock_pymc_sample, caplog):
+    model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
+    idata = model.fit(draws=4, chains=2)
+
+    caplog.clear()
+    caplog.set_level(logging.INFO, logger="pymc")
+    model.prior_predictive(draws=4)
+    model.predict(idata, kind="response")
+    model.compute_log_likelihood(idata)
+
+    assert not any(
+        record.name == "pymc.sampling.forward" and record.getMessage().startswith("Sampling:")
+        for record in caplog.records
+    )
+
+
 def test_compute_log_likelihood_transformed_response(data_beetle, mock_pymc_sample):
     model = bmb.Model("prop(y, n) ~ x", data_beetle, family="binomial")
     idata = model.fit(draws=4, chains=2)
