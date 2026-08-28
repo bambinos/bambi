@@ -489,7 +489,7 @@ def plot_predictions(
     model: Model,
     idata: DataTree,
     conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
-    average_by: Optional[str | list | bool] = None,
+    average_by: Optional[str | list[str]] = None,
     target: str = "mean",
     use_hdi: bool = True,
     prob: Optional[float | list[float]] = az.rcParams["stats.ci_prob"],
@@ -508,7 +508,7 @@ def plot_predictions(
         DataTree object containing the posterior samples.
     conditional : str, list[str], dict[str, ndarray or list or int or float], or None
         Variables to condition on for predictions.
-    average_by : str or list or bool or None
+    average_by : str, list[str], or None
         Variables to average predictions over.
     target : str
         Which quantity to extract. `"mean"` (default) for the posterior of the parent
@@ -556,13 +556,18 @@ def plot_predictions(
         transforms=transforms,
     )
 
-    # Add dimension columns for multi-output models (e.g., Categorical family)
-    dim_cols = _extract_dim_columns(result.summary, var_names)
-    all_var_names = var_names + dim_cols
+    df_plot = result.summary
+    dim_columns = _extract_dim_columns(df_plot, var_names)
 
-    plot_config = PlottingConfig.from_params(all_var_names, subplot_kwargs, fig_kwargs)
+    # Extract original variable names from dimension columns for plotting without `dim` suffix.
+    for column in dim_columns:
+        new_column = column.replace("_dim", "")
+        var_names.append(new_column)
+        df_plot[new_column] = df_plot[column]
 
-    return plot(result.summary, plot_config, on=on)
+    plot_config = PlottingConfig.from_params(var_names, subplot_kwargs, fig_kwargs)
+
+    return plot(df_plot, plot_config, on=on)
 
 
 def comparisons(
@@ -747,13 +752,18 @@ def plot_comparisons(
         transforms=transforms,
     )
 
-    # Add dimension columns for multi-output models (e.g., Categorical family)
-    dim_cols = _extract_dim_columns(result.summary, var_names)
-    all_var_names = var_names + dim_cols
+    df_plot = result.summary
+    dim_columns = _extract_dim_columns(df_plot, var_names)
 
-    plot_config = PlottingConfig.from_params(all_var_names, subplot_kwargs, fig_kwargs)
+    # Extract original variable names from dimension columns for plotting without `dim` suffix.
+    for column in dim_columns:
+        new_column = column.replace("_dim", "")
+        var_names.append(new_column)
+        df_plot[new_column] = df_plot[column]
 
-    return plot(result.summary, plot_config, on=on)
+    plot_config = PlottingConfig.from_params(var_names, subplot_kwargs, fig_kwargs)
+
+    return plot(df_plot, plot_config, on=on)
 
 
 def slopes(
@@ -958,10 +968,15 @@ def plot_slopes(
         transforms=transforms,
     )
 
-    # Add dimension columns for multi-output models (e.g., Categorical family)
-    dim_cols = _extract_dim_columns(result.summary, var_names)
-    all_var_names = var_names + dim_cols
+    df_plot = result.summary
+    dim_columns = _extract_dim_columns(df_plot, var_names)
 
-    plot_config = PlottingConfig.from_params(all_var_names, subplot_kwargs, fig_kwargs)
+    # Extract original variable names from dimension columns for plotting without `dim` suffix.
+    for column in dim_columns:
+        new_column = column.replace("_dim", "")
+        var_names.append(new_column)
+        df_plot[new_column] = df_plot[column]
 
-    return plot(result.summary, plot_config, on=on)
+    plot_config = PlottingConfig.from_params(var_names, subplot_kwargs, fig_kwargs)
+
+    return plot(df_plot, plot_config, on=on)

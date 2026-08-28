@@ -397,6 +397,19 @@ class TestPredictions:
         assert (summary.groupby("length")["choice_dim"].nunique() == 3).all()
         np.testing.assert_allclose(summary.groupby("length")["estimate"].sum(), 1)
 
+    @pytest.mark.parametrize(
+        "group, label", [(None, "choice"), ("choice", "choice"), ("choice_dim", "choice_dim")]
+    )
+    def test_categorical_response_uses_response_name_in_plot(self, food_choice, group, label):
+        model, idata = food_choice
+        subplot_kwargs = None
+        if group is not None:
+            subplot_kwargs = {"main": "length", "group": group}
+
+        figure = plot_predictions(model, idata, "length", subplot_kwargs=subplot_kwargs)
+
+        assert figure.legends[0].get_title().get_text() == label
+
     def test_term_transformations(self, formulae_transform, nonformulae_transform):
         model, idata = formulae_transform
 
