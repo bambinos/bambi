@@ -295,8 +295,10 @@ def plot(
     plot = so.Plot(data, x=config.subplot.main, y="estimate", color=config.subplot.group)
     # Force color cycle to nominal instead of gradient
     plot = plot.scale(color=so.Nominal())
+    # `unique` preserves observed order, respecting user-supplied levels when present.
+    panel_order = data[config.subplot.panel].unique() if config.subplot.panel is not None else None
     # Add a facet layer (only adds if panel is not None)
-    plot = plot.facet(col=config.subplot.panel, wrap=config.figure.wrap)
+    plot = plot.facet(col=config.subplot.panel, order=panel_order, wrap=config.figure.wrap)
     # Share x-y axis labels
     plot = plot.share(x=config.figure.sharex, y=config.figure.sharey)
     # Add a main layer (line or stripplot based on dtype)

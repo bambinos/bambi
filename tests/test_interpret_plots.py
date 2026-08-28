@@ -206,6 +206,25 @@ class TestCommon:
 
         assert not figure.legends
 
+    def test_panel_order_follows_data_order(self):
+        pigs = [4602, 8437, 4817]
+        data = pd.DataFrame(
+            {
+                "Time": [1.0, 1.0, 1.0, 2.0, 2.0, 2.0],
+                "Pig": pigs * 2,
+                "estimate": [1.0, 2.0, 3.0, 1.5, 2.5, 3.5],
+                "lower_94%": [0.9, 1.9, 2.9, 1.4, 2.4, 3.4],
+                "upper_94%": [1.1, 2.1, 3.1, 1.6, 2.6, 3.6],
+            }
+        )
+        config = PlottingConfig.from_params(
+            ["Time", "Pig"], subplot_kwargs={"main": "Time", "panel": "Pig"}
+        )
+
+        figure = plot(data, config)
+
+        assert [ax.get_title() for ax in figure.axes] == [str(pig) for pig in pigs]
+
 
 class TestPredictions:
     """
