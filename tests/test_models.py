@@ -589,6 +589,19 @@ class TestBinomial(FitPredictParent):
         idata_2 = model.compute_log_likelihood(idata, data=data_beetle, inplace=False)
         assert (idata_2.log_likelihood["y"] == idata.log_likelihood["y"]).all().item()
 
+    def test_response_params_default_to_one_trial(self, data_beetle):
+        model = bmb.Model("p(y, n) ~ x", data_beetle, family="binomial")
+        idata = self.fit(model)
+        new_data = data_beetle[["x"]].head(3)
+
+        with pytest.warns(UserWarning, match="Using n=1"):
+            result = model.predict(idata, data=new_data, kind="response_params", inplace=False)
+
+        assert result.predictions["p"].shape[-1] == len(new_data)
+
+        with pytest.raises(ValueError, match=r"Required variables: \['n'\]"):
+            model.predict(idata, data=new_data, kind="response", inplace=False)
+
 
 @pytest.mark.usefixtures("mock_pymc_sample")
 class TestPoisson(FitPredictParent):

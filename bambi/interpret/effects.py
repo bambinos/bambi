@@ -383,6 +383,14 @@ def _build_predictions(
         preds_data = create_grid(all_vars)
         context_columns = [var.name for var in (*cond.variables, *defaults.variables)]
 
+    if model.response_term.is_binomial:
+        # If response is binomial, trials is not a literal, and it's not passed as conditional,
+        # set trials to 1 for predictions.
+        trials = model.response_term.components[0].call.args[1]
+        trials_name = getattr(trials, "name", None)
+        if trials_name is not None and trials_name not in preds_data:
+            preds_data[trials_name] = 1
+
     pred_kwargs = {
         "idata": idata,
         "data": preds_data,
@@ -466,6 +474,14 @@ def predictions(
     else:
         all_vars = cond.variables + defaults.variables
         preds_data = create_grid(all_vars)
+
+    if model.response_term.is_binomial:
+        # If response is binomial, trials is not a literal, and it's not passed as conditional,
+        # set trials to 1 for predictions.
+        trials = model.response_term.components[0].call.args[1]
+        trials_name = getattr(trials, "name", None)
+        if trials_name is not None and trials_name not in preds_data:
+            preds_data[trials_name] = 1
 
     pred_kwargs = {
         "idata": idata,

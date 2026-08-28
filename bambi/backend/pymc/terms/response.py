@@ -228,7 +228,7 @@ def build_new_response_data(
         return _build_new_counts_data(term, data, purpose)
 
     if term.is_binomial:
-        return _build_new_binomial_data(term, data, purpose)
+        return _build_new_binomial_data(term, data, purpose, kind)
 
     return _build_new_generic_data(term, data, family, purpose)
 
@@ -693,7 +693,9 @@ def _build_new_counts_data(term: ResponseTerm, data: pd.DataFrame, purpose: Purp
     return output
 
 
-def _build_new_binomial_data(term: ResponseTerm, data: pd.DataFrame, purpose: Purpose):
+def _build_new_binomial_data(
+    term: ResponseTerm, data: pd.DataFrame, purpose: Purpose, kind: str | None
+):
     call_args = _get_call_bound_arguments(term)
     successes_name = call_args["successes"]
     trials_name = call_args.get("trials", "")
@@ -705,7 +707,15 @@ def _build_new_binomial_data(term: ResponseTerm, data: pd.DataFrame, purpose: Pu
     if purpose == "log_likelihood":
         var_names = [successes_name] + var_names
 
-    missing_var_names = [name for name in var_names if name not in data.columns]
+    use_default_trials = (
+        purpose == "prediction"
+        and kind == "response_params"
+        and trials_name
+        and trials_name not in data.columns
+    )
+    missing_var_names = [
+        name for name in var_names if name not in data.columns and not use_default_trials
+    ]
     if missing_var_names:
         present_var_names = [name for name in var_names if name in data.columns]
         raise ValueError(
@@ -720,7 +730,16 @@ def _build_new_binomial_data(term: ResponseTerm, data: pd.DataFrame, purpose: Pu
         data_dict = {successes_name: data[successes_name].to_numpy()}
 
     if trials_name:
-        data_dict[trials_name] = data[trials_name].to_numpy()
+        if use_default_trials:
+            data_dict[trials_name] = np.ones(n, dtype=int)
+            warnings.warn(
+                "Using n=1 for Binomial response-parameter predictions because the trials "
+                f"column '{trials_name}' was not provided. Pass '{trials_name}' explicitly "
+                "to predict for a different number of trials.",
+                UserWarning,
+            )
+        else:
+            data_dict[trials_name] = data[trials_name].to_numpy()
 
     response_data = term.eval_new_data(pd.DataFrame(data_dict))
     successes, trials = response_data[:, 0], response_data[:, 1]

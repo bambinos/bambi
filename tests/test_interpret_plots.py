@@ -247,6 +247,21 @@ class TestPredictions:
         result = plot_predictions(model, idata, covariates, target=target)
         assert isinstance(result, Figure)
 
+    def test_binomial_predictions_use_one_trial(self, data_beetle, mock_pymc_sample):
+        model = bmb.Model("p(y, n) ~ x", data_beetle, family="binomial")
+        idata = model.fit(chains=2)
+
+        result = predictions(model, idata, conditional="x")
+        assert (result.summary["n"] == 1).all()
+        assert isinstance(plot_predictions(model, idata, conditional="x"), Figure)
+
+    def test_binomial_predictions_keep_literal_trials(self, data_beetle, mock_pymc_sample):
+        model = bmb.Model("p(y, 62) ~ x", data_beetle, family="binomial")
+        idata = model.fit(chains=2)
+
+        result = predictions(model, idata, conditional="x")
+        assert "n" not in result.summary
+
     @pytest.mark.parametrize("target", ["mean", "mpg"])
     @pytest.mark.parametrize(
         "covariates",
