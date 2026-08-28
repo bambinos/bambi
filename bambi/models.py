@@ -8,7 +8,6 @@ from importlib.metadata import version
 
 import formulae as fm
 import pandas as pd
-import pymc as pm
 from arviz_plots import plot_dist
 from arviz_stats import residual_r2
 
@@ -24,6 +23,7 @@ from bambi.priors import Prior, scale_priors
 from bambi.terms import ResponseTerm
 from bambi.transformations import transformations_namespace
 from bambi.utils import (
+    as_dataset,
     clean_formula_lhs,
     indentify,
     listify,
@@ -821,9 +821,6 @@ class Model:
             stats = stats.copy()
             stats["dist"] = stats.get("dist", {}).copy()
 
-        unobserved_rvs_names = []
-        flat_rvs = []
-
         if hdi_prob is not None:
             warnings.warn(
                 "'hdi_prob' has been renamed to 'ci_prob' and will be removed in future versions",
@@ -855,51 +852,24 @@ class Model:
         if figsize is not None:
             pc_kwargs["figure_kwargs"]["figsize"] = figsize
 
-        for unobserved in self.backend.model.unobserved_RVs:
-            if "Flat" in str(unobserved):
-                flat_rvs.append(unobserved.name)
-            else:
-                # Don't include deterministics that go into the likelihood (e.g. 'mu' normal model)
-                is_likelihood_param = unobserved.name in self.family.likelihood.params
-                is_deterministic = unobserved in self.backend.model.deterministics
-                if is_likelihood_param and is_deterministic:
-                    continue
-                unobserved_rvs_names.append(unobserved.name)
-
-        if var_names is None:
-            var_names = pm.util.get_default_varnames(
-                unobserved_rvs_names, include_transformed=False
-            )
-        else:
-            flat_rvs = [fv for fv in flat_rvs if fv in var_names]
-            var_names = [vn for vn in var_names if vn not in flat_rvs]
-
-        if flat_rvs:
-            _log.info(
-                "Variables %s have flat priors, and hence they are not plotted",
-                ", ".join(flat_rvs),
-            )
-
-        if omit_offsets:
-            var_names = [name for name in var_names if not name.endswith("_offset")]
-
-        if omit_group_specific:
-            group_specific_var_names = [
-                name
-                for parameter in self.conditional_parameters.values()
-                for name in parameter.group_specific_terms
-            ]
-            var_names = [name for name in var_names if name not in group_specific_var_names]
-
         pc = None
-        if var_names:
+        prior_dt = self.backend.prior_predictive(
+            draws=draws,
+            var_names=var_names,
+            omit_offsets=omit_offsets,
+            omit_group_specific=omit_group_specific,
+            prior_only=True,
+            random_seed=random_seed,
+        )
+
+        if prior_dt is not None:
+            var_names = list(as_dataset(prior_dt["prior"]).data_vars)
             # Sort variable names so Intercept is in the beginning
             if "Intercept" in var_names:
                 var_names.insert(0, var_names.pop(var_names.index("Intercept")))
-            pps = self.prior_predictive(draws=draws, var_names=var_names, random_seed=random_seed)
 
             pc = plot_dist(
-                pps,
+                prior_dt,
                 group="prior",
                 var_names=var_names,
                 filter_vars=filter_vars,
@@ -915,6 +885,7 @@ class Model:
                 stats=stats,
                 **pc_kwargs,
             )
+
         return pc
 
     def prior_predictive(self, draws=500, var_names=None, omit_offsets=True, random_seed=None):
@@ -940,26 +911,12 @@ class Model:
         """
         self._check_built()
 
-        if var_names is None:
-            variables = self.backend.model.unobserved_RVs + self.backend.model.observed_RVs
-            variables_names = [v.name for v in variables]
-            var_names = pm.util.get_default_varnames(variables_names, include_transformed=False)
-
-        if omit_offsets:
-            var_names = [name for name in var_names if not name.endswith("_offset")]
-
-        idata = pm.sample_prior_predictive(
+        return self.backend.prior_predictive(
             draws=draws,
             var_names=var_names,
-            model=self.backend.model,
+            omit_offsets=omit_offsets,
             random_seed=random_seed,
         )
-
-        for group in idata.children:
-            getattr(idata, group).attrs["modeling_interface"] = "bambi"
-            getattr(idata, group).attrs["modeling_interface_version"] = __version__
-
-        return idata
 
     def predict(
         self,
@@ -1208,8 +1165,7 @@ class Model:
         """
         self._check_built()
 
-        graphviz = pm.model_to_graphviz(model=self.backend.model, formatting=formatting)
-
+        graphviz = self.backend.graph(formatting=formatting)
         width, height = (None, None) if figsize is None else figsize
 
         if name is not None:

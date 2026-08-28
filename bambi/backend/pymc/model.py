@@ -174,6 +174,77 @@ class PyMCModel:
         self.fit = True
         return result
 
+    def prior_predictive(
+        self,
+        draws=500,
+        var_names=None,
+        omit_offsets=True,
+        omit_group_specific=False,
+        prior_only=False,
+        random_seed=None,
+    ):
+        if prior_only:
+            unobserved_rvs_names = []
+            flat_rvs = []
+            for unobserved in self.model.unobserved_RVs:
+                if "Flat" in str(unobserved):
+                    flat_rvs.append(unobserved.name)
+                else:
+                    is_likelihood_param = unobserved.name in self.spec.family.likelihood.params
+                    is_deterministic = unobserved in self.model.deterministics
+                    if is_likelihood_param and is_deterministic:
+                        continue
+                    unobserved_rvs_names.append(unobserved.name)
+
+            if var_names is None:
+                var_names = pm.util.get_default_varnames(
+                    unobserved_rvs_names, include_transformed=False
+                )
+            else:
+                flat_rvs = [name for name in flat_rvs if name in var_names]
+                var_names = [name for name in var_names if name not in flat_rvs]
+
+            if flat_rvs:
+                _logger.info(
+                    "Variables %s have flat priors, and hence they are not included.",
+                    ", ".join(flat_rvs),
+                )
+        elif var_names is None:
+            variables = self.model.unobserved_RVs + self.model.observed_RVs
+            var_names = pm.util.get_default_varnames(
+                [variable.name for variable in variables], include_transformed=False
+            )
+
+        if omit_offsets:
+            var_names = [name for name in var_names if not name.endswith("_offset")]
+
+        if omit_group_specific:
+            group_specific_var_names = [
+                name
+                for parameter in self.spec.conditional_parameters.values()
+                for name in parameter.group_specific_terms
+            ]
+            var_names = [name for name in var_names if name not in group_specific_var_names]
+
+        if prior_only and not var_names:
+            return None
+
+        idata = pm.sample_prior_predictive(
+            draws=draws,
+            var_names=var_names,
+            model=self.model,
+            random_seed=random_seed,
+        )
+
+        for group in idata.children:
+            getattr(idata, group).attrs["modeling_interface"] = "bambi"
+            getattr(idata, group).attrs["modeling_interface_version"] = __version__
+
+        return idata
+
+    def graph(self, formatting="plain"):
+        return pm.model_to_graphviz(model=self.model, formatting=formatting)
+
     def predict(
         self,
         idata,
