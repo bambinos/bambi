@@ -7,7 +7,7 @@ from matplotlib.figure import Figure
 
 import bambi as bmb
 from bambi.interpret import plot_comparisons, plot_predictions, plot_slopes
-from bambi.interpret.effects import predictions
+from bambi.interpret.effects import comparisons, predictions, slopes
 from bambi.interpret.plots import PlottingConfig, plot
 
 # Render plots to a buffer instead of rendering to stddout
@@ -93,6 +93,25 @@ class TestCommon:
         assert isinstance(result, Figure)
         result = plot_slopes(model, idata, "hp", "am", prob=[0.5, 0.94])
         assert isinstance(result, Figure)
+
+    def test_none_prob_omits_credible_intervals(self, mtcars_fixture):
+        model, idata = mtcars_fixture
+
+        for effect, args in (
+            (predictions, ("hp",)),
+            (comparisons, ("hp", "am")),
+            (slopes, ("hp", "am")),
+        ):
+            summary = effect(model, idata, *args, prob=None).summary
+            assert list(summary.filter(regex="^(lower|upper)_").columns) == []
+
+        for plot_effect, args in (
+            (plot_predictions, ("hp",)),
+            (plot_comparisons, ("hp", "am")),
+            (plot_slopes, ("hp", "am")),
+        ):
+            figure = plot_effect(model, idata, *args, prob=None)
+            assert isinstance(figure, Figure)
 
     def test_plot_customization(self, mtcars_fixture):
         """Verify returned figures can be customized after creation."""

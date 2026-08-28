@@ -8,14 +8,15 @@ from pandas.api.types import is_numeric_dtype
 Values = list[int | float | str] | ArrayLike | Series
 
 
-def validate_prob(prob: float | list[float]) -> list[float]:
+def validate_prob(prob: float | list[float] | None) -> list[float]:
     """Validate and normalize the prob parameter.
 
     Parameters
     ----------
-    prob : float or list[float]
+    prob : float or list[float] or None
         Probability or list of probabilities for credible intervals.
         Each value must be between 0 and 1 (exclusive).
+        Pass None to omit credible intervals.
 
     Returns
     -------
@@ -27,6 +28,9 @@ def validate_prob(prob: float | list[float]) -> list[float]:
     ValueError
         If any probability is not between 0 and 1.
     """
+    if prob is None:
+        return []
+
     if isinstance(prob, (int, float)):
         prob = [prob]
 

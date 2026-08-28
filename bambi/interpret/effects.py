@@ -262,17 +262,21 @@ def _compute_bounds(x: DataArray, prob: float, use_hdi: bool) -> DataFrame:
     return bounds
 
 
-def get_summary_stats(x: DataArray, prob: float | list[float], use_hdi: bool = True) -> DataFrame:
+def get_summary_stats(
+    x: DataArray, prob: float | list[float] | None, use_hdi: bool = True
+) -> DataFrame:
     """Compute summary statistics (mean and uncertainty intervals) of an array.
 
     Parameters
     ----------
     x : DataArray
         The xarray DataArray containing posterior samples with 'chain' and 'draw' dimensions.
-    prob : float or list[float]
+    prob : float or list[float] or None
         Probability or list of probabilities for credible intervals (each between 0 and 1).
         When a list is provided, multiple pairs of lower/upper columns are returned,
-        sorted by interval width (widest first).
+        sorted by interval width (widest first). Pass None to return point estimates only.
+    use_hdi : bool
+        Whether to compute highest density or equal-tailed intervals. Default is True.
 
     Returns
     -------
@@ -281,7 +285,9 @@ def get_summary_stats(x: DataArray, prob: float | list[float], use_hdi: bool = T
         - 'estimate': posterior mean
         - 'lower_X%' / 'upper_Y%': bounds for each probability level
     """
-    if isinstance(prob, (int, float)):
+    if prob is None:
+        prob = []
+    elif isinstance(prob, (int, float)):
         prob = [prob]
 
     # Sort descending so widest interval columns come first
@@ -290,9 +296,10 @@ def get_summary_stats(x: DataArray, prob: float | list[float], use_hdi: bool = T
     mean = x.mean(dim=("chain", "draw")).to_series().rename("estimate").to_frame()
 
     bounds_list = [_compute_bounds(x, p, use_hdi) for p in prob]
-    all_bounds = pd.concat(bounds_list, axis=1)
+    if bounds_list:
+        mean = mean.join(pd.concat(bounds_list, axis=1))
 
-    stats = mean.join(all_bounds).reset_index().drop("__obs__", axis=1)
+    stats = mean.reset_index().drop("__obs__", axis=1)
 
     return stats
 
@@ -402,7 +409,7 @@ def predictions(
     average_by: str | list[str] | None = None,
     target: str = "mean",
     use_hdi: bool = True,
-    prob: float | list[float] = az.rcParams["stats.ci_prob"],
+    prob: float | list[float] | None = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
 ) -> Result:
     """Compute conditional adjusted predictions.
@@ -424,9 +431,10 @@ def predictions(
         posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
-    prob : float or list[float]
+    prob : float or list[float] or None
         Probability or list of probabilities for credible intervals. Default is from
         arviz rcParams. When a list is provided, multiple nested intervals are computed.
+        Pass None to omit credible intervals.
     transforms : dict or None
         Dictionary of transformations to apply to predictions.
     Returns
@@ -484,7 +492,7 @@ def plot_predictions(
     average_by: str | list | bool | None = None,
     target: str = "mean",
     use_hdi: bool = True,
-    prob: float | list[float] = az.rcParams["stats.ci_prob"],
+    prob: float | list[float] | None = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
     fig_kwargs: Optional[dict[str, Any]] = None,
     subplot_kwargs: Optional[dict[str, str]] = None,
@@ -509,10 +517,10 @@ def plot_predictions(
         posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
-    prob : float or list[float]
+    prob : float or list[float] or None
         Probability or list of probabilities for credible intervals. Default is from
         arviz rcParams. When a list is provided, nested bands with decreasing opacity
-        are drawn.
+        are drawn. Pass None to omit bands.
     transforms : dict or None
         Dictionary of transformations to apply to predictions.
     fig_kwargs : dict or None
@@ -566,7 +574,7 @@ def comparisons(
     target: str = "mean",
     comparison: Callable[[DataArray, DataArray], DataArray] | str = "diff",
     use_hdi: bool = True,
-    prob: float | list[float] = az.rcParams["stats.ci_prob"],
+    prob: float | list[float] | None = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
 ) -> Result:
     """Compute conditional adjusted comparisons.
@@ -591,9 +599,10 @@ def comparisons(
         Custom functions should accept (reference, contrast) DataArrays and return a DataArray.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
-    prob : float or list[float]
+    prob : float or list[float] or None
         Probability or list of probabilities for credible intervals. Default is from
         arviz rcParams. When a list is provided, multiple nested intervals are computed.
+        Pass None to omit credible intervals.
     transforms : dict or None
         Dictionary of transformations to apply to comparisons.
 
@@ -667,7 +676,7 @@ def plot_comparisons(
     target: str = "mean",
     comparison: Callable[[DataArray, DataArray], DataArray] | str = "diff",
     use_hdi: bool = True,
-    prob: float | list[float] = az.rcParams["stats.ci_prob"],
+    prob: float | list[float] | None = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
     fig_kwargs: Optional[dict[str, Any]] = None,
     subplot_kwargs: Optional[Mapping[str, str]] = None,
@@ -697,10 +706,10 @@ def plot_comparisons(
         "ratio" (ratio), "lift" (relative difference). Default is "diff".
     use_hdi : bool
         Whether to use highest density interval. Default is True.
-    prob : float or list[float]
+    prob : float or list[float] or None
         Probability or list of probabilities for credible intervals. Default is from
         arviz rcParams. When a list is provided, nested bands with decreasing opacity
-        are drawn.
+        are drawn. Pass None to omit bands.
     transforms : dict or None
         Dictionary of transformations to apply to comparisons.
     fig_kwargs : dict or None
@@ -757,7 +766,7 @@ def slopes(
     slope: str | Callable[[DataArray, DataArray, DataArray], DataArray] = "dydx",
     target: str = "mean",
     use_hdi: bool = True,
-    prob: float | list[float] = az.rcParams["stats.ci_prob"],
+    prob: float | list[float] | None = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
 ) -> Result:
     """Compute conditional adjusted slopes.
@@ -793,9 +802,10 @@ def slopes(
         posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
-    prob : float or list[float]
+    prob : float or list[float] or None
         Probability or list of probabilities for credible intervals. Default is from
         arviz rcParams. When a list is provided, multiple nested intervals are computed.
+        Pass None to omit credible intervals.
     transforms : dict or None
         Dictionary of transformations to apply to predictions before differencing.
 
@@ -873,7 +883,7 @@ def plot_slopes(
     slope: str | Callable[[DataArray, DataArray, DataArray], DataArray] = "dydx",
     target: str = "mean",
     use_hdi: bool = True,
-    prob: float | list[float] = az.rcParams["stats.ci_prob"],
+    prob: float | list[float] | None = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
     fig_kwargs: Optional[dict[str, Any]] = None,
     subplot_kwargs: Optional[Mapping[str, str]] = None,
@@ -906,10 +916,10 @@ def plot_slopes(
         posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
-    prob : float or list[float]
+    prob : float or list[float] or None
         Probability or list of probabilities for credible intervals. Default is from
         arviz rcParams. When a list is provided, nested bands with decreasing opacity
-        are drawn.
+        are drawn. Pass None to omit bands.
     transforms : dict or None
         Dictionary of transformations to apply to predictions before differencing.
     fig_kwargs : dict or None
