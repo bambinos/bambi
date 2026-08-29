@@ -259,11 +259,11 @@ def _recreate_legend(figure: Figure) -> None:
     if not figure.legends:
         return
 
+    # pylint: disable=protected-access
     def composite_handles(legend):
         """Return each rendered legend entry as a single or composite handle."""
         # Seaborn uses composite handles (e.g., a line and interval patch) for a shared semantic.
         # `legend.legend_handles` exposes only the first artist.
-
         handles = []
         for column in legend._legend_handle_box.get_children():
             for entry in column.get_children():
