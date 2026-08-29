@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
+from matplotlib.patches import Rectangle
 
 import bambi as bmb
 from bambi.interpret import plot_comparisons, plot_predictions, plot_slopes
@@ -189,6 +190,10 @@ class TestCommon:
         assert legend_bbox.x1 <= figure.bbox.x1
         assert figure.bbox.y0 <= legend_bbox.y0
         assert legend_bbox.y1 <= figure.bbox.y1
+        interval_patches = figure.legends[0].findobj(
+            match=lambda artist: isinstance(artist, Rectangle)
+        )
+        assert len(interval_patches) == 2
 
     def test_legend_can_be_disabled_with_fig_kwargs(self):
         data = pd.DataFrame(

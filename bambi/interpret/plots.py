@@ -12,6 +12,7 @@ import seaborn.objects as so
 
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure, SubFigure
+from matplotlib.offsetbox import DrawingArea
 from pandas import DataFrame
 from pandas.api.types import is_float_dtype, is_integer_dtype
 from seaborn.objects import Plot
@@ -253,14 +254,42 @@ def _add_main_layer(plot: Plot, data: DataFrame, config: PlottingConfig) -> Plot
     return plot
 
 
-def _adjust_legend(figure: Figure) -> None:
-    # Reserve a right-side figure margin for seaborn legends.
+def _recreate_legend(figure: Figure) -> None:
+    """Recreate and reposition the Seaborn legend."""
     if not figure.legends:
         return
-    figure.subplots_adjust(right=0.8)
+
+    def composite_handles(legend):
+        """Return each rendered legend entry as a single or composite handle."""
+        # Seaborn uses composite handles (e.g., a line and interval patch) for a shared semantic.
+        # `legend.legend_handles` exposes only the first artist.
+
+        handles = []
+        for column in legend._legend_handle_box.get_children():
+            for entry in column.get_children():
+                drawing_area = next(
+                    child for child in entry.get_children() if isinstance(child, DrawingArea)
+                )
+                artists = drawing_area.get_children()
+                handles.append(artists[0] if len(artists) == 1 else tuple(artists))
+        return handles
+
+    handles = []
+    labels = []
+    title = figure.legends[0].get_title().get_text()
+
     for legend in figure.legends:
-        legend.set_loc("center left")
-        legend.set_bbox_to_anchor((0.8, 0.5), transform=figure.transFigure)
+        handles.extend(composite_handles(legend))
+        labels.extend(text.get_text() for text in legend.get_texts())
+
+    figure.legends.clear()
+    figure.subplots_adjust(right=0.8)
+    figure.legend(
+        handles,
+        labels,
+        title=title,
+        loc="outside right center",
+    )
 
 
 def plot(
@@ -325,7 +354,7 @@ def plot(
         figure = plt.figure()
         try:
             plot.on(figure).plot()
-            _adjust_legend(figure)
+            _recreate_legend(figure)
         finally:
             plt.close(figure)
 
