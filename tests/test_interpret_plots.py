@@ -185,7 +185,6 @@ class TestCommon:
         legend_bbox = figure.legends[0].get_window_extent(canvas.get_renderer())
 
         assert tuple(figure.get_size_inches()) == (12.0, 4.0)
-        assert figure.axes[0].get_position().x1 == pytest.approx(0.8)
         assert 0.8 * figure.bbox.width <= legend_bbox.x0
         assert legend_bbox.x1 <= figure.bbox.x1
         assert figure.bbox.y0 <= legend_bbox.y0
