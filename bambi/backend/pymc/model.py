@@ -670,6 +670,13 @@ class PyMCModel:
                 else:
                     raise
 
+        if omit_offsets:
+            # Nutpie can still return the non-centered auxiliary variables.
+            posterior = as_dataset(idata["posterior"])
+            offset_vars = [name for name in posterior.data_vars if name.endswith("_offset")]
+            if offset_vars:
+                idata["posterior"] = posterior.drop_vars(offset_vars)
+
         for group in idata.children:
             idata[group] = as_dataset(idata[group]).assign_attrs(
                 modeling_interface="bambi", modeling_interface_version=__version__
