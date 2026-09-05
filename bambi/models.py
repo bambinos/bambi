@@ -1255,6 +1255,33 @@ class Model:
         return self.__str__()
 
     @property
+    def components(self):
+        warnings.warn(
+            "'components' is deprecated. Use 'parameters' instead.",
+            FutureWarning,
+            stacklevel=2,
+        )
+        return self.parameters
+
+    @property
+    def distributional_components(self):
+        warnings.warn(
+            "'distributional_components' is deprecated. Use 'conditional_parameters' instead.",
+            FutureWarning,
+            stacklevel=2,
+        )
+        return self.conditional_parameters
+
+    @property
+    def constant_components(self):
+        warnings.warn(
+            "'constant_components' is deprecated. Use 'marginal_parameters' instead.",
+            FutureWarning,
+            stacklevel=2,
+        )
+        return self.marginal_parameters
+
+    @property
     def marginal_parameters(self):
         return {k: v for k, v in self.parameters.items() if isinstance(v, MarginalParameter)}
 
