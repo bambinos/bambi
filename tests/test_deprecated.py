@@ -58,6 +58,43 @@ def test_predict_sample_new_groups_is_deprecated_and_has_no_effect(sample_new_gr
     assert "sample_new_groups" not in backend.predict.call_args.kwargs
 
 
+@pytest.mark.parametrize("family", ["multinomial", "dirichlet_multinomial"])
+def test_c_response_is_deprecated_alias_for_counts(family):
+    data = pd.DataFrame(
+        {
+            "y1": [1, 2, 3],
+            "y2": [3, 4, 3],
+            "x": [0.0, 1.0, 2.0],
+        }
+    )
+
+    with pytest.warns(FutureWarning, match="Use 'counts") as record:
+        model = bmb.Model(bmb.Formula("c(y1, y2) ~ x"), data, family=family)
+
+    assert record[0].filename == __file__
+    assert model.formula.main == "counts(y1, y2) ~ x"
+    assert model.response_term.is_counts is True
+    assert model.response_term.name == "y1_y2"
+
+
+def test_c_predictor_is_not_deprecated_for_count_families():
+    data = pd.DataFrame(
+        {
+            "y1": [1, 2, 3],
+            "y2": [3, 4, 3],
+            "x1": [0.0, 1.0, 2.0],
+            "x2": [2.0, 1.0, 0.0],
+        }
+    )
+
+    with warnings.catch_warnings(record=True) as record:
+        warnings.simplefilter("always")
+        model = bmb.Model("counts(y1, y2) ~ c(x1, x2)", data, family="multinomial")
+
+    assert not [warning for warning in record if warning.category is FutureWarning]
+    assert "c(x1, x2)" in model.parameters["p"].common_terms
+
+
 @pytest.mark.parametrize(
     ("function_name", "args"),
     [

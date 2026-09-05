@@ -18,7 +18,13 @@ from bambi.config import config
 from bambi.defaults import get_builtin_family
 from bambi.parameters import ConditionalParameter, MarginalParameter
 from bambi.families import Family
-from bambi.families.builtin import Bernoulli, Cumulative, StoppingRatio
+from bambi.families.builtin import (
+    Bernoulli,
+    Cumulative,
+    DirichletMultinomial,
+    Multinomial,
+    StoppingRatio,
+)
 from bambi.families.types import DimType
 from bambi.formula import Formula, check_ordinal_formula
 from bambi.priors import Prior, scale_priors
@@ -168,6 +174,9 @@ class Model:
 
         # Create family
         self._set_family(family, link)
+
+        # Temporary method to handle deprecated count response
+        self._convert_deprecated_c_response()
 
         ## Main parameter
         if isinstance(self.family, ORDINAL_FAMILIES):
@@ -597,6 +606,30 @@ class Model:
             family.link = links
 
         self.family = family
+
+    def _convert_deprecated_c_response(self):
+        """Replace the deprecated `c(...)` count response with `counts(...)`."""
+        if not isinstance(self.family, (Multinomial, DirichletMultinomial)):
+            return
+
+        response = fm.model_description(self.formula.main).response
+        if response is None or len(response.term.components) != 1:
+            return
+
+        component = response.term.components[0]
+        call = getattr(component, "call", None)
+        if call is None or call.callee != "c":
+            return
+
+        lhs, separator, rhs = self.formula.main.partition("~")
+        lhs = lhs.replace("c", "counts", 1)
+        self.formula = Formula(lhs + separator + rhs, *self.formula.additionals)
+        warnings.warn(
+            f"Using 'c(...)' as the response for the '{self.family.name}' family is deprecated. "
+            "Use 'counts(...)' instead.",
+            FutureWarning,
+            stacklevel=3,
+        )
 
     def set_alias(self, aliases):
         """Set aliases for the terms and auxiliary parameters in the model
