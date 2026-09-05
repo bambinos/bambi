@@ -21,3 +21,16 @@ def test_deprecated_component_properties(deprecated_name, replacement_name):
 
     assert value == getattr(model, replacement_name)
     assert record[0].filename == __file__
+
+
+def test_deprecated_response_component():
+    data = pd.DataFrame({"y": [1.0, 2.0, 3.0], "x": [0.0, 1.0, 2.0]})
+    model = bmb.Model("y ~ x", data)
+
+    with pytest.warns(FutureWarning, match="'response_component'.*'response_term'") as record:
+        response_component = model.response_component
+
+    assert response_component.term is model.response_term
+    assert response_component.response.term.term is model.response_term.term
+    assert response_component.spec is model
+    assert record[0].filename == __file__

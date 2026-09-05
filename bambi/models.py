@@ -4,6 +4,7 @@
 import logging
 import warnings
 from copy import copy, deepcopy
+from dataclasses import dataclass
 from importlib.metadata import version
 
 import formulae as fm
@@ -200,6 +201,9 @@ class Model:
 
         # Add response
         self.response_term = ResponseTerm(design.response)
+        self._response_component = _ResponseComponentAdapter(
+            self.response_term, design.response, self
+        )
 
         if self.response_term.is_cr:
             # Competing risks use a model-local family with cause-specific parameters.
@@ -1282,6 +1286,15 @@ class Model:
         return self.marginal_parameters
 
     @property
+    def response_component(self):
+        warnings.warn(
+            "'response_component' is deprecated. Use 'response_term' instead.",
+            FutureWarning,
+            stacklevel=2,
+        )
+        return self._response_component
+
+    @property
     def marginal_parameters(self):
         return {k: v for k, v in self.parameters.items() if isinstance(v, MarginalParameter)}
 
@@ -1351,3 +1364,10 @@ def make_priors_summary(parameter: ConditionalParameter) -> str:
             priors_list.append(group + "\n" + wrapify(indentify("\n".join(priors), 4), 100, 4))
 
     return "\n\n".join(priors_list)
+
+
+@dataclass
+class _ResponseComponentAdapter:
+    term: ResponseTerm
+    response: object
+    spec: Model
