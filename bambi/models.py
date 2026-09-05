@@ -1002,8 +1002,6 @@ class Model:
             )
 
         if kind not in (
-            "mean",
-            "pps",
             "response_params",
             "response",
             "response_conditional",
@@ -1025,20 +1023,6 @@ class Model:
             raise ValueError(
                 "'kind=response_conditional' is only available for censored, truncated, "
                 "or competing-risks models."
-            )
-
-        if kind == "mean":
-            kind = "response_params"
-            warnings.warn(
-                "'mean' has been replaced by 'response_params' and "
-                "is not going to work in the future",
-                FutureWarning,
-            )
-        if kind == "pps":
-            kind = "response"
-            warnings.warn(
-                "'pps' has been replaced by 'response' and is not going to work in the future",
-                FutureWarning,
             )
 
         return self.backend.predict(
