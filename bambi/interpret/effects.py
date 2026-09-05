@@ -1,3 +1,5 @@
+# pylint: disable=too-many-lines
+import warnings
 from functools import partial
 from itertools import combinations
 from typing import Any, Callable, Mapping, Optional
@@ -31,6 +33,16 @@ from bambi.interpret.utils import (
 from bambi.interpret.validate import validate_prob
 from bambi.models import Model
 from bambi.utils import as_dataset
+
+
+def _warn_deprecated_sample_new_groups(sample_new_groups: Optional[bool]) -> None:
+    if sample_new_groups is not None:
+        warnings.warn(
+            "'sample_new_groups' is deprecated and has no effect. Bambi now automatically "
+            "determines how to predict for new groups based on the type of group.",
+            FutureWarning,
+            stacklevel=3,
+        )
 
 
 def _determine_plot_vars(
@@ -419,6 +431,7 @@ def predictions(
     use_hdi: bool = True,
     prob: Optional[float | list[float]] = az.rcParams["stats.ci_prob"],
     transforms: Optional[dict] = None,
+    sample_new_groups: Optional[bool] = None,
 ) -> Result:
     """Compute conditional adjusted predictions.
 
@@ -445,6 +458,10 @@ def predictions(
         Pass None to omit credible intervals.
     transforms : dict or None
         Dictionary of transformations to apply to predictions.
+    sample_new_groups : bool or None
+        Deprecated and has no effect. Bambi automatically determines how to predict for new
+        groups based on the type of group. Default is None.
+
     Returns
     -------
     Result
@@ -456,6 +473,8 @@ def predictions(
     ValueError
         If any prob value is not between 0 and 1.
     """
+    _warn_deprecated_sample_new_groups(sample_new_groups)
+
     prob = validate_prob(prob)
 
     transforms = transforms or {}
@@ -510,6 +529,7 @@ def plot_predictions(
     use_hdi: bool = True,
     prob: Optional[float | list[float]] = az.rcParams["stats.ci_prob"],
     transforms: Optional[dict] = None,
+    sample_new_groups: Optional[bool] = None,
     fig_kwargs: Optional[dict[str, Any]] = None,
     subplot_kwargs: Optional[dict[str, str]] = None,
     on: Optional[Axes | Figure | SubFigure] = None,
@@ -539,6 +559,9 @@ def plot_predictions(
         are drawn. Pass None to omit bands.
     transforms : dict or None
         Dictionary of transformations to apply to predictions.
+    sample_new_groups : bool or None
+        Deprecated and has no effect. Bambi automatically determines how to predict for new
+        groups based on the type of group. Default is None.
     fig_kwargs : dict or None
         Additional keyword arguments for figure customization.
         Use the 'theme' key to pass a dictionary of matplotlib rc parameters.
@@ -559,6 +582,8 @@ def plot_predictions(
     ValueError
         If more than 3 conditional variables are provided without averaging.
     """
+    _warn_deprecated_sample_new_groups(sample_new_groups)
+
     var_names = _determine_plot_vars(conditional, average_by, model.data)
 
     result = predictions(
@@ -597,6 +622,7 @@ def comparisons(
     use_hdi: bool = True,
     prob: Optional[float | list[float]] = az.rcParams["stats.ci_prob"],
     transforms: Optional[dict] = None,
+    sample_new_groups: Optional[bool] = None,
 ) -> Result:
     """Compute conditional adjusted comparisons.
 
@@ -626,6 +652,9 @@ def comparisons(
         Pass None to omit credible intervals.
     transforms : dict or None
         Dictionary of transformations to apply to comparisons.
+    sample_new_groups : bool or None
+        Deprecated and has no effect. Bambi automatically determines how to predict for new
+        groups based on the type of group. Default is None.
 
     Returns
     -------
@@ -640,6 +669,8 @@ def comparisons(
     TypeError
         If comparison is not a callable or valid string.
     """
+    _warn_deprecated_sample_new_groups(sample_new_groups)
+
     prob = validate_prob(prob)
 
     comparison_fn = get_comparison_func(comparison)
@@ -699,6 +730,7 @@ def plot_comparisons(
     use_hdi: bool = True,
     prob: Optional[float | list[float]] = az.rcParams["stats.ci_prob"],
     transforms: Optional[dict] = None,
+    sample_new_groups: Optional[bool] = None,
     fig_kwargs: Optional[dict[str, Any]] = None,
     subplot_kwargs: Optional[Mapping[str, str]] = None,
     on: Optional[Axes | Figure | SubFigure] = None,
@@ -733,6 +765,9 @@ def plot_comparisons(
         are drawn. Pass None to omit bands.
     transforms : dict or None
         Dictionary of transformations to apply to comparisons.
+    sample_new_groups : bool or None
+        Deprecated and has no effect. Bambi automatically determines how to predict for new
+        groups based on the type of group. Default is None.
     fig_kwargs : dict or None
         Additional keyword arguments for figure customization.
         Use the 'theme' key to pass a dictionary of matplotlib rc parameters.
@@ -753,6 +788,8 @@ def plot_comparisons(
     ValueError
         If more than 3 conditional variables are provided without averaging.
     """
+    _warn_deprecated_sample_new_groups(sample_new_groups)
+
     var_names = _determine_plot_vars(conditional, average_by, model.data)
 
     result = comparisons(
@@ -794,6 +831,7 @@ def slopes(
     use_hdi: bool = True,
     prob: Optional[float | list[float]] = az.rcParams["stats.ci_prob"],
     transforms: Optional[dict] = None,
+    sample_new_groups: Optional[bool] = None,
 ) -> Result:
     """Compute conditional adjusted slopes.
 
@@ -834,6 +872,9 @@ def slopes(
         Pass None to omit credible intervals.
     transforms : dict or None
         Dictionary of transformations to apply to predictions before differencing.
+    sample_new_groups : bool or None
+        Deprecated and has no effect. Bambi automatically determines how to predict for new
+        groups based on the type of group. Default is None.
 
     Returns
     -------
@@ -848,6 +889,8 @@ def slopes(
     TypeError
         If slope is not a callable or valid string.
     """
+    _warn_deprecated_sample_new_groups(sample_new_groups)
+
     prob = validate_prob(prob)
 
     slope_fn = get_slope_func(slope)
@@ -911,6 +954,7 @@ def plot_slopes(
     use_hdi: bool = True,
     prob: Optional[float | list[float]] = az.rcParams["stats.ci_prob"],
     transforms: Optional[dict] = None,
+    sample_new_groups: Optional[bool] = None,
     fig_kwargs: Optional[dict[str, Any]] = None,
     subplot_kwargs: Optional[Mapping[str, str]] = None,
     on: Optional[Axes | Figure | SubFigure] = None,
@@ -948,6 +992,9 @@ def plot_slopes(
         are drawn. Pass None to omit bands.
     transforms : dict or None
         Dictionary of transformations to apply to predictions before differencing.
+    sample_new_groups : bool or None
+        Deprecated and has no effect. Bambi automatically determines how to predict for new
+        groups based on the type of group. Default is None.
     fig_kwargs : dict or None
         Additional keyword arguments for figure customization.
         Use the 'theme' key to pass a dictionary of matplotlib rc parameters.
@@ -968,6 +1015,8 @@ def plot_slopes(
     ValueError
         If more than 3 conditional variables are provided without averaging.
     """
+    _warn_deprecated_sample_new_groups(sample_new_groups)
+
     var_names = _determine_plot_vars(conditional, average_by, model.data)
 
     result = slopes(

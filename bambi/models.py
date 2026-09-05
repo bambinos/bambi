@@ -11,6 +11,7 @@ import formulae as fm
 import pandas as pd
 from arviz_plots import plot_dist
 from arviz_stats import residual_r2
+from formulae.matrices import ResponseMatrix
 
 from bambi.backend import PyMCModel
 from bambi.config import config
@@ -929,6 +930,7 @@ class Model:
         data=None,
         inplace=True,
         include_group_specific=True,
+        sample_new_groups=None,
         random_seed=None,
         progressbar=False,
     ):
@@ -979,6 +981,9 @@ class Model:
             Determines if predictions incorporate group-specific effects. If `False`, predictions
             are made with common effects only (i.e. group specific are set to zero). Defaults to
             `True`.
+        sample_new_groups : bool or None, optional
+            Deprecated and has no effect. Bambi automatically determines how to predict for new
+            groups based on the type of group. Defaults to `None`.
         random_seed : int, RandomState or Generator, optional
             Seed for the random number generator.
         progressbar : bool, optional
@@ -988,6 +993,14 @@ class Model:
         -------
         DataTree or None
         """
+        if sample_new_groups is not None:
+            warnings.warn(
+                "'sample_new_groups' is deprecated and has no effect. Bambi now automatically "
+                "determines how to predict for new groups based on the type of group.",
+                FutureWarning,
+                stacklevel=2,
+            )
+
         if kind not in (
             "mean",
             "pps",
@@ -1369,5 +1382,5 @@ def make_priors_summary(parameter: ConditionalParameter) -> str:
 @dataclass
 class _ResponseComponentAdapter:
     term: ResponseTerm
-    response: object
+    response: ResponseMatrix
     spec: Model
