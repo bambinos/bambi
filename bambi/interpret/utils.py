@@ -1,4 +1,3 @@
-# pylint: disable = too-many-nested-blocks
 from typing import Any, Callable, NamedTuple
 
 import numpy as np

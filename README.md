@@ -55,7 +55,7 @@ model = bmb.Model('Reaction ~ Days', data)
 # Get model description
 print(model)
 
-# Fit the model using 1000 on each chain
+# Fit the model using 1000 draws per chain
 results = model.fit(draws=1000)
 
 # Key summary and diagnostic info on the model parameters

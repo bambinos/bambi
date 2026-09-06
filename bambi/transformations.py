@@ -214,7 +214,7 @@ def constrained(x, lb=None, ub=None):
     """Construct an array for a constrained response
 
     It's exactly like truncated, but it's interpreted by Bambi in a different way as this
-    one truncates/constrains the bounds of a probability distribution, while `truncated()` is
+    one truncates/constraints the bounds of a probability distribution, while `truncated()` is
     interpreted as the missing data mechanism.
 
     `lb` and `ub` can only be scalar values.

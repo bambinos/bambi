@@ -16,7 +16,7 @@ matplotlib.use("Agg")
 
 
 # Improvement:
-# * Test the actual plots are what we are indeed the desired result.
+# * Test the actual plots are indeed the desired result.
 # * Test using the dictionary and the list gives the same plot
 # * Use the same function for different models, e.g. average by, transforms, etc.
 

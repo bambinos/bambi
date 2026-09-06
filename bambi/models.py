@@ -85,7 +85,7 @@ class Model:
         explicitly passing variable names via this argument is recommended.
     potentials : A list of 2-tuples, optional
         Optional specification of potentials. A potential is an arbitrary expression added to the
-        likelihood, this is generally useful to add constrains to models, that are difficult to
+        likelihood, this is generally useful to add constraints to models, that are difficult to
         express otherwise. The first term of a 2-tuple is the name of a variable in the model, the
         second a lambda function expressing the desired constraint.
         If a constraint involves n variables, you can pass n 2-tuples or pass a tuple which first
@@ -178,7 +178,7 @@ class Model:
         ## Main parameter
         if isinstance(self.family, ORDINAL_FAMILIES):
             self.formula = check_ordinal_formula(self.formula)
-            # Notice the intercept is added so formulae constrains categorical predictors, avoiding
+            # Notice the intercept is added so formulae constraints categorical predictors, avoiding
             # linear dependencies with the cutpoints.
             # Then the intercept is removed from the design matrix because of the cutpoints.
             design = fm.design_matrices(
@@ -811,7 +811,7 @@ class Model:
             The backend to use for plotting.
             If `None`, it inspects whether `plot_connection` is not `None`.
             If it's not, it uses `plot_collection.backend`.
-            Otherweise, it uses `arviz_base.rcParams["plot.backend"]`.
+            Otherwise, it uses `arviz_base.rcParams["plot.backend"]`.
             Forwarded to [](`arviz_plots.plot_dist`).
         labeller : arviz_base.labels.BaseLabeller, optional
             The labeller. If `None`, it uses [](`arviz_base.labels.BaseLabeller`).

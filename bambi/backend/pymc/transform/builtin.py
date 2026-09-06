@@ -113,7 +113,7 @@ def _(predictor, parameters, inverse_link):
     threshold = parameters["threshold"]
 
     if predictor == 0:
-        # An additive predictors with no predictors, e.g. p ~ 0.
+        # An additive predictor with no predictors, e.g. p ~ 0.
         # shape: (K, )
         predictor = threshold
     else:
