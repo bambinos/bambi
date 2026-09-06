@@ -177,8 +177,8 @@ def test_c_response_deprecated_for_count_families(count_data, family):
     assert "c(...)" in str(future_warnings[0].message)
     assert "counts(...)" in str(future_warnings[0].message)
     assert Path(future_warnings[0].filename) == Path(__file__)
-    assert model.formula.main == "counts(y1, y2) ~ x1"
-    assert model.response_term.name == "counts(y1, y2)"
+    assert model.formula.main == "c(y1, y2) ~ x1"
+    assert model.response_term.name == "c(y1, y2)"
     assert model.response_term.levels == ["y1", "y2"]
     assert np.array_equal(model.response_term.data, count_data[["y1", "y2"]].to_numpy())
 

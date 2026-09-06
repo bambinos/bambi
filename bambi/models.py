@@ -172,7 +172,7 @@ class Model:
 
         # Create family
         self._set_family(family, link)
-        self._convert_deprecated_c_response()
+        self._warn_deprecated_c_response()
 
         ## Main component
         if isinstance(self.family, ORDINAL_FAMILIES):
@@ -266,7 +266,7 @@ class Model:
         # Build priors
         self._build_priors()
 
-    def _convert_deprecated_c_response(self):
+    def _warn_deprecated_c_response(self):
         if self.family.name not in ("multinomial", "dirichlet_multinomial"):
             return
 
@@ -279,9 +279,6 @@ class Model:
         if call is None or call.callee != "c":
             return
 
-        lhs, separator, rhs = self.formula.main.partition("~")
-        lhs = lhs.replace("c", "counts", 1)
-        self.formula = Formula(lhs + separator + rhs, *self.formula.additionals)
         warnings.warn(
             f"Using 'c(...)' as the response for the '{self.family.name}' family is deprecated. "
             "Use 'counts(...)' instead. It will stop working in a future version.",
