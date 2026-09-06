@@ -636,7 +636,7 @@ def comparisons(
         Variable(s) to create contrasts for.
     conditional : str, list[str], dict[str, ConditionalValues], or None
         Variables to condition on for comparisons.
-    average_by : str, list or None
+    average_by : str, list[str], or None
         Variables to average comparisons over.
     target : str
         The target parameter to compare. Default is "mean".
@@ -724,7 +724,7 @@ def plot_comparisons(
     idata: DataTree,
     contrast: str | dict[str, ConditionalValues],
     conditional: str | list[str] | dict[str, ConditionalValues] | None = None,
-    average_by: str | list | bool | None = None,
+    average_by: str | list | None = None,
     target: str = "mean",
     comparison: Callable[[DataArray, DataArray], DataArray] | str = "diff",
     use_hdi: bool = True,
@@ -747,7 +747,7 @@ def plot_comparisons(
         Variable(s) to create contrasts for.
     conditional : str, list[str], dict[str, ConditionalValues], or None
         Variables to condition on for comparisons.
-    average_by : str or list or bool or None
+    average_by : str or list or None
         Variables to average comparisons over.
     target : str
         Which quantity to extract. `"mean"` (default) for the posterior of the parent
@@ -947,7 +947,7 @@ def plot_slopes(
     idata: DataTree,
     wrt: str | dict[str, float | int],
     conditional: str | list[str] | dict[str, ConditionalValues] | None = None,
-    average_by: str | list | bool | None = None,
+    average_by: str | list[str] | None = None,
     eps: float = 1e-4,
     slope: str | Callable[[DataArray, DataArray, DataArray], DataArray] = "dydx",
     target: str = "mean",
@@ -971,7 +971,7 @@ def plot_slopes(
         The predictor variable to compute the slope with respect to.
     conditional : str, list[str], dict[str, ConditionalValues], or None
         Variables to condition on for slopes.
-    average_by : str or list or bool or None
+    average_by : str or list[str] or None
         Variables to average slopes over.
     eps : float
         Perturbation size for finite differencing. Default is 1e-4.
@@ -998,7 +998,7 @@ def plot_slopes(
     fig_kwargs : dict or None
         Additional keyword arguments for figure customization.
         Use the 'theme' key to pass a dictionary of matplotlib rc parameters.
-    subplot_kwargs : Mapping[str, str] or None
+    subplot_kwargs : dict[str, str] or None
         Overrides default plotting sequence (main, group, panel).
     on : Axes, Figure, SubFigure, or None
         Matplotlib target on which to draw the plot. If None, a new figure is created.
