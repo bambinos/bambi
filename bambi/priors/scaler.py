@@ -23,7 +23,7 @@ class PriorScaler:
     def __init__(self, model):
         self.model = model
         self.response_component = model.response_component
-        self.parent_component = model.components[model.family.likelihood.parent]
+        self.parent_component = model.parameters[model.family.likelihood.parent]
         self.has_intercept = self.parent_component.intercept_term is not None
         self.priors = {}
 
@@ -54,7 +54,7 @@ class PriorScaler:
     def scale_response(self):
         # Here we would add cases for other families if we wanted
         if isinstance(self.model.family, (Gaussian, StudentT)):
-            sigma = self.model.components["sigma"]
+            sigma = self.model.parameters["sigma"]
             if (
                 isinstance(sigma, ConstantComponent)
                 and hasattr(sigma.prior, "auto_scale")  # not available when `.prior` is a scalar
@@ -62,7 +62,7 @@ class PriorScaler:
             ):
                 sigma.prior = Prior("HalfStudentT", nu=4, sigma=self.response_std)
         elif isinstance(self.model.family, VonMises):
-            kappa = self.model.components["kappa"]
+            kappa = self.model.parameters["kappa"]
             if (
                 isinstance(kappa, ConstantComponent)
                 and hasattr(kappa.prior, "auto_scale")  # not available when `.prior` is a scalar
@@ -166,7 +166,7 @@ class PriorScaler:
 
     def scale_threshold(self):
         if isinstance(self.model.family, Cumulative):
-            threshold = self.model.components["threshold"]
+            threshold = self.model.parameters["threshold"]
             if isinstance(threshold, ConstantComponent) and threshold.prior.auto_scale:
                 response_level_n = len(np.unique(self.response_component.term.data))
                 mu = np.round(np.linspace(-2, 2, num=response_level_n - 1), 2)
@@ -177,7 +177,7 @@ class PriorScaler:
                     transform=pm.distributions.transforms.ordered,
                 )
         elif isinstance(self.model.family, StoppingRatio):
-            threshold = self.model.components["threshold"]
+            threshold = self.model.parameters["threshold"]
             if isinstance(threshold, ConstantComponent) and threshold.prior.auto_scale:
                 response_level_n = len(np.unique(self.response_component.term.data))
                 mu = np.zeros(response_level_n - 1)

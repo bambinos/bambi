@@ -82,12 +82,12 @@ class PyMCModel:
 
         with self.model:
             # Add constant components
-            for name, component in spec.constant_components.items():
+            for name, component in spec.marginal_parameters.items():
                 self.components[name] = ConstantComponent(component)
                 self.components[name].build(self, spec)
 
             # Add distributional components
-            for name, component in spec.distributional_components.items():
+            for name, component in spec.conditional_parameters.items():
                 self.components[name] = DistributionalComponent(component)
                 self.components[name].build(self, spec)
 

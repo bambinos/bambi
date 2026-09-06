@@ -252,7 +252,7 @@ class Family:
         for param in self.likelihood.params:
             # In the posterior xr.Dataset we need to consider aliases, but we can't use aliases
             # when passing kwargs to the PyMC distribution.
-            component = model.components[param]
+            component = model.parameters[param]
             var_name = component.alias if component.alias else param
 
             # Get posterior draws or a constant array if it was set to a constant in the prior

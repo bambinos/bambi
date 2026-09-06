@@ -319,7 +319,7 @@ class ResponseTerm:
 
         # Distributional parameters. A link function is used.
         for name, component in pymc_backend.distributional_components.items():
-            bmb_component = bmb_model.components[name]
+            bmb_component = bmb_model.parameters[name]
             aliased_name = bmb_component.alias or bmb_component.name
             linkinv = get_linkinv(self.family.link[name], pymc_backend.INVLINKS)
 

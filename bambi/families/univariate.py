@@ -183,7 +183,7 @@ class Cumulative(UnivariateFamily):
         model, linear_predictor: xr.DataArray, posterior: xr.DataArray
     ) -> xr.DataArray:
         """Computes threshold_k - eta"""
-        threshold_component = model.components["threshold"]
+        threshold_component = model.parameters["threshold"]
         if threshold_component.alias:
             threshold_name = threshold_component.alias
         else:
@@ -194,7 +194,7 @@ class Cumulative(UnivariateFamily):
     @staticmethod
     def transform_mean(model, mean: xr.DataArray) -> xr.DataArray:
         """Computes P(Y = k) = F(threshold_k - eta) - F(threshold_{k - 1} - eta)"""
-        threshold_component = model.components["threshold"]
+        threshold_component = model.parameters["threshold"]
         response_name = get_aliased_name(model.response_component.term)
         if threshold_component.alias:
             threshold_name = threshold_component.alias
@@ -364,7 +364,7 @@ class StoppingRatio(UnivariateFamily):
         model, linear_predictor: xr.DataArray, posterior: xr.DataArray
     ) -> xr.DataArray:
         """Computes threshold_k - eta"""
-        threshold_component = model.components["threshold"]
+        threshold_component = model.parameters["threshold"]
         if threshold_component.alias:
             threshold_name = threshold_component.alias
         else:
@@ -375,7 +375,7 @@ class StoppingRatio(UnivariateFamily):
     @staticmethod
     def transform_mean(model, mean: xr.DataArray) -> xr.DataArray:
         """Computes P(Y = k) = F(threshold_k - eta) - F(threshold_{k - 1} - eta)"""
-        threshold_component = model.components["threshold"]
+        threshold_component = model.parameters["threshold"]
         response_name = get_aliased_name(model.response_component.term)
         if threshold_component.alias:
             threshold_name = threshold_component.alias

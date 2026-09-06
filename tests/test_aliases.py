@@ -122,7 +122,7 @@ def test_set_alias_warnings(data_random_n100, mock_pymc_sample):
     for alias_dict, expected_warning in test_cases:
         with pytest.warns(UserWarning) as record:
             model.set_alias(alias_dict)
-            print(model.constant_components)
+            print(model.marginal_parameters)
         assert len(record) == 1
         assert str(record[0].message) == expected_warning
 
