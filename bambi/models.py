@@ -173,6 +173,7 @@ class Model:
 
         # Create family
         self._set_family(family, link)
+        self._convert_deprecated_c_response()
 
         ## Main component
         if isinstance(self.family, ORDINAL_FAMILIES):
@@ -265,6 +266,29 @@ class Model:
 
         # Build priors
         self._build_priors()
+
+    def _convert_deprecated_c_response(self):
+        if self.family.name not in ("multinomial", "dirichlet_multinomial"):
+            return
+
+        response = fm.model_description(self.formula.main).response
+        if response is None or len(response.term.components) != 1:
+            return
+
+        component = response.term.components[0]
+        call = getattr(component, "call", None)
+        if call is None or call.callee != "c":
+            return
+
+        lhs, separator, rhs = self.formula.main.partition("~")
+        lhs = lhs.replace("c", "counts", 1)
+        self.formula = Formula(lhs + separator + rhs, *self.formula.additionals)
+        warnings.warn(
+            f"Using 'c(...)' as the response for the '{self.family.name}' family is deprecated. "
+            "Use 'counts(...)' instead. It will stop working in a future version.",
+            FutureWarning,
+            stacklevel=3,
+        )
 
     def fit(
         self,
