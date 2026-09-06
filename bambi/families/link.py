@@ -1,5 +1,6 @@
-from collections import namedtuple
+from collections.abc import Callable
 from sys import float_info
+from typing import Any, NamedTuple
 
 import numpy as np
 
@@ -92,7 +93,10 @@ def link_not_implemented(*args, **kwargs):
 
 # link: Known as g in the GLM literature. Maps the response to the linear predictor scale.
 # linkinv: Known as g^(-1) in the GLM literature. Maps the linear predictor to the response scale.
-LinksContainer = namedtuple("LinksContainer", ["link", "inverse_link"])
+class LinksContainer(NamedTuple):
+    link: Callable[..., Any]
+    inverse_link: Callable[..., Any]
+
 
 LINKS = {
     "cloglog": LinksContainer(cloglog, invcloglog),

@@ -1,8 +1,12 @@
-from collections import namedtuple
+from typing import NamedTuple
 
 from bambi.utils import multilinify, indentify
 
-DistSettings = namedtuple("DistSettings", ["params", "parent"])
+
+class DistSettings(NamedTuple):
+    params: tuple[str, ...]
+    parent: str
+
 
 DISTRIBUTIONS = {
     "Bernoulli": DistSettings(params=("p",), parent="p"),
