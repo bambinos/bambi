@@ -153,7 +153,7 @@ class DistributionalComponent:
         in_sample = data is None
 
         # Prepare dims objects
-        response_name = get_aliased_name(self.spec.response_component.term)
+        response_name = get_aliased_name(self.spec.response_term)
         response_dim = "__obs__"
         linear_predictor_dims = ("chain", "draw", response_dim)
         to_stack_dims = ("chain", "draw")

@@ -76,7 +76,7 @@ class PyMCModel:
         self.model = pm.Model()
         self.components = {}
 
-        for name, values in spec.response_component.term.coords.items():
+        for name, values in spec.response_term.coords.items():
             if name not in self.model.coords:
                 self.model.add_coords({name: values})
 
@@ -92,7 +92,7 @@ class PyMCModel:
                 self.components[name].build(self, spec)
 
             # Add response
-            self.response_component = ResponseComponent(spec.response_component)
+            self.response_component = ResponseComponent(spec.response_term)
             self.response_component.build(self, spec)
 
             # Add potentials
@@ -317,7 +317,7 @@ class PyMCModel:
                 for term in bambi_component.common_terms.values():
                     common_terms.append(get_aliased_name(term))
 
-                response_coords = self.spec.response_component.term.coords
+                response_coords = self.spec.response_term.coords
                 if response_coords:
                     # Grab the first object in a dictionary
                     levels = list(response_coords.values())[0]

@@ -206,7 +206,7 @@ class Model:
             parent_priors.update(priors[parent_name])
 
         # Add response component
-        self.response_component = ResponseComponent(design.response, self)
+        self._response_component = ResponseComponent(design.response, self)
 
         # Add component for parent parameter
         self._components[self.family.likelihood.parent] = DistributionalComponent(
@@ -389,8 +389,8 @@ class Model:
         if isinstance(self.family, univariate.Bernoulli):
             _log.info(
                 "Modeling the probability that %s==%s",
-                self.response_component.term.name,
-                str(self.response_component.term.success),
+                self.response_term.name,
+                str(self.response_term.success),
             )
 
         if include_mean is not None:
@@ -650,8 +650,8 @@ class Model:
                         is_used = True
 
                 # If it's the name of the response
-                if name == self.response_component.response.name:
-                    self.response_component.term.alias = alias
+                if name == self._response_component.response.name:
+                    self.response_term.alias = alias
                     is_used = True
 
                 # Add any aliases not used in prior logic to unused alias list
@@ -662,9 +662,9 @@ class Model:
                 if component_name in self.marginal_parameters:
                     assert isinstance(component_aliases, str)
                     self.marginal_parameters[component_name].alias = component_aliases
-                elif component_name == self.response_component.response.name:
+                elif component_name == self._response_component.response.name:
                     assert isinstance(component_aliases, str)
-                    self.response_component.term.alias = component_aliases
+                    self.response_term.alias = component_aliases
                 else:
                     assert isinstance(component_aliases, dict)
                     assert component_name in self.conditional_parameters
@@ -1044,7 +1044,7 @@ class Model:
 
         # Only if requested predict the predictive distribution
         if kind == "response":
-            response_aliased_name = get_aliased_name(self.response_component.term)
+            response_aliased_name = get_aliased_name(self.response_term)
             required_kwargs = {
                 "model": self,
                 "posterior": idata.posterior,
@@ -1099,7 +1099,7 @@ class Model:
         .. [1] Gelman et al. *R-squared for Bayesian regression models*.
             The American Statistician. 73(3) (2019). <https://doi.org/10.1080/00031305.2018.1549100>
         """
-        response_name = self.response_component.term.name
+        response_name = self.response_term.name
         pred_mean = self.family.likelihood.parent
 
         if pred_mean not in idata.posterior:
@@ -1139,7 +1139,7 @@ class Model:
         sample_new_groups = False
 
         # Get the aliased response name
-        response_aliased_name = get_aliased_name(self.response_component.term)
+        response_aliased_name = get_aliased_name(self.response_term)
 
         if not inplace:
             idata = deepcopy(idata)
@@ -1410,7 +1410,7 @@ class Model:
                     get_aliased_name(t) for t in bambi_component.common_terms.values()
                 ]
 
-                response_coords = self.response_component.term.coords
+                response_coords = self.response_term.coords
                 if response_coords:
                     levels = list(response_coords.values())[0]
                     shape += (len(levels),)
@@ -1466,7 +1466,7 @@ class Model:
             for key, value in self.family.link.items()
             if key == parent_name or key in self.conditional_parameters
         ]
-        observations = self.response_component.term.data.shape[0]
+        observations = self.response_term.data.shape[0]
 
         header_dict = {
             "Formula: ": formulas,
@@ -1515,6 +1515,20 @@ class Model:
 
     def __repr__(self):
         return self.__str__()
+
+    @property
+    def response_term(self):
+        return self._response_component.term
+
+    @property
+    def response_component(self):
+        warnings.warn(
+            "'Model.response_component' is deprecated; use 'Model.response_term' instead. "
+            "It will be removed in a future version.",
+            FutureWarning,
+            stacklevel=2,
+        )
+        return self._response_component
 
     @property
     def parameters(self):

@@ -22,15 +22,15 @@ class PriorScaler:
 
     def __init__(self, model):
         self.model = model
-        self.response_component = model.response_component
+        self.response_term = model.response_term
         self.parent_component = model.parameters[model.family.likelihood.parent]
         self.has_intercept = self.parent_component.intercept_term is not None
         self.priors = {}
 
         # Compute mean and std of the response
         if isinstance(self.model.family, (Gaussian, StudentT)):
-            self.response_mean = np.mean(self.response_component.term.data)
-            self.response_std = np.std(self.response_component.term.data)
+            self.response_mean = np.mean(self.response_term.data)
+            self.response_std = np.std(self.response_term.data)
         else:
             self.response_mean = 0
             self.response_std = 1
@@ -168,7 +168,7 @@ class PriorScaler:
         if isinstance(self.model.family, Cumulative):
             threshold = self.model.parameters["threshold"]
             if isinstance(threshold, ConstantComponent) and threshold.prior.auto_scale:
-                response_level_n = len(np.unique(self.response_component.term.data))
+                response_level_n = len(np.unique(self.response_term.data))
                 mu = np.round(np.linspace(-2, 2, num=response_level_n - 1), 2)
                 threshold.prior = Prior(
                     "Normal",
@@ -179,7 +179,7 @@ class PriorScaler:
         elif isinstance(self.model.family, StoppingRatio):
             threshold = self.model.parameters["threshold"]
             if isinstance(threshold, ConstantComponent) and threshold.prior.auto_scale:
-                response_level_n = len(np.unique(self.response_component.term.data))
+                response_level_n = len(np.unique(self.response_term.data))
                 mu = np.zeros(response_level_n - 1)
                 threshold.prior = Prior("Normal", mu=mu, sigma=1)
 

@@ -27,7 +27,7 @@ class ConstantComponent:
         extra_args = {}
         if isinstance(bmb_model.family, ORDINAL_FAMILIES):
             threshold_dim = label + "_dim"
-            threshold_values = np.arange(len(bmb_model.response_component.term.levels) - 1)
+            threshold_values = np.arange(len(bmb_model.response_term.levels) - 1)
             extra_args["dims"] = threshold_dim
             pymc_backend.model.add_coords({threshold_dim: threshold_values})
 
@@ -214,7 +214,7 @@ class DistributionalComponent:
         self.output += contribution
 
     def add_response_coords(self, pymc_backend, bmb_model):
-        response_term = bmb_model.response_component.term
+        response_term = bmb_model.response_term
         dim_name = "__obs__"
         dim_value = np.arange(response_term.shape[0])
         pymc_backend.model.add_coords({dim_name: dim_value})
@@ -226,7 +226,7 @@ class ResponseComponent:
 
     def build(self, pymc_backend, bmb_model):
         # Create and build the response term
-        response_term = ResponseTerm(self.component.term, bmb_model.family)
+        response_term = ResponseTerm(self.component, bmb_model.family)
         response_term.build(pymc_backend, bmb_model)
 
 
