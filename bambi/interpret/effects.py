@@ -537,13 +537,6 @@ def plot_predictions(
         In scripts, call `.show()` to display. The returned Plot object can be
         customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
 
-    Warns
-    -----
-    bambi.PlottingFutureWarning
-        A future version will return a Matplotlib `Figure` instead of a Seaborn `Plot`. Suppress
-        this warning with
-        `warnings.filterwarnings("ignore", category=bambi.PlottingFutureWarning)`.
-
     Raises
     ------
     ValueError
@@ -740,13 +733,6 @@ def plot_comparisons(
         A Seaborn objects Plot. In Jupyter notebooks, the plot automatically displays.
         In scripts, call `.show()` to display. The returned Plot object can be
         customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
-
-    Warns
-    -----
-    bambi.PlottingFutureWarning
-        A future version will return a Matplotlib `Figure` instead of a Seaborn `Plot`. Suppress
-        this warning with
-        `warnings.filterwarnings("ignore", category=bambi.PlottingFutureWarning)`.
 
     Raises
     ------
@@ -966,13 +952,6 @@ def plot_slopes(
         A Seaborn objects Plot. In Jupyter notebooks, the plot automatically displays.
         In scripts, call `.show()` to display. The returned Plot object can be
         customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
-
-    Warns
-    -----
-    bambi.PlottingFutureWarning
-        A future version will return a Matplotlib `Figure` instead of a Seaborn `Plot`. Suppress
-        this warning with
-        `warnings.filterwarnings("ignore", category=bambi.PlottingFutureWarning)`.
 
     Raises
     ------
