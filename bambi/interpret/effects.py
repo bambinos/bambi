@@ -1,3 +1,4 @@
+import warnings
 from functools import partial
 from itertools import combinations
 from typing import Any, Callable, Mapping, Optional
@@ -32,6 +33,19 @@ from bambi.interpret.utils import (
 from bambi.interpret.validate import validate_prob
 from bambi.models import Model
 from bambi.utils import as_dataset
+from bambi.warnings import PlottingFutureWarning
+
+
+def _warn_plot_return_type():
+    """Warn about the future return type of plotting functions."""
+    warnings.warn(
+        "Bambi's interpret plotting functions currently return seaborn.objects.Plot objects. "
+        "In a future version, they will return matplotlib.figure.Figure objects instead. "
+        "To suppress this warning, use "
+        "warnings.filterwarnings('ignore', category=bambi.PlottingFutureWarning).",
+        PlottingFutureWarning,
+        stacklevel=3,
+    )
 
 
 def _determine_plot_vars(
@@ -523,11 +537,19 @@ def plot_predictions(
         In scripts, call `.show()` to display. The returned Plot object can be
         customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
 
+    Warns
+    -----
+    bambi.PlottingFutureWarning
+        A future version will return a Matplotlib `Figure` instead of a Seaborn `Plot`. Suppress
+        this warning with
+        `warnings.filterwarnings("ignore", category=bambi.PlottingFutureWarning)`.
+
     Raises
     ------
     ValueError
         If more than 3 conditional variables are provided without averaging.
     """
+    _warn_plot_return_type()
     var_names = _determine_plot_vars(conditional, average_by, model.data)
 
     result = predictions(
@@ -719,11 +741,19 @@ def plot_comparisons(
         In scripts, call `.show()` to display. The returned Plot object can be
         customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
 
+    Warns
+    -----
+    bambi.PlottingFutureWarning
+        A future version will return a Matplotlib `Figure` instead of a Seaborn `Plot`. Suppress
+        this warning with
+        `warnings.filterwarnings("ignore", category=bambi.PlottingFutureWarning)`.
+
     Raises
     ------
     ValueError
         If more than 3 conditional variables are provided without averaging.
     """
+    _warn_plot_return_type()
     var_names = _determine_plot_vars(conditional, average_by, model.data)
 
     result = comparisons(
@@ -937,11 +967,19 @@ def plot_slopes(
         In scripts, call `.show()` to display. The returned Plot object can be
         customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
 
+    Warns
+    -----
+    bambi.PlottingFutureWarning
+        A future version will return a Matplotlib `Figure` instead of a Seaborn `Plot`. Suppress
+        this warning with
+        `warnings.filterwarnings("ignore", category=bambi.PlottingFutureWarning)`.
+
     Raises
     ------
     ValueError
         If more than 3 conditional variables are provided without averaging.
     """
+    _warn_plot_return_type()
     var_names = _determine_plot_vars(conditional, average_by, model.data)
 
     result = slopes(

@@ -11,12 +11,14 @@ from bambi.families import Family, Likelihood, Link
 from bambi.formula import Formula
 from bambi.models import Model
 from bambi.priors import Prior
+from bambi.warnings import PlottingFutureWarning
 
 __version__ = version("bambi")
 
 __all__ = [
     "Model",
     "Prior",
+    "PlottingFutureWarning",
     "Family",
     "Likelihood",
     "Link",

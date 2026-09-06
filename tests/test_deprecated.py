@@ -4,6 +4,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+from seaborn.objects import Plot
 
 import bambi as bmb
 from bambi.interpret import (
@@ -220,3 +221,53 @@ def test_counts_response_fit_and_predict(count_data, mock_pymc_sample, family):
 def test_removed_predict_kinds(model, kind):
     with pytest.raises(ValueError, match="'kind' must be one of 'response_params' or 'response'"):
         model.predict(object(), kind=kind)
+
+
+@pytest.mark.parametrize(
+    ("function", "kwargs"),
+    [
+        (plot_predictions, {"conditional": "x"}),
+        (plot_comparisons, {"contrast": "x", "conditional": "z"}),
+        (plot_slopes, {"wrt": "x", "conditional": "z"}),
+    ],
+)
+def test_plot_functions_warn_about_future_return_type(fitted_model, function, kwargs):
+    model, idata = fitted_model
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        result = function(model, idata, **kwargs)
+
+    plotting_warnings = [
+        warning for warning in caught if warning.category is bmb.PlottingFutureWarning
+    ]
+    assert len(plotting_warnings) == 1
+    assert Path(plotting_warnings[0].filename) == Path(__file__)
+    assert "seaborn.objects.Plot" in str(plotting_warnings[0].message)
+    assert "matplotlib.figure.Figure" in str(plotting_warnings[0].message)
+    assert "warnings.filterwarnings" in str(plotting_warnings[0].message)
+    assert isinstance(result, Plot)
+
+
+def test_each_plot_function_emits_return_type_warning(fitted_model):
+    model, idata = fitted_model
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        plot_predictions(model, idata, conditional="x")
+        plot_comparisons(model, idata, contrast="x", conditional="z")
+        plot_slopes(model, idata, wrt="x", conditional="z")
+
+    assert (
+        len([warning for warning in caught if warning.category is bmb.PlottingFutureWarning]) == 3
+    )
+
+
+def test_plot_return_type_warning_can_be_suppressed(fitted_model):
+    model, idata = fitted_model
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.filterwarnings("ignore", category=bmb.PlottingFutureWarning)
+        plot_predictions(model, idata, conditional="x")
+
+    assert [warning for warning in caught if warning.category is bmb.PlottingFutureWarning] == []
