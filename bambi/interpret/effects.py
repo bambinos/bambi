@@ -1,8 +1,7 @@
-# pylint: disable=too-many-lines
 import warnings
 from functools import partial
 from itertools import combinations
-from typing import Any, Callable, Mapping, Optional
+from typing import Any, Callable
 
 import arviz as az
 import numpy as np
@@ -14,6 +13,7 @@ from matplotlib.figure import Figure, SubFigure
 from pandas import DataFrame
 from xarray import DataArray, DataTree
 
+from bambi.interpret._typing import ConditionalValues
 from bambi.interpret.ops import get_comparison_func, get_slope_func
 from bambi.interpret.plots import PlottingConfig, plot
 from bambi.interpret.types import (
@@ -35,7 +35,7 @@ from bambi.models import Model
 from bambi.utils import as_dataset
 
 
-def _warn_deprecated_sample_new_groups(sample_new_groups: Optional[bool]) -> None:
+def _warn_deprecated_sample_new_groups(sample_new_groups: bool | None) -> None:
     if sample_new_groups is not None:
         warnings.warn(
             "'sample_new_groups' is deprecated and has no effect. Bambi now automatically "
@@ -46,15 +46,15 @@ def _warn_deprecated_sample_new_groups(sample_new_groups: Optional[bool]) -> Non
 
 
 def _determine_plot_vars(
-    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]],
-    average_by: Optional[str | list[str]],
+    conditional: str | list[str] | dict[str, ConditionalValues] | None,
+    average_by: str | list[str] | None,
     model_data: DataFrame,
 ) -> list[str]:
     """Determine which variables to plot based on conditional and average_by parameters.
 
     Parameters
     ----------
-    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
+    conditional : str, list[str], dict[str, ConditionalValues], or None
         User-specified conditional variables.
     average_by : str, list, or None
         Variables to average over.
@@ -275,7 +275,7 @@ def _compute_bounds(x: DataArray, prob: float, use_hdi: bool) -> DataFrame:
 
 
 def get_summary_stats(
-    x: DataArray, prob: Optional[float | list[float]], use_hdi: bool = True
+    x: DataArray, prob: float | list[float] | None, use_hdi: bool = True
 ) -> DataFrame:
     """Compute summary statistics (mean and uncertainty intervals) of an array.
 
@@ -338,9 +338,9 @@ def _build_predictions(
     model: Model,
     idata: DataTree,
     focal_variable: pd.Series,
-    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]],
+    conditional: str | list[str] | dict[str, ConditionalValues] | None,
     target: str,
-    transforms: Optional[dict],
+    transforms: dict | None,
 ) -> tuple[DataTree, DataFrame, list[str], str, str, Callable]:
     """Shared prediction pipeline for comparisons and slopes.
 
@@ -425,13 +425,13 @@ def _build_predictions(
 def predictions(
     model: Model,
     idata: DataTree,
-    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
-    average_by: Optional[str | list[str]] = None,
+    conditional: str | list[str] | dict[str, ConditionalValues] | None = None,
+    average_by: str | list[str] | None = None,
     target: str = "mean",
     use_hdi: bool = True,
-    prob: Optional[float | list[float]] = az.rcParams["stats.ci_prob"],
-    transforms: Optional[dict] = None,
-    sample_new_groups: Optional[bool] = None,
+    prob: float | list[float] | None = az.rcParams["stats.ci_prob"],
+    transforms: dict | None = None,
+    sample_new_groups: bool | None = None,
 ) -> Result:
     """Compute conditional adjusted predictions.
 
@@ -441,7 +441,7 @@ def predictions(
         The fitted Bambi model.
     idata : DataTree
         DataTree object containing the posterior samples.
-    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
+    conditional : str, list[str], dict[str, ConditionalValues], or None
         Variables to condition on for predictions.
     average_by : str, list or None
         Variables to average predictions over.
@@ -523,16 +523,16 @@ def predictions(
 def plot_predictions(
     model: Model,
     idata: DataTree,
-    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
-    average_by: Optional[str | list[str]] = None,
+    conditional: str | list[str] | dict[str, ConditionalValues] | None = None,
+    average_by: str | list[str] | None = None,
     target: str = "mean",
     use_hdi: bool = True,
-    prob: Optional[float | list[float]] = az.rcParams["stats.ci_prob"],
-    transforms: Optional[dict] = None,
-    sample_new_groups: Optional[bool] = None,
-    fig_kwargs: Optional[dict[str, Any]] = None,
-    subplot_kwargs: Optional[dict[str, str]] = None,
-    on: Optional[Axes | Figure | SubFigure] = None,
+    prob: float | list[float] | None = az.rcParams["stats.ci_prob"],
+    transforms: dict | None = None,
+    sample_new_groups: bool | None = None,
+    fig_kwargs: dict[str, Any] | None = None,
+    subplot_kwargs: dict[str, str] | None = None,
+    on: Axes | Figure | SubFigure | None = None,
 ) -> Figure:
     """Plot conditional adjusted predictions.
 
@@ -542,7 +542,7 @@ def plot_predictions(
         The fitted Bambi model.
     idata : DataTree
         DataTree object containing the posterior samples.
-    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
+    conditional : str, list[str], dict[str, ConditionalValues], or None
         Variables to condition on for predictions.
     average_by : str, list[str], or None
         Variables to average predictions over.
@@ -614,15 +614,15 @@ def plot_predictions(
 def comparisons(
     model: Model,
     idata: DataTree,
-    contrast: str | dict[str, np.ndarray | list | int | float],
-    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
-    average_by: Optional[str | list[str]] = None,
+    contrast: str | dict[str, ConditionalValues],
+    conditional: str | list[str] | dict[str, ConditionalValues] | None = None,
+    average_by: str | list[str] | None = None,
     target: str = "mean",
     comparison: Callable[[DataArray, DataArray], DataArray] | str = "diff",
     use_hdi: bool = True,
-    prob: Optional[float | list[float]] = az.rcParams["stats.ci_prob"],
-    transforms: Optional[dict] = None,
-    sample_new_groups: Optional[bool] = None,
+    prob: float | list[float] | None = az.rcParams["stats.ci_prob"],
+    transforms: dict | None = None,
+    sample_new_groups: bool | None = None,
 ) -> Result:
     """Compute conditional adjusted comparisons.
 
@@ -632,9 +632,9 @@ def comparisons(
         The fitted Bambi model.
     idata : DataTree
         DataTree object containing the posterior samples.
-    contrast : str or dict[str, ndarray or list or int or float]
+    contrast : str or dict[str, ConditionalValues]
         Variable(s) to create contrasts for.
-    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
+    conditional : str, list[str], dict[str, ConditionalValues], or None
         Variables to condition on for comparisons.
     average_by : str, list or None
         Variables to average comparisons over.
@@ -722,18 +722,18 @@ def comparisons(
 def plot_comparisons(
     model: Model,
     idata: DataTree,
-    contrast: str | dict[str, np.ndarray | list | int | float],
-    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
-    average_by: Optional[str | list | bool] = None,
+    contrast: str | dict[str, ConditionalValues],
+    conditional: str | list[str] | dict[str, ConditionalValues] | None = None,
+    average_by: str | list | bool | None = None,
     target: str = "mean",
     comparison: Callable[[DataArray, DataArray], DataArray] | str = "diff",
     use_hdi: bool = True,
-    prob: Optional[float | list[float]] = az.rcParams["stats.ci_prob"],
-    transforms: Optional[dict] = None,
-    sample_new_groups: Optional[bool] = None,
-    fig_kwargs: Optional[dict[str, Any]] = None,
-    subplot_kwargs: Optional[Mapping[str, str]] = None,
-    on: Optional[Axes | Figure | SubFigure] = None,
+    prob: float | list[float] | None = az.rcParams["stats.ci_prob"],
+    transforms: dict | None = None,
+    sample_new_groups: bool | None = None,
+    fig_kwargs: dict[str, Any] | None = None,
+    subplot_kwargs: dict[str, str] | None = None,
+    on: Axes | Figure | SubFigure | None = None,
 ) -> Figure:
     """Plot conditional adjusted comparisons.
 
@@ -743,9 +743,9 @@ def plot_comparisons(
         The fitted Bambi model.
     idata : DataTree
         DataTree object containing the posterior samples.
-    contrast : str or dict[str, ndarray or list or int or float]
+    contrast : str or dict[str, ConditionalValues]
         Variable(s) to create contrasts for.
-    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
+    conditional : str, list[str], dict[str, ConditionalValues], or None
         Variables to condition on for comparisons.
     average_by : str or list or bool or None
         Variables to average comparisons over.
@@ -771,7 +771,7 @@ def plot_comparisons(
     fig_kwargs : dict or None
         Additional keyword arguments for figure customization.
         Use the 'theme' key to pass a dictionary of matplotlib rc parameters.
-    subplot_kwargs : Mapping[str, str] or None
+    subplot_kwargs : dict[str, str] or None
         Overrides default plotting sequence (main, group, panel).
     on : Axes, Figure, SubFigure, or None
         Matplotlib target on which to draw the plot. If None, a new figure is created.
@@ -823,15 +823,15 @@ def slopes(
     model: Model,
     idata: DataTree,
     wrt: str | dict[str, float | int],
-    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
-    average_by: Optional[str | list[str]] = None,
+    conditional: str | list[str] | dict[str, ConditionalValues] | None = None,
+    average_by: str | list[str] | None = None,
     eps: float = 1e-4,
     slope: str | Callable[[DataArray, DataArray, DataArray], DataArray] = "dydx",
     target: str = "mean",
     use_hdi: bool = True,
-    prob: Optional[float | list[float]] = az.rcParams["stats.ci_prob"],
-    transforms: Optional[dict] = None,
-    sample_new_groups: Optional[bool] = None,
+    prob: float | list[float] | None = az.rcParams["stats.ci_prob"],
+    transforms: dict | None = None,
+    sample_new_groups: bool | None = None,
 ) -> Result:
     """Compute conditional adjusted slopes.
 
@@ -848,7 +848,7 @@ def slopes(
         The predictor variable to compute the slope with respect to. Either a variable
         name (uses mean/mode as evaluation point) or a single-entry dict mapping
         variable name to a specific evaluation point.
-    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
+    conditional : str, list[str], dict[str, ConditionalValues], or None
         Variables to condition on for slopes.
     average_by : str, list or None
         Variables to average slopes over.
@@ -946,18 +946,18 @@ def plot_slopes(
     model: Model,
     idata: DataTree,
     wrt: str | dict[str, float | int],
-    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
-    average_by: Optional[str | list | bool] = None,
+    conditional: str | list[str] | dict[str, ConditionalValues] | None = None,
+    average_by: str | list | bool | None = None,
     eps: float = 1e-4,
     slope: str | Callable[[DataArray, DataArray, DataArray], DataArray] = "dydx",
     target: str = "mean",
     use_hdi: bool = True,
-    prob: Optional[float | list[float]] = az.rcParams["stats.ci_prob"],
-    transforms: Optional[dict] = None,
-    sample_new_groups: Optional[bool] = None,
-    fig_kwargs: Optional[dict[str, Any]] = None,
-    subplot_kwargs: Optional[Mapping[str, str]] = None,
-    on: Optional[Axes | Figure | SubFigure] = None,
+    prob: float | list[float] | None = az.rcParams["stats.ci_prob"],
+    transforms: dict | None = None,
+    sample_new_groups: bool | None = None,
+    fig_kwargs: dict[str, Any] | None = None,
+    subplot_kwargs: dict[str, str] | None = None,
+    on: Axes | Figure | SubFigure | None = None,
 ) -> Figure:
     """Plot conditional adjusted slopes.
 
@@ -969,7 +969,7 @@ def plot_slopes(
         DataTree object containing the posterior samples.
     wrt : str or dict
         The predictor variable to compute the slope with respect to.
-    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
+    conditional : str, list[str], dict[str, ConditionalValues], or None
         Variables to condition on for slopes.
     average_by : str or list or bool or None
         Variables to average slopes over.

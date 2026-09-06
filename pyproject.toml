@@ -159,15 +159,13 @@ unsafe-load-any-extension = false
 
 [tool.pylint.messages_control]
 disable = [
-  "cyclic-import",
   "missing-docstring",
-  "no-else-return",
   "too-few-public-methods",
   "too-many-arguments",
   "too-many-branches",
   "too-many-locals",
   "too-many-statements",
-  "use-implicit-booleaness-not-len",
+  "too-many-lines",
 ]
 
 [tool.pylint.format]
@@ -178,7 +176,6 @@ max-line-length = 100
 dummy-variables-rgx = "_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_"
 ignored-argument-names = "_.*|^ignored_|^unused_"
 
-# [tool.pylint.basic]
 good-names = [
     "_",
     "_log",
@@ -206,9 +203,6 @@ good-names = [
     "ub",
     "eta",
 ]
-
-bad-names = ["foo", "bar", "baz", "toto", "tutu", "tata"]
-
 
 [tool.pylint.similarities]
 min-similarity-lines = 50

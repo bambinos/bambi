@@ -1,16 +1,14 @@
-from typing import Optional
+from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from numpy.typing import ArrayLike
 from pandas import Series
 from pandas.api.types import is_numeric_dtype
 
-# User-provided values can be one of these types
-Values = list[int | float | str] | ArrayLike | Series
+from bambi.interpret._typing import ConditionalValues
 
 
-def validate_prob(prob: Optional[float | list[float]]) -> list[float]:
+def validate_prob(prob: float | list[float] | None) -> list[float]:
     """Validate and normalize the prob parameter.
 
     Parameters
@@ -43,13 +41,13 @@ def validate_prob(prob: Optional[float | list[float]]) -> list[float]:
     return sorted(prob, reverse=True)
 
 
-def validate_category_values(values: Values, var_name: str, reference: Series) -> Series:
+def validate_category_values(values: ConditionalValues, var_name: str, reference: Series) -> Series:
     """Validates user-provided values against the original Pandas Categorical values used to
     fit a Bambi model.
 
     Parameters
     ----------
-    values : Values
+    values : ConditionalValues
         User-provided values to validate. Can be a list, numpy array, or pandas Series.
     var_name : str
         Name of the variable being validated.
@@ -114,16 +112,16 @@ def validate_category_values(values: Values, var_name: str, reference: Series) -
 
 
 def validate_numeric_values(
-    values: Values,
+    values: ConditionalValues,
     var_name: str,
-    target_dtype: Optional[np.dtype] = None,
+    target_dtype: np.dtype | None = None,
 ) -> Series:
     """Validates user-provided values against the original Pandas numerical values used to
     fit a Bambi model.
 
     Parameters
     ----------
-    values : Values
+    values : ConditionalValues
         User-provided values to validate. Can be a list, numpy array, or pandas Series.
     var_name : str
         Name of the variable being validated.
@@ -191,6 +189,6 @@ def validate_numeric_values(
 
         case _:
             raise TypeError(
-                f"Values for '{var_name}' must be one of: list[int|float], np.ndarray, "
+                f"ConditionalValues for '{var_name}' must be one of: list[int|float], np.ndarray, "
                 f"or pd.Series. Got: {type(values).__name__}"
             )

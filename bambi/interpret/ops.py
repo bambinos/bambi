@@ -1,11 +1,6 @@
-# pylint: disable=unused-argument
-from typing import Callable
-
 from xarray.core.dataarray import DataArray
 
-# A comparison function performs an operation (op) between a reference and
-# a contrast DataArray and returns a result DataArray
-ComparisonFunc = Callable[[DataArray, DataArray], DataArray]
+from bambi.interpret._typing import ComparisonFunc, SlopeFunc
 
 
 def diff(reference: DataArray, contrast: DataArray) -> DataArray:
@@ -106,11 +101,7 @@ def get_comparison_func(comparison: str | ComparisonFunc) -> ComparisonFunc:
             )
 
 
-# A slope function scales the raw derivative (dydx) given the evaluation point x
-# and the response y, and returns a scaled DataArray
-SlopeFunc = Callable[[DataArray, DataArray, DataArray], DataArray]
-
-
+# pylint: disable=unused-argument
 def dydx(derivative: DataArray, x: DataArray, y: DataArray) -> DataArray:
     """Unit change in y per unit change in x.
 
@@ -151,6 +142,7 @@ def eyex(derivative: DataArray, x: DataArray, y: DataArray) -> DataArray:
     return derivative * (x / y)
 
 
+# pylint: disable=unused-argument
 def eydx(derivative: DataArray, x: DataArray, y: DataArray) -> DataArray:
     """Percent change in y per unit change in x.
 

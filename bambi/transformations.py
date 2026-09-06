@@ -462,7 +462,7 @@ def as_matrix(x):
     x = np.atleast_1d(x)
     if x.ndim == 1:
         return x[:, np.newaxis]
-    elif x.ndim > 2:
+    if x.ndim > 2:
         raise ValueError("'x.ndim' cannot be > 2")
     return x
 

@@ -1,10 +1,9 @@
-# pylint: disable=redefined-outer-name
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass
 from functools import reduce
-from typing import Any, Mapping, Optional
+from typing import Any
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -26,14 +25,14 @@ class FigureConfig:
     sharey: bool = True
     alpha: float = 0.3
     legend: bool = True
-    xlabel: Optional[str] = None
-    ylabel: Optional[str] = None
-    title: Optional[str] = None
-    wrap: Optional[int] = None
-    theme: Optional[dict[str, Any]] = None
+    xlabel: str | None = None
+    ylabel: str | None = None
+    title: str | None = None
+    wrap: int | None = None
+    theme: dict[str, Any] | None = None
 
     @staticmethod
-    def from_kwargs(kwargs: Optional[dict[str, Any]] = None) -> FigureConfig:
+    def from_kwargs(kwargs: dict[str, Any] | None = None) -> FigureConfig:
         """Create a FigureConfig from a dictionary of keyword arguments.
 
         Parameters
@@ -64,20 +63,18 @@ class SubplotConfig:
     """
 
     main: str
-    group: Optional[str] = None
-    panel: Optional[str] = None
+    group: str | None = None
+    panel: str | None = None
 
     @staticmethod
-    def from_params(
-        var_names: list[str], overrides: Optional[Mapping[str, str]] = None
-    ) -> SubplotConfig:
+    def from_params(var_names: list[str], overrides: dict[str, str] | None = None) -> SubplotConfig:
         """Create a SubplotConfig from variable names or overrides.
 
         Parameters
         ----------
         var_names : list[str]
             List of variable names to create the plot configuration from.
-        overrides : Mapping[str, str] or None
+        overrides : dict[str, str] or None
             Dictionary to override default plotting sequence. Valid keys
             are 'main', 'group', and 'panel'.
 
@@ -144,8 +141,8 @@ class PlottingConfig:
     @staticmethod
     def from_params(
         var_names: list[str],
-        subplot_kwargs: Optional[Mapping[str, str]] = None,
-        fig_kwargs: Optional[dict[str, Any]] = None,
+        subplot_kwargs: dict[str, str] | None = None,
+        fig_kwargs: dict[str, Any] | None = None,
     ) -> PlottingConfig:
         """Create a PlottingConfig from variable names and optional overrides.
 
@@ -153,9 +150,9 @@ class PlottingConfig:
         ----------
         var_names : list[str]
             List of variable names for the subplot configuration.
-        subplot_kwargs : Mapping[str, str] or None
+        subplot_kwargs : dict[str, str] or None
             Overrides for the subplot configuration.
-        fig_kwargs : dict or None
+        fig_kwargs : dict[str, Any] or None
             Keyword arguments for figure customization.
 
         Returns
@@ -213,7 +210,9 @@ def _get_interval_pairs(data: DataFrame, base_alpha: float) -> list[tuple[str, s
     return pairs
 
 
-def _add_main_layer(plot: Plot, data: DataFrame, config: PlottingConfig) -> Plot:
+def _add_main_layer(
+    plot: Plot, data: DataFrame, config: PlottingConfig  # pylint: disable=redefined-outer-name
+) -> Plot:
     intervals = _get_interval_pairs(data, config.figure.alpha)
 
     match data[config.subplot.main].dtype:
@@ -294,7 +293,7 @@ def _recreate_legend(figure: Figure) -> None:
 def plot(
     data: DataFrame,
     config: PlottingConfig,
-    on: Optional[Axes | Figure | SubFigure] = None,
+    on: Axes | Figure | SubFigure | None = None,
 ) -> Figure:
     """Declaratively plot data according to a plotting configuration.
 
@@ -319,6 +318,7 @@ def plot(
     TypeError
         If the main variable has an unsupported data type.
     """
+    # pylint: disable=redefined-outer-name
     # Base plot (must include x-y axis)
     plot = so.Plot(data, x=config.subplot.main, y="estimate", color=config.subplot.group)
     # Force color cycle to nominal instead of gradient

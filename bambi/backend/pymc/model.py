@@ -5,8 +5,6 @@ from contextlib import contextmanager
 from copy import deepcopy
 from importlib.metadata import version
 
-from typing import Optional
-
 import numpy as np
 import pandas as pd
 import pymc as pm
@@ -332,7 +330,7 @@ class PyMCModel:
     def compute_log_likelihood(
         self,
         idata,
-        data: Optional[pd.DataFrame],
+        data: pd.DataFrame | None,
         inplace: bool = True,
         progressbar: bool = False,
     ):

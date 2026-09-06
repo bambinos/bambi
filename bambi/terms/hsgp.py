@@ -90,8 +90,7 @@ class HSGPTerm(BaseTerm):
     def shape(self):
         if self.by_levels is None:
             return self.term.data.shape
-        else:
-            return self.term.data[:, :-1].shape
+        return self.term.data[:, :-1].shape
 
     @property
     def data_centered(self):

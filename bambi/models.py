@@ -1,6 +1,3 @@
-# pylint: disable=no-name-in-module
-# pylint: disable=too-many-lines
-# pylint: disable=too-many-positional-arguments
 import logging
 import warnings
 from copy import copy, deepcopy
@@ -755,7 +752,7 @@ class Model:
                 "Call .build() to build the model or .fit() to build and sample from the posterior."
             )
 
-    def plot_priors(
+    def plot_priors(  # pylint: disable=too-many-positional-arguments
         self,
         draws=5000,
         var_names=None,

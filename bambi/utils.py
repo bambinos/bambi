@@ -17,8 +17,7 @@ def listify(obj):
     """
     if obj is None:
         return []
-    else:
-        return obj if isinstance(obj, (list, tuple, type(None))) else [obj]
+    return obj if isinstance(obj, (list, tuple, type(None))) else [obj]
 
 
 def indentify(string: str, n: int = 2) -> str:

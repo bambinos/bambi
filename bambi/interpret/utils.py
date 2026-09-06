@@ -1,5 +1,5 @@
 # pylint: disable = too-many-nested-blocks
-from typing import Any, Callable, NamedTuple, Optional
+from typing import Any, Callable, NamedTuple
 
 import numpy as np
 import xarray as xr
@@ -131,11 +131,11 @@ def resolve_target(model: Model, target: str) -> TargetInfo:
 
 def aggregate(
     data: DataFrame,
-    by: Optional[str | list[str]],
+    by: str | list[str] | None,
     agg_fn: Callable[
         [DataFrame | Series | DataFrameGroupBy | SeriesGroupBy], DataFrame
     ] = lambda df: df.mean(),
-    preserve: Optional[list[str]] = None,
+    preserve: list[str] | None = None,
 ) -> DataFrame:
     """Group data by variable(s) and apply an aggregation function.
 
