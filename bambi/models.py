@@ -1050,22 +1050,8 @@ class Model:
                 stacklevel=2,
             )
 
-        if kind not in ("mean", "pps", "response_params", "response"):
+        if kind not in ("response_params", "response"):
             raise ValueError("'kind' must be one of 'response_params' or 'response'")
-
-        if kind == "mean":
-            kind = "response_params"
-            warnings.warn(
-                "'mean' has been replaced by 'response_params' and "
-                "is not going to work in the future",
-                FutureWarning,
-            )
-        if kind == "pps":
-            kind = "response"
-            warnings.warn(
-                "'pps' has been replaced by 'response' and is not going to work in the future",
-                FutureWarning,
-            )
 
         if not inplace:
             idata = deepcopy(idata)

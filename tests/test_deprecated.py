@@ -214,3 +214,9 @@ def test_counts_response_fit_and_predict(count_data, mock_pymc_sample, family):
     assert model.response_term.levels == ["y1", "y2"]
     assert np.array_equal(model.response_term.data, count_data[["y1", "y2"]].to_numpy())
     assert "counts(y1, y2)" in predictions.posterior_predictive
+
+
+@pytest.mark.parametrize("kind", ["mean", "pps"])
+def test_removed_predict_kinds(model, kind):
+    with pytest.raises(ValueError, match="'kind' must be one of 'response_params' or 'response'"):
+        model.predict(object(), kind=kind)

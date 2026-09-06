@@ -1,7 +1,6 @@
 import functools
 import logging
 import traceback
-import warnings
 from copy import deepcopy
 from importlib.metadata import version
 
@@ -32,13 +31,6 @@ __version__ = version("bambi")
 
 
 _SUPPORTED_METHODS = {"pymc", "numpyro", "blackjax", "nutpie", "vi", "laplace"}
-_DEPRECATION_MAP = {
-    "mcmc": "pymc",
-    "nuts_numpyro": "numpyro",
-    "numpyro_nuts": "numpyro",
-    "nuts_blackjax": "blackjax",
-    "blackjax_nuts": "blackjax",
-}
 
 
 class PyMCModel:
@@ -118,16 +110,6 @@ class PyMCModel:
     ):
         """Run PyMC sampler."""
         inference_method = inference_method.lower()
-
-        # Handle deprecated inference methods
-        if inference_method in _DEPRECATION_MAP:
-            new_method = _DEPRECATION_MAP[inference_method]
-            warnings.warn(
-                f"'{inference_method}' has been replaced by '{new_method}' and will be "
-                "removed in a future release.",
-                category=FutureWarning,
-            )
-            inference_method = new_method
 
         # Validate the inference method
         if inference_method not in _SUPPORTED_METHODS:
