@@ -167,7 +167,7 @@ def compare(
     idata : DataTree
         The DataTree object containing the samples to compare.
     contrast : ComparisonVariable
-    The ComparisonVariable specifying the variable to create contrasts for.
+        The ComparisonVariable specifying the variable to create contrasts for.
     target : str
         The target variable name to compare within the group.
     group : str
