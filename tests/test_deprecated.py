@@ -5,12 +5,20 @@ import pandas as pd
 import pytest
 
 import bambi as bmb
+from bambi.interpret import (
+    comparisons,
+    plot_comparisons,
+    plot_predictions,
+    plot_slopes,
+    predictions,
+    slopes,
+)
 
 
 @pytest.fixture
 def model():
-    data = pd.DataFrame({"y": [1.0, 2.0, 3.0], "x": [0.0, 1.0, 2.0]})
-    return bmb.Model("y ~ x", data)
+    data = pd.DataFrame({"y": [1.0, 2.0, 3.0], "x": [0.0, 1.0, 2.0], "z": [0.0, 0.0, 1.0]})
+    return bmb.Model("y ~ x + z", data)
 
 
 @pytest.mark.parametrize(
@@ -85,3 +93,56 @@ def test_response_term_does_not_warn(model):
 
     assert response_term is model._response_component.term
     assert caught == []
+
+
+@pytest.mark.parametrize(("value", "normalized"), [(None, False), (False, False), (True, True)])
+def test_predict_sample_new_groups_deprecated(model, mocker, value, normalized):
+    compute = mocker.patch.object(model, "_compute_likelihood_params", return_value=object())
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        model.predict(object(), sample_new_groups=value)
+
+    assert compute.call_args.kwargs["sample_new_groups"] is normalized
+    sample_new_groups_warnings = [
+        warning for warning in caught if "sample_new_groups" in str(warning.message)
+    ]
+    assert len(sample_new_groups_warnings) == (value is not None)
+    if sample_new_groups_warnings:
+        warning = sample_new_groups_warnings[0]
+        assert warning.category is FutureWarning
+        assert "handled automatically" in str(warning.message)
+        assert "future version" in str(warning.message)
+        assert Path(warning.filename) == Path(__file__)
+
+
+@pytest.fixture
+def fitted_model(model, mock_pymc_sample):
+    return model, model.fit(chains=2)
+
+
+@pytest.mark.parametrize(
+    ("function", "kwargs"),
+    [
+        (predictions, {"conditional": "x"}),
+        (plot_predictions, {"conditional": "x"}),
+        (comparisons, {"contrast": "x"}),
+        (plot_comparisons, {"contrast": "x", "conditional": "z"}),
+        (slopes, {"wrt": "x"}),
+        (plot_slopes, {"wrt": "x", "conditional": "z"}),
+    ],
+)
+@pytest.mark.parametrize("value", [None, False, True])
+def test_interpret_sample_new_groups_deprecated(fitted_model, function, kwargs, value):
+    model, idata = fitted_model
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        function(model, idata, sample_new_groups=value, **kwargs)
+
+    sample_new_groups_warnings = [
+        warning for warning in caught if "sample_new_groups" in str(warning.message)
+    ]
+    assert len(sample_new_groups_warnings) == (value is not None)
+    if sample_new_groups_warnings:
+        warning = sample_new_groups_warnings[0]
+        assert warning.category is FutureWarning

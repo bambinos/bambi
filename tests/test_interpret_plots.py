@@ -267,7 +267,7 @@ class TestPredictions:
             ValueError,
             match="There are new groups for the factors \('Subject',\) and 'sample_new_groups' is False.",
         ):
-            # default: sample_new_groups=False
+            # default: sample_new_groups=None, normalized to False
             plot_predictions(model, idata, ["Days", "Subject"])
 
     @pytest.mark.parametrize(
@@ -425,7 +425,7 @@ class TestComparisons:
             ValueError,
             match="There are new groups for the factors \('Subject',\) and 'sample_new_groups' is False.",
         ):
-            # default: sample_new_groups=False
+            # default: sample_new_groups=None, normalized to False
             plot_comparisons(model, idata, "Days", "Subject")
 
     @pytest.mark.parametrize(
@@ -565,7 +565,7 @@ class TestSlopes:
             ValueError,
             match="There are new groups for the factors \('Subject',\) and 'sample_new_groups' is False.",
         ):
-            # default: sample_new_groups=False
+            # default: sample_new_groups=None, normalized to False
             plot_slopes(model, idata, "Days", "Subject")
 
     def test_categorical_response(self, food_choice):

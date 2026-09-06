@@ -968,7 +968,7 @@ class Model:
         data=None,
         inplace=True,
         include_group_specific=True,
-        sample_new_groups=False,
+        sample_new_groups=None,
         random_seed=None,
     ):
         """Predict method for Bambi models
@@ -1000,7 +1000,10 @@ class Model:
             Determines if predictions incorporate group-specific effects. If `False`, predictions
             are made with common effects only (i.e. group specific are set to zero). Defaults to
             `True`.
-        sample_new_groups : bool, optional
+        sample_new_groups : bool or None, optional
+            Deprecated. When explicitly set to `True` or `False`, a `FutureWarning` is emitted
+            because new groups will be handled automatically in a future version. The default
+            `None` preserves the current `False` behavior during this transition.
             Specifies if it is allowed to obtain predictions for new groups of group-specific terms.
             When `True`, each posterior sample for the new groups is drawn from the posterior
             draws of a randomly selected existing group. Since different groups may be selected at
@@ -1013,6 +1016,16 @@ class Model:
         -------
         InferenceData or None
         """
+        if sample_new_groups is None:
+            sample_new_groups = False
+        else:
+            warnings.warn(
+                "'sample_new_groups' is deprecated and will be removed in a future version. "
+                "New groups will be handled automatically.",
+                FutureWarning,
+                stacklevel=2,
+            )
+
         if kind not in ("mean", "pps", "response_params", "response"):
             raise ValueError("'kind' must be one of 'response_params' or 'response'")
 

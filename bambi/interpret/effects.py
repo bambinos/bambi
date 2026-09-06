@@ -392,7 +392,7 @@ def predictions(
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
-    sample_new_groups: bool = False,
+    sample_new_groups: bool | None = None,
 ) -> Result:
     """Compute conditional adjusted predictions.
 
@@ -418,8 +418,10 @@ def predictions(
         arviz rcParams. When a list is provided, multiple nested intervals are computed.
     transforms : dict or None
         Dictionary of transformations to apply to predictions.
-    sample_new_groups : bool
-        Whether to sample new group levels. Default is False.
+    sample_new_groups : bool or None
+        Deprecated. Explicit boolean values emit a `FutureWarning` because new groups will be
+        handled automatically in a future version. The default `None` preserves the current
+        `False` behavior during this transition.
 
     Returns
     -------
@@ -475,7 +477,7 @@ def plot_predictions(
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
-    sample_new_groups: bool = False,
+    sample_new_groups: bool | None = None,
     fig_kwargs: Optional[dict[str, Any]] = None,
     subplot_kwargs: Optional[dict[str, str]] = None,
 ) -> Plot:
@@ -504,8 +506,10 @@ def plot_predictions(
         are drawn.
     transforms : dict or None
         Dictionary of transformations to apply to predictions.
-    sample_new_groups : bool
-        Whether to sample new group levels. Default is False.
+    sample_new_groups : bool or None
+        Deprecated. Explicit boolean values emit a `FutureWarning` because new groups will be
+        handled automatically in a future version. The default `None` preserves the current
+        `False` behavior during this transition.
     fig_kwargs : dict or None
         Additional keyword arguments for figure customization. Use the 'theme' key
         to pass a dictionary of matplotlib rc parameters.
@@ -558,7 +562,7 @@ def comparisons(
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
-    sample_new_groups: bool = False,
+    sample_new_groups: bool | None = None,
 ) -> Result:
     """Compute conditional adjusted comparisons.
 
@@ -587,8 +591,10 @@ def comparisons(
         arviz rcParams. When a list is provided, multiple nested intervals are computed.
     transforms : dict or None
         Dictionary of transformations to apply to comparisons.
-    sample_new_groups : bool
-        Whether to sample new group levels. Default is False.
+    sample_new_groups : bool or None
+        Deprecated. Explicit boolean values emit a `FutureWarning` because new groups will be
+        handled automatically in a future version. The default `None` preserves the current
+        `False` behavior during this transition.
 
     Returns
     -------
@@ -662,7 +668,7 @@ def plot_comparisons(
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
-    sample_new_groups: bool = False,
+    sample_new_groups: bool | None = None,
     fig_kwargs: Optional[dict[str, Any]] = None,
     subplot_kwargs: Optional[Mapping[str, str]] = None,
 ) -> Plot:
@@ -696,8 +702,10 @@ def plot_comparisons(
         are drawn.
     transforms : dict or None
         Dictionary of transformations to apply to comparisons.
-    sample_new_groups : bool
-        Whether to sample new group levels. Default is False.
+    sample_new_groups : bool or None
+        Deprecated. Explicit boolean values emit a `FutureWarning` because new groups will be
+        handled automatically in a future version. The default `None` preserves the current
+        `False` behavior during this transition.
     fig_kwargs : dict or None
         Additional keyword arguments for figure customization. Use the 'theme' key
         to pass a dictionary of matplotlib rc parameters.
@@ -753,7 +761,7 @@ def slopes(
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
-    sample_new_groups: bool = False,
+    sample_new_groups: bool | None = None,
 ) -> Result:
     """Compute conditional adjusted slopes.
 
@@ -793,8 +801,10 @@ def slopes(
         arviz rcParams. When a list is provided, multiple nested intervals are computed.
     transforms : dict or None
         Dictionary of transformations to apply to predictions before differencing.
-    sample_new_groups : bool
-        Whether to sample new group levels. Default is False.
+    sample_new_groups : bool or None
+        Deprecated. Explicit boolean values emit a `FutureWarning` because new groups will be
+        handled automatically in a future version. The default `None` preserves the current
+        `False` behavior during this transition.
 
     Returns
     -------
@@ -874,7 +884,7 @@ def plot_slopes(
     use_hdi: bool = True,
     prob: float | list[float] = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
-    sample_new_groups: bool = False,
+    sample_new_groups: bool | None = None,
     fig_kwargs: Optional[dict[str, Any]] = None,
     subplot_kwargs: Optional[Mapping[str, str]] = None,
 ) -> Plot:
@@ -911,8 +921,10 @@ def plot_slopes(
         are drawn.
     transforms : dict or None
         Dictionary of transformations to apply to predictions before differencing.
-    sample_new_groups : bool
-        Whether to sample new group levels. Default is False.
+    sample_new_groups : bool or None
+        Deprecated. Explicit boolean values emit a `FutureWarning` because new groups will be
+        handled automatically in a future version. The default `None` preserves the current
+        `False` behavior during this transition.
     fig_kwargs : dict or None
         Additional keyword arguments for figure customization.
     subplot_kwargs : Mapping[str, str] or None
