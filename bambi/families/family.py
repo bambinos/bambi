@@ -65,9 +65,7 @@ class Family:
         for name, link in value.items():
             if isinstance(link, str):
                 link = self.check_string_link(link, name)
-            elif isinstance(link, Link):
-                pass
-            else:
+            elif not isinstance(link, Link):
                 raise ValueError("'.link' must be set to a string or a Link instance.")
             links[name] = link
         self._link = links
