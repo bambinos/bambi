@@ -74,33 +74,19 @@ def test_invalid_method(data_random_n100):
         model.fit(inference_method="invalid_method", draws=10, tune=10)
 
 
-def test_legacy_method_warning(data_random_n100):
-    """Test that legacy method names produce warnings."""
+@pytest.mark.parametrize(
+    "inference_method",
+    ["mcmc", "nuts_numpyro", "numpyro_nuts", "nuts_blackjax", "blackjax_nuts"],
+)
+def test_removed_inference_methods(data_random_n100, inference_method):
+    """Test that removed inference method names raise ValueError."""
     model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
-    with pytest.warns(FutureWarning, match="'mcmc' has been replaced by 'pymc'"):
-        model.fit(inference_method="mcmc", draws=10, tune=10)
-
-
-@pytest.mark.skipif(not JAX_AVAILABLE, reason="JAX dependencies not available")
-def test_legacy_nuts_blackjax_warning(data_random_n100):
-    """Test legacy nuts_blackjax warning."""
-    model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
-    with pytest.warns(FutureWarning, match="'nuts_blackjax' has been replaced by 'blackjax'"):
-        model.fit(inference_method="nuts_blackjax", draws=10, tune=10)
-
-    with pytest.warns(FutureWarning, match="'blackjax_nuts' has been replaced by 'blackjax'"):
-        model.fit(inference_method="blackjax_nuts", draws=10, tune=10)
-
-
-@pytest.mark.skipif(not JAX_AVAILABLE, reason="JAX dependencies not available")
-def test_legacy_nuts_numpyro_warning(data_random_n100):
-    """Test legacy nuts_numpyro warning."""
-    model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
-    with pytest.warns(FutureWarning, match="'nuts_numpyro' has been replaced by 'numpyro'"):
-        model.fit(inference_method="nuts_numpyro", draws=10, tune=10)
-
-    with pytest.warns(FutureWarning, match="'numpyro_nuts' has been replaced by 'numpyro'"):
-        model.fit(inference_method="numpyro_nuts", draws=10, tune=10)
+    message = (
+        rf"'{inference_method}' is not a supported inference method\. "
+        "Must be one of: blackjax, laplace, numpyro, nutpie, pymc, vi"
+    )
+    with pytest.raises(ValueError, match=message):
+        model.fit(inference_method=inference_method, draws=10, tune=10)
 
 
 def test_nuts_parameter_for_default_sampler(data_random_n100, mock_pymc_sample):

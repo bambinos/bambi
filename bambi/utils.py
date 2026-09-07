@@ -174,13 +174,7 @@ def remove_common_intercept(dm: fm.matrices.DesignMatrices) -> fm.matrices.Desig
 
 
 def response_evaluate_new_data(model, data):
-    # TODO: Add "evaluate_new_data" to the response component in formulae, so we don't need this.
-    name = model.response_component.term.name
-    env = model.response_component.response.env
-
-    # We add an intercept to have a valid formula, but it's not used
-    dm = fm.design_matrices(name + " ~ 1", data, env=env)
-    return np.asarray(dm.response)
+    return model.response_term.evaluate_new_data(data)
 
 
 def as_dataset(group):

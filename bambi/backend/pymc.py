@@ -1,7 +1,6 @@
 import functools
 import logging
 import traceback
-import warnings
 from copy import deepcopy
 from importlib.metadata import version
 
@@ -32,13 +31,6 @@ __version__ = version("bambi")
 
 
 _SUPPORTED_METHODS = {"pymc", "numpyro", "blackjax", "nutpie", "vi", "laplace"}
-_DEPRECATION_MAP = {
-    "mcmc": "pymc",
-    "nuts_numpyro": "numpyro",
-    "numpyro_nuts": "numpyro",
-    "nuts_blackjax": "blackjax",
-    "blackjax_nuts": "blackjax",
-}
 
 
 class PyMCModel:
@@ -76,23 +68,23 @@ class PyMCModel:
         self.model = pm.Model()
         self.components = {}
 
-        for name, values in spec.response_component.term.coords.items():
+        for name, values in spec.response_term.coords.items():
             if name not in self.model.coords:
                 self.model.add_coords({name: values})
 
         with self.model:
             # Add constant components
-            for name, component in spec.constant_components.items():
+            for name, component in spec.marginal_parameters.items():
                 self.components[name] = ConstantComponent(component)
                 self.components[name].build(self, spec)
 
             # Add distributional components
-            for name, component in spec.distributional_components.items():
+            for name, component in spec.conditional_parameters.items():
                 self.components[name] = DistributionalComponent(component)
                 self.components[name].build(self, spec)
 
             # Add response
-            self.response_component = ResponseComponent(spec.response_component)
+            self.response_component = ResponseComponent(spec.response_term)
             self.response_component.build(self, spec)
 
             # Add potentials
@@ -118,16 +110,6 @@ class PyMCModel:
     ):
         """Run PyMC sampler."""
         inference_method = inference_method.lower()
-
-        # Handle deprecated inference methods
-        if inference_method in _DEPRECATION_MAP:
-            new_method = _DEPRECATION_MAP[inference_method]
-            warnings.warn(
-                f"'{inference_method}' has been replaced by '{new_method}' and will be "
-                "removed in a future release.",
-                category=FutureWarning,
-            )
-            inference_method = new_method
 
         # Validate the inference method
         if inference_method not in _SUPPORTED_METHODS:
@@ -317,7 +299,7 @@ class PyMCModel:
                 for term in bambi_component.common_terms.values():
                     common_terms.append(get_aliased_name(term))
 
-                response_coords = self.spec.response_component.term.coords
+                response_coords = self.spec.response_term.coords
                 if response_coords:
                     # Grab the first object in a dictionary
                     levels = list(response_coords.values())[0]
@@ -384,7 +366,7 @@ class PyMCModel:
             hessian = pm.find_hessian(n_maps)
 
         if np.linalg.det(hessian) == 0:
-            raise np.linalg.LinAlgError("Singular matrix. Use mcmc or vi method")
+            raise np.linalg.LinAlgError("Singular matrix. Use pymc or vi method")
 
         cov = np.linalg.inv(hessian)
         modes = np.concatenate([np.atleast_1d(v) for v in n_maps.values()])

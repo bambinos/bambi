@@ -151,7 +151,7 @@ class Family:
             A data array with the draws from the posterior predictive distribution.
         """
         response_dist = get_response_dist(model.family)
-        response_term = model.response_component.term
+        response_term = model.response_term
         kwargs, coords = self._make_dist_kwargs_and_coords(model, posterior, **kwargs)
 
         # Handle constrained responses
@@ -201,12 +201,12 @@ class Family:
         # Get the values of the outcome variable
         if y_values is None:  # when it's not handled by the specific family
             if data is None:
-                y_values = np.squeeze(model.response_component.term.data)
+                y_values = np.squeeze(model.response_term.data)
             else:
                 y_values = response_evaluate_new_data(model, data)
 
         response_dist = get_response_dist(model.family)
-        response_term = model.response_component.term
+        response_term = model.response_term
         kwargs, coords = self._make_dist_kwargs_and_coords(model, posterior, **kwargs)
 
         # If it's multivariate, it's going to have a fourth coord, but we actually don't need it
@@ -252,7 +252,7 @@ class Family:
         for param in self.likelihood.params:
             # In the posterior xr.Dataset we need to consider aliases, but we can't use aliases
             # when passing kwargs to the PyMC distribution.
-            component = model.components[param]
+            component = model.parameters[param]
             var_name = component.alias if component.alias else param
 
             # Get posterior draws or a constant array if it was set to a constant in the prior
@@ -288,7 +288,7 @@ class Family:
         coord_names = ["chain", "draw", "__obs__"]
         is_multivariate = hasattr(model.family, "KIND") and model.family.KIND == "Multivariate"
 
-        response_aliased_name = get_aliased_name(model.response_component.term)
+        response_aliased_name = get_aliased_name(model.response_term)
         if is_multivariate:
             coord_names.append(response_aliased_name + "_dim")
         elif hasattr(model.family, "create_extra_pps_coord"):

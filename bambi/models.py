@@ -1,5 +1,4 @@
 # pylint: disable=no-name-in-module
-# pylint: disable=too-many-lines
 # pylint: disable=too-many-positional-arguments
 import logging
 import warnings
@@ -134,7 +133,7 @@ class Model:
         extra_namespace=None,
     ):
         # attributes that are set later
-        self.components = {}  # Constant and Distributional components
+        self._components = {}  # Constant and Distributional components
         self.built = False  # build()
 
         # build() will loop over this, calling _set_priors()
@@ -173,6 +172,7 @@ class Model:
 
         # Create family
         self._set_family(family, link)
+        self._warn_deprecated_c_response()
 
         ## Main component
         if isinstance(self.family, ORDINAL_FAMILIES):
@@ -206,10 +206,10 @@ class Model:
             parent_priors.update(priors[parent_name])
 
         # Add response component
-        self.response_component = ResponseComponent(design.response, self)
+        self._response_component = ResponseComponent(design.response, self)
 
         # Add component for parent parameter
-        self.components[self.family.likelihood.parent] = DistributionalComponent(
+        self._components[self.family.likelihood.parent] = DistributionalComponent(
             self.family.likelihood.parent, design, parent_priors, self, is_parent=True
         )
 
@@ -239,7 +239,7 @@ class Model:
             component_priors = priors.get(name, {})
 
             # Create distributional component
-            self.components[name] = DistributionalComponent(
+            self._components[name] = DistributionalComponent(
                 name, design, component_priors, self, is_parent=False
             )
 
@@ -249,22 +249,42 @@ class Model:
         ### Constant
         for name in auxiliary_parameters:
             component_prior = priors.get(name, None)
-            self.components[name] = ConstantComponent(name, component_prior, self)
+            self._components[name] = ConstantComponent(name, component_prior, self)
 
         # Validate prior names, now that every component and its terms are known.
         self._check_prior_names(priors)
 
         # Validate per-component noncentered dict, now that all components are known.
         if isinstance(self.noncentered, dict):
-            unknown = set(self.noncentered) - set(self.components)
+            unknown = set(self.noncentered) - set(self._components)
             if unknown:
                 raise ValueError(
                     f"Unknown component name(s) in `noncentered`: {sorted(unknown)}. "
-                    f"Valid component names for this model: {sorted(self.components)}."
+                    f"Valid component names for this model: {sorted(self._components)}."
                 )
 
         # Build priors
         self._build_priors()
+
+    def _warn_deprecated_c_response(self):
+        if self.family.name not in ("multinomial", "dirichlet_multinomial"):
+            return
+
+        response = fm.model_description(self.formula.main).response
+        if response is None or len(response.term.components) != 1:
+            return
+
+        component = response.term.components[0]
+        call = getattr(component, "call", None)
+        if call is None or call.callee != "c":
+            return
+
+        warnings.warn(
+            f"Using 'c(...)' as the response for the '{self.family.name}' family is deprecated. "
+            "Use 'counts(...)' instead. It will stop working in a future version.",
+            FutureWarning,
+            stacklevel=3,
+        )
 
     def fit(
         self,
@@ -389,8 +409,8 @@ class Model:
         if isinstance(self.family, univariate.Bernoulli):
             _log.info(
                 "Modeling the probability that %s==%s",
-                self.response_component.term.name,
-                str(self.response_component.term.success),
+                self.response_term.name,
+                str(self.response_term.success),
             )
 
         if include_mean is not None:
@@ -457,10 +477,10 @@ class Model:
         self._set_priors(**self._added_priors)
 
         # Prepare all priors
-        for component in self.distributional_components.values():
+        for component in self.conditional_parameters.values():
             component.build_priors()
 
-        for name, component in self.constant_components.items():
+        for name, component in self.marginal_parameters.items():
             if isinstance(component.prior, Prior):
                 component.prior.auto_scale = False
             elif isinstance(component.prior, (int, float)):
@@ -486,8 +506,8 @@ class Model:
 
         parent_name = self.family.likelihood.parent
         valid = (
-            set(self.components)
-            | set(self.components[parent_name].terms)
+            set(self._components)
+            | set(self._components[parent_name].terms)
             | {"common", "group_specific"}
         )
 
@@ -495,8 +515,8 @@ class Model:
         for name, value in priors.items():
             if name not in valid:
                 unused.append(name)
-            elif isinstance(value, dict) and name in self.distributional_components:
-                nested_valid = set(self.components[name].terms) | {"common", "group_specific"}
+            elif isinstance(value, dict) and name in self.conditional_parameters:
+                nested_valid = set(self._components[name].terms) | {"common", "group_specific"}
                 unused.extend(f"{name}.{n}" for n in sorted(set(value) - nested_valid))
 
         if not unused:
@@ -517,7 +537,7 @@ class Model:
         # Arguments `common` and `group_specific` only affect the parent component.
         # Same names could also be used in a nested dictionary for other distributional components.
         parent_name = self.family.likelihood.parent
-        parent_component = self.components[parent_name]
+        parent_component = self._components[parent_name]
 
         if common is not None:
             for term in parent_component.common_terms.values():
@@ -533,9 +553,9 @@ class Model:
             #   - a single prior for constant components.
             # Bare term priors are merged into the parent component, with explicitly nested
             # parent priors taking precedence.
-            normalized_priors = {name: priors[name] for name in self.components if name in priors}
+            normalized_priors = {name: priors[name] for name in self._components if name in priors}
             parent_priors = {
-                name: prior for name, prior in priors.items() if name not in self.components
+                name: prior for name, prior in priors.items() if name not in self._components
             }
             if parent_name in normalized_priors:
                 parent_priors.update(normalized_priors[parent_name])
@@ -544,7 +564,7 @@ class Model:
             # Make sure mutation of Prior objects within update_priors does not have side effects.
             normalized_priors = deepcopy(normalized_priors)
 
-            for name, component in self.components.items():
+            for name, component in self._components.items():
                 prior = normalized_priors.get(name)
                 if prior is not None:
                     component.update_priors(prior)
@@ -620,8 +640,8 @@ class Model:
         #        * Here, names are term names, and values are their aliases
         #     * There's unavoidable redundancy in the response name
         #       "sigma": {"sigma": "alias"}}
-        if len(self.distributional_components) == 1:  # pylint: disable=too-many-nested-blocks
-            parent_component = self.components[self.family.likelihood.parent]
+        if len(self.conditional_parameters) == 1:  # pylint: disable=too-many-nested-blocks
+            parent_component = self._components[self.family.likelihood.parent]
             for name, alias in aliases.items():
                 assert isinstance(alias, str)
 
@@ -633,9 +653,9 @@ class Model:
                     parent_component.alias = alias
                     is_used = True
 
-                if name in self.constant_components:
+                if name in self.marginal_parameters:
                     assert isinstance(alias, str)
-                    self.constant_components[name].alias = alias
+                    self.marginal_parameters[name].alias = alias
                     is_used = True
 
                 # If it's a term name
@@ -650,8 +670,8 @@ class Model:
                         is_used = True
 
                 # If it's the name of the response
-                if name == self.response_component.response.name:
-                    self.response_component.term.alias = alias
+                if name == self._response_component.response.name:
+                    self.response_term.alias = alias
                     is_used = True
 
                 # Add any aliases not used in prior logic to unused alias list
@@ -659,16 +679,16 @@ class Model:
                     missing_names.append(name)
         else:
             for component_name, component_aliases in aliases.items():
-                if component_name in self.constant_components:
+                if component_name in self.marginal_parameters:
                     assert isinstance(component_aliases, str)
-                    self.constant_components[component_name].alias = component_aliases
-                elif component_name == self.response_component.response.name:
+                    self.marginal_parameters[component_name].alias = component_aliases
+                elif component_name == self._response_component.response.name:
                     assert isinstance(component_aliases, str)
-                    self.response_component.term.alias = component_aliases
+                    self.response_term.alias = component_aliases
                 else:
                     assert isinstance(component_aliases, dict)
-                    assert component_name in self.distributional_components
-                    component = self.distributional_components[component_name]
+                    assert component_name in self.conditional_parameters
+                    component = self.conditional_parameters[component_name]
                     for name, alias in component_aliases.items():
                         is_used = False
 
@@ -886,7 +906,7 @@ class Model:
         if omit_group_specific:
             group_specific_var_names = [
                 name
-                for component in self.distributional_components.values()
+                for component in self.conditional_parameters.values()
                 for name in component.group_specific_terms
             ]
             var_names = [name for name in var_names if name not in group_specific_var_names]
@@ -968,7 +988,7 @@ class Model:
         data=None,
         inplace=True,
         include_group_specific=True,
-        sample_new_groups=False,
+        sample_new_groups=None,
         random_seed=None,
     ):
         """Predict method for Bambi models
@@ -1000,7 +1020,10 @@ class Model:
             Determines if predictions incorporate group-specific effects. If `False`, predictions
             are made with common effects only (i.e. group specific are set to zero). Defaults to
             `True`.
-        sample_new_groups : bool, optional
+        sample_new_groups : bool or None, optional
+            Deprecated. When explicitly set to `True` or `False`, a `FutureWarning` is emitted
+            because new groups will be handled automatically in a future version. The default
+            `None` preserves the current `False` behavior during this transition.
             Specifies if it is allowed to obtain predictions for new groups of group-specific terms.
             When `True`, each posterior sample for the new groups is drawn from the posterior
             draws of a randomly selected existing group. Since different groups may be selected at
@@ -1013,22 +1036,18 @@ class Model:
         -------
         InferenceData or None
         """
-        if kind not in ("mean", "pps", "response_params", "response"):
-            raise ValueError("'kind' must be one of 'response_params' or 'response'")
+        if sample_new_groups is None:
+            sample_new_groups = False
+        else:
+            warnings.warn(
+                "'sample_new_groups' is deprecated and will be removed in a future version. "
+                "New groups will be handled automatically.",
+                FutureWarning,
+                stacklevel=2,
+            )
 
-        if kind == "mean":
-            kind = "response_params"
-            warnings.warn(
-                "'mean' has been replaced by 'response_params' and "
-                "is not going to work in the future",
-                FutureWarning,
-            )
-        if kind == "pps":
-            kind = "response"
-            warnings.warn(
-                "'pps' has been replaced by 'response' and is not going to work in the future",
-                FutureWarning,
-            )
+        if kind not in ("response_params", "response"):
+            raise ValueError("'kind' must be one of 'response_params' or 'response'")
 
         if not inplace:
             idata = deepcopy(idata)
@@ -1044,7 +1063,7 @@ class Model:
 
         # Only if requested predict the predictive distribution
         if kind == "response":
-            response_aliased_name = get_aliased_name(self.response_component.term)
+            response_aliased_name = get_aliased_name(self.response_term)
             required_kwargs = {
                 "model": self,
                 "posterior": idata.posterior,
@@ -1099,7 +1118,7 @@ class Model:
         .. [1] Gelman et al. *R-squared for Bayesian regression models*.
             The American Statistician. 73(3) (2019). <https://doi.org/10.1080/00031305.2018.1549100>
         """
-        response_name = self.response_component.term.name
+        response_name = self.response_term.name
         pred_mean = self.family.likelihood.parent
 
         if pred_mean not in idata.posterior:
@@ -1139,7 +1158,7 @@ class Model:
         sample_new_groups = False
 
         # Get the aliased response name
-        response_aliased_name = get_aliased_name(self.response_component.term)
+        response_aliased_name = get_aliased_name(self.response_term)
 
         if not inplace:
             idata = deepcopy(idata)
@@ -1261,7 +1280,7 @@ class Model:
         hsgp_dict = {}  # To store the HSGP contributions (they are added to the posterior dataset)
         response_dim = "__obs__"
 
-        for name, component in self.distributional_components.items():
+        for name, component in self.conditional_parameters.items():
             var_name = component.alias if component.alias else name
             means_dict[var_name] = component.predict(
                 idata,
@@ -1291,7 +1310,7 @@ class Model:
             posterior[name] = value
 
         # Add HSGP contributions to the posterior dataset
-        for component in self.distributional_components.values():
+        for component in self.conditional_parameters.values():
             for name, hsgp_contribution in hsgp_dict.items():
                 term = component.hsgp_terms.get(name, None)
                 if term is None:
@@ -1410,7 +1429,7 @@ class Model:
                     get_aliased_name(t) for t in bambi_component.common_terms.values()
                 ]
 
-                response_coords = self.response_component.term.coords
+                response_coords = self.response_term.coords
                 if response_coords:
                     levels = list(response_coords.values())[0]
                     shape += (len(levels),)
@@ -1459,14 +1478,14 @@ class Model:
         parent_name = self.family.likelihood.parent
         formulas = self.formula.get_all_formulas()
         family_name = self.family.name
-        parent_component = self.components[parent_name]
+        parent_component = self._components[parent_name]
 
         links = [
             f"{key} = {value.name}"
             for key, value in self.family.link.items()
-            if key == parent_name or key in self.distributional_components
+            if key == parent_name or key in self.conditional_parameters
         ]
-        observations = self.response_component.term.data.shape[0]
+        observations = self.response_term.data.shape[0]
 
         header_dict = {
             "Formula: ": formulas,
@@ -1484,14 +1503,14 @@ class Model:
         # Build priors section. Make sure the parent component goes first.
         priors_dict = {parent_name: make_priors_summary(parent_component)}
 
-        for name, component in self.distributional_components.items():
+        for name, component in self.conditional_parameters.items():
             if component.is_parent:
                 continue
             priors_dict[name] = make_priors_summary(component)
 
-        if self.constant_components:
+        if self.marginal_parameters:
             aux_str = "\n".join(
-                [prior_repr(component) for component in self.constant_components.values()]
+                [prior_repr(component) for component in self.marginal_parameters.values()]
             )
             aux_str = "Auxiliary parameters\n" + wrapify(indentify(aux_str, 4), 100, 4)
             priors_dict[parent_name] = priors_dict[parent_name] + "\n\n" + aux_str
@@ -1517,12 +1536,60 @@ class Model:
         return self.__str__()
 
     @property
+    def response_term(self):
+        return self._response_component.term
+
+    @property
+    def response_component(self):
+        warnings.warn(
+            "'Model.response_component' is deprecated; use 'Model.response_term' instead. "
+            "It will be removed in a future version.",
+            FutureWarning,
+            stacklevel=2,
+        )
+        return self._response_component
+
+    @property
+    def parameters(self):
+        return self._components
+
+    @property
+    def components(self):
+        warnings.warn(
+            "'Model.components' is deprecated; use 'Model.parameters' instead. "
+            "It will be removed in a future version.",
+            FutureWarning,
+            stacklevel=2,
+        )
+        return self.parameters
+
+    @property
+    def marginal_parameters(self):
+        return {k: v for k, v in self._components.items() if isinstance(v, ConstantComponent)}
+
+    @property
     def constant_components(self):
-        return {k: v for k, v in self.components.items() if isinstance(v, ConstantComponent)}
+        warnings.warn(
+            "'Model.constant_components' is deprecated; use 'Model.marginal_parameters' instead. "
+            "It will be removed in a future version.",
+            FutureWarning,
+            stacklevel=2,
+        )
+        return self.marginal_parameters
+
+    @property
+    def conditional_parameters(self):
+        return {k: v for k, v in self._components.items() if isinstance(v, DistributionalComponent)}
 
     @property
     def distributional_components(self):
-        return {k: v for k, v in self.components.items() if isinstance(v, DistributionalComponent)}
+        warnings.warn(
+            "'Model.distributional_components' is deprecated; use "
+            "'Model.conditional_parameters' instead. It will be removed in a future version.",
+            FutureWarning,
+            stacklevel=2,
+        )
+        return self.conditional_parameters
 
 
 def with_categorical_cols(data: pd.DataFrame, columns) -> pd.DataFrame:

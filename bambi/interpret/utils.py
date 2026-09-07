@@ -109,7 +109,7 @@ def resolve_target(model: Model, target: str) -> TargetInfo:
     TargetInfo
         A named tuple with `response_name`, `var_name`, `group`, and `predict_kind`.
     """
-    response_name = get_aliased_name(model.response_component.term)
+    response_name = get_aliased_name(model.response_term)
     match target:
         case "mean":
             return TargetInfo(
@@ -121,7 +121,7 @@ def resolve_target(model: Model, target: str) -> TargetInfo:
         case t if t == response_name:
             return TargetInfo(response_name, response_name, "posterior_predictive", "response")
         case _:
-            component = model.components[target]
+            component = model.parameters[target]
             if component.alias:
                 alias = get_aliased_name(component)
                 return TargetInfo(alias, alias, "posterior", "response_params")
@@ -189,7 +189,7 @@ def get_model_terms(model: Model) -> dict:
         A dictionary containing all terms from the model's distributional components.
     """
     terms = {}
-    for component in model.distributional_components.values():
+    for component in model.conditional_parameters.values():
         if component.design.common:
             terms.update(component.design.common.terms)
 

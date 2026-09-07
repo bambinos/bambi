@@ -9,6 +9,22 @@ def c(*args):
     return np.column_stack(args)
 
 
+def counts(*args):
+    """Construct an array of counts for a multinomial response.
+
+    Parameters
+    ----------
+    *args : array-like
+        Count columns, one for each category.
+
+    Returns
+    -------
+    np.ndarray
+        A two-dimensional array with one count column per category.
+    """
+    return c(*args)
+
+
 def censored(*args):
     """Construct array for censored response
 
@@ -428,6 +444,7 @@ def get_distance(x):
 # These functions are made available in the namespace where the model formula is evaluated
 transformations_namespace = {
     "c": c,
+    "counts": counts,
     "censored": censored,
     "constrained": constrained,
     "truncated": truncated,

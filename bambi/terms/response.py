@@ -1,4 +1,5 @@
-import formulae.terms
+import formulae as fm
+import numpy as np
 
 from bambi.terms.base import BaseTerm
 from bambi.terms.utils import is_response_of_kind
@@ -6,6 +7,7 @@ from bambi.terms.utils import is_response_of_kind
 
 class ResponseTerm(BaseTerm):
     def __init__(self, response, family):
+        self._response = response
         self.term = response.term.term
         self.family = family
         self.is_censored = is_response_of_kind(self.term, "censored")
@@ -19,7 +21,7 @@ class ResponseTerm(BaseTerm):
 
     @term.setter
     def term(self, value):
-        assert isinstance(value, formulae.terms.terms.Term)
+        assert isinstance(value, fm.terms.terms.Term)
         self._term = value
 
     @property
@@ -63,6 +65,23 @@ class ResponseTerm(BaseTerm):
         if hasattr(self.family, "get_success_level"):
             return self.family.get_success_level(self)
         return None
+
+    def evaluate_new_data(self, data):
+        """Evaluate the response using new data.
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            The new data used to evaluate the response.
+
+        Returns
+        -------
+        np.ndarray
+            The evaluated response design matrix.
+        """
+        # An intercept is needed for a valid formula, but its design matrix is not used.
+        design = fm.design_matrices(self.name + " ~ 1", data, env=self._response.env)
+        return np.asarray(design.response)
 
     @property
     def binary(self):

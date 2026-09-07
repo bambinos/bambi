@@ -57,8 +57,8 @@ class CommonTerm:
         response_dims = []
         if isinstance(spec.family, (MultivariateFamily, Categorical)):
             # NOTE: Very opaque. The dictionary contains at most one element.
-            response_dims = list(spec.response_component.term.coords)
-            response_dims_n = len(spec.response_component.term.coords[response_dims[0]])
+            response_dims = list(spec.response_term.coords)
+            response_dims_n = len(spec.response_term.coords[response_dims[0]])
 
             # Arguments may be of shape (p_j,) but we need them to be of shape (p_j, K)
             # p_j: length of predictor coordinates
@@ -140,7 +140,7 @@ class GroupSpecificTerm:
         # Dims of the response variable
         response_dims = []
         if isinstance(spec.family, (MultivariateFamily, Categorical)):
-            response_dims = list(spec.response_component.term.coords)
+            response_dims = list(spec.response_term.coords)
 
         dims = term_dims + response_dims
 
@@ -250,7 +250,7 @@ class InterceptTerm:
 
         if isinstance(spec.family, (MultivariateFamily, Categorical)):
             # shape: (1, K)
-            dims = list(spec.response_component.term.coords)
+            dims = list(spec.response_term.coords)
             dist = distribution(label, dims=dims, **self.term.prior.args)[np.newaxis, :]
         else:
             # shape: (1,)
@@ -301,7 +301,7 @@ class ResponseTerm:
         kwargs = {"observed": data, "dims": ("__obs__",)}
 
         if isinstance(self.family, (MultivariateFamily, Categorical, Cumulative, StoppingRatio)):
-            response_term = bmb_model.response_component.term
+            response_term = bmb_model.response_term
             response_name = response_term.alias or response_term.name
             dim_name = response_name + "_dim"
             pymc_backend.model.add_coords({dim_name: response_term.levels})
@@ -319,7 +319,7 @@ class ResponseTerm:
 
         # Distributional parameters. A link function is used.
         for name, component in pymc_backend.distributional_components.items():
-            bmb_component = bmb_model.components[name]
+            bmb_component = bmb_model.parameters[name]
             aliased_name = bmb_component.alias or bmb_component.name
             linkinv = get_linkinv(self.family.link[name], pymc_backend.INVLINKS)
 
@@ -573,7 +573,7 @@ class HSGPTerm:
             # In general:
             # coeff_dims: ('weights_dim', ) -> ('weights_dim', f'{response}_dim')
             # contribution_dims: ('__obs__', ) -> ('__obs__', f'{response}_dim')
-            response_dims = tuple(spec.response_component.term.coords)
+            response_dims = tuple(spec.response_term.coords)
             coeff_dims = coeff_dims + response_dims
             contribution_dims = contribution_dims + response_dims
 
