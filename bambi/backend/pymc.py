@@ -366,7 +366,7 @@ class PyMCModel:
             hessian = pm.find_hessian(n_maps)
 
         if np.linalg.det(hessian) == 0:
-            raise np.linalg.LinAlgError("Singular matrix. Use mcmc or vi method")
+            raise np.linalg.LinAlgError("Singular matrix. Use pymc or vi method")
 
         cov = np.linalg.inv(hessian)
         modes = np.concatenate([np.atleast_1d(v) for v in n_maps.values()])

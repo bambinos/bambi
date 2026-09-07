@@ -533,9 +533,10 @@ def plot_predictions(
     Returns
     -------
     Plot
-        A Seaborn objects Plot. In Jupyter notebooks, the plot automatically displays.
-        In scripts, call `.show()` to display. The returned Plot object can be
-        customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
+        A `seaborn.objects.Plot`. In Jupyter notebooks, the plot automatically displays.
+        In scripts, call `.show()` to display. The returned Plot object can be customized before
+        displaying using method chaining (e.g., `.label()`, `.theme()`). In a future version this
+        function will return a `matplotlib.figure.Figure`.
 
     Raises
     ------
@@ -730,9 +731,10 @@ def plot_comparisons(
     Returns
     -------
     Plot
-        A Seaborn objects Plot. In Jupyter notebooks, the plot automatically displays.
-        In scripts, call `.show()` to display. The returned Plot object can be
-        customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
+        A `seaborn.objects.Plot`. In Jupyter notebooks, the plot automatically displays.
+        In scripts, call `.show()` to display. The returned Plot object can be customized before
+        displaying using method chaining (e.g., `.label()`, `.theme()`). In a future version this
+        function will return a `matplotlib.figure.Figure`.
 
     Raises
     ------
@@ -949,9 +951,10 @@ def plot_slopes(
     Returns
     -------
     Plot
-        A Seaborn objects Plot. In Jupyter notebooks, the plot automatically displays.
-        In scripts, call `.show()` to display. The returned Plot object can be
-        customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
+        A `seaborn.objects.Plot`. In Jupyter notebooks, the plot automatically displays.
+        In scripts, call `.show()` to display. The returned Plot object can be customized before
+        displaying using method chaining (e.g., `.label()`, `.theme()`). In a future version this
+        function will return a `matplotlib.figure.Figure`.
 
     Raises
     ------
