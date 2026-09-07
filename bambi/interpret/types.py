@@ -1,22 +1,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, NamedTuple
+from typing import NamedTuple
 
 import numpy as np
 import pandas as pd
+
 from pandas import DataFrame, Series
 from pandas.api.types import is_float_dtype, is_integer_dtype, is_numeric_dtype
 from xarray import DataTree
 
-from bambi.interpret.validate import (
-    Values,
-    validate_category_values,
-    validate_numeric_values,
-)
-
-# Strategy type: given a Series, produce default values as a Series
-DefaultStrategy = Callable[[Series], Series]
+from bambi.interpret._typing import DefaultStrategy, ConditionalValues
+from bambi.interpret.validate import validate_category_values, validate_numeric_values
 
 
 def _comparison_defaults(series: Series) -> Series:
@@ -80,7 +75,7 @@ def _default_defaults(series: Series) -> Series:
 def _resolve_values(
     name: str,
     data: DataFrame,
-    values: Values | None,
+    values: ConditionalValues | None,
     defaults: DefaultStrategy,
 ) -> Series:
     """Resolve a variable's values from user input or dtype-based defaults.
@@ -91,7 +86,7 @@ def _resolve_values(
         Name of the variable in the DataFrame.
     data : DataFrame
         DataFrame containing the variable.
-    values : Values or None
+    values : ConditionalValues or None
         User-provided values. If None, defaults are generated via the strategy.
     defaults : DefaultStrategy
         Strategy function to generate default values when `values` is None.
@@ -142,7 +137,7 @@ class ComparisonVariable:
     @staticmethod
     def from_param(
         data: DataFrame,
-        contrast: str | dict[str, Values],
+        contrast: str | dict[str, ConditionalValues],
     ) -> ComparisonVariable:
         """Create a ComparisonVariable from user input.
 
@@ -150,7 +145,7 @@ class ComparisonVariable:
         ----------
         data : DataFrame
             DataFrame containing the variable data.
-        contrast : str or dict[str, Values]
+        contrast : str or dict[str, ConditionalValues]
             Either a variable name (uses dtype defaults) or a single-entry
             dict mapping variable name to values.
 
@@ -201,7 +196,7 @@ class ConditionalVariables:
     @staticmethod
     def from_param(
         data: DataFrame,
-        conditional: str | list[str] | dict[str, Values] | None,
+        conditional: str | list[str] | dict[str, ConditionalValues] | None,
     ) -> ConditionalVariables:
         """Create ConditionalVariables from user input.
 
@@ -209,7 +204,7 @@ class ConditionalVariables:
         ----------
         data : DataFrame
             DataFrame containing the variable data.
-        conditional : str, list[str], dict[str, Values], or None
+        conditional : str, list[str], dict[str, ConditionalValues], or None
             Variable specification: a single name, list of names, dict mapping
             names to values, or None for empty conditioning.
 

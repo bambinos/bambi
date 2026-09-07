@@ -55,7 +55,7 @@ model = bmb.Model('Reaction ~ Days', data)
 # Get model description
 print(model)
 
-# Fit the model using 1000 on each chain
+# Fit the model using 1000 draws per chain
 results = model.fit(draws=1000)
 
 # Key summary and diagnostic info on the model parameters
@@ -94,7 +94,7 @@ Reaction_sigma   47.949  2.550   43.363   52.704      0.035    0.025    5614.0  
 ```
 
 First, we create and build a Bambi `Model`. Then, the method `model.fit()` tells the sampler to start
-running and it returns an `InferenceData` object, which can be passed to several ArviZ functions
+running and it returns a `DataTree` object, which can be passed to several ArviZ functions
 such as `az.summary()` to get a summary of the parameters distribution and sample diagnostics or
 `az.plot_trace()` to visualize them.
 

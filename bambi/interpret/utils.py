@@ -1,5 +1,4 @@
-# pylint: disable = too-many-nested-blocks
-from typing import Any, Callable, NamedTuple, Optional
+from typing import Any, Callable, NamedTuple
 
 import numpy as np
 import xarray as xr
@@ -9,14 +8,13 @@ from pandas import DataFrame, Series
 from pandas.core.groupby import DataFrameGroupBy, SeriesGroupBy
 
 from bambi.models import Model
-from bambi.utils import get_aliased_name
 
 
 class TargetInfo(NamedTuple):
     """Information regarding which type of prediction is required based on a `target`.
 
-    `interpret` allows users to plot target quantities such as posterior parameters,
-    and or the posterior predictive.
+    `interpret` allows users to plot target quantities such as posterior parameters
+    or posterior predictive samples.
 
     Parameters
     ----------
@@ -25,7 +23,7 @@ class TargetInfo(NamedTuple):
     var_name : str
         Variable name to extract from idata[group]
     group : str
-        `posterior` or `posterior_predictive`
+        `predictions`
     predict_kind : str
         `response_params` or `response` — passed to model.predict()
     """
@@ -109,33 +107,34 @@ def resolve_target(model: Model, target: str) -> TargetInfo:
     TargetInfo
         A named tuple with `response_name`, `var_name`, `group`, and `predict_kind`.
     """
-    response_name = get_aliased_name(model.response_component.term)
+    response_name = model.response_term.label
     match target:
         case "mean":
             return TargetInfo(
                 response_name,
-                model.family.likelihood.parent,
-                "posterior",
+                model.parameters[model.family.likelihood.parent].label,
+                "predictions",
                 "response_params",
             )
         case t if t == response_name:
-            return TargetInfo(response_name, response_name, "posterior_predictive", "response")
+            return TargetInfo(response_name, response_name, "predictions", "response")
         case _:
-            component = model.components[target]
-            if component.alias:
-                alias = get_aliased_name(component)
-                return TargetInfo(alias, alias, "posterior", "response_params")
-            else:
-                return TargetInfo(response_name, target, "posterior", "response_params")
+            parameter = model.parameters[target]
+            return TargetInfo(
+                parameter.label if parameter.alias else response_name,
+                parameter.label,
+                "predictions",
+                "response_params",
+            )
 
 
 def aggregate(
     data: DataFrame,
-    by: Optional[str | list[str]],
+    by: str | list[str] | None,
     agg_fn: Callable[
         [DataFrame | Series | DataFrameGroupBy | SeriesGroupBy], DataFrame
     ] = lambda df: df.mean(),
-    preserve: Optional[list[str]] = None,
+    preserve: list[str] | None = None,
 ) -> DataFrame:
     """Group data by variable(s) and apply an aggregation function.
 
@@ -176,7 +175,7 @@ def aggregate(
 
 
 def get_model_terms(model: Model) -> dict:
-    """Loop through the distributional components of a Bambi model and return terms.
+    """Loop through the conditional parameters of a Bambi model and return terms.
 
     Parameters
     ----------
@@ -186,15 +185,15 @@ def get_model_terms(model: Model) -> dict:
     Returns
     -------
     dict
-        A dictionary containing all terms from the model's distributional components.
+        A dictionary containing all terms from the model's conditional parameters.
     """
     terms = {}
-    for component in model.distributional_components.values():
-        if component.design.common:
-            terms.update(component.design.common.terms)
+    for parameter in model.conditional_parameters.values():
+        if parameter.design.common:
+            terms.update(parameter.design.common.terms)
 
-        if component.design.group:
-            terms.update(component.design.group.terms)
+        if parameter.design.group:
+            terms.update(parameter.design.group.terms)
 
     return terms
 

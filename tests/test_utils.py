@@ -2,18 +2,42 @@ import pytest
 
 import numpy as np
 import pandas as pd
+import preliz as pz
 import pymc as pm
+from scipy import stats
 
 from bambi.utils import listify
-from bambi.backend.pymc import probit, cloglog
-from bambi.backend.utils import make_weighted_distribution
-from bambi.transformations import censored, constrained, truncated, weighted
+from bambi.backend.pymc.links import cloglog, probit
+from bambi.backend.pymc.data import shape_common_data
+from bambi.backend.pymc.utils import (
+    LogLogistic,
+    make_competing_risks_distribution,
+    make_weighted_distribution,
+)
+from bambi.transformations import CR, censored, constrained, counts, truncated, weighted
 
 
 def test_listify():
     assert listify(None) == []
     assert listify([1, 2, 3]) == [1, 2, 3]
     assert listify("giraffe") == ["giraffe"]
+
+
+def test_shape_common_data_no_coords_single_column():
+    data = np.arange(5)[:, np.newaxis]
+
+    result = shape_common_data(data, {})
+
+    assert result.shape == (5,)
+    assert np.array_equal(result, np.arange(5))
+    assert result.dtype == float
+
+
+def test_shape_common_data_no_coords_multi_column():
+    data = np.arange(10).reshape(5, 2)
+
+    with pytest.raises(ValueError, match="without coordinates"):
+        shape_common_data(data, {})
 
 
 def test_probit():
@@ -26,12 +50,30 @@ def test_cloglog():
     assert (x > 0).all() and (x < 1).all()
 
 
+def test_loglogistic_distribution():
+    mu, alpha = 0.7, 1.3
+    value = np.array([0.1, 1.0, 10.0])
+    dist = LogLogistic.dist(mu, alpha)
+
+    actual_logp = pm.logp(dist, value).eval()
+    actual_logcdf = pm.logcdf(dist, value).eval()
+    reference = stats.fisk(c=1 / alpha, scale=np.exp(mu))
+
+    np.testing.assert_allclose(actual_logp, reference.logpdf(value))
+    np.testing.assert_allclose(actual_logcdf, reference.logcdf(value))
+    assert np.isneginf(pm.logp(dist, 0).eval())
+    assert np.isneginf(pm.logcdf(dist, 0).eval())
+
+    draws = pm.draw(LogLogistic.dist(np.array([mu, mu]), alpha), draws=10, random_seed=42)
+    assert draws.shape == (10, 2)
+    assert (draws > 0).all()
+
+
 def test_censored():
     df = pd.DataFrame(
         {
             "x": [1, 2, 3, 4, 5],
-            "y": [2, 3, 4, 5, 6],
-            "status": ["none", "right", "interval", "left", "none"],
+            "status": ["none", "right", "none", "left", "none"],
         }
     )
 
@@ -39,28 +81,144 @@ def test_censored():
 
     x = censored(df["x"], df["status"])
     assert x.shape == (5, 2)
-    assert (x[:, -1] == np.array([0, 1, 2, -1, 0])).all()
-
-    x = censored(df["x"], df["y"], df["status"])
-    assert x.shape == (5, 3)
-    assert (x[:, -1] == np.array([0, 1, 2, -1, 0])).all()
+    assert (x[:, -1] == np.array([0, 1, 0, -1, 0])).all()
 
     # Statuses are not the expected
     with pytest.raises(AssertionError, match="Statuses must be in"):
         censored(df_bad["x"], df_bad["status"])
 
-    # Upper bound is not always larger than lower bound
-    df_bad = pd.DataFrame({"l": [1, 2], "r": [1, 1], "status": ["foo", "bar"]})
-
-    with pytest.raises(AssertionError, match="Upper bound must be larger than lower bound"):
-        censored(df_bad["l"], df_bad["r"], df_bad["status"])
-
     # Bad number of arguments
-    with pytest.raises(ValueError, match="needs 2 or 3 argument values"):
+    with pytest.raises(TypeError, match="missing 1 required positional argument"):
         censored(df["x"])
 
-    with pytest.raises(ValueError, match="needs 2 or 3 argument values"):
-        censored(df["x"], df["x"], df["x"], df["x"])
+    with pytest.raises(TypeError, match="takes 2 positional arguments but 3 were given"):
+        censored(df["x"], df["x"], df["status"])
+
+    # Bad length
+    with pytest.raises(AssertionError):
+        censored(df["x"], df_bad["status"])
+
+    # Interval censoring is not supported
+    with pytest.raises(AssertionError, match="Statuses must be in"):
+        censored(df["x"], ["none", "right", "interval", "left", "none"])
+
+
+def test_competing_risks():
+    transform = CR()
+    result = transform(
+        np.array([1.0, 2.0, 3.0, 4.0]),
+        np.array(["right", "event", "event", "right"]),
+        np.array(["none", "cause_b", "cause_a", "none"]),
+    )
+
+    assert result.shape == (4, 3)
+    assert np.array_equal(result[:, 1], [1, 0, 0, 1])
+    assert np.array_equal(result[:, 2], [0, 2, 1, 0])
+    # The stateful transform preserves training codes when a cause is absent in new data.
+    result = transform(np.array([6.0]), np.array(["event"]), np.array(["cause_b"]))
+    assert np.array_equal(result[:, 2], [2])
+
+    with pytest.raises(ValueError, match="Unknown competing-risks cause"):
+        transform(np.array([7.0]), np.array(["event"]), np.array(["cause_c"]))
+
+    with pytest.raises(ValueError, match="Left censoring is not supported"):
+        CR()(np.array([1.0]), np.array(["left"]), np.array(["cause_a"]))
+
+    with pytest.raises(ValueError, match="must contain only"):
+        CR()(np.array([1.0]), np.array(["interval"]), np.array(["none"]))
+
+    with pytest.raises(ValueError, match="must not be 'none' when status is 'event'"):
+        CR()(np.array([1.0]), np.array(["event"]), np.array(["none"]))
+
+    with pytest.raises(ValueError, match="must be 'none' when status is 'right'"):
+        CR()(np.array([1.0]), np.array(["right"]), np.array(["cause_a"]))
+
+    with pytest.raises(ValueError, match="cannot contain missing values"):
+        CR()(np.array([1.0]), np.array(["right"]), np.array([np.nan]))
+
+    with pytest.raises(ValueError, match="requires at least one observed cause"):
+        CR()(np.array([1.0]), np.array(["right"]), np.array(["none"]))
+
+
+@pytest.mark.parametrize(
+    ("distribution", "reference_distribution", "parameter_names"),
+    [
+        (pm.Exponential, pz.Exponential, ("lam",)),
+        (pm.Weibull, pz.Weibull, ("alpha", "beta")),
+    ],
+)
+def test_competing_risks_distribution(distribution, reference_distribution, parameter_names):
+    dist = make_competing_risks_distribution(distribution)
+    value = np.array([1.0, 2.0, 3.0])
+    status = np.array([0, 1, 0])
+    cause = np.array([1, 0, 2])
+    parameter_grid = 1 + np.arange(value.size * 2).reshape(value.size, 2)
+
+    with pm.Model() as model:
+        parameters = {
+            name: pm.Normal(name, mu=parameter_grid + index / 2, sigma=0.1)
+            for index, name in enumerate(parameter_names)
+        }
+        status_data = pm.Data("status", status)
+        cause_data = pm.Data("cause", cause)
+        dist("y", status=status_data, cause=cause_data, observed=value, **parameters)
+
+    point = model.initial_point()
+    logp = model.compile_logp(vars=[model["y"]])(point)
+    parameters = {name: point[name] for name in parameter_names}
+
+    n_causes = next(iter(parameters.values())).shape[-1]
+    reference_dists = [
+        [
+            reference_distribution(
+                **{name: values[row, cause] for name, values in parameters.items()}
+            )
+            for cause in range(n_causes)
+        ]
+        for row in range(value.size)
+    ]
+
+    log_density = np.array(
+        [
+            [reference_dist.logpdf(time) for reference_dist in row]
+            for time, row in zip(value, reference_dists)
+        ]
+    )
+    log_survival = np.array(
+        [
+            [reference_dist.logsf(time) for reference_dist in row]
+            for time, row in zip(value, reference_dists)
+        ]
+    )
+
+    cause_index = np.maximum(cause - 1, 0)
+    rows = np.arange(value.size)
+    total_log_survival = log_survival.sum(axis=-1)
+    event_logp = (
+        log_density[rows, cause_index] + total_log_survival - log_survival[rows, cause_index]
+    )
+    expected = np.where(status == 0, event_logp, total_log_survival).sum()
+    assert np.isclose(logp, expected)
+
+
+def test_counts():
+    y1 = np.array([1, 2, 3])
+    y2 = np.array([3, 4, 3])
+    totals = np.array([4, 6, 6])
+
+    result = counts(y1, y2)
+    assert np.array_equal(result, np.column_stack([y1, y2]))
+
+    assert np.array_equal(counts(y1, y2, n=totals), result)
+    assert np.array_equal(
+        counts(np.array([1, 2]), np.array([3, 2]), n=4), np.array([[1, 3], [2, 2]])
+    )
+
+    with pytest.raises(ValueError, match="must sum to 'n'"):
+        counts(y1, y2, n=5)
+
+    with pytest.raises(ValueError, match="length of 'n'"):
+        counts(y1, y2, n=np.array([4, 6]))
 
 
 def test_truncated():

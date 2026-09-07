@@ -4,7 +4,6 @@ from importlib.metadata import version
 from pymc import math
 
 from bambi import interpret
-from bambi.backend import PyMCModel
 from bambi.config import config
 from bambi.data import clear_data_home, load_data
 from bambi.families import Family, Likelihood, Link
@@ -15,18 +14,17 @@ from bambi.priors import Prior
 __version__ = version("bambi")
 
 __all__ = [
-    "Model",
-    "Prior",
     "Family",
+    "Formula",
     "Likelihood",
     "Link",
-    "PyMCModel",
-    "Formula",
+    "Model",
+    "Prior",
     "clear_data_home",
     "config",
+    "interpret",
     "load_data",
     "math",
-    "interpret",
 ]
 
 _log = logging.getLogger("bambi")

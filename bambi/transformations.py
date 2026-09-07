@@ -9,16 +9,39 @@ def c(*args):
     return np.column_stack(args)
 
 
-def censored(*args):
+def counts(*args, n=None):
+    """Construct an array of counts for a multinomial response.
+
+    Parameters
+    ----------
+    *args : array-like
+        Count columns, one for each category.
+    n : int, array-like, optional
+        The total number of counts per observation. When omitted, it is computed by summing the
+        count columns.
+    """
+    data = np.column_stack(args)
+    totals = data.sum(axis=1)
+
+    if n is not None:
+        n = np.asarray(n)
+        if n.ndim > 1:
+            raise ValueError("'n' must be a scalar or a 1-dimensional array.")
+        if n.ndim == 1 and len(n) != len(data):
+            raise ValueError("The length of 'n' must be equal to the number of observations.")
+        if not np.all(totals == n):
+            raise ValueError("The counts in each row must sum to 'n'.")
+
+    return data
+
+
+counts.__metadata__ = {"kind": "counts"}
+
+
+def censored(x, status):
     """Construct array for censored response
 
-    The `args` argument must be of length 2 or 3.
-    If it is of length 2, the first value has the values of the variable and the second value
-    contains the censoring statuses.
-
-    If it is of length 3, the first value represents either the value of the variable or the lower
-    bound (depending on whether it's interval censoring or not). The second value represents the
-    upper bound, only if it's interval censoring, and the third argument contains the censoring
+    The first value has the values of the variable and the second value contains the censoring
     statuses.
 
     Valid censoring statuses are:
@@ -26,46 +49,105 @@ def censored(*args):
     - "left": left censoring
     - "none": no censoring
     - "right": right censoring
-    - "interval": interval censoring
-
-    Interval censoring is supported by this function but not supported by PyMC, so Bambi
-    does not support interval censoring for now.
 
     Returns
     -------
     np.ndarray
-        Array of shape (n, 2) or (n, 3). The first case applies when a single value argument is
-        passed, and the second case applies when two values are passed.
+        Array of shape (n, 2). The first column contains the values of the variable and the second
+        column contains the censoring statuses.
     """
-    status_mapping = {"left": -1, "none": 0, "right": 1, "interval": 2}
+    status_mapping = {"left": -1, "none": 0, "right": 1}
 
-    if len(args) == 2:
-        left, status = args
-        right = None
-    elif len(args) == 3:
-        left, right, status = args
-    else:
-        raise ValueError("'censored' needs 2 or 3 argument values.")
-
-    assert len(left) == len(status)
-
-    if right is not None:
-        right = np.asarray(right)
-        assert len(left) == len(right)
-        assert (right > left).all(), "Upper bound must be larger than lower bound"
+    assert len(x) == len(status)
 
     assert all(s in status_mapping for s in status), f"Statuses must be in {list(status_mapping)}"
     status = np.asarray([status_mapping[s] for s in status])
-
-    if right is not None:
-        result = np.column_stack([left, right, status])
-    else:
-        result = np.column_stack([left, status])
-
-    return result
+    return np.column_stack([x, status])
 
 
 censored.__metadata__ = {"kind": "censored"}
+
+
+@register_stateful_transform
+class CR:
+    """Competing-risks response with separate time-status and cause encodings.
+
+    `status` describes the information available about the event time and must be one of
+    `"event"` or `"right"`. They are internally encoded as 0 and 1, respectively.
+    `cause` identifies the event type independently of `status`.
+    Known causes are encoded deterministically in sorted order as 1, 2, ...;
+    `"none"` is encoded as 0.
+
+    An exact event requires a known cause. A right-censored observation requires `cause="none"`.
+    Left censoring is not supported.
+
+    Returns
+    -------
+    np.ndarray
+        An array of shape `(n, 3)` containing event/censoring times, integer status codes, and
+        integer cause codes.
+    """
+
+    __transform_name__ = "cr"
+    __metadata__ = {"kind": "cr"}
+
+    def __init__(self):
+        self.cause_codes = None
+
+    def __call__(self, y, status, cause):
+        y = np.asarray(y)
+        status = np.asarray(status)
+        cause = np.asarray(cause)
+
+        if y.ndim != 1 or status.ndim != 1 or cause.ndim != 1:
+            raise ValueError("'cr' inputs must be one-dimensional.")
+
+        if len(y) != len(status) or len(y) != len(cause):
+            raise ValueError("'y', 'status', and 'cause' must have the same length.")
+
+        if pd.isna(status).any():
+            raise ValueError("'status' cannot contain missing values.")
+
+        if np.any(status == "left"):
+            raise ValueError("Left censoring is not supported for competing-risks responses.")
+
+        if pd.isna(cause).any():
+            raise ValueError("'cause' cannot contain missing values. Use 'none' instead.")
+
+        status_codes = {"event": 0, "right": 1}
+        unknown_statuses = set(status) - set(status_codes)
+        if unknown_statuses:
+            raise ValueError(
+                "'status' must contain only 'event' or 'right'; "
+                f"got {sorted(unknown_statuses, key=repr)!r}."
+            )
+
+        cause_is_none = cause == "none"
+        is_event = status == "event"
+        is_right = status == "right"
+        if np.any(is_event & cause_is_none):
+            raise ValueError("'cause' must not be 'none' when status is 'event'.")
+
+        if np.any(is_right & ~cause_is_none):
+            raise ValueError("'cause' must be 'none' when status is 'right'.")
+
+        if self.cause_codes is None:
+            cause_levels = sorted(set(cause[~cause_is_none]), key=repr)
+            if not cause_levels:
+                raise ValueError("A competing-risks response requires at least one observed cause.")
+            self.cause_codes = {level: code for code, level in enumerate(cause_levels, start=1)}
+
+        unknown_causes = set(cause[~cause_is_none]) - set(self.cause_codes)
+        if unknown_causes:
+            raise ValueError(
+                f"Unknown competing-risks cause level(s): {sorted(unknown_causes, key=repr)}"
+            )
+
+        # `column_stack` may promote codes to float; the backend casts them back to integers.
+        status_out = np.array([status_codes[level] for level in status], dtype=int)
+        cause_out = np.zeros(len(cause), dtype=int)
+        cause_out[~cause_is_none] = [self.cause_codes[level] for level in cause[~cause_is_none]]
+        return np.column_stack([y, status_out, cause_out])
 
 
 def truncated(x, lb=None, ub=None):
@@ -132,7 +214,7 @@ def constrained(x, lb=None, ub=None):
     """Construct an array for a constrained response
 
     It's exactly like truncated, but it's interpreted by Bambi in a different way as this
-    one truncates/constrains the bounds of a probability distribution, while `truncated()` is
+    one truncates/constraints the bounds of a probability distribution, while `truncated()` is
     interpreted as the missing data mechanism.
 
     `lb` and `ub` can only be scalar values.
@@ -380,7 +462,7 @@ def as_matrix(x):
     x = np.atleast_1d(x)
     if x.ndim == 1:
         return x[:, np.newaxis]
-    elif x.ndim > 2:
+    if x.ndim > 2:
         raise ValueError("'x.ndim' cannot be > 2")
     return x
 
@@ -428,7 +510,9 @@ def get_distance(x):
 # These functions are made available in the namespace where the model formula is evaluated
 transformations_namespace = {
     "c": c,
+    "counts": counts,
     "censored": censored,
+    "cr": CR,
     "constrained": constrained,
     "truncated": truncated,
     "weighted": weighted,

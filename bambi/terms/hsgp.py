@@ -90,8 +90,7 @@ class HSGPTerm(BaseTerm):
     def shape(self):
         if self.by_levels is None:
             return self.term.data.shape
-        else:
-            return self.term.data[:, :-1].shape
+        return self.term.data[:, :-1].shape
 
     @property
     def data_centered(self):
@@ -157,14 +156,6 @@ class HSGPTerm(BaseTerm):
         if self.scale is None:
             return self.automatic_priors
         return self.scale
-
-    @property
-    def coords(self):
-        # This handles univariate and multivariate cases
-        coords = {f"{self.name}_weights_dim": np.arange(np.prod(self.m))}
-        if self.by_levels is not None:
-            coords[f"{self.name}_by"] = self.by_levels
-        return coords
 
     @property
     def name(self):

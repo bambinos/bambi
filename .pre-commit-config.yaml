@@ -1,11 +1,15 @@
 fail_fast: true
 
 repos:
-  - repo: https://github.com/psf/black
-    rev: 25.9.0
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 26.5.1
     hooks:
       - id: black
         args: [--diff, --check, --color]
+
+      - id: black-jupyter
+        files: ^docs/notebooks/.*\.ipynb$
+        args: [--line-length=88, --diff, --check, --color]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0

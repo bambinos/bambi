@@ -5,13 +5,19 @@ import itertools
 import os
 import pathlib
 import shutil
-from collections import namedtuple
+from typing import NamedTuple
 from urllib.request import urlretrieve
 
 import pandas as pd
 
 
-FileMetadata = namedtuple("FileMetadata", ["filename", "url", "checksum", "description"])
+class FileMetadata(NamedTuple):
+    filename: str
+    url: str
+    checksum: str
+    description: str
+
+
 DATASETS = {
     "my_data": FileMetadata(
         filename="my_data.csv",

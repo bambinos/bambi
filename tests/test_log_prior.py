@@ -39,7 +39,7 @@ def test_categorical(food_choice):
     model, idata = food_choice
     out = model.compute_log_prior(idata, inplace=False)
 
-    assert {d.name for d in model.backend.model.deterministics} == {"p"}
+    assert {d.name for d in model.backend.model.deterministics} == {"Intercept", "p"}
     assert "p" not in out.log_prior.data_vars
     free_names = {rv.name for rv in model.backend.model.free_RVs}
     assert set(out.log_prior.data_vars) == (free_names & set(idata.posterior))

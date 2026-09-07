@@ -38,21 +38,20 @@ class Prior:
         kwargs : dict
             Optional keyword arguments to add to prior args.
         """
-        # The backend expect numpy arrays, so make sure all numeric values are represented as such.
+        # The backend expects numpy arrays, so make sure all numeric values are represented as such.
         kwargs_ = {}
-        for key, val in kwargs.items():
-            if isinstance(val, (int, float)):
-                val = np.array(val, dtype=pytensor.config.floatX)  # pylint: disable = no-member
-            elif isinstance(val, np.ndarray):
-                val = val.squeeze().astype(pytensor.config.floatX)  # pylint: disable = no-member
-            kwargs_[key] = val
+        for key, value in kwargs.items():
+            if isinstance(value, (int, float)):
+                value = np.array(value, dtype=pytensor.config.floatX)
+            elif isinstance(value, np.ndarray):
+                value = value.squeeze().astype(pytensor.config.floatX)
+            kwargs_[key] = value
         self.args.update(kwargs_)
 
     def __eq__(self, other):
         if not isinstance(other, type(self)):
             return False
-        else:
-            return self.__dict__ == other.__dict__
+        return self.__dict__ == other.__dict__
 
     def __str__(self):
         args = ", ".join(

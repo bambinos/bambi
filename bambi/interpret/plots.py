@@ -1,13 +1,17 @@
-# pylint: disable=redefined-outer-name
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass
 from functools import reduce
-from typing import Any, Mapping
+from typing import Any
 
+import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn.objects as so
+
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure, SubFigure
+from matplotlib.offsetbox import DrawingArea
 from pandas import DataFrame
 from pandas.api.types import is_float_dtype, is_integer_dtype
 from seaborn.objects import Plot
@@ -20,6 +24,7 @@ class FigureConfig:
     sharex: bool = True
     sharey: bool = True
     alpha: float = 0.3
+    legend: bool = True
     xlabel: str | None = None
     ylabel: str | None = None
     title: str | None = None
@@ -62,16 +67,14 @@ class SubplotConfig:
     panel: str | None = None
 
     @staticmethod
-    def from_params(
-        var_names: list[str], overrides: Mapping[str, str] | None = None
-    ) -> SubplotConfig:
+    def from_params(var_names: list[str], overrides: dict[str, str] | None = None) -> SubplotConfig:
         """Create a SubplotConfig from variable names or overrides.
 
         Parameters
         ----------
         var_names : list[str]
             List of variable names to create the plot configuration from.
-        overrides : Mapping[str, str] or None
+        overrides : dict[str, str] or None
             Dictionary to override default plotting sequence. Valid keys
             are 'main', 'group', and 'panel'.
 
@@ -138,7 +141,7 @@ class PlottingConfig:
     @staticmethod
     def from_params(
         var_names: list[str],
-        subplot_kwargs: Mapping[str, str] | None = None,
+        subplot_kwargs: dict[str, str] | None = None,
         fig_kwargs: dict[str, Any] | None = None,
     ) -> PlottingConfig:
         """Create a PlottingConfig from variable names and optional overrides.
@@ -147,9 +150,9 @@ class PlottingConfig:
         ----------
         var_names : list[str]
             List of variable names for the subplot configuration.
-        subplot_kwargs : Mapping[str, str] or None
+        subplot_kwargs : dict[str, str] or None
             Overrides for the subplot configuration.
-        fig_kwargs : dict or None
+        fig_kwargs : dict[str, Any] or None
             Keyword arguments for figure customization.
 
         Returns
@@ -180,7 +183,7 @@ def _get_interval_pairs(data: DataFrame, base_alpha: float) -> list[tuple[str, s
     Returns
     -------
     list[tuple[str, str, float, float]]
-        Each tuple is ``(lower_col, upper_col, alpha, linewidth)``.
+        Each tuple is `(lower_col, upper_col, alpha, linewidth)`.
     """
     lower_cols = [col for col in data.columns if col.startswith("lower_")]
     upper_cols = [col for col in data.columns if col.startswith("upper_")]
@@ -207,27 +210,40 @@ def _get_interval_pairs(data: DataFrame, base_alpha: float) -> list[tuple[str, s
     return pairs
 
 
-def _add_main_layer(plot: Plot, data: DataFrame, config: PlottingConfig) -> Plot:
+def _add_main_layer(
+    plot: Plot, data: DataFrame, config: PlottingConfig  # pylint: disable=redefined-outer-name
+) -> Plot:
     intervals = _get_interval_pairs(data, config.figure.alpha)
 
     match data[config.subplot.main].dtype:
         # Strip plot if categorical or integer dtype
         case dtype if isinstance(dtype, pd.CategoricalDtype) or is_integer_dtype(dtype):
-            plot = plot.add(so.Dot(), so.Dodge())
+            plot = plot.add(so.Dot(), so.Dodge(), legend=config.figure.legend)
             plot = reduce(
                 # Repeatedly add a the uncertainty Range to the plot never indexing into
                 # the alpha element because this is a strip plot
-                lambda p, iv: p.add(so.Range(linewidth=iv[3]), so.Dodge(), ymin=iv[0], ymax=iv[1]),
+                lambda p, iv: p.add(
+                    so.Range(linewidth=iv[3]),
+                    so.Dodge(),
+                    ymin=iv[0],
+                    ymax=iv[1],
+                    legend=config.figure.legend,
+                ),
                 intervals,
                 plot,
             )
         # Line plot if numeric dtype
         case dtype if is_float_dtype(dtype):
-            plot = plot.add(so.Line())
+            plot = plot.add(so.Line(), legend=config.figure.legend)
             # Repeatedly add the uncertainty Band to the plot never indexing into
             # the linewidth element because this is a line plot
             plot = reduce(
-                lambda p, iv: p.add(so.Band(alpha=iv[2]), ymin=iv[0], ymax=iv[1]),
+                lambda p, iv: p.add(
+                    so.Band(alpha=iv[2]),
+                    ymin=iv[0],
+                    ymax=iv[1],
+                    legend=config.figure.legend,
+                ),
                 intervals,
                 plot,
             )
@@ -237,10 +253,48 @@ def _add_main_layer(plot: Plot, data: DataFrame, config: PlottingConfig) -> Plot
     return plot
 
 
+def _recreate_legend(figure: Figure) -> None:
+    """Recreate and reposition the Seaborn legend."""
+    if not figure.legends:
+        return
+
+    # pylint: disable=protected-access
+    def composite_handles(legend):
+        """Return each rendered legend entry as a single or composite handle."""
+        # Seaborn uses composite handles (e.g., a line and interval patch) for a shared semantic.
+        # `legend.legend_handles` exposes only the first artist.
+        handles = []
+        for column in legend._legend_handle_box.get_children():
+            for entry in column.get_children():
+                drawing_area = next(
+                    child for child in entry.get_children() if isinstance(child, DrawingArea)
+                )
+                artists = drawing_area.get_children()
+                handles.append(artists[0] if len(artists) == 1 else tuple(artists))
+        return handles
+
+    handles = []
+    labels = []
+    title = figure.legends[0].get_title().get_text()
+
+    for legend in figure.legends:
+        handles.extend(composite_handles(legend))
+        labels.extend(text.get_text() for text in legend.get_texts())
+
+    figure.legends.clear()
+    figure.legend(
+        handles,
+        labels,
+        title=title,
+        loc="outside right center",
+    )
+
+
 def plot(
     data: DataFrame,
     config: PlottingConfig,
-) -> Plot:
+    on: Axes | Figure | SubFigure | None = None,
+) -> Figure:
     """Declaratively plot data according to a plotting configuration.
 
     Parameters
@@ -251,23 +305,28 @@ def plot(
     config : PlottingConfig
         A plotting configuration used to build and customize the appearance of a Seaborn
         objects plotting specification.
+    on : Axes, Figure, SubFigure, or None
+        Matplotlib target on which to draw the plot. If None, a new figure is created.
 
     Returns
     -------
-    Plot
-        A Seaborn objects Plot displaying the information of an `interpret` summary DataFrame.
+    Figure
+        A Matplotlib Figure displaying the information of an `interpret` summary DataFrame.
 
     Raises
     ------
     TypeError
         If the main variable has an unsupported data type.
     """
+    # pylint: disable=redefined-outer-name
     # Base plot (must include x-y axis)
     plot = so.Plot(data, x=config.subplot.main, y="estimate", color=config.subplot.group)
     # Force color cycle to nominal instead of gradient
     plot = plot.scale(color=so.Nominal())
+    # `unique` preserves observed order, respecting user-supplied levels when present.
+    panel_order = data[config.subplot.panel].unique() if config.subplot.panel is not None else None
     # Add a facet layer (only adds if panel is not None)
-    plot = plot.facet(col=config.subplot.panel, wrap=config.figure.wrap)
+    plot = plot.facet(col=config.subplot.panel, order=panel_order, wrap=config.figure.wrap)
     # Share x-y axis labels
     plot = plot.share(x=config.figure.sharex, y=config.figure.sharey)
     # Add a main layer (line or stripplot based on dtype)
@@ -278,8 +337,24 @@ def plot(
         y=config.figure.ylabel or "estimate",
         title=config.figure.title,
     )
-    # Set plot theme (dict of matplotlib rc parameters)
-    if config.figure.theme:
-        plot = plot.theme(config.figure.theme)
 
-    return plot
+    # Start from active matplotlib theme.
+    theme = plt.rcParams.copy()
+    if config.figure.theme:
+        theme.update(config.figure.theme)
+    plot = plot.theme(theme)
+
+    if on is not None:
+        plot.on(on).plot()
+        return on if isinstance(on, Figure) else on.figure
+
+    # Create the target while the theme is active.
+    with plt.rc_context(theme):
+        figure = plt.figure()
+        try:
+            plot.on(figure).plot()
+            _recreate_legend(figure)
+        finally:
+            plt.close(figure)
+
+    return figure

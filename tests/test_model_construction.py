@@ -7,8 +7,14 @@ import bambi as bmb
 import numpy as np
 import pandas as pd
 import pymc as pm
+import pytensor
+import pytensor.tensor as pt
+from scipy import stats
 
 from bambi.terms import CommonTerm, GroupSpecificTerm
+from bambi.backend.pymc.parameters import remove_group_specific_contributions
+from bambi.backend.pymc.terms.response import _untruncate_response
+from bambi.backend.pymc.utils import _compute_logccdf, make_competing_risks_logp
 from formulae import design_matrices
 from pytensor.sparse import StructuredDot
 
@@ -39,23 +45,23 @@ def test_distribute_group_specific_effect_over(data_diabetes):
     # Treatment encoding because of the intercept
     levels = sorted(list(data_diabetes["age_grp"].unique()))[1:]
     levels = [str(level) for level in levels]
-    parent_component = model.components[model.family.likelihood.parent]
-    assert "C(age_grp)|BMI" in parent_component.terms
-    assert "1|BMI" in parent_component.terms
-    assert parent_component.terms["C(age_grp)|BMI"].coords["C(age_grp)__expr_dim"] == levels
+    parent_parameter = model.parameters[model.family.likelihood.parent]
+    assert "C(age_grp)|BMI" in parent_parameter.terms
+    assert "1|BMI" in parent_parameter.terms
+    assert parent_parameter.terms["C(age_grp)|BMI"].expr.levels == levels
 
     # This is equal to the sub-matrix of Z that corresponds to this term.
     # 442 is the number of observations. 163 the number of groups.
     # 2 is the number of levels of the categorical variable 'C(age_grp)' after removing
     # the reference level. Then the number of columns is 326 = 163 * 2.
-    assert parent_component.terms["C(age_grp)|BMI"].data.shape == (442, 326)
+    assert parent_parameter.terms["C(age_grp)|BMI"].data.shape == (442, 326)
 
     # Without intercept. Reference level is not removed.
     model = bmb.Model("BP ~ (0 + C(age_grp)|BMI)", data_diabetes)
-    parent_component = model.components[model.family.likelihood.parent]
-    assert "C(age_grp)|BMI" in parent_component.terms
-    assert not "1|BMI" in parent_component.terms
-    assert parent_component.terms["C(age_grp)|BMI"].data.shape == (442, 489)
+    parent_parameter = model.parameters[model.family.likelihood.parent]
+    assert "C(age_grp)|BMI" in parent_parameter.terms
+    assert not "1|BMI" in parent_parameter.terms
+    assert parent_parameter.terms["C(age_grp)|BMI"].data.shape == (442, 489)
 
 
 def test_model_init_bad_data():
@@ -79,13 +85,31 @@ def test_model_categorical_argument():
         }
     )
     model = bmb.Model("y ~ 0 + x", data, categorical="x")
-    assert model.components[model.family.likelihood.parent].terms["x"].categorical
+    assert model.parameters[model.family.likelihood.parent].terms["x"].categorical
 
     model = bmb.Model("y ~ 0 + x*z", data, categorical=["x", "z"])
-    parent_component = model.components[model.family.likelihood.parent]
-    assert parent_component.terms["x"].categorical
-    assert parent_component.terms["z"].categorical
-    assert parent_component.terms["x:z"].categorical
+    parent_parameter = model.parameters[model.family.likelihood.parent]
+    assert parent_parameter.terms["x"].categorical
+    assert parent_parameter.terms["z"].categorical
+    assert parent_parameter.terms["x:z"].categorical
+
+
+def test_additive_and_group_specific_terms_share_predictor_data():
+    data = pd.DataFrame(
+        {
+            "y": np.linspace(0, 1, 24),
+            "g": np.tile(["u", "v"], 12),
+            "h": np.tile(["a", "b", "c"], 8),
+        }
+    )
+
+    model = bmb.Model("y ~ g + (g|h)", data)
+    model.build()
+
+    pymc_model = model.backend.model
+    assert pymc_model.named_vars_to_dims["g_data"] == ("__obs__", "g_dim_reduced")
+    assert "g_2_data" not in pymc_model.named_vars
+    assert_ip_dlogp(model)
 
 
 def test_model_no_response():
@@ -95,17 +119,17 @@ def test_model_no_response():
 
 def test_model_term_names_property(data_diabetes):
     model = bmb.Model("BMI ~ age_grp + BP + S1", data_diabetes)
-    parent_component = model.components[model.family.likelihood.parent]
-    assert parent_component.intercept_term.name == "Intercept"
-    assert set(parent_component.common_terms) == {"age_grp", "BP", "S1"}
+    parent_parameter = model.parameters[model.family.likelihood.parent]
+    assert parent_parameter.intercept_term.name == "Intercept"
+    assert set(parent_parameter.common_terms) == {"age_grp", "BP", "S1"}
 
 
 def test_model_term_names_property_interaction(data_crossed):
     data_crossed["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
     model = bmb.Model("Y ~ threecats*fourcats", data_crossed)
-    parent_component = model.components[model.family.likelihood.parent]
-    assert parent_component.intercept_term.name == "Intercept"
-    assert set(parent_component.common_terms) == {
+    parent_parameter = model.parameters[model.family.likelihood.parent]
+    assert parent_parameter.intercept_term.name == "Intercept"
+    assert set(parent_parameter.common_terms) == {
         "threecats",
         "fourcats",
         "threecats:fourcats",
@@ -116,7 +140,7 @@ def test_model_terms_levels_interaction(data_crossed):
     data_crossed["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
     model = bmb.Model("Y ~ threecats*fourcats", data_crossed)
 
-    assert model.components[model.family.likelihood.parent].terms["threecats:fourcats"].levels == [
+    assert model.parameters[model.family.likelihood.parent].terms["threecats:fourcats"].levels == [
         "b, b",
         "b, c",
         "b, d",
@@ -138,10 +162,10 @@ def test_model_terms_levels():
         }
     )
     model = bmb.Model("y ~ x + z + time + (time|subject)", data)
-    parent_component = model.components[model.family.likelihood.parent]
-    assert parent_component.terms["z"].levels == ["Group 2", "Group 3"]
-    assert parent_component.terms["1|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
-    assert parent_component.terms["time|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
+    parent_parameter = model.parameters[model.family.likelihood.parent]
+    assert parent_parameter.terms["z"].levels == ["Group 2", "Group 3"]
+    assert parent_parameter.terms["1|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
+    assert parent_parameter.terms["time|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
 
 
 def test_model_term_classes():
@@ -157,15 +181,15 @@ def test_model_term_classes():
 
     model = bmb.Model("y ~ x*g + (x|s)", data)
 
-    parent_component = model.components[model.family.likelihood.parent]
-    assert isinstance(parent_component.terms["x"], CommonTerm)
-    assert isinstance(parent_component.terms["g"], CommonTerm)
-    assert isinstance(parent_component.terms["x:g"], CommonTerm)
-    assert isinstance(parent_component.terms["1|s"], GroupSpecificTerm)
-    assert isinstance(parent_component.terms["x|s"], GroupSpecificTerm)
+    parent_parameter = model.parameters[model.family.likelihood.parent]
+    assert isinstance(parent_parameter.terms["x"], CommonTerm)
+    assert isinstance(parent_parameter.terms["g"], CommonTerm)
+    assert isinstance(parent_parameter.terms["x:g"], CommonTerm)
+    assert isinstance(parent_parameter.terms["1|s"], GroupSpecificTerm)
+    assert isinstance(parent_parameter.terms["x|s"], GroupSpecificTerm)
 
     # Also check 'categorical' attribute is right
-    assert parent_component.terms["g"].categorical
+    assert parent_parameter.terms["g"].categorical
 
 
 def test_one_shot_formula_fit(data_diabetes, mock_pymc_sample):
@@ -196,6 +220,7 @@ def test_categorical_term(mock_pymc_sample):
     df = az.summary(fitted)
     names = {
         "Intercept",
+        "Intercept_centered",
         "x1",
         "x2",
         "g1[b]",
@@ -206,9 +231,9 @@ def test_categorical_term(mock_pymc_sample):
         "1|g2[x]",
         "1|g2[y]",
         "1|g2[z]",
-        "g1|g2[b, x]",
-        "g1|g2[b, y]",
-        "g1|g2[b, z]",
+        "g1|g2[x, b]",
+        "g1|g2[y, b]",
+        "g1|g2[z, b]",
         "x2|g2[x]",
         "x2|g2[y]",
         "x2|g2[z]",
@@ -228,7 +253,8 @@ def test_omit_offsets_false(data_random_n100, mock_pymc_sample):
 def test_omit_offsets_true(data_random_n100, mock_pymc_sample):
     model = bmb.Model("continuous1 ~ continuous2 + (continuous2|binary_cat)", data_random_n100)
     idata = model.fit(chains=2, omit_offsets=True)
-    model.build()
+    model.predict(idata)
+    model.predict(idata, kind="response")
     assert_ip_dlogp(model)
     offsets = [var for var in idata.posterior.var() if var.endswith("_offset")]
     assert not offsets
@@ -256,6 +282,7 @@ def test_hyperprior_on_common_effect(data_random_n100):
         "asymmetriclaplace",
         "exgaussian",
         "gaussian",
+        "loglogistic",
         "lognormal",
         "negativebinomial",
         "bernoulli",
@@ -279,6 +306,7 @@ def test_links(data_random_n100):
         "exgaussian": ["identity", "log", "inverse"],
         "gamma": ["identity", "inverse", "log"],
         "gaussian": ["identity", "log", "inverse"],
+        "loglogistic": ["identity", "log", "inverse"],
         "lognormal": ["identity", "log", "inverse"],
         "negativebinomial": ["identity", "log", "cloglog"],
         "poisson": ["identity", "log"],
@@ -302,6 +330,7 @@ def test_bad_links(data_random_n100):
         "exgaussian": ["logit", "probit", "cloglog"],
         "gamma": ["logit", "probit", "cloglog"],
         "gaussian": ["logit", "probit", "cloglog"],
+        "loglogistic": ["logit", "probit", "cloglog"],
         "lognormal": ["logit", "probit", "cloglog"],
         "negativebinomial": ["logit", "probit", "inverse", "inverse_squared"],
         "poisson": ["logit", "probit", "cloglog", "inverse", "inverse_squared"],
@@ -343,7 +372,7 @@ def test_1d_group_specific(data_random_n100):
     # The difference is that we do .squeeze() on it after creation.
     model = bmb.Model("continuous1 ~ (binary_cat|categorical1)", data_random_n100)
     model.build()
-    assert model.backend.components["mu"].output.shape.eval() == (100,)
+    assert model.backend.model["mu"].shape.eval() == (100,)
 
 
 def test_data_is_copied():
@@ -364,17 +393,219 @@ def test_response_is_censored():
     df = pd.DataFrame(
         {
             "x": [1, 2, 3, 4, 5],
-            "status": ["none", "right", "interval", "left", "none"],
+            "status": ["none", "right", "none", "left", "none"],
         }
     )
     dm = bmb.Model("censored(x, status) ~ 1", df)
-    assert dm.response_component.term.is_censored is True
+    assert dm.response_term.is_censored is True
+
+
+@pytest.mark.parametrize(
+    ("formula", "family", "response_name"),
+    [
+        ("censored(y, censoring) ~ 1", None, "y"),
+        ("truncated(y, lower, upper) ~ 1", None, "y"),
+        ("constrained(y, -1, 5) ~ 1", None, "y"),
+        ("weighted(y, weights) ~ 1", None, "y"),
+        ("counts(y1, y2, n=n) ~ 1", "multinomial", "y1_y2"),
+        ("prop(y, n) ~ 1", "binomial", "y"),
+        ("cr(time, event_status, cause) ~ 1", "weibull", "time"),
+    ],
+)
+def test_transformed_response_uses_observed_variable_name(formula, family, response_name):
+    data = pd.DataFrame(
+        {
+            "y": [1.0, 2.0, 3.0],
+            "censoring": ["none", "right", "left"],
+            "lower": [0.0, 0.0, 0.0],
+            "upper": [4.0, 4.0, 4.0],
+            "weights": [1.0, 1.0, 1.0],
+            "y1": [1, 2, 1],
+            "y2": [3, 2, 3],
+            "n": [4, 4, 4],
+            "time": [1.0, 2.0, 3.0],
+            "event_status": ["event", "right", "event"],
+            "cause": ["cause_a", "none", "cause_b"],
+        }
+    )
+    kwargs = {} if family is None else {"family": family}
+    model = bmb.Model(formula, data, **kwargs)
+
+    assert model.response_term.name == response_name
+    model.build()
+    assert response_name in model.backend.model.named_vars
+
+
+def test_transformed_response_accepts_its_full_name_as_an_alias():
+    data = pd.DataFrame({"y": [1.0, 2.0, 3.0], "status": ["none", "right", "none"]})
+    model = bmb.Model("censored(y, status) ~ 1", data)
+    model.set_alias({"censored(y, status)": "outcome"})
+
+    assert model.response_term.label == "outcome"
+
+
+@pytest.mark.parametrize(
+    "family", ["exponential", "weibull", "lognormal", "loglogistic", "gamma", "wald"]
+)
+def test_competing_risks_response_data(family):
+    data = pd.DataFrame(
+        {
+            "time": [1.0, 2.0, 3.0, 4.0],
+            "status": ["right", "event", "event", "right"],
+            "cause": ["none", "cause_b", "cause_a", "none"],
+            "x": [0.0, 1.0, 2.0, 3.0],
+        }
+    )
+    kwargs = {"link": "log"} if family == "gamma" else {}
+    model = bmb.Model("cr(time, status, cause) ~ x", data, family=family, **kwargs)
+
+    assert model.response_term.is_cr is True
+    assert model.response_term.levels == ["cause_a", "cause_b"]
+    model.build()
+    assert "time_data" in model.backend.model.named_vars
+    assert "status_data" in model.backend.model.named_vars
+    assert "cause_data" in model.backend.model.named_vars
+    np.testing.assert_array_equal(model.backend.model["status_data"].get_value(), [1, 0, 0, 1])
+    np.testing.assert_array_equal(model.backend.model["cause_data"].get_value(), [0, 2, 1, 0])
+    assert tuple(model.backend.model["mu"].shape.eval()) == (len(data), 2)
+    assert model.backend.model.named_vars_to_dims["mu"] == ("__obs__", "cause_dim")
+    assert list(model.backend.model.coords["cause_dim"]) == ["cause_a", "cause_b"]
+    prediction_data, _, _ = model.backend._build_new_data(
+        pd.DataFrame({"x": [4.0, 5.0]}), "prediction", "response_params"
+    )
+    np.testing.assert_array_equal(prediction_data["status_data"], [1, 1])
+    np.testing.assert_array_equal(prediction_data["cause_data"], [0, 0])
+
+    conditional_data, _, _ = model.backend._build_new_data(
+        data.iloc[[1, 2]], "prediction", "response_conditional"
+    )
+    np.testing.assert_array_equal(conditional_data["time_data"], [2.0, 3.0])
+    np.testing.assert_array_equal(conditional_data["status_data"], [0, 0])
+    np.testing.assert_array_equal(conditional_data["cause_data"], [2, 1])
+
+    log_likelihood_data, _, _ = model.backend._build_new_data(data.iloc[[1]], "log_likelihood")
+    # `cause_b` remains code 2 even though `cause_a` is absent from this data frame.
+    np.testing.assert_array_equal(log_likelihood_data["cause_data"], [2])
+    assert np.isfinite(model.backend.model.compile_logp()(model.backend.model.initial_point()))
+
+
+def test_competing_risks_uses_cause_variable_for_coordinate_name():
+    data = pd.DataFrame(
+        {
+            "time": [1.0, 2.0],
+            "event_status": ["right", "event"],
+            "event_type": ["none", "cause_a"],
+        }
+    )
+    model = bmb.Model("cr(time, event_status, event_type) ~ 1", data, family="weibull")
+    model.build()
+
+    assert model.backend.model.named_vars_to_dims["mu"] == ("__obs__", "event_type_dim")
+    assert list(model.backend.model.coords["event_type_dim"]) == ["cause_a"]
+
+
+@pytest.mark.parametrize(
+    ("dist", "parameter_names", "parameters"),
+    [
+        (pm.Exponential, ["lam"], (np.array([[1.0, 1.0]]),)),
+        (pm.Weibull, ["alpha", "beta"], (np.array([[3.0, 0.7]]), np.array([[20.0, 10.0]]))),
+        (pm.LogNormal, ["mu", "sigma"], (np.array([[0.0, 0.0]]), np.array([[1.0, 1.0]]))),
+        (pm.Gamma, ["mu", "sigma"], (np.array([[1.0, 1.0]]), np.array([[1.0, 1.0]]))),
+        (pm.Wald, ["mu", "lam"], (np.array([[1.0, 1.0]]), np.array([[1.0, 1.0]]))),
+    ],
+)
+def test_competing_risks_logp_is_stable_in_the_upper_tail(dist, parameter_names, parameters):
+    logp = make_competing_risks_logp(dist, parameter_names)(
+        np.array([1000.0]),
+        *parameters,
+        status=np.array([1]),
+        cause=np.array([1]),
+    )
+    assert np.isfinite(pytensor.function([], logp, mode="FAST_COMPILE")()).all()
+
+
+@pytest.mark.parametrize(
+    ("dist", "parameter_names", "parameters", "reference_logsf"),
+    [
+        (
+            pm.Exponential,
+            ["lam"],
+            (0.7,),
+            lambda value: stats.expon.logsf(value, scale=1 / 0.7),
+        ),
+        (
+            pm.Weibull,
+            ["alpha", "beta"],
+            (0.7, 3.0),
+            lambda value: stats.weibull_min.logsf(value, c=0.7, scale=3.0),
+        ),
+        (
+            pm.LogNormal,
+            ["mu", "sigma"],
+            (0.2, 0.7),
+            lambda value: stats.lognorm.logsf(value, s=0.7, scale=np.exp(0.2)),
+        ),
+        (
+            pm.Gamma,
+            ["mu", "sigma"],
+            (2.0, 1.0),
+            lambda value: stats.gamma.logsf(value, a=4.0, scale=0.5),
+        ),
+        (
+            pm.Wald,
+            ["mu", "lam"],
+            (2.0, 3.0),
+            lambda value: stats.invgauss.logsf(value, mu=2 / 3, scale=3.0),
+        ),
+    ],
+)
+def test_competing_risks_logccdf_matches_scipy(dist, parameter_names, parameters, reference_logsf):
+    value = np.array([0.1, 1.0, 10.0, 100.0])
+    parameter_tensors = tuple(np.array([[parameter]]) for parameter in parameters)
+    base_dist = dist.dist(**dict(zip(parameter_names, parameter_tensors, strict=True)))
+    logccdf = _compute_logccdf(dist, base_dist, pt.shape_padright(value), parameter_tensors)
+    actual = pytensor.function([], logccdf, mode="FAST_COMPILE")()[:, 0]
+
+    np.testing.assert_allclose(actual, reference_logsf(value), rtol=1e-6, atol=1e-6)
 
 
 def test_response_is_truncated():
     df = pd.DataFrame({"x": [1, 2, 3, 4, 5]})
     dm = bmb.Model("truncated(x, 5.5) ~ 1", df)
-    assert dm.response_component.term.is_truncated is True
+    assert dm.response_term.is_truncated is True
+
+
+def test_counts_response_data():
+    data = pd.DataFrame(
+        {
+            "y1": [1, 2, 3],
+            "y2": [3, 4, 3],
+            "n": [4, 6, 6],
+            "x": [0.0, 1.0, 2.0],
+        }
+    )
+
+    fixed_model = bmb.Model("counts(y1, y2) ~ x", data, family="multinomial")
+    assert fixed_model.response_term.is_counts is True
+    fixed_model.build()
+    assert "n_data" not in fixed_model.backend.model.named_vars
+
+    with pytest.warns(UserWarning, match="first training total"):
+        prediction_data, _, _ = fixed_model.backend._build_new_data(data[["x"]], "prediction")
+    assert np.array_equal(prediction_data["y1_y2_data"].sum(axis=1), np.full(len(data), 4))
+
+    log_likelihood_data, _, _ = fixed_model.backend._build_new_data(data, "log_likelihood")
+    assert np.array_equal(log_likelihood_data["y1_y2_data"], data[["y1", "y2"]])
+
+    variable_model = bmb.Model("counts(y1, y2, n=n) ~ x", data, family="multinomial")
+    variable_model.build()
+    assert "n_data" in variable_model.backend.model.named_vars
+
+    prediction_data, _, _ = variable_model.backend._build_new_data(data[["x", "n"]], "prediction")
+    assert np.array_equal(prediction_data["n_data"], data["n"])
+
+    log_likelihood_data, _, _ = variable_model.backend._build_new_data(data, "log_likelihood")
+    assert np.array_equal(log_likelihood_data["n_data"], data["n"])
 
 
 def test_custom_likelihood_function(mock_pymc_sample):
@@ -392,7 +623,10 @@ def test_custom_likelihood_function(mock_pymc_sample):
     model.build()
     assert_ip_dlogp(model)
     model.fit(chains=2)
-    assert model.backend.model.observed_RVs[0].str_repr() == "y ~ Normal(f(Intercept, x), sigma)"
+    assert (
+        model.backend.model.observed_RVs[0].str_repr()
+        == "y ~ Normal(f(Intercept_centered, x), sigma)"
+    )
 
 
 def test_extra_namespace():
@@ -401,7 +635,7 @@ def test_extra_namespace():
     extra_namespace = {"levels": data["veh_body"].unique()}
     formula = "numclaims ~ 0 + C(veh_body, levels=levels)"
     model = bmb.Model(formula, data, family="poisson", link="log", extra_namespace=extra_namespace)
-    term = model.components[model.family.likelihood.parent].terms["C(veh_body, levels=levels)"]
+    term = model.parameters[model.family.likelihood.parent].terms["C(veh_body, levels=levels)"]
     assert set(np.asarray(term.levels)) == set(data["veh_body"].unique())
 
 
@@ -461,6 +695,320 @@ def test_potentials():
     assert pot1.__str__() == "Switch(Gt.0, 0, -inf)"
 
 
+def test_potentials_resolve_aliases():
+    data = pd.DataFrame(np.repeat((0, 1), (18, 20)), columns=["w"])
+    priors = {"Intercept": bmb.Prior("Uniform", lower=0, upper=1)}
+    potentials = [("alpha", lambda x: bmb.math.switch(x > 0.55, 0, -np.inf))]
+
+    model = bmb.Model(
+        "w ~ 1",
+        data,
+        family="bernoulli",
+        link="identity",
+        priors=priors,
+        potentials=potentials,
+    )
+    model.set_alias({"Intercept": "alpha"})
+    model.build()
+
+    assert len(model.backend.model.potentials) == 1
+
+
+def test_potentials_missing_variable():
+    data = pd.DataFrame(np.repeat((0, 1), (18, 20)), columns=["w"])
+    priors = {"Intercept": bmb.Prior("Uniform", lower=0, upper=1)}
+    potentials = [("not_a_variable", lambda x: x)]
+
+    model = bmb.Model(
+        "w ~ 1",
+        data,
+        family="bernoulli",
+        link="identity",
+        priors=priors,
+        potentials=potentials,
+    )
+
+    with pytest.raises(ValueError, match="not_a_variable"):
+        model.build()
+
+
+def test_potentials_non_callable_constraint():
+    data = pd.DataFrame(np.repeat((0, 1), (18, 20)), columns=["w"])
+    priors = {"Intercept": bmb.Prior("Uniform", lower=0, upper=1)}
+    potentials = [("Intercept", 1)]
+
+    model = bmb.Model(
+        "w ~ 1",
+        data,
+        family="bernoulli",
+        link="identity",
+        priors=priors,
+        potentials=potentials,
+    )
+
+    with pytest.raises(TypeError, match="must be callable"):
+        model.build()
+
+
+def test_compute_log_likelihood(data_random_n100, mock_pymc_sample):
+    data = data_random_n100.iloc[:10].copy()
+    model = bmb.Model("continuous1 ~ continuous2", data)
+    idata = model.fit(draws=4, chains=2)
+    assert "continuous1_data" in model.backend.model.named_vars
+
+    result = model.compute_log_likelihood(idata, inplace=False)
+
+    assert "log_likelihood" not in idata
+    assert result.log_likelihood["continuous1"].shape == (2, 4, 10)
+    assert result.log_likelihood.attrs["modeling_interface"] == "bambi"
+
+    same_data_result = model.compute_log_likelihood(idata, data=data, inplace=False)
+    assert (
+        same_data_result.log_likelihood["continuous1"] == result.log_likelihood["continuous1"]
+    ).all()
+
+    new_data = data.iloc[:3].copy()
+    new_result = model.compute_log_likelihood(idata, data=new_data, inplace=False)
+    assert new_result.log_likelihood["continuous1"].shape == (2, 4, 3)
+
+    model.compute_log_likelihood(idata)
+    assert idata.log_likelihood["continuous1"].shape == (2, 4, 10)
+
+
+def test_non_sampler_progressbars(data_random_n100, monkeypatch):
+    model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
+    model.build()
+    progressbars = {"predict": [], "log_likelihood": []}
+
+    def capture_predict(**kwargs):
+        progressbars["predict"].append(kwargs["progressbar"])
+
+    def capture_log_likelihood(**kwargs):
+        progressbars["log_likelihood"].append(kwargs["progressbar"])
+
+    monkeypatch.setattr(model.backend, "predict", capture_predict)
+    monkeypatch.setattr(model.backend, "compute_log_likelihood", capture_log_likelihood)
+
+    model.predict(idata=None)
+    model.predict(idata=None, progressbar=True)
+    model.compute_log_likelihood(idata=None)
+    model.compute_log_likelihood(idata=None, progressbar=True)
+
+    assert progressbars == {"predict": [False, True], "log_likelihood": [False, True]}
+
+
+def test_non_sampler_operations_suppress_pymc_logs(data_random_n100, mock_pymc_sample, caplog):
+    model = bmb.Model("continuous1 ~ continuous2", data_random_n100)
+    idata = model.fit(draws=4, chains=2)
+
+    caplog.clear()
+    caplog.set_level(logging.INFO, logger="pymc")
+    model.prior_predictive(draws=4)
+    model.predict(idata, kind="response")
+    model.compute_log_likelihood(idata)
+
+    assert not any(
+        record.name == "pymc.sampling.forward" and record.getMessage().startswith("Sampling:")
+        for record in caplog.records
+    )
+
+
+def test_compute_log_likelihood_transformed_response(data_beetle, mock_pymc_sample):
+    model = bmb.Model("prop(y, n) ~ x", data_beetle, family="binomial")
+    idata = model.fit(draws=4, chains=2)
+    assert {"y_data", "n_data"}.issubset(model.backend.model.named_vars)
+
+    model.compute_log_likelihood(idata)
+    assert idata.log_likelihood["y"].shape == (2, 4, len(data_beetle))
+
+    same_data_result = model.compute_log_likelihood(idata, data=data_beetle, inplace=False)
+    assert (same_data_result.log_likelihood["y"] == idata.log_likelihood["y"]).all()
+
+    result = model.compute_log_likelihood(idata, data=data_beetle.head(3), inplace=False)
+    assert result.log_likelihood["y"].shape == (2, 4, 3)
+
+
+def test_predict_transformed_response_side_data(data_beetle, mock_pymc_sample):
+    model = bmb.Model("prop(y, n) ~ x", data_beetle, family="binomial")
+    idata = model.fit(draws=4, chains=2)
+
+    assert {"y_data", "n_data"}.issubset(model.backend.model.named_vars)
+
+    result = model.predict(idata, kind="response", data=data_beetle.head(3), inplace=False)
+    samples = result.predictions["y"]
+    assert samples.shape == (2, 4, 3)
+    assert (samples <= data_beetle["n"].to_numpy()[:3][None, None, :]).all()
+
+    model = bmb.Model("p(y, 62) ~ x", data_beetle, family="binomial")
+    idata = model.fit(draws=4, chains=2)
+    assert "y_data" in model.backend.model.named_vars
+
+    result = model.predict(idata, kind="response", data=data_beetle.head(3), inplace=False)
+    samples = result.predictions["y"]
+    assert samples.shape == (2, 4, 3)
+    assert (samples <= 62).all()
+
+
+def test_predict_truncated_response_scalar_bounds(mock_pymc_sample):
+    data = pd.DataFrame({"x": np.linspace(-1, 1, 8), "y": np.linspace(-0.5, 0.5, 8)})
+    priors = {
+        "Intercept": bmb.Prior("Normal", mu=0, sigma=1),
+        "x": bmb.Prior("Normal", mu=0, sigma=1),
+        "sigma": bmb.Prior("HalfNormal", sigma=1),
+    }
+    model = bmb.Model("truncated(y, -5, 5) ~ x", data, priors=priors)
+    idata = model.fit(draws=4, chains=2)
+
+    assert "y_data" in model.backend.model.named_vars
+
+    result = model.predict(idata, kind="response_conditional", data=data.head(3), inplace=False)
+    samples = result.predictions["y"]
+    assert samples.shape == (2, 4, 3)
+    assert (samples > -5).all()
+    assert (samples < 5).all()
+
+
+def test_out_of_sample_censored_response_predictions(mock_pymc_sample):
+    data = pd.DataFrame(
+        {
+            "predictor": [-1.0, 0.0, 1.0],
+            "y": [0.0, 0.5, 1.0],
+            "status": ["left", "none", "right"],
+        }
+    )
+    model = bmb.Model("censored(y, status) ~ predictor", data)
+    idata = model.fit(draws=4, chains=2)
+
+    response = model.response_term.label
+    original_model = model.backend.model
+    original_response = original_model[response]
+    original_y_data = original_model["y_data"].get_value().copy()
+    original_status_data = original_model["status_data"].get_value().copy()
+
+    in_sample = model.predict(idata, kind="response", inplace=False, random_seed=1234)
+    in_sample_samples = in_sample.posterior_predictive[response].to_numpy()
+    assert in_sample_samples.shape == (2, 4, len(data))
+
+    in_sample_conditional = model.predict(
+        idata, kind="response_conditional", inplace=False, random_seed=1234
+    )
+    in_sample_conditional_samples = in_sample_conditional.posterior_predictive[response].to_numpy()
+    assert (in_sample_conditional_samples[..., 0] <= data["y"].iloc[0]).all()
+    assert (in_sample_conditional_samples[..., 2] >= data["y"].iloc[2]).all()
+
+    result = model.predict(idata, data=data, kind="response", inplace=False, random_seed=1234)
+    samples = result.predictions[response].to_numpy()
+
+    assert samples.shape == (2, 4, len(data))
+
+    conditional = model.predict(
+        idata, data=data, kind="response_conditional", inplace=False, random_seed=1234
+    )
+    conditional_samples = conditional.predictions[response].to_numpy()
+    assert (conditional_samples[..., 0] <= data["y"].iloc[0]).all()
+    assert (conditional_samples[..., 2] >= data["y"].iloc[2]).all()
+    assert model.backend.model is original_model
+    assert model.backend.model[response] is original_response
+    np.testing.assert_array_equal(model.backend.model["y_data"].get_value(), original_y_data)
+    np.testing.assert_array_equal(
+        model.backend.model["status_data"].get_value(), original_status_data
+    )
+
+    likelihood = model.compute_log_likelihood(idata, data=data, inplace=False)
+    assert likelihood.log_likelihood[response].shape == (2, 4, len(data))
+
+    missing_status = data.drop(columns="status")
+    with pytest.raises(ValueError, match="Censored response log-likelihood requires variables"):
+        model.compute_log_likelihood(idata, data=missing_status, inplace=False)
+
+
+def test_out_of_sample_truncated_response_predictions(mock_pymc_sample):
+    data = pd.DataFrame(
+        {
+            "predictor": [-1.0, 0.0, 1.0],
+            "y": [-0.5, 0.0, 0.5],
+            "lower": [-1.0, -1.5, -2.0],
+            "upper": [1.0, 1.5, 2.0],
+        }
+    )
+    model = bmb.Model("truncated(y, lower, upper) ~ predictor", data)
+    idata = model.fit(draws=100, chains=2)
+
+    response = model.response_term.label
+    original_model = model.backend.model
+    original_response = original_model[response]
+    original_y_data = original_model["y_data"].get_value().copy()
+    original_lower_data = original_model["lower_data"].get_value().copy()
+    original_upper_data = original_model["upper_data"].get_value().copy()
+
+    result = model.predict(idata, data=data, kind="response", inplace=False, random_seed=1234)
+    samples = result.predictions[response].to_numpy()
+
+    outside_bounds = (samples <= data["lower"].to_numpy()[None, None, :]) | (
+        samples >= data["upper"].to_numpy()[None, None, :]
+    )
+    assert outside_bounds.any()
+
+    conditional = model.predict(
+        idata, data=data, kind="response_conditional", inplace=False, random_seed=1234
+    )
+    conditional_samples = conditional.predictions[response].to_numpy()
+    assert (conditional_samples > data["lower"].to_numpy()[None, None, :]).all()
+    assert (conditional_samples < data["upper"].to_numpy()[None, None, :]).all()
+
+    assert model.backend.model is original_model
+    assert model.backend.model[response] is original_response
+    np.testing.assert_array_equal(model.backend.model["y_data"].get_value(), original_y_data)
+    np.testing.assert_array_equal(
+        model.backend.model["lower_data"].get_value(), original_lower_data
+    )
+    np.testing.assert_array_equal(
+        model.backend.model["upper_data"].get_value(), original_upper_data
+    )
+
+    likelihood = model.compute_log_likelihood(idata, data=data, inplace=False)
+    assert likelihood.log_likelihood[response].shape == (2, 100, len(data))
+
+    missing_bounds = data.drop(columns="upper")
+    result = model.predict(idata, data=missing_bounds, kind="response", inplace=False)
+    assert result.predictions[response].shape == (2, 100, len(data))
+
+    with pytest.raises(ValueError, match="Use kind='response' for unconditional predictions"):
+        model.predict(idata, data=missing_bounds, kind="response_conditional", inplace=False)
+
+    with pytest.raises(
+        ValueError, match="Truncated response log-likelihood requires bound variables"
+    ):
+        model.compute_log_likelihood(idata, data=missing_bounds, inplace=False)
+
+
+@pytest.mark.parametrize(
+    ("family", "response"),
+    [(None, [0.1, 0.2, 0.3]), ("gamma", [0.1, 0.2, 0.3]), ("poisson", [1, 2, 3])],
+)
+def test_untruncate_response_rebuilds_base_distribution(family, response):
+    data = pd.DataFrame(
+        {
+            "predictor": [0.0, 1.0, 2.0],
+            "y": response,
+            "lower": [0.0, 0.0, 0.0],
+            "upper": [3.0, 3.0, 3.0],
+        }
+    )
+    kwargs = {} if family is None else {"family": family}
+    model = bmb.Model("truncated(y, lower, upper) ~ predictor", data, **kwargs)
+    model.build()
+
+    response_name = model.response_term.label
+    original = model.backend.model
+    latent = _untruncate_response(response_name, original)
+
+    assert latent is not original
+    assert latent[response_name] in latent.observed_RVs
+    assert "truncated" in str(original[response_name].owner.op).lower()
+    assert "truncated" not in str(latent[response_name].owner.op).lower()
+
+
 @pytest.mark.skip(reason="this example no longer trigger the fallback to adapt_diag")
 def test_init_fallback(init_data, caplog):
     model = bmb.Model("od ~ temp + (1|source) + 0", init_data)
@@ -479,12 +1027,11 @@ def test_2d_response_no_shape(mock_pymc_sample):
     Updated https://github.com/bambinos/bambi/pull/632
     """
 
-    def fn(name, p, observed, **kwargs):
-        y = observed[:, 0].flatten()
-        n = observed[:, 1].flatten()
-        # It's the users' responsibility to take only the first dim
+    def fn(name, p, observed, n, **kwargs):
+        # Binomial responses expose successes and trials as separate inputs.
+        # It's the users' responsibility to take only the observation dimension.
         kwargs["dims"] = kwargs.get("dims")[0]
-        return pm.Binomial(name, p=p, n=n, observed=y, **kwargs)
+        return pm.Binomial(name, p=p, n=n, observed=observed, **kwargs)
 
     likelihood = bmb.Likelihood("CustomBinomial", params=["p"], parent="p", dist=fn)
     link = bmb.Link("logit")
@@ -504,7 +1051,7 @@ def test_2d_response_no_shape(mock_pymc_sample):
     model.fit(chains=2)
 
 
-def test_sparse_dot_univariate(mock_pymc_sample):
+def test_sparse_dot_univariate(mock_pymc_sample, monkeypatch):
     rng = np.random.default_rng(121195)
     data = pd.DataFrame(
         {
@@ -517,11 +1064,11 @@ def test_sparse_dot_univariate(mock_pymc_sample):
     )
 
     formula = "y ~ x1 + x2 + g1 + (g1|g2) + (x2|g2)"
-    bmb.config.SPARSE_DOT = False
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", False)
     model_dense = bmb.Model(formula, data)
     model_dense.build()
 
-    bmb.config.SPARSE_DOT = True
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", True)
     model_sparse = bmb.Model(formula, data)
     model_sparse.build()
 
@@ -550,6 +1097,7 @@ def test_sparse_dot_univariate(mock_pymc_sample):
     # NOTE: names for dense are tested elsewhere
     names = {
         "Intercept",
+        "Intercept_centered",
         "x1",
         "x2",
         "g1[b]",
@@ -560,9 +1108,9 @@ def test_sparse_dot_univariate(mock_pymc_sample):
         "1|g2[x]",
         "1|g2[y]",
         "1|g2[z]",
-        "g1|g2[b, x]",
-        "g1|g2[b, y]",
-        "g1|g2[b, z]",
+        "g1|g2[x, b]",
+        "g1|g2[y, b]",
+        "g1|g2[z, b]",
         "x2|g2[x]",
         "x2|g2[y]",
         "x2|g2[z]",
@@ -570,14 +1118,14 @@ def test_sparse_dot_univariate(mock_pymc_sample):
     assert set(az.summary(idata_sparse).index) == names
 
 
-def test_sparse_dot_multivariate(data_inhaler, mock_pymc_sample):
+def test_sparse_dot_multivariate(data_inhaler, mock_pymc_sample, monkeypatch):
     formula = "rating ~ 1 + period + treat + (1 + treat|subject)"
 
-    bmb.config.SPARSE_DOT = False
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", False)
     model_dense = bmb.Model(formula, data_inhaler, family="categorical")
     model_dense.build()
 
-    bmb.config.SPARSE_DOT = True
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", True)
     model_sparse = bmb.Model(formula, data_inhaler, family="categorical")
     model_sparse.build()
 
@@ -605,3 +1153,212 @@ def test_sparse_dot_multivariate(data_inhaler, mock_pymc_sample):
     idata_dense = model_dense.fit(chains=2)
     idata_sparse = model_sparse.fit(chains=2)
     assert set(az.summary(idata_dense).index) == set(az.summary(idata_sparse).index)
+
+
+def test_sparse_dot_out_of_sample_prediction(mock_pymc_sample, monkeypatch):
+    data = pd.DataFrame(
+        {
+            "y": [0.1, 0.3, -0.2, 0.5, 0.7, -0.4],
+            "x": [1, 2, 3, 4, 5, 6],
+            "group": ["a", "a", "b", "b", "c", "c"],
+        }
+    )
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", True)
+    model = bmb.Model("y ~ x + (1 + x|group)", data)
+    idata = model.fit(draws=4, chains=2)
+
+    assert set(model.backend.model.named_vars) >= {
+        "mu__group_specific_data",
+        "mu__group_specific_indices",
+        "mu__group_specific_indptr",
+        "mu__group_specific_ncols",
+    }
+    assert "1|group_data" not in model.backend.model.named_vars
+    assert "x|group_data" not in model.backend.model.named_vars
+
+    result = model.predict(idata, data=data.head(3), kind="response", inplace=False)
+
+    assert result.predictions["mu"].shape == (2, 4, 3)
+    assert set(result.predictions_constant_data) >= {
+        "mu__group_specific_data",
+        "mu__group_specific_indices",
+        "mu__group_specific_indptr",
+        "mu__group_specific_ncols",
+    }
+
+
+def test_sparse_dot_out_of_sample_log_likelihood(mock_pymc_sample, monkeypatch):
+    data = pd.DataFrame(
+        {
+            "y": [0.1, 0.3, -0.2, 0.5, 0.7, -0.4],
+            "x": [1, 2, 3, 4, 5, 6],
+            "group": ["a", "a", "b", "b", "c", "c"],
+        }
+    )
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", True)
+    model = bmb.Model("y ~ x + (1 + x|group)", data)
+    idata = model.fit(draws=4, chains=2)
+
+    result = model.compute_log_likelihood(idata, data=data.head(3), inplace=False)
+
+    assert result.log_likelihood["y"].shape == (2, 4, 3)
+
+
+@pytest.mark.parametrize("noncentered", [True, False])
+@pytest.mark.parametrize("sparse_dot", [False, True])
+def test_predict_without_group_specific_effect(
+    mock_pymc_sample, monkeypatch, noncentered, sparse_dot
+):
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
+    data = pd.DataFrame(
+        {
+            "y": [0.1, -0.1, 0.2, -0.2],
+            "group": ["a", "b", "a", "b"],
+        }
+    )
+    model = bmb.Model("y ~ 1 + (1|group)", data, noncentered=noncentered)
+    idata = model.fit(draws=4, chains=2)
+    coefficients = idata.posterior["1|group"].copy(deep=True)
+    reduced_model = remove_group_specific_contributions(
+        model.backend._group_specific_state,
+        model.backend.model,
+    )
+
+    assert "1|group" in model.backend.model.named_vars
+    assert "1|group" not in reduced_model.named_vars
+    if sparse_dot:
+        assert "1|group_data" not in reduced_model.named_vars
+    else:
+        assert "group__idx" not in reduced_model.named_vars
+
+    included = model.predict(idata, data=data, inplace=False)
+    excluded = model.predict(idata, data=data, include_group_specific=False, inplace=False)
+    excluded_in_sample = model.predict(idata, include_group_specific=False, inplace=False)
+
+    model.predict(idata, data=data, include_group_specific=False)
+    model.predict(idata, include_group_specific=False)
+
+    assert not np.allclose(
+        included.predictions["mu"].values, included.predictions["mu"].values[..., :1]
+    )
+    np.testing.assert_allclose(
+        excluded.predictions["mu"].values - excluded.predictions["mu"].values[..., :1], 0
+    )
+    np.testing.assert_allclose(
+        excluded_in_sample.posterior["mu"].values
+        - excluded_in_sample.posterior["mu"].values[..., :1],
+        0,
+    )
+    assert idata.posterior["1|group"].identical(coefficients)
+
+
+@pytest.mark.parametrize("sparse_dot", [False, True])
+def test_prune_discards_group_specific_predictors(monkeypatch, sparse_dot):
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
+    data = pd.DataFrame(
+        {
+            "y": [0.1, -0.1, 0.2, -0.2],
+            "x": [1, 2, 3, 4],
+            "group": ["a", "b", "a", "b"],
+        }
+    )
+    model = bmb.Model("y ~ 1 + (1 + x|group)", data)
+    model.build()
+
+    assert not any(name.endswith("__selected") for name in model.backend.model.named_vars)
+    assert not hasattr(model.backend.model, "__bambi_metadata__")
+    assert "mu" in model.backend._group_specific_state.parameters
+
+    reduced_model = remove_group_specific_contributions(
+        model.backend._group_specific_state,
+        model.backend.model,
+    )
+
+    if sparse_dot:
+        assert "1|group_data" not in reduced_model.named_vars
+        assert "x|group_data" not in reduced_model.named_vars
+    else:
+        assert "group__idx" not in reduced_model.named_vars
+        assert "x_data" not in reduced_model.named_vars
+    assert "1|group" not in reduced_model.named_vars
+    assert "x|group" not in reduced_model.named_vars
+
+
+@pytest.mark.parametrize(
+    "formula",
+    [
+        "y ~ 1 + (1|group) + (1|site)",
+        "y ~ x + (1 + x|group)",
+        "y ~ C(condition) + (C(condition)|group)",
+        "y ~ 1 + hsgp(x, c=2, m=5) + (1|group)",
+    ],
+)
+def test_predict_without_group_specific_effect_complex(mock_pymc_sample, monkeypatch, formula):
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", False)
+    data = pd.DataFrame(
+        {
+            "y": [0.1, -0.1, 0.2, -0.2, 0.3, -0.3],
+            "x": [-1.0, -0.5, 0.0, 0.5, 1.0, 1.5],
+            "condition": ["a", "b", "a", "b", "a", "b"],
+            "group": ["a", "b", "a", "b", "a", "b"],
+            "site": ["u", "u", "v", "v", "u", "v"],
+        }
+    )
+    prediction_data = pd.DataFrame(
+        {
+            "y": [0.0] * 4,
+            "x": [0.0] * 4,
+            "condition": ["a"] * 4,
+            "group": ["a", "b", "a", "b"],
+            "site": ["u", "u", "v", "v"],
+        }
+    )
+    model = bmb.Model(formula, data)
+    idata = model.fit(draws=4, chains=2)
+
+    included = model.predict(idata, data=prediction_data, inplace=False)
+    excluded = model.predict(
+        idata, data=prediction_data, include_group_specific=False, inplace=False
+    )
+
+    assert not np.allclose(
+        included.predictions["mu"].values, included.predictions["mu"].values[..., :1]
+    )
+    np.testing.assert_allclose(
+        excluded.predictions["mu"].values - excluded.predictions["mu"].values[..., :1], 0
+    )
+
+
+@pytest.mark.parametrize("sparse_dot", [False, True])
+def test_predict_without_group_specific_effect_multivariate(
+    mock_pymc_sample, monkeypatch, sparse_dot
+):
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
+    data = pd.DataFrame(
+        {
+            "rating": pd.Categorical(["low", "medium", "high", "low", "medium", "high"]),
+            "group": ["a", "b", "a", "b", "a", "b"],
+        }
+    )
+    prediction_data = pd.DataFrame(
+        {
+            "rating": pd.Categorical(["low"] * 4, categories=data["rating"].cat.categories),
+            "group": ["a", "b", "a", "b"],
+        }
+    )
+    model = bmb.Model("rating ~ 1 + (1|group)", data, family="categorical")
+    idata = model.fit(draws=4, chains=2)
+
+    included = model.predict(idata, data=prediction_data, inplace=False)
+    excluded = model.predict(
+        idata, data=prediction_data, include_group_specific=False, inplace=False
+    )
+
+    assert not np.allclose(
+        included.predictions["p"].values, included.predictions["p"].values[..., :1, :]
+    )
+    np.testing.assert_allclose(
+        excluded.predictions["p"].values - excluded.predictions["p"].values[..., :1, :],
+        0,
+        atol=1e-15,
+    )

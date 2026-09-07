@@ -50,7 +50,7 @@ def test_normal_with_splines(data_normal, data_new_normal, mock_pymc_sample):
     model = bmb.Model(formula, data_normal)
     model.build()
     assert_ip_dlogp(model)
-    idata = model.fit(chains=2)
+    idata = model.fit(chains=2, tune=100, draws=100)
     model.predict(idata, kind="response")
     model.predict(idata, kind="response", data=data_new_normal)
 
@@ -58,10 +58,9 @@ def test_normal_with_splines(data_normal, data_new_normal, mock_pymc_sample):
 def test_gamma(data_gamma, data_new_gamma, mock_pymc_sample):
     formula = bmb.Formula("y ~ x", "alpha ~ x")
 
-    # NOTE: Inverse link is broken with 'mu'
     # Default links
     # model = bmb.Model(formula, data_gamma, family="gamma")
-    # idata = model.fit(tune=100, draws=100, random_seed=1234)
+    # idata = model.fit(chains=2, tune=100, draws=100)
     # model.predict(idata, kind="pps")
     # model.predict(idata, kind="pps", data=data_new_gamma)
 
@@ -69,7 +68,7 @@ def test_gamma(data_gamma, data_new_gamma, mock_pymc_sample):
     model = bmb.Model(formula, data_gamma, family="gamma", link={"mu": "log", "alpha": "log"})
     model.build()
     assert_ip_dlogp(model)
-    idata = model.fit(chains=2)
+    idata = model.fit(chains=2, tune=100, draws=100)
     model.predict(idata, kind="response")
     model.predict(idata, kind="response", data=data_new_gamma)
 
@@ -79,7 +78,7 @@ def test_gamma_with_splines(data_normal, data_new_normal, mock_pymc_sample):
         "count ~ 0 + bs(hour, 8, intercept=True)", "alpha ~ 0 + bs(hour, 8, intercept=True)"
     )
     model = bmb.Model(formula, data_normal, family="gamma", link={"mu": "log", "alpha": "log"})
-    idata = model.fit(chains=2)
+    idata = model.fit(chains=2, tune=100, draws=100)
     model.build()
     assert_ip_dlogp(model)
     model.predict(idata, kind="response")

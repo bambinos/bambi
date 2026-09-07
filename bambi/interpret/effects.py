@@ -1,19 +1,20 @@
+import warnings
 from functools import partial
 from itertools import combinations
-from typing import Any, Callable, Mapping, Optional
+from typing import Any, Callable
 
 import arviz as az
 import numpy as np
 import pandas as pd
 import xarray as xr
+
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure, SubFigure
 from pandas import DataFrame
-from seaborn.objects import Plot
 from xarray import DataArray, DataTree
 
-from bambi.interpret.ops import (
-    get_comparison_func,
-    get_slope_func,
-)
+from bambi.interpret._typing import ConditionalValues
+from bambi.interpret.ops import get_comparison_func, get_slope_func
 from bambi.interpret.plots import PlottingConfig, plot
 from bambi.interpret.types import (
     ComparisonVariable,
@@ -34,8 +35,18 @@ from bambi.models import Model
 from bambi.utils import as_dataset
 
 
+def _warn_deprecated_sample_new_groups(sample_new_groups: bool | None) -> None:
+    if sample_new_groups is not None:
+        warnings.warn(
+            "'sample_new_groups' is deprecated and has no effect. Bambi now automatically "
+            "determines how to predict for new groups based on the type of group.",
+            FutureWarning,
+            stacklevel=3,
+        )
+
+
 def _determine_plot_vars(
-    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]],
+    conditional: str | list[str] | dict[str, ConditionalValues] | None,
     average_by: str | list[str] | None,
     model_data: DataFrame,
 ) -> list[str]:
@@ -43,7 +54,7 @@ def _determine_plot_vars(
 
     Parameters
     ----------
-    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
+    conditional : str, list[str], dict[str, ConditionalValues], or None
         User-specified conditional variables.
     average_by : str, list, or None
         Variables to average over.
@@ -94,7 +105,7 @@ def _extract_dim_columns(summary_df: DataFrame, var_names: list[str]) -> list[st
     dim_cols = [
         col
         for col in summary_df.columns
-        if "dim" in col.lower()
+        if "_dim" in col.lower()
         and col not in metadata_cols
         and col not in var_names
         and not any(keyword in col for keyword in stat_keywords)
@@ -106,7 +117,7 @@ def _extract_dim_columns(summary_df: DataFrame, var_names: list[str]) -> list[st
 def filter_draws(
     val: Any, idata: DataTree, group: str, target: str, variable: pd.Series
 ) -> DataArray:
-    """Filter draws from an DataTree group based on variable values.
+    """Filter draws from a DataTree group based on variable values.
 
     Parameters
     ----------
@@ -115,7 +126,7 @@ def filter_draws(
     idata : DataTree
         The DataTree object containing the draws.
     group : str
-        The name of the group to filter from (e.g., 'posterior', 'posterior_predictive').
+        The name of the group to filter from (e.g., 'posterior', 'predictions').
     target : str
         The target variable name within the group.
     variable : pd.Series
@@ -156,11 +167,11 @@ def compare(
     idata : DataTree
         The DataTree object containing the samples to compare.
     contrast : ComparisonVariable
-    The ComparisonVariable specifying the variable to create contrasts for.
+        The ComparisonVariable specifying the variable to create contrasts for.
     target : str
         The target variable name to compare within the group.
     group : str
-        The name of the group to compare (e.g., 'posterior', 'posterior_predictive').
+        The name of the group to compare (e.g., 'posterior', 'predictions').
     comparison_fn : Callable
         The comparison function to apply to pairs of draws (e.g., difference, ratio).
 
@@ -263,17 +274,21 @@ def _compute_bounds(x: DataArray, prob: float, use_hdi: bool) -> DataFrame:
     return bounds
 
 
-def get_summary_stats(x: DataArray, prob: float | list[float], use_hdi: bool = True) -> DataFrame:
+def get_summary_stats(
+    x: DataArray, prob: float | list[float] | None, use_hdi: bool = True
+) -> DataFrame:
     """Compute summary statistics (mean and uncertainty intervals) of an array.
 
     Parameters
     ----------
     x : DataArray
         The xarray DataArray containing posterior samples with 'chain' and 'draw' dimensions.
-    prob : float or list[float]
+    prob : float or list[float] or None
         Probability or list of probabilities for credible intervals (each between 0 and 1).
         When a list is provided, multiple pairs of lower/upper columns are returned,
-        sorted by interval width (widest first).
+        sorted by interval width (widest first). Pass None to return point estimates only.
+    use_hdi : bool
+        Whether to compute highest density or equal-tailed intervals. Default is True.
 
     Returns
     -------
@@ -282,7 +297,9 @@ def get_summary_stats(x: DataArray, prob: float | list[float], use_hdi: bool = T
         - 'estimate': posterior mean
         - 'lower_X%' / 'upper_Y%': bounds for each probability level
     """
-    if isinstance(prob, (int, float)):
+    if prob is None:
+        prob = []
+    elif isinstance(prob, (int, float)):
         prob = [prob]
 
     # Sort descending so widest interval columns come first
@@ -291,21 +308,39 @@ def get_summary_stats(x: DataArray, prob: float | list[float], use_hdi: bool = T
     mean = x.mean(dim=("chain", "draw")).to_series().rename("estimate").to_frame()
 
     bounds_list = [_compute_bounds(x, p, use_hdi) for p in prob]
-    all_bounds = pd.concat(bounds_list, axis=1)
+    if bounds_list:
+        mean = mean.join(pd.concat(bounds_list, axis=1))
 
-    stats = mean.join(all_bounds).reset_index().drop("__obs__", axis=1)
+    stats = mean.reset_index().drop("__obs__", axis=1)
 
     return stats
+
+
+def _join_prediction_data(preds_data: DataFrame, stats_data: DataFrame) -> DataFrame:
+    """Attach output statistics to each row in a prediction grid.
+
+    A multivariate response has one row of summary statistics per output level,
+    while the prediction grid has one row per observation.
+    Repeat each grid row for its output levels before joining by position.
+    """
+    n_levels, remainder = divmod(len(stats_data), len(preds_data))
+    if remainder:
+        raise ValueError(
+            "The number of prediction statistics must be a multiple of the prediction grid size."
+        )
+
+    indexes = np.repeat(np.arange(len(preds_data)), n_levels)
+    expanded_data = preds_data.iloc[indexes].reset_index(drop=True)
+    return expanded_data.join(stats_data.reset_index(drop=True))
 
 
 def _build_predictions(
     model: Model,
     idata: DataTree,
     focal_variable: pd.Series,
-    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]],
+    conditional: str | list[str] | dict[str, ConditionalValues] | None,
     target: str,
     transforms: dict | None,
-    sample_new_groups: bool,
 ) -> tuple[DataTree, DataFrame, list[str], str, str, Callable]:
     """Shared prediction pipeline for comparisons and slopes.
 
@@ -329,9 +364,6 @@ def _build_predictions(
         distributional component name.
     transforms : dict or None
         Dictionary of transformations.
-    sample_new_groups : bool
-        Whether to sample new group levels.
-
     Returns
     -------
     tuple
@@ -363,10 +395,17 @@ def _build_predictions(
         preds_data = create_grid(all_vars)
         context_columns = [var.name for var in (*cond.variables, *defaults.variables)]
 
+    if model.response_term.is_binomial:
+        # If response is binomial, trials is not a literal, and it's not passed as conditional,
+        # set trials to 1 for predictions.
+        trials = model.response_term.components[0].call.args[1]
+        trials_name = getattr(trials, "name", None)
+        if trials_name is not None and trials_name not in preds_data:
+            preds_data[trials_name] = 1
+
     pred_kwargs = {
         "idata": idata,
         "data": preds_data,
-        "sample_new_groups": sample_new_groups,
         "inplace": False,
     }
     preds_idata = model.predict(**pred_kwargs, kind=target_info.predict_kind)
@@ -386,13 +425,13 @@ def _build_predictions(
 def predictions(
     model: Model,
     idata: DataTree,
-    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
+    conditional: str | list[str] | dict[str, ConditionalValues] | None = None,
     average_by: str | list[str] | None = None,
     target: str = "mean",
     use_hdi: bool = True,
-    prob: float | list[float] = az.rcParams["stats.ci_prob"],
+    prob: float | list[float] | None = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
-    sample_new_groups: bool = False,
+    sample_new_groups: bool | None = None,
 ) -> Result:
     """Compute conditional adjusted predictions.
 
@@ -402,7 +441,7 @@ def predictions(
         The fitted Bambi model.
     idata : DataTree
         DataTree object containing the posterior samples.
-    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
+    conditional : str, list[str], dict[str, ConditionalValues], or None
         Variables to condition on for predictions.
     average_by : str, list or None
         Variables to average predictions over.
@@ -413,13 +452,15 @@ def predictions(
         posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
-    prob : float or list[float]
+    prob : float or list[float] or None
         Probability or list of probabilities for credible intervals. Default is from
         arviz rcParams. When a list is provided, multiple nested intervals are computed.
+        Pass None to omit credible intervals.
     transforms : dict or None
         Dictionary of transformations to apply to predictions.
-    sample_new_groups : bool
-        Whether to sample new group levels. Default is False.
+    sample_new_groups : bool or None
+        Deprecated and has no effect. Bambi automatically determines how to predict for new
+        groups based on the type of group. Default is None.
 
     Returns
     -------
@@ -432,6 +473,8 @@ def predictions(
     ValueError
         If any prob value is not between 0 and 1.
     """
+    _warn_deprecated_sample_new_groups(sample_new_groups)
+
     prob = validate_prob(prob)
 
     transforms = transforms or {}
@@ -451,17 +494,28 @@ def predictions(
         all_vars = cond.variables + defaults.variables
         preds_data = create_grid(all_vars)
 
+    if model.response_term.is_binomial:
+        # If response is binomial, trials is not a literal, and it's not passed as conditional,
+        # set trials to 1 for predictions.
+        trials = model.response_term.components[0].call.args[1]
+        trials_name = getattr(trials, "name", None)
+        if trials_name is not None and trials_name not in preds_data:
+            preds_data[trials_name] = 1
+
     pred_kwargs = {
         "idata": idata,
         "data": preds_data,
-        "sample_new_groups": sample_new_groups,
         "inplace": False,
     }
     idata = model.predict(**pred_kwargs, kind=target_info.predict_kind)
     y_hat = as_dataset(idata[target_info.group])[target_info.var_name]
 
     stats_data = get_summary_stats(response_transform(y_hat), prob, use_hdi)
-    summary_df = aggregate(data=preds_data.join(stats_data, on=None), by=average_by)
+    summary_df = aggregate(
+        data=_join_prediction_data(preds_data, stats_data),
+        by=average_by,
+        preserve=_extract_dim_columns(stats_data, []),
+    )
 
     return Result(summary=summary_df, draws=idata)
 
@@ -469,16 +523,17 @@ def predictions(
 def plot_predictions(
     model: Model,
     idata: DataTree,
-    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
-    average_by: str | list | bool | None = None,
+    conditional: str | list[str] | dict[str, ConditionalValues] | None = None,
+    average_by: str | list[str] | None = None,
     target: str = "mean",
     use_hdi: bool = True,
-    prob: float | list[float] = az.rcParams["stats.ci_prob"],
+    prob: float | list[float] | None = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
-    sample_new_groups: bool = False,
-    fig_kwargs: Optional[dict[str, Any]] = None,
-    subplot_kwargs: Optional[dict[str, str]] = None,
-) -> Plot:
+    sample_new_groups: bool | None = None,
+    fig_kwargs: dict[str, Any] | None = None,
+    subplot_kwargs: dict[str, str] | None = None,
+    on: Axes | Figure | SubFigure | None = None,
+) -> Figure:
     """Plot conditional adjusted predictions.
 
     Parameters
@@ -487,9 +542,9 @@ def plot_predictions(
         The fitted Bambi model.
     idata : DataTree
         DataTree object containing the posterior samples.
-    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
+    conditional : str, list[str], dict[str, ConditionalValues], or None
         Variables to condition on for predictions.
-    average_by : str or list or bool or None
+    average_by : str, list[str], or None
         Variables to average predictions over.
     target : str
         Which quantity to extract. `"mean"` (default) for the posterior of the parent
@@ -498,32 +553,37 @@ def plot_predictions(
         posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
-    prob : float or list[float]
+    prob : float or list[float] or None
         Probability or list of probabilities for credible intervals. Default is from
         arviz rcParams. When a list is provided, nested bands with decreasing opacity
-        are drawn.
+        are drawn. Pass None to omit bands.
     transforms : dict or None
         Dictionary of transformations to apply to predictions.
-    sample_new_groups : bool
-        Whether to sample new group levels. Default is False.
+    sample_new_groups : bool or None
+        Deprecated and has no effect. Bambi automatically determines how to predict for new
+        groups based on the type of group. Default is None.
     fig_kwargs : dict or None
-        Additional keyword arguments for figure customization. Use the 'theme' key
-        to pass a dictionary of matplotlib rc parameters.
+        Additional keyword arguments for figure customization.
+        Use the 'theme' key to pass a dictionary of matplotlib rc parameters.
     subplot_kwargs : dict or None
         Overrides default plotting sequence (main, group, panel).
+    on : Axes, Figure, SubFigure, or None
+        Matplotlib target on which to draw the plot. If None, a new figure is created.
 
     Returns
     -------
-    Plot
-        A Seaborn objects Plot. In Jupyter notebooks, the plot automatically displays.
-        In scripts, call `.show()` to display. The returned Plot object can be
-        customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
+    Figure
+        A Matplotlib Figure. In Jupyter notebooks, the figure automatically displays.
+        In scripts, call `.show()` to display it. The returned Figure can be customized
+        through its axes (e.g., `figure.axes[0].set_title(...)`).
 
     Raises
     ------
     ValueError
         If more than 3 conditional variables are provided without averaging.
     """
+    _warn_deprecated_sample_new_groups(sample_new_groups)
+
     var_names = _determine_plot_vars(conditional, average_by, model.data)
 
     result = predictions(
@@ -535,30 +595,34 @@ def plot_predictions(
         use_hdi=use_hdi,
         prob=prob,
         transforms=transforms,
-        sample_new_groups=sample_new_groups,
     )
 
-    # Add dimension columns for multi-output models (e.g., Categorical family)
-    dim_cols = _extract_dim_columns(result.summary, var_names)
-    all_var_names = var_names + dim_cols
+    df_plot = result.summary
+    dim_columns = _extract_dim_columns(df_plot, var_names)
 
-    plot_config = PlottingConfig.from_params(all_var_names, subplot_kwargs, fig_kwargs)
+    # Extract original variable names from dimension columns for plotting without `dim` suffix.
+    for column in dim_columns:
+        new_column = column.replace("_dim", "")
+        var_names.append(new_column)
+        df_plot[new_column] = df_plot[column]
 
-    return plot(result.summary, plot_config)
+    plot_config = PlottingConfig.from_params(var_names, subplot_kwargs, fig_kwargs)
+
+    return plot(df_plot, plot_config, on=on)
 
 
 def comparisons(
     model: Model,
     idata: DataTree,
-    contrast: str | dict[str, np.ndarray | list | int | float],
-    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
+    contrast: str | dict[str, ConditionalValues],
+    conditional: str | list[str] | dict[str, ConditionalValues] | None = None,
     average_by: str | list[str] | None = None,
     target: str = "mean",
     comparison: Callable[[DataArray, DataArray], DataArray] | str = "diff",
     use_hdi: bool = True,
-    prob: float | list[float] = az.rcParams["stats.ci_prob"],
+    prob: float | list[float] | None = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
-    sample_new_groups: bool = False,
+    sample_new_groups: bool | None = None,
 ) -> Result:
     """Compute conditional adjusted comparisons.
 
@@ -568,11 +632,11 @@ def comparisons(
         The fitted Bambi model.
     idata : DataTree
         DataTree object containing the posterior samples.
-    contrast : str or dict[str, ndarray or list or int or float]
+    contrast : str or dict[str, ConditionalValues]
         Variable(s) to create contrasts for.
-    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
+    conditional : str, list[str], dict[str, ConditionalValues], or None
         Variables to condition on for comparisons.
-    average_by : str, list or None
+    average_by : str, list[str], or None
         Variables to average comparisons over.
     target : str
         The target parameter to compare. Default is "mean".
@@ -582,13 +646,15 @@ def comparisons(
         Custom functions should accept (reference, contrast) DataArrays and return a DataArray.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
-    prob : float or list[float]
+    prob : float or list[float] or None
         Probability or list of probabilities for credible intervals. Default is from
         arviz rcParams. When a list is provided, multiple nested intervals are computed.
+        Pass None to omit credible intervals.
     transforms : dict or None
         Dictionary of transformations to apply to comparisons.
-    sample_new_groups : bool
-        Whether to sample new group levels. Default is False.
+    sample_new_groups : bool or None
+        Deprecated and has no effect. Bambi automatically determines how to predict for new
+        groups based on the type of group. Default is None.
 
     Returns
     -------
@@ -603,6 +669,8 @@ def comparisons(
     TypeError
         If comparison is not a callable or valid string.
     """
+    _warn_deprecated_sample_new_groups(sample_new_groups)
+
     prob = validate_prob(prob)
 
     comparison_fn = get_comparison_func(comparison)
@@ -615,7 +683,6 @@ def comparisons(
         conditional,
         target,
         transforms,
-        sample_new_groups,
     )
 
     compared_draws = compare(
@@ -634,14 +701,15 @@ def comparisons(
     # Comparison column name corresponds to the contrast values being compared (e.g., 1_vs_4)
     comparison_df = pd.concat(summary_draws, names=["comparison", "index"]).reset_index(level=0)
 
-    summary_df = (
-        preds_data.loc[preds_data[con.variable.name] == con.variable.iloc[0], context_columns]
-        .reset_index(drop=True)
-        .join(comparison_df, on=None)
-    )
+    context_rows = preds_data[con.variable.name] == con.variable.iloc[0]
+    summary_df = _join_prediction_data(preds_data.loc[context_rows, context_columns], comparison_df)
 
     summary_df = summary_df.rename(columns={"comparison": "value"})
-    summary_df = aggregate(data=summary_df, by=average_by, preserve=["value"])
+    summary_df = aggregate(
+        data=summary_df,
+        by=average_by,
+        preserve=["value", *_extract_dim_columns(comparison_df, [])],
+    )
 
     # Add summary metadata
     estimate_type = comparison if isinstance(comparison, str) else comparison.__name__
@@ -654,18 +722,19 @@ def comparisons(
 def plot_comparisons(
     model: Model,
     idata: DataTree,
-    contrast: str | dict[str, np.ndarray | list | int | float],
-    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
-    average_by: str | list | bool | None = None,
+    contrast: str | dict[str, ConditionalValues],
+    conditional: str | list[str] | dict[str, ConditionalValues] | None = None,
+    average_by: str | list | None = None,
     target: str = "mean",
     comparison: Callable[[DataArray, DataArray], DataArray] | str = "diff",
     use_hdi: bool = True,
-    prob: float | list[float] = az.rcParams["stats.ci_prob"],
+    prob: float | list[float] | None = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
-    sample_new_groups: bool = False,
-    fig_kwargs: Optional[dict[str, Any]] = None,
-    subplot_kwargs: Optional[Mapping[str, str]] = None,
-) -> Plot:
+    sample_new_groups: bool | None = None,
+    fig_kwargs: dict[str, Any] | None = None,
+    subplot_kwargs: dict[str, str] | None = None,
+    on: Axes | Figure | SubFigure | None = None,
+) -> Figure:
     """Plot conditional adjusted comparisons.
 
     Parameters
@@ -674,11 +743,11 @@ def plot_comparisons(
         The fitted Bambi model.
     idata : DataTree
         DataTree object containing the posterior samples.
-    contrast : str or dict[str, ndarray or list or int or float]
+    contrast : str or dict[str, ConditionalValues]
         Variable(s) to create contrasts for.
-    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
+    conditional : str, list[str], dict[str, ConditionalValues], or None
         Variables to condition on for comparisons.
-    average_by : str or list or bool or None
+    average_by : str or list or None
         Variables to average comparisons over.
     target : str
         Which quantity to extract. `"mean"` (default) for the posterior of the parent
@@ -690,32 +759,37 @@ def plot_comparisons(
         "ratio" (ratio), "lift" (relative difference). Default is "diff".
     use_hdi : bool
         Whether to use highest density interval. Default is True.
-    prob : float or list[float]
+    prob : float or list[float] or None
         Probability or list of probabilities for credible intervals. Default is from
         arviz rcParams. When a list is provided, nested bands with decreasing opacity
-        are drawn.
+        are drawn. Pass None to omit bands.
     transforms : dict or None
         Dictionary of transformations to apply to comparisons.
-    sample_new_groups : bool
-        Whether to sample new group levels. Default is False.
+    sample_new_groups : bool or None
+        Deprecated and has no effect. Bambi automatically determines how to predict for new
+        groups based on the type of group. Default is None.
     fig_kwargs : dict or None
-        Additional keyword arguments for figure customization. Use the 'theme' key
-        to pass a dictionary of matplotlib rc parameters.
-    subplot_kwargs : Mapping[str, str] or None
+        Additional keyword arguments for figure customization.
+        Use the 'theme' key to pass a dictionary of matplotlib rc parameters.
+    subplot_kwargs : dict[str, str] or None
         Overrides default plotting sequence (main, group, panel).
+    on : Axes, Figure, SubFigure, or None
+        Matplotlib target on which to draw the plot. If None, a new figure is created.
 
     Returns
     -------
-    Plot
-        A Seaborn objects Plot. In Jupyter notebooks, the plot automatically displays.
-        In scripts, call `.show()` to display. The returned Plot object can be
-        customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
+    Figure
+        A Matplotlib Figure. In Jupyter notebooks, the figure automatically displays.
+        In scripts, call `.show()` to display it. The returned Figure can be customized
+        through its axes (e.g., `figure.axes[0].set_title(...)`).
 
     Raises
     ------
     ValueError
         If more than 3 conditional variables are provided without averaging.
     """
+    _warn_deprecated_sample_new_groups(sample_new_groups)
+
     var_names = _determine_plot_vars(conditional, average_by, model.data)
 
     result = comparisons(
@@ -729,31 +803,35 @@ def plot_comparisons(
         use_hdi=use_hdi,
         prob=prob,
         transforms=transforms,
-        sample_new_groups=sample_new_groups,
     )
 
-    # Add dimension columns for multi-output models (e.g., Categorical family)
-    dim_cols = _extract_dim_columns(result.summary, var_names)
-    all_var_names = var_names + dim_cols
+    df_plot = result.summary
+    dim_columns = _extract_dim_columns(df_plot, var_names)
 
-    plot_config = PlottingConfig.from_params(all_var_names, subplot_kwargs, fig_kwargs)
+    # Extract original variable names from dimension columns for plotting without `dim` suffix.
+    for column in dim_columns:
+        new_column = column.replace("_dim", "")
+        var_names.append(new_column)
+        df_plot[new_column] = df_plot[column]
 
-    return plot(result.summary, plot_config)
+    plot_config = PlottingConfig.from_params(var_names, subplot_kwargs, fig_kwargs)
+
+    return plot(df_plot, plot_config, on=on)
 
 
 def slopes(
     model: Model,
     idata: DataTree,
     wrt: str | dict[str, float | int],
-    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
+    conditional: str | list[str] | dict[str, ConditionalValues] | None = None,
     average_by: str | list[str] | None = None,
     eps: float = 1e-4,
     slope: str | Callable[[DataArray, DataArray, DataArray], DataArray] = "dydx",
     target: str = "mean",
     use_hdi: bool = True,
-    prob: float | list[float] = az.rcParams["stats.ci_prob"],
+    prob: float | list[float] | None = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
-    sample_new_groups: bool = False,
+    sample_new_groups: bool | None = None,
 ) -> Result:
     """Compute conditional adjusted slopes.
 
@@ -770,7 +848,7 @@ def slopes(
         The predictor variable to compute the slope with respect to. Either a variable
         name (uses mean/mode as evaluation point) or a single-entry dict mapping
         variable name to a specific evaluation point.
-    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
+    conditional : str, list[str], dict[str, ConditionalValues], or None
         Variables to condition on for slopes.
     average_by : str, list or None
         Variables to average slopes over.
@@ -778,7 +856,7 @@ def slopes(
         Perturbation size for finite differencing. Default is 1e-4.
     slope : str or Callable[[DataArray, DataArray, DataArray], DataArray]
         Slope function or string name. Built-in options: "dydx" (unit/unit),
-        "eyex" (percent/percent), "eydx" (unit/percent), "dyex" (percent/unit).
+        "eyex" (percent/percent), "eydx" (percent/unit), "dyex" (unit/percent).
         Default is "dydx". Custom functions should accept (derivative, x, y) DataArrays
         and return a DataArray.
     target : str
@@ -788,13 +866,15 @@ def slopes(
         posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
-    prob : float or list[float]
+    prob : float or list[float] or None
         Probability or list of probabilities for credible intervals. Default is from
         arviz rcParams. When a list is provided, multiple nested intervals are computed.
+        Pass None to omit credible intervals.
     transforms : dict or None
         Dictionary of transformations to apply to predictions before differencing.
-    sample_new_groups : bool
-        Whether to sample new group levels. Default is False.
+    sample_new_groups : bool or None
+        Deprecated and has no effect. Bambi automatically determines how to predict for new
+        groups based on the type of group. Default is None.
 
     Returns
     -------
@@ -809,6 +889,8 @@ def slopes(
     TypeError
         If slope is not a callable or valid string.
     """
+    _warn_deprecated_sample_new_groups(sample_new_groups)
+
     prob = validate_prob(prob)
 
     slope_fn = get_slope_func(slope)
@@ -821,7 +903,6 @@ def slopes(
         conditional,
         target,
         transforms,
-        sample_new_groups,
     )
 
     # Compute finite-differences
@@ -844,15 +925,14 @@ def slopes(
     # Compute summary statistics
     stats = get_summary_stats(scaled_draws, prob, use_hdi)
 
-    summary_df = (
-        preds_data.loc[preds_data[wrt_var.variable.name] == x_val, context_columns]
-        .reset_index(drop=True)
-        .join(stats, on=None)
-    )
-
     estimate_type = slope if isinstance(slope, str) else slope.__name__
 
-    summary_df = aggregate(data=summary_df, by=average_by)
+    context_rows = preds_data[wrt_var.variable.name] == x_val
+    summary_df = aggregate(
+        data=_join_prediction_data(preds_data.loc[context_rows, context_columns], stats),
+        by=average_by,
+        preserve=_extract_dim_columns(stats, []),
+    )
 
     # Add summary metadata
     summary_df.insert(0, "term", wrt_var.variable.name)
@@ -866,18 +946,19 @@ def plot_slopes(
     model: Model,
     idata: DataTree,
     wrt: str | dict[str, float | int],
-    conditional: Optional[str | list[str] | dict[str, np.ndarray | list | int | float]] = None,
-    average_by: str | list | bool | None = None,
+    conditional: str | list[str] | dict[str, ConditionalValues] | None = None,
+    average_by: str | list[str] | None = None,
     eps: float = 1e-4,
     slope: str | Callable[[DataArray, DataArray, DataArray], DataArray] = "dydx",
     target: str = "mean",
     use_hdi: bool = True,
-    prob: float | list[float] = az.rcParams["stats.ci_prob"],
+    prob: float | list[float] | None = az.rcParams["stats.ci_prob"],
     transforms: dict | None = None,
-    sample_new_groups: bool = False,
-    fig_kwargs: Optional[dict[str, Any]] = None,
-    subplot_kwargs: Optional[Mapping[str, str]] = None,
-) -> Plot:
+    sample_new_groups: bool | None = None,
+    fig_kwargs: dict[str, Any] | None = None,
+    subplot_kwargs: dict[str, str] | None = None,
+    on: Axes | Figure | SubFigure | None = None,
+) -> Figure:
     """Plot conditional adjusted slopes.
 
     Parameters
@@ -888,15 +969,15 @@ def plot_slopes(
         DataTree object containing the posterior samples.
     wrt : str or dict
         The predictor variable to compute the slope with respect to.
-    conditional : str, list[str], dict[str, ndarray or list or int or float], or None
+    conditional : str, list[str], dict[str, ConditionalValues], or None
         Variables to condition on for slopes.
-    average_by : str or list or bool or None
+    average_by : str or list[str] or None
         Variables to average slopes over.
     eps : float
         Perturbation size for finite differencing. Default is 1e-4.
     slope : Callable[[DataArray, DataArray, DataArray], DataArray] or str
         Slope function or string name. Built-in options: "dydx" (unit/unit),
-        "eyex" (percent/percent), "eydx" (unit/percent), "dyex" (percent/unit).
+        "eyex" (percent/percent), "eydx" (percent/unit), "dyex" (unit/percent).
         Default is "dydx".
     target : str
         Which quantity to extract. `"mean"` (default) for the posterior of the parent
@@ -905,31 +986,37 @@ def plot_slopes(
         posterior of that component.
     use_hdi : bool
         Whether to use highest density interval. Default is True.
-    prob : float or list[float]
+    prob : float or list[float] or None
         Probability or list of probabilities for credible intervals. Default is from
         arviz rcParams. When a list is provided, nested bands with decreasing opacity
-        are drawn.
+        are drawn. Pass None to omit bands.
     transforms : dict or None
         Dictionary of transformations to apply to predictions before differencing.
-    sample_new_groups : bool
-        Whether to sample new group levels. Default is False.
+    sample_new_groups : bool or None
+        Deprecated and has no effect. Bambi automatically determines how to predict for new
+        groups based on the type of group. Default is None.
     fig_kwargs : dict or None
         Additional keyword arguments for figure customization.
-    subplot_kwargs : Mapping[str, str] or None
+        Use the 'theme' key to pass a dictionary of matplotlib rc parameters.
+    subplot_kwargs : dict[str, str] or None
         Overrides default plotting sequence (main, group, panel).
+    on : Axes, Figure, SubFigure, or None
+        Matplotlib target on which to draw the plot. If None, a new figure is created.
 
     Returns
     -------
-    Plot
-        A Seaborn objects Plot. In Jupyter notebooks, the plot automatically displays.
-        In scripts, call `.show()` to display. The returned Plot object can be
-        customized before displaying using method chaining (e.g., `.label()`, `.theme()`).
+    Figure
+        A Matplotlib Figure. In Jupyter notebooks, the figure automatically displays.
+        In scripts, call `.show()` to display it. The returned Figure can be customized
+        through its axes (e.g., `figure.axes[0].set_title(...)`).
 
     Raises
     ------
     ValueError
         If more than 3 conditional variables are provided without averaging.
     """
+    _warn_deprecated_sample_new_groups(sample_new_groups)
+
     var_names = _determine_plot_vars(conditional, average_by, model.data)
 
     result = slopes(
@@ -944,13 +1031,17 @@ def plot_slopes(
         use_hdi=use_hdi,
         prob=prob,
         transforms=transforms,
-        sample_new_groups=sample_new_groups,
     )
 
-    # Add dimension columns for multi-output models (e.g., Categorical family)
-    dim_cols = _extract_dim_columns(result.summary, var_names)
-    all_var_names = var_names + dim_cols
+    df_plot = result.summary
+    dim_columns = _extract_dim_columns(df_plot, var_names)
 
-    plot_config = PlottingConfig.from_params(all_var_names, subplot_kwargs, fig_kwargs)
+    # Extract original variable names from dimension columns for plotting without `dim` suffix.
+    for column in dim_columns:
+        new_column = column.replace("_dim", "")
+        var_names.append(new_column)
+        df_plot[new_column] = df_plot[column]
 
-    return plot(result.summary, plot_config)
+    plot_config = PlottingConfig.from_params(var_names, subplot_kwargs, fig_kwargs)
+
+    return plot(df_plot, plot_config, on=on)

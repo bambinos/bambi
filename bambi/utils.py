@@ -17,8 +17,7 @@ def listify(obj):
     """
     if obj is None:
         return []
-    else:
-        return obj if isinstance(obj, (list, tuple, type(None))) else [obj]
+    return obj if isinstance(obj, (list, tuple, type(None))) else [obj]
 
 
 def indentify(string: str, n: int = 2) -> str:
@@ -111,25 +110,6 @@ def clean_formula_lhs(x):
     return x[position + 1 :]
 
 
-def get_aliased_name(term):
-    """Get the aliased name of a model term
-
-    Model terms have a name and, optionally, an alias. The alias is used as the "name" if it's
-    available. This is a helper that returns the right "name".
-
-    Parameters
-    ----------
-    term : BaseTerm
-        The term.
-
-    Returns
-    -------
-    str
-        The aliased name.
-    """
-    return term.alias if term.alias else term.name
-
-
 def is_single_component(term) -> bool:
     """Determines if formulae term contains a single component."""
     return hasattr(term, "components") and len(term.components) == 1
@@ -173,16 +153,6 @@ def remove_common_intercept(dm: fm.matrices.DesignMatrices) -> fm.matrices.Desig
     return dm
 
 
-def response_evaluate_new_data(model, data):
-    # TODO: Add "evaluate_new_data" to the response component in formulae, so we don't need this.
-    name = model.response_component.term.name
-    env = model.response_component.response.env
-
-    # We add an intercept to have a valid formula, but it's not used
-    dm = fm.design_matrices(name + " ~ 1", data, env=env)
-    return np.asarray(dm.response)
-
-
 def as_dataset(group):
     """Return a Dataset from either a DataTree group or a Dataset."""
-    return group.ds if isinstance(group, DataTree) else group
+    return group.to_dataset() if isinstance(group, DataTree) else group
