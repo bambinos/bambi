@@ -10,7 +10,7 @@ interpret.predictions(
     use_hdi=True,
     prob=az.rcParams['stats.ci_prob'],
     transforms=None,
-    sample_new_groups=False,
+    sample_new_groups=None,
 )
 ```
 
@@ -50,9 +50,9 @@ Compute conditional adjusted predictions.
 
 :   Dictionary of transformations to apply to predictions.
 
-<code>[**sample_new_groups**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [False]{.parameter-default}</code>
+<code>[**sample_new_groups**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
 
-:   Whether to sample new group levels. Default is False.
+:   Deprecated. Explicit boolean values emit a `FutureWarning` because new groups will be handled automatically in a future version. The default `None` preserves the current `False` behavior during this transition.
 
 ## Returns {.doc-section .doc-section-returns}
 

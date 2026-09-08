@@ -77,7 +77,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-95f13c27692fc470293e238ef4333d2a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-fa7e3c85fae98f93cbd4163a2025e2c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -1189,13 +1189,13 @@ NUTS: [sigma, floor]</code></pre>
 <li>Obtain samples from the posterior predictive distribution using the <code>.predict()</code> method.</li>
 <li>Apply the inverse transform to have the posterior predictive samples in the original scale of the response.</li>
 </ul>
-<div id="cell-44" class="cell" data-execution_count="18">
+<div id="cell-44" class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Note we create a new data set. </span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co"># One observation per group is enough to obtain posterior predictive samples for that group</span></span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co"># The more observations we create, the more posterior predictive samples from the same distribution</span></span>
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># we obtain.</span></span>
 <span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> pd.DataFrame({<span class="st">"floor"</span>: [<span class="st">"Basement"</span>, <span class="st">"Floor"</span>]})</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>pooled_model.predict(pooled_results, kind<span class="op">=</span><span class="st">"pps"</span>, data<span class="op">=</span>new_data)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>pooled_model.predict(pooled_results, kind<span class="op">=</span><span class="st">"response"</span>, data<span class="op">=</span>new_data)</span>
 <span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Stack chains and draws and extract posterior predictive samples</span></span>
 <span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>pps <span class="op">=</span> az.extract_dataset(pooled_results, group<span class="op">=</span><span class="st">"posterior_predictive"</span>)[<span class="st">"log_radon"</span>].values</span>
@@ -4973,8 +4973,8 @@ dl.xr-attrs {
 .xr-wrap{width:700px!important;} </style>
 </div>
 </div>
-<div id="cell-83" class="cell" data-execution_count="33">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>partial_pooling_model.predict(partial_pooling_results, kind<span class="op">=</span><span class="st">"pps"</span>)</span>
+<div id="cell-83" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>partial_pooling_model.predict(partial_pooling_results, kind<span class="op">=</span><span class="st">"response"</span>)</span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Stack chains and draws. pps stands for posterior predictive samples</span></span>
 <span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>pps <span class="op">=</span> az.extract_dataset(partial_pooling_results, group<span class="op">=</span><span class="st">"posterior_predictive"</span>)[<span class="st">"log_radon"</span>].values</span>

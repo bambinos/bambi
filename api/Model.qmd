@@ -439,7 +439,7 @@ Model.predict(
     data=None,
     inplace=True,
     include_group_specific=True,
-    sample_new_groups=False,
+    sample_new_groups=None,
     random_seed=None,
 )
 ```
@@ -470,9 +470,9 @@ Obtains in-sample and out-of-sample predictions from a fitted Bambi model.
 
 :   Determines if predictions incorporate group-specific effects. If `False`, predictions are made with common effects only (i.e. group specific are set to zero). Defaults to `True`.
 
-<code>[**sample_new_groups**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`)]{.parameter-annotation} [ = ]{.parameter-default-sep} [False]{.parameter-default}</code>
+<code>[**sample_new_groups**]{.parameter-name} [:]{.parameter-annotation-sep} [[bool](`bool`) or None]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
 
-:   Specifies if it is allowed to obtain predictions for new groups of group-specific terms. When `True`, each posterior sample for the new groups is drawn from the posterior draws of a randomly selected existing group. Since different groups may be selected at each draw, the end result represents the variation across existing groups. The method implemented is equivalent to `sample_new_levels="uncertainty"` in brms.
+:   Deprecated. When explicitly set to `True` or `False`, a `FutureWarning` is emitted because new groups will be handled automatically in a future version. The default `None` preserves the current `False` behavior during this transition. Specifies if it is allowed to obtain predictions for new groups of group-specific terms. When `True`, each posterior sample for the new groups is drawn from the posterior draws of a randomly selected existing group. Since different groups may be selected at each draw, the end result represents the variation across existing groups. The method implemented is equivalent to `sample_new_levels="uncertainty"` in brms.
 
 <code>[**random_seed**]{.parameter-name} [:]{.parameter-annotation-sep} [([int](`int`), [RandomState](`RandomState`) or [Generator](`Generator`))]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
 

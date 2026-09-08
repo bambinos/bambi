@@ -77,7 +77,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-95f13c27692fc470293e238ef4333d2a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-fa7e3c85fae98f93cbd4163a2025e2c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -554,7 +554,7 @@ window.Quarto = {
 
 
 <p>In this example, we will use the categorical family to model outcomes with more than two categories. The examples in this notebook were constructed by Tomás Capretto, and assembled into this example by Tyler James Burch (<a href="https://github.com/tjburch">@tjburch</a> on GitHub).</p>
-<div id="cell-2" class="cell" data-execution_count="1">
+<div id="cell-2" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
@@ -572,7 +572,7 @@ window.Quarto = {
 <section id="example-with-toy-data" class="level2">
 <h2 class="anchored" data-anchor-id="example-with-toy-data">Example with toy data</h2>
 <p>To start, we will create a toy dataset with three classes.</p>
-<div id="cell-5" class="cell" data-execution_count="2">
+<div id="cell-5" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">1234</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.hstack([rng.normal(m, s, size<span class="op">=</span><span class="dv">50</span>) <span class="cf">for</span> m, s <span class="kw">in</span> <span class="bu">zip</span>([<span class="op">-</span><span class="fl">2.5</span>, <span class="dv">0</span>, <span class="fl">2.5</span>], [<span class="fl">1.2</span>, <span class="fl">0.5</span>, <span class="fl">1.2</span>])])</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> np.array([<span class="st">"A"</span>] <span class="op">*</span> <span class="dv">50</span> <span class="op">+</span> [<span class="st">"B"</span>] <span class="op">*</span> <span class="dv">50</span> <span class="op">+</span> [<span class="st">"C"</span>] <span class="op">*</span> <span class="dv">50</span>)</span>
@@ -590,7 +590,7 @@ window.Quarto = {
 </div>
 </div>
 <p>Here we have 3 classes, generated from three normal distributions: <span class="math inline">\(N(-2.5, 1.2)\)</span>, <span class="math inline">\(N(0, 0.5)\)</span>, and <span class="math inline">\(N(2.5, 1.2)\)</span>. Creating a model to fit these distributions,</p>
-<div id="cell-7" class="cell" data-execution_count="3">
+<div id="cell-7" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.DataFrame({<span class="st">"y"</span>: y, <span class="st">"x"</span>: x})</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"y ~ x"</span>, data, family<span class="op">=</span><span class="st">"categorical"</span>)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -601,35 +601,35 @@ NUTS: [Intercept, x]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"cc7079ace68b447d832cbc795c11f722","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"1ce21692424644dcabc9bb5a5c6782e5","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 6 seconds.</code></pre>
 </div>
 </div>
 <p>Note that we pass the <code>family="categorical"</code> argument to Bambi’s <code>Model</code> method in order to call the categorical family. Here, the response variable are strings (“A”, “B”, “C”), however they can also be <code>pd.Categorical</code> objects.</p>
 <p>Next we will use posterior predictions to visualize the mean class probability across the <span class="math inline">\(x\)</span> spectrum. To do this, we simply call <a href="https://bambinos.github.io/bambi/notebooks/plot_predictions.html">bmb.interpret.plot_predictions</a> and specify that the computations should be conditional on <span class="math inline">\(x\)</span>. Then, the function does all the work for us.</p>
-<div id="cell-9" class="cell" data-execution_count="4">
+<div id="cell-9" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    model, </span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    idata, </span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="st">"x"</span>,</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"ylabel"</span>: <span class="st">"Probability of category"</span>}</span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="4">
+<div class="cell-output cell-output-display" data-execution_count="5">
 <div>
 <figure class="figure">
-<p><img src="categorical_regression_files/figure-html/cell-5-output-1.png" width="675" height="445" class="figure-img"></p>
+<p><img src="categorical_regression_files/figure-html/cell-5-output-1.png" width="674" height="445" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>If we want a more elaborate figure, we can tweak the function arguments like this:</p>
-<div id="cell-11" class="cell" data-execution_count="5">
+<div id="cell-11" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    model,</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    idata,</span>
@@ -637,10 +637,10 @@ NUTS: [Intercept, x]</code></pre>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    subplot_kwargs<span class="op">=</span>{<span class="st">"main"</span>: <span class="st">"x"</span>, <span class="st">"group"</span>: <span class="st">"y_dim"</span>, <span class="st">"panel"</span>: <span class="st">"y_dim"</span>},</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"ylabel"</span>: <span class="st">"Probability"</span>}</span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="5">
+<div class="cell-output cell-output-display" data-execution_count="6">
 <div>
 <figure class="figure">
-<p><img src="categorical_regression_files/figure-html/cell-6-output-1.png" width="675" height="445" class="figure-img"></p>
+<p><img src="categorical_regression_files/figure-html/cell-6-output-1.png" width="674" height="445" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -650,10 +650,10 @@ NUTS: [Intercept, x]</code></pre>
 <section id="the-iris-dataset" class="level2">
 <h2 class="anchored" data-anchor-id="the-iris-dataset">The iris dataset</h2>
 <p>Next, we will look at the classic “iris” dataset, which contains samples from 3 different species of iris plants. Using properties of the plant, we will try to model its species.</p>
-<div id="cell-14" class="cell" data-execution_count="6">
+<div id="cell-14" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>df_iris <span class="op">=</span> sns.load_dataset(<span class="st">"iris"</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>df_iris.head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="6">
+<div class="cell-output cell-output-display" data-execution_count="7">
 <div>
 
 
@@ -700,10 +700,10 @@ NUTS: [Intercept, x]</code></pre>
 </div>
 </div>
 <p>The dataset includes four different properties of the plants: it’s sepal length, sepal width, petal length, and petal width. There are 3 different class possibilities: setosa, versicolor, and virginica.</p>
-<div id="cell-16" class="cell" data-execution_count="7">
+<div id="cell-16" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>sns.pairplot(df_iris, hue<span class="op">=</span><span class="st">"species"</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/home/tomas/Desktop/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.13/site-packages/seaborn/axisgrid.py:123: UserWarning: The figure layout has changed to tight
+<pre><code>/home/tomas/oss/bambinos/bambi/.pixi/envs/dev/lib/python3.14/site-packages/seaborn/axisgrid.py:123: UserWarning: The figure layout has changed to tight
   self._figure.tight_layout(*args, **kwargs)</code></pre>
 </div>
 <div class="cell-output cell-output-display">
@@ -715,7 +715,7 @@ NUTS: [Intercept, x]</code></pre>
 </div>
 </div>
 <p>We can see the three species have several distinct characteristics, which our linear model can capture to distinguish between them.</p>
-<div id="cell-18" class="cell" data-execution_count="8">
+<div id="cell-18" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"species ~ sepal_length + sepal_width + petal_length + petal_width"</span>,</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    df_iris,</span>
@@ -730,163 +730,158 @@ NUTS: [Intercept, sepal_length, sepal_width, petal_length, petal_width]</code></
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"b4c5cc7b3dbc4118a67ecd6f72b3912a","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"d063e8e65a7f449b9c5f30de0b1996c4","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 3 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 8 seconds.</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="8">
-<div>
-
-
+<div class="cell-output cell-output-display" data-execution_count="9">
 <table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
 <th data-quarto-table-cell-role="th">mean</th>
 <th data-quarto-table-cell-role="th">sd</th>
-<th data-quarto-table-cell-role="th">hdi_3%</th>
-<th data-quarto-table-cell-role="th">hdi_97%</th>
-<th data-quarto-table-cell-role="th">mcse_mean</th>
-<th data-quarto-table-cell-role="th">mcse_sd</th>
+<th data-quarto-table-cell-role="th">eti89_lb</th>
+<th data-quarto-table-cell-role="th">eti89_ub</th>
 <th data-quarto-table-cell-role="th">ess_bulk</th>
 <th data-quarto-table-cell-role="th">ess_tail</th>
 <th data-quarto-table-cell-role="th">r_hat</th>
+<th data-quarto-table-cell-role="th">mcse_mean</th>
+<th data-quarto-table-cell-role="th">mcse_sd</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">Intercept[versicolor]</th>
-<td>-6.628</td>
-<td>7.901</td>
-<td>-21.572</td>
-<td>7.827</td>
-<td>0.167</td>
-<td>0.121</td>
-<td>2243.0</td>
-<td>2351.0</td>
-<td>1.0</td>
+<td>-6.5</td>
+<td>8</td>
+<td>-20</td>
+<td>6.3</td>
+<td>2616</td>
+<td>2594</td>
+<td>1.00</td>
+<td>0.16</td>
+<td>0.11</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">Intercept[virginica]</th>
-<td>-22.487</td>
-<td>9.470</td>
-<td>-40.499</td>
-<td>-5.461</td>
-<td>0.176</td>
-<td>0.139</td>
-<td>2864.0</td>
-<td>2726.0</td>
-<td>1.0</td>
+<td>-22.3</td>
+<td>9.7</td>
+<td>-38</td>
+<td>-6.9</td>
+<td>3068</td>
+<td>2771</td>
+<td>1.00</td>
+<td>0.17</td>
+<td>0.12</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">sepal_length[versicolor]</th>
-<td>3.069</td>
-<td>1.729</td>
-<td>-0.056</td>
-<td>6.321</td>
+<td>3.1</td>
+<td>1.75</td>
+<td>0.35</td>
+<td>6</td>
+<td>2120</td>
+<td>2208</td>
+<td>1.00</td>
 <td>0.038</td>
-<td>0.027</td>
-<td>2053.0</td>
-<td>2252.0</td>
-<td>1.0</td>
+<td>0.028</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">sepal_length[virginica]</th>
-<td>2.275</td>
-<td>1.758</td>
-<td>-0.873</td>
-<td>5.525</td>
-<td>0.038</td>
-<td>0.026</td>
-<td>2153.0</td>
-<td>2348.0</td>
-<td>1.0</td>
+<td>2.32</td>
+<td>1.79</td>
+<td>-0.5</td>
+<td>5.3</td>
+<td>2126</td>
+<td>2041</td>
+<td>1.00</td>
+<td>0.039</td>
+<td>0.027</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">sepal_width[versicolor]</th>
-<td>-4.694</td>
-<td>1.960</td>
-<td>-8.408</td>
-<td>-1.097</td>
+<td>-4.78</td>
+<td>1.96</td>
+<td>-8.1</td>
+<td>-1.7</td>
+<td>2326</td>
+<td>2596</td>
+<td>1.00</td>
 <td>0.041</td>
-<td>0.037</td>
-<td>2344.0</td>
-<td>2534.0</td>
-<td>1.0</td>
+<td>0.029</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">sepal_width[virginica]</th>
-<td>-6.568</td>
-<td>2.338</td>
-<td>-10.894</td>
-<td>-2.316</td>
-<td>0.047</td>
-<td>0.038</td>
-<td>2451.0</td>
-<td>2787.0</td>
-<td>1.0</td>
+<td>-6.67</td>
+<td>2.38</td>
+<td>-10</td>
+<td>-2.9</td>
+<td>2363</td>
+<td>2282</td>
+<td>1.00</td>
+<td>0.049</td>
+<td>0.034</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">petal_length[versicolor]</th>
-<td>1.054</td>
-<td>0.903</td>
-<td>-0.646</td>
-<td>2.688</td>
+<td>1.05</td>
+<td>0.89</td>
+<td>-0.39</td>
+<td>2.5</td>
+<td>2626</td>
+<td>2385</td>
+<td>1.00</td>
 <td>0.017</td>
-<td>0.015</td>
-<td>2753.0</td>
-<td>2528.0</td>
-<td>1.0</td>
+<td>0.012</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">petal_length[virginica]</th>
-<td>4.012</td>
-<td>1.024</td>
-<td>2.106</td>
-<td>5.956</td>
-<td>0.018</td>
-<td>0.016</td>
-<td>3068.0</td>
-<td>2743.0</td>
-<td>1.0</td>
+<td>3.96</td>
+<td>1.05</td>
+<td>2.3</td>
+<td>5.7</td>
+<td>2681</td>
+<td>2394</td>
+<td>1.00</td>
+<td>0.02</td>
+<td>0.014</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">petal_width[versicolor]</th>
-<td>1.977</td>
-<td>2.001</td>
-<td>-1.739</td>
-<td>5.676</td>
-<td>0.040</td>
-<td>0.032</td>
-<td>2468.0</td>
-<td>2980.0</td>
-<td>1.0</td>
+<td>1.92</td>
+<td>2</td>
+<td>-1.2</td>
+<td>5.2</td>
+<td>2260</td>
+<td>2392</td>
+<td>1.00</td>
+<td>0.042</td>
+<td>0.03</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">petal_width[virginica]</th>
-<td>9.046</td>
-<td>2.216</td>
-<td>4.987</td>
-<td>13.213</td>
+<td>9.06</td>
+<td>2.28</td>
+<td>5.5</td>
+<td>13</td>
+<td>2844</td>
+<td>2687</td>
+<td>1.00</td>
 <td>0.043</td>
-<td>0.035</td>
-<td>2653.0</td>
-<td>2728.0</td>
-<td>1.0</td>
+<td>0.028</td>
 </tr>
 </tbody>
 </table>
-
 </div>
 </div>
-</div>
-<div id="cell-19" class="cell" data-execution_count="9">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(idata)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="cell-19" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace_dist  (idata)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -901,7 +896,7 @@ NUTS: [Intercept, sepal_length, sepal_width, petal_length, petal_width]</code></
 <h2 class="anchored" data-anchor-id="using-numerical-and-categorical-predictors">Using numerical and categorical predictors</h2>
 <p>Next we will look at an example from chapter 8 of Alan Agresti’s <em>Categorical Data Analysis</em>, looking at the primary food choice for 64 alligators caught in Lake George, Florida. We will use their length (a continuous variable) and sex (a categorical variable) as predictors to model their food choice.</p>
 <p>First, reproducing the dataset,</p>
-<div id="cell-22" class="cell" data-execution_count="10">
+<div id="cell-22" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>length <span class="op">=</span> [</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="fl">1.3</span>, <span class="fl">1.32</span>, <span class="fl">1.32</span>, <span class="fl">1.4</span>, <span class="fl">1.42</span>, <span class="fl">1.42</span>, <span class="fl">1.47</span>, <span class="fl">1.47</span>, <span class="fl">1.5</span>, <span class="fl">1.52</span>, <span class="fl">1.63</span>, <span class="fl">1.65</span>, <span class="fl">1.65</span>, <span class="fl">1.65</span>, <span class="fl">1.65</span>,</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="fl">1.68</span>, <span class="fl">1.7</span>, <span class="fl">1.73</span>, <span class="fl">1.78</span>, <span class="fl">1.78</span>, <span class="fl">1.8</span>, <span class="fl">1.85</span>, <span class="fl">1.93</span>, <span class="fl">1.93</span>, <span class="fl">1.98</span>, <span class="fl">2.03</span>, <span class="fl">2.03</span>, <span class="fl">2.31</span>, <span class="fl">2.36</span>, <span class="fl">2.46</span>,</span>
@@ -924,7 +919,7 @@ NUTS: [Intercept, sepal_length, sepal_width, petal_length, petal_width]</code></
 <span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    ordered<span class="op">=</span><span class="va">True</span></span>
 <span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>data.head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="10">
+<div class="cell-output cell-output-display" data-execution_count="11">
 <div>
 
 
@@ -963,7 +958,7 @@ NUTS: [Intercept, sepal_length, sepal_width, petal_length, petal_width]</code></
 </div>
 </div>
 <p>Next, constructing the model,</p>
-<div id="cell-24" class="cell" data-execution_count="11">
+<div id="cell-24" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"choice ~ length + sex"</span>, data, family<span class="op">=</span><span class="st">"categorical"</span>)</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
@@ -973,18 +968,18 @@ NUTS: [Intercept, length, sex]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"6a81d03019c6478d861bad8c61f5243a","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"584c6b2184044f80960aff646ba184dd","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-display">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1 seconds.</code></pre>
+<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 6 seconds.</code></pre>
 </div>
 </div>
 <p>Using <a href="https://bambinos.github.io/bambi/notebooks/plot_predictions.html">bmb.interpret.plot_predictions</a>, we can visualize how the probability of the different response levels varies conditional on a set of predictors. In the plot below, we visualize how the food choices vary by length for both male and female alligators. Note how <code>estimate_dim</code> (the response level) is mapped as the value to the <code>group</code> key.</p>
-<div id="cell-26" class="cell" data-execution_count="12">
+<div id="cell-26" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    model,</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    idata,</span>
@@ -992,54 +987,36 @@ NUTS: [Intercept, length, sex]</code></pre>
 <span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    subplot_kwargs<span class="op">=</span>{<span class="st">"main"</span>: <span class="st">"length"</span>, <span class="st">"group"</span>: <span class="st">"choice_dim"</span>, <span class="st">"panel"</span>: <span class="st">"sex"</span>},</span>
 <span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"theme"</span>: {<span class="st">"figure.figsize"</span>: (<span class="dv">12</span>, <span class="dv">4</span>)}},</span>
 <span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="12">
+<div class="cell-output cell-output-display" data-execution_count="13">
 <div>
 <figure class="figure">
-<p><img src="categorical_regression_files/figure-html/cell-13-output-1.png" width="1277" height="369" class="figure-img"></p>
+<p><img src="categorical_regression_files/figure-html/cell-13-output-1.png" width="1289" height="369" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Here we can see that the larger male and female alligators are, the less of a taste they have for invertebrates, and far prefer fish. Additionally, males seem to have a higher propensity to consume “other” foods compared to females at any size. Of note, the posterior means predicted by Bambi contain information about all <span class="math inline">\(n\)</span> categories (despite having only <span class="math inline">\(n-1\)</span> coefficients), so we can directly construct this plot, rather than manually calculating <span class="math inline">\(1-(p_1+p_2)\)</span> for the third class.</p>
-<p>Last, we can make a posterior predictive plot,</p>
-<div id="cell-28" class="cell" data-execution_count="13">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>model.predict(idata, kind<span class="op">=</span><span class="st">"pps"</span>)</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> az.plot_ppc(idata)</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>ax.set_xticks([<span class="fl">0.5</span>, <span class="fl">1.5</span>, <span class="fl">2.5</span>])</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>ax.set_xticklabels(model.response_component.term.levels)</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Choice"</span>)<span class="op">;</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Probability"</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="categorical_regression_files/figure-html/cell-14-output-1.png" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>which depicts posterior predicted probability for each possible food choice for an alligator, which reinforces fish being the most likely food choice, followed by invertebrates.</p>
 <section id="references" class="level3">
 <h3 class="anchored" data-anchor-id="references">References</h3>
 <p>Agresti, A. (2013) Categorical Data Analysis. 3rd Edition, John Wiley &amp; Sons Inc., Hoboken.</p>
-<div id="cell-31" class="cell" data-execution_count="14">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="cell-29" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Wed Feb 18 2026
+<pre><code>Last updated: Tue, 08 Sep 2026
 
 Python implementation: CPython
-Python version       : 3.13.9
-IPython version      : 9.6.0
+Python version       : 3.14.7
+IPython version      : 9.17.1
 
-matplotlib: 3.10.7
+arviz     : 1.3.0
+bambi     : 0.20.1.dev13+g0c802a1f0.d20260908
+matplotlib: 3.11.1
+numpy     : 2.4.6
 pandas    : 2.3.3
-numpy     : 2.3.3
-bambi     : 0.16.1.dev36+ge11a3bf70.d20260218
 seaborn   : 0.13.2
-arviz     : 0.22.0
 
-Watermark: 2.5.0
+Watermark: 2.6.0
 </code></pre>
 </div>
 </div>
