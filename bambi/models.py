@@ -125,6 +125,7 @@ class Model:
         priors=None,
         link=None,
         categorical=None,
+        categorical_encoding="reference",
         potentials=None,
         dropna=False,
         auto_scale=True,
@@ -148,6 +149,7 @@ class Model:
         self.noncentered = noncentered
         self.potentials = potentials
         self.center_predictors = center_predictors
+        self.categorical_encoding= categorical_encoding
 
         # Read and clean data
         if not isinstance(data, pd.DataFrame):
