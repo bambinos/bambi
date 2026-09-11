@@ -14,6 +14,7 @@ DISTRIBUTIONS = {
     "BetaBinomial": DistSettings(params=("mu", "kappa"), parent="mu"),
     "Binomial": DistSettings(params=("p",), parent="p"),
     "Categorical": DistSettings(params=("p",), parent="p"),
+    "ContinuationRatio": DistSettings(params=("p", "threshold"), parent="p"),
     "Cumulative": DistSettings(params=("p", "threshold"), parent="p"),
     "DirichletMultinomial": DistSettings(params=("a",), parent="a"),
     "Gamma": DistSettings(params=("mu", "alpha"), parent="mu"),

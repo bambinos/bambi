@@ -6,6 +6,7 @@ from bambi.families.builtin import (
     BetaBinomial,
     Binomial,
     Categorical,
+    ContinuationRatio,
     Cumulative,
     ExGaussian,
     DirichletMultinomial,
@@ -93,6 +94,16 @@ BUILTIN_FAMILIES = {
         },
         "link": {"p": "softmax"},
         "family": Categorical,
+    },
+    "cratio": {
+        "likelihood": {
+            "name": "ContinuationRatio",
+            "params": ["p", "threshold"],
+            "parent": "p",
+        },
+        "link": {"p": "logit", "threshold": "identity"},
+        "family": ContinuationRatio,
+        "default_priors": {"threshold": {"name": "Normal", "mu": 0, "sigma": 1}},
     },
     "cumulative": {
         "likelihood": {

@@ -7,6 +7,7 @@ from bambi.families.builtin import (
     BetaBinomial,
     Bernoulli,
     Categorical,
+    ContinuationRatio,
     Cumulative,
     Exponential,
     Gamma,
@@ -45,6 +46,36 @@ def _(predictor, _parameters, inverse_link):
     else:
         zeros = pt.zeros(shape=(predictor.shape[0], 1))
     return inverse_link(pt.concatenate((zeros, predictor), axis=-1))
+
+
+@transforms_registry.transform_predictor(ContinuationRatio, "p")
+def _(predictor, parameters, inverse_link):
+    # q_k = P(Y > k | Y >= k) = F(predictor - threshold_k)
+    threshold = parameters["threshold"]
+    if predictor == 0:
+        # An additive predictor with no predictors, e.g. p ~ 0.
+        # shape: (K, )
+        predictor = -threshold
+    else:
+        # shape: (n, K)
+        predictor = pt.shape_padright(predictor) - threshold
+
+    continuation = inverse_link(predictor)
+    stopping = 1 - continuation
+    survival = pt.cumprod(continuation, axis=-1)
+    return pt.concatenate(
+        [
+            stopping[..., :1],
+            stopping[..., 1:] * survival[..., :-1],
+            survival[..., -1:],
+        ],
+        axis=-1,
+    )
+
+
+@transforms_registry.transform_parameters(ContinuationRatio)
+def _(parameters):
+    return {"p": parameters["p"]}
 
 
 @transforms_registry.transform_predictor(Cumulative, "p")

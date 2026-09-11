@@ -57,6 +57,14 @@ class Categorical(Family):
     }
 
 
+class ContinuationRatio(Family):
+    DATA_TYPE = ResponseType.ORDINAL
+    PARAMETERS = {
+        "p": ParamSpec(links=["logit", "probit", "cloglog"], ndim=1),
+        "threshold": ParamSpec(links=["identity"], ndim=1, coefs_dim=DimType.RESPONSE_CUTPOINTS),
+    }
+
+
 class Cumulative(Family):
     # There's a single linear predictor, not as many linear predictors as response levels.
     DATA_TYPE = ResponseType.ORDINAL
