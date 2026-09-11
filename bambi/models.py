@@ -16,6 +16,7 @@ from bambi.defaults import get_builtin_family
 from bambi.parameters import ConditionalParameter, MarginalParameter
 from bambi.families import Family
 from bambi.families.builtin import (
+    AdjacentCategory,
     Bernoulli,
     ContinuationRatio,
     Cumulative,
@@ -39,7 +40,7 @@ from bambi.utils import (
 
 _log = logging.getLogger("bambi")
 
-ORDINAL_FAMILIES = (Cumulative, StoppingRatio, ContinuationRatio)
+ORDINAL_FAMILIES = (Cumulative, StoppingRatio, ContinuationRatio, AdjacentCategory)
 
 __version__ = version("bambi")
 

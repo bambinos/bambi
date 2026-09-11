@@ -4,6 +4,14 @@ from bambi.transformations import transformations_namespace
 from bambi.utils import extract_argument_names
 
 
+class AdjacentCategory(Family):
+    DATA_TYPE = ResponseType.ORDINAL
+    PARAMETERS = {
+        "p": ParamSpec(links=["logit", "probit", "cloglog"], ndim=1),
+        "threshold": ParamSpec(links=["identity"], ndim=1, coefs_dim=DimType.RESPONSE_CUTPOINTS),
+    }
+
+
 class AsymmetricLaplace(Family):
     PARAMETERS = {
         "mu": ParamSpec(links=["identity", "log", "inverse"]),

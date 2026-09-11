@@ -1,8 +1,10 @@
 import numpy as np
 import pytensor.tensor as pt
 
+from bambi.backend.pymc.links import logit
 from bambi.backend.pymc.transform.register import transforms_registry
 from bambi.families.builtin import (
+    AdjacentCategory,
     Beta,
     BetaBinomial,
     Bernoulli,
@@ -16,6 +18,40 @@ from bambi.families.builtin import (
     StoppingRatio,
     Weibull,
 )
+
+
+@transforms_registry.transform_predictor(AdjacentCategory, "p")
+def _(predictor, parameters, inverse_link):
+    # q_k = P(Y = k + 1 | Y in {k, k + 1}) = F(predictor - threshold_k)
+    threshold = parameters["threshold"]
+    if predictor == 0:
+        # An additive predictor with no predictors, e.g. p ~ 0.
+        # shape: (K, )
+        predictor = -threshold
+    else:
+        # shape: (n, K)
+        predictor = pt.shape_padright(predictor) - threshold
+
+    # q_k / (1 - q_k) = p_{k+1} / p_k, where p_k = P(Y = k).
+    if inverse_link is logit:
+        # With a logit link, the predictor already gives the adjacent log odds.
+        log_odds = predictor
+    else:
+        probability = inverse_link(predictor)
+        log_odds = pt.log(probability) - pt.log1p(-probability)
+
+    # Cumulative sums give log(p_k / p_1). The first category has log weight zero.
+    log_weights = pt.concatenate(
+        [pt.zeros_like(log_odds[..., :1]), pt.cumsum(log_odds, axis=-1)], axis=-1
+    )
+
+    # Softmax normalizes these relative weights into category probabilities.
+    return pt.special.softmax(log_weights, axis=-1)
+
+
+@transforms_registry.transform_parameters(AdjacentCategory)
+def _(parameters):
+    return {"p": parameters["p"]}
 
 
 @transforms_registry.transform_data(Bernoulli)

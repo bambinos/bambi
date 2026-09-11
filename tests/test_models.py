@@ -1054,6 +1054,9 @@ class TestOrdinal(FitPredictParent):
             ("cratio", "logit"),
             ("cratio", "probit"),
             ("cratio", "cloglog"),
+            ("acat", "logit"),
+            ("acat", "probit"),
+            ("acat", "cloglog"),
         ],
     )
     def test_ordinal_families(self, data_inhaler, family, link):
@@ -1081,7 +1084,7 @@ class TestOrdinal(FitPredictParent):
         idata = self.fit(model, random_seed=1234)
         self.predict_oos(model, idata)
 
-    @pytest.mark.parametrize("family", ["cumulative", "sratio", "cratio"])
+    @pytest.mark.parametrize("family", ["cumulative", "sratio", "cratio", "acat"])
     def test_ordinal_cutpoint_dimensions(self, data_inhaler, family):
         model = bmb.Model("rating ~ period", data_inhaler, family=family)
         model.build()

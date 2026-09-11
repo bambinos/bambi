@@ -9,6 +9,7 @@ class DistSettings(NamedTuple):
 
 
 DISTRIBUTIONS = {
+    "AdjacentCategory": DistSettings(params=("p", "threshold"), parent="p"),
     "Bernoulli": DistSettings(params=("p",), parent="p"),
     "Beta": DistSettings(params=("mu", "kappa"), parent="mu"),
     "BetaBinomial": DistSettings(params=("mu", "kappa"), parent="mu"),

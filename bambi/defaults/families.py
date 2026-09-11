@@ -1,5 +1,6 @@
 from bambi.defaults.utils import generate_family
 from bambi.families.builtin import (
+    AdjacentCategory,
     AsymmetricLaplace,
     Bernoulli,
     Beta,
@@ -35,6 +36,16 @@ from bambi.families.builtin import (
 
 # fmt: off
 BUILTIN_FAMILIES = {
+    "acat": {
+        "likelihood": {
+            "name": "AdjacentCategory",
+            "params": ["p", "threshold"],
+            "parent": "p",
+        },
+        "link": {"p": "logit", "threshold": "identity"},
+        "family": AdjacentCategory,
+        "default_priors": {"threshold": {"name": "Normal", "mu": 0, "sigma": 1}},
+    },
     "asymmetriclaplace": {
         "likelihood": {
             "name": "AsymmetricLaplace",
