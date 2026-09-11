@@ -169,6 +169,15 @@ class LogLogistic(Family):
     }
 
 
+class OrderedStereotype(Family):
+    DATA_TYPE = ResponseType.ORDINAL
+    PARAMETERS = {
+        "p": ParamSpec(links=["logit"], ndim=1),
+        "alpha": ParamSpec(links=["identity"], ndim=1, coefs_dim=DimType.RESPONSE_REDUCED),
+        "delta": ParamSpec(links=["identity"], ndim=1, coefs_dim=DimType.RESPONSE_CUTPOINTS),
+    }
+
+
 class Poisson(Family):
     PARAMETERS = {
         "mu": ParamSpec(links=["identity", "log"]),

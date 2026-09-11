@@ -22,6 +22,7 @@ from bambi.families.builtin import (
     Cumulative,
     DirichletMultinomial,
     Multinomial,
+    OrderedStereotype,
     StoppingRatio,
 )
 from bambi.families.types import DimType
@@ -40,7 +41,13 @@ from bambi.utils import (
 
 _log = logging.getLogger("bambi")
 
-ORDINAL_FAMILIES = (Cumulative, StoppingRatio, ContinuationRatio, AdjacentCategory)
+ORDINAL_FAMILIES = (
+    AdjacentCategory,
+    ContinuationRatio,
+    Cumulative,
+    OrderedStereotype,
+    StoppingRatio,
+)
 
 __version__ = version("bambi")
 

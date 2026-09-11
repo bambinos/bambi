@@ -23,6 +23,7 @@ from bambi.families.builtin import (
     LogNormal,
     Multinomial,
     NegativeBinomial,
+    OrderedStereotype,
     Poisson,
     StoppingRatio,
     StudentT,
@@ -276,6 +277,19 @@ BUILTIN_FAMILIES = {
         "link": {"mu": "identity", "b": "log"},
         "family": Laplace,
         "default_priors": {"b": {"name": "HalfNormal", "sigma": 1}},
+    },
+    "osm": {
+        "likelihood": {
+            "name": "OrderedStereotype",
+            "params": ["p", "alpha", "delta"],
+            "parent": "p",
+        },
+        "link": {"p": "logit", "alpha": "identity", "delta": "identity"},
+        "family": OrderedStereotype,
+        "default_priors": {
+            "alpha": {"name": "Normal", "mu": 0, "sigma": 1},
+            "delta": {"name": "Dirichlet", "a": 1},
+        },
     },
     "poisson": {
         "likelihood": {

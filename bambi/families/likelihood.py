@@ -23,6 +23,7 @@ DISTRIBUTIONS = {
     "Normal": DistSettings(params=("mu", "sigma"), parent="mu"),
     "NegativeBinomial": DistSettings(params=("mu", "alpha"), parent="mu"),
     "Laplace": DistSettings(params=("mu", "b"), parent="mu"),
+    "OrderedStereotype": DistSettings(params=("p", "alpha", "delta"), parent="p"),
     "Poisson": DistSettings(params=("mu",), parent="mu"),
     "StudentT": DistSettings(params=("mu", "sigma", "nu"), parent="mu"),
     "VonMises": DistSettings(params=("mu", "kappa"), parent="mu"),

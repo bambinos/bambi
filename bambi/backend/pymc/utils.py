@@ -115,11 +115,12 @@ def horseshoe(name, tau_nu=3, lam_nu=1, dims=None):
 
 MAPPING = {
     "AdjacentCategory": pm.Categorical,
-    "Cumulative": pm.Categorical,
     "ContinuationRatio": pm.Categorical,
-    "StoppingRatio": pm.Categorical,
+    "Cumulative": pm.Categorical,
     "Horseshoe": horseshoe,
     "LogLogistic": LogLogistic,
+    "OrderedStereotype": pm.Categorical,
+    "StoppingRatio": pm.Categorical,
 }
 
 INVERSE_LINKS = {

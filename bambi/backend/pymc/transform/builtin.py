@@ -15,6 +15,7 @@ from bambi.families.builtin import (
     Gamma,
     HurdleGamma,
     Multinomial,
+    OrderedStereotype,
     StoppingRatio,
     Weibull,
 )
@@ -172,6 +173,41 @@ def _(predictor, _parameters, inverse_link):
     else:
         zeros = pt.zeros(shape=(predictor.shape[0], 1))
     return inverse_link(pt.concatenate((zeros, predictor), axis=-1))
+
+
+@transforms_registry.transform_predictor(OrderedStereotype, "p")
+def _(predictor, parameters, _inverse_link):
+    # Positive increments summing to one give 0 = phi_1 < ... < phi_C = 1.
+    # Resulting shape: (K, )
+    delta = parameters["delta"]
+    phi = pt.concatenate(
+        [
+            pt.zeros((1,), dtype=delta.dtype),
+            pt.cumsum(delta[:-1]),
+            pt.ones((1,), dtype=delta.dtype),
+        ]
+    )
+
+    # Fix alpha_1 = 0. The remaining category intercepts are free.
+    # Resulting shape: (K, )
+    alpha = parameters["alpha"]
+    alpha = pt.concatenate([pt.zeros_like(alpha[:1]), alpha])
+
+    if predictor == 0:
+        # With no predictors, eta = 0 and the category log weights reduce to alpha.
+        # shape: (K, )
+        log_weights = alpha
+    else:
+        # log(p_c / p_1) = alpha_c + phi_c * eta.
+        # shape: (n, K)
+        log_weights = alpha + phi * pt.shape_padright(pt.as_tensor_variable(predictor))
+
+    return pt.special.softmax(log_weights, axis=-1)
+
+
+@transforms_registry.transform_parameters(OrderedStereotype)
+def _(parameters):
+    return {"p": parameters["p"]}
 
 
 @transforms_registry.transform_predictor(StoppingRatio, "p")

@@ -35,6 +35,16 @@ def build_marginal_parameter(parameter, family, model: pm.Model):
         else:
             kwargs[key] = value
 
+    if dist is pm.Dirichlet and dims:
+        # A scalar concentration applies to every component of the response simplex.
+        shape = tuple(len(model.coords[dim]) for dim in dims)
+        kwargs["a"] = pt.broadcast_to(kwargs["a"], shape)
+        if shape[-1] == 1:
+            # A one-component simplex is fixed at one and it has no free coordinates.
+            # This is done manually because PyMC fails to build the initial point for
+            # pm.Dirichlet("delta", a=np.ones(1), shape=1) with its default simplex transform.
+            return pm.Deterministic(parameter.label, pt.ones(shape), dims=dims, model=model)
+
     with model:
         rv = dist(parameter.label, **kwargs, dims=dims)
     return rv

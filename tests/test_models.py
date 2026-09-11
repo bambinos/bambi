@@ -1057,6 +1057,7 @@ class TestOrdinal(FitPredictParent):
             ("acat", "logit"),
             ("acat", "probit"),
             ("acat", "cloglog"),
+            ("osm", "logit"),
         ],
     )
     def test_ordinal_families(self, data_inhaler, family, link):
@@ -1093,6 +1094,22 @@ class TestOrdinal(FitPredictParent):
         assert pymc_model.named_vars_to_dims["threshold"] == ("threshold_dim",)
         assert list(pymc_model.coords["threshold_dim"]) == ["1->2", "2->3", "3->4"]
         assert pymc_model.eval_rv_shapes()["threshold"] == (3,)
+
+    def test_ordered_stereotype_prior(self, data_inhaler):
+        prior = bmb.Prior("Dirichlet", dist=pm.Dirichlet, a=[2, 2, 2])
+        model = bmb.Model("rating ~ period", data_inhaler, family="osm", priors={"delta": prior})
+        idata = self.fit(model, random_seed=1234)
+        self.predict_oos(model, idata)
+
+    def test_ordered_stereotype_binary(self, data_inhaler):
+        data = data_inhaler[data_inhaler["rating"].isin([1, 2])].copy()
+        data["rating"] = data["rating"].cat.remove_unused_categories()
+        model = bmb.Model("rating ~ period", data, family="osm")
+        idata = self.fit(model, random_seed=1234)
+        prediction = self.predict_oos(model, idata)
+
+        np.testing.assert_allclose(idata.posterior["delta"], 1)
+        assert set(np.unique(prediction.predictions["rating"])).issubset({0, 1})
 
     def test_cumulative_accepts_pymc_ordered_transform(self, data_inhaler):
         prior = bmb.Prior(
