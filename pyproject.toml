@@ -32,7 +32,7 @@ dependencies = [
     "pandas>=1.0.0",
     "pymc>=6.3.1,<7.0.0",
     "pytensor>=3.3.0,<4.0.0",
-    "scipy",
+    "scipy<1.18",
     "seaborn>=0.13.2,<0.14",
     "xarray",
 ]
@@ -73,6 +73,7 @@ bambi = { path = ".", editable = true }
 # NOTE: Even we get all dependencies we need through installation of Bambi itself
 # Pixi's dual solver runs conda first.
 numpy = "<2.5"
+scipy = "<1.18"
 
 ## Dependencies from conda channels
 [tool.pixi.feature.dev.dependencies]
