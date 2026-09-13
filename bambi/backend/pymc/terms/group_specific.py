@@ -170,10 +170,11 @@ def build_distribution(
     if effective_noncentered and any(isinstance(v, pt.TensorVariable) for v in kwargs.values()):
         # non-centered is only relevant when distribution arguments are random variables.
         if prior.name == "Normal" and isinstance(kwargs.get("sigma", None), pt.TensorVariable):
+            mu = kwargs.get("mu", 0)
             sigma = kwargs["sigma"]
             with model:
                 offset = pm.Normal(label + "_offset", mu=0, sigma=1, dims=dims)
-                rv = pm.Deterministic(label, offset * sigma, dims=dims)
+                rv = pm.Deterministic(label, mu + offset * sigma, dims=dims)
             return rv
 
         raise NotImplementedError(
