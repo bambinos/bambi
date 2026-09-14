@@ -4,6 +4,7 @@ import numpy as np
 import pymc as pm
 import pytest
 import pytensor
+import xarray as xr
 
 from pytensor.graph.traversal import ancestors
 
@@ -332,13 +333,17 @@ def test_noncentered_normal_location_with_fixed_sigma_still_unsupported(data_ran
 
 
 @pytest.mark.parametrize("omit_offsets", [False, True])
+@pytest.mark.parametrize("nested", [False, True])
 def test_noncentered_normal_location_dense_prediction(
-    data_random_n100, mock_pymc_sample, monkeypatch, omit_offsets
+    data_random_n100, mock_pymc_sample, monkeypatch, omit_offsets, nested
 ):
     monkeypatch.setattr(bmb.config, "SPARSE_DOT", False)
+    location = bmb.Prior("Normal", mu=2, sigma=1)
+    if nested:
+        location = bmb.Prior("Normal", mu=location, sigma=bmb.Prior("HalfNormal", sigma=1))
     prior = bmb.Prior(
         "Normal",
-        mu=bmb.Prior("Normal", mu=2, sigma=1),
+        mu=location,
         sigma=bmb.Prior("HalfNormal", sigma=1),
     )
     model = bmb.Model(
@@ -356,5 +361,163 @@ def test_noncentered_normal_location_dense_prediction(
     shifted = idata.copy(deep=True)
     shifted.posterior["1|binary_cat"] += 3
     shifted.posterior["1|binary_cat_mu"] += 3
+    if nested:
+        shifted.posterior["1|binary_cat_mu_mu"] += 3
     shifted_result = model.predict(shifted, data=new_data, random_seed=42, inplace=False)
     np.testing.assert_allclose(shifted_result.predictions["mu"], result.predictions["mu"] + 3)
+
+
+@pytest.mark.parametrize("sparse_dot", [False, True])
+@pytest.mark.parametrize(
+    "location, prior_nc, model_nc",
+    [
+        ("omitted", None, True),
+        ("fixed", None, True),
+        ("vector", None, True),
+        ("free", None, True),
+        ("nested", None, True),
+        ("nested", False, True),
+        ("nested", True, {"mu": False}),
+        ("fixed", True, False),
+        ("free", False, True),
+        ("nested-scale", None, True),
+    ],
+)
+def test_location_offset_reconstruction(
+    data_random_n100, mock_pymc_sample, monkeypatch, sparse_dot, location, prior_nc, model_nc
+):
+    """Omitting offsets must not change prediction or pointwise log likelihood."""
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
+    args = {"sigma": bmb.Prior("HalfNormal", sigma=1)}
+    if location != "omitted":
+        args["mu"] = np.array([1.0, 3.0]) if location == "vector" else 2.0
+    if location in ("free", "nested"):
+        args["mu"] = bmb.Prior("Normal", mu=2, sigma=0.5)
+    if location == "nested":
+        args["mu"] = bmb.Prior(
+            "Normal", mu=args["mu"], sigma=bmb.Prior("HalfNormal", sigma=0.5), noncentered=True
+        )
+    if location == "nested-scale":
+        args["sigma"] = bmb.Prior(
+            "Normal", mu=3, sigma=bmb.Prior("HalfNormal", sigma=0.01), noncentered=True
+        )
+    model = bmb.Model(
+        "continuous1 ~ 0 + (1|binary_cat)",
+        data_random_n100,
+        priors={"1|binary_cat": bmb.Prior("Normal", **args, noncentered=prior_nc)},
+        noncentered=model_nc,
+    )
+    model.set_alias({"1|binary_cat": "effect", "mu": "location", "sigma": "scale"})
+    retained = model.fit(draws=4, chains=2, random_seed=12, omit_offsets=False)
+    offset_names = [name for name in retained.posterior if name.endswith("_offset")]
+    omitted = retained.copy(deep=True)
+    omitted["posterior"] = omitted.posterior.to_dataset().drop_vars(offset_names)
+    original = omitted.copy(deep=True)
+    restored = model.backend._get_offset_values(omitted.posterior.to_dataset())
+    assert set(restored) == set(offset_names)
+    for name in offset_names:
+        xr.testing.assert_allclose(restored[name], retained.posterior[name])
+    assert model.backend._get_offset_values(retained.posterior.to_dataset()) == {}
+
+    expected_prior = model.compute_log_prior(retained, inplace=False)
+    actual_prior = model.compute_log_prior(omitted, inplace=False)
+    kept_prior_names = set(expected_prior.log_prior.data_vars) - set(offset_names)
+    assert set(actual_prior.log_prior.data_vars) == kept_prior_names
+    for name in kept_prior_names:
+        xr.testing.assert_allclose(actual_prior.log_prior[name], expected_prior.log_prior[name])
+
+    for new_data in (None, data_random_n100.iloc[[2, 0, 1]].copy()):
+        expected = model.predict(
+            retained, data=new_data, kind="response", inplace=False, random_seed=42
+        )
+        actual = model.predict(
+            omitted, data=new_data, kind="response", inplace=False, random_seed=42
+        )
+        group = "posterior" if new_data is None else "predictions"
+        xr.testing.assert_allclose(actual[group]["location"], expected[group]["location"])
+        response_group = "posterior_predictive" if new_data is None else "predictions"
+        xr.testing.assert_allclose(
+            actual[response_group]["continuous1"], expected[response_group]["continuous1"]
+        )
+        expected_ll = model.compute_log_likelihood(retained, data=new_data, inplace=False)
+        actual_ll = model.compute_log_likelihood(omitted, data=new_data, inplace=False)
+        xr.testing.assert_allclose(actual_ll.log_likelihood, expected_ll.log_likelihood)
+        xr.testing.assert_identical(omitted, original)
+
+
+@pytest.mark.parametrize("family", ["gaussian", "categorical"])
+@pytest.mark.parametrize("sparse_dot", [False, True])
+@pytest.mark.parametrize("nested", [False, True])
+def test_location_offset_reconstruction_broadcasting(
+    data_random_n100, mock_pymc_sample, monkeypatch, family, sparse_dot, nested
+):
+    """Use the builder's shaped location, including expression/response axes."""
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
+    response = "continuous1" if family == "gaussian" else "categorical2"
+    response_size = data_random_n100[response].nunique() - 1
+    location = np.arange(4.0) if family == "gaussian" else np.arange(8.0 * response_size)
+    if nested:
+        location = bmb.Prior(
+            "Normal", mu=bmb.Prior("Normal", mu=2, sigma=1), sigma=bmb.Prior("HalfNormal", sigma=1)
+        )
+    model = bmb.Model(
+        f"{response} ~ 0 + (0 + categorical1|binary_cat)",
+        data_random_n100,
+        family=family,
+        priors={
+            "categorical1|binary_cat": bmb.Prior(
+                "Normal", mu=location, sigma=bmb.Prior("HalfNormal", sigma=1)
+            )
+        },
+    )
+    retained = model.fit(draws=3, chains=2, random_seed=12, omit_offsets=False)
+    omitted = retained.copy(deep=True)
+    omitted["posterior"] = (
+        omitted.posterior.to_dataset()
+        .drop_vars([name for name in retained.posterior if name.endswith("_offset")])
+        .transpose(..., "draw", "chain")
+    )
+    parameter = "mu" if family == "gaussian" else "p"
+    expected = model.predict(retained, kind="response_params", inplace=False)
+    actual = model.predict(omitted, kind="response_params", inplace=False)
+    xr.testing.assert_allclose(actual.posterior[parameter], expected.posterior[parameter])
+    expected_ll = model.compute_log_likelihood(retained, inplace=False)
+    actual_ll = model.compute_log_likelihood(omitted, inplace=False)
+    xr.testing.assert_allclose(actual_ll.log_likelihood, expected_ll.log_likelihood)
+
+
+def test_log_prior_subset_does_not_require_unrelated_group_draws(
+    data_random_n100, mock_pymc_sample
+):
+    """Restoring nested offsets must not widen log-prior input requirements."""
+    model = bmb.Model(
+        "continuous1 ~ 1 + (1|binary_cat)",
+        data_random_n100,
+        priors={"1|binary_cat": bmb.Prior("Normal", mu=2, sigma=bmb.Prior("HalfNormal", sigma=1))},
+    )
+    trace = model.fit(draws=3, chains=2, random_seed=12)
+    expected = model.compute_log_prior(trace, inplace=False)
+    trace["posterior"] = trace.posterior.to_dataset()[["Intercept"]]
+    result = model.compute_log_prior(trace, inplace=False)
+    assert set(result.log_prior.data_vars) == {"Intercept"}
+    xr.testing.assert_allclose(result.log_prior["Intercept"], expected.log_prior["Intercept"])
+
+
+def test_offset_reconstruction_record_is_reset_on_rebuild(data_random_n100, mock_pymc_sample):
+    """A prior change followed by build must not leave stale auxiliary transforms."""
+    model = bmb.Model(
+        "continuous1 ~ 0 + (1|binary_cat)",
+        data_random_n100,
+        priors={"1|binary_cat": bmb.Prior("Normal", mu=2, sigma=bmb.Prior("HalfNormal", sigma=1))},
+    )
+    model.build()
+    model.set_priors(
+        {
+            "1|binary_cat": bmb.Prior(
+                "Normal", mu=3, sigma=bmb.Prior("HalfNormal", sigma=1), noncentered=False
+            )
+        }
+    )
+    trace = model.fit(draws=3, chains=2, random_seed=12)
+    assert model.backend._get_offset_values(trace.posterior.to_dataset()) == {}
+    assert not any(rv.name.endswith("_offset") for rv in model.backend.model.free_RVs)

@@ -7,6 +7,10 @@
   ([#1003](https://github.com/bambinos/bambi/issues/1003)). Previously, nonzero
   locations were discarded. Affected models need to be refitted; adding `mu` to
   old posterior draws does not generally recover the corrected posterior.
+- Reconstruct omitted Normal offsets with `(coefficient - mu) / sigma` for
+  prediction and log-likelihood, including nested hyperpriors and per-prior
+  non-centering overrides. Restore missing auxiliary inputs when needed by
+  log-prior evaluation without adding them to the reported log-prior variables.
 
 <a id="0.19.0"></a>
 # [Bambi 0.19.0](https://github.com/bambinos/bambi/releases/tag/0.19.0) - 2026-07-12

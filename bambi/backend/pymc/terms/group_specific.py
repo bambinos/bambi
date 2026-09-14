@@ -172,9 +172,13 @@ def build_distribution(
         if prior.name == "Normal" and isinstance(kwargs.get("sigma", None), pt.TensorVariable):
             mu = kwargs.get("mu", 0)
             sigma = kwargs["sigma"]
+            offset_name = label + "_offset"
             with model:
-                offset = pm.Normal(label + "_offset", mu=0, sigma=1, dims=dims)
+                offset = pm.Normal(offset_name, mu=0, sigma=1, dims=dims)
                 rv = pm.Deterministic(label, mu + offset * sigma, dims=dims)
+            # Keep the actual transform, including nested nodes, aliases and shaped
+            # fixed locations, for reconstruction when posterior offsets are omitted.
+            model.__bambi_attrs__["noncentered_distributions"][offset_name] = (rv, mu, sigma)
             return rv
 
         raise NotImplementedError(
