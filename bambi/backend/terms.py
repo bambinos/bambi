@@ -201,9 +201,10 @@ class GroupSpecificTerm:
                 and "sigma" in dist_kwargs
                 and isinstance(dist_kwargs["sigma"], pt.TensorVariable)
             ):
+                mu = dist_kwargs.get("mu", 0)
                 sigma = dist_kwargs["sigma"]
                 offset = pm.Normal(label + "_offset", mu=0, sigma=1, dims=dims)
-                return pm.Deterministic(label, offset * sigma, dims=dims)
+                return pm.Deterministic(label, mu + offset * sigma, dims=dims)
 
             raise NotImplementedError(
                 f"The non-centered parametrization is only supported "
