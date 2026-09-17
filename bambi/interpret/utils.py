@@ -8,6 +8,7 @@ from pandas import DataFrame, Series
 from pandas.core.groupby import DataFrameGroupBy, SeriesGroupBy
 
 from bambi.models import Model
+from bambi.nonlinear import NonlinearParameter
 
 
 class TargetInfo(NamedTuple):
@@ -188,7 +189,7 @@ def get_model_terms(model: Model) -> dict:
         A dictionary containing all terms from the model's conditional parameters.
     """
     terms = {}
-    for parameter in model.conditional_parameters.values():
+    for parameter in model.additive_parameters.values():
         if parameter.design.common:
             terms.update(parameter.design.common.terms)
 
@@ -232,6 +233,10 @@ def get_model_covariates(model: Model) -> np.ndarray:
                     covariates.append(component.name)
         elif hasattr(term, "factor"):
             covariates.extend(list(term.var_names))
+
+    for parameter in model.parameters.values():
+        if isinstance(parameter, NonlinearParameter):
+            covariates.extend(parameter.data_names)
 
     # Don't include non-covariate names (#797)
     covariates = [name for name in covariates if name in model.data]

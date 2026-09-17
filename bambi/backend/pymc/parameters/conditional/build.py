@@ -38,10 +38,54 @@ def build_conditional_parameter(
     model: pm.Model,
 ) -> pt.Variable:
     parameter = parameter_info.parameter
-    value = 0
     param_spec = family.get_param_spec(parameter.name)
     link = family.link[parameter.name]
     inverse_link = INVERSE_LINKS.get(link.name, link.inverse_link)
+    transform_predictor = transforms_registry.get_predictor_transform(family, parameter.name)
+    transform_parameters = {}
+    if transform_predictor:
+        transform_parameters = {
+            name: model[name] for name in family.likelihood.params if name != parameter.name
+        }
+    return build_additive_parameter(
+        parameter_info,
+        param_spec,
+        inverse_link,
+        transform_predictor,
+        transform_parameters,
+        group_specific_state,
+        model,
+    )
+
+
+def build_nonlinear_predictor(
+    parameter_info: ConditionalParameterInfo,
+    group_specific_state: GroupSpecificGraphState,
+    model: pm.Model,
+) -> pt.Variable:
+    param_spec = ParamSpec(links=["identity"])
+    return build_additive_parameter(
+        parameter_info,
+        param_spec,
+        INVERSE_LINKS["identity"],
+        None,
+        {},
+        group_specific_state,
+        model,
+    )
+
+
+def build_additive_parameter(
+    parameter_info: ConditionalParameterInfo,
+    param_spec: ParamSpec,
+    inverse_link,
+    transform_predictor,
+    transform_parameters,
+    group_specific_state: GroupSpecificGraphState,
+    model: pm.Model,
+) -> pt.Variable:
+    parameter = parameter_info.parameter
+    value = 0
     center_predictors = parameter.intercept_term and parameter.center_predictors
 
     if parameter_info.common_terms or parameter.intercept_term:
@@ -67,13 +111,8 @@ def build_conditional_parameter(
     for term_info in parameter_info.hsgp_terms:
         value += build_hsgp_term(term_info, param_spec, model)
 
-    # NOTE: If one parameter requires the other, ake sure they're built in the right order.
-    transform_predictor = transforms_registry.get_predictor_transform(family, parameter.name)
     if transform_predictor:
-        parameters = {
-            name: model[name] for name in family.likelihood.params if name != parameter.name
-        }
-        value = transform_predictor(value, parameters, inverse_link)
+        value = transform_predictor(value, transform_parameters, inverse_link)
     else:
         value = inverse_link(value)
 
@@ -89,6 +128,7 @@ def build_conditional_parameter(
         and not parameter.offset_terms
         and not parameter.hsgp_terms
     )
+    value = pt.as_tensor_variable(value)
     if value.ndim < len(dims) or only_intercept:
         value = pt.broadcast_to(value, tuple(model.dim_lengths[dim] for dim in dims))
     return pm.Deterministic(parameter.label, value, dims=dims, model=model)

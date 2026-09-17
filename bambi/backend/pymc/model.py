@@ -16,9 +16,11 @@ from pymc.model.transform.conditioning import remove_value_transforms
 from xarray import DataTree
 
 from bambi.backend.pymc.coords import coords_from_response
+from bambi.backend.pymc.nonlinear import build_new_nonlinear_data, build_nonlinear_parameter
 from bambi.backend.pymc.parameters import (
     build_conditional_parameter,
     build_marginal_parameter,
+    build_nonlinear_predictor,
     remove_group_specific_contributions,
 )
 from bambi.backend.pymc.parameters.conditional import (
@@ -40,6 +42,7 @@ from bambi.backend.pymc.terms.response import (
     replace_response_variables,
 )
 from bambi.config import config as bmb_config
+from bambi.nonlinear import NonlinearParameter, prepare_nonlinear_data
 from bambi.utils import as_dataset
 
 _logger = logging.getLogger("bambi")
@@ -87,6 +90,19 @@ class PyMCModel:
         self._conditional_parameter_info: dict[str, ConditionalParameterInfo] = {}
         self._group_specific_state: GroupSpecificGraphState = GroupSpecificGraphState()
 
+    @property
+    def _nonlinear_predictor_names(self) -> tuple[str, ...]:
+        """Return deterministic variables that should not be sampled directly."""
+        predictor_names = tuple(
+            parameter.label for parameter in self.spec.nonlinear_predictors.values()
+        )
+        intermediate_names = tuple(
+            parameter.label
+            for name, parameter in self.spec.parameter_graph.nodes.items()
+            if name not in self.spec.parameters
+        )
+        return predictor_names + intermediate_names
+
     def build(self) -> None:
         response_coords_data, response_coords, response_coords_reduced = coords_from_response(
             self.spec.response_term, self.spec.family
@@ -98,21 +114,51 @@ class PyMCModel:
             "response_coords_data": response_coords_data,
             "response_coords": response_coords,
             "response_coords_reduced": response_coords_reduced,
+            "offset_names": set(),
         }
 
         marginal_parameters = {}
         conditional_parameters = {}
+        parameter_values = {}
         self._conditional_parameter_info = {}
         self._group_specific_state = GroupSpecificGraphState()
         for name, parameter in self.spec.marginal_parameters.items():
             marginal_parameters[name] = build_marginal_parameter(parameter, self.spec.family, model)
+            parameter_values[name] = marginal_parameters[name]
 
         for name, parameter in self.spec.conditional_parameters.items():
+            if isinstance(parameter, NonlinearParameter):
+                continue
             parameter_info = make_conditional_parameter_info(parameter)
             self._conditional_parameter_info[name] = parameter_info
             conditional_parameters[name] = build_conditional_parameter(
                 parameter_info, self.spec.family, self._group_specific_state, model
             )
+            parameter_values[name] = conditional_parameters[name]
+
+        if self.spec.formula.nlpars:
+            for name, parameter in self.spec.nonlinear_predictors.items():
+                parameter_info = make_conditional_parameter_info(parameter)
+                self._conditional_parameter_info[name] = parameter_info
+                parameter_values[name] = build_nonlinear_predictor(
+                    parameter_info, self._group_specific_state, model
+                )
+
+            for name in self.spec.parameter_graph.order:
+                if name not in self.spec.parameter_graph.nodes:
+                    continue
+                parameter = self.spec.parameter_graph.nodes[name]
+                value = build_nonlinear_parameter(
+                    parameter,
+                    parameter_values,
+                    self.spec.data,
+                    model,
+                    self.spec.family,
+                    marginal_parameters | conditional_parameters,
+                )
+                parameter_values[name] = value
+                if name in self.spec.parameters:
+                    conditional_parameters[name] = value
 
         build_response_term(
             term=self.spec.response_term,
@@ -197,13 +243,19 @@ class PyMCModel:
         if prior_only:
             unobserved_rvs_names = []
             flat_rvs = []
+            nonlinear_predictor_names = self._nonlinear_predictor_names
+            likelihood_parameter_names = {
+                parameter.label for parameter in self.spec.parameters.values()
+            }
             for unobserved in self.model.unobserved_RVs:
                 if "Flat" in str(unobserved):
                     flat_rvs.append(unobserved.name)
                 else:
-                    is_likelihood_param = unobserved.name in self.spec.family.likelihood.params
+                    is_likelihood_param = unobserved.name in likelihood_parameter_names
                     is_deterministic = unobserved in self.model.deterministics
-                    if is_likelihood_param and is_deterministic:
+                    if is_deterministic and (
+                        is_likelihood_param or unobserved.name in nonlinear_predictor_names
+                    ):
                         continue
                     unobserved_rvs_names.append(unobserved.name)
 
@@ -227,13 +279,15 @@ class PyMCModel:
             )
 
         if omit_offsets:
-            var_names = [name for name in var_names if not name.endswith("_offset")]
+            var_names = [
+                name for name in var_names if name not in self.model.__bambi_attrs__["offset_names"]
+            ]
 
         if omit_group_specific:
             group_specific_var_names = [
-                name
-                for parameter in self.spec.conditional_parameters.values()
-                for name in parameter.group_specific_terms
+                term.label
+                for parameter in self.spec.additive_parameters.values()
+                for term in parameter.group_specific_terms.values()
             ]
             var_names = [name for name in var_names if name not in group_specific_var_names]
 
@@ -292,7 +346,10 @@ class PyMCModel:
                 term = term_info.term
                 term_label = term.label
                 offset_name = f"{term_label}_offset"
-                if term.noncentered and offset_name not in posterior:
+                if (
+                    offset_name in self.model.__bambi_attrs__["offset_names"]
+                    and offset_name not in posterior
+                ):
                     sigma_name = term.hyperprior_alias.get("sigma", "sigma")
                     offset_values[offset_name] = (
                         posterior[term_label] / posterior[f"{term_label}_{sigma_name}"]
@@ -348,7 +405,10 @@ class PyMCModel:
                 term = term_info.term
                 term_label = term.label
                 offset_name = f"{term_label}_offset"
-                if term.noncentered and offset_name not in posterior:
+                if (
+                    offset_name in self.model.__bambi_attrs__["offset_names"]
+                    and offset_name not in posterior
+                ):
                     sigma_name = term.hyperprior_alias.get("sigma", "sigma")
                     offset_values[offset_name] = (
                         posterior[term_label] / posterior[f"{term_label}_{sigma_name}"]
@@ -577,6 +637,18 @@ class PyMCModel:
             )
 
     def _build_new_data(self, data: pd.DataFrame, purpose: str, kind: str | None = None):
+        if self.spec.formula.nlpars:
+            data = prepare_nonlinear_data(
+                self.spec.formula,
+                {
+                    name: parameter.expression
+                    for name, parameter in self.spec.parameter_graph.nodes.items()
+                },
+                data,
+                dropna=False,
+                include_response=purpose == "log_likelihood",
+                parameter_names=self.spec.parameter_graph.dependencies,
+            )
         new_coords = {"__obs__": range(len(data))}
         new_data = build_new_response_data(
             self.spec.response_term, data, self.spec.family, purpose, kind
@@ -595,6 +667,10 @@ class PyMCModel:
                 )
             new_data.update(parameter_data)
             factor_plans.extend(parameter_factor_plans)
+
+        if self.spec.formula.nlpars:
+            for parameter in self.spec.parameter_graph.nodes.values():
+                new_data.update(build_new_nonlinear_data(parameter, data))
 
         return new_data, new_coords, factor_plans
 
@@ -619,12 +695,21 @@ class PyMCModel:
         )
         vars_to_sample = [variable.name for variable in vars_to_sample]
 
+        nonlinear_predictor_names = self._nonlinear_predictor_names
+        vars_to_sample = [var for var in vars_to_sample if var not in nonlinear_predictor_names]
+
         if not include_response_params:
-            parameters_names = [param.label for param in self.spec.conditional_parameters.values()]
-            vars_to_sample = [var for var in vars_to_sample if var not in parameters_names]
+            response_parameter_names = [
+                param.label for param in self.spec.conditional_parameters.values()
+            ]
+            vars_to_sample = [var for var in vars_to_sample if var not in response_parameter_names]
 
         if omit_offsets:
-            vars_to_sample = [var for var in vars_to_sample if not var.endswith("_offset")]
+            vars_to_sample = [
+                var
+                for var in vars_to_sample
+                if var not in self.model.__bambi_attrs__["offset_names"]
+            ]
 
         # pm.sample routes nuts settings via kwargs.pop("nuts", {}); only inject when provided
         # to avoid passing nuts=None which causes pm.sample's internal nuts_kwargs.copy() to fail.
@@ -671,7 +756,11 @@ class PyMCModel:
         if omit_offsets:
             # Nutpie can still return the non-centered auxiliary variables.
             posterior = as_dataset(idata["posterior"])
-            offset_vars = [name for name in posterior.data_vars if name.endswith("_offset")]
+            offset_vars = [
+                name
+                for name in posterior.data_vars
+                if name in self.model.__bambi_attrs__["offset_names"]
+            ]
             if offset_vars:
                 idata["posterior"] = posterior.drop_vars(offset_vars)
 
@@ -739,10 +828,11 @@ class PyMCModel:
         response_parameter_names = [
             parameter.label for parameter in self.spec.conditional_parameters.values()
         ]
+        nonlinear_predictor_names = self._nonlinear_predictor_names
         idata = _posterior_samples_to_idata(
             samples,
             self.model,
-            excluded_var_names=response_parameter_names,
+            excluded_var_names=response_parameter_names + list(nonlinear_predictor_names),
         )
 
         if include_response_params:
@@ -757,7 +847,11 @@ class PyMCModel:
 
         if omit_offsets:
             posterior = as_dataset(idata["posterior"])
-            offset_vars = [var for var in posterior.data_vars if var.endswith("_offset")]
+            offset_vars = [
+                var
+                for var in posterior.data_vars
+                if var in self.model.__bambi_attrs__["offset_names"]
+            ]
             idata["posterior"] = posterior.drop_vars(offset_vars)
 
         return idata

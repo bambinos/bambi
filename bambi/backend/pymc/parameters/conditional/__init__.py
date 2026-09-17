@@ -1,4 +1,4 @@
-from .build import build_conditional_parameter
+from .build import build_conditional_parameter, build_nonlinear_predictor
 from .prediction import (
     add_new_dense_group_specific_contributions,
     add_new_sparse_group_specific_contributions,
@@ -18,6 +18,7 @@ __all__ = [
     "add_new_dense_group_specific_contributions",
     "add_new_sparse_group_specific_contributions",
     "build_conditional_parameter",
+    "build_nonlinear_predictor",
     "build_new_dense_conditional_parameter_data",
     "build_new_sparse_conditional_parameter_data",
     "ConditionalParameterInfo",

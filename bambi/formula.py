@@ -1,5 +1,5 @@
+import keyword
 import warnings
-
 from typing import Sequence
 
 import formulae as fm
@@ -18,12 +18,62 @@ class Formula:
         A model description written using the formula syntax from the `formulae` library.
     *additionals : tuple of str
         Additional formulas that describe model parameters rather than a response variable.
+    nlpars : list or tuple of str, optional
+        Names of parameters used in the nonlinear expression on the right-hand side of the main
+        formula. An additional formula can describe how a nonlinear parameter varies. Parameters
+        without an additional formula use an intercept-only formula. Additional formulas can also
+        describe ordinary auxiliary likelihood parameters, such as `sigma ~ z`.
+        The expression is on the parent parameter's link scale. The family's inverse link is
+        applied once to the complete expression. An additional formula that references a modeled
+        parameter is also treated as a nonlinear expression and evaluated after its dependencies;
+        these dependent expressions define their parameter on the response scale. Separately
+        modeled nonlinear predictors use identity links.
+
+    Examples
+    --------
+    Model an exponential decay with three separately modeled parameters:
+
+    >>> Formula("y ~ a + b * exp(-k * x)", "a ~ 1 + z", nlpars=("a", "b", "k"))
+    Formula('y ~ a + b * exp(-k * x)', 'a ~ 1 + z', nlpars=('a', 'b', 'k'))
     """
 
-    def __init__(self, formula: str, *additionals: str):
+    def __init__(
+        self, formula: str, *additionals: str, nlpars: list[str] | tuple[str, ...] | None = None
+    ):
+        self.nlpars = self._check_nlpars(nlpars)
         self.additionals_lhs = []
         self.main = formula
         self.additionals = self.check_additionals(additionals)
+
+        if self.nlpars:
+            duplicates = {
+                name for name in self.additionals_lhs if self.additionals_lhs.count(name) > 1
+            }
+            if duplicates:
+                raise ValueError(f"Duplicate parameter formula(s): {sorted(duplicates)}.")
+
+    @staticmethod
+    def _check_nlpars(
+        nlpars: list[str] | tuple[str, ...] | None,
+    ) -> tuple[str, ...]:
+        """Validate and normalize nonlinear parameter names."""
+        if nlpars is None:
+            return ()
+        if not isinstance(nlpars, (list, tuple)):
+            raise TypeError("'nlpars' must be a list or tuple of strings.")
+
+        invalid = [
+            name
+            for name in nlpars
+            if not isinstance(name, str) or not name.isidentifier() or keyword.iskeyword(name)
+        ]
+        if invalid:
+            raise ValueError(f"'nlpars' entries must be valid Python identifiers: {invalid}.")
+
+        duplicates = {name for name in nlpars if nlpars.count(name) > 1}
+        if duplicates:
+            raise ValueError(f"Duplicate nonlinear parameter name(s): {sorted(duplicates)}.")
+        return tuple(nlpars)
 
     def check_additionals(self, additionals: Sequence[str]):
         """Check if the additional formulas match the expected format
@@ -82,11 +132,15 @@ class Formula:
     def __str__(self):
         formulas = [self.main] + list(self.additionals)
         middle = ", ".join(formulas)
+        if self.nlpars:
+            middle += f", nlpars={self.nlpars!r}"
         return f"Formula({middle})"
 
     def __repr__(self):
         formulas = [self.main] + list(self.additionals)
         middle = ", ".join([f"'{formula}'" for formula in formulas])
+        if self.nlpars:
+            middle += f", nlpars={self.nlpars!r}"
         return f"Formula({middle})"
 
 

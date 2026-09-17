@@ -161,12 +161,6 @@ def _scale_group_specific_half_normal(term, intercept_stats, response_std):
 
 
 def scale_priors(model):
-    main_parameter = model.parameters[model.family.likelihood.parent]
-
-    has_intercept = main_parameter.intercept_term is not None
-    common_terms = main_parameter.common_terms
-    common_priors = {}
-
     if isinstance(model.family, (Gaussian, StudentT)):
         response_mean = np.mean(model.response_term.data)
         response_std = np.std(model.response_term.data)
@@ -176,6 +170,14 @@ def scale_priors(model):
 
     # Scale marginal parameters
     _scale_marginal_parameters(model, response_std)
+
+    if model.formula.nlpars:
+        return
+
+    main_parameter = model.parameters[model.family.likelihood.parent]
+    has_intercept = main_parameter.intercept_term is not None
+    common_terms = main_parameter.common_terms
+    common_priors = {}
 
     # Scale common terms.
     for term in main_parameter.common_terms.values():
