@@ -409,7 +409,7 @@ def test_response_is_censored():
         ("weighted(y, weights) ~ 1", None, "y"),
         ("counts(y1, y2, n=n) ~ 1", "multinomial", "y1_y2"),
         ("prop(y, n) ~ 1", "binomial", "y"),
-        ("cr(time, event_status, cause) ~ 1", "weibull", "time"),
+        ("risks(time, event_status, cause) ~ 1", "weibull", "time"),
     ],
 )
 def test_transformed_response_uses_observed_variable_name(formula, family, response_name):
@@ -457,9 +457,9 @@ def test_competing_risks_response_data(family):
         }
     )
     kwargs = {"link": "log"} if family == "gamma" else {}
-    model = bmb.Model("cr(time, status, cause) ~ x", data, family=family, **kwargs)
+    model = bmb.Model("risks(time, status, cause) ~ x", data, family=family, **kwargs)
 
-    assert model.response_term.is_cr is True
+    assert model.response_term.is_competing_risks is True
     assert model.response_term.levels == ["cause_a", "cause_b"]
     model.build()
     assert "time_data" in model.backend.model.named_vars
@@ -497,7 +497,7 @@ def test_competing_risks_uses_cause_variable_for_coordinate_name():
             "event_type": ["none", "cause_a"],
         }
     )
-    model = bmb.Model("cr(time, event_status, event_type) ~ 1", data, family="weibull")
+    model = bmb.Model("risks(time, event_status, event_type) ~ 1", data, family="weibull")
     model.build()
 
     assert model.backend.model.named_vars_to_dims["mu"] == ("__obs__", "event_type_dim")

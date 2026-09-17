@@ -221,7 +221,7 @@ class Model:
             self.response_term, design.response, self
         )
 
-        if self.response_term.is_cr:
+        if self.response_term.is_competing_risks:
             # Competing risks use a model-local family with cause-specific parameters.
             self.family = copy(self.family)
             self.family.PARAMETERS = {
@@ -1051,13 +1051,13 @@ class Model:
                 "or 'time_and_cause'"
             )
 
-        if kind == "time_and_cause" and not self.response_term.is_cr:
+        if kind == "time_and_cause" and not self.response_term.is_competing_risks:
             raise ValueError("'kind=time_and_cause' is only available for competing-risks models.")
 
         if kind == "response_conditional" and not (
             self.response_term.is_censored
             or self.response_term.is_truncated
-            or self.response_term.is_cr
+            or self.response_term.is_competing_risks
         ):
             raise ValueError(
                 "'kind=response_conditional' is only available for censored, truncated, "

@@ -14,7 +14,7 @@ from bambi.backend.pymc.utils import (
     make_competing_risks_distribution,
     make_weighted_distribution,
 )
-from bambi.transformations import CR, censored, constrained, counts, truncated, weighted
+from bambi.transformations import CompetingRisks, censored, constrained, counts, truncated, weighted
 
 
 def test_listify():
@@ -104,7 +104,7 @@ def test_censored():
 
 
 def test_competing_risks():
-    transform = CR()
+    transform = CompetingRisks()
     result = transform(
         np.array([1.0, 2.0, 3.0, 4.0]),
         np.array(["right", "event", "event", "right"]),
@@ -122,22 +122,22 @@ def test_competing_risks():
         transform(np.array([7.0]), np.array(["event"]), np.array(["cause_c"]))
 
     with pytest.raises(ValueError, match="Left censoring is not supported"):
-        CR()(np.array([1.0]), np.array(["left"]), np.array(["cause_a"]))
+        CompetingRisks()(np.array([1.0]), np.array(["left"]), np.array(["cause_a"]))
 
     with pytest.raises(ValueError, match="must contain only"):
-        CR()(np.array([1.0]), np.array(["interval"]), np.array(["none"]))
+        CompetingRisks()(np.array([1.0]), np.array(["interval"]), np.array(["none"]))
 
     with pytest.raises(ValueError, match="must not be 'none' when status is 'event'"):
-        CR()(np.array([1.0]), np.array(["event"]), np.array(["none"]))
+        CompetingRisks()(np.array([1.0]), np.array(["event"]), np.array(["none"]))
 
     with pytest.raises(ValueError, match="must be 'none' when status is 'right'"):
-        CR()(np.array([1.0]), np.array(["right"]), np.array(["cause_a"]))
+        CompetingRisks()(np.array([1.0]), np.array(["right"]), np.array(["cause_a"]))
 
     with pytest.raises(ValueError, match="cannot contain missing values"):
-        CR()(np.array([1.0]), np.array(["right"]), np.array([np.nan]))
+        CompetingRisks()(np.array([1.0]), np.array(["right"]), np.array([np.nan]))
 
     with pytest.raises(ValueError, match="requires at least one observed cause"):
-        CR()(np.array([1.0]), np.array(["right"]), np.array(["none"]))
+        CompetingRisks()(np.array([1.0]), np.array(["right"]), np.array(["none"]))
 
 
 @pytest.mark.parametrize(

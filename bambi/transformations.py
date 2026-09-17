@@ -69,7 +69,7 @@ censored.__metadata__ = {"kind": "censored"}
 
 
 @register_stateful_transform
-class CR:
+class CompetingRisks:
     """Competing-risks response with separate time-status and cause encodings.
 
     `status` describes the information available about the event time and must be one of
@@ -88,8 +88,8 @@ class CR:
         integer cause codes.
     """
 
-    __transform_name__ = "cr"
-    __metadata__ = {"kind": "cr"}
+    __transform_name__ = "risks"
+    __metadata__ = {"kind": "risks"}
 
     def __init__(self):
         self.cause_codes = None
@@ -100,7 +100,7 @@ class CR:
         cause = np.asarray(cause)
 
         if y.ndim != 1 or status.ndim != 1 or cause.ndim != 1:
-            raise ValueError("'cr' inputs must be one-dimensional.")
+            raise ValueError("'risks' inputs must be one-dimensional.")
 
         if len(y) != len(status) or len(y) != len(cause):
             raise ValueError("'y', 'status', and 'cause' must have the same length.")
@@ -512,7 +512,7 @@ transformations_namespace = {
     "c": c,
     "counts": counts,
     "censored": censored,
-    "cr": CR,
+    "risks": CompetingRisks,
     "constrained": constrained,
     "truncated": truncated,
     "weighted": weighted,

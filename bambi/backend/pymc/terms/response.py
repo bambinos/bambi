@@ -48,7 +48,7 @@ def build_response_term(
             pm.Censored(term.label, dist, **data_mapping, dims=dims)
         return None
 
-    if term.is_cr:
+    if term.is_competing_risks:
         data_mapping = _build_cr_data(term, dims, model)
         competing_risks_dist = make_competing_risks_distribution(distribution)
         with model:
@@ -171,7 +171,7 @@ def build_response_interventions(
     if term.is_censored and kind == "response_conditional":
         return _build_intervention_censored(term, model)
 
-    if term.is_cr and kind == "response_conditional":
+    if term.is_competing_risks and kind == "response_conditional":
         return _build_intervention_competing_risks(term, model, family)
 
     return {}
@@ -179,7 +179,7 @@ def build_response_interventions(
 
 def get_response_prediction_names(term: ResponseTerm, kind: str) -> list[str]:
     """Return the posterior-predictive variables associated with a response."""
-    if term.is_cr and kind == "time_and_cause":
+    if term.is_competing_risks and kind == "time_and_cause":
         return [f"{term.label}_time", f"{term.label}_cause"]
     return [term.label]
 
@@ -188,7 +188,7 @@ def build_response_prediction_variables(
     term: ResponseTerm, model: pm.Model, family: Family, kind: str
 ) -> None:
     """Add posterior-predictive variables that differ from the observed response."""
-    if not term.is_cr or kind != "time_and_cause":
+    if not term.is_competing_risks or kind != "time_and_cause":
         return
 
     latent_times = _get_competing_risks_base_dist(model, family)
@@ -212,7 +212,7 @@ def build_new_response_data(
     if term.is_censored:
         return _build_new_censored_data(term, data, purpose, kind)
 
-    if term.is_cr:
+    if term.is_competing_risks:
         return _build_new_cr_data(term, data, purpose, kind)
 
     if term.is_truncated:

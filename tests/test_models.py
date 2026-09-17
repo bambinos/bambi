@@ -1366,7 +1366,7 @@ def test_competing_risks_predictions():
             "x": [0.0, 1.0, 2.0, 3.0],
         }
     )
-    model = bmb.Model("cr(time, status, cause) ~ x", data, family="exponential")
+    model = bmb.Model("risks(time, status, cause) ~ x", data, family="exponential")
     idata = model.fit(draws=200, tune=200, chains=2, random_seed=1234)
     response = model.response_term.label
 
@@ -1441,7 +1441,7 @@ def test_competing_risks_time_and_cause_predictions_match_exponential_distributi
             "cause": ["none", "cause_b", "cause_a", "none"],
         }
     )
-    model = bmb.Model("cr(time, status, cause) ~ 1", data, family="exponential")
+    model = bmb.Model("risks(time, status, cause) ~ 1", data, family="exponential")
     model.build()
 
     response = model.response_term.label
