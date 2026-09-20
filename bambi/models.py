@@ -27,7 +27,8 @@ from bambi.families.builtin import (
 )
 from bambi.families.types import DimType
 from bambi.formula import Formula, check_ordinal_formula
-from bambi.priors import Prior, scale_priors
+from bambi.priors import Prior
+from bambi.scaling import scale_priors
 from bambi.terms import ResponseTerm
 from bambi.transformations import transformations_namespace
 from bambi.utils import (
