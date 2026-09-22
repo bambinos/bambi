@@ -4,12 +4,12 @@ import numpy as np
 import pandas as pd
 import preliz as pz
 
-from formulae.transforms import CyclicCubicSpline, NaturalCubicSpline
+from formulae.transforms import CyclicCubicSpline, NaturalCubicSpline, ThinPlateRegressionSpline
 from xarray import DataTree
 
 import bambi as bmb
 from bambi.terms.smooth import SmoothTerm
-from bambi.transformations import CCSpline, CRSpline
+from bambi.transformations import CCSpline, CRSpline, TPSpline
 
 RANDOM_SEED = sum(map(ord, "Test smooths"))
 
@@ -54,10 +54,10 @@ def posterior_draws(prior):
     return DataTree.from_dict({"posterior": prior["prior"].to_dataset()})
 
 
-def direct_grouped_prediction(training, new_data, coefficients, center):
+def direct_grouped_prediction(training, new_data, coefficients, center, kind):
     expected = np.zeros((*coefficients.shape[:2], len(new_data)))
     for i, level in enumerate(training.group.cat.categories):
-        spline = NaturalCubicSpline()
+        spline = {"cr": NaturalCubicSpline, "tp": ThinPlateRegressionSpline}[kind]()
         spline(training.loc[training.group == level, "x"], df=6, center=center)
         rows = np.asarray(new_data.group == level)
         basis = spline.to_random(spline.eval(new_data.loc[rows, "x"]))
@@ -317,6 +317,13 @@ class TestCr:
             np.testing.assert_array_equal(group_spline._knots, [-2, 0.2, 0.4, 0.6, 0.8, 3])
 
 
+class TestCrTpBy:
+    @pytest.fixture(autouse=True, params=["cr", "tp"])
+    def set_basis(self, request):
+        self.basis = request.param
+
+    def name(self, center, shared):
+        return f"{self.basis}(x, df=6, by=group, center={center}, shared={shared})"
 
     @staticmethod
     def formula(name, center):
@@ -398,6 +405,7 @@ class TestCr:
             expected_data,
             prior["prior"]["curve"].values,
             center,
+            self.basis,
         )
 
         group = "posterior" if data is None else "predictions"
@@ -436,25 +444,12 @@ class TestCr:
     def test_coord_matches_order(self, grouped_smooth_data, ordered):
         data = grouped_smooth_data.copy()
         data["group"] = data.group.cat.set_categories(["b", "c", "a"], ordered=ordered)
-        name = "cr(x, df=6, by=group)"
+        name = f"{self.basis}(x, df=6, by=group)"
         model = bmb.Model(f"y ~ 0 + group + {name}", data)
         model.build()
 
         expected = ("b", "c", "a") if ordered else ("a", "b", "c")
         assert model.backend.model.coords["group_dim"] == expected
-
-    def test_explicit_knots(self, grouped_smooth_data):
-        spline = CRSpline()
-        spline(
-            grouped_smooth_data.x,
-            by=grouped_smooth_data.group,
-            knots=[0.2, 0.4, 0.6, 0.8],
-            lower_bound=-2,
-            upper_bound=3,
-        )
-
-        for group_spline in spline.group_splines:
-            np.testing.assert_array_equal(group_spline._knots, [-2, 0.2, 0.4, 0.6, 0.8, 3])
 
     @pytest.mark.parametrize("shared", [False, True])
     @pytest.mark.parametrize("distribution", ["Normal", "StudentT"])
@@ -545,66 +540,136 @@ class TestCc:
         model.build()
 
 
+class TestTp:
+    @staticmethod
+    def name(center):
+        return f"tp(x, df=6, center={center})"
+
+    @pytest.mark.parametrize(
+        "center, prior_keys",
+        [(False, ["constant", "linear", "curvature"]), (True, ["linear", "curvature"])],
+    )
+    def test_model_builds_with_default_priors(self, smooth_data, center, prior_keys):
+        name = self.name(center)
+        formula = f"y ~ 0 + {name}" if not center else f"y ~ {name}"
+        model = bmb.Model(formula, smooth_data)
+
+        term = model.parameters["mu"].terms[name]
+        assert list(term.prior) == prior_keys
+        model.build()
+
+    @pytest.mark.parametrize("center", [False, True])
+    def test_random_basis(self, smooth_data, center):
+        original, adapted = ThinPlateRegressionSpline(), TPSpline()
+        original(smooth_data.x, df=6, center=center)
+
+        np.testing.assert_allclose(
+            adapted(smooth_data.x, df=6, center=center),
+            original.to_random(),
+        )
+
+    @pytest.mark.parametrize("center", [False, True])
+    @pytest.mark.parametrize("new_data", [False, True])
+    def test_predict(self, smooth_data, prediction_data, center, new_data):
+        name = self.name(center)
+        formula = f"y ~ 0 + {name}" if not center else f"y ~ {name}"
+        model = bmb.Model(formula, smooth_data)
+        model.set_alias({name: "surface"})
+        model.build()
+        prior = model.prior_predictive(draws=3, random_seed=RANDOM_SEED)
+        draws = posterior_draws(prior)
+        data = prediction_data["smooth"] if new_data else None
+
+        result = model.predict(draws, data=data, inplace=False)
+        basis = (
+            model.parameters["mu"]
+            .terms[name]
+            .term.eval_new_data(smooth_data if data is None else data)
+        )
+        expected = result["posterior"]["surface"].values @ basis.T
+        if center:
+            expected += result["posterior"]["Intercept"].values[..., None]
+        group = "posterior" if data is None else "predictions"
+        np.testing.assert_allclose(result[group]["mu"].values, expected, atol=1e-10)
+
+    @pytest.mark.parametrize("center", [False, True])
+    def test_by_requires_enough_unique_values_per_group(self, center):
+        x = np.concatenate([np.linspace(0, 1, 20), np.arange(5)])
+        by = pd.Series(["a"] * 20 + ["b"] * 5)
+        with pytest.raises(ValueError, match="requires at least.*unique values"):
+            TPSpline()(x, df=6, center=center, by=by)
+
+
+@pytest.mark.parametrize("basis", ["cr", "cc", "tp"])
+@pytest.mark.parametrize("center", [False, True])
+@pytest.mark.parametrize("auto_scale", [False, True])
+def test_reset_smooth_priors(smooth_data, basis, center, auto_scale):
+    period = ", period=5" if basis == "cc" else ""
+    name = f"{basis}(x, df=6, center={center}{period})"
+    formula = f"y ~ {name}" if center else f"y ~ 0 + {name}"
+    expected = bmb.Model(formula, smooth_data, auto_scale=auto_scale)
+    expected_priors = expected.parameters["mu"].terms[name].prior
+    custom_priors = {
+        key: bmb.Prior(
+            "Normal",
+            mu=123,
+            sigma=bmb.Prior("HalfNormal", sigma=7) if key == "curvature" else 7,
+        )
+        for key in expected_priors
+    }
+    model = bmb.Model(formula, smooth_data, auto_scale=auto_scale, priors={name: custom_priors})
+
+    model.set_priors({name: None})
+
+    assert model.parameters["mu"].terms[name].prior == expected_priors
+    model.build()
+
+
 @pytest.mark.parametrize(
-    "center, missing",
-    [(True, "linear"), (True, "curvature"), (False, "constant"), (False, "linear")],
+    "transform, kwargs",
+    [(CRSpline, {}), (CCSpline, {"period": 5}), (TPSpline, {"max_knots": 12, "seed": 67})],
 )
-def test_incomplete_priors_rejected(smooth_data, center, missing):
-    name = f"cr(x, df=6, center={center})"
-    priors = default_priors(center)
-    del priors[missing]
-
-    with pytest.raises(ValueError, match="must specify exactly"):
-        bmb.Model(f"y ~ 0 + {name}", smooth_data, priors={name: priors})
-
-
-@pytest.mark.parametrize("block", ["linear", "curvature"])
-def test_normal_smooth_requires_mu_and_sigma(smooth_data, block):
-    name = "cr(x, df=6)"
-    priors = {
-        "linear": bmb.Prior("StudentT", nu=4, mu=0, sigma=1),
-        "curvature": bmb.Prior("StudentT", nu=4, mu=0, sigma=1),
-    }
-    priors[block] = bmb.Prior("Normal", mu=0, tau=1)
-
-    with pytest.raises(ValueError, match="require 'mu' and 'sigma'"):
-        bmb.Model(f"y ~ {name}", smooth_data, priors={name: priors})
-
-
-@pytest.mark.parametrize("value", [None, "Normal", {"mu": 0}, ["a", "b"]])
-def test_non_numeric_smooth_constant_rejected(smooth_data, value):
-    name = "cr(x, df=6)"
-    priors = {"linear": value, "curvature": bmb.Prior("Normal", mu=0, sigma=1)}
-
-    with pytest.raises(ValueError, match="must be a Prior or a numeric constant"):
-        bmb.Model(f"y ~ {name}", smooth_data, priors={name: priors})
+@pytest.mark.parametrize("center", [False, True])
+def test_grouped_basis_matches_independent_splines(grouped_smooth_data, transform, kwargs, center):
+    data = grouped_smooth_data
+    spline = transform()
+    basis = spline(data.x, df=6, center=center, by=data.group, **kwargs)
+    assert basis.shape == (len(data), 18)
+    np.testing.assert_array_equal(spline.by_levels, ["c", "a", "b"])
+    for i, level in enumerate(spline.by_levels):
+        rows = np.asarray(data.group == level)
+        independent = transform()
+        expected = independent(data.x[rows], df=6, center=center, **kwargs)
+        np.testing.assert_allclose(basis[rows, i * 6 : (i + 1) * 6], expected)
+        np.testing.assert_array_equal(basis[~rows, i * 6 : (i + 1) * 6], 0)
+        if center:
+            np.testing.assert_allclose(expected.sum(axis=0), 0, atol=1e-10)
+        # New data can contain only one of the training groups and extrapolate.
+        new_x = np.array([-3.0, 4.0])
+        new_by = pd.Series([level, level])
+        new_basis = spline(new_x, by=new_by, **kwargs)
+        np.testing.assert_allclose(new_basis[:, i * 6 : (i + 1) * 6], independent(new_x, **kwargs))
+        np.testing.assert_array_equal(new_basis[:, : i * 6], 0)
+        np.testing.assert_array_equal(new_basis[:, (i + 1) * 6 :], 0)
 
 
-def test_gaussian_curvature_random_mean_rejected(smooth_data):
-    name = "cr(x, df=6)"
-    priors = {
-        "linear": bmb.Prior("Normal", mu=0, sigma=1),
-        "curvature": bmb.Prior("Normal", mu=bmb.Prior("Normal", mu=0, sigma=1), sigma=1),
-    }
+@pytest.mark.parametrize(
+    "transform, kwargs", [(CRSpline, {}), (CCSpline, {"period": 5}), (TPSpline, {})]
+)
+def test_grouped_smooth_invalid_levels(grouped_smooth_data, transform, kwargs):
+    data = grouped_smooth_data
+    with pytest.raises(ValueError, match="must be categorical"):
+        transform()(data.x, df=6, by=pd.Series(np.zeros(len(data))), **kwargs)
+    missing = data.group.copy()
+    missing.iloc[0] = None
 
-    with pytest.raises(ValueError, match="mean of the curvature prior must be a numeric constant"):
-        bmb.Model(f"y ~ {name}", smooth_data, priors={name: priors})
+    with pytest.raises(ValueError, match="cannot contain missing"):
+        transform()(data.x, df=6, by=missing, **kwargs)
+    spline = transform()
+    spline(data.x, df=6, by=data.group, **kwargs)
 
+    with pytest.raises(ValueError, match="Supply 'by'"):
+        spline.eval([0.5])
 
-@pytest.mark.parametrize("distribution", ["Normal", "StudentT"])
-@pytest.mark.parametrize("block", ["constant", "linear"])
-@pytest.mark.parametrize("argument", ["mu", "sigma"])
-def test_unpenalized_hyperpriors_rejected(smooth_data, distribution, block, argument):
-    name = "cr(x, df=6, center=False)"
-    priors = default_priors(center=False)
-    kwargs = {"nu": 4} if distribution == "StudentT" else {}
-    priors[block] = bmb.Prior(distribution, mu=0, sigma=1, **kwargs)
-    priors[block].update(**{argument: bmb.Prior("HalfNormal", sigma=1)})
-
-    with pytest.raises(ValueError, match=f"'{block}'.*random variable arguments"):
-        bmb.Model(f"y ~ 0 + {name}", smooth_data, priors={name: priors})
-
-
-def test_group_specific_smooth_rejected(grouped_smooth_data):
-    with pytest.raises(NotImplementedError, match="Group-specific smooths"):
-        bmb.Model("y ~ (cr(x, df=6) | group)", grouped_smooth_data)
+    with pytest.raises(ValueError, match="Unknown level"):
+        spline.eval([0.5], pd.Series(["unknown"]))

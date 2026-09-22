@@ -59,6 +59,8 @@ def generate_prior_smooth(term, auto_scale):
         return generate_prior_cr(term, auto_scale)
     if term.basis == "cc":
         return generate_prior_cc(term, auto_scale)
+    if term.basis == "tp":
+        return generate_prior_tp(term, auto_scale)
 
     raise ValueError(f"Unsupported smooth basis for automatic prior generation: {term.basis!r}.")
 
@@ -79,6 +81,18 @@ def generate_prior_cr(term, auto_scale):
 def generate_prior_cc(term, auto_scale):
     priors = {}
     for param, prior_spec in CC_DEFAULT_PRIORS.items():
+        priors[param] = _build_prior_from_spec(prior_spec)
+        priors[param].auto_scale = auto_scale
+
+    if not term.has_intercept:
+        del priors["constant"]
+
+    return priors
+
+
+def generate_prior_tp(term, auto_scale):
+    priors = {}
+    for param, prior_spec in TP_DEFAULT_PRIORS.items():
         priors[param] = _build_prior_from_spec(prior_spec)
         priors[param].auto_scale = auto_scale
 
