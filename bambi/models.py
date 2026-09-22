@@ -73,8 +73,8 @@ class Model:
     priors : dict, optional
         Optional specification of priors for one or more terms. A dictionary where the keys are
         the names of terms in the model, "common," "group_specific," or the name of a model
-        component, and the values are instances of class `Prior`. A distributional component
-        name (e.g. "sigma" when it is modeled with a formula) maps to a nested dictionary of
+        component, and the values are instances of class `Prior` or `dict`. An observational model
+        parameter (e.g. "sigma" when it is modeled with a formula) maps to a nested dictionary of
         the same form; a constant component name maps directly to a `Prior`, a number, or an
         array. If priors are unset, use automatic priors inspired by the R rstanarm library.
         Names that don't match any term or component are reported with a warning; set
@@ -1370,6 +1370,16 @@ def hsgp_repr(term) -> str:
     return "\n".join(output_list)
 
 
+def smooth_repr(term) -> str:
+    """Format a smooth term with one indented line per prior block."""
+    blocks = [
+        f"    {name} ~ {term.prior[name]}"
+        for name in ("constant", "linear", "curvature")
+        if name in term.prior
+    ]
+    return "\n".join([term.name, *blocks])
+
+
 def make_priors_summary(parameter: ConditionalParameter) -> str:
     """Get a summary of terms and priors in a conditional parameter."""
     # Common effects
@@ -1388,11 +1398,15 @@ def make_priors_summary(parameter: ConditionalParameter) -> str:
     # HSGP
     hsgp = [hsgp_repr(term) for term in parameter.hsgp_terms.values()]
 
+    # Smooths
+    smooths = [smooth_repr(term) for term in parameter.smooth_terms.values()]
+
     priors_dict = {
         "Common-level effects": priors_common,
         "Group-level effects": priors_group,
         "Offset effects": offsets,
         "HSGP contributions": hsgp,
+        "Smooth contributions": smooths,
     }
 
     priors_list = []

@@ -1,7 +1,159 @@
 import numpy as np
 import pandas as pd
 
-from formulae.transforms import register_stateful_transform
+from formulae.transforms import NaturalCubicSpline, register_stateful_transform
+
+
+class SmoothTransform:
+    """Parent class for penalized smooths."""
+
+
+@register_stateful_transform
+class CRSpline(SmoothTransform, NaturalCubicSpline):
+    """Natural cubic spline as a random-effects term.
+
+    The first `null_space_dimension` columns are unpenalized,
+    while remaining columns have an identity curvature penalty.
+    Overrides formulae's `cr` transform to return the basis in random-effects coordinates.
+
+    When `by` is set, fit a separate basis to each observed group, using that group's knots,
+    boundaries, centering constraint and linear standardization.
+    Explicit knots and boundaries apply to every group.
+
+    Attributes
+    ----------
+    by_levels : np.ndarray or None
+        If `by` is specified, it contains the observed group levels. Otherwise `None`.
+        Order is preserved when `by` is ordered. If not, levels are sorted alphabetically.
+    by_indexes : np.ndarray or None
+        If `by` is specified, group index for each observation. Otherwise `None`.
+    shared : bool
+        Whether curvature prior parameters are shared across groups.
+    group_splines : list of CRSpline or None
+        If `by` is specified, fitted group-specific transforms in `by_levels` order.
+        Otherwise `None`.
+    basis_dimension : int or None
+        Number of columns per group after centering.
+    unpenalized_prior_keys : tuple of str
+        Names of the unpenalized directions before centering: `("constant", "linear")`.
+        Centering removes the constant direction.
+    """
+
+    __transform_name__ = "cr"
+
+    def __init__(self):
+        super().__init__()
+        self.by_levels = None
+        self.by_indexes = None
+        self.shared = False
+        self.group_splines = None
+        self.basis_dimension = None
+
+    def __call__(
+        self,
+        x: pd.Series,
+        df: int | None = None,
+        knots: np.ndarray | None = None,
+        lower_bound: float | None = None,
+        upper_bound: float | None = None,
+        center: bool = True,
+        by: pd.Series | None = None,
+        shared: bool = False,
+    ):
+        """Evaluate the spline basis in random-effects coordinates.
+
+        Parameters
+        ----------
+        x : pd.Series
+            Numeric predictor.
+        df : int, optional
+            Basis size per group after centering. Defaults to 10 when knots are omitted.
+        knots : array-like, optional
+            Interior knots. By default, use quantiles of unique values.
+        lower_bound : float, optional
+            Knots lower boundary. By default, use data minimum.
+        upper_bound : float, optional
+            Knots upper boundary. By default, use data maximum.
+        center : bool, optional
+            Constrain the smooth's contribution to sum to zero. Defaults to True.
+        by : pd.Series, optional
+            Categorical grouping variable. Defaults to None, for a single smooth.
+        shared : bool, optional
+            Share all random parameters of the curvature prior across groups. Defaults to False.
+            Ignored without `by`.
+
+        Returns
+        -------
+        np.ndarray
+            Basis matrix with one row per observation. With `by`, columns form consecutive
+            blocks in `by_levels` order. Each row is zero outside its group's block.
+
+        Notes
+        -----
+        For grouped smooths, supply `by` when evaluating new observations.
+        """
+        if by is None:
+            return super().__call__(x, df, knots, lower_bound, upper_bound, center)
+
+        if not self.params_set:
+            if not (
+                isinstance(by.dtype, pd.CategoricalDtype)
+                or pd.api.types.is_object_dtype(by.dtype)
+                or pd.api.types.is_string_dtype(by.dtype)
+            ):
+                raise ValueError("'by' must be categorical.")
+
+            if pd.isna(by).any():
+                raise ValueError("'by' cannot contain missing values.")
+
+            if isinstance(by.dtype, pd.CategoricalDtype) and by.dtype.ordered:
+                self.by_levels = np.asarray(
+                    [level for level in by.dtype.categories if level in set(by)]
+                )
+            else:
+                self.by_levels = np.unique(by)
+
+            self.by_indexes = pd.Categorical(by, categories=self.by_levels).codes
+            self.shared = shared
+            self._center = bool(center)
+            self.group_splines = []
+            x = np.asarray(x)
+            by = np.asarray(by)
+
+            for level in self.by_levels:
+                spline = CRSpline()
+                basis = spline(x[by == level], df, knots, lower_bound, upper_bound, center)
+                self.group_splines.append(spline)
+
+            self.basis_dimension = basis.shape[1]
+            self.params_set = True
+        return self.eval(x, by)
+
+    def eval(self, x, by=None):
+        # When `by` is used, we evaluate each group separately by calling `eval` on the
+        # corresponding group-specific spline. Each of those calls follows the non-grouped
+        # path at the bottom, so `to_random` is applied once for each group.
+        # When `by` is not used, there is only one evaluation and `to_random` is applied once.
+        if self.by_levels is not None:
+            if by is None:
+                raise ValueError("Supply 'by' when evaluating a grouped smooth.")
+
+            by = np.asarray(by)
+            x = np.asarray(x)
+            indexes = pd.Categorical(by, categories=self.by_levels).codes
+            if np.any(indexes < 0):
+                unknown = pd.unique(by[indexes < 0]).tolist()
+                raise ValueError(f"Unknown level(s) in smooth 'by': {unknown}.")
+
+            # Group-major blocks keep formulae's design matrix two-dimensional.
+            basis = np.zeros((len(x), len(self.by_levels), self.basis_dimension))
+            for i, spline in enumerate(self.group_splines):
+                rows = indexes == i
+                if np.any(rows):
+                    basis[rows, i, :] = spline.eval(x[rows])
+            return basis.reshape((len(x), -1))
+
+        return self.to_random(super().eval(x))
 
 
 def c(*args):
@@ -509,6 +661,7 @@ def get_distance(x):
 
 # These functions are made available in the namespace where the model formula is evaluated
 transformations_namespace = {
+    "cr": CRSpline,
     "c": c,
     "counts": counts,
     "censored": censored,

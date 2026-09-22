@@ -1,7 +1,7 @@
 from bambi.defaults import get_default_prior
 from bambi.priors.prior import Prior
-from bambi.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, OffsetTerm
-from bambi.utils import is_hsgp_term
+from bambi.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, OffsetTerm, SmoothTerm
+from bambi.utils import is_hsgp_term, is_smooth_term
 
 
 class MarginalParameter:
@@ -32,6 +32,7 @@ class ConditionalParameter:
         if self.design.common:
             self.add_common_terms(priors)
             self.add_hsgp_terms(priors)
+            self.add_smooth_terms(priors)
 
         if self.design.group:
             self.add_group_specific_terms(priors)
@@ -47,6 +48,9 @@ class ConditionalParameter:
     def add_common_terms(self, priors):
         for name, term in self.design.common.terms.items():
             if is_hsgp_term(term):
+                continue
+
+            if is_smooth_term(term):
                 continue
 
             prior = priors.get(name, priors.get("common", None))
@@ -69,6 +73,8 @@ class ConditionalParameter:
             noncentered = self.spec.noncentered
 
         for name, term in self.design.group.terms.items():
+            if is_smooth_term(term.expr):
+                raise NotImplementedError("Group-specific smooths are not supported yet.")
             prior = priors.get(name, priors.get("group_specific", None))
             self.terms[name] = GroupSpecificTerm(term, prior, self.prefix, noncentered)
 
@@ -78,22 +84,50 @@ class ConditionalParameter:
                 prior = priors.get(name, None)
                 self.terms[name] = HSGPTerm(term, prior, self.prefix)
 
+    def add_smooth_terms(self, priors):
+        for name, term in self.design.common.terms.items():
+            if is_smooth_term(term):
+                prior = priors.get(name, None)
+                term = SmoothTerm(term, prior, self.prefix)
+                if term.null_space_dimension == 2 and "Intercept" in self.design.common.terms:
+                    raise ValueError("Use center=True for a smooth in a model with an intercept.")
+                self.terms[name] = term
+
     def build_priors(self):
         for term in self.terms.values():
+            if isinstance(term, OffsetTerm):
+                continue
+
+            if isinstance(term, SmoothTerm):
+                if term.prior is None:
+                    term.prior = get_default_prior(
+                        "smooth", term=term, auto_scale=self.spec.auto_scale
+                    )
+                else:
+                    for prior in term.prior.values():
+                        if isinstance(prior, Prior):
+                            prior.auto_scale = False
+                continue
+
+            if isinstance(term, HSGPTerm):
+                if term.prior is None:
+                    term.prior = get_default_prior("hsgp", cov_func=term.cov)
+                continue
+
             if isinstance(term, GroupSpecificTerm):
                 kind = "group_specific"
             elif isinstance(term, CommonTerm) and term.kind == "intercept":
                 kind = "intercept"
-            elif isinstance(term, OffsetTerm):
-                continue
-            elif isinstance(term, HSGPTerm):
-                if term.prior is None:
-                    term.prior = get_default_prior("hsgp", cov_func=term.cov)
-                continue
             else:
                 kind = "common"
 
-            term.prior = prepare_prior(term.prior, kind, self.spec.auto_scale)
+            if term.prior is None:
+                kind += "" if self.spec.auto_scale else "_flat"
+                term.prior = get_default_prior(kind)
+            elif isinstance(term.prior, Prior):
+                term.prior.auto_scale = False
+            else:
+                raise ValueError("'prior' must be instance of Prior or `None`.")
 
     def update_priors(self, priors):
         common = priors.get("common")
@@ -123,6 +157,7 @@ class ConditionalParameter:
             for name, term in self.terms.items()
             if isinstance(term, CommonTerm)
             and not isinstance(term, OffsetTerm)
+            and not isinstance(term, SmoothTerm)
             and term.kind != "intercept"
         }
 
@@ -140,15 +175,6 @@ class ConditionalParameter:
     def hsgp_terms(self):
         return {name: term for name, term in self.terms.items() if isinstance(term, HSGPTerm)}
 
-
-def prepare_prior(prior, kind, auto_scale):
-    if prior is None:
-        if auto_scale:
-            prior = get_default_prior(kind)
-        else:
-            prior = get_default_prior(kind + "_flat")
-    elif isinstance(prior, Prior):
-        prior.auto_scale = False
-    else:
-        raise ValueError("'prior' must be instance of Prior or `None`.")
-    return prior
+    @property
+    def smooth_terms(self):
+        return {name: term for name, term in self.terms.items() if isinstance(term, SmoothTerm)}

@@ -11,6 +11,7 @@ from bambi.backend.pymc.terms import (
     build_group_specific_term_idx,
     build_hsgp_term,
     build_intercept_term,
+    build_smooth_term,
 )
 from bambi.backend.pymc.data import predictor_data_name, shape_common_data
 from bambi.backend.pymc.terms.info import CommonTermInfo, GroupSpecificTermInfo
@@ -66,6 +67,10 @@ def build_conditional_parameter(
 
     for term_info in parameter_info.hsgp_terms:
         value += build_hsgp_term(term_info, param_spec, model)
+
+    for term_info in parameter_info.smooth_terms:
+        data, param = build_smooth_term(term_info, param_spec, model)
+        value += pt.dot(data, param)
 
     # NOTE: If one parameter requires the other, ake sure they're built in the right order.
     transform_predictor = transforms_registry.get_predictor_transform(family, parameter.name)

@@ -3,5 +3,13 @@ from bambi.terms.group_specific import GroupSpecificTerm
 from bambi.terms.hsgp import HSGPTerm
 from bambi.terms.offset import OffsetTerm
 from bambi.terms.response import ResponseTerm
+from bambi.terms.smooth import SmoothTerm
 
-__all__ = ["CommonTerm", "GroupSpecificTerm", "HSGPTerm", "OffsetTerm", "ResponseTerm"]
+__all__ = [
+    "CommonTerm",
+    "GroupSpecificTerm",
+    "HSGPTerm",
+    "OffsetTerm",
+    "ResponseTerm",
+    "SmoothTerm",
+]

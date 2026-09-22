@@ -1,15 +1,10 @@
 """Static information used to build backend term graphs."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
 
 from bambi.backend.pymc.coords import coords_from_group_specific
 from bambi.backend.pymc.types import Coords, Dims
-
-if TYPE_CHECKING:
-    from bambi.terms import CommonTerm, GroupSpecificTerm, HSGPTerm
+from bambi.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, SmoothTerm
 
 
 @dataclass(frozen=True)
@@ -33,6 +28,16 @@ class GroupSpecificTermInfo:
 class HSGPTermInfo:
     term: HSGPTerm
     coords: Coords
+
+
+@dataclass(frozen=True)
+class SmoothTermInfo:
+    term: SmoothTerm
+    coords: Coords
+
+    @property
+    def data_dims(self) -> Dims:
+        return ("__obs__", *self.coords)
 
 
 @dataclass(frozen=True)
