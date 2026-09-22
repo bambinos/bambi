@@ -32,6 +32,8 @@ def build_marginal_parameter(parameter, family, model: pm.Model):
     for key, value in parameter.prior.args.items():
         if key == "transform" and isinstance(value, str):
             kwargs[key] = TRANSFORMS[value]
+        elif isinstance(value, np.ndarray):
+            kwargs[key] = value.squeeze()
         else:
             kwargs[key] = value
 

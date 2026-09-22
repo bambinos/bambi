@@ -169,8 +169,12 @@ def build_covariance_function(term, model):
             # varying lengthscale parameter
             if param_name == "ell" and not term.iso and term.shape[1] > 1:
                 param_dims = (f"{term.label}_var",) + param_dims
+            kwargs = {
+                key: value.squeeze() if isinstance(value, np.ndarray) else value
+                for key, value in prior.args.items()
+            }
             with model:
-                value = dist(f"{term.label}_{param_name}", **prior.args, dims=param_dims)
+                value = dist(f"{term.label}_{param_name}", **kwargs, dims=param_dims)
         else:
             # The value is constant
             if recycle:

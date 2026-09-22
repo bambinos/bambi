@@ -216,11 +216,12 @@ def test_L_good_shape(data_1d_multiple_groups, data_2d_multiple_groups):
     assert (term.L == np.array(L)).all()
 
 
-def test_custom_priors_1d(data_1d_single_group):
+@pytest.mark.parametrize("shape", [(), (1,), (1, 1)])
+def test_custom_priors_1d(data_1d_single_group, shape):
     priors = {
         "hsgp(x, c=1.5, m=10)": {
-            "sigma": bmb.Prior("Exponential", lam=0.75),
-            "ell": bmb.Prior("Exponential", lam=1.25),
+            "sigma": bmb.Prior("Exponential", lam=np.full(shape, 0.75)),
+            "ell": bmb.Prior("Exponential", lam=np.full(shape, 1.25)),
         }
     }
     model = bmb.Model("y ~ 0 + hsgp(x, c=1.5, m=10)", data_1d_single_group, priors=priors)

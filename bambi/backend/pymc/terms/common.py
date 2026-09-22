@@ -29,6 +29,10 @@ def flatten_param(param: pt.Variable, term_coords: Coords, response_coords: Coor
 
 
 def shape_prior_arg(value: np.ndarray, shape: tuple[int, ...]) -> np.ndarray:
+    if value.size == 1:
+        # A single numeric value applies to every coefficient, regardless of input rank.
+        return np.broadcast_to(value.reshape(()), shape)
+
     if value.shape == shape:
         return value
 
@@ -46,6 +50,7 @@ def shape_prior_arg(value: np.ndarray, shape: tuple[int, ...]) -> np.ndarray:
 def build_common_term(
     term_info, param_spec: ParamSpec, model: pm.Model
 ) -> tuple[pt.Variable, pt.Variable]:
+
     term = term_info.term
     param_name = term.label
     coords = term_info.coords

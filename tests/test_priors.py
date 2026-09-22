@@ -16,6 +16,41 @@ def test_prior_class():
     assert prior.args["return_to_store"] == 1
 
 
+@pytest.mark.parametrize("shape", [(1,), (1, 1), (1, 3), (3, 1)])
+@pytest.mark.parametrize("update", [False, True])
+def test_prior_preserves_array_axes(shape, update):
+    value = np.arange(np.prod(shape)).reshape(shape)
+    prior = bmb.Prior("Normal", mu=0 if update else value, sigma=1)
+    if update:
+        prior.update(mu=value)
+    np.testing.assert_array_equal(prior.args["mu"], value)
+    assert prior.args["mu"].shape == shape
+
+
+@pytest.mark.parametrize("shape", [(1,), (1, 1)])
+@pytest.mark.parametrize("target", ["Intercept", "continuous2", "1|categorical1", "sigma"])
+def test_singleton_prior_arguments(data_random_n100, shape, target):
+    sigma = np.ones(shape)
+    if target == "sigma":
+        prior = bmb.Prior("HalfNormal", sigma=sigma)
+    else:
+        if target == "1|categorical1":
+            sigma = bmb.Prior("HalfNormal", sigma=sigma)
+        prior = bmb.Prior("Normal", mu=np.zeros(shape), sigma=sigma)
+    model = bmb.Model(
+        "continuous1 ~ continuous2 + (1|categorical1)",
+        data_random_n100,
+        priors={target: prior},
+        noncentered=False,
+        center_predictors=False,
+    )
+    model.build()
+    pm_model = model.backend.model
+    expected_shape = (4,) if target == "1|categorical1" else ()
+    assert tuple(pm_model[target].shape.eval()) == expected_shape
+    assert np.isfinite(pm_model.compile_logp()(pm_model.initial_point()))
+
+
 def test_likelihood_class():
     # bmb.Likelihood with recognized name
     likelihood = bmb.Likelihood("Normal", ["mu", "sigma"], "mu")
