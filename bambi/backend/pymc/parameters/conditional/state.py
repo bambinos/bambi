@@ -3,12 +3,13 @@ from dataclasses import dataclass, field
 import numpy as np
 import pytensor.tensor as pt
 
-from bambi.backend.pymc.coords import coords_from_common, coords_from_hsgp
+from bambi.backend.pymc.coords import coords_from_common, coords_from_hsgp, coords_from_smooth
 from bambi.backend.pymc.terms.info import (
     CommonTermInfo,
     GroupSpecificFactorInfo,
     GroupSpecificTermInfo,
     HSGPTermInfo,
+    SmoothTermInfo,
 )
 from bambi.backend.pymc.types import Dims
 from bambi.parameters import ConditionalParameter
@@ -20,6 +21,7 @@ class ConditionalParameterInfo:
     common_terms: tuple[CommonTermInfo, ...]
     offset_terms: tuple[CommonTermInfo, ...]
     hsgp_terms: tuple[HSGPTermInfo, ...]
+    smooth_terms: tuple[SmoothTermInfo, ...]
     group_specific_factors: tuple[GroupSpecificFactorInfo, ...]
 
     @property
@@ -138,6 +140,10 @@ def make_conditional_parameter_info(parameter: ConditionalParameter) -> Conditio
         HSGPTermInfo(term=term, coords=coords_from_hsgp(term))
         for term in parameter.hsgp_terms.values()
     )
+    smooth_terms = tuple(
+        SmoothTermInfo(term=term, coords=coords_from_smooth(term))
+        for term in parameter.smooth_terms.values()
+    )
 
     terms_by_factor = {}
     for term in parameter.group_specific_terms.values():
@@ -152,5 +158,6 @@ def make_conditional_parameter_info(parameter: ConditionalParameter) -> Conditio
         common_terms=common_terms,
         offset_terms=offset_terms,
         hsgp_terms=hsgp_terms,
+        smooth_terms=smooth_terms,
         group_specific_factors=group_specific_factors,
     )

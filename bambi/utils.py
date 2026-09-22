@@ -7,7 +7,7 @@ import formulae as fm
 import numpy as np
 from xarray import DataTree
 
-from bambi.transformations import HSGP
+from bambi.transformations import HSGP, SmoothTransform
 
 
 def listify(obj):
@@ -110,34 +110,26 @@ def clean_formula_lhs(x):
     return x[position + 1 :]
 
 
-def is_single_component(term) -> bool:
-    """Determines if formulae term contains a single component."""
-    return hasattr(term, "components") and len(term.components) == 1
-
-
 def is_call_component(component) -> bool:
     """Determines if formulae component is the result of a function call."""
     return isinstance(component, fm.terms.call.Call)
 
 
-def is_stateful_transform(component):
-    """Determines if formulae call component is a stateful transformation."""
-    return component.call.stateful_transform is not None
+def is_smooth_term(term):
+    """Determine whether a formulae term is a smooth transform."""
+    return any(
+        is_call_component(component)
+        and isinstance(component.call.stateful_transform, SmoothTransform)
+        for component in getattr(term, "components", ())
+    )
 
 
 def is_hsgp_term(term):
-    """Determines if formulae term represents an HSGP term
-
-    Bambi uses this function to detect HSGP terms and treat them in a different way.
-    """
-    if not is_single_component(term):
-        return False
-    component = term.components[0]
-    if not is_call_component(component):
-        return False
-    if not is_stateful_transform(component):
-        return False
-    return isinstance(component.call.stateful_transform, HSGP)
+    """Determine whether a formulae term is an HSGP transform."""
+    return any(
+        is_call_component(component) and isinstance(component.call.stateful_transform, HSGP)
+        for component in getattr(term, "components", ())
+    )
 
 
 def remove_common_intercept(dm: fm.matrices.DesignMatrices) -> fm.matrices.DesignMatrices:

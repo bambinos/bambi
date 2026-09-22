@@ -1,4 +1,5 @@
 from bambi.defaults.hsgp import HSGP_COV_PARAMS_DEFAULT_PRIORS
+from bambi.defaults.smooths import CR_DEFAULT_PRIORS
 
 from bambi.families.likelihood import Likelihood
 from bambi.priors.prior import Prior
@@ -53,6 +54,25 @@ def generate_prior_hsgp(cov_name: str):
     return priors
 
 
+def generate_prior_smooth(term, auto_scale):
+    if term.basis == "cr":
+        return generate_prior_cr(term, auto_scale)
+
+    raise ValueError(f"Unsupported smooth basis for automatic prior generation: {term.basis!r}.")
+
+
+def generate_prior_cr(term, auto_scale):
+    priors = {}
+    for param, prior_spec in CR_DEFAULT_PRIORS.items():
+        priors[param] = _build_prior_from_spec(prior_spec)
+        priors[param].auto_scale = auto_scale
+
+    if not term.has_intercept:
+        del priors["constant"]
+
+    return priors
+
+
 def get_default_prior(term_type, **kwargs):
     """Generate a Prior based on the default settings
 
@@ -66,6 +86,8 @@ def get_default_prior(term_type, **kwargs):
     - group_specific_flat: Normal prior where its sigma has a HalfFlat hyperprior.
     - hsgp: The priors depend on the value passed to `kwargs["cov_func"]`.
         See `HSGP_COV_PARAMS_DEFAULT_PRIORS`.
+    - smooth: The priors depend on the value passed to `kwargs["term"]`.
+        See `CR_DEFAULT_PRIORS`.
 
     Parameters
     ----------
@@ -92,8 +114,10 @@ def get_default_prior(term_type, **kwargs):
         prior = Prior("Normal", mu=0, sigma=Prior("HalfFlat"))
     elif term_type == "hsgp":
         prior = generate_prior_hsgp(kwargs["cov_func"])
+    elif term_type == "smooth":
+        prior = generate_prior_smooth(kwargs["term"], kwargs["auto_scale"])
     else:
-        raise ValueError("Unrecognized term type.")
+        raise ValueError(f"Unrecognized term type: {term_type}.")
     return prior
 
 

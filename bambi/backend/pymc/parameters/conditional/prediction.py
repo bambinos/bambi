@@ -213,6 +213,15 @@ def _build_new_non_group_specific_data(
             coords={dim: model.coords[dim] for dim in term_data_dims},
         )
 
+    for term_info in parameter_info.smooth_terms:
+        term = term_info.term
+        term_data_name = predictor_data_name(term.label, term_info.data_dims, model)
+        term_data_dims = model.named_vars_to_dims[term_data_name][1:]  # drop __obs__
+        data_dict[term_data_name] = shape_common_data(
+            data=term.term.eval_new_data(data),
+            coords={dim: model.coords[dim] for dim in term_data_dims},
+        )
+
     for term_info in parameter_info.hsgp_terms:
         term = term_info.term
         term_data = term.term.eval_new_data(data)

@@ -134,6 +134,17 @@ def coords_from_hsgp(term):
     return coords
 
 
+def coords_from_smooth(term):
+    if term.by_levels is None:
+        coords = {}
+    else:
+        coords = {f"{term.by_name}_dim": term.by_levels}
+    basis_dim = f"{term.label}_dim"
+    if basis_dim in coords:
+        basis_dim = f"{term.label}_basis_dim"
+    return coords | {basis_dim: range(term.basis_dimension)}
+
+
 def coords_for_cutpoints(parameter_label, response_levels):
     """Return the coordinate for the K - 1 cutpoints of an ordinal response."""
     cutpoint_levels = [
