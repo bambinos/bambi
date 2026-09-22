@@ -103,15 +103,25 @@ class SmoothTerm(BaseTerm):
         return self.components[0].call.stateful_transform.null_space_dimension
 
     @property
+    def unpenalized_prior_keys(self):
+        """Prior blocks for the null-space coefficients retained after centering.
+
+        Bambi smooth transforms name their unpenalized coefficients in basis order.
+        Formulae's centering constraint removes leading null-space directions,
+        so the retained directions are the final `null_space_dimension` entries.
+        """
+        size = self.null_space_dimension
+        if size == 0:
+            return ()
+        return self.transform.unpenalized_prior_keys[-size:]
+
+    @property
     def has_intercept(self):
-        return self.null_space_dimension == 2
+        return "constant" in self.unpenalized_prior_keys
 
     @property
     def prior_keys(self):
-        keys = ["linear", "curvature"]
-        if self.has_intercept:
-            keys = ["constant", "linear", "curvature"]
-        return keys
+        return [*self.unpenalized_prior_keys, "curvature"]
 
     @property
     def prior(self):
@@ -157,7 +167,7 @@ class SmoothTerm(BaseTerm):
                 "The 'constant' smooth prior should not have any random variable arguments."
             )
 
-        linear_prior = value["linear"]
+        linear_prior = value.get("linear")
         if isinstance(linear_prior, Prior) and any(
             isinstance(p, Prior) for p in linear_prior.args.values()
         ):

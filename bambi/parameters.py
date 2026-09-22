@@ -89,7 +89,7 @@ class ConditionalParameter:
             if is_smooth_term(term):
                 prior = priors.get(name, None)
                 term = SmoothTerm(term, prior, self.prefix)
-                if term.null_space_dimension == 2 and "Intercept" in self.design.common.terms:
+                if term.has_intercept and "Intercept" in self.design.common.terms:
                     raise ValueError("Use center=True for a smooth in a model with an intercept.")
                 self.terms[name] = term
 
