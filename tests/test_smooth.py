@@ -4,12 +4,12 @@ import numpy as np
 import pandas as pd
 import preliz as pz
 
-from formulae.transforms import NaturalCubicSpline
+from formulae.transforms import CyclicCubicSpline, NaturalCubicSpline
 from xarray import DataTree
 
 import bambi as bmb
 from bambi.terms.smooth import SmoothTerm
-from bambi.transformations import CRSpline
+from bambi.transformations import CCSpline, CRSpline
 
 RANDOM_SEED = sum(map(ord, "Test smooths"))
 
@@ -508,6 +508,41 @@ class TestCr:
         model.build()
 
         assert model.backend.model.named_vars_to_dims["curve"] == ("group_dim", "curve_dim")
+
+
+class TestCc:
+    @staticmethod
+    def name(center):
+        return f"cc(x, period=5, df=6, center={center})"
+
+    @pytest.mark.parametrize(
+        "center, prior_keys", [(False, ["constant", "curvature"]), (True, ["curvature"])]
+    )
+    def test_model_builds_with_default_priors(self, smooth_data, center, prior_keys):
+        name = self.name(center)
+        formula = f"y ~ 0 + {name}" if not center else f"y ~ {name}"
+        model = bmb.Model(formula, smooth_data)
+
+        term = model.parameters["mu"].terms[name]
+        assert list(term.prior) == prior_keys
+        model.build()
+
+    @pytest.mark.parametrize("center", [False, True])
+    def test_random_basis(self, smooth_data, center):
+        original, adapted = CyclicCubicSpline(), CCSpline()
+        original(smooth_data.x, period=5, df=6, center=center)
+
+        np.testing.assert_allclose(
+            adapted(smooth_data.x, period=5, df=6, center=center),
+            original.to_random(),
+        )
+
+    def test_grouped_model_builds(self, grouped_smooth_data):
+        name = "cc(x, period=5, df=6, by=group, shared=True)"
+        model = bmb.Model(f"y ~ group + {name}", grouped_smooth_data)
+
+        assert model.parameters["mu"].terms[name].shared
+        model.build()
 
 
 @pytest.mark.parametrize(

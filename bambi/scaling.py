@@ -169,10 +169,10 @@ def _scale_smooth_term_normal(term, response_std, intercept_stats):
         mu, sigma = intercept_stats
         constant.update(mu=mu, sigma=sigma)
 
-    # The linear coefficient follows the constant coefficient when one is present.
-    linear_index = term.null_space_dimension - 1
-    linear = prior["linear"]
+    # Not all smooth terms have a linear component.
+    linear = prior.get("linear")
     if isinstance(linear, Prior) and linear.auto_scale and linear.name == "Normal":
+        linear_index = term.null_space_dimension - 1
         if term.by_levels is None:
             linear_sigma = _get_normal_slope_sigma(term.data[:, linear_index], response_std)
         else:
