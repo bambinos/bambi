@@ -112,6 +112,10 @@ class ConditionalParameter:
             if isinstance(term, HSGPTerm):
                 if term.prior is None:
                     term.prior = get_default_prior("hsgp", cov_func=term.cov)
+                else:
+                    for prior in term.prior.values():
+                        if isinstance(prior, Prior):
+                            prior.auto_scale = False
                 continue
 
             if isinstance(term, GroupSpecificTerm):

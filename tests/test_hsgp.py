@@ -225,6 +225,8 @@ def test_custom_priors_1d(data_1d_single_group, shape):
         }
     }
     model = bmb.Model("y ~ 0 + hsgp(x, c=1.5, m=10)", data_1d_single_group, priors=priors)
+    term = model.parameters["mu"].hsgp_terms["hsgp(x, c=1.5, m=10)"]
+    assert all(not prior.auto_scale for prior in term.prior.values())
     model.build()
 
     weights_rv = model.backend.model["hsgp(x, c=1.5, m=10)_weights_raw"]
