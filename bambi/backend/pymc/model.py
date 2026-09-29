@@ -8,11 +8,13 @@ from importlib.metadata import version
 import numpy as np
 import pandas as pd
 import pymc as pm
+import pytensor.tensor as pt
 import xarray as xr
 from pymc.backends.arviz import apply_function_over_dataset, coords_and_dims_for_inferencedata
 from pymc.exceptions import ShapeWarning
 from pymc.model.fgraph import fgraph_from_model, model_from_fgraph
 from pymc.model.transform.conditioning import remove_value_transforms
+from pytensor.graph.traversal import ancestors
 from xarray import DataTree
 
 from bambi.backend.pymc.coords import coords_from_response
@@ -94,6 +96,7 @@ class PyMCModel:
 
         model = pm.Model(coords=response_coords_data | response_coords | response_coords_reduced)
         model.__bambi_attrs__ = {
+            "noncentered_distributions": {},
             "response_ndim": self.spec.family.RESPONSE_NDIM,
             "response_coords_data": response_coords_data,
             "response_coords": response_coords,
@@ -286,17 +289,7 @@ class PyMCModel:
         # If group-specific offsets are discarded, we add them back.
         # They are needed for the computation of deterministics (model parameters).
         posterior = as_dataset(idata["posterior"])
-        offset_values = {}
-        for parameter_info in self._conditional_parameter_info.values():
-            for term_info in parameter_info.group_specific_terms:
-                term = term_info.term
-                term_label = term.label
-                offset_name = f"{term_label}_offset"
-                if term.noncentered and offset_name not in posterior:
-                    sigma_name = term.hyperprior_alias.get("sigma", "sigma")
-                    offset_values[offset_name] = (
-                        posterior[term_label] / posterior[f"{term_label}_{sigma_name}"]
-                    )
+        offset_values = self._get_offset_values(posterior)
 
         if data is None:
             self._predict_in_sample(
@@ -342,17 +335,7 @@ class PyMCModel:
 
         posterior = as_dataset(idata["posterior"])
 
-        offset_values = {}
-        for parameter_info in self._conditional_parameter_info.values():
-            for term_info in parameter_info.group_specific_terms:
-                term = term_info.term
-                term_label = term.label
-                offset_name = f"{term_label}_offset"
-                if term.noncentered and offset_name not in posterior:
-                    sigma_name = term.hyperprior_alias.get("sigma", "sigma")
-                    offset_values[offset_name] = (
-                        posterior[term_label] / posterior[f"{term_label}_{sigma_name}"]
-                    )
+        offset_values = self._get_offset_values(posterior)
 
         trace = idata
         if offset_values:
@@ -394,14 +377,21 @@ class PyMCModel:
             if rv.name not in deterministic_names and rv.name in posterior
         ]
         target_names = [rv.name for rv in target_rvs]
-        value_vars = [untransformed_model.rvs_to_values[rv] for rv in target_rvs]
+        # Omitted offsets are not reported as log-prior targets, but may be inputs
+        # to the density of a retained RV (e.g. a centered parent with an NC mu).
+        logp = untransformed_model.logp(vars=target_rvs, sum=False)
+        required_names = {var.name for var in ancestors(logp) if var.name is not None}
+        input_posterior = posterior.assign(self._get_offset_values(posterior, required_names))
+        input_rvs = [rv for rv in untransformed_model.free_RVs if rv.name in input_posterior]
+        input_names = [rv.name for rv in input_rvs]
+        value_vars = [untransformed_model.rvs_to_values[rv] for rv in input_rvs]
 
         elemwise_logprior_fn = untransformed_model.compile_fn(
             inputs=value_vars,
-            outs=untransformed_model.logp(vars=target_rvs, sum=False),
+            outs=logp,
             on_unused_input="ignore",
         )
-        input_dataset = posterior[target_names].astype(
+        input_dataset = input_posterior[input_names].astype(
             {value_var.name: value_var.type.dtype for value_var in value_vars}, copy=False
         )
         logdens = apply_function_over_dataset(
@@ -425,6 +415,31 @@ class PyMCModel:
             return None
 
         return idata
+
+    def _get_offset_values(
+        self, posterior: xr.Dataset, required_names: set[str] | None = None
+    ) -> dict[str, xr.DataArray]:
+        """Recover only missing auxiliary draws from the transforms actually built."""
+        offset_values = {}
+        for offset_name, (coefficient, mu, sigma) in self.model.__bambi_attrs__[
+            "noncentered_distributions"
+        ].items():
+            if offset_name in posterior or (
+                required_names is not None and offset_name not in required_names
+            ):
+                continue
+            if isinstance(mu, pt.TensorVariable):
+                location = posterior[mu.name]
+            else:
+                dims = self.model.named_vars_to_dims[coefficient.name]
+                coords = {dim: np.asarray(self.model.coords[dim]) for dim in dims}
+                shape = tuple(len(coords[dim]) for dim in dims)
+                location = xr.DataArray(np.broadcast_to(mu, shape), dims=dims, coords=coords)
+            values = posterior[coefficient.name]
+            offset_values[offset_name] = ((values - location) / posterior[sigma.name]).astype(
+                values.dtype
+            )
+        return offset_values
 
     def _predict_in_sample(
         self,
