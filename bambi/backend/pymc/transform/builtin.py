@@ -11,6 +11,7 @@ from bambi.families.builtin import (
     Categorical,
     ContinuationRatio,
     Cumulative,
+    CureWeibull,
     Exponential,
     Gamma,
     HurdleGamma,
@@ -258,3 +259,13 @@ def _(parameters):
     # but we want S(t) = exp(-lam * t**alpha).
     # So we have beta^(-alpha) = lam, or beta = lam^(-1 / alpha).
     return {"alpha": alpha, "beta": parameters["lam"] ** (-1 / alpha)}
+
+
+@transforms_registry.transform_parameters(CureWeibull)
+def _(parameters):
+    alpha = parameters["alpha"]
+    return {
+        "alpha": alpha,
+        "beta": parameters["mu"] / pt.gamma(1 + 1 / alpha),
+        "cure": parameters["cure"],
+    }

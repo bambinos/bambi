@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import pymc as pm
 import xarray as xr
+from scipy.special import gamma
 
 from bambi.terms import GroupSpecificTerm
 
@@ -1170,6 +1171,122 @@ def test_weibull_ph_predict_and_log_likelihood(
         expected[..., 2] = np.log(-np.expm1(log_survival[..., 2]))
     likelihood = model.compute_log_likelihood(idata, data=new_data, inplace=False)
     np.testing.assert_allclose(likelihood.log_likelihood["time"], expected, atol=1e-12)
+
+
+@pytest.fixture
+def cure_weibull_data():
+    rng = np.random.default_rng(1234)
+    x = rng.normal(size=100)
+    cure = 1 / (1 + np.exp(-(-0.5 + 0.3 * x)))
+    event_time = np.exp(0.3 * x) * rng.weibull(1.5, size=100)
+    event_time[rng.uniform(size=100) < cure] = np.inf
+    follow_up = rng.uniform(2, 8, size=100)
+    time = np.minimum(event_time, follow_up)
+    status = np.where(event_time > follow_up, "right", "none")
+    status[time < 0.3] = "left"
+    time = np.maximum(time, 0.3)
+    data = pd.DataFrame({"time": time, "status": status, "x": x})
+    # Keep the boundary cases used by conditional predictions and the survival plateau.
+    data.loc[:3, ["time", "status", "x"]] = [
+        [0.2, "none", -1.0],
+        [1.0, "right", 0.0],
+        [2.0, "left", 1.0],
+        [1000.0, "right", 2.0],
+    ]
+    return data
+
+
+@pytest.mark.parametrize("model_cure", [False, True])
+@pytest.mark.parametrize("model_shape", [False, True])
+def test_cure_weibull_predict_and_log_likelihood(
+    cure_weibull_data, mock_pymc_sample, model_cure, model_shape
+):
+    additionals = []
+    if model_cure:
+        additionals.append("cure ~ x")
+
+    if model_shape:
+        additionals.append("alpha ~ x")
+
+    priors = {}
+    if model_shape:
+        priors["alpha"] = {
+            "Intercept": bmb.Prior("Normal", mu=0, sigma=0.2),
+            "x": bmb.Prior("Normal", mu=0, sigma=0.2),
+        }
+    model = bmb.Model(
+        bmb.Formula("censored(time, status) ~ x", *additionals),
+        cure_weibull_data,
+        family="cure_weibull",
+        priors=priors,
+    )
+    assert model.family.link["cure"].name == "logit"
+    idata = model.fit(draws=11, chains=2, random_seed=1234)
+    assert np.isfinite(
+        model.backend.model.compile_dlogp()(model.backend.model.initial_point())
+    ).all()
+    prediction = model.predict(
+        idata, data=cure_weibull_data, kind="response", inplace=False, random_seed=1234
+    )
+    mu = prediction.predictions["mu"].to_numpy()
+    cure = (
+        prediction.predictions["cure"].to_numpy()
+        if model_cure
+        else idata.posterior["cure"].to_numpy()[..., None]
+    )
+    alpha = (
+        prediction.predictions["alpha"].to_numpy()
+        if model_shape
+        else idata.posterior["alpha"].to_numpy()[..., None]
+    )
+    beta = mu / gamma(1 + 1 / alpha)
+    time = cure_weibull_data["time"].to_numpy()
+    log_susceptible_survival = -((time / beta) ** alpha)
+    expected = (
+        np.log1p(-cure)
+        + np.log(alpha)
+        - np.log(beta)
+        + (alpha - 1) * np.log(time / beta)
+        + log_susceptible_survival
+    )
+    log_survival = np.logaddexp(np.log(cure), np.log1p(-cure) + log_susceptible_survival)
+    right = cure_weibull_data["status"].to_numpy() == "right"
+    left = cure_weibull_data["status"].to_numpy() == "left"
+    expected[..., right] = log_survival[..., right]
+    expected[..., left] = (np.log1p(-cure) + np.log(-np.expm1(log_susceptible_survival)))[..., left]
+    likelihood = model.compute_log_likelihood(idata, inplace=False)
+    np.testing.assert_allclose(likelihood.log_likelihood["time"], expected, atol=1e-12)
+    new_data = cure_weibull_data.head(2).drop(columns=["time", "status"])
+    result = model.predict(idata, data=new_data, kind="response", inplace=False, random_seed=1234)
+    assert result.predictions["time"].shape == (2, 11, 2)
+    assert (result.predictions["time"] > 0).all()
+    if model_cure:
+        assert result.predictions["cure"].shape == (2, 11, 2)
+        assert ((result.predictions["cure"] > 0) & (result.predictions["cure"] < 1)).all()
+
+
+def test_cure_weibull_conditional_prediction(cure_weibull_data, mock_pymc_sample):
+    model = bmb.Model(
+        "censored(time, status) ~ 1",
+        cure_weibull_data,
+        family="cure_weibull",
+        priors={
+            "Intercept": bmb.Prior("Normal", mu=0, sigma=0.1),
+            "alpha": bmb.Prior("Gamma", alpha=100, beta=100),
+        },
+    )
+    idata = model.fit(draws=10, chains=2, random_seed=1234)
+    result = model.predict(
+        idata,
+        data=cure_weibull_data.head(3),
+        kind="response_conditional",
+        inplace=False,
+        random_seed=1234,
+    )
+    time = result.predictions["time"].to_numpy()
+    assert (time[..., 1] >= 1.0).all()
+    assert (time[..., 2] <= 2.0).all()
+    assert np.isfinite(time[..., 2]).all()
 
 
 @pytest.mark.usefixtures("mock_pymc_sample")

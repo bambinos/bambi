@@ -9,6 +9,7 @@ from bambi.families.builtin import (
     Categorical,
     ContinuationRatio,
     Cumulative,
+    CureWeibull,
     ExGaussian,
     DirichletMultinomial,
     Exponential,
@@ -128,6 +129,19 @@ BUILTIN_FAMILIES = {
         "family": Cumulative,
         "default_priors": {
             "threshold": {"name": "Normal", "mu": 0, "sigma": 1, "transform": "ordered"}
+        },
+    },
+    "cure_weibull": {
+        "likelihood": {
+            "name": "CureWeibull",
+            "params": ["mu", "alpha", "cure"],
+            "parent": "mu",
+        },
+        "link": {"mu": "log", "alpha": "log", "cure": "logit"},
+        "family": CureWeibull,
+        "default_priors": {
+            "alpha": {"name": "HalfCauchy", "beta": 1},
+            "cure": {"name": "Beta", "alpha": 2, "beta": 2},
         },
     },
     "dirichlet_multinomial": {

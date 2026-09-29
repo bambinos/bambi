@@ -446,6 +446,41 @@ def test_transformed_response_accepts_its_full_name_as_an_alias():
     assert model.response_term.label == "outcome"
 
 
+@pytest.mark.parametrize("model_cure", [False, True])
+@pytest.mark.parametrize("model_shape", [False, True])
+def test_cure_weibull_construction(model_cure, model_shape):
+    rng = np.random.default_rng(1234)
+    x = rng.normal(size=100)
+    cure = 1 / (1 + np.exp(-(-0.5 + 0.3 * x)))
+    event_time = np.exp(0.3 * x) * rng.weibull(1.5, size=100)
+    event_time[rng.uniform(size=100) < cure] = np.inf
+    follow_up = rng.uniform(2, 8, size=100)
+    data = pd.DataFrame(
+        {
+            "time": np.minimum(event_time, follow_up),
+            "status": np.where(event_time > follow_up, "right", "none"),
+            "x": x,
+        }
+    )
+    additionals = []
+    if model_cure:
+        additionals.append("cure ~ x")
+    if model_shape:
+        additionals.append("alpha ~ x")
+
+    model = bmb.Model(
+        bmb.Formula("censored(time, status) ~ x", *additionals), data, family="cure_weibull"
+    )
+    model.build()
+    assert model.family.link["cure"].name == "logit"
+    assert set(model.conditional_parameters) == {"mu"} | ({"cure"} if model_cure else set()) | (
+        {"alpha"} if model_shape else set()
+    )
+    point = model.backend.model.initial_point()
+    assert np.isfinite(model.backend.model.compile_logp()(point))
+    assert np.isfinite(model.backend.model.compile_dlogp()(point)).all()
+
+
 @pytest.mark.parametrize("alpha", [0.5, 1.0, 2.5])
 def test_weibull_ph_density_and_hazard_ratio(alpha):
     family = get_builtin_family("weibull_ph")
