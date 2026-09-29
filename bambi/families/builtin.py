@@ -222,6 +222,21 @@ class Weibull(Family):
     }
 
 
+class WeibullPH(Family):
+    """Weibull family with a proportional-hazards parametrization.
+
+    The survival function is `S(t) = exp(-lam * t**alpha)` and the hazard is
+    `h(t) = alpha * lam * t**(alpha - 1)`.
+    With a log link for `lam` and a shared shape `alpha`,
+    exponentiated regression coefficients are hazard ratios.
+    """
+
+    PARAMETERS = {
+        "lam": ParamSpec(links=["log", "identity", "inverse"]),
+        "alpha": ParamSpec(links=["log"]),
+    }
+
+
 class ZeroInflatedBinomial(Family):
     PARAMETERS = {
         "p": ParamSpec(links=["identity", "logit", "probit", "cloglog"]),

@@ -30,6 +30,7 @@ from bambi.families.builtin import (
     VonMises,
     Wald,
     Weibull,
+    WeibullPH,
     ZeroInflatedBinomial,
     ZeroInflatedNegativeBinomial,
     ZeroInflatedPoisson,
@@ -351,6 +352,16 @@ BUILTIN_FAMILIES = {
         },
         "link": {"mu": "log", "alpha": "log"},
         "family": Weibull,
+        "default_priors": {"alpha": {"name": "HalfCauchy", "beta": 1}},
+    },
+    "weibull_ph": {
+        "likelihood": {
+            "name": "Weibull",
+            "params": ["lam", "alpha"],
+            "parent": "lam",
+        },
+        "link": {"lam": "log", "alpha": "log"},
+        "family": WeibullPH,
         "default_priors": {"alpha": {"name": "HalfCauchy", "beta": 1}},
     },
     "zero_inflated_binomial": {

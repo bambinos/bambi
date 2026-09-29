@@ -14,6 +14,17 @@ from bambi.terms import GroupSpecificTerm
 from helpers import assert_ip_dlogp
 
 
+@pytest.fixture
+def survival_data():
+    return pd.DataFrame(
+        {
+            "time": [0.5, 1.0, 1.5, 2.0, 2.5, 3.0],
+            "x": [-1.0, 0.0, 1.0, -1.0, 0.0, 1.0],
+            "status": ["none", "right", "left", "none", "right", "none"],
+        }
+    )
+
+
 @pytest.fixture(scope="module")
 def data_n100():
     size = 100
@@ -1126,9 +1137,45 @@ class TestOrdinal(FitPredictParent):
         assert model.backend.model.eval_rv_shapes()["threshold"] == (3,)
 
 
+@pytest.mark.parametrize("is_censored", [False, True])
+@pytest.mark.parametrize("model_shape", [False, True])
+def test_weibull_ph_predict_and_log_likelihood(
+    survival_data, mock_pymc_sample, is_censored, model_shape
+):
+    response = "censored(time, status)" if is_censored else "time"
+    formula = f"{response} ~ x"
+    if model_shape:
+        formula = bmb.Formula(formula, "alpha ~ x")
+    model = bmb.Model(formula, survival_data, family="weibull_ph")
+    idata = model.fit(draws=4, chains=2, random_seed=1234)
+    assert np.isfinite(
+        model.backend.model.compile_dlogp()(model.backend.model.initial_point())
+    ).all()
+    new_data = survival_data.head(3)
+    result = model.predict(idata, data=new_data, kind="response", inplace=False, random_seed=1234)
+    assert result.predictions["lam"].shape == (2, 4, 3)
+    assert result.predictions["time"].shape == (2, 4, 3)
+    assert (result.predictions["time"] > 0).all()
+    lam = result.predictions["lam"].to_numpy()
+    alpha = (
+        result.predictions["alpha"].to_numpy()
+        if model_shape
+        else idata.posterior["alpha"].to_numpy()[..., None]
+    )
+    time = new_data["time"].to_numpy()
+    log_survival = -lam * time**alpha
+    expected = np.log(alpha) + np.log(lam) + (alpha - 1) * np.log(time) + log_survival
+    if is_censored:
+        expected[..., 1] = log_survival[..., 1]
+        expected[..., 2] = np.log(-np.expm1(log_survival[..., 2]))
+    likelihood = model.compute_log_likelihood(idata, data=new_data, inplace=False)
+    np.testing.assert_allclose(likelihood.log_likelihood["time"], expected, atol=1e-12)
+
+
 @pytest.mark.usefixtures("mock_pymc_sample")
 class TestCensoredResponses(FitPredictParent):
-    def test_model_with_intercept(self, data_kidney):
+    @pytest.mark.parametrize("family", ["weibull", "weibull_ph"])
+    def test_model_with_intercept(self, data_kidney, family):
         priors = {
             "Intercept": bmb.Prior("Normal", mu=0, sigma=1),
             "sex": bmb.Prior("Normal", mu=0, sigma=2),
@@ -1138,7 +1185,7 @@ class TestCensoredResponses(FitPredictParent):
         model = bmb.Model(
             "censored(time, status) ~ 1 + sex + age",
             data_kidney,
-            family="weibull",
+            family=family,
             link="log",
             priors=priors,
         )
@@ -1147,7 +1194,8 @@ class TestCensoredResponses(FitPredictParent):
         # Assert response is censored
         assert isinstance(model.backend.model.observed_RVs[0].owner.op, pm.Censored.rv_type)
 
-    def test_model_without_intercept(self, data_kidney):
+    @pytest.mark.parametrize("family", ["weibull", "weibull_ph"])
+    def test_model_without_intercept(self, data_kidney, family):
         priors = {
             "sex": bmb.Prior("Normal", mu=0, sigma=2),
             "age": bmb.Prior("Normal", mu=0, sigma=1),
@@ -1156,7 +1204,7 @@ class TestCensoredResponses(FitPredictParent):
         model = bmb.Model(
             "censored(time, status) ~ 0 + sex + age",
             data_kidney,
-            family="weibull",
+            family=family,
             link="log",
             priors=priors,
         )
@@ -1165,7 +1213,8 @@ class TestCensoredResponses(FitPredictParent):
         # Assert response is censored
         assert isinstance(model.backend.model.observed_RVs[0].owner.op, pm.Censored.rv_type)
 
-    def test_model_with_group_specific_effects(self, data_kidney):
+    @pytest.mark.parametrize("family", ["weibull", "weibull_ph"])
+    def test_model_with_group_specific_effects(self, data_kidney, family):
         # Model 3, with group-specific effects
         priors = {
             "alpha": bmb.Prior("Gamma", alpha=3, beta=5),
@@ -1178,7 +1227,7 @@ class TestCensoredResponses(FitPredictParent):
         model = bmb.Model(
             "censored(time, status) ~ 1 + sex + age + (1|patient)",
             data_kidney,
-            family="weibull",
+            family=family,
             link="log",
             priors=priors,
         )
