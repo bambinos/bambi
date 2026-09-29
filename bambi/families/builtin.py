@@ -237,6 +237,56 @@ class WeibullPH(Family):
     }
 
 
+class CureExponential(Family):
+    PARAMETERS = {
+        **Exponential.PARAMETERS,
+        "cure": ParamSpec(links=["logit", "probit", "cloglog"]),
+    }
+
+
+class CureGamma(Family):
+    PARAMETERS = {
+        **Gamma.PARAMETERS,
+        "cure": ParamSpec(links=["logit", "probit", "cloglog"]),
+    }
+
+
+class CureLogNormal(Family):
+    PARAMETERS = {
+        **LogNormal.PARAMETERS,
+        "cure": ParamSpec(links=["logit", "probit", "cloglog"]),
+    }
+
+
+class CureLogLogistic(Family):
+    PARAMETERS = {
+        **LogLogistic.PARAMETERS,
+        "cure": ParamSpec(links=["logit", "probit", "cloglog"]),
+    }
+
+
+class CureWeibullPH(Family):
+    PARAMETERS = {
+        **WeibullPH.PARAMETERS,
+        "cure": ParamSpec(links=["logit", "probit", "cloglog"]),
+    }
+
+
+class CureWeibull(Family):
+    """Weibull mixture-cure family.
+
+    `mu` is the mean event time among susceptible subjects, `alpha` is their Weibull shape,
+    and `cure` is the probability of never experiencing the event.
+    The overall survival is `cure + (1 - cure) * S_u(t)`, where S_u is the survival of the uncured.
+    """
+
+    PARAMETERS = {
+        "mu": ParamSpec(links=["log", "identity", "inverse"]),
+        "alpha": ParamSpec(links=["log"]),
+        "cure": ParamSpec(links=["logit", "probit", "cloglog"]),
+    }
+
+
 class ZeroInflatedBinomial(Family):
     PARAMETERS = {
         "p": ParamSpec(links=["identity", "logit", "probit", "cloglog"]),
