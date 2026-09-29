@@ -448,7 +448,18 @@ def test_transformed_response_accepts_its_full_name_as_an_alias():
 
 @pytest.mark.parametrize("model_cure", [False, True])
 @pytest.mark.parametrize("model_shape", [False, True])
-def test_cure_weibull_construction(model_cure, model_shape):
+@pytest.mark.parametrize(
+    "family, parent, shape",
+    [
+        ("cure_weibull", "mu", "alpha"),
+        ("cure_exponential", "mu", None),
+        ("cure_gamma", "mu", "alpha"),
+        ("cure_lognormal", "mu", "sigma"),
+        ("cure_loglogistic", "mu", "alpha"),
+        ("cure_weibull_ph", "lam", "alpha"),
+    ],
+)
+def test_cure_model_construction(model_cure, model_shape, family, parent, shape):
     rng = np.random.default_rng(1234)
     x = rng.normal(size=100)
     cure = 1 / (1 + np.exp(-(-0.5 + 0.3 * x)))
@@ -465,16 +476,14 @@ def test_cure_weibull_construction(model_cure, model_shape):
     additionals = []
     if model_cure:
         additionals.append("cure ~ x")
-    if model_shape:
-        additionals.append("alpha ~ x")
+    if model_shape and shape:
+        additionals.append(f"{shape} ~ x")
 
-    model = bmb.Model(
-        bmb.Formula("censored(time, status) ~ x", *additionals), data, family="cure_weibull"
-    )
+    model = bmb.Model(bmb.Formula("censored(time, status) ~ x", *additionals), data, family=family)
     model.build()
     assert model.family.link["cure"].name == "logit"
-    assert set(model.conditional_parameters) == {"mu"} | ({"cure"} if model_cure else set()) | (
-        {"alpha"} if model_shape else set()
+    assert set(model.conditional_parameters) == {parent} | ({"cure"} if model_cure else set()) | (
+        {shape} if model_shape and shape else set()
     )
     point = model.backend.model.initial_point()
     assert np.isfinite(model.backend.model.compile_logp()(point))

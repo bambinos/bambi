@@ -140,7 +140,8 @@ def make_cure_distribution(distribution):
         def logcdf(value, cure, *params):
             base = base_dist(params)
             finite_value = pt.switch(pt.isinf(value), support_point(base), value)
-            result = pt.log1p(-cure) + pm.logcdf(base, finite_value)
+            base_logcdf = pm.logcdf(base, finite_value)
+            result = pt.log1p(-cure) + base_logcdf
             result = pt.switch(pt.eq(value, np.inf), 0.0, result)
             result = pt.switch(pt.eq(value, -np.inf), -np.inf, result)
             return check_parameters(result, cure >= 0, cure <= 1)
@@ -195,6 +196,10 @@ def make_cure_distribution(distribution):
     return CureDistribution
 
 
+CureExponential = make_cure_distribution(pm.Exponential)
+CureGamma = make_cure_distribution(pm.Gamma)
+CureLogNormal = make_cure_distribution(pm.LogNormal)
+CureLogLogistic = make_cure_distribution(LogLogistic)
 CureWeibull = make_cure_distribution(pm.Weibull)
 
 
@@ -233,6 +238,10 @@ MAPPING = {
     "AdjacentCategory": pm.Categorical,
     "ContinuationRatio": pm.Categorical,
     "Cumulative": pm.Categorical,
+    "CureExponential": CureExponential,
+    "CureGamma": CureGamma,
+    "CureLogNormal": CureLogNormal,
+    "CureLogLogistic": CureLogLogistic,
     "CureWeibull": CureWeibull,
     "Horseshoe": horseshoe,
     "LogLogistic": LogLogistic,

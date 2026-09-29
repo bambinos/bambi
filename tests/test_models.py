@@ -9,6 +9,7 @@ import pandas as pd
 import pymc as pm
 import xarray as xr
 from scipy.special import gamma
+from scipy import stats
 
 from bambi.terms import GroupSpecificTerm
 
@@ -1287,6 +1288,104 @@ def test_cure_weibull_conditional_prediction(cure_weibull_data, mock_pymc_sample
     assert (time[..., 1] >= 1.0).all()
     assert (time[..., 2] <= 2.0).all()
     assert np.isfinite(time[..., 2]).all()
+
+
+@pytest.mark.parametrize("model_cure", [False, True])
+@pytest.mark.parametrize("model_shape", [False, True])
+@pytest.mark.parametrize(
+    "family, parent, shape",
+    [
+        ("cure_exponential", "mu", None),
+        ("cure_gamma", "mu", "alpha"),
+        ("cure_lognormal", "mu", "sigma"),
+        ("cure_loglogistic", "mu", "alpha"),
+        ("cure_weibull_ph", "lam", "alpha"),
+    ],
+)
+def test_cure_models_predict_and_log_likelihood(
+    survival_data, mock_pymc_sample, family, parent, shape, model_cure, model_shape
+):
+    additionals = ["cure ~ x"] if model_cure else []
+    priors = {
+        "Intercept": bmb.Prior("Normal", mu=0, sigma=0.1),
+        "x": bmb.Prior("Normal", mu=0, sigma=0.1),
+    }
+    if shape:
+        if model_shape:
+            additionals.append(f"{shape} ~ x")
+            priors[shape] = {
+                "Intercept": bmb.Prior("Normal", mu=0, sigma=0.1),
+                "x": bmb.Prior("Normal", mu=0, sigma=0.1),
+            }
+        else:
+            priors[shape] = bmb.Prior("Gamma", alpha=100, beta=100)
+    model = bmb.Model(
+        bmb.Formula("censored(time, status) ~ x", *additionals),
+        survival_data,
+        family=family,
+        priors=priors,
+    )
+    idata = model.fit(draws=15, chains=2, random_seed=1234)
+    prediction = model.predict(
+        idata, data=survival_data, kind="response", inplace=False, random_seed=1234
+    )
+    mu = prediction.predictions[parent].to_numpy()
+    cure = (
+        prediction.predictions["cure"].to_numpy()
+        if model_cure
+        else idata.posterior["cure"].to_numpy()[..., None]
+    )
+    if shape:
+        aux = (
+            prediction.predictions[shape].to_numpy()
+            if model_shape
+            else idata.posterior[shape].to_numpy()[..., None]
+        )
+    if family == "cure_exponential":
+        reference = stats.expon(scale=mu)
+    elif family == "cure_gamma":
+        reference = stats.gamma(a=aux, scale=mu / aux)
+    elif family == "cure_lognormal":
+        reference = stats.lognorm(s=aux, scale=np.exp(mu))
+    elif family == "cure_loglogistic":
+        reference = stats.fisk(c=1 / aux, scale=np.exp(mu))
+    else:
+        reference = stats.weibull_min(c=aux, scale=mu ** (-1 / aux))
+    time = survival_data["time"].to_numpy()
+    expected = np.log1p(-cure) + reference.logpdf(time)
+    right = survival_data["status"].to_numpy() == "right"
+    left = survival_data["status"].to_numpy() == "left"
+    expected[..., right] = np.logaddexp(np.log(cure), np.log1p(-cure) + reference.logsf(time))[
+        ..., right
+    ]
+    expected[..., left] = (np.log1p(-cure) + reference.logcdf(time))[..., left]
+    likelihood = model.compute_log_likelihood(idata, inplace=False)
+    np.testing.assert_allclose(likelihood.log_likelihood["time"], expected, atol=1e-10)
+
+    new_data = survival_data.head(3)
+    prediction = model.predict(
+        idata,
+        data=new_data.drop(columns=["time", "status"]),
+        kind="response",
+        inplace=False,
+        random_seed=1234,
+    )
+    draws = prediction.predictions["time"].to_numpy()
+    assert draws.shape == (2, 15, 3)
+    assert (draws > 0).all()
+    assert np.isinf(draws).any()
+    assert np.isfinite(draws).any()
+
+    conditional = (
+        model.predict(
+            idata, data=new_data, kind="response_conditional", inplace=False, random_seed=1234
+        )
+        .predictions["time"]
+        .to_numpy()
+    )
+    assert (conditional[..., 1] >= 1.0).all()
+    assert (conditional[..., 2] <= 1.5).all()
+    assert np.isfinite(conditional[..., 2]).all()
 
 
 @pytest.mark.usefixtures("mock_pymc_sample")

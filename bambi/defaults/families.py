@@ -9,6 +9,11 @@ from bambi.families.builtin import (
     Categorical,
     ContinuationRatio,
     Cumulative,
+    CureExponential,
+    CureGamma,
+    CureLogNormal,
+    CureLogLogistic,
+    CureWeibullPH,
     CureWeibull,
     ExGaussian,
     DirichletMultinomial,
@@ -129,6 +134,70 @@ BUILTIN_FAMILIES = {
         "family": Cumulative,
         "default_priors": {
             "threshold": {"name": "Normal", "mu": 0, "sigma": 1, "transform": "ordered"}
+        },
+    },
+    "cure_exponential": {
+        "likelihood": {
+            "name": "CureExponential",
+            "params": ["mu", "cure"],
+            "parent": "mu",
+        },
+        "link": {"mu": "log", "cure": "logit"},
+        "family": CureExponential,
+        "default_priors": {
+            "cure": {"name": "Beta", "alpha": 2, "beta": 2},
+        },
+    },
+    "cure_gamma": {
+        "likelihood": {
+            "name": "CureGamma",
+            "params": ["mu", "alpha", "cure"],
+            "parent": "mu",
+        },
+        "link": {"mu": "log", "alpha": "log", "cure": "logit"},
+        "family": CureGamma,
+        "default_priors": {
+            "alpha": {"name": "HalfCauchy", "beta": 1},
+            "cure": {"name": "Beta", "alpha": 2, "beta": 2},
+        },
+    },
+    "cure_lognormal": {
+        "likelihood": {
+            "name": "CureLogNormal",
+            "params": ["mu", "sigma", "cure"],
+            "parent": "mu",
+        },
+        "link": {"mu": "identity", "sigma": "log", "cure": "logit"},
+        "family": CureLogNormal,
+        "default_priors": {
+            "sigma": {"name": "HalfNormal", "sigma": 1},
+            "cure": {"name": "Beta", "alpha": 2, "beta": 2},
+        },
+    },
+    "cure_loglogistic": {
+        "likelihood": {
+            "name": "CureLogLogistic",
+            "params": ["mu", "alpha", "cure"],
+            "parent": "mu",
+        },
+        "link": {"mu": "identity", "alpha": "log", "cure": "logit"},
+        "family": CureLogLogistic,
+        "default_priors": {
+            "alpha": {"name": "HalfNormal", "sigma": 1},
+            "cure": {"name": "Beta", "alpha": 2, "beta": 2},
+        },
+    },
+    "cure_weibull_ph": {
+        "likelihood": {
+            "name": "CureWeibull",
+            "params": ["lam", "alpha", "cure"],
+            "parent": "lam",
+        },
+        "link": {"lam": "log", "alpha": "log", "cure": "logit"},
+        "family": CureWeibullPH,
+        "default_priors": {
+            "alpha": {"name": "HalfCauchy", "beta": 1},
+            "cure": {"name": "Beta", "alpha": 2, "beta": 2},
         },
     },
     "cure_weibull": {

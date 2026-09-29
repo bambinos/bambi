@@ -149,6 +149,7 @@ def test_cure_weibull_numba_random_without_object_mode():
     [
         (pm.Weibull, {"alpha": 1.7, "beta": 2.4}, stats.weibull_min(c=1.7, scale=2.4)),
         (pm.Exponential, {"lam": 0.8}, stats.expon(scale=1 / 0.8)),
+        (pm.Gamma, {"mu": 2.0, "sigma": 1.0}, stats.gamma(a=4, scale=0.5)),
         (pm.LogNormal, {"mu": 0.5, "sigma": 0.7}, stats.lognorm(s=0.7, scale=np.exp(0.5))),
         (LogLogistic, {"mu": 0.5, "alpha": 0.7}, stats.fisk(c=1 / 0.7, scale=np.exp(0.5))),
     ],

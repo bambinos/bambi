@@ -237,6 +237,41 @@ class WeibullPH(Family):
     }
 
 
+class CureExponential(Family):
+    PARAMETERS = {
+        **Exponential.PARAMETERS,
+        "cure": ParamSpec(links=["logit", "probit", "cloglog"]),
+    }
+
+
+class CureGamma(Family):
+    PARAMETERS = {
+        **Gamma.PARAMETERS,
+        "cure": ParamSpec(links=["logit", "probit", "cloglog"]),
+    }
+
+
+class CureLogNormal(Family):
+    PARAMETERS = {
+        **LogNormal.PARAMETERS,
+        "cure": ParamSpec(links=["logit", "probit", "cloglog"]),
+    }
+
+
+class CureLogLogistic(Family):
+    PARAMETERS = {
+        **LogLogistic.PARAMETERS,
+        "cure": ParamSpec(links=["logit", "probit", "cloglog"]),
+    }
+
+
+class CureWeibullPH(Family):
+    PARAMETERS = {
+        **WeibullPH.PARAMETERS,
+        "cure": ParamSpec(links=["logit", "probit", "cloglog"]),
+    }
+
+
 class CureWeibull(Family):
     """Weibull mixture-cure family.
 

@@ -11,6 +11,9 @@ from bambi.families.builtin import (
     Categorical,
     ContinuationRatio,
     Cumulative,
+    CureExponential,
+    CureGamma,
+    CureWeibullPH,
     CureWeibull,
     Exponential,
     Gamma,
@@ -267,5 +270,28 @@ def _(parameters):
     return {
         "alpha": alpha,
         "beta": parameters["mu"] / pt.gamma(1 + 1 / alpha),
+        "cure": parameters["cure"],
+    }
+
+
+@transforms_registry.transform_parameters(CureExponential)
+def _(parameters):
+    return {"lam": 1 / parameters["mu"], "cure": parameters["cure"]}
+
+
+@transforms_registry.transform_parameters(CureGamma)
+def _(parameters):
+    return {
+        "mu": parameters["mu"],
+        "sigma": parameters["mu"] / parameters["alpha"] ** 0.5,
+        "cure": parameters["cure"],
+    }
+
+
+@transforms_registry.transform_parameters(CureWeibullPH)
+def _(parameters):
+    return {
+        "alpha": parameters["alpha"],
+        "beta": parameters["lam"] ** (-1 / parameters["alpha"]),
         "cure": parameters["cure"],
     }
