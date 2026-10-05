@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import operator
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pymc as pm
@@ -12,11 +15,13 @@ from bambi.nonlinear import (
     FUNCTION_ALIASES,
     FunctionCall,
     Literal,
-    NonlinearParameter,
     SUPPORTED_FUNCTIONS,
     Symbol,
     UnaryOperation,
 )
+
+if TYPE_CHECKING:
+    from bambi.parameters import ConditionalParameter
 
 _BINARY_OPERATORS = {
     "+": operator.add,
@@ -25,6 +30,7 @@ _BINARY_OPERATORS = {
     "/": operator.truediv,
     "**": operator.pow,
 }
+
 
 def _logit(value):
     return pt.log(value) - pt.log1p(-value)
@@ -72,7 +78,7 @@ def nonlinear_data_name(parameter_label: str, symbol: str) -> str:
 
 
 def build_nonlinear_parameter(
-    parameter: NonlinearParameter,
+    parameter: ConditionalParameter,
     parameter_values: dict[str, pt.Variable],
     data,
     model: pm.Model,
@@ -83,8 +89,8 @@ def build_nonlinear_parameter(
 
     Parameters
     ----------
-    parameter : NonlinearParameter
-        Frontend description of the nonlinear parent.
+    parameter : ConditionalParameter
+        Frontend description of the nonlinear parameter.
     parameter_values : dict of str to TensorVariable
         Already-built additive and nonlinear parameters keyed by their original names.
     data : pandas.DataFrame
@@ -128,13 +134,13 @@ def build_nonlinear_parameter(
     return pm.Deterministic(parameter.label, value, dims="__obs__", model=model)
 
 
-def build_new_nonlinear_data(parameter: NonlinearParameter, data) -> dict[str, np.ndarray]:
+def build_new_nonlinear_data(parameter: ConditionalParameter, data) -> dict[str, np.ndarray]:
     """Build replacements for observed inputs to a nonlinear expression.
 
     Parameters
     ----------
-    parameter : NonlinearParameter
-        Nonlinear parent whose expression inputs are required.
+    parameter : ConditionalParameter
+        Nonlinear parameter whose expression inputs are required.
     data : pandas.DataFrame
         New prediction or log-likelihood data.
 

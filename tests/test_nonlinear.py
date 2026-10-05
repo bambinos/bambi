@@ -397,10 +397,11 @@ def test_predictor_dependent_parameter_builds_expected_graph():
     model.build()
 
     assert_ip_dlogp(model)
-    assert set(model.nonlinear_predictors) == {"a", "b", "k"}
-    assert set(model.nonlinear_predictors["a"].terms) == {"Intercept", "z"}
-    assert set(model.nonlinear_predictors["b"].terms) == {"Intercept"}
-    assert set(model.nonlinear_predictors["k"].terms) == {"Intercept"}
+    coefficients = model.parameters["mu"].nonlinear_coefficients
+    assert set(coefficients) == {"a", "b", "k"}
+    assert set(coefficients["a"].terms) == {"Intercept", "z"}
+    assert set(coefficients["b"].terms) == {"Intercept"}
+    assert set(coefficients["k"].terms) == {"Intercept"}
     assert model.backend.model.named_vars_to_dims["mu"] == ("__obs__",)
     assert model.backend.model.named_vars_to_dims["a"] == ("__obs__",)
     assert model.backend.model.named_vars_to_dims["mu__x_data"] == ("__obs__",)
@@ -551,7 +552,7 @@ def test_nonnumeric_expression_data():
 def test_nested_priors_are_assigned():
     model = bmb.Model(exponential_formula(), linear_data(), priors=exponential_priors())
 
-    prior = model.nonlinear_predictors["a"].terms["z"].prior
+    prior = model.parameters["mu"].nonlinear_coefficients["a"].terms["z"].prior
     assert prior.name == "Normal"
     assert prior.args == {"mu": 0, "sigma": 2}
 
@@ -562,7 +563,7 @@ def test_set_priors_uses_nested_parameter_names():
 
     model.set_priors({"a": {"z": updated}})
 
-    prior = model.nonlinear_predictors["a"].terms["z"].prior
+    prior = model.parameters["mu"].nonlinear_coefficients["a"].terms["z"].prior
     assert prior.name == "Normal"
     assert prior.args == {"mu": 1, "sigma": 0.25}
 
@@ -610,7 +611,8 @@ def test_dropna_aligns_all_model_inputs():
     pd.testing.assert_frame_equal(data, original)
     np.testing.assert_array_equal(model.response_term.data, data.y.iloc[4:])
     np.testing.assert_array_equal(model.backend.model["mu__x_data"].get_value(), data.x.iloc[4:])
-    np.testing.assert_array_equal(model.nonlinear_predictors["a"].terms["z"].data, data.z.iloc[4:])
+    coefficient = model.parameters["mu"].nonlinear_coefficients["a"]
+    np.testing.assert_array_equal(coefficient.terms["z"].data, data.z.iloc[4:])
     assert_ip_dlogp(model)
 
 
@@ -658,7 +660,7 @@ def test_dependency_check_ignores_string_literals():
     assert_ip_dlogp(model)
 
 
-def test_nonlinear_predictor_can_depend_on_another_predictor():
+def test_nonlinear_coefficient_can_depend_on_another_coefficient():
     formula = bmb.Formula("y ~ a + b * x", "a ~ 1 + b", nlpars=("a", "b"))
     model = bmb.Model(formula, linear_data())
     model.build()

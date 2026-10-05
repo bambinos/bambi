@@ -1884,8 +1884,8 @@ def test_auxiliary_graph_matches_direct_pymc():
         pm.Normal.dist(mu=2 * data.x, sigma=np.exp(-0.5 + 0.3 * data.z)), data.y
     ).eval()
     np.testing.assert_allclose(likelihood.log_likelihood.y.values, [[direct]])
-    assert set(model.additive_parameters) == {"a", "sigma"}
-    assert set(model.nonlinear_predictors) == {"a"}
+    assert set(model.parameters["mu"].nonlinear_coefficients) == {"a"}
+    assert set(model.parameters["sigma"].terms) == {"Intercept", "z"}
     assert not model.marginal_parameters
     assert "target = sigma" in str(model)
 
@@ -2028,7 +2028,8 @@ def test_alias_predictions_likelihood_and_rebuild(auxiliary, bare):
     assert "a0" in str(model)
     model.set_priors({"a": {"Intercept": bmb.Prior("Normal", mu=0.4, sigma=0.2)}})
     model.build()
-    assert model.nonlinear_predictors["a"].terms["Intercept"].prior.args["mu"] == 0.4
+    coefficient = model.parameters["mu"].nonlinear_coefficients["a"]
+    assert coefficient.terms["Intercept"].prior.args["mu"] == 0.4
     assert "a0" in model.backend.model.named_vars
 
 

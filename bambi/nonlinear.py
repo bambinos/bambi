@@ -1,8 +1,14 @@
+from __future__ import annotations
+
 import ast
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import pandas as pd
 import formulae as fm
+
+if TYPE_CHECKING:
+    from bambi.parameters import ConditionalParameter
 
 FUNCTION_ARITIES = {
     "exp": 1,
@@ -170,44 +176,13 @@ def nonlinear_symbol_names(source: str) -> frozenset[str]:
     )
 
 
-@dataclass
-class NonlinearParameter:
-    """Description of a modeled parameter defined by a nonlinear expression.
-
-    Attributes
-    ----------
-    name : str
-        Original modeled parameter name.
-    expression : NonlinearExpression
-        Expression that defines the parameter. The parent expression is on its link scale;
-        other parameter expressions are on the response scale.
-    data_names : tuple of str
-        Observed data columns referenced directly by the expression.
-    alias : str or None
-        Name used in the backend graph and posterior output.
-    is_parent : bool
-        Whether this is the likelihood's parent parameter, whose expression is on the link scale.
-    """
-
-    name: str
-    expression: NonlinearExpression
-    data_names: tuple[str, ...]
-    alias: str | None = None
-    is_parent: bool = True
-
-    @property
-    def label(self):
-        """Return the aliased name when present, otherwise the original name."""
-        return self.alias or self.name
-
-
 @dataclass(frozen=True)
 class ParameterDependencyGraph:
     """Dependency metadata for a nonlinear model's parameter-level expressions.
 
     Attributes
     ----------
-    nodes : dict of str to NonlinearParameter
+    nodes : dict of str to ConditionalParameter
         Parameters defined by nonlinear expressions, keyed by their original names.
     dependencies : dict of str to tuple of str
         Direct parameter dependencies for every node.
@@ -215,9 +190,42 @@ class ParameterDependencyGraph:
         Deterministic topological order in which to evaluate the nodes.
     """
 
-    nodes: dict[str, NonlinearParameter]
+    nodes: dict[str, ConditionalParameter]
     dependencies: dict[str, tuple[str, ...]]
     order: tuple[str, ...]
+
+    @property
+    def nonlinear_coefficients(self):
+        """Return the canonical coefficients owned by the graph's parameter nodes.
+
+        Returns
+        -------
+        dict of str to ConditionalParameter
+            Coefficients keyed by their original names.
+
+        Raises
+        ------
+        ValueError
+            If multiple parameter nodes define different coefficients with the same name.
+
+        Examples
+        --------
+        The graph exposes one canonical object for each nonlinear coefficient.
+
+        >>> import bambi as bmb
+        >>> import pandas as pd
+        >>> data = pd.DataFrame({"y": [1.0, 2.0], "x": [0.0, 1.0]})
+        >>> model = bmb.Model(bmb.Formula("y ~ a * x", nlpars=("a",)), data)
+        >>> set(model.parameter_graph.nonlinear_coefficients)
+        {'a'}
+        """
+        coefficients = {}
+        for parameter in self.nodes.values():
+            for name, coefficient in parameter.nonlinear_coefficients.items():
+                if name in coefficients and coefficients[name] is not coefficient:
+                    raise ValueError(f"Nonlinear coefficient '{name}' has multiple definitions.")
+                coefficients[name] = coefficient
+        return coefficients
 
 
 def split_nonlinear_formula(formula: str) -> tuple[str, str]:

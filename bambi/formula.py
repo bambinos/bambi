@@ -27,7 +27,7 @@ class Formula:
         applied once to the complete expression. An additional formula that references a modeled
         parameter is also treated as a nonlinear expression and evaluated after its dependencies;
         these dependent expressions define their parameter on the response scale. Separately
-        modeled nonlinear predictors use identity links.
+        modeled nonlinear coefficients use identity links.
 
     Examples
     --------
