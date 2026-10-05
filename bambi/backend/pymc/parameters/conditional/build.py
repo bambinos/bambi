@@ -78,6 +78,11 @@ def build_nonlinear_coefficient(
     -------
     pytensor.tensor.variable.TensorVariable
         Coefficient value on the identity-link scale.
+
+    Examples
+    --------
+    ``Model.build()`` uses this function to create the graph variable ``a`` for
+    ``Formula("y ~ a * x", nlpars=("a",))``.
     """
     param_spec = ParamSpec(links=["identity"])
     return build_additive_parameter(

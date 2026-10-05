@@ -207,6 +207,17 @@ class ParameterDependencyGraph:
         ------
         ValueError
             If multiple parameter nodes define different coefficients with the same name.
+
+        Examples
+        --------
+        The graph exposes one canonical object for each nonlinear coefficient.
+
+        >>> import bambi as bmb
+        >>> import pandas as pd
+        >>> data = pd.DataFrame({"y": [1.0, 2.0], "x": [0.0, 1.0]})
+        >>> model = bmb.Model(bmb.Formula("y ~ a * x", nlpars=("a",)), data)
+        >>> set(model.parameter_graph.nonlinear_coefficients)
+        {'a'}
         """
         coefficients = {}
         for parameter in self.nodes.values():

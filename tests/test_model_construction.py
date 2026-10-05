@@ -1372,8 +1372,13 @@ def test_predict_without_group_specific_effect_multivariate(
 # Nonlinear backend construction
 
 
-def test_nonlinear_coefficients_are_owned_by_expression_parameters():
-    data = pd.DataFrame({"y": [0.2, 0.3, 0.4], "x": [1.0, 2.0, 3.0]})
+@pytest.fixture
+def nonlinear_ownership_data():
+    return pd.DataFrame({"y": [0.2, 0.3, 0.4], "x": [1.0, 2.0, 3.0], "z": [0.0, 0.5, 1.0]})
+
+
+def test_nonlinear_coefficients_are_owned_by_expression_parameters(nonlinear_ownership_data):
+    data = nonlinear_ownership_data
     formula = bmb.Formula("y ~ a * x", "sigma ~ sqrt(a ** 2 + 0.1)", nlpars=("a",))
 
     model = bmb.Model(formula, data)
@@ -1394,8 +1399,26 @@ def test_nonlinear_coefficients_are_owned_by_expression_parameters():
     assert not hasattr(model, "additive_parameters")
 
 
-def test_intermediate_expression_owns_its_direct_coefficients():
-    data = pd.DataFrame({"y": [0.2, 0.3, 0.4], "x": [1.0, 2.0, 3.0], "z": [0.0, 0.5, 1.0]})
+def test_nonlinear_auxiliary_owns_its_coefficient(nonlinear_ownership_data):
+    formula = bmb.Formula(
+        "y ~ b * x",
+        "sigma ~ exp(sigma_b * x)",
+        nlpars=("b", "sigma_b"),
+    )
+
+    model = bmb.Model(formula, nonlinear_ownership_data)
+    model.build()
+
+    mu = model.parameters["mu"]
+    sigma = model.parameters["sigma"]
+    assert set(mu.nonlinear_coefficients) == {"b"}
+    assert set(sigma.nonlinear_coefficients) == {"sigma_b"}
+    assert "b_Intercept" in model.backend.model.named_vars
+    assert "sigma_b_Intercept" in model.backend.model.named_vars
+
+
+def test_intermediate_expression_owns_its_direct_coefficients(nonlinear_ownership_data):
+    data = nonlinear_ownership_data
     formula = bmb.Formula(
         "y ~ eta * x",
         "eta ~ a + b * z",
@@ -1412,8 +1435,10 @@ def test_intermediate_expression_owns_its_direct_coefficients():
     assert model.parameter_graph.order.index("eta") < model.parameter_graph.order.index("mu")
 
 
-def test_additive_and_marginal_likelihood_parameters_keep_their_roles():
-    data = pd.DataFrame({"y": [0.2, 0.3, 0.4], "x": [1.0, 2.0, 3.0], "z": [0.0, 0.5, 1.0]})
+def test_additive_and_marginal_likelihood_parameters_keep_their_roles(
+    nonlinear_ownership_data,
+):
+    data = nonlinear_ownership_data
     conditional = bmb.Model(bmb.Formula("y ~ a * x", "sigma ~ z", nlpars=("a",)), data)
     marginal = bmb.Model(bmb.Formula("y ~ a * x", nlpars=("a",)), data)
 

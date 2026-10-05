@@ -24,6 +24,36 @@ class ConditionalParameter:
 
     A conditional parameter has either an additive design and terms, or a nonlinear expression
     with the coefficient descriptions used directly by that expression.
+
+    Parameters
+    ----------
+    name : str
+        Original parameter name.
+    design : formulae.matrices.DesignMatrices or None
+        Additive design matrices. Must be ``None`` for an expression-defined parameter.
+    priors : dict
+        Priors for terms in an additive design.
+    spec : Model
+        Model specification that owns the parameter.
+    is_parent : bool
+        Whether this is the likelihood's parent parameter.
+    expression : NonlinearExpression or None, optional
+        Expression that defines a nonlinear parameter. Must be ``None`` for an additive parameter.
+    data_names : Collection of str, optional
+        Observed data columns referenced directly by ``expression``.
+    nonlinear_coefficients : dict of str to ConditionalParameter, optional
+        Additive coefficients referenced directly by ``expression``.
+
+    Examples
+    --------
+    A model exposes additive and expression-defined parameters through the same interface.
+
+    >>> import bambi as bmb
+    >>> import pandas as pd
+    >>> data = pd.DataFrame({"y": [1.0, 2.0], "x": [0.0, 1.0]})
+    >>> model = bmb.Model(bmb.Formula("y ~ a * x", nlpars=("a",)), data)
+    >>> model.conditional_parameters["mu"].is_nonlinear
+    True
     """
 
     def __init__(
@@ -61,9 +91,86 @@ class ConditionalParameter:
         if self.design is not None and self.design.group:
             self.add_group_specific_terms(priors)
 
+    @classmethod
+    def from_design(cls, name, design, priors, spec, is_parent):
+        """Create a parameter backed by additive design matrices.
+
+        Parameters
+        ----------
+        name : str
+            Original parameter name.
+        design : formulae.matrices.DesignMatrices
+            Additive design matrices.
+        priors : dict
+            Priors for terms in the design.
+        spec : Model
+            Model specification that owns the parameter.
+        is_parent : bool
+            Whether this is the likelihood's parent parameter.
+
+        Returns
+        -------
+        ConditionalParameter
+            Parameter populated with terms from ``design``.
+
+        Examples
+        --------
+        ``Model`` uses this constructor for ordinary conditional parameters such as ``mu`` in
+        ``Model("y ~ x", data)``.
+        """
+        return cls(name, design, priors, spec, is_parent)
+
+    @classmethod
+    def from_expression(cls, name, expression, data_names, spec, is_parent):
+        """Create a parameter backed by a nonlinear expression.
+
+        Parameters
+        ----------
+        name : str
+            Original parameter name.
+        expression : NonlinearExpression
+            Expression that defines the parameter.
+        data_names : Collection of str
+            Observed data columns referenced directly by ``expression``.
+        spec : Model
+            Model specification that owns the parameter.
+        is_parent : bool
+            Whether this is the likelihood's parent parameter.
+
+        Returns
+        -------
+        ConditionalParameter
+            Parameter populated with ``expression`` and its observed inputs.
+
+        Examples
+        --------
+        ``Model`` uses this constructor for ``mu`` in
+        ``Formula("y ~ a * x", nlpars=("a",))``.
+        """
+        return cls(
+            name,
+            None,
+            {},
+            spec,
+            is_parent,
+            expression=expression,
+            data_names=data_names,
+        )
+
     @property
     def is_nonlinear(self):
-        """Whether this parameter is defined by a nonlinear expression."""
+        """Whether this parameter is defined by a nonlinear expression.
+
+        Returns
+        -------
+        bool
+            ``True`` for expression-defined parameters and ``False`` for additive parameters.
+
+        Examples
+        --------
+        ``model.conditional_parameters["mu"].is_nonlinear`` distinguishes a nonlinear parent
+        from one constructed with an ordinary additive formula.
+        """
         return self.expression is not None
 
     @property

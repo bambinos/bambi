@@ -307,7 +307,7 @@ class Model:
                 if name == parent_name:
                     self.parameters[name] = parameter
         else:
-            self.parameters[parent_name] = ConditionalParameter(
+            self.parameters[parent_name] = ConditionalParameter.from_design(
                 parent_name, design, parent_priors, self, is_parent=True
             )
 
@@ -347,7 +347,7 @@ class Model:
                 raise ValueError(f"Priors for conditional parameter '{name}' must be a dictionary.")
 
             # Create conditional parameter
-            self.parameters[name] = ConditionalParameter(
+            self.parameters[name] = ConditionalParameter.from_design(
                 name, design, parameter_priors, self, is_parent=False
             )
 
@@ -426,14 +426,12 @@ class Model:
         )
         order = parameter_dependency_order(dependencies, declaration_order)
         nodes = {
-            name: ConditionalParameter(
+            name: ConditionalParameter.from_expression(
                 name,
-                None,
-                {},
+                expression,
+                metadata[name][1],
                 self,
                 is_parent=name == parent_name,
-                expression=expression,
-                data_names=metadata[name][1],
             )
             for name, expression in expressions.items()
         }
@@ -468,10 +466,18 @@ class Model:
             parameter_priors = priors.get(name, {})
             if not isinstance(parameter_priors, dict):
                 raise ValueError(f"Priors for nonlinear parameter '{name}' must be a dictionary.")
-            coefficients[name] = ConditionalParameter(
+            coefficients[name] = ConditionalParameter.from_design(
                 name, design, parameter_priors, self, is_parent=False
             )
         return coefficients
+
+    def _parameters_with_terms(self):
+        """Return additive likelihood parameters and nonlinear coefficients."""
+        return {
+            name: parameter
+            for name, parameter in self.conditional_parameters.items()
+            if not parameter.is_nonlinear
+        } | self.parameter_graph.nonlinear_coefficients
 
     def fit(
         self,
@@ -664,11 +670,7 @@ class Model:
         self._set_priors(**self._added_priors)
 
         # Prepare all priors
-        parameters_with_terms = {
-            name: parameter
-            for name, parameter in self.conditional_parameters.items()
-            if not parameter.is_nonlinear
-        } | self.parameter_graph.nonlinear_coefficients
+        parameters_with_terms = self._parameters_with_terms()
         for parameter in parameters_with_terms.values():
             parameter.build_priors()
 
@@ -696,11 +698,7 @@ class Model:
             return
 
         if self.formula.nlpars:
-            parameters_with_terms = {
-                name: parameter
-                for name, parameter in self.conditional_parameters.items()
-                if not parameter.is_nonlinear
-            } | self.parameter_graph.nonlinear_coefficients
+            parameters_with_terms = self._parameters_with_terms()
             valid = set(self.marginal_parameters) | set(parameters_with_terms)
             unused = []
             for name, value in priors.items():
@@ -764,11 +762,7 @@ class Model:
                 )
             if priors is not None:
                 normalized_priors = deepcopy(priors)
-                parameters_with_terms = {
-                    name: parameter
-                    for name, parameter in self.conditional_parameters.items()
-                    if not parameter.is_nonlinear
-                } | self.parameter_graph.nonlinear_coefficients
+                parameters_with_terms = self._parameters_with_terms()
                 for name, parameter in parameters_with_terms.items():
                     if name in normalized_priors:
                         parameter.update_priors(normalized_priors[name])
@@ -1519,11 +1513,7 @@ class Model:
 
         # Build priors section. Make sure the parent parameter goes first.
         if self.formula.nlpars:
-            parameters_with_terms = {
-                name: parameter
-                for name, parameter in self.conditional_parameters.items()
-                if not parameter.is_nonlinear
-            } | self.parameter_graph.nonlinear_coefficients
+            parameters_with_terms = self._parameters_with_terms()
             priors_dict = {
                 parameter.label: make_priors_summary(parameter)
                 for parameter in parameters_with_terms.values()
@@ -1615,6 +1605,17 @@ class Model:
         dict of str to ConditionalParameter
             Likelihood parameters keyed by their original names. Intermediate nonlinear
             quantities are excluded.
+
+        Examples
+        --------
+        For a Gaussian model with an ordinary formula, the mapping contains the formula-defined
+        parent ``mu``. The unmodeled auxiliary ``sigma`` remains a marginal parameter.
+
+        >>> import bambi as bmb
+        >>> import pandas as pd
+        >>> model = bmb.Model("y ~ x", pd.DataFrame({"y": [1, 2], "x": [0, 1]}))
+        >>> set(model.conditional_parameters)
+        {'mu'}
         """
         return {k: v for k, v in self.parameters.items() if isinstance(v, ConditionalParameter)}
 
