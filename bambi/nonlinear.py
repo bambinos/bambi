@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 
 import pandas as pd
 import formulae as fm
+from formulae.parser import ParseError
+from formulae.scanner import ScanError
 
 if TYPE_CHECKING:
     from bambi.parameters import ConditionalParameter
@@ -158,12 +160,15 @@ class NonlinearExpression:
 
 
 def nonlinear_symbol_names(source: str) -> frozenset[str]:
-    """Return variable names from an expression without validating its operations."""
+    """Return variable names from an arithmetic expression or an additive formula."""
     source = source.strip()
     try:
         parsed = ast.parse(source, mode="eval")
     except SyntaxError as error:
-        raise ValueError(f"Malformed nonlinear expression: {source!r}.") from error
+        try:
+            return frozenset(fm.model_description(source).var_names)
+        except (ParseError, ScanError):
+            raise ValueError(f"Malformed nonlinear expression: {source!r}.") from error
 
     function_names = {
         node.func.id

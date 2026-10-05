@@ -1450,6 +1450,39 @@ def nonlinear_ownership_data():
     return pd.DataFrame({"y": [0.2, 0.3, 0.4], "x": [1.0, 2.0, 3.0], "z": [0.0, 0.5, 1.0]})
 
 
+@pytest.mark.parametrize("parameter", ["a", "sigma"])
+@pytest.mark.parametrize("covariate", ["z", "`time value`"])
+def test_nonlinear_model_preserves_additive_interactions(
+    nonlinear_ownership_data, parameter, covariate
+):
+    data = nonlinear_ownership_data.assign(**{"time value": nonlinear_ownership_data.z})
+    model = bmb.Model(
+        bmb.Formula("y ~ a * x", f"{parameter} ~ x:{covariate}", nlpars=("a",)),
+        data,
+        center_predictors=False,
+    )
+    model.build()
+    term_name = "x:z" if covariate == "z" else "x:time value"
+    draws = xr.Dataset(
+        {
+            "a_Intercept": (("chain", "draw"), [[0.5]]),
+            f"{parameter}_{term_name}": (("chain", "draw"), [[0.2]]),
+        }
+    )
+    if parameter == "sigma":
+        draws["sigma_Intercept"] = (("chain", "draw"), [[0.5]])
+    else:
+        draws["sigma"] = (("chain", "draw"), [[1.0]])
+    new_data = data.iloc[:2].drop(columns="y")
+    result = model.predict(
+        xr.DataTree.from_dict({"posterior": draws}), data=new_data, inplace=False
+    )
+    predictor = 0.5 + 0.2 * new_data.x * new_data.z
+    name = "mu" if parameter == "a" else "sigma"
+    expected = predictor * new_data.x if parameter == "a" else np.exp(predictor)
+    np.testing.assert_allclose(result.predictions[name], expected.to_numpy()[None, None, :])
+
+
 def test_nonlinear_coefficients_are_owned_by_expression_parameters(nonlinear_ownership_data):
     data = nonlinear_ownership_data
     formula = bmb.Formula("y ~ a * x", "sigma ~ sqrt(a ** 2 + 0.1)", nlpars=("a",))
