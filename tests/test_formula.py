@@ -11,14 +11,16 @@ def test_regular_formula():
     assert f1.nlpars == tuple()
 
 
-def test_additional_empty_response():
+@pytest.mark.parametrize("nlpars", [None, ("a",)])
+def test_additional_empty_response(nlpars):
     with pytest.raises(ValueError, match="Additional formulas must contain a response name"):
-        bmb.Formula("y ~ x1", "x1")
+        bmb.Formula("y ~ x1", "x1", nlpars=nlpars)
 
 
-def test_additional_call_response():
+@pytest.mark.parametrize("nlpars", [None, ("a",)])
+def test_additional_call_response(nlpars):
     with pytest.raises(ValueError, match="The response must be a name"):
-        bmb.Formula("y ~ x1", "log(sigma) ~ x1")
+        bmb.Formula("y ~ x1", "log(sigma) ~ x1", nlpars=nlpars)
 
 
 def test_access_additional_names():

@@ -107,7 +107,9 @@ class Formula:
         ValueError
             If the response term is not a plain name.
         """
-        response = fm.model_description(additional).response
+        lhs, separator, _ = additional.partition("~")
+        response_formula = f"{lhs} ~ 1" if self.nlpars and separator else additional
+        response = fm.model_description(response_formula).response
 
         # There's a response in the formula
         if response is None:

@@ -1483,6 +1483,32 @@ def test_nonlinear_model_preserves_additive_interactions(
     np.testing.assert_allclose(result.predictions[name], expected.to_numpy()[None, None, :])
 
 
+@pytest.mark.parametrize("parameter", ["sigma", "b"])
+@pytest.mark.parametrize(
+    "expression, coefficient, expected",
+    [("1 / a", 2.0, 0.5), ("-a", -2.0, 2.0), ("a / 2", 2.0, 1.0), ("a ** 0.5", 4.0, 2.0)],
+)
+def test_additional_nonlinear_arithmetic(
+    nonlinear_ownership_data, parameter, expression, coefficient, expected
+):
+    data = nonlinear_ownership_data
+    formula = bmb.Formula(
+        "y ~ a * x" if parameter == "sigma" else "y ~ b * x",
+        f"{parameter} ~ {expression}",
+        nlpars=("a",) if parameter == "sigma" else ("a", "b"),
+    )
+    model = bmb.Model(formula, data)
+    model.build()
+    draws = xr.Dataset({"a_Intercept": (("chain", "draw"), [[coefficient]])})
+    if parameter == "b":
+        draws["sigma"] = (("chain", "draw"), [[1.0]])
+    result = model.predict(xr.DataTree.from_dict({"posterior": draws}), inplace=False)
+    if parameter == "sigma":
+        np.testing.assert_allclose(result.posterior.sigma, expected)
+    else:
+        np.testing.assert_allclose(result.posterior.mu, expected * data.x.to_numpy()[None, None, :])
+
+
 def test_nonlinear_coefficients_are_owned_by_expression_parameters(nonlinear_ownership_data):
     data = nonlinear_ownership_data
     formula = bmb.Formula("y ~ a * x", "sigma ~ sqrt(a ** 2 + 0.1)", nlpars=("a",))
