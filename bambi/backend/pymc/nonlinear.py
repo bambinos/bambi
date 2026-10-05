@@ -37,11 +37,11 @@ def _logit(value):
 
 
 def _normal_cdf(value):
-    return 0.5 + 0.5 * pt.erf(value / pt.sqrt(2))
+    return 0.5 * pt.erfc(-value / np.sqrt(2.0))
 
 
 def _normal_ppf(value):
-    return pt.sqrt(2) * pt.erfinv(2 * value - 1)
+    return -np.sqrt(2.0) * pt.erfcinv(2 * value)
 
 
 def _cloglog(value):
