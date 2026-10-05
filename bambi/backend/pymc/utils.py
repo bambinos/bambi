@@ -5,7 +5,8 @@ import numpy as np
 import pymc as pm
 import pytensor.tensor as pt
 from pymc.distributions.dist_math import check_parameters, normal_lccdf
-from pymc.distributions.shape_utils import rv_size_is_none
+from pymc.distributions.distribution import support_point
+from pymc.distributions.shape_utils import _change_dist_size, rv_size_is_none
 from pytensor.tensor.special import softmax
 
 from bambi.backend.pymc.links import (
@@ -82,6 +83,126 @@ class LogLogistic:
         )
 
 
+def get_dist_args(dist: pm.Distribution) -> list[str]:
+    """Get the argument names of a PyMC distribution
+
+    The argument names are the names of the parameters of the distribution.
+
+    Parameters
+    ----------
+    dist : pm.Distribution
+        The PyMC distribution for which we want to extract the argument names.
+
+    Returns
+    -------
+    list[str]
+        The names of the arguments.
+    """
+    # Get all args but the first one which is usually 'cls'
+    return inspect.getfullargspec(dist.dist).args[1:]
+
+
+def make_cure_distribution(distribution):
+    """Wrap a univariate event-time distribution with a cure probability.
+
+    The base distribution must have scalar support, finite support points, and a log-CDF.
+    Cured subjects have an infinite event time.
+
+    Parameters
+    ----------
+    distribution : type
+        Distribution exposing the PyMC constructor and dist interfaces.
+
+    Returns
+    -------
+    type
+        Distribution accepting the base parameters and a keyword-only cure probability.
+    """
+    dist_args = get_dist_args(distribution)
+
+    def build(name, *args, cure, **kwargs):
+        parameters = dict(zip(dist_args, args, strict=False))
+        parameters.update({arg: kwargs.pop(arg) for arg in dist_args if arg in kwargs})
+        parameter_names = tuple(parameters)
+
+        def base_dist(params, **options):
+            return distribution.dist(**dict(zip(parameter_names, params, strict=True)), **options)
+
+        def logp(value, cure, *params):
+            base = base_dist(params)
+            # Evaluating the base at infinity can produce undefined gradients.
+            finite_value = pt.switch(pt.isinf(value), support_point(base), value)
+            result = pt.log1p(-cure) + pm.logp(base, finite_value)
+            result = pt.switch(pt.eq(value, np.inf), pt.log(cure), result)
+            result = pt.switch(pt.eq(value, -np.inf), -np.inf, result)
+            return check_parameters(result, cure >= 0, cure <= 1)
+
+        def logcdf(value, cure, *params):
+            base = base_dist(params)
+            finite_value = pt.switch(pt.isinf(value), support_point(base), value)
+            base_logcdf = pm.logcdf(base, finite_value)
+            result = pt.log1p(-cure) + base_logcdf
+            result = pt.switch(pt.eq(value, np.inf), 0.0, result)
+            result = pt.switch(pt.eq(value, -np.inf), -np.inf, result)
+            return check_parameters(result, cure >= 0, cure <= 1)
+
+        def dist(cure, *args):
+            *params, size = args
+            if rv_size_is_none(size):
+                size = pt.broadcast_shape(cure, *params)
+            times = base_dist(params, size=size)
+            cured = pm.Bernoulli.dist(p=cure, size=size)
+            return pt.switch(cured, np.inf, times)
+
+        def finite_support_point(_rv, size, cure, *params):
+            point = support_point(base_dist(params)) + pt.zeros_like(cure)
+            if not rv_size_is_none(size):
+                point = pt.full(size, point)
+            return point
+
+        constructor = pm.CustomDist.dist if name is None else functools.partial(pm.CustomDist, name)
+        rv = constructor(
+            cure,
+            *parameters.values(),
+            dist=dist,
+            logp=logp,
+            logcdf=logcdf,
+            support_point=finite_support_point,
+            signature=",".join("()" for _ in range(len(parameters) + 1)) + "->()",
+            class_name=f"Cure{distribution.__name__}",
+            **kwargs,
+        )
+
+        @_change_dist_size.register(type(rv.owner.op))
+        def change_cure_size(_op, rv, new_size, expand):
+            if expand:
+                new_size = tuple(new_size) + tuple(rv.shape)
+            # CustomDist's resize handler in PyMC 6.3.2 reuses the original parameters.
+            # Read them from this RV so cloned models use their updated data.
+            _, cure, *inputs = rv.owner.inputs
+            params = dict(zip(parameter_names, inputs[: len(parameter_names)], strict=True))
+            return build(None, cure=cure, **params, size=new_size)
+
+        return rv
+
+    class CureDistribution:
+        def __new__(cls, name, *args, cure, **kwargs):
+            return build(name, *args, cure=cure, **kwargs)
+
+        @classmethod
+        def dist(cls, *args, cure, **kwargs):
+            return build(None, *args, cure=cure, **kwargs)
+
+    return CureDistribution
+
+
+CureExponential = make_cure_distribution(pm.Exponential)
+CureGamma = make_cure_distribution(pm.Gamma)
+CureLogNormal = make_cure_distribution(pm.LogNormal)
+CureLogLogistic = make_cure_distribution(LogLogistic)
+CureWeibull = make_cure_distribution(pm.Weibull)
+
+
 def horseshoe(name, tau_nu=3, lam_nu=1, dims=None):
     """Define coefficients with a horseshoe prior.
 
@@ -114,10 +235,18 @@ def horseshoe(name, tau_nu=3, lam_nu=1, dims=None):
 
 
 MAPPING = {
+    "AdjacentCategory": pm.Categorical,
+    "ContinuationRatio": pm.Categorical,
     "Cumulative": pm.Categorical,
-    "StoppingRatio": pm.Categorical,
+    "CureExponential": CureExponential,
+    "CureGamma": CureGamma,
+    "CureLogNormal": CureLogNormal,
+    "CureLogLogistic": CureLogLogistic,
+    "CureWeibull": CureWeibull,
     "Horseshoe": horseshoe,
     "LogLogistic": LogLogistic,
+    "OrderedStereotype": pm.Categorical,
+    "StoppingRatio": pm.Categorical,
 }
 
 INVERSE_LINKS = {
@@ -178,25 +307,6 @@ def make_weighted_logp(dist: pm.Distribution):
         return weights * pm.logp(dist.dist(*dist_params), value)
 
     return logp
-
-
-def get_dist_args(dist: pm.Distribution) -> list[str]:
-    """Get the argument names of a PyMC distribution
-
-    The argument names are the names of the parameters of the distribution.
-
-    Parameters
-    ----------
-    dist : pm.Distribution
-        The PyMC distribution for which we want to extract the argument names.
-
-    Returns
-    -------
-    list[str]
-        The names of the arguments.
-    """
-    # Get all args but the first one which is usually 'cls'
-    return inspect.getfullargspec(dist.dist).args[1:]
 
 
 def create_cdist(dist: pm.Distribution):

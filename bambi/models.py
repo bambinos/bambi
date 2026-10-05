@@ -16,10 +16,13 @@ from bambi.defaults import get_builtin_family
 from bambi.parameters import ConditionalParameter, MarginalParameter
 from bambi.families import Family
 from bambi.families.builtin import (
+    AdjacentCategory,
     Bernoulli,
+    ContinuationRatio,
     Cumulative,
     DirichletMultinomial,
     Multinomial,
+    OrderedStereotype,
     StoppingRatio,
 )
 from bambi.families.types import DimType
@@ -34,7 +37,8 @@ from bambi.nonlinear import (
     resolve_nonlinear_symbols,
     split_nonlinear_formula,
 )
-from bambi.priors import Prior, scale_priors
+from bambi.priors import Prior
+from bambi.scaling import scale_priors
 from bambi.terms import ResponseTerm
 from bambi.transformations import transformations_namespace
 from bambi.utils import (
@@ -48,7 +52,13 @@ from bambi.utils import (
 
 _log = logging.getLogger("bambi")
 
-ORDINAL_FAMILIES = (Cumulative, StoppingRatio)
+ORDINAL_FAMILIES = (
+    AdjacentCategory,
+    ContinuationRatio,
+    Cumulative,
+    OrderedStereotype,
+    StoppingRatio,
+)
 
 __version__ = version("bambi")
 
@@ -74,8 +84,8 @@ class Model:
     priors : dict, optional
         Optional specification of priors for one or more terms. A dictionary where the keys are
         the names of terms in the model, "common," "group_specific," or the name of a model
-        component, and the values are instances of class `Prior`. A distributional component
-        name (e.g. "sigma" when it is modeled with a formula) maps to a nested dictionary of
+        component, and the values are instances of class `Prior` or `dict`. An observational model
+        parameter (e.g. "sigma" when it is modeled with a formula) maps to a nested dictionary of
         the same form; a constant component name maps directly to a `Prior`, a number, or an
         array. If priors are unset, use automatic priors inspired by the R rstanarm library.
         Names that don't match any term or component are reported with a warning; set
@@ -282,7 +292,7 @@ class Model:
             self.response_term, design.response, self
         )
 
-        if self.response_term.is_cr:
+        if self.response_term.is_competing_risks:
             # Competing risks use a model-local family with cause-specific parameters.
             self.family = copy(self.family)
             self.family.PARAMETERS = {
@@ -1303,13 +1313,13 @@ class Model:
                 "or 'time_and_cause'"
             )
 
-        if kind == "time_and_cause" and not self.response_term.is_cr:
+        if kind == "time_and_cause" and not self.response_term.is_competing_risks:
             raise ValueError("'kind=time_and_cause' is only available for competing-risks models.")
 
         if kind == "response_conditional" and not (
             self.response_term.is_censored
             or self.response_term.is_truncated
-            or self.response_term.is_cr
+            or self.response_term.is_competing_risks
         ):
             raise ValueError(
                 "'kind=response_conditional' is only available for censored, truncated, "
@@ -1650,6 +1660,16 @@ def hsgp_repr(term) -> str:
     return "\n".join(output_list)
 
 
+def smooth_repr(term) -> str:
+    """Format a smooth term with one indented line per prior block."""
+    blocks = [
+        f"    {name} ~ {term.prior[name]}"
+        for name in ("constant", "linear", "curvature")
+        if name in term.prior
+    ]
+    return "\n".join([term.name, *blocks])
+
+
 def make_priors_summary(parameter: ConditionalParameter) -> str:
     """Get a summary of terms and priors in a conditional parameter."""
     # Common effects
@@ -1668,11 +1688,15 @@ def make_priors_summary(parameter: ConditionalParameter) -> str:
     # HSGP
     hsgp = [hsgp_repr(term) for term in parameter.hsgp_terms.values()]
 
+    # Smooths
+    smooths = [smooth_repr(term) for term in parameter.smooth_terms.values()]
+
     priors_dict = {
         "Common-level effects": priors_common,
         "Group-level effects": priors_group,
         "Offset effects": offsets,
         "HSGP contributions": hsgp,
+        "Smooth contributions": smooths,
     }
 
     priors_list = []

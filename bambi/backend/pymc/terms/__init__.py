@@ -7,6 +7,7 @@ from bambi.backend.pymc.terms.hsgp import build_hsgp_term
 from bambi.backend.pymc.terms.intercept import build_intercept_term
 from bambi.backend.pymc.terms.potentials import build_potentials
 from bambi.backend.pymc.terms.response import build_response_term
+from bambi.backend.pymc.terms.smooth import build_smooth_term
 
 __all__ = [
     "build_common_term",
@@ -16,4 +17,5 @@ __all__ = [
     "build_intercept_term",
     "build_potentials",
     "build_response_term",
+    "build_smooth_term",
 ]

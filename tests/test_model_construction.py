@@ -17,6 +17,8 @@ from scipy.stats import norm
 from bambi.backend.pymc.transform import transforms_registry
 from bambi.parameters import ConditionalParameter, MarginalParameter
 from bambi.terms import CommonTerm, GroupSpecificTerm
+from bambi.backend.pymc.transform import transforms_registry
+from bambi.defaults import get_builtin_family
 from bambi.backend.pymc.parameters import remove_group_specific_contributions
 from bambi.backend.pymc.terms.response import _untruncate_response
 from bambi.backend.pymc.utils import _compute_logccdf, make_competing_risks_logp
@@ -414,7 +416,7 @@ def test_response_is_censored():
         ("weighted(y, weights) ~ 1", None, "y"),
         ("counts(y1, y2, n=n) ~ 1", "multinomial", "y1_y2"),
         ("prop(y, n) ~ 1", "binomial", "y"),
-        ("cr(time, event_status, cause) ~ 1", "weibull", "time"),
+        ("risks(time, event_status, cause) ~ 1", "weibull", "time"),
     ],
 )
 def test_transformed_response_uses_observed_variable_name(formula, family, response_name):
@@ -449,8 +451,78 @@ def test_transformed_response_accepts_its_full_name_as_an_alias():
     assert model.response_term.label == "outcome"
 
 
+@pytest.mark.parametrize("model_cure", [False, True])
+@pytest.mark.parametrize("model_shape", [False, True])
 @pytest.mark.parametrize(
-    "family", ["exponential", "weibull", "lognormal", "loglogistic", "gamma", "wald"]
+    "family, parent, shape",
+    [
+        ("cure_weibull", "mu", "alpha"),
+        ("cure_exponential", "mu", None),
+        ("cure_gamma", "mu", "alpha"),
+        ("cure_lognormal", "mu", "sigma"),
+        ("cure_loglogistic", "mu", "alpha"),
+        ("cure_weibull_ph", "lam", "alpha"),
+    ],
+)
+def test_cure_model_construction(model_cure, model_shape, family, parent, shape):
+    rng = np.random.default_rng(1234)
+    x = rng.normal(size=100)
+    cure = 1 / (1 + np.exp(-(-0.5 + 0.3 * x)))
+    event_time = np.exp(0.3 * x) * rng.weibull(1.5, size=100)
+    event_time[rng.uniform(size=100) < cure] = np.inf
+    follow_up = rng.uniform(2, 8, size=100)
+    data = pd.DataFrame(
+        {
+            "time": np.minimum(event_time, follow_up),
+            "status": np.where(event_time > follow_up, "right", "none"),
+            "x": x,
+        }
+    )
+    additionals = []
+    if model_cure:
+        additionals.append("cure ~ x")
+    if model_shape and shape:
+        additionals.append(f"{shape} ~ x")
+
+    model = bmb.Model(bmb.Formula("censored(time, status) ~ x", *additionals), data, family=family)
+    model.build()
+    assert model.family.link["cure"].name == "logit"
+    assert set(model.conditional_parameters) == {parent} | ({"cure"} if model_cure else set()) | (
+        {shape} if model_shape and shape else set()
+    )
+    point = model.backend.model.initial_point()
+    assert np.isfinite(model.backend.model.compile_logp()(point))
+    assert np.isfinite(model.backend.model.compile_dlogp()(point)).all()
+
+
+@pytest.mark.parametrize("alpha", [0.5, 1.0, 2.5])
+def test_weibull_ph_density_and_hazard_ratio(alpha):
+    family = get_builtin_family("weibull_ph")
+    transform = transforms_registry.get_parameter_transform(family)
+    lam = np.exp(np.array([-0.7, 0.0, 0.7]))
+    parameters = transform(
+        {"lam": pt.as_tensor_variable(lam), "alpha": pt.as_tensor_variable(np.float64(alpha))}
+    )
+    time = np.array([0.5, 1.0, 3.0])
+    distribution = pm.Weibull.dist(**parameters)
+    log_survival = -lam * time**alpha
+    log_hazard = np.log(alpha) + np.log(lam) + (alpha - 1) * np.log(time)
+    np.testing.assert_allclose(pm.logp(distribution, time).eval(), log_hazard + log_survival)
+    np.testing.assert_allclose(
+        pm.logcdf(distribution, time).eval(), np.log(-np.expm1(log_survival)), atol=1e-12
+    )
+    # The hazard ratio is exp(0.7) at every time, regardless of the shared shape.
+    hazards = stats.weibull_min.pdf(time[:, None], c=alpha, scale=parameters["beta"].eval())
+    hazards /= stats.weibull_min.sf(time[:, None], c=alpha, scale=parameters["beta"].eval())
+    np.testing.assert_allclose(hazards[:, 2] / hazards[:, 1], np.exp(0.7))
+    if alpha == 1:
+        np.testing.assert_allclose(
+            pm.logp(distribution, time).eval(), pm.logp(pm.Exponential.dist(lam=lam), time).eval()
+        )
+
+
+@pytest.mark.parametrize(
+    "family", ["exponential", "weibull", "weibull_ph", "lognormal", "loglogistic", "gamma", "wald"]
 )
 def test_competing_risks_response_data(family):
     data = pd.DataFrame(
@@ -462,9 +534,9 @@ def test_competing_risks_response_data(family):
         }
     )
     kwargs = {"link": "log"} if family == "gamma" else {}
-    model = bmb.Model("cr(time, status, cause) ~ x", data, family=family, **kwargs)
+    model = bmb.Model("risks(time, status, cause) ~ x", data, family=family, **kwargs)
 
-    assert model.response_term.is_cr is True
+    assert model.response_term.is_competing_risks is True
     assert model.response_term.levels == ["cause_a", "cause_b"]
     model.build()
     assert "time_data" in model.backend.model.named_vars
@@ -472,8 +544,9 @@ def test_competing_risks_response_data(family):
     assert "cause_data" in model.backend.model.named_vars
     np.testing.assert_array_equal(model.backend.model["status_data"].get_value(), [1, 0, 0, 1])
     np.testing.assert_array_equal(model.backend.model["cause_data"].get_value(), [0, 2, 1, 0])
-    assert tuple(model.backend.model["mu"].shape.eval()) == (len(data), 2)
-    assert model.backend.model.named_vars_to_dims["mu"] == ("__obs__", "cause_dim")
+    parent = model.family.likelihood.parent
+    assert tuple(model.backend.model[parent].shape.eval()) == (len(data), 2)
+    assert model.backend.model.named_vars_to_dims[parent] == ("__obs__", "cause_dim")
     assert list(model.backend.model.coords["cause_dim"]) == ["cause_a", "cause_b"]
     prediction_data, _, _ = model.backend._build_new_data(
         pd.DataFrame({"x": [4.0, 5.0]}), "prediction", "response_params"
@@ -502,7 +575,7 @@ def test_competing_risks_uses_cause_variable_for_coordinate_name():
             "event_type": ["none", "cause_a"],
         }
     )
-    model = bmb.Model("cr(time, event_status, event_type) ~ 1", data, family="weibull")
+    model = bmb.Model("risks(time, event_status, event_type) ~ 1", data, family="weibull")
     model.build()
 
     assert model.backend.model.named_vars_to_dims["mu"] == ("__obs__", "event_type_dim")

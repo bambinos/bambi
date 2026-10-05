@@ -1,20 +1,63 @@
 import numpy as np
 import pytensor.tensor as pt
 
+from bambi.backend.pymc.links import logit
 from bambi.backend.pymc.transform.register import transforms_registry
 from bambi.families.builtin import (
+    AdjacentCategory,
     Beta,
     BetaBinomial,
     Bernoulli,
     Categorical,
+    ContinuationRatio,
     Cumulative,
+    CureExponential,
+    CureGamma,
+    CureWeibullPH,
+    CureWeibull,
     Exponential,
     Gamma,
     HurdleGamma,
     Multinomial,
+    OrderedStereotype,
     StoppingRatio,
     Weibull,
+    WeibullPH,
 )
+
+
+@transforms_registry.transform_predictor(AdjacentCategory, "p")
+def _(predictor, parameters, inverse_link):
+    # q_k = P(Y = k + 1 | Y in {k, k + 1}) = F(predictor - threshold_k)
+    threshold = parameters["threshold"]
+    if predictor == 0:
+        # An additive predictor with no predictors, e.g. p ~ 0.
+        # shape: (K, )
+        predictor = -threshold
+    else:
+        # shape: (n, K)
+        predictor = pt.shape_padright(predictor) - threshold
+
+    # q_k / (1 - q_k) = p_{k+1} / p_k, where p_k = P(Y = k).
+    if inverse_link is logit:
+        # With a logit link, the predictor already gives the adjacent log odds.
+        log_odds = predictor
+    else:
+        probability = inverse_link(predictor)
+        log_odds = pt.log(probability) - pt.log1p(-probability)
+
+    # Cumulative sums give log(p_k / p_1). The first category has log weight zero.
+    log_weights = pt.concatenate(
+        [pt.zeros_like(log_odds[..., :1]), pt.cumsum(log_odds, axis=-1)], axis=-1
+    )
+
+    # Softmax normalizes these relative weights into category probabilities.
+    return pt.special.softmax(log_weights, axis=-1)
+
+
+@transforms_registry.transform_parameters(AdjacentCategory)
+def _(parameters):
+    return {"p": parameters["p"]}
 
 
 @transforms_registry.transform_data(Bernoulli)
@@ -45,6 +88,36 @@ def _(predictor, _parameters, inverse_link):
     else:
         zeros = pt.zeros(shape=(predictor.shape[0], 1))
     return inverse_link(pt.concatenate((zeros, predictor), axis=-1))
+
+
+@transforms_registry.transform_predictor(ContinuationRatio, "p")
+def _(predictor, parameters, inverse_link):
+    # q_k = P(Y > k | Y >= k) = F(predictor - threshold_k)
+    threshold = parameters["threshold"]
+    if predictor == 0:
+        # An additive predictor with no predictors, e.g. p ~ 0.
+        # shape: (K, )
+        predictor = -threshold
+    else:
+        # shape: (n, K)
+        predictor = pt.shape_padright(predictor) - threshold
+
+    continuation = inverse_link(predictor)
+    stopping = 1 - continuation
+    survival = pt.cumprod(continuation, axis=-1)
+    return pt.concatenate(
+        [
+            stopping[..., :1],
+            stopping[..., 1:] * survival[..., :-1],
+            survival[..., -1:],
+        ],
+        axis=-1,
+    )
+
+
+@transforms_registry.transform_parameters(ContinuationRatio)
+def _(parameters):
+    return {"p": parameters["p"]}
 
 
 @transforms_registry.transform_predictor(Cumulative, "p")
@@ -107,6 +180,41 @@ def _(predictor, _parameters, inverse_link):
     return inverse_link(pt.concatenate((zeros, predictor), axis=-1))
 
 
+@transforms_registry.transform_predictor(OrderedStereotype, "p")
+def _(predictor, parameters, _inverse_link):
+    # Positive increments summing to one give 0 = phi_1 < ... < phi_C = 1.
+    # Resulting shape: (K, )
+    delta = parameters["delta"]
+    phi = pt.concatenate(
+        [
+            pt.zeros((1,), dtype=delta.dtype),
+            pt.cumsum(delta[:-1]),
+            pt.ones((1,), dtype=delta.dtype),
+        ]
+    )
+
+    # Fix alpha_1 = 0. The remaining category intercepts are free.
+    # Resulting shape: (K, )
+    alpha = parameters["alpha"]
+    alpha = pt.concatenate([pt.zeros_like(alpha[:1]), alpha])
+
+    if predictor == 0:
+        # With no predictors, eta = 0 and the category log weights reduce to alpha.
+        # shape: (K, )
+        log_weights = alpha
+    else:
+        # log(p_c / p_1) = alpha_c + phi_c * eta.
+        # shape: (n, K)
+        log_weights = alpha + phi * pt.shape_padright(pt.as_tensor_variable(predictor))
+
+    return pt.special.softmax(log_weights, axis=-1)
+
+
+@transforms_registry.transform_parameters(OrderedStereotype)
+def _(parameters):
+    return {"p": parameters["p"]}
+
+
 @transforms_registry.transform_predictor(StoppingRatio, "p")
 def _(predictor, parameters, inverse_link):
     # P(Y = k) = F(threshold_k - predictor) * prod_(j=1)^(k-1)(1 - F(threshold_j - predictor))
@@ -144,4 +252,46 @@ def _(parameters):
     return {
         "alpha": alpha,
         "beta": mu / pt.gamma(1 + 1 / alpha),
+    }
+
+
+@transforms_registry.transform_parameters(WeibullPH)
+def _(parameters):
+    alpha = parameters["alpha"]
+    # PyMC parametrization implies S(t) = exp(-(t / beta)**alpha),
+    # but we want S(t) = exp(-lam * t**alpha).
+    # So we have beta^(-alpha) = lam, or beta = lam^(-1 / alpha).
+    return {"alpha": alpha, "beta": parameters["lam"] ** (-1 / alpha)}
+
+
+@transforms_registry.transform_parameters(CureWeibull)
+def _(parameters):
+    alpha = parameters["alpha"]
+    return {
+        "alpha": alpha,
+        "beta": parameters["mu"] / pt.gamma(1 + 1 / alpha),
+        "cure": parameters["cure"],
+    }
+
+
+@transforms_registry.transform_parameters(CureExponential)
+def _(parameters):
+    return {"lam": 1 / parameters["mu"], "cure": parameters["cure"]}
+
+
+@transforms_registry.transform_parameters(CureGamma)
+def _(parameters):
+    return {
+        "mu": parameters["mu"],
+        "sigma": parameters["mu"] / parameters["alpha"] ** 0.5,
+        "cure": parameters["cure"],
+    }
+
+
+@transforms_registry.transform_parameters(CureWeibullPH)
+def _(parameters):
+    return {
+        "alpha": parameters["alpha"],
+        "beta": parameters["lam"] ** (-1 / parameters["alpha"]),
+        "cure": parameters["cure"],
     }

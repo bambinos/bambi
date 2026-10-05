@@ -4,17 +4,24 @@ import numpy as np
 import pandas as pd
 import preliz as pz
 import pymc as pm
+import pytensor
+import pytensor.tensor as pt
+from pytensor.graph.replace import clone_replace
+from pymc.distributions.distribution import support_point
+from pymc.distributions.shape_utils import change_dist_size
 from scipy import stats
 
 from bambi.utils import listify
 from bambi.backend.pymc.links import cloglog, probit
 from bambi.backend.pymc.data import shape_common_data
 from bambi.backend.pymc.utils import (
+    CureWeibull,
     LogLogistic,
     make_competing_risks_distribution,
+    make_cure_distribution,
     make_weighted_distribution,
 )
-from bambi.transformations import CR, censored, constrained, counts, truncated, weighted
+from bambi.transformations import CompetingRisks, censored, constrained, counts, truncated, weighted
 
 
 def test_listify():
@@ -69,6 +76,143 @@ def test_loglogistic_distribution():
     assert (draws > 0).all()
 
 
+@pytest.mark.parametrize("cure", [0.0, 0.3, 1.0])
+def test_cure_weibull_distribution(cure):
+    alpha, beta = 1.7, 2.4
+    time = np.array([0.1, 1.0, 10.0])
+    dist = CureWeibull.dist(alpha, beta, cure=cure)
+    reference = stats.weibull_min(c=alpha, scale=beta)
+    with np.errstate(divide="ignore"):
+        np.testing.assert_allclose(
+            pm.logp(dist, time).eval(), np.log1p(-cure) + reference.logpdf(time)
+        )
+        np.testing.assert_allclose(
+            pm.logcdf(dist, time).eval(), np.log1p(-cure) + reference.logcdf(time)
+        )
+        np.testing.assert_allclose(pm.logp(dist, np.inf).eval(), np.log(cure))
+    assert np.isneginf(pm.logp(dist, -1).eval())
+    assert np.isneginf(pm.logcdf(dist, -1).eval())
+    assert np.isneginf(pm.logcdf(dist, 0).eval())
+    assert pm.logcdf(dist, np.inf).eval() == 0
+
+
+@pytest.mark.parametrize("cure", [0.0, 0.3, 1.0])
+def test_cure_weibull_random(cure):
+    draws = pm.draw(CureWeibull.dist(1.7, 2.4, cure=cure, size=10000), random_seed=42)
+    assert (draws > 0).all()
+    assert np.isinf(draws).mean() == pytest.approx(cure, abs=0.02)
+    if cure < 1:
+        finite = draws[np.isfinite(draws)]
+        assert finite.mean() == pytest.approx(stats.weibull_min(c=1.7, scale=2.4).mean(), rel=0.03)
+    vector = pm.draw(CureWeibull.dist([1.0, 2.0], [2.0, 3.0], cure=[0.0, 1.0]), random_seed=42)
+    assert vector.shape == (2,)
+    assert np.isfinite(vector[0])
+    assert np.isinf(vector[1])
+
+
+def test_cure_weibull_random_broadcasts_all_parameters():
+    dist = CureWeibull.dist(1.0, [1.0, 2.0], cure=0.0)
+    draws = pm.draw(dist, draws=1000, random_seed=42)
+    assert draws.shape == (1000, 2)
+    assert abs(np.corrcoef(draws.T)[0, 1]) < 0.1
+    dist = CureWeibull.dist(1.0, 2.0, cure=[0.0, 1.0])
+    draws = pm.draw(dist, draws=10, random_seed=42)
+    assert draws.shape == (10, 2)
+    assert np.isfinite(draws[:, 0]).all()
+    assert np.isinf(draws[:, 1]).all()
+
+
+def test_cure_weibull_truncated_normalization():
+    alpha, beta, cure = 1.7, 2.4, 0.3
+    lower = np.array([1.0, -np.inf])
+    upper = np.array([np.inf, 2.0])
+    time = np.array([1.5, 1.5])
+    dist = pm.Truncated.dist(CureWeibull.dist(alpha, beta, cure=cure), lower=lower, upper=upper)
+    reference = stats.weibull_min(c=alpha, scale=beta)
+    norm = [cure + (1 - cure) * reference.sf(1.0), (1 - cure) * reference.cdf(2.0)]
+    expected = np.log1p(-cure) + reference.logpdf(time) - np.log(norm)
+    np.testing.assert_allclose(pm.logp(dist, time).eval(), expected)
+
+
+@pytest.mark.filterwarnings("error:Numba will use object mode:UserWarning")
+def test_cure_weibull_numba_random_without_object_mode():
+    dist = CureWeibull.dist(1.7, [1.0, 2.0], cure=[0.0, 1.0])
+    draws = pm.draw(dist, draws=10, random_seed=42, mode="NUMBA")
+    assert draws.shape == (10, 2)
+    assert np.isfinite(draws[:, 0]).all()
+    assert np.isinf(draws[:, 1]).all()
+    assert np.unique(draws[:, 0]).size == 10
+
+
+@pytest.mark.parametrize(
+    "distribution, parameters, reference",
+    [
+        (pm.Weibull, {"alpha": 1.7, "beta": 2.4}, stats.weibull_min(c=1.7, scale=2.4)),
+        (pm.Exponential, {"lam": 0.8}, stats.expon(scale=1 / 0.8)),
+        (pm.Gamma, {"mu": 2.0, "sigma": 1.0}, stats.gamma(a=4, scale=0.5)),
+        (pm.LogNormal, {"mu": 0.5, "sigma": 0.7}, stats.lognorm(s=0.7, scale=np.exp(0.5))),
+        (LogLogistic, {"mu": 0.5, "alpha": 0.7}, stats.fisk(c=1 / 0.7, scale=np.exp(0.5))),
+    ],
+)
+def test_cure_distribution(distribution, parameters, reference):
+    cured_distribution = make_cure_distribution(distribution)
+    dist = cured_distribution.dist(**parameters, cure=0.3)
+    time = np.array([0.1, 1.0, 10.0])
+    np.testing.assert_allclose(pm.logp(dist, time).eval(), np.log(0.7) + reference.logpdf(time))
+    np.testing.assert_allclose(pm.logcdf(dist, time).eval(), np.log(0.7) + reference.logcdf(time))
+    assert pm.logp(dist, np.inf).eval() == pytest.approx(np.log(0.3))
+    assert pm.logcdf(dist, np.inf).eval() == 0
+    assert np.isneginf(pm.logp(dist, -np.inf).eval())
+    assert np.isneginf(pm.logcdf(dist, -np.inf).eval())
+    assert np.isfinite(support_point(dist).eval())
+
+    with pm.Model() as model:
+        cured_distribution("time", **parameters, cure=0.3, observed=time)
+    assert np.isfinite(model.compile_logp()(model.initial_point()))
+
+    draws = pm.draw(dist, draws=10000, random_seed=42)
+    assert np.isinf(draws).mean() == pytest.approx(0.3, abs=0.02)
+    np.testing.assert_allclose(
+        np.quantile(draws[np.isfinite(draws)], [0.25, 0.5, 0.75]),
+        reference.ppf([0.25, 0.5, 0.75]),
+        rtol=0.05,
+    )
+
+
+def test_cure_distribution_resize():
+    cure = pt.vector("cure")
+    beta = pt.vector("beta")
+    dist = CureWeibull.dist(alpha=1.7, beta=beta, cure=cure)
+    updated_cure = pt.vector("updated_cure")
+    updated_beta = pt.vector("updated_beta")
+    cloned = clone_replace(dist, {cure: updated_cure, beta: updated_beta})
+    resized = change_dist_size(cloned, new_size=(3,))
+    draws = pm.draw(
+        resized,
+        draws=10,
+        random_seed=42,
+        givens={updated_cure: np.array([0.0, 1.0, 0.0]), updated_beta: np.ones(3)},
+    )
+    assert draws.shape == (10, 3)
+    assert np.isinf(draws[:, 1]).all()
+    assert np.isfinite(draws[:, [0, 2]]).all()
+
+    expanded = change_dist_size(CureWeibull.dist(1.7, 2.4, cure=[0.0, 1.0]), (4,), expand=True)
+    assert pm.draw(expanded, random_seed=42).shape == (4, 2)
+
+
+def test_cure_weibull_gradients_at_infinity():
+    alpha, beta, cure = pt.scalars("alpha", "beta", "cure")
+    dist = CureWeibull.dist(alpha=alpha, beta=beta, cure=cure)
+    gradients = pt.grad(pm.logp(dist, np.inf), [alpha, beta, cure])
+    evaluate = pytensor.function([alpha, beta, cure], gradients)
+    np.testing.assert_allclose(evaluate(1.7, 2.4, 0.3), [0, 0, 1 / 0.3])
+
+    gradients = pt.grad(pm.logcdf(dist, np.inf), [alpha, beta, cure])
+    evaluate = pytensor.function([alpha, beta, cure], gradients)
+    np.testing.assert_allclose(evaluate(1.7, 2.4, 0.3), [0, 0, 0])
+
+
 def test_censored():
     df = pd.DataFrame(
         {
@@ -104,7 +248,7 @@ def test_censored():
 
 
 def test_competing_risks():
-    transform = CR()
+    transform = CompetingRisks()
     result = transform(
         np.array([1.0, 2.0, 3.0, 4.0]),
         np.array(["right", "event", "event", "right"]),
@@ -122,22 +266,22 @@ def test_competing_risks():
         transform(np.array([7.0]), np.array(["event"]), np.array(["cause_c"]))
 
     with pytest.raises(ValueError, match="Left censoring is not supported"):
-        CR()(np.array([1.0]), np.array(["left"]), np.array(["cause_a"]))
+        CompetingRisks()(np.array([1.0]), np.array(["left"]), np.array(["cause_a"]))
 
     with pytest.raises(ValueError, match="must contain only"):
-        CR()(np.array([1.0]), np.array(["interval"]), np.array(["none"]))
+        CompetingRisks()(np.array([1.0]), np.array(["interval"]), np.array(["none"]))
 
     with pytest.raises(ValueError, match="must not be 'none' when status is 'event'"):
-        CR()(np.array([1.0]), np.array(["event"]), np.array(["none"]))
+        CompetingRisks()(np.array([1.0]), np.array(["event"]), np.array(["none"]))
 
     with pytest.raises(ValueError, match="must be 'none' when status is 'right'"):
-        CR()(np.array([1.0]), np.array(["right"]), np.array(["cause_a"]))
+        CompetingRisks()(np.array([1.0]), np.array(["right"]), np.array(["cause_a"]))
 
     with pytest.raises(ValueError, match="cannot contain missing values"):
-        CR()(np.array([1.0]), np.array(["right"]), np.array([np.nan]))
+        CompetingRisks()(np.array([1.0]), np.array(["right"]), np.array([np.nan]))
 
     with pytest.raises(ValueError, match="requires at least one observed cause"):
-        CR()(np.array([1.0]), np.array(["right"]), np.array(["none"]))
+        CompetingRisks()(np.array([1.0]), np.array(["right"]), np.array(["none"]))
 
 
 @pytest.mark.parametrize(

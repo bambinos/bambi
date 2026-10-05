@@ -9,7 +9,7 @@ class ResponseTerm(BaseTerm):
     def __init__(self, response):
         self.term = response.term.term
         self.is_censored = is_response_of_kind(self.term, "censored")
-        self.is_cr = is_response_of_kind(self.term, "cr")
+        self.is_competing_risks = is_response_of_kind(self.term, "risks")
         self.is_constrained = is_response_of_kind(self.term, "constrained")
         self.is_truncated = is_response_of_kind(self.term, "truncated")
         self.is_weighted = is_response_of_kind(self.term, "weighted")
@@ -66,7 +66,7 @@ class ResponseTerm(BaseTerm):
 
     @property
     def levels(self):
-        if self.is_cr:
+        if self.is_competing_risks:
             transform = self.components[0].call.stateful_transform
             return list(transform.cause_codes)
         return self.term.levels
@@ -77,7 +77,7 @@ class ResponseTerm(BaseTerm):
 
         It returns `None` when the concept of "reference level" does not apply.
         """
-        if self.is_cr or self.term.kind != "categoric":
+        if self.is_competing_risks or self.term.kind != "categoric":
             return None
 
         if self.term.levels is None:
@@ -94,7 +94,7 @@ class ResponseTerm(BaseTerm):
         if not hasattr(component, "call"):
             return self.term.eval_new_data(data)
 
-        # Some transformations are stateful (e.g. cr)
+        # Some transformations are stateful (e.g. risks)
         function = component.call.stateful_transform
         if function is None:
             function = get_function_from_module(component.call.callee, component.env)

@@ -1,12 +1,20 @@
 from bambi.defaults.utils import generate_family
 from bambi.families.builtin import (
+    AdjacentCategory,
     AsymmetricLaplace,
     Bernoulli,
     Beta,
     BetaBinomial,
     Binomial,
     Categorical,
+    ContinuationRatio,
     Cumulative,
+    CureExponential,
+    CureGamma,
+    CureLogNormal,
+    CureLogLogistic,
+    CureWeibullPH,
+    CureWeibull,
     ExGaussian,
     DirichletMultinomial,
     Exponential,
@@ -21,12 +29,14 @@ from bambi.families.builtin import (
     LogNormal,
     Multinomial,
     NegativeBinomial,
+    OrderedStereotype,
     Poisson,
     StoppingRatio,
     StudentT,
     VonMises,
     Wald,
     Weibull,
+    WeibullPH,
     ZeroInflatedBinomial,
     ZeroInflatedNegativeBinomial,
     ZeroInflatedPoisson,
@@ -34,6 +44,16 @@ from bambi.families.builtin import (
 
 # fmt: off
 BUILTIN_FAMILIES = {
+    "acat": {
+        "likelihood": {
+            "name": "AdjacentCategory",
+            "params": ["p", "threshold"],
+            "parent": "p",
+        },
+        "link": {"p": "logit", "threshold": "identity"},
+        "family": AdjacentCategory,
+        "default_priors": {"threshold": {"name": "Normal", "mu": 0, "sigma": 1}},
+    },
     "asymmetriclaplace": {
         "likelihood": {
             "name": "AsymmetricLaplace",
@@ -94,6 +114,16 @@ BUILTIN_FAMILIES = {
         "link": {"p": "softmax"},
         "family": Categorical,
     },
+    "cratio": {
+        "likelihood": {
+            "name": "ContinuationRatio",
+            "params": ["p", "threshold"],
+            "parent": "p",
+        },
+        "link": {"p": "logit", "threshold": "identity"},
+        "family": ContinuationRatio,
+        "default_priors": {"threshold": {"name": "Normal", "mu": 0, "sigma": 1}},
+    },
     "cumulative": {
         "likelihood": {
             "name": "Cumulative",
@@ -104,6 +134,83 @@ BUILTIN_FAMILIES = {
         "family": Cumulative,
         "default_priors": {
             "threshold": {"name": "Normal", "mu": 0, "sigma": 1, "transform": "ordered"}
+        },
+    },
+    "cure_exponential": {
+        "likelihood": {
+            "name": "CureExponential",
+            "params": ["mu", "cure"],
+            "parent": "mu",
+        },
+        "link": {"mu": "log", "cure": "logit"},
+        "family": CureExponential,
+        "default_priors": {
+            "cure": {"name": "Beta", "alpha": 2, "beta": 2},
+        },
+    },
+    "cure_gamma": {
+        "likelihood": {
+            "name": "CureGamma",
+            "params": ["mu", "alpha", "cure"],
+            "parent": "mu",
+        },
+        "link": {"mu": "log", "alpha": "log", "cure": "logit"},
+        "family": CureGamma,
+        "default_priors": {
+            "alpha": {"name": "HalfCauchy", "beta": 1},
+            "cure": {"name": "Beta", "alpha": 2, "beta": 2},
+        },
+    },
+    "cure_lognormal": {
+        "likelihood": {
+            "name": "CureLogNormal",
+            "params": ["mu", "sigma", "cure"],
+            "parent": "mu",
+        },
+        "link": {"mu": "identity", "sigma": "log", "cure": "logit"},
+        "family": CureLogNormal,
+        "default_priors": {
+            "sigma": {"name": "HalfNormal", "sigma": 1},
+            "cure": {"name": "Beta", "alpha": 2, "beta": 2},
+        },
+    },
+    "cure_loglogistic": {
+        "likelihood": {
+            "name": "CureLogLogistic",
+            "params": ["mu", "alpha", "cure"],
+            "parent": "mu",
+        },
+        "link": {"mu": "identity", "alpha": "log", "cure": "logit"},
+        "family": CureLogLogistic,
+        "default_priors": {
+            "alpha": {"name": "HalfNormal", "sigma": 1},
+            "cure": {"name": "Beta", "alpha": 2, "beta": 2},
+        },
+    },
+    "cure_weibull_ph": {
+        "likelihood": {
+            "name": "CureWeibull",
+            "params": ["lam", "alpha", "cure"],
+            "parent": "lam",
+        },
+        "link": {"lam": "log", "alpha": "log", "cure": "logit"},
+        "family": CureWeibullPH,
+        "default_priors": {
+            "alpha": {"name": "HalfCauchy", "beta": 1},
+            "cure": {"name": "Beta", "alpha": 2, "beta": 2},
+        },
+    },
+    "cure_weibull": {
+        "likelihood": {
+            "name": "CureWeibull",
+            "params": ["mu", "alpha", "cure"],
+            "parent": "mu",
+        },
+        "link": {"mu": "log", "alpha": "log", "cure": "logit"},
+        "family": CureWeibull,
+        "default_priors": {
+            "alpha": {"name": "HalfCauchy", "beta": 1},
+            "cure": {"name": "Beta", "alpha": 2, "beta": 2},
         },
     },
     "dirichlet_multinomial": {
@@ -255,6 +362,19 @@ BUILTIN_FAMILIES = {
         "family": Laplace,
         "default_priors": {"b": {"name": "HalfNormal", "sigma": 1}},
     },
+    "osm": {
+        "likelihood": {
+            "name": "OrderedStereotype",
+            "params": ["p", "alpha", "delta"],
+            "parent": "p",
+        },
+        "link": {"p": "logit", "alpha": "identity", "delta": "identity"},
+        "family": OrderedStereotype,
+        "default_priors": {
+            "alpha": {"name": "Normal", "mu": 0, "sigma": 1},
+            "delta": {"name": "Dirichlet", "a": 1},
+        },
+    },
     "poisson": {
         "likelihood": {
             "name": "Poisson",
@@ -315,6 +435,16 @@ BUILTIN_FAMILIES = {
         },
         "link": {"mu": "log", "alpha": "log"},
         "family": Weibull,
+        "default_priors": {"alpha": {"name": "HalfCauchy", "beta": 1}},
+    },
+    "weibull_ph": {
+        "likelihood": {
+            "name": "Weibull",
+            "params": ["lam", "alpha"],
+            "parent": "lam",
+        },
+        "link": {"lam": "log", "alpha": "log"},
+        "family": WeibullPH,
         "default_priors": {"alpha": {"name": "HalfCauchy", "beta": 1}},
     },
     "zero_inflated_binomial": {

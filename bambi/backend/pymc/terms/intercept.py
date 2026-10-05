@@ -23,7 +23,10 @@ def build_intercept_term(
 
     dims = tuple(coords)
     param_shape = tuple(len(coord) for coord in coords.values())
-    kwargs = {name: np.broadcast_to(value, param_shape) for name, value in term.prior.args.items()}
+    kwargs = {
+        name: np.broadcast_to(np.squeeze(value), param_shape)
+        for name, value in term.prior.args.items()
+    }
     dist = get_distribution_from_prior(term.prior)
 
     with model:

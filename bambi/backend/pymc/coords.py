@@ -12,7 +12,7 @@ def coords_from_response(term, family):
     else:
         levels = term.levels
 
-    if term.is_cr:
+    if term.is_competing_risks:
         # Competing-risks parameters are indexed by event cause, not by the response label.
         cause_name = CallVarsExtractor(term.components[0].call).get()[2]
         coords[f"{cause_name}_dim"] = levels
@@ -132,6 +132,17 @@ def coords_from_hsgp(term):
         coords[f"{term.label}_var"] = range(term.shape[1])
 
     return coords
+
+
+def coords_from_smooth(term):
+    if term.by_levels is None:
+        coords = {}
+    else:
+        coords = {f"{term.by_name}_dim": term.by_levels}
+    basis_dim = f"{term.label}_dim"
+    if basis_dim in coords:
+        basis_dim = f"{term.label}_basis_dim"
+    return coords | {basis_dim: range(term.basis_dimension)}
 
 
 def coords_for_cutpoints(parameter_label, response_levels):

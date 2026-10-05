@@ -37,11 +37,21 @@ jobs:
           pixi-version: v0.76.2
           environments: ${{ matrix.pixi-env }}
 
+      - name: Compute environment hash
+        id: env-hash
+        shell: bash
+        run: |
+          pixi list \
+            --environment "${{ matrix.pixi-env }}" \
+            --json \
+            | sha256sum \
+            | awk '{print "hash="$1}' >> "$GITHUB_OUTPUT"
+
       - name: Restore PyTensor compilation cache
         uses: actions/cache@v4
         with:
           path: ~/.pytensor
-          key: pytensor-${{ runner.os }}-${{ matrix.pixi-env }}-${{ matrix.pytensor-linker }}-${{ hashFiles('pyproject.toml') }}
+          key: pytensor-${{ runner.os }}-${{ runner.arch }}-${{ matrix.pixi-env }}-${{ matrix.pytensor-linker }}-${{ steps.env-hash.outputs.hash }}
 
       - name: Run pre-commit checks
         run: pixi run -e ${{ matrix.pixi-env }} pre-commit run --all

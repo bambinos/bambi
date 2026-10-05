@@ -4,6 +4,14 @@ from bambi.transformations import transformations_namespace
 from bambi.utils import extract_argument_names
 
 
+class AdjacentCategory(Family):
+    DATA_TYPE = ResponseType.ORDINAL
+    PARAMETERS = {
+        "p": ParamSpec(links=["logit", "probit", "cloglog"], ndim=1),
+        "threshold": ParamSpec(links=["identity"], ndim=1, coefs_dim=DimType.RESPONSE_CUTPOINTS),
+    }
+
+
 class AsymmetricLaplace(Family):
     PARAMETERS = {
         "mu": ParamSpec(links=["identity", "log", "inverse"]),
@@ -54,6 +62,14 @@ class Categorical(Family):
     DATA_TYPE = ResponseType.CATEGORICAL
     PARAMETERS = {
         "p": ParamSpec(links=["softmax"], ndim=1, coefs_dim=DimType.RESPONSE_REDUCED),
+    }
+
+
+class ContinuationRatio(Family):
+    DATA_TYPE = ResponseType.ORDINAL
+    PARAMETERS = {
+        "p": ParamSpec(links=["logit", "probit", "cloglog"], ndim=1),
+        "threshold": ParamSpec(links=["identity"], ndim=1, coefs_dim=DimType.RESPONSE_CUTPOINTS),
     }
 
 
@@ -153,6 +169,15 @@ class LogLogistic(Family):
     }
 
 
+class OrderedStereotype(Family):
+    DATA_TYPE = ResponseType.ORDINAL
+    PARAMETERS = {
+        "p": ParamSpec(links=["logit"], ndim=1),
+        "alpha": ParamSpec(links=["identity"], ndim=1, coefs_dim=DimType.RESPONSE_REDUCED),
+        "delta": ParamSpec(links=["identity"], ndim=1, coefs_dim=DimType.RESPONSE_CUTPOINTS),
+    }
+
+
 class Poisson(Family):
     PARAMETERS = {
         "mu": ParamSpec(links=["identity", "log"]),
@@ -194,6 +219,71 @@ class Weibull(Family):
     PARAMETERS = {
         "mu": ParamSpec(links=["log", "identity", "inverse"]),
         "alpha": ParamSpec(links=["log"]),
+    }
+
+
+class WeibullPH(Family):
+    """Weibull family with a proportional-hazards parametrization.
+
+    The survival function is `S(t) = exp(-lam * t**alpha)` and the hazard is
+    `h(t) = alpha * lam * t**(alpha - 1)`.
+    With a log link for `lam` and a shared shape `alpha`,
+    exponentiated regression coefficients are hazard ratios.
+    """
+
+    PARAMETERS = {
+        "lam": ParamSpec(links=["log", "identity", "inverse"]),
+        "alpha": ParamSpec(links=["log"]),
+    }
+
+
+class CureExponential(Family):
+    PARAMETERS = {
+        **Exponential.PARAMETERS,
+        "cure": ParamSpec(links=["logit", "probit", "cloglog"]),
+    }
+
+
+class CureGamma(Family):
+    PARAMETERS = {
+        **Gamma.PARAMETERS,
+        "cure": ParamSpec(links=["logit", "probit", "cloglog"]),
+    }
+
+
+class CureLogNormal(Family):
+    PARAMETERS = {
+        **LogNormal.PARAMETERS,
+        "cure": ParamSpec(links=["logit", "probit", "cloglog"]),
+    }
+
+
+class CureLogLogistic(Family):
+    PARAMETERS = {
+        **LogLogistic.PARAMETERS,
+        "cure": ParamSpec(links=["logit", "probit", "cloglog"]),
+    }
+
+
+class CureWeibullPH(Family):
+    PARAMETERS = {
+        **WeibullPH.PARAMETERS,
+        "cure": ParamSpec(links=["logit", "probit", "cloglog"]),
+    }
+
+
+class CureWeibull(Family):
+    """Weibull mixture-cure family.
+
+    `mu` is the mean event time among susceptible subjects, `alpha` is their Weibull shape,
+    and `cure` is the probability of never experiencing the event.
+    The overall survival is `cure + (1 - cure) * S_u(t)`, where S_u is the survival of the uncured.
+    """
+
+    PARAMETERS = {
+        "mu": ParamSpec(links=["log", "identity", "inverse"]),
+        "alpha": ParamSpec(links=["log"]),
+        "cure": ParamSpec(links=["logit", "probit", "cloglog"]),
     }
 
 

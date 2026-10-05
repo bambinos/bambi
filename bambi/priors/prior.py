@@ -44,7 +44,7 @@ class Prior:
             if isinstance(value, (int, float)):
                 value = np.array(value, dtype=pytensor.config.floatX)
             elif isinstance(value, np.ndarray):
-                value = value.squeeze().astype(pytensor.config.floatX)
+                value = value.astype(pytensor.config.floatX)
             kwargs_[key] = value
         self.args.update(kwargs_)
 

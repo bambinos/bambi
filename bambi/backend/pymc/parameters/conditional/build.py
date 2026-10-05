@@ -11,6 +11,7 @@ from bambi.backend.pymc.terms import (
     build_group_specific_term_idx,
     build_hsgp_term,
     build_intercept_term,
+    build_smooth_term,
 )
 from bambi.backend.pymc.data import predictor_data_name, shape_common_data
 from bambi.backend.pymc.terms.info import CommonTermInfo, GroupSpecificTermInfo
@@ -132,6 +133,10 @@ def build_additive_parameter(
     for term_info in parameter_info.hsgp_terms:
         value += build_hsgp_term(term_info, param_spec, model)
 
+    for term_info in parameter_info.smooth_terms:
+        data, param = build_smooth_term(term_info, param_spec, model)
+        value += pt.dot(data, param)
+
     if transform_predictor:
         value = transform_predictor(value, transform_parameters, inverse_link)
     else:
@@ -148,6 +153,7 @@ def build_additive_parameter(
         and not parameter.group_specific_terms
         and not parameter.offset_terms
         and not parameter.hsgp_terms
+        and not parameter.smooth_terms
     )
     value = pt.as_tensor_variable(value)
     if value.ndim < len(dims) or only_intercept:

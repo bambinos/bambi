@@ -8,10 +8,23 @@ import numpy as np
 import pandas as pd
 import pymc as pm
 import xarray as xr
+from scipy.special import gamma
+from scipy import stats
 
 from bambi.terms import GroupSpecificTerm
 
 from helpers import assert_ip_dlogp
+
+
+@pytest.fixture
+def survival_data():
+    return pd.DataFrame(
+        {
+            "time": [0.5, 1.0, 1.5, 2.0, 2.5, 3.0],
+            "x": [-1.0, 0.0, 1.0, -1.0, 0.0, 1.0],
+            "status": ["none", "right", "left", "none", "right", "none"],
+        }
+    )
 
 
 @pytest.fixture(scope="module")
@@ -1051,6 +1064,13 @@ class TestOrdinal(FitPredictParent):
             ("sratio", "logit"),
             ("sratio", "probit"),
             ("sratio", "cloglog"),
+            ("cratio", "logit"),
+            ("cratio", "probit"),
+            ("cratio", "cloglog"),
+            ("acat", "logit"),
+            ("acat", "probit"),
+            ("acat", "cloglog"),
+            ("osm", "logit"),
         ],
     )
     def test_ordinal_families(self, data_inhaler, family, link):
@@ -1078,7 +1098,7 @@ class TestOrdinal(FitPredictParent):
         idata = self.fit(model, random_seed=1234)
         self.predict_oos(model, idata)
 
-    @pytest.mark.parametrize("family", ["cumulative", "sratio"])
+    @pytest.mark.parametrize("family", ["cumulative", "sratio", "cratio", "acat"])
     def test_ordinal_cutpoint_dimensions(self, data_inhaler, family):
         model = bmb.Model("rating ~ period", data_inhaler, family=family)
         model.build()
@@ -1087,6 +1107,22 @@ class TestOrdinal(FitPredictParent):
         assert pymc_model.named_vars_to_dims["threshold"] == ("threshold_dim",)
         assert list(pymc_model.coords["threshold_dim"]) == ["1->2", "2->3", "3->4"]
         assert pymc_model.eval_rv_shapes()["threshold"] == (3,)
+
+    def test_ordered_stereotype_prior(self, data_inhaler):
+        prior = bmb.Prior("Dirichlet", dist=pm.Dirichlet, a=[2, 2, 2])
+        model = bmb.Model("rating ~ period", data_inhaler, family="osm", priors={"delta": prior})
+        idata = self.fit(model, random_seed=1234)
+        self.predict_oos(model, idata)
+
+    def test_ordered_stereotype_binary(self, data_inhaler):
+        data = data_inhaler[data_inhaler["rating"].isin([1, 2])].copy()
+        data["rating"] = data["rating"].cat.remove_unused_categories()
+        model = bmb.Model("rating ~ period", data, family="osm")
+        idata = self.fit(model, random_seed=1234)
+        prediction = self.predict_oos(model, idata)
+
+        np.testing.assert_allclose(idata.posterior["delta"], 1)
+        assert set(np.unique(prediction.predictions["rating"])).issubset({0, 1})
 
     def test_cumulative_accepts_pymc_ordered_transform(self, data_inhaler):
         prior = bmb.Prior(
@@ -1103,9 +1139,259 @@ class TestOrdinal(FitPredictParent):
         assert model.backend.model.eval_rv_shapes()["threshold"] == (3,)
 
 
+@pytest.mark.parametrize("is_censored", [False, True])
+@pytest.mark.parametrize("model_shape", [False, True])
+def test_weibull_ph_predict_and_log_likelihood(
+    survival_data, mock_pymc_sample, is_censored, model_shape
+):
+    response = "censored(time, status)" if is_censored else "time"
+    formula = f"{response} ~ x"
+    if model_shape:
+        formula = bmb.Formula(formula, "alpha ~ x")
+    model = bmb.Model(formula, survival_data, family="weibull_ph")
+    idata = model.fit(draws=4, chains=2, random_seed=1234)
+    assert np.isfinite(
+        model.backend.model.compile_dlogp()(model.backend.model.initial_point())
+    ).all()
+    new_data = survival_data.head(3)
+    result = model.predict(idata, data=new_data, kind="response", inplace=False, random_seed=1234)
+    assert result.predictions["lam"].shape == (2, 4, 3)
+    assert result.predictions["time"].shape == (2, 4, 3)
+    assert (result.predictions["time"] > 0).all()
+    lam = result.predictions["lam"].to_numpy()
+    alpha = (
+        result.predictions["alpha"].to_numpy()
+        if model_shape
+        else idata.posterior["alpha"].to_numpy()[..., None]
+    )
+    time = new_data["time"].to_numpy()
+    log_survival = -lam * time**alpha
+    expected = np.log(alpha) + np.log(lam) + (alpha - 1) * np.log(time) + log_survival
+    if is_censored:
+        expected[..., 1] = log_survival[..., 1]
+        expected[..., 2] = np.log(-np.expm1(log_survival[..., 2]))
+    likelihood = model.compute_log_likelihood(idata, data=new_data, inplace=False)
+    np.testing.assert_allclose(likelihood.log_likelihood["time"], expected, atol=1e-12)
+
+
+@pytest.fixture
+def cure_weibull_data():
+    rng = np.random.default_rng(1234)
+    x = rng.normal(size=100)
+    cure = 1 / (1 + np.exp(-(-0.5 + 0.3 * x)))
+    event_time = np.exp(0.3 * x) * rng.weibull(1.5, size=100)
+    event_time[rng.uniform(size=100) < cure] = np.inf
+    follow_up = rng.uniform(2, 8, size=100)
+    time = np.minimum(event_time, follow_up)
+    status = np.where(event_time > follow_up, "right", "none")
+    status[time < 0.3] = "left"
+    time = np.maximum(time, 0.3)
+    data = pd.DataFrame({"time": time, "status": status, "x": x})
+    # Keep the boundary cases used by conditional predictions and the survival plateau.
+    data.loc[:3, ["time", "status", "x"]] = [
+        [0.2, "none", -1.0],
+        [1.0, "right", 0.0],
+        [2.0, "left", 1.0],
+        [1000.0, "right", 2.0],
+    ]
+    return data
+
+
+@pytest.mark.parametrize("model_cure", [False, True])
+@pytest.mark.parametrize("model_shape", [False, True])
+def test_cure_weibull_predict_and_log_likelihood(
+    cure_weibull_data, mock_pymc_sample, model_cure, model_shape
+):
+    additionals = []
+    if model_cure:
+        additionals.append("cure ~ x")
+
+    if model_shape:
+        additionals.append("alpha ~ x")
+
+    priors = {}
+    if model_shape:
+        priors["alpha"] = {
+            "Intercept": bmb.Prior("Normal", mu=0, sigma=0.2),
+            "x": bmb.Prior("Normal", mu=0, sigma=0.2),
+        }
+    model = bmb.Model(
+        bmb.Formula("censored(time, status) ~ x", *additionals),
+        cure_weibull_data,
+        family="cure_weibull",
+        priors=priors,
+    )
+    assert model.family.link["cure"].name == "logit"
+    idata = model.fit(draws=11, chains=2, random_seed=1234)
+    assert np.isfinite(
+        model.backend.model.compile_dlogp()(model.backend.model.initial_point())
+    ).all()
+    prediction = model.predict(
+        idata, data=cure_weibull_data, kind="response", inplace=False, random_seed=1234
+    )
+    mu = prediction.predictions["mu"].to_numpy()
+    cure = (
+        prediction.predictions["cure"].to_numpy()
+        if model_cure
+        else idata.posterior["cure"].to_numpy()[..., None]
+    )
+    alpha = (
+        prediction.predictions["alpha"].to_numpy()
+        if model_shape
+        else idata.posterior["alpha"].to_numpy()[..., None]
+    )
+    beta = mu / gamma(1 + 1 / alpha)
+    time = cure_weibull_data["time"].to_numpy()
+    log_susceptible_survival = -((time / beta) ** alpha)
+    expected = (
+        np.log1p(-cure)
+        + np.log(alpha)
+        - np.log(beta)
+        + (alpha - 1) * np.log(time / beta)
+        + log_susceptible_survival
+    )
+    log_survival = np.logaddexp(np.log(cure), np.log1p(-cure) + log_susceptible_survival)
+    right = cure_weibull_data["status"].to_numpy() == "right"
+    left = cure_weibull_data["status"].to_numpy() == "left"
+    expected[..., right] = log_survival[..., right]
+    expected[..., left] = (np.log1p(-cure) + np.log(-np.expm1(log_susceptible_survival)))[..., left]
+    likelihood = model.compute_log_likelihood(idata, inplace=False)
+    np.testing.assert_allclose(likelihood.log_likelihood["time"], expected, atol=1e-12)
+    new_data = cure_weibull_data.head(2).drop(columns=["time", "status"])
+    result = model.predict(idata, data=new_data, kind="response", inplace=False, random_seed=1234)
+    assert result.predictions["time"].shape == (2, 11, 2)
+    assert (result.predictions["time"] > 0).all()
+    if model_cure:
+        assert result.predictions["cure"].shape == (2, 11, 2)
+        assert ((result.predictions["cure"] > 0) & (result.predictions["cure"] < 1)).all()
+
+
+def test_cure_weibull_conditional_prediction(cure_weibull_data, mock_pymc_sample):
+    model = bmb.Model(
+        "censored(time, status) ~ 1",
+        cure_weibull_data,
+        family="cure_weibull",
+        priors={
+            "Intercept": bmb.Prior("Normal", mu=0, sigma=0.1),
+            "alpha": bmb.Prior("Gamma", alpha=100, beta=100),
+        },
+    )
+    idata = model.fit(draws=10, chains=2, random_seed=1234)
+    result = model.predict(
+        idata,
+        data=cure_weibull_data.head(3),
+        kind="response_conditional",
+        inplace=False,
+        random_seed=1234,
+    )
+    time = result.predictions["time"].to_numpy()
+    assert (time[..., 1] >= 1.0).all()
+    assert (time[..., 2] <= 2.0).all()
+    assert np.isfinite(time[..., 2]).all()
+
+
+@pytest.mark.parametrize("model_cure", [False, True])
+@pytest.mark.parametrize("model_shape", [False, True])
+@pytest.mark.parametrize(
+    "family, parent, shape",
+    [
+        ("cure_exponential", "mu", None),
+        ("cure_gamma", "mu", "alpha"),
+        ("cure_lognormal", "mu", "sigma"),
+        ("cure_loglogistic", "mu", "alpha"),
+        ("cure_weibull_ph", "lam", "alpha"),
+    ],
+)
+def test_cure_models_predict_and_log_likelihood(
+    survival_data, mock_pymc_sample, family, parent, shape, model_cure, model_shape
+):
+    additionals = ["cure ~ x"] if model_cure else []
+    priors = {
+        "Intercept": bmb.Prior("Normal", mu=0, sigma=0.1),
+        "x": bmb.Prior("Normal", mu=0, sigma=0.1),
+    }
+    if shape:
+        if model_shape:
+            additionals.append(f"{shape} ~ x")
+            priors[shape] = {
+                "Intercept": bmb.Prior("Normal", mu=0, sigma=0.1),
+                "x": bmb.Prior("Normal", mu=0, sigma=0.1),
+            }
+        else:
+            priors[shape] = bmb.Prior("Gamma", alpha=100, beta=100)
+    model = bmb.Model(
+        bmb.Formula("censored(time, status) ~ x", *additionals),
+        survival_data,
+        family=family,
+        priors=priors,
+    )
+    idata = model.fit(draws=15, chains=2, random_seed=1234)
+    prediction = model.predict(
+        idata, data=survival_data, kind="response", inplace=False, random_seed=1234
+    )
+    mu = prediction.predictions[parent].to_numpy()
+    cure = (
+        prediction.predictions["cure"].to_numpy()
+        if model_cure
+        else idata.posterior["cure"].to_numpy()[..., None]
+    )
+    if shape:
+        aux = (
+            prediction.predictions[shape].to_numpy()
+            if model_shape
+            else idata.posterior[shape].to_numpy()[..., None]
+        )
+    if family == "cure_exponential":
+        reference = stats.expon(scale=mu)
+    elif family == "cure_gamma":
+        reference = stats.gamma(a=aux, scale=mu / aux)
+    elif family == "cure_lognormal":
+        reference = stats.lognorm(s=aux, scale=np.exp(mu))
+    elif family == "cure_loglogistic":
+        reference = stats.fisk(c=1 / aux, scale=np.exp(mu))
+    else:
+        reference = stats.weibull_min(c=aux, scale=mu ** (-1 / aux))
+    time = survival_data["time"].to_numpy()
+    expected = np.log1p(-cure) + reference.logpdf(time)
+    right = survival_data["status"].to_numpy() == "right"
+    left = survival_data["status"].to_numpy() == "left"
+    expected[..., right] = np.logaddexp(np.log(cure), np.log1p(-cure) + reference.logsf(time))[
+        ..., right
+    ]
+    expected[..., left] = (np.log1p(-cure) + reference.logcdf(time))[..., left]
+    likelihood = model.compute_log_likelihood(idata, inplace=False)
+    np.testing.assert_allclose(likelihood.log_likelihood["time"], expected, atol=1e-10)
+
+    new_data = survival_data.head(3)
+    prediction = model.predict(
+        idata,
+        data=new_data.drop(columns=["time", "status"]),
+        kind="response",
+        inplace=False,
+        random_seed=1234,
+    )
+    draws = prediction.predictions["time"].to_numpy()
+    assert draws.shape == (2, 15, 3)
+    assert (draws > 0).all()
+    assert np.isinf(draws).any()
+    assert np.isfinite(draws).any()
+
+    conditional = (
+        model.predict(
+            idata, data=new_data, kind="response_conditional", inplace=False, random_seed=1234
+        )
+        .predictions["time"]
+        .to_numpy()
+    )
+    assert (conditional[..., 1] >= 1.0).all()
+    assert (conditional[..., 2] <= 1.5).all()
+    assert np.isfinite(conditional[..., 2]).all()
+
+
 @pytest.mark.usefixtures("mock_pymc_sample")
 class TestCensoredResponses(FitPredictParent):
-    def test_model_with_intercept(self, data_kidney):
+    @pytest.mark.parametrize("family", ["weibull", "weibull_ph"])
+    def test_model_with_intercept(self, data_kidney, family):
         priors = {
             "Intercept": bmb.Prior("Normal", mu=0, sigma=1),
             "sex": bmb.Prior("Normal", mu=0, sigma=2),
@@ -1115,7 +1401,7 @@ class TestCensoredResponses(FitPredictParent):
         model = bmb.Model(
             "censored(time, status) ~ 1 + sex + age",
             data_kidney,
-            family="weibull",
+            family=family,
             link="log",
             priors=priors,
         )
@@ -1124,7 +1410,8 @@ class TestCensoredResponses(FitPredictParent):
         # Assert response is censored
         assert isinstance(model.backend.model.observed_RVs[0].owner.op, pm.Censored.rv_type)
 
-    def test_model_without_intercept(self, data_kidney):
+    @pytest.mark.parametrize("family", ["weibull", "weibull_ph"])
+    def test_model_without_intercept(self, data_kidney, family):
         priors = {
             "sex": bmb.Prior("Normal", mu=0, sigma=2),
             "age": bmb.Prior("Normal", mu=0, sigma=1),
@@ -1133,7 +1420,7 @@ class TestCensoredResponses(FitPredictParent):
         model = bmb.Model(
             "censored(time, status) ~ 0 + sex + age",
             data_kidney,
-            family="weibull",
+            family=family,
             link="log",
             priors=priors,
         )
@@ -1142,7 +1429,8 @@ class TestCensoredResponses(FitPredictParent):
         # Assert response is censored
         assert isinstance(model.backend.model.observed_RVs[0].owner.op, pm.Censored.rv_type)
 
-    def test_model_with_group_specific_effects(self, data_kidney):
+    @pytest.mark.parametrize("family", ["weibull", "weibull_ph"])
+    def test_model_with_group_specific_effects(self, data_kidney, family):
         # Model 3, with group-specific effects
         priors = {
             "alpha": bmb.Prior("Gamma", alpha=3, beta=5),
@@ -1155,7 +1443,7 @@ class TestCensoredResponses(FitPredictParent):
         model = bmb.Model(
             "censored(time, status) ~ 1 + sex + age + (1|patient)",
             data_kidney,
-            family="weibull",
+            family=family,
             link="log",
             priors=priors,
         )
@@ -1343,7 +1631,7 @@ def test_competing_risks_predictions():
             "x": [0.0, 1.0, 2.0, 3.0],
         }
     )
-    model = bmb.Model("cr(time, status, cause) ~ x", data, family="exponential")
+    model = bmb.Model("risks(time, status, cause) ~ x", data, family="exponential")
     idata = model.fit(draws=200, tune=200, chains=2, random_seed=1234)
     response = model.response_term.label
 
@@ -1418,7 +1706,7 @@ def test_competing_risks_time_and_cause_predictions_match_exponential_distributi
             "cause": ["none", "cause_b", "cause_a", "none"],
         }
     )
-    model = bmb.Model("cr(time, status, cause) ~ 1", data, family="exponential")
+    model = bmb.Model("risks(time, status, cause) ~ 1", data, family="exponential")
     model.build()
 
     response = model.response_term.label

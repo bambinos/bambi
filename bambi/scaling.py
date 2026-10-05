@@ -160,6 +160,40 @@ def _scale_group_specific_half_normal(term, intercept_stats, response_std):
     term.prior.args["sigma"].update(sigma=np.squeeze(np.atleast_1d(sigma)))
 
 
+def _scale_smooth_term_normal(term, response_std, intercept_stats):
+    """Scale priors for a smooth term's constant, linear and curvature components."""
+    prior = term.prior
+
+    constant = prior.get("constant")
+    if isinstance(constant, Prior) and constant.auto_scale and constant.name == "Normal":
+        mu, sigma = intercept_stats
+        constant.update(mu=mu, sigma=sigma)
+
+    # Not all smooth terms have a linear component.
+    linear = prior.get("linear")
+    if isinstance(linear, Prior) and linear.auto_scale and linear.name == "Normal":
+        linear_index = term.null_space_dimension - 1
+        if term.by_levels is None:
+            linear_sigma = _get_normal_slope_sigma(term.data[:, linear_index], response_std)
+        else:
+            linear_sigma = [
+                _get_normal_slope_sigma(
+                    term.data[
+                        term.transform.by_indexes == i, i * term.basis_dimension + linear_index
+                    ],
+                    response_std,
+                )
+                for i in range(len(term.by_levels))
+            ]
+        linear.update(mu=0, sigma=linear_sigma)
+
+    curvature = prior["curvature"]
+    if isinstance(curvature, Prior) and curvature.auto_scale and curvature.name == "Normal":
+        sigma = curvature.args.get("sigma")
+        if isinstance(sigma, Prior) and sigma.name == "HalfNormal" and sigma.auto_scale:
+            sigma.update(sigma=response_std)
+
+
 def scale_priors(model):
     if isinstance(model.family, (Gaussian, StudentT)):
         response_mean = np.mean(model.response_term.data)
@@ -205,3 +239,7 @@ def scale_priors(model):
         is_half_normal = getattr(term.prior.args.get("sigma"), "name", None) == "HalfNormal"
         if auto_scale and is_half_normal:
             _scale_group_specific_half_normal(term, intercept_stats, response_std)
+
+    # Scale smooth terms.
+    for term in main_parameter.smooth_terms.values():
+        _scale_smooth_term_normal(term, response_std, intercept_stats)
