@@ -655,6 +655,7 @@ class PyMCModel:
                 dropna=False,
                 include_response=purpose == "log_likelihood",
                 parameter_names=self.spec.parameter_graph.dependencies,
+                parent_name=self.spec.family.likelihood.parent,
             )
         new_coords = {"__obs__": range(len(data))}
         new_data = build_new_response_data(

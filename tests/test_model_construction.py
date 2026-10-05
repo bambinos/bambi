@@ -1581,6 +1581,68 @@ def test_additive_and_marginal_likelihood_parameters_keep_their_roles(
     assert isinstance(marginal.parameters["sigma"], MarginalParameter)
 
 
+@pytest.mark.parametrize("predictor", ["x", "x:z"])
+@pytest.mark.parametrize("dependent_scale", [False, True])
+def test_additive_parent_with_nonlinear_auxiliary(
+    nonlinear_ownership_data, predictor, dependent_scale
+):
+    data = nonlinear_ownership_data
+    sigma_formula = "sigma ~ sqrt(mu ** 2 + a ** 2)" if dependent_scale else "sigma ~ exp(a)"
+    model = bmb.Model(
+        bmb.Formula(f"y ~ {predictor}", sigma_formula, nlpars=("a",)),
+        data,
+        center_predictors=False,
+    )
+    model.build()
+    assert not model.parameters["mu"].is_nonlinear
+    assert model.parameters["sigma"].is_nonlinear
+    draws = xr.Dataset(
+        {
+            "Intercept": (("chain", "draw"), [[1.0]]),
+            predictor: (("chain", "draw"), [[0.2]]),
+            "a_Intercept": (("chain", "draw"), [[0.3]]),
+        }
+    )
+    idata = xr.DataTree.from_dict({"posterior": draws})
+    for new_data in (None, data.iloc[:2].assign(x=[0.5, 1.5])):
+        observations = data if new_data is None else new_data
+        covariate = observations.x if predictor == "x" else observations.x * observations.z
+        mu = 1.0 + 0.2 * covariate.to_numpy()
+        sigma = np.sqrt(mu**2 + 0.3**2) if dependent_scale else np.exp(0.3)
+        result = model.predict(
+            idata, data=None if new_data is None else new_data.drop(columns="y"), inplace=False
+        )
+        group = result.posterior if new_data is None else result.predictions
+        np.testing.assert_allclose(group.mu, mu[None, None, :])
+        np.testing.assert_allclose(group.sigma, np.broadcast_to(sigma, group.sigma.shape))
+        likelihood = model.compute_log_likelihood(idata, data=new_data, inplace=False)
+        expected = stats.norm.logpdf(observations.y, loc=mu, scale=sigma)
+        np.testing.assert_allclose(likelihood.log_likelihood.y, expected[None, None, :])
+
+
+def test_nonlinear_auxiliary_aligns_additive_parent_data():
+    data = pd.DataFrame(
+        {"y": [0.2, 0.4, 0.6, 0.8], "x": [np.nan, 1.0, 2.0, 3.0], "z": [0.0, np.nan, 0.5, 1.0]}
+    )
+    formula = bmb.Formula("y ~ x", "sigma ~ exp(a * z)", nlpars=("a",))
+    model = bmb.Model(formula, data, dropna=True)
+    model.build()
+    pd.testing.assert_frame_equal(model.data, data.iloc[2:])
+    np.testing.assert_array_equal(model.response_term.data, data.y.iloc[2:])
+    assert_ip_dlogp(model)
+    with pytest.raises(ValueError, match="incomplete rows"):
+        bmb.Model(formula, data)
+    draws = xr.Dataset(
+        {name: (("chain", "draw"), [[0.2]]) for name in ["Intercept", "x", "a_Intercept"]}
+    )
+    with pytest.raises(ValueError, match="incomplete rows"):
+        model.predict(
+            xr.DataTree.from_dict({"posterior": draws}),
+            data=pd.DataFrame({"x": [np.nan, 1.0], "z": [0.0, 0.5]}),
+            inplace=False,
+        )
+
+
 def test_one_edge_parameter_dependency_matches_direct_calculation():
     data = pd.DataFrame({"y": [0.2, 0.3, 0.4], "x": [1.0, 2.0, 3.0]})
     formula = bmb.Formula("y ~ a * x", "sigma ~ a ** 2 + 0.1", nlpars=("a",))

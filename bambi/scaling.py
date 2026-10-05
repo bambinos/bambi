@@ -205,10 +205,10 @@ def scale_priors(model):
     # Scale marginal parameters
     _scale_marginal_parameters(model, response_std)
 
-    if model.formula.nlpars:
+    main_parameter = model.parameters[model.family.likelihood.parent]
+    if main_parameter.is_nonlinear:
         return
 
-    main_parameter = model.parameters[model.family.likelihood.parent]
     has_intercept = main_parameter.intercept_term is not None
     common_terms = main_parameter.common_terms
     common_priors = {}

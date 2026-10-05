@@ -2150,6 +2150,33 @@ def nonlinear_auxiliary_formula(groups=False):
     return bmb.Formula("y ~ a * x", *additionals, nlpars=("a",))
 
 
+@pytest.mark.parametrize("nested", [False, True])
+def test_nonlinear_auxiliary_preserves_parent_priors(nested):
+    data = nonlinear_auxiliary_data()
+    formula = bmb.Formula("y ~ x", "sigma ~ exp(a)", nlpars=("a",))
+    model = bmb.Model(formula, data)
+    reference = bmb.Model("y ~ x", data)
+    for name, term in reference.parameters["mu"].terms.items():
+        assert model.parameters["mu"].terms[name].prior == term.prior
+
+    slope_prior = bmb.Prior("Normal", mu=0.5, sigma=0.2)
+    coefficient_prior = bmb.Prior("Normal", mu=-1, sigma=0.5)
+    priors = {"mu": {"x": slope_prior}} if nested else {"x": slope_prior}
+    priors["a"] = {"Intercept": coefficient_prior}
+    model = bmb.Model(formula, data, priors=priors)
+    assert model.parameters["mu"].terms["x"].prior.args == slope_prior.args
+    coefficient = model.parameters["sigma"].nonlinear_coefficients["a"]
+    assert coefficient.intercept_term.prior.args == coefficient_prior.args
+
+    slope_prior = bmb.Prior("Normal", mu=1, sigma=0.3)
+    coefficient_prior = bmb.Prior("Normal", mu=-0.5, sigma=0.25)
+    priors = {"mu": {"x": slope_prior}} if nested else {"x": slope_prior}
+    priors["a"] = {"Intercept": coefficient_prior}
+    model.set_priors(priors)
+    assert model.parameters["mu"].terms["x"].prior.args == slope_prior.args
+    assert coefficient.intercept_term.prior.args == coefficient_prior.args
+
+
 def test_auxiliary_graph_matches_direct_pymc():
     data = nonlinear_auxiliary_data()
     model = bmb.Model(nonlinear_auxiliary_formula(), data, center_predictors=False)

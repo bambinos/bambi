@@ -386,7 +386,13 @@ def parameter_dependency_order(dependencies, declaration_order=None) -> tuple[st
 
 
 def prepare_nonlinear_data(
-    formula, expressions, data, dropna, include_response=True, parameter_names=()
+    formula,
+    expressions,
+    data,
+    dropna,
+    include_response=True,
+    parameter_names=(),
+    parent_name="__parent__",
 ):
     """Prepare aligned, complete observations for every part of a nonlinear model.
 
@@ -405,6 +411,8 @@ def prepare_nonlinear_data(
         Whether the response is required in ``data``.
     parameter_names : Collection of str
         Names of modeled parameters, which are excluded from required data columns.
+    parent_name : str
+        Name of the likelihood's parent parameter.
 
     Returns
     -------
@@ -422,8 +430,10 @@ def prepare_nonlinear_data(
     variables = set()
     for expression in expressions.values():
         variables.update(expression.symbols - parameter_names)
+    response_formula, parent_rhs = split_nonlinear_formula(formula.main)
+    if parent_name not in expressions:
+        variables.update(set(fm.model_description(parent_rhs).var_names) - parameter_names)
     if include_response:
-        response_formula, _ = split_nonlinear_formula(formula.main)
         variables.update(fm.model_description(response_formula).var_names)
     for name, predictor_formula in zip(formula.additionals_lhs, formula.additionals):
         if name in expressions:

@@ -209,8 +209,7 @@ class Model:
             if self.family.get_param_spec(self.family.likelihood.parent).ndim != 0:
                 raise ValueError("Nonlinear formulas currently require a scalar parent parameter.")
 
-            response_formula, nonlinear_source = split_nonlinear_formula(self.formula.main)
-            nonlinear_expression = NonlinearExpression.parse(nonlinear_source)
+            response_formula, _ = split_nonlinear_formula(self.formula.main)
             response_names = set(fm.model_description(response_formula).var_names)
             response_collisions = response_names & set(self.family.likelihood.params)
             if response_collisions:
@@ -231,7 +230,7 @@ class Model:
                     "Nonlinear parameter names must not also be data columns: "
                     f"{sorted(collisions)}."
                 )
-            self.parameter_graph = self._make_parameter_dependency_graph(nonlinear_expression)
+            self.parameter_graph = self._make_parameter_dependency_graph()
             self.data = prepare_nonlinear_data(
                 self.formula,
                 {
@@ -241,7 +240,10 @@ class Model:
                 self.data,
                 dropna,
                 parameter_names=self.parameter_graph.dependencies,
+                parent_name=self.family.likelihood.parent,
             )
+            if self.family.likelihood.parent not in self.parameter_graph.nodes:
+                response_formula = self.formula.main
             design = fm.design_matrices(
                 response_formula, self.data, na_action, 1, additional_namespace
             )
@@ -272,7 +274,7 @@ class Model:
         # Merge bare term priors with nested parent priors; nested entries take precedence.
         parent_name = self.family.likelihood.parent
         parent_priors = {}
-        if not self.formula.nlpars:
+        if parent_name not in self.parameter_graph.nodes:
             parent_priors = {name: prior for name, prior in priors.items() if name != parent_name}
             if parent_name in priors:
                 parent_priors.update(priors[parent_name])
@@ -314,8 +316,9 @@ class Model:
                     for dependency in self.parameter_graph.dependencies[name]
                     if dependency in nonlinear_coefficients
                 }
-                if name == parent_name:
-                    self.parameters[name] = parameter
+
+        if parent_name in self.parameter_graph.nodes:
+            self.parameters[parent_name] = self.parameter_graph.nodes[parent_name]
         else:
             self.parameters[parent_name] = ConditionalParameter.from_design(
                 parent_name, design, parent_priors, self, is_parent=True
@@ -387,12 +390,15 @@ class Model:
         # Build priors
         self._build_priors()
 
-    def _make_nonlinear_parameter_expressions(self, parent_expression):
+    def _make_nonlinear_parameter_expressions(self):
         """Parse expressions that define parameters in terms of other modeled parameters."""
         parent_name = self.family.likelihood.parent
         parameter_names = set(self.formula.nlpars) | set(self.family.likelihood.params)
-        expressions = {parent_name: parent_expression}
-        for name, formula in zip(self.formula.additionals_lhs, self.formula.additionals):
+        expressions = {}
+        formulas = {parent_name: self.formula.main} | dict(
+            zip(self.formula.additionals_lhs, self.formula.additionals)
+        )
+        for name, formula in formulas.items():
             if name not in parameter_names:
                 continue
             rhs = formula.partition("~")[2]
@@ -401,12 +407,12 @@ class Model:
                 expressions[name] = NonlinearExpression.parse(rhs.strip())
         return expressions
 
-    def _make_parameter_dependency_graph(self, parent_expression):
+    def _make_parameter_dependency_graph(self):
         """Build nonlinear parameter nodes and their dependency graph."""
         parent_name = self.family.likelihood.parent
         nonlinear_names = set(self.formula.nlpars)
         parameter_names = nonlinear_names | set(self.family.likelihood.params)
-        expressions = self._make_nonlinear_parameter_expressions(parent_expression)
+        expressions = self._make_nonlinear_parameter_expressions()
         metadata = {}
         dependencies = {name: () for name in parameter_names}
         for name, expression in expressions.items():
@@ -710,6 +716,9 @@ class Model:
         if self.formula.nlpars:
             parameters_with_terms = self._parameters_with_terms()
             valid = set(self.marginal_parameters) | set(parameters_with_terms)
+            parent_parameter = self.parameters[self.family.likelihood.parent]
+            if not parent_parameter.is_nonlinear:
+                valid |= set(parent_parameter.terms) | {"common", "group_specific"}
             unused = []
             for name, value in priors.items():
                 if name not in valid:
@@ -764,7 +773,7 @@ class Model:
         # Arguments `common` and `group_specific` only affect the parent parameter.
         parent_name = self.family.likelihood.parent
 
-        if self.formula.nlpars:
+        if self.parameters[parent_name].is_nonlinear:
             if common is not None or group_specific is not None:
                 raise ValueError(
                     "Use nested priors for nonlinear parameters instead of 'common' or "
@@ -797,9 +806,10 @@ class Model:
             #   - a single prior for marginal parameters.
             # Bare term priors are merged into the parent component, with explicitly nested
             # parent priors taking precedence.
-            normalized_priors = {name: priors[name] for name in self.parameters if name in priors}
+            parameters = self.parameters | self.parameter_graph.nonlinear_coefficients
+            normalized_priors = {name: priors[name] for name in parameters if name in priors}
             parent_priors = {
-                name: prior for name, prior in priors.items() if name not in self.parameters
+                name: prior for name, prior in priors.items() if name not in parameters
             }
             if parent_name in normalized_priors:
                 parent_priors.update(normalized_priors[parent_name])
@@ -808,7 +818,7 @@ class Model:
             # Make sure mutation of Prior objects within update_priors does not have side effects.
             normalized_priors = deepcopy(normalized_priors)
 
-            for name, component in self.parameters.items():
+            for name, component in parameters.items():
                 prior = normalized_priors.get(name)
                 if prior is not None:
                     component.update_priors(prior)
@@ -1541,10 +1551,11 @@ class Model:
                 [prior_repr(parameter) for parameter in self.marginal_parameters.values()]
             )
             aux_str = "Auxiliary parameters\n" + wrapify(indentify(aux_str, 4), 100, 4)
-            if self.formula.nlpars:
-                priors_dict[parent_parameter.label] = aux_str
+            key = parent_parameter.label if self.formula.nlpars else parent_name
+            if key in priors_dict:
+                priors_dict[key] += "\n\n" + aux_str
             else:
-                priors_dict[parent_name] = priors_dict[parent_name] + "\n\n" + aux_str
+                priors_dict[key] = aux_str
 
         for key, value in priors_dict.items():
             priors_dict[key] = indentify(value, 4)

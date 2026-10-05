@@ -19,8 +19,9 @@ class Formula:
     *additionals : tuple of str
         Additional formulas that describe model parameters rather than a response variable.
     nlpars : list or tuple of str, optional
-        Names of parameters used in the nonlinear expression on the right-hand side of the main
-        formula. An additional formula can describe how a nonlinear parameter varies. Parameters
+        Names of coefficients used in nonlinear expressions. Formulas that reference modeled
+        parameters use nonlinear expression syntax; other formulas retain ordinary Formulae
+        syntax. An additional formula can describe how a nonlinear coefficient varies. Coefficients
         without an additional formula use an intercept-only formula. Additional formulas can also
         describe ordinary auxiliary likelihood parameters, such as `sigma ~ z`.
         The expression is on the parent parameter's link scale. The family's inverse link is
