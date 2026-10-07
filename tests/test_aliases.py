@@ -138,7 +138,7 @@ def test_set_alias_distributional_model_errors(data_random_n100):
     with pytest.raises(TypeError, match="The aliases for the parameter 'mu' must be a dictionary"):
         model.set_alias({"mu": "m"})
 
-    with pytest.raises(ValueError, match="The alias for 'continuous1' must be a string"):
+    with pytest.raises(TypeError, match="The alias for 'continuous1' must be a string"):
         model.set_alias({"continuous1": {"continuous1": "response"}})
 
     # The nested form works
