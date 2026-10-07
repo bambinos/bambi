@@ -313,7 +313,7 @@ def get_summary_stats(x: DataArray, prob: float | list[float], use_hdi: bool = T
 
 
 def _average_draws(
-    x: DataArray, data: DataFrame, by: str | list[str] | None
+    x: DataArray, data: DataFrame, by: str | list[str]
 ) -> tuple[DataArray, DataFrame]:
     """Average draws over the rows of `data` that share the same values of `by`.
 
@@ -328,9 +328,8 @@ def _average_draws(
         aligned with the rows of `data`.
     data : DataFrame
         The data used to compute the draws, one row per `__obs__` entry.
-    by : str, list[str] or None
-        Column name(s) to group by. `"all"` averages over all the rows. If None, `x` and `data`
-        are returned unchanged.
+    by : str or list[str]
+        Column name(s) to group by. `"all"` averages over all the rows.
 
     Returns
     -------
@@ -339,8 +338,6 @@ def _average_draws(
         of `by` for each group.
     """
     match by:
-        case None:
-            return x, data
         case "all":
             groups = np.zeros(len(data), dtype=int)
             groups_data = pd.DataFrame(index=[0])
@@ -541,7 +538,9 @@ def predictions(
     idata = model.predict(**pred_kwargs, kind=target_info.predict_kind)
     y_hat = as_dataset(idata[target_info.group])[target_info.var_name]
 
-    y_hat, preds_data = _average_draws(response_transform(y_hat), preds_data, average_by)
+    y_hat = response_transform(y_hat)
+    if average_by is not None:
+        y_hat, preds_data = _average_draws(y_hat, preds_data, average_by)
     stats_data = get_summary_stats(y_hat, prob, use_hdi)
     summary_df = aggregate(
         data=_join_prediction_data(preds_data, stats_data),
@@ -723,9 +722,12 @@ def comparisons(
 
     # Average within each draw (if requested), then compute mean and uncertainty over (chain, draw)
     summary_draws = {}
+    summary_data = context_data
     for k, v in compared_draws.items():
-        averaged, summary_data = _average_draws(response_transform(v), context_data, average_by)
-        summary_draws[k] = get_summary_stats(averaged, prob, use_hdi)
+        v = response_transform(v)
+        if average_by is not None:
+            v, summary_data = _average_draws(v, context_data, average_by)
+        summary_draws[k] = get_summary_stats(v, prob, use_hdi)
     # Comparison column name corresponds to the contrast values being compared (e.g., 1_vs_4)
     comparison_df = (
         pd.concat(summary_draws, names=["comparison", "index"])
@@ -949,9 +951,9 @@ def slopes(
 
     # Average within each draw (if requested), then compute summary statistics
     context_rows = preds_data[wrt_var.variable.name] == x_val
-    scaled_draws, summary_data = _average_draws(
-        scaled_draws, preds_data.loc[context_rows, context_columns], average_by
-    )
+    summary_data = preds_data.loc[context_rows, context_columns]
+    if average_by is not None:
+        scaled_draws, summary_data = _average_draws(scaled_draws, summary_data, average_by)
     stats = get_summary_stats(scaled_draws, prob, use_hdi)
 
     estimate_type = slope if isinstance(slope, str) else slope.__name__
