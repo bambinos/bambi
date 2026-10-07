@@ -681,7 +681,7 @@ class Model:
             for component_name, component_aliases in aliases.items():
                 if component_name in self.marginal_parameters:
                     if not isinstance(component_aliases, str):
-                        raise ValueError(
+                        raise TypeError(
                             f"The alias for '{component_name}' must be a string, "
                             f"not a {type(component_aliases)}."
                         )
