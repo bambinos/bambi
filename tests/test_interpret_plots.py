@@ -15,7 +15,7 @@ matplotlib.use("Agg")
 
 
 def summarize_draws(draws, prob, dims=("chain", "draw")):
-    """Posterior mean and HDI bounds of `draws`, computed over `dims`."""
+    """Mean and HDI bounds of `draws`, computed over `dims`."""
     hdi = az.hdi(draws, prob=prob, dim=list(dims))
     return [
         draws.mean(dims).item(),
@@ -222,6 +222,7 @@ class TestPredictions:
     def test_average_by_summarizes_averaged_draws(self, mtcars_fixture, average_by):
         # The bounds must be computed from the draws averaged within each group,
         # not by averaging the bounds of each row
+        # See https://github.com/bambinos/bambi/issues/1004
         model, idata = mtcars_fixture
         conditional = {"hp": [100, 150, 200], "am": [0, 1], "drat": [3, 4]}
         unit = predictions(model, idata, conditional, prob=0.9)
