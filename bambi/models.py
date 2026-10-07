@@ -704,7 +704,7 @@ class Model:
                             f"{{'{parameter_names[0]}': {{'term_name': 'alias'}}}}."
                         )
                     if not isinstance(component_aliases, dict):
-                        raise ValueError(
+                        raise TypeError(
                             f"The aliases for the parameter '{component_name}' must be a "
                             "dictionary that maps term names to aliases, "
                             f"not a {type(component_aliases)}."
