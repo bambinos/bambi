@@ -7,7 +7,7 @@ from seaborn.objects import Plot
 
 import bambi as bmb
 from bambi.interpret import plot_comparisons, plot_predictions, plot_slopes
-from bambi.interpret.effects import comparisons, predictions
+from bambi.interpret.effects import comparisons, predictions, slopes
 from bambi.interpret.plots import PlottingConfig, plot
 
 # Render plots to a buffer instead of rendering to stddout
@@ -227,7 +227,7 @@ class TestPredictions:
         unit = predictions(model, idata, conditional, prob=0.9)
         result = predictions(model, idata, conditional, average_by=average_by, prob=0.9)
 
-        mu = unit.draws.predictions["mu"]
+        mu = unit.draws.posterior["mu"]
         by = [] if average_by == "all" else np.atleast_1d(average_by).tolist()
         for _, row in result.summary.iterrows():
             mask = (unit.summary[by] == row[by]).all(axis=1)
@@ -519,7 +519,7 @@ class TestComparisons:
         conditional = {"am": [0, 1], "drat": [3, 4]}
         low = predictions(model, idata, {"hp": [100], **conditional})
         high = predictions(model, idata, {"hp": [150], **conditional})
-        diff = high.draws.predictions["mu"] - low.draws.predictions["mu"]
+        diff = high.draws.posterior["mu"] - low.draws.posterior["mu"]
 
         result = comparisons(
             model, idata, {"hp": [100, 150]}, conditional, average_by="am", prob=0.9
@@ -650,7 +650,7 @@ class TestSlopes:
 
         # Rebuild the slope draws of each grid row from the predictions on the grid
         grid = result.draws["data"].to_dataset().to_dataframe()
-        mu = result.draws.predictions["mu"]
+        mu = result.draws.posterior["mu"]
         at_x = np.flatnonzero(grid["hp"] == 150)
         at_x_eps = np.flatnonzero(grid["hp"] != 150)
         dydx = (mu.isel(__obs__=at_x_eps).values - mu.isel(__obs__=at_x).values) / eps
