@@ -680,14 +680,35 @@ class Model:
         else:
             for component_name, component_aliases in aliases.items():
                 if component_name in self.marginal_parameters:
-                    assert isinstance(component_aliases, str)
+                    if not isinstance(component_aliases, str):
+                        raise TypeError(
+                            f"The alias for '{component_name}' must be a string, "
+                            f"not a {type(component_aliases)}."
+                        )
                     self.marginal_parameters[component_name].alias = component_aliases
                 elif component_name == self._response_component.response.name:
-                    assert isinstance(component_aliases, str)
+                    if not isinstance(component_aliases, str):
+                        raise TypeError(
+                            f"The alias for '{component_name}' must be a string, "
+                            f"not a {type(component_aliases)}."
+                        )
                     self.response_term.alias = component_aliases
                 else:
-                    assert isinstance(component_aliases, dict)
-                    assert component_name in self.conditional_parameters
+                    parameter_names = list(self.conditional_parameters)
+                    if component_name not in self.conditional_parameters:
+                        raise ValueError(
+                            f"'{component_name}' is not a parameter of the model. When more than "
+                            "one parameter depends on predictors, 'aliases' must use the parameter "
+                            f"names ({', '.join(parameter_names)}) as keys and dictionaries "
+                            "that map term names to aliases as values, e.g. "
+                            f"{{'{parameter_names[0]}': {{'term_name': 'alias'}}}}."
+                        )
+                    if not isinstance(component_aliases, dict):
+                        raise TypeError(
+                            f"The aliases for the parameter '{component_name}' must be a "
+                            "dictionary that maps term names to aliases, "
+                            f"not a {type(component_aliases)}."
+                        )
                     component = self.conditional_parameters[component_name]
                     for name, alias in component_aliases.items():
                         is_used = False

@@ -127,6 +127,25 @@ def test_set_alias_warnings(data_random_n100, mock_pymc_sample):
         assert str(record[0].message) == expected_warning
 
 
+def test_set_alias_distributional_model_errors(data_random_n100):
+    formula = bmb.Formula("continuous1 ~ continuous2", "sigma ~ continuous2")
+    model = bmb.Model(formula, data_random_n100)
+
+    # Term names must be nested under the name of the parameter they belong to
+    with pytest.raises(ValueError, match="'continuous2' is not a parameter of the model"):
+        model.set_alias({"continuous2": "b"})
+
+    with pytest.raises(TypeError, match="The aliases for the parameter 'mu' must be a dictionary"):
+        model.set_alias({"mu": "m"})
+
+    with pytest.raises(TypeError, match="The alias for 'continuous1' must be a string"):
+        model.set_alias({"continuous1": {"continuous1": "response"}})
+
+    # The nested form works
+    model.set_alias({"mu": {"continuous2": "b"}})
+    assert model.conditional_parameters["mu"].terms["continuous2"].alias == "b"
+
+
 def test_set_alias(data_random_n100, mock_pymc_sample):
     model = bmb.Model("continuous1 ~ continuous2 + (continuous2|categorical1)", data_random_n100)
     aliases = {
