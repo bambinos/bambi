@@ -135,7 +135,7 @@ def test_set_alias_distributional_model_errors(data_random_n100):
     with pytest.raises(ValueError, match="'continuous2' is not a parameter of the model"):
         model.set_alias({"continuous2": "b"})
 
-    with pytest.raises(ValueError, match="The aliases for the parameter 'mu' must be a dictionary"):
+    with pytest.raises(TypeError, match="The aliases for the parameter 'mu' must be a dictionary"):
         model.set_alias({"mu": "m"})
 
     with pytest.raises(ValueError, match="The alias for 'continuous1' must be a string"):
