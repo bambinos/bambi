@@ -1,3 +1,4 @@
+import arviz as az
 import matplotlib
 import numpy as np
 import pandas as pd
@@ -6,11 +7,21 @@ from seaborn.objects import Plot
 
 import bambi as bmb
 from bambi.interpret import plot_comparisons, plot_predictions, plot_slopes
-from bambi.interpret.effects import comparisons, predictions
+from bambi.interpret.effects import comparisons, predictions, slopes
 from bambi.interpret.plots import PlottingConfig, plot
 
 # Render plots to a buffer instead of rendering to stddout
 matplotlib.use("Agg")
+
+
+def summarize_draws(draws, prob, dims=("chain", "draw")):
+    """Mean and HDI bounds of `draws`, computed over `dims`."""
+    hdi = az.hdi(draws, prob=prob, dim=list(dims))
+    return [
+        draws.mean(dims).item(),
+        hdi.sel(ci_bound="lower").item(),
+        hdi.sel(ci_bound="upper").item(),
+    ]
 
 
 # Improvement:
@@ -206,6 +217,24 @@ class TestPredictions:
         # unit level with average by covariates
         result = plot_predictions(model, idata, None, average_by)
         assert isinstance(result, Plot)
+
+    @pytest.mark.parametrize("average_by", ["am", ["am", "drat"], "all"])
+    def test_average_by_summarizes_averaged_draws(self, mtcars_fixture, average_by):
+        # The bounds must be computed from the draws averaged within each group,
+        # not by averaging the bounds of each row
+        # See https://github.com/bambinos/bambi/issues/1004
+        model, idata = mtcars_fixture
+        conditional = {"hp": [100, 150, 200], "am": [0, 1], "drat": [3, 4]}
+        unit = predictions(model, idata, conditional, prob=0.9)
+        result = predictions(model, idata, conditional, average_by=average_by, prob=0.9)
+
+        mu = unit.draws.posterior["mu"]
+        by = [] if average_by == "all" else np.atleast_1d(average_by).tolist()
+        for _, row in result.summary.iterrows():
+            mask = (unit.summary[by] == row[by]).all(axis=1)
+            expected = summarize_draws(mu.isel(__obs__=np.flatnonzero(mask)).mean("__obs__"), 0.9)
+            observed = row[["estimate", "lower_5.0%", "upper_95.0%"]].astype(float)
+            np.testing.assert_allclose(observed, expected)
 
     @pytest.mark.parametrize("target", ["mean", "mpg"])
     def test_fig_kwargs(self, mtcars_fixture, target):
@@ -486,6 +515,23 @@ class TestComparisons:
         assert (summary.groupby(["sex", "value"])["choice_dim"].size() == 3).all()
         assert (summary.groupby(["sex", "value"])["choice_dim"].nunique() == 3).all()
 
+    def test_average_by_summarizes_averaged_draws(self, mtcars_fixture):
+        model, idata = mtcars_fixture
+        conditional = {"am": [0, 1], "drat": [3, 4]}
+        low = predictions(model, idata, {"hp": [100], **conditional})
+        high = predictions(model, idata, {"hp": [150], **conditional})
+        diff = high.draws.posterior["mu"] - low.draws.posterior["mu"]
+
+        result = comparisons(
+            model, idata, {"hp": [100, 150]}, conditional, average_by="am", prob=0.9
+        )
+        assert len(result.summary) == 2
+        for _, row in result.summary.iterrows():
+            mask = low.summary["am"] == row["am"]
+            expected = summarize_draws(diff.isel(__obs__=np.flatnonzero(mask)).mean("__obs__"), 0.9)
+            observed = row[["estimate", "lower_5.0%", "upper_95.0%"]].astype(float)
+            np.testing.assert_allclose(observed, expected)
+
     @pytest.mark.parametrize("comparison", ["ratio", "lift"])
     def test_comparison_types(self, mtcars_fixture, comparison):
         model, idata = mtcars_fixture
@@ -596,6 +642,27 @@ class TestSlopes:
         # unit level with average by
         result = plot_slopes(model, idata, "hp", None, average_by)
         assert isinstance(result, Plot)
+
+    def test_average_by_summarizes_averaged_draws(self, mtcars_fixture):
+        model, idata = mtcars_fixture
+        eps = 1e-4
+        conditional = {"am": [0, 1], "drat": [3, 4]}
+        result = slopes(model, idata, {"hp": 150}, conditional, average_by="am", eps=eps, prob=0.9)
+
+        # Rebuild the slope draws of each grid row from the predictions on the grid
+        grid = result.draws["data"].to_dataset().to_dataframe()
+        mu = result.draws.posterior["mu"]
+        at_x = np.flatnonzero(grid["hp"] == 150)
+        at_x_eps = np.flatnonzero(grid["hp"] != 150)
+        dydx = (mu.isel(__obs__=at_x_eps).values - mu.isel(__obs__=at_x).values) / eps
+        dydx = mu.isel(__obs__=at_x).copy(data=dydx)
+
+        assert len(result.summary) == 2
+        for _, row in result.summary.iterrows():
+            mask = grid["am"].iloc[at_x] == row["am"]
+            expected = summarize_draws(dydx.isel(__obs__=np.flatnonzero(mask)).mean("__obs__"), 0.9)
+            observed = row[["estimate", "lower_5.0%", "upper_95.0%"]].astype(float)
+            np.testing.assert_allclose(observed, expected)
 
     def test_group_effects(self, sleep_study):
         model, idata = sleep_study

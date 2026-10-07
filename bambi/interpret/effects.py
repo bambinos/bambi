@@ -312,6 +312,49 @@ def get_summary_stats(x: DataArray, prob: float | list[float], use_hdi: bool = T
     return stats
 
 
+def _average_draws(
+    x: DataArray, data: DataFrame, by: str | list[str]
+) -> tuple[DataArray, DataFrame]:
+    """Average draws over the rows of `data` that share the same values of `by`.
+
+    The average is computed within each posterior draw so the uncertainty intervals computed
+    afterwards describe the averaged quantity.
+
+    Parameters
+    ----------
+    x : DataArray
+        The xarray DataArray containing posterior samples with an `__obs__` dimension
+        aligned with the rows of `data`.
+    data : DataFrame
+        The data used to compute the draws, one row per `__obs__` entry.
+    by : str or list[str]
+        Column name(s) to group by. `"all"` averages over all the rows.
+
+    Returns
+    -------
+    tuple[DataArray, DataFrame]
+        The averaged draws, with one `__obs__` entry per group, and a DataFrame with the values
+        of `by` for each group.
+    """
+    match by:
+        case "all":
+            groups = np.zeros(len(data), dtype=int)
+            groups_data = pd.DataFrame(index=[0])
+        case _:
+            by = [by] if isinstance(by, str) else list(by)
+            grouped = data.groupby(by, observed=True)
+            groups = grouped.ngroup().to_numpy()
+            groups_data = grouped.size().index.to_frame(index=False)
+
+    averaged = (
+        x.groupby(xr.DataArray(groups, dims="__obs__", name="__group__"))
+        .mean()
+        .rename({"__group__": "__obs__"})
+        .transpose(*x.dims)
+    )
+    return averaged, groups_data
+
+
 def _join_prediction_data(preds_data: DataFrame, stats_data: DataFrame) -> DataFrame:
     """Attach output statistics to each row in a prediction grid.
 
@@ -494,7 +537,10 @@ def predictions(
     idata = model.predict(**pred_kwargs, kind=target_info.predict_kind)
     y_hat = as_dataset(idata[target_info.group])[target_info.var_name]
 
-    stats_data = get_summary_stats(response_transform(y_hat), prob, use_hdi)
+    y_hat = response_transform(y_hat)
+    if average_by is not None:
+        y_hat, preds_data = _average_draws(y_hat, preds_data, average_by)
+    stats_data = get_summary_stats(y_hat, prob, use_hdi)
     summary_df = aggregate(
         data=_join_prediction_data(preds_data, stats_data),
         by=average_by,
@@ -670,11 +716,17 @@ def comparisons(
         comparison_fn,
     )
 
-    # Compute mean and uncertainty over (chain, draw)
-    summary_draws = {
-        k: get_summary_stats(response_transform(v), prob, use_hdi)
-        for k, v in compared_draws.items()
-    }
+    context_rows = preds_data[con.variable.name] == con.variable.iloc[0]
+    context_data = preds_data.loc[context_rows, context_columns]
+
+    # Average within each draw (if requested), then compute mean and uncertainty over (chain, draw)
+    summary_draws = {}
+    summary_data = context_data
+    for k, v in compared_draws.items():
+        v = response_transform(v)
+        if average_by is not None:
+            v, summary_data = _average_draws(v, context_data, average_by)
+        summary_draws[k] = get_summary_stats(v, prob, use_hdi)
     # Comparison column name corresponds to the contrast values being compared (e.g., 1_vs_4)
     comparison_df = (
         pd.concat(summary_draws, names=["comparison", "index"])
@@ -683,11 +735,7 @@ def comparisons(
         .reset_index(drop=True)
     )
 
-    context_rows = preds_data[con.variable.name] == con.variable.iloc[0]
-    summary_df = _join_prediction_data(
-        preds_data.loc[context_rows, context_columns],
-        comparison_df,
-    )
+    summary_df = _join_prediction_data(summary_data, comparison_df)
 
     summary_df = summary_df.rename(columns={"comparison": "value"})
     summary_df = aggregate(
@@ -900,14 +948,17 @@ def slopes(
     x_draws = xr.full_like(y_at_x, x_val)
     scaled_draws = slope_fn(dydx, x_draws, y_at_x)
 
-    # Compute summary statistics
+    # Average within each draw (if requested), then compute summary statistics
+    context_rows = preds_data[wrt_var.variable.name] == x_val
+    summary_data = preds_data.loc[context_rows, context_columns]
+    if average_by is not None:
+        scaled_draws, summary_data = _average_draws(scaled_draws, summary_data, average_by)
     stats = get_summary_stats(scaled_draws, prob, use_hdi)
 
     estimate_type = slope if isinstance(slope, str) else slope.__name__
 
-    context_rows = preds_data[wrt_var.variable.name] == x_val
     summary_df = aggregate(
-        data=_join_prediction_data(preds_data.loc[context_rows, context_columns], stats),
+        data=_join_prediction_data(summary_data, stats),
         by=average_by,
         preserve=_extract_dim_columns(stats, []),
     )
