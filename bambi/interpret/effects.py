@@ -318,7 +318,7 @@ def _average_draws(
     """Average draws over the rows of `data` that share the same values of `by`.
 
     The average is computed within each posterior draw so the uncertainty intervals computed
-    afterwards describe the averaged quantity. 
+    afterwards describe the averaged quantity.
 
     Parameters
     ----------
