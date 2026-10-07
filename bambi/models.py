@@ -688,7 +688,7 @@ class Model:
                     self.marginal_parameters[component_name].alias = component_aliases
                 elif component_name == self._response_component.response.name:
                     if not isinstance(component_aliases, str):
-                        raise ValueError(
+                        raise TypeError(
                             f"The alias for '{component_name}' must be a string, "
                             f"not a {type(component_aliases)}."
                         )
