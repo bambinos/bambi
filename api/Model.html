@@ -77,7 +77,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fa7e3c85fae98f93cbd4163a2025e2c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-e3515265876d2ff83baf2d30e02c4c0b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -381,7 +381,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <dl>
-<dt><code><span class="parameter-name"><strong>formula</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a> or <a href="../api/Formula.html#bambi.Formula">Formula</a></span></code></dt>
+<dt><code><span class="parameter-name"><strong>formula</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a> or <a href="../api/Formula.html#bambi.Formula">Formula</a></span></code></dt>
 <dd>
 <p>A model description written using the formula syntax from the <code>formulae</code> library.</p>
 </dd>
@@ -389,11 +389,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dd>
 <p>A pandas dataframe containing the data on which the model will be fit, with column names matching variables defined in the formula.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>family</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a> or <code>bambi</code>.<a href="../api/Family.html#bambi.Family">Family</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'gaussian'</span></code></dt>
+<dt><code><span class="parameter-name"><strong>family</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a> or <code>bambi</code>.<a href="../api/Family.html#bambi.Family">Family</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'gaussian'</span></code></dt>
 <dd>
 <p>A specification of the model family (analogous to the family object in R). Either a string, or an instance of class <a href="../api/Family.html#bambi.Family"><code>bambi.Family</code></a>. If a string is passed, a family with the corresponding name must be defined in the defaults loaded at <code>Model</code> initialization. Valid pre-defined families are <code>"bernoulli"</code>, <code>"beta"</code>, <code>"binomial"</code>, <code>"categorical"</code>, <code>"gamma"</code>, <code>"gaussian"</code>, <code>"negativebinomial"</code>, <code>"poisson"</code>, <code>"t"</code>, and <code>"wald"</code>. Defaults to <code>"gaussian"</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>priors</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>priors</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>Optional specification of priors for one or more terms. A dictionary where the keys are the names of terms in the model, “common,” “group_specific,” or the name of a model component, and the values are instances of class <code>Prior</code>. A distributional component name (e.g.&nbsp;“sigma” when it is modeled with a formula) maps to a nested dictionary of the same form; a constant component name maps directly to a <code>Prior</code>, a number, or an array. If priors are unset, use automatic priors inspired by the R rstanarm library. Names that don’t match any term or component are reported with a warning; set <code>bmb.config["UNUSED_PRIORS"]</code> to <code>"error"</code> or <code>"ignore"</code> to change that. Bare term priors can be combined with priors nested under the parent component. If both specify the same term, the nested parent prior takes precedence.</p>
 </dd>
@@ -409,23 +409,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dd>
 <p>Optional specification of potentials. A potential is an arbitrary expression added to the likelihood, this is generally useful to add constrains to models, that are difficult to express otherwise. The first term of a 2-tuple is the name of a variable in the model, the second a lambda function expressing the desired constraint. If a constraint involves n variables, you can pass n 2-tuples or pass a tuple which first element is an n-tuple and second element is a lambda function with n arguments. The number and order of the lambda function has to match the number and order of the variable names.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>dropna</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">False</span></code></dt>
+<dt><code><span class="parameter-name"><strong>dropna</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">False</span></code></dt>
 <dd>
 <p>When <code>True</code>, rows with any missing values in either the predictors or outcome are automatically dropped from t, optionalhe dataset in a listwise manner.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>auto_scale</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dt><code><span class="parameter-name"><strong>auto_scale</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>
 <p>If <code>True</code> (default), priors are automatically rescaled to the data (to be weakly informative) any time default priors are used. Note that any priors explicitly set by the user will always take precedence over default priors.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>noncentered</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a> or <a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a href="https://docs.python.org/3/library/functions.html#bool">bool</a>]</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dt><code><span class="parameter-name"><strong>noncentered</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a> or <a href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a>[<a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a>, <a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a>]</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>
 <p>Default parameterization for group-specific terms. <code>True</code> (default) uses non-centered; <code>False</code> uses centered. Can also be a <code>dict</code> keyed by component name (e.g.&nbsp;<code>{"mu": True, "sigma": False}</code>) for per-parameter defaults; missing keys default to <code>True</code>, unknown keys raise. Per-<code>Prior</code> <code>noncentered=</code> overrides this setting.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>center_predictors</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dt><code><span class="parameter-name"><strong>center_predictors</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>
 <p>If <code>True</code> (default), and if there is an intercept in the common terms, the data is centered by subtracting the mean. The centering is undone after sampling to provide the actual intercept in all distributional components that have an intercept. Note that this changes the interpretation of the prior on the intercept because it refers to the intercept of the centered data.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>extra_namespace</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>extra_namespace</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>Additional user supplied variables with transformations or data to include in the environment where the formula is evaluated. Defaults to <code>None</code>.</p>
 </dd>
@@ -509,7 +509,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dd>
 <p>An optional data frame with values for the predictors and the response on which the model’s log-likelihood function is evaluated. If omitted, the original dataset is used.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>inplace</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dt><code><span class="parameter-name"><strong>inplace</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>
 <p>If <code>True</code> it will modify <code>idata</code> in-place. Otherwise, it will return a copy of <code>idata</code> with the <code>log_likelihood</code> group added.</p>
 </dd>
@@ -536,7 +536,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dd>
 <p>The <code>InferenceData</code> instance returned by <code>.fit()</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>inplace</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dt><code><span class="parameter-name"><strong>inplace</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>
 <p>If <code>True</code> it will modify <code>idata</code> in-place. Otherwise, it will return a copy of <code>idata</code> with the <code>log_prior</code> group added.</p>
 </dd>
@@ -574,35 +574,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="parameters-3" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-3">Parameters</h4>
 <dl>
-<dt><code><span class="parameter-name"><strong>draws</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">1000</span></code></dt>
+<dt><code><span class="parameter-name"><strong>draws</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#int">int</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">1000</span></code></dt>
 <dd>
 <p>The number of samples to draw from the posterior distribution. Defaults to 1000.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>tune</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">1000</span></code></dt>
+<dt><code><span class="parameter-name"><strong>tune</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#int">int</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">1000</span></code></dt>
 <dd>
 <p>Number of iterations to tune. Defaults to 1000. Samplers adjust the step sizes, scalings or similar during tuning. These tuning samples are be drawn in addition to the number specified in the <code>draws</code> argument, and will be discarded unless <code>discard_tuned_samples</code> is set to <code>False</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>discard_tuned_samples</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dt><code><span class="parameter-name"><strong>discard_tuned_samples</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>
 <p>Whether to discard posterior samples of the tune interval. Defaults to <code>True</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>omit_offsets</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dt><code><span class="parameter-name"><strong>omit_offsets</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>
 <p>Omits offset terms in the <code>InferenceData</code> object returned when the model includes group specific effects. Defaults to <code>True</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>include_mean</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<a href="https://docs.python.org/3/library/functions.html#bool">bool</a>, <code>optional</code>, <code>deprecated</code>)</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>include_mean</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a>, <code>optional</code>, <code>deprecated</code>)</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p><strong>This argument is deprecated and will be removed in future versions</strong>. Use <code>include_response_params</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>include_response_params</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">False</span></code></dt>
+<dt><code><span class="parameter-name"><strong>include_response_params</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">False</span></code></dt>
 <dd>
 <p>Include parameters of the response distribution in the output. These usually take more space than other parameters as there’s one of them per observation. Defaults to <code>False</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>inference_method</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'pymc'</span></code></dt>
+<dt><code><span class="parameter-name"><strong>inference_method</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'pymc'</span></code></dt>
 <dd>
 <p>The method to use for fitting the model. By default, <code>"pymc"</code>. This automatically assigns an MCMC method best suited for each kind of variables, like NUTS for continuous variables and Metropolis for non-binary discrete ones. NUTS implementations include <code>"pymc"</code>, <code>"nutpie"</code>, <code>"blackjax"</code>, and <code>"numpyro"</code>. Alternatively, <code>"vi"</code>, in which case the model will be fitted using variational inference as implemented in PyMC using the <code>fit</code> function. Finally, <code>"laplace"</code>, in which case a Laplace approximation is used and is not recommended other than for pedagogical use.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>init</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'auto'</span></code></dt>
+<dt><code><span class="parameter-name"><strong>init</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'auto'</span></code></dt>
 <dd>
 <p>Initialization method. Defaults to <code>"auto"</code>. The available methods are:</p>
 <ul>
@@ -618,15 +618,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>"jitter+adapt_full"</code>: Same as <code>"adapt_full"</code>, but use test value plus a uniform jitter in [-1, 1] as starting point in each chain.</li>
 </ul>
 </dd>
-<dt><code><span class="parameter-name"><strong>n_init</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">50000</span></code></dt>
+<dt><code><span class="parameter-name"><strong>n_init</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#int">int</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">50000</span></code></dt>
 <dd>
 <p>Number of initialization iterations. Only works for <code>"advi"</code> init methods.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>chains</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>chains</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#int">int</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>The number of chains to sample. Running independent chains is important for some convergence statistics and can also reveal multiple modes in the posterior. If <code>None</code>, then set to either <code>cores</code> or 2, whichever is larger.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>cores</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>cores</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#int">int</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>The number of chains to run in parallel. If <code>None</code>, it is equal to the number of CPUs in the system unless there are more than 4 CPUs, in which case it is set to 4.</p>
 </dd>
@@ -634,11 +634,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dd>
 <p>A list is accepted if cores is greater than one.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>nuts</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>nuts</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>A dictionary of NUTS sampler settings passed directly to <code>pm.sample(nuts=...)</code>, e.g.&nbsp;<code>model.fit(nuts={"target_accept": 0.9, "max_treedepth": 12})</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>kwargs</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">{}</span></code></dt>
+<dt><code><span class="parameter-name"><strong>kwargs</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">{}</span></code></dt>
 <dd>
 <p>For other kwargs see the documentation for <code>pm.sample()</code>.</p>
 </dd>
@@ -664,23 +664,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="parameters-4" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-4">Parameters</h4>
 <dl>
-<dt><code><span class="parameter-name"><strong>formatting</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'plain'</span></code></dt>
+<dt><code><span class="parameter-name"><strong>formatting</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'plain'</span></code></dt>
 <dd>
 <p>One of <code>"plain"</code> or <code>"plain_with_params"</code>. Defaults to <code>"plain"</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>name</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>name</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>Name of the figure to save. Defaults to <code>None</code>, no figure is saved.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>figsize</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#tuple">tuple</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>figsize</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple">tuple</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>Maximum width and height of figure in inches. Defaults to <code>None</code>, the figure size is set automatically. If defined and the drawing is larger than the given size, the drawing is uniformly scaled down so that it fits within the given size. Only works if <code>name</code> is not <code>None</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>dpi</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">300</span></code></dt>
+<dt><code><span class="parameter-name"><strong>dpi</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#int">int</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">300</span></code></dt>
 <dd>
 <p>Point per inch of the figure to save. Defaults to 300. Only works if <code>name</code> is not <code>None</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>fmt</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'png'</span></code></dt>
+<dt><code><span class="parameter-name"><strong>fmt</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'png'</span></code></dt>
 <dd>
 <p>Format of the figure to save. Defaults to <code>"png"</code>. Only works if <code>name</code> is not <code>None</code>.</p>
 </dd>
@@ -731,7 +731,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="parameters-5" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-5">Parameters</h4>
 <dl>
-<dt><code><span class="parameter-name"><strong>draws</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">5000</span></code></dt>
+<dt><code><span class="parameter-name"><strong>draws</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#int">int</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">5000</span></code></dt>
 <dd>
 <p>Number of draws to sample from the prior predictive distribution. Defaults to 5000.</p>
 </dd>
@@ -743,7 +743,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dd>
 <p>If <code>None</code>, interpret <code>var_names</code> as the real variable names. If <code>"like"</code>, interpret <code>var_names</code> as substrings of the real variable names. If <code>"regex"</code>, interpret <code>var_names</code> as regular expressions on the real variable names. Forwarded to <a href="http://arviz-plots.readthedocs.io/en/latest/api/generated/arviz_plots.plot_dist.html#arviz_plots.plot_dist"><code>arviz_plots.plot_dist</code></a>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>kind</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'kde'</span></code></dt>
+<dt><code><span class="parameter-name"><strong>kind</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'kde'</span></code></dt>
 <dd>
 <p>Type of plot to display (<code>"kde"</code> or <code>"hist"</code>). For discrete variables this argument is ignored and a histogram is always used. Forwarded to <a href="http://arviz-plots.readthedocs.io/en/latest/api/generated/arviz_plots.plot_dist.html#arviz_plots.plot_dist"><code>arviz_plots.plot_dist</code></a>.</p>
 </dd>
@@ -751,11 +751,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dd>
 <p>Which credible interval to use. Defaults to <code>arviz_base.rcParams["stats.ci_kind"]</code>. Forwarded to <a href="http://arviz-plots.readthedocs.io/en/latest/api/generated/arviz_plots.plot_dist.html#arviz_plots.plot_dist"><code>arviz_plots.plot_dist</code></a>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>ci_prob</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>ci_prob</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#float">float</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>Indicates the probability that should be contained within the plotted credible interval. Defaults to <code>arviz_base.rcParams["stats.ci_prob"]</code>. Forwarded to <a href="http://arviz-plots.readthedocs.io/en/latest/api/generated/arviz_plots.plot_dist.html#arviz_plots.plot_dist"><code>arviz_plots.plot_dist</code></a>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>point_estimate</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>point_estimate</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>Plot point estimate per variable. Values should be <code>"mean"</code>, <code>"median"</code>, <code>"mode"</code> or <code>None</code>. When <code>None</code> (default) use <code>arviz_base.rcParams["stats.point_estimate"]</code>. Forwarded to <a href="http://arviz-plots.readthedocs.io/en/latest/api/generated/arviz_plots.plot_dist.html#arviz_plots.plot_dist"><code>arviz_plots.plot_dist</code></a>.</p>
 </dd>
@@ -783,35 +783,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dd>
 <p>Forwarded to <a href="http://arviz-plots.readthedocs.io/en/latest/api/generated/arviz_plots.plot_dist.html#arviz_plots.plot_dist"><code>arviz_plots.plot_dist</code></a>. See <code>stats</code> in there.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>figsize</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#tuple">tuple</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>figsize</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple">tuple</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>Figure size. If <code>None</code> it will be defined automatically.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>omit_offsets</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dt><code><span class="parameter-name"><strong>omit_offsets</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>
 <p>Whether to omit offset terms in the plot. Defaults to <code>True</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>omit_group_specific</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dt><code><span class="parameter-name"><strong>omit_group_specific</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>
 <p>Whether to omit group specific effects in the plot. Defaults to <code>True</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>random_seed</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#int">int</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>random_seed</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#int">int</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>Seed for random number generator. Passed down to <a href="../api/Model.html#bambi.Model.prior_predictive">Model.prior_predictive</a>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>bins</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<a href="https://docs.python.org/3/library/functions.html#int">int</a>, <code>optional</code>, <code>deprecated</code>)</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>bins</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<a href="https://docs.python.org/3/builtins/functions.html#int">int</a>, <code>optional</code>, <code>deprecated</code>)</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p><strong>This argument is deprecated and will be removed in future versions</strong>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>hdi_prob</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<a href="https://docs.python.org/3/library/functions.html#float">float</a> or <a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <code>optional</code>, <code>deprecated</code>)</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>hdi_prob</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<a href="https://docs.python.org/3/builtins/functions.html#float">float</a> or <a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a>, <code>optional</code>, <code>deprecated</code>)</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>Plots highest density interval for chosen percentage of density. Use <code>"hide"</code> to hide the highest density interval. <strong>This argument is deprecated and will be removed in future versions</strong>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>round_to</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<a href="https://docs.python.org/3/library/functions.html#int">int</a>, <code>optional</code>, <code>deprecated</code>)</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>round_to</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<a href="https://docs.python.org/3/builtins/functions.html#int">int</a>, <code>optional</code>, <code>deprecated</code>)</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>Controls formatting of floats. Defaults to 2 or the integer part, whichever is bigger. <strong>This argument is deprecated and will be removed in future versions</strong>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>pc_kwargs</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">{}</span></code></dt>
+<dt><code><span class="parameter-name"><strong>pc_kwargs</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">{}</span></code></dt>
 <dd>
 <p>Passed to <a href="http://arviz-plots.readthedocs.io/en/latest/api/generated/arviz_plots.PlotCollection.wrap.html#arviz_plots.PlotCollection.wrap"><code>arviz_plots.PlotCollection.wrap</code></a></p>
 </dd>
@@ -847,7 +847,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dd>
 <p>The <code>InferenceData</code> instance returned by <code>.fit()</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>kind</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'response_params'</span></code></dt>
+<dt><code><span class="parameter-name"><strong>kind</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'response_params'</span></code></dt>
 <dd>
 <p>Indicates the type of prediction required. Can be <code>"response_params"</code> or <code>"response"</code>. The first returns draws from the posterior distribution of the likelihood parameters, while the latter returns the draws from the posterior predictive distribution (i.e.&nbsp;the posterior probability distribution for a new observation) in addition to the posterior distribution. Defaults to <code>"response_params"</code>.</p>
 </dd>
@@ -855,19 +855,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dd>
 <p>An optional data frame with values for the predictors that are used to obtain out-of-sample predictions. If omitted, the original dataset is used.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>inplace</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dt><code><span class="parameter-name"><strong>inplace</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>
 <p>If <code>True</code> it will modify <code>idata</code> in-place. Otherwise, it will return a copy of <code>idata</code> with the predictions added. If <code>kind="response_params"</code>, a new variable with the name of the parent parameter, e.g.&nbsp;<code>"mu"</code> and <code>"sigma"</code> for a Gaussian likelihood, or <code>"p"</code> for a Bernoulli likelihood, is added to the <code>posterior</code> group. If <code>kind="response"</code>, it appends a <code>posterior_predictive</code> group to <code>idata</code>. If any of these already exist, it will be overwritten.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>include_group_specific</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dt><code><span class="parameter-name"><strong>include_group_specific</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>
 <p>Determines if predictions incorporate group-specific effects. If <code>False</code>, predictions are made with common effects only (i.e.&nbsp;group specific are set to zero). Defaults to <code>True</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>sample_new_groups</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>sample_new_groups</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>Deprecated. When explicitly set to <code>True</code> or <code>False</code>, a <code>FutureWarning</code> is emitted because new groups will be handled automatically in a future version. The default <code>None</code> preserves the current <code>False</code> behavior during this transition. Specifies if it is allowed to obtain predictions for new groups of group-specific terms. When <code>True</code>, each posterior sample for the new groups is drawn from the posterior draws of a randomly selected existing group. Since different groups may be selected at each draw, the end result represents the variation across existing groups. The method implemented is equivalent to <code>sample_new_levels="uncertainty"</code> in brms.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>random_seed</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<a href="https://docs.python.org/3/library/functions.html#int">int</a>, <code>RandomState</code> or <code>Generator</code>)</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>random_seed</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<a href="https://docs.python.org/3/builtins/functions.html#int">int</a>, <code>RandomState</code> or <code>Generator</code>)</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>Seed for the random number generator.</p>
 </dd>
@@ -895,7 +895,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="parameters-7" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-7">Parameters</h4>
 <dl>
-<dt><code><span class="parameter-name"><strong>draws</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">500</span></code></dt>
+<dt><code><span class="parameter-name"><strong>draws</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#int">int</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">500</span></code></dt>
 <dd>
 <p>Number of draws to sample from the prior predictive distribution. Defaults to 500.</p>
 </dd>
@@ -903,11 +903,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dd>
 <p>A list of names of variables for which to compute the prior predictive distribution. Defaults to <code>None</code> which means both observed and unobserved RVs.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>omit_offsets</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dt><code><span class="parameter-name"><strong>omit_offsets</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>
 <p>Whether to omit offset terms in the plot. Defaults to <code>True</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>random_seed</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#int">int</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>random_seed</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#int">int</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>Seed for the random number generator.</p>
 </dd>
@@ -935,7 +935,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dd>
 <p>The <code>InferenceData</code> instance returned by <code>.fit()</code>. It should contain the <code>posterior_predictive</code> group, otherwise it will be computed and added to <code>idata</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>summary</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dt><code><span class="parameter-name"><strong>summary</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>
 <p>If <code>True</code>, it returns a summary of the Bayesian R². Otherwise, it returns the posterior samples of the Bayesian R².</p>
 </dd>
@@ -985,15 +985,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="parameters-10" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-10">Parameters</h4>
 <dl>
-<dt><code><span class="parameter-name"><strong>priors</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>priors</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>Dictionary of priors to update. Accepts the same specification as the <code>priors</code> argument of <code>Model</code>, and entries here take precedence over the <code>common</code> and <code>group_specific</code> arguments. Names that don’t match any term or component are reported with a warning; set <code>bmb.config["UNUSED_PRIORS"]</code> to <code>"error"</code> or <code>"ignore"</code> to change that.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>common</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<code>Prior</code>, <a href="https://docs.python.org/3/library/functions.html#int">int</a>, <a href="https://docs.python.org/3/library/functions.html#float">float</a> or None)</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>common</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<code>Prior</code>, <a href="https://docs.python.org/3/builtins/functions.html#int">int</a>, <a href="https://docs.python.org/3/builtins/functions.html#float">float</a> or None)</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>A prior specification to apply to all common terms included in the model.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>group_specific</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<code>Prior</code>, <a href="https://docs.python.org/3/library/functions.html#int">int</a>, <a href="https://docs.python.org/3/library/functions.html#float">float</a> or None)</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>group_specific</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">(<code>Prior</code>, <a href="https://docs.python.org/3/builtins/functions.html#int">int</a>, <a href="https://docs.python.org/3/builtins/functions.html#float">float</a> or None)</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>A prior specification to apply to all group specific terms included in the model.</p>
 </dd>

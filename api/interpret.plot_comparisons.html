@@ -77,7 +77,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fa7e3c85fae98f93cbd4163a2025e2c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-e3515265876d2ff83baf2d30e02c4c0b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -378,7 +378,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dd>
 <p>DataTree object containing the posterior samples.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>contrast</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a> or <a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <code>ndarray</code> or <a href="https://docs.python.org/3/library/stdtypes.html#list">list</a> or <a href="https://docs.python.org/3/library/functions.html#int">int</a> or <a href="https://docs.python.org/3/library/functions.html#float">float</a>]</span></code></dt>
+<dt><code><span class="parameter-name"><strong>contrast</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a> or <a href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a>[<a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a>, <code>ndarray</code> or <a href="https://docs.python.org/3/builtins/stdtypes.html#list">list</a> or <a href="https://docs.python.org/3/builtins/functions.html#int">int</a> or <a href="https://docs.python.org/3/builtins/functions.html#float">float</a>]</span></code></dt>
 <dd>
 <p>Variable(s) to create contrasts for.</p>
 </dd>
@@ -386,39 +386,39 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dd>
 <p>Variables to condition on for comparisons.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>average_by</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a> or <a href="https://docs.python.org/3/library/stdtypes.html#list">list</a> or <a href="https://docs.python.org/3/library/functions.html#bool">bool</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>average_by</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a> or <a href="https://docs.python.org/3/builtins/stdtypes.html#list">list</a> or <a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>Variables to average comparisons over.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>target</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'mean'</span></code></dt>
+<dt><code><span class="parameter-name"><strong>target</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'mean'</span></code></dt>
 <dd>
 <p>Which quantity to extract. <code>"mean"</code> (default) for the posterior of the parent parameter (e.g.&nbsp;<code>"mu"</code>). Pass the response variable name (e.g.&nbsp;<code>"mpg"</code>) for posterior predictive samples. Pass a distributional component name (e.g.&nbsp;<code>"sigma"</code>) for the posterior of that component.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>comparison</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a>[[<code>DataArray</code>, <code>DataArray</code>], <code>DataArray</code>] or <a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'diff'</span></code></dt>
+<dt><code><span class="parameter-name"><strong>comparison</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a>[[<code>DataArray</code>, <code>DataArray</code>], <code>DataArray</code>] or <a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'diff'</span></code></dt>
 <dd>
 <p>Comparison function or string name. Built-in options: “diff” (difference), “ratio” (ratio), “lift” (relative difference). Default is “diff”.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>use_hdi</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
+<dt><code><span class="parameter-name"><strong>use_hdi</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">True</span></code></dt>
 <dd>
 <p>Whether to use highest density interval. Default is True.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>prob</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#float">float</a> or <a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a href="https://docs.python.org/3/library/functions.html#float">float</a>]</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">az.rcParams['stats.ci_prob']</span></code></dt>
+<dt><code><span class="parameter-name"><strong>prob</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#float">float</a> or <a href="https://docs.python.org/3/builtins/stdtypes.html#list">list</a>[<a href="https://docs.python.org/3/builtins/functions.html#float">float</a>]</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">az.rcParams['stats.ci_prob']</span></code></dt>
 <dd>
 <p>Probability or list of probabilities for credible intervals. Default is from arviz rcParams. When a list is provided, nested bands with decreasing opacity are drawn.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>transforms</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>transforms</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>Dictionary of transformations to apply to comparisons.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>sample_new_groups</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/functions.html#bool">bool</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>sample_new_groups</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>Deprecated. Explicit boolean values emit a <code>FutureWarning</code> because new groups will be handled automatically in a future version. The default <code>None</code> preserves the current <code>False</code> behavior during this transition.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>fig_kwargs</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>fig_kwargs</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a> or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>Additional keyword arguments for figure customization. Use the ‘theme’ key to pass a dictionary of matplotlib rc parameters.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>subplot_kwargs</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/typing.html#typing.Mapping">Mapping</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>] or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>subplot_kwargs</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="https://docs.python.org/3/library/typing.html#typing.Mapping">Mapping</a>[<a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a>, <a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a>] or None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
 <dd>
 <p>Overrides default plotting sequence (main, group, panel).</p>
 </dd>
@@ -436,7 +436,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="raises" class="level2 doc-section doc-section-raises">
 <h2 class="doc-section doc-section-raises anchored" data-anchor-id="raises">Raises</h2>
 <dl>
-<dt><code><span class="parameter-annotation"><a href="https://docs.python.org/3/library/exceptions.html#ValueError">ValueError</a></span></code></dt>
+<dt><code><span class="parameter-annotation"><a href="https://docs.python.org/3/builtins/exceptions.html#ValueError">ValueError</a></span></code></dt>
 <dd>
 <p>If more than 3 conditional variables are provided without averaging.</p>
 </dd>
