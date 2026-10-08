@@ -14,6 +14,7 @@ from arviz_plots import plot_dist
 from arviz_stats import residual_r2
 from pymc.backends.arviz import apply_function_over_dataset, coords_and_dims_for_inferencedata
 from pymc.model.transform.conditioning import remove_value_transforms
+from pytensor.graph.traversal import ancestors
 
 from bambi.backend import PyMCModel
 from bambi.config import config
@@ -1246,14 +1247,22 @@ class Model:
             rv for rv in umodel.free_RVs if rv.name not in det_names and rv.name in posterior
         ]
         target_names = [rv.name for rv in target_rvs]
-        value_vars = [umodel.rvs_to_values[rv] for rv in target_rvs]
+        # Omitted offsets may be needed to evaluate a retained variable's density,
+        # but are not themselves added to the reported log-prior targets.
+        logp = umodel.logp(vars=target_rvs, sum=False)
+        required_names = {var.name for var in ancestors(logp) if var.name is not None}
+        input_posterior = posterior.assign(
+            self.backend.get_offset_values(posterior, required_names)
+        )
+        input_rvs = [rv for rv in umodel.free_RVs if rv.name in input_posterior]
+        value_vars = [umodel.rvs_to_values[rv] for rv in input_rvs]
 
         elemwise_logprior_fn = umodel.compile_fn(
             inputs=value_vars,
-            outs=umodel.logp(vars=target_rvs, sum=False),
+            outs=logp,
             on_unused_input="ignore",
         )
-        input_dataset = posterior[target_names].astype(
+        input_dataset = input_posterior[[rv.name for rv in input_rvs]].astype(
             {vv.name: vv.type.dtype for vv in value_vars}, copy=False
         )
         logdens = apply_function_over_dataset(
@@ -1420,17 +1429,7 @@ class Model:
             return idata
 
         posterior = as_dataset(idata["posterior"])
-        value_var_names = {value_var.name for value_var in self.backend.model.value_vars}
-
-        # Recover dropped offsets as `name / name_sigma` since `name = name_offset * name_sigma`
-        offsets = {}
-        for pymc_component in self.backend.distributional_components.values():
-            for term in pymc_component.component.group_specific_terms.values():
-                term_name = get_aliased_name(term)
-                offset_name = f"{term_name}_offset"
-                if offset_name in value_var_names and offset_name not in posterior:
-                    sigma_name = f"{term_name}_{term.hyperprior_alias.get('sigma', 'sigma')}"
-                    offsets[offset_name] = (term_name, sigma_name)
+        offsets = self.backend.get_offset_values(posterior)
 
         # The backend reports `intercept - center_factor` so recompute the factor to add it back
         center_factors = {}
@@ -1471,8 +1470,7 @@ class Model:
         for name, center_factor in center_factors.items():
             posterior[name] = posterior[name] + center_factor
 
-        for offset_name, (term_name, sigma_name) in offsets.items():
-            posterior[offset_name] = posterior[term_name] / posterior[sigma_name]
+        posterior = posterior.assign(offsets)
 
         idata_corrected = idata.copy()
         idata_corrected["posterior"] = posterior

@@ -7,6 +7,7 @@ from importlib.metadata import version
 import numpy as np
 import pymc as pm
 import pytensor.tensor as pt
+import xarray as xr
 from pymc.util import get_default_varnames
 from pytensor.tensor.special import softmax
 
@@ -56,6 +57,7 @@ class PyMCModel:
         self.spec = None
         self.components = {}
         self.response_component = None
+        self.noncentered_distributions = {}
 
     def build(self, spec):
         """Compile the PyMC model from an abstract model specification
@@ -67,6 +69,7 @@ class PyMCModel:
         """
         self.model = pm.Model()
         self.components = {}
+        self.noncentered_distributions = {}
 
         for name, values in spec.response_term.coords.items():
             if name not in self.model.coords:
@@ -91,6 +94,29 @@ class PyMCModel:
             self.build_potentials(spec)
 
         self.spec = spec
+
+    def get_offset_values(
+        self, posterior: xr.Dataset, required_names: set[str] | None = None
+    ) -> dict[str, xr.DataArray]:
+        """Recover missing auxiliary draws from the Normal transforms actually built."""
+        offset_values = {}
+        for offset_name, (coefficient, mu, sigma) in self.noncentered_distributions.items():
+            if offset_name in posterior or (
+                required_names is not None and offset_name not in required_names
+            ):
+                continue
+            if isinstance(mu, pt.TensorVariable):
+                location = posterior[mu.name]
+            else:
+                dims = self.model.named_vars_to_dims[coefficient.name]
+                coords = {dim: np.asarray(self.model.coords[dim]) for dim in dims}
+                shape = tuple(len(coords[dim]) for dim in dims)
+                location = xr.DataArray(np.broadcast_to(mu, shape), dims=dims, coords=coords)
+            values = posterior[coefficient.name]
+            offset_values[offset_name] = ((values - location) / posterior[sigma.name]).astype(
+                values.dtype
+            )
+        return offset_values
 
     def run(
         self,
