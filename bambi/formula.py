@@ -22,8 +22,10 @@ class Formula:
         Names of coefficients used in nonlinear expressions. Formulas that reference modeled
         parameters use nonlinear expression syntax; other formulas retain ordinary Formulae
         syntax. An additional formula can describe how a nonlinear coefficient varies. Coefficients
-        without an additional formula use an intercept-only formula. Additional formulas can also
-        describe ordinary auxiliary likelihood parameters, such as `sigma ~ z`.
+        without an additional formula, or with an intercept-only formula, have a direct prior
+        and are sampled under their own names.
+        Additional formulas can also describe ordinary auxiliary likelihood parameters,
+        such as `sigma ~ z`.
         The expression is on the parent parameter's link scale. The family's inverse link is
         applied once to the complete expression. An additional formula that references a modeled
         parameter is also treated as a nonlinear expression and evaluated after its dependencies;

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import operator
-from typing import TYPE_CHECKING
 
 import numpy as np
 import pymc as pm
@@ -10,6 +9,7 @@ import pytensor.tensor as pt
 from bambi.backend.pymc.transform import transforms_registry
 from bambi.backend.pymc.utils import INVERSE_LINKS
 from bambi.families import Family
+from bambi.parameters import Conditional, ConditionalParameter
 from bambi.nonlinear import (
     BinaryOperation,
     FUNCTION_ALIASES,
@@ -19,9 +19,6 @@ from bambi.nonlinear import (
     Symbol,
     UnaryOperation,
 )
-
-if TYPE_CHECKING:
-    from bambi.parameters import ConditionalParameter
 
 _BINARY_OPERATORS = {
     "+": operator.add,
@@ -78,18 +75,18 @@ def nonlinear_data_name(parameter_label: str, symbol: str) -> str:
 
 
 def build_nonlinear_parameter(
-    parameter: ConditionalParameter,
+    parameter: Conditional,
     parameter_values: dict[str, pt.Variable],
     data,
     model: pm.Model,
     family: Family,
     parameters: dict[str, pt.Variable],
 ) -> pt.Variable:
-    """Build a nonlinear likelihood parameter in a PyMC model.
+    """Build an expression-defined parameter or coefficient in a PyMC model.
 
     Parameters
     ----------
-    parameter : ConditionalParameter
+    parameter : Conditional
         Frontend description of the nonlinear parameter.
     parameter_values : dict of str to TensorVariable
         Already-built additive and nonlinear parameters keyed by their original names.
@@ -105,7 +102,7 @@ def build_nonlinear_parameter(
     Returns
     -------
     TensorVariable
-        Deterministic parent parameter on the response scale.
+        Deterministic quantity, with the inverse link applied only to the likelihood parent.
     """
     values = parameter_values.copy()
     for name in parameter.data_names:
@@ -117,7 +114,7 @@ def build_nonlinear_parameter(
         )
 
     value = evaluate_expression(parameter.expression.root, values)
-    if parameter.is_parent:
+    if isinstance(parameter, ConditionalParameter) and parameter.is_parent:
         link = family.link[parameter.name]
         inverse_link = INVERSE_LINKS.get(link.name, link.inverse_link)
         transform_predictor = transforms_registry.get_predictor_transform(family, parameter.name)
@@ -134,12 +131,12 @@ def build_nonlinear_parameter(
     return pm.Deterministic(parameter.label, value, dims="__obs__", model=model)
 
 
-def build_new_nonlinear_data(parameter: ConditionalParameter, data) -> dict[str, np.ndarray]:
+def build_new_nonlinear_data(parameter: Conditional, data) -> dict[str, np.ndarray]:
     """Build replacements for observed inputs to a nonlinear expression.
 
     Parameters
     ----------
-    parameter : ConditionalParameter
+    parameter : Conditional
         Nonlinear parameter whose expression inputs are required.
     data : pandas.DataFrame
         New prediction or log-likelihood data.

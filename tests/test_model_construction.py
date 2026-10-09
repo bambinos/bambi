@@ -15,7 +15,14 @@ from scipy.special import expit, ndtr  # pylint: disable=no-name-in-module
 from scipy.stats import norm
 
 from bambi.backend.pymc.transform import transforms_registry
-from bambi.parameters import ConditionalParameter, MarginalParameter
+from bambi.parameters import (
+    Conditional,
+    ConditionalCoefficient,
+    ConditionalParameter,
+    Marginal,
+    MarginalCoefficient,
+    MarginalParameter,
+)
 from bambi.terms import CommonTerm, GroupSpecificTerm
 from bambi.backend.pymc.transform import transforms_registry
 from bambi.defaults import get_builtin_family
@@ -1465,7 +1472,7 @@ def test_nonlinear_model_preserves_additive_interactions(
     term_name = "x:z" if covariate == "z" else "x:time value"
     draws = xr.Dataset(
         {
-            "a_Intercept": (("chain", "draw"), [[0.5]]),
+            "a_Intercept" if parameter == "a" else "a": (("chain", "draw"), [[0.5]]),
             f"{parameter}_{term_name}": (("chain", "draw"), [[0.2]]),
         }
     )
@@ -1499,7 +1506,7 @@ def test_additional_nonlinear_arithmetic(
     )
     model = bmb.Model(formula, data)
     model.build()
-    draws = xr.Dataset({"a_Intercept": (("chain", "draw"), [[coefficient]])})
+    draws = xr.Dataset({"a": (("chain", "draw"), [[coefficient]])})
     if parameter == "b":
         draws["sigma"] = (("chain", "draw"), [[1.0]])
     result = model.predict(xr.DataTree.from_dict({"posterior": draws}), inplace=False)
@@ -1545,8 +1552,8 @@ def test_nonlinear_auxiliary_owns_its_coefficient(nonlinear_ownership_data):
     sigma = model.parameters["sigma"]
     assert set(mu.nonlinear_coefficients) == {"b"}
     assert set(sigma.nonlinear_coefficients) == {"sigma_b"}
-    assert "b_Intercept" in model.backend.model.named_vars
-    assert "sigma_b_Intercept" in model.backend.model.named_vars
+    assert "b" in model.backend.model.named_vars
+    assert "sigma_b" in model.backend.model.named_vars
 
 
 def test_intermediate_expression_owns_its_direct_coefficients(nonlinear_ownership_data):
@@ -1562,7 +1569,7 @@ def test_intermediate_expression_owns_its_direct_coefficients(nonlinear_ownershi
     mu = model.parameters["mu"]
     eta = model.parameter_graph.nodes["eta"]
     assert eta not in model.parameters.values()
-    assert not mu.nonlinear_coefficients
+    assert mu.nonlinear_coefficients["eta"] is eta
     assert set(eta.nonlinear_coefficients) == {"a", "b"}
     assert model.parameter_graph.order.index("eta") < model.parameter_graph.order.index("mu")
 
@@ -1600,7 +1607,7 @@ def test_additive_parent_with_nonlinear_auxiliary(
         {
             "Intercept": (("chain", "draw"), [[1.0]]),
             predictor: (("chain", "draw"), [[0.2]]),
-            "a_Intercept": (("chain", "draw"), [[0.3]]),
+            "a": (("chain", "draw"), [[0.3]]),
         }
     )
     idata = xr.DataTree.from_dict({"posterior": draws})
@@ -1632,9 +1639,7 @@ def test_nonlinear_auxiliary_aligns_additive_parent_data():
     assert_ip_dlogp(model)
     with pytest.raises(ValueError, match="incomplete rows"):
         bmb.Model(formula, data)
-    draws = xr.Dataset(
-        {name: (("chain", "draw"), [[0.2]]) for name in ["Intercept", "x", "a_Intercept"]}
-    )
+    draws = xr.Dataset({name: (("chain", "draw"), [[0.2]]) for name in ["Intercept", "x", "a"]})
     with pytest.raises(ValueError, match="incomplete rows"):
         model.predict(
             xr.DataTree.from_dict({"posterior": draws}),
@@ -1648,12 +1653,12 @@ def test_one_edge_parameter_dependency_matches_direct_calculation():
     formula = bmb.Formula("y ~ a * x", "sigma ~ a ** 2 + 0.1", nlpars=("a",))
     model = bmb.Model(formula, data, center_predictors=False)
     model.build()
-    draws = xr.Dataset({"a_Intercept": (("chain", "draw"), [[0.5, -0.25]])})
+    draws = xr.Dataset({"a": (("chain", "draw"), [[0.5, -0.25]])})
 
     with model.backend.model:
         actual = pm.compute_deterministics(draws, var_names=["sigma"], progressbar=False)
 
-    expected = (draws.a_Intercept**2 + 0.1).values[..., None]
+    expected = (draws.a**2 + 0.1).values[..., None]
     np.testing.assert_allclose(actual.sigma, np.broadcast_to(expected, actual.sigma.shape))
 
 
@@ -1669,7 +1674,7 @@ def test_intermediate_parameter_is_filtered_from_prior_and_posterior():
 
     assert "a" not in prior.prior
     assert "a" not in idata.posterior
-    assert {"b_Intercept", "mu"} <= set(idata.posterior.data_vars)
+    assert {"b", "mu"} <= set(idata.posterior.data_vars)
 
 
 @pytest.fixture
@@ -1685,7 +1690,6 @@ def nonlinear_parameter_dag_model():
         "success_rate ~ p_angle * p_distance",
         "sigma ~ sqrt(mu * (1 - mu) / attempts + sigma_y ** 2)",
         "p_distance ~ 1 + distance",
-        "sigma_y ~ 1",
         nlpars=("p_angle", "p_distance", "sigma_y"),
     )
     model = bmb.Model(formula, data, center_predictors=False)
@@ -1697,10 +1701,10 @@ def nonlinear_parameter_dag_model():
 def nonlinear_parameter_dag_draws():
     return xr.Dataset(
         {
-            "p_angle_Intercept": (("chain", "draw"), [[0.8, 0.7]]),
+            "p_angle": (("chain", "draw"), [[0.8, 0.7]]),
             "p_distance_Intercept": (("chain", "draw"), [[0.55, 0.65]]),
             "p_distance_distance": (("chain", "draw"), [[-0.08, -0.12]]),
-            "sigma_y_Intercept": (("chain", "draw"), [[0.03, 0.05]]),
+            "sigma_y": (("chain", "draw"), [[0.03, 0.05]]),
         }
     )
 
@@ -1709,8 +1713,8 @@ def golf_parameter_values(draws, data):
     distance = xr.DataArray(data.distance.to_numpy(), dims="__obs__")
     attempts = xr.DataArray(data.attempts.to_numpy(), dims="__obs__")
     p_distance = draws.p_distance_Intercept + draws.p_distance_distance * distance
-    mu = draws.p_angle_Intercept * p_distance
-    sigma = np.sqrt(mu * (1 - mu) / attempts + draws.sigma_y_Intercept**2)
+    mu = draws.p_angle * p_distance
+    sigma = np.sqrt(mu * (1 - mu) / attempts + draws.sigma_y**2)
     return mu, sigma
 
 
@@ -1789,8 +1793,8 @@ def nonlinear_exponential_model():
                 "Intercept": bmb.Prior("Normal", mu=0, sigma=2),
                 "z": bmb.Prior("Normal", mu=0, sigma=1),
             },
-            "b": {"Intercept": bmb.Prior("Normal", mu=1, sigma=2)},
-            "k": {"Intercept": bmb.Prior("LogNormal", mu=0, sigma=0.5)},
+            "b": bmb.Prior("Normal", mu=1, sigma=2),
+            "k": bmb.Prior("LogNormal", mu=0, sigma=0.5),
             "sigma": bmb.Prior("HalfNormal", sigma=1),
         },
         center_predictors=False,
@@ -1806,8 +1810,8 @@ def test_exponential_log_density_matches_direct_pymc(nonlinear_exponential_model
         z = pm.Data("z", data["z"], dims="__obs__")
         a_intercept = pm.Normal("a_Intercept", mu=0, sigma=2)
         a_z = pm.Normal("a_z", mu=0, sigma=1)
-        b = pm.Normal("b_Intercept", mu=1, sigma=2)
-        k = pm.LogNormal("k_Intercept", mu=0, sigma=0.5)
+        b = pm.Normal("b", mu=1, sigma=2)
+        k = pm.LogNormal("k", mu=0, sigma=0.5)
         sigma = pm.HalfNormal("sigma", sigma=1)
         mu = a_intercept + a_z * z + b * pm.math.exp(-k * x)
         pm.Normal("y", mu=mu, sigma=sigma, observed=data["y"], dims="__obs__")
@@ -1818,8 +1822,8 @@ def test_exponential_log_density_matches_direct_pymc(nonlinear_exponential_model
         point = {
             "a_Intercept": np.array(a_intercept),
             "a_z": np.array(a_z),
-            "b_Intercept": np.array(b, dtype=float),
-            "k_Intercept_log__": np.log(k),
+            "b": np.array(b, dtype=float),
+            "k_log__": np.log(k),
             "sigma_log__": np.log(sigma),
         }
         np.testing.assert_allclose(actual_logp(point), expected_logp(point))
@@ -1831,8 +1835,8 @@ def test_exponential_log_likelihood_matches_normal(nonlinear_exponential_model, 
         {
             "a_Intercept": (("chain", "draw"), [[0.4, -0.2]]),
             "a_z": (("chain", "draw"), [[0.2, 0.5]]),
-            "b_Intercept": (("chain", "draw"), [[1.5, 2.0]]),
-            "k_Intercept": (("chain", "draw"), [[0.8, 1.2]]),
+            "b": (("chain", "draw"), [[1.5, 2.0]]),
+            "k": (("chain", "draw"), [[0.8, 1.2]]),
             "sigma": (("chain", "draw"), [[0.3, 0.7]]),
         }
     )
@@ -1848,7 +1852,7 @@ def test_exponential_log_likelihood_matches_normal(nonlinear_exponential_model, 
     x = xr.DataArray(data["x"].to_numpy(), dims="__obs__")
     z = xr.DataArray(data["z"].to_numpy(), dims="__obs__")
     mu = posterior["a_Intercept"] + posterior["a_z"] * z
-    mu += posterior["b_Intercept"] * np.exp(-posterior["k_Intercept"] * x)
+    mu += posterior["b"] * np.exp(-posterior["k"] * x)
     expected = norm.logpdf(data["y"].to_numpy(), loc=mu, scale=posterior["sigma"].values[..., None])
 
     np.testing.assert_allclose(result.log_likelihood["y"], expected)
@@ -1884,9 +1888,9 @@ def test_multiple_nonlinear_summands_share_parameter(out_of_sample):
     model.build()
     posterior = xr.Dataset(
         {
-            "a_Intercept": (("chain", "draw"), [[0.4, 1.2]]),
-            "b_Intercept": (("chain", "draw"), [[1.5, 2.0]]),
-            "k_Intercept": (("chain", "draw"), [[0.8, 1.2]]),
+            "a": (("chain", "draw"), [[0.4, 1.2]]),
+            "b": (("chain", "draw"), [[1.5, 2.0]]),
+            "k": (("chain", "draw"), [[0.8, 1.2]]),
             "sigma": (("chain", "draw"), [[0.3, 0.7]]),
         }
     )
@@ -1894,9 +1898,9 @@ def test_multiple_nonlinear_summands_share_parameter(out_of_sample):
     prediction_data = pd.DataFrame({"x": [0.2, 2.5]}) if out_of_sample else data
     result = model.predict(idata, data=prediction_data if out_of_sample else None, inplace=False)
     x = xr.DataArray(prediction_data["x"].to_numpy(), dims="__obs__")
-    a = posterior["a_Intercept"]
-    b = posterior["b_Intercept"]
-    k = posterior["k_Intercept"]
+    a = posterior["a"]
+    b = posterior["b"]
+    k = posterior["k"]
     expected = a * np.exp(-k * x) + b * np.exp(-2 * k * x)
     actual = result.predictions["mu"] if out_of_sample else result.posterior["mu"]
 
@@ -1964,7 +1968,7 @@ def make_golf_model():
         family="binomial",
         link="identity",
         priors={
-            "sigma_angle": {"Intercept": bmb.Prior("HalfNormal", sigma=0.5)},
+            "sigma_angle": bmb.Prior("HalfNormal", sigma=0.5),
         },
     )
     model.build()
@@ -1973,7 +1977,7 @@ def make_golf_model():
 
 @pytest.mark.parametrize("out_of_sample", [False, True])
 def test_golf_probability_and_log_likelihood(golf_model, out_of_sample):
-    posterior = xr.Dataset({"sigma_angle_Intercept": (("chain", "draw"), [[0.02, 0.03]])})
+    posterior = xr.Dataset({"sigma_angle": (("chain", "draw"), [[0.02, 0.03]])})
     idata = xr.DataTree.from_dict({"posterior": posterior})
     data = golf_model.data
     if out_of_sample:
@@ -1991,10 +1995,7 @@ def test_golf_probability_and_log_likelihood(golf_model, out_of_sample):
     group = result.predictions if out_of_sample else result.posterior
     threshold = np.arcsin((data["hole_radius"] - data["ball_radius"]) / data["distance"])
     probability = (
-        2
-        * norm.cdf(
-            threshold.to_numpy()[None, :] / posterior["sigma_angle_Intercept"].to_numpy()[..., None]
-        )
+        2 * norm.cdf(threshold.to_numpy()[None, :] / posterior["sigma_angle"].to_numpy()[..., None])
         - 1
     )
 
@@ -2021,15 +2022,15 @@ def test_nonlinear_binomial_literal_trials():
 
     posterior = xr.Dataset(
         {
-            "a_Intercept": (("chain", "draw"), [[-0.4, 0.3]]),
-            "b_Intercept": (("chain", "draw"), [[0.8, -0.2]]),
+            "a": (("chain", "draw"), [[-0.4, 0.3]]),
+            "b": (("chain", "draw"), [[0.8, -0.2]]),
         }
     )
     idata = xr.DataTree.from_dict({"posterior": posterior})
 
     prediction = model.predict(idata, inplace=False)
     x = xr.DataArray(data.x.to_numpy(), dims="__obs__")
-    expected_probability = ndtr(posterior.a_Intercept + posterior.b_Intercept * x)
+    expected_probability = ndtr(posterior.a + posterior.b * x)
     np.testing.assert_allclose(prediction.posterior.p, expected_probability)
 
     likelihood = model.compute_log_likelihood(idata, inplace=False)
@@ -2050,15 +2051,15 @@ def test_nonlinear_beta_binomial_proportion_prediction_and_likelihood():
     model.build()
     posterior = xr.Dataset(
         {
-            "a_Intercept": (("chain", "draw"), [[-0.4, 0.3]]),
-            "b_Intercept": (("chain", "draw"), [[0.8, -0.2]]),
+            "a": (("chain", "draw"), [[-0.4, 0.3]]),
+            "b": (("chain", "draw"), [[0.8, -0.2]]),
         }
     )
     idata = xr.DataTree.from_dict({"posterior": posterior})
 
     prediction = model.predict(idata, inplace=False)
     x = xr.DataArray(data.x.to_numpy(), dims="__obs__")
-    expected_mu = expit(posterior.a_Intercept + posterior.b_Intercept * x)
+    expected_mu = expit(posterior.a + posterior.b * x)
     np.testing.assert_allclose(prediction.posterior.mu, expected_mu)
 
     likelihood = model.compute_log_likelihood(idata, inplace=False)
@@ -2108,14 +2109,15 @@ def test_parent_link_matches_pymc_and_prediction(
     model.build()
     draws = xr.Dataset(
         {
-            "a_Intercept": (("chain", "draw"), [[-0.4, 0.3]]),
-            "b_Intercept": (("chain", "draw"), [[0.8, -0.2]]),
+            "a": (("chain", "draw"), [[-0.4, 0.3]]),
+            "b": (("chain", "draw"), [[0.8, -0.2]]),
         }
     )
     idata = xr.DataTree.from_dict({"posterior": draws})
     with model.backend.model:
         actual = pm.compute_deterministics(draws, progressbar=False)
-    np.testing.assert_allclose(actual.a.values, np.broadcast_to([[[-0.4], [0.3]]], (1, 2, 4)))
+    assert "a" not in actual
+    assert model.backend.model.named_vars_to_dims["a"] == ()
     for new_data in (None, pd.DataFrame({"x": [0.1, 1.4], "y": [1, 0]})):
         prediction_data = data if new_data is None else new_data
         eta = np.array([-0.4, 0.3])[:, None] + np.array([0.8, -0.2])[:, None] * (
@@ -2141,7 +2143,7 @@ def test_link_preserves_likelihood_parameter_transform():
         priors={"kappa": 4.0},
     )
     model.build()
-    draws = xr.Dataset({"a_Intercept": (("chain", "draw"), [[1.2]])})
+    draws = xr.Dataset({"a": (("chain", "draw"), [[1.2]])})
     result = model.compute_log_likelihood(
         xr.DataTree.from_dict({"posterior": draws}), inplace=False
     )
@@ -2159,7 +2161,7 @@ def test_scalar_predictor_transform_receives_auxiliary_parameters(monkeypatch):
         lambda value, parameters, inverse_link: inverse_link(value + parameters["sigma"]),
     )
     model.build()
-    draws = xr.Dataset({"a_Intercept": (("chain", "draw"), [[1.2]])})
+    draws = xr.Dataset({"a": (("chain", "draw"), [[1.2]])})
     result = model.predict(xr.DataTree.from_dict({"posterior": draws}), inplace=False)
     np.testing.assert_allclose(result.posterior.mu.values, [[[1.4, 2.6]]])
 
@@ -2181,7 +2183,7 @@ def test_scalar_transform_result_broadcasts_for_prediction(monkeypatch, transfor
             lambda value, parameters, inverse_link: 1.0,
         )
     model.build()
-    draws = xr.Dataset({"a_Intercept": (("chain", "draw"), [[1.2]])})
+    draws = xr.Dataset({"a": (("chain", "draw"), [[1.2]])})
     idata = xr.DataTree.from_dict({"posterior": draws})
     for new_data in (None, pd.DataFrame({"x": [-1.0, 0.0, 1.0]})):
         result = model.predict(idata, data=new_data, inplace=False)
@@ -2211,9 +2213,9 @@ def test_intercept_only_prediction_accepts_row_only_data(family, inverse_link, p
     )
     model.build()
     value = 0.5 if predictor == "a ~ 1" else 0.0
-    draws = xr.Dataset({"b_Intercept": (("chain", "draw"), [[0.2]])})
+    draws = xr.Dataset({"b": (("chain", "draw"), [[0.2]])})
     if predictor == "a ~ 1":
-        draws["a_Intercept"] = (("chain", "draw"), [[value]])
+        draws["a"] = (("chain", "draw"), [[value]])
     idata = xr.DataTree.from_dict({"posterior": draws})
     result = model.predict(idata, data=pd.DataFrame(index=range(3)), inplace=False)
     np.testing.assert_allclose(
@@ -2240,11 +2242,52 @@ def test_bare_nonlinear_coefficient_broadcasts_without_data_columns():
         priors={"sigma": 1.0},
     )
     model.build()
-    draws = xr.Dataset({"a_Intercept": (("chain", "draw"), [[0.5]])})
+    draws = xr.Dataset({"a": (("chain", "draw"), [[0.5]])})
     idata = xr.DataTree.from_dict({"posterior": draws})
     for new_data in (None, pd.DataFrame(index=range(3))):
         result = model.predict(idata, data=new_data, inplace=False)
         group = result.posterior if new_data is None else result.predictions
         size = 2 if new_data is None else 3
         np.testing.assert_allclose(group.mu.values, np.full((1, 1, size), 0.5))
-        assert "a" not in group
+        assert ("a" in group) is (new_data is None)
+
+
+def test_dependency_graph_contains_all_quantity_roles(nonlinear_ownership_data):
+    model = bmb.Model(
+        bmb.Formula("y ~ a + c * x", "a ~ b + c * z + sigma", "c ~ 1 + z", nlpars=("a", "b", "c")),
+        nonlinear_ownership_data,
+        center_predictors=False,
+    )
+    nodes = model.parameter_graph.nodes
+    assert set(nodes) == {"mu", "sigma", "a", "b", "c"}
+    assert set(model.parameters) == {"mu", "sigma"}
+    assert isinstance(nodes["mu"], ConditionalParameter)
+    assert isinstance(nodes["sigma"], MarginalParameter)
+    assert isinstance(nodes["a"], ConditionalCoefficient)
+    assert isinstance(nodes["b"], MarginalCoefficient)
+    assert isinstance(nodes["c"], ConditionalCoefficient)
+    assert isinstance(nodes["a"], Conditional)
+    assert isinstance(nodes["b"], Marginal)
+    assert nodes["mu"].nonlinear_coefficients["a"] is nodes["a"]
+    assert nodes["mu"].nonlinear_coefficients["c"] is nodes["a"].nonlinear_coefficients["c"]
+    for name in ("a", "b", "c"):
+        assert not hasattr(nodes[name], "is_parent")
+        assert not hasattr(nodes[name], "link")
+    order = model.parameter_graph.order
+    for name, dependencies in model.parameter_graph.dependencies.items():
+        assert all(order.index(dependency) < order.index(name) for dependency in dependencies)
+    model.build()
+    draws = xr.Dataset(
+        {
+            name: (("chain", "draw"), [[value]])
+            for name, value in {"b": 0.4, "c_Intercept": 0.2, "c_z": 0.3, "sigma": 0.5}.items()
+        }
+    )
+    idata = xr.DataTree.from_dict({"posterior": draws})
+    for data in (None, nonlinear_ownership_data.iloc[:2].assign(x=0.7, z=0.2)):
+        result = model.predict(idata, data=data, inplace=False)
+        observations = model.data if data is None else data
+        posterior = result.posterior if data is None else result.predictions
+        c = 0.2 + 0.3 * observations.z
+        expected = 0.4 + c * observations.z + 0.5 + c * observations.x
+        np.testing.assert_allclose(posterior.mu, expected.to_numpy()[None, None, :])

@@ -2162,19 +2162,19 @@ def test_nonlinear_auxiliary_preserves_parent_priors(nested):
     slope_prior = bmb.Prior("Normal", mu=0.5, sigma=0.2)
     coefficient_prior = bmb.Prior("Normal", mu=-1, sigma=0.5)
     priors = {"mu": {"x": slope_prior}} if nested else {"x": slope_prior}
-    priors["a"] = {"Intercept": coefficient_prior}
+    priors["a"] = coefficient_prior
     model = bmb.Model(formula, data, priors=priors)
     assert model.parameters["mu"].terms["x"].prior.args == slope_prior.args
     coefficient = model.parameters["sigma"].nonlinear_coefficients["a"]
-    assert coefficient.intercept_term.prior.args == coefficient_prior.args
+    assert coefficient.prior.args == coefficient_prior.args
 
     slope_prior = bmb.Prior("Normal", mu=1, sigma=0.3)
     coefficient_prior = bmb.Prior("Normal", mu=-0.5, sigma=0.25)
     priors = {"mu": {"x": slope_prior}} if nested else {"x": slope_prior}
-    priors["a"] = {"Intercept": coefficient_prior}
+    priors["a"] = coefficient_prior
     model.set_priors(priors)
     assert model.parameters["mu"].terms["x"].prior.args == slope_prior.args
-    assert coefficient.intercept_term.prior.args == coefficient_prior.args
+    assert coefficient.prior.args == coefficient_prior.args
 
 
 def test_auxiliary_graph_matches_direct_pymc():
@@ -2183,7 +2183,7 @@ def test_auxiliary_graph_matches_direct_pymc():
     model.build()
     draws = xr.Dataset(
         {
-            "a_Intercept": (("chain", "draw"), [[2.0]]),
+            "a": (("chain", "draw"), [[2.0]]),
             "sigma_Intercept": (("chain", "draw"), [[-0.5]]),
             "sigma_z": (("chain", "draw"), [[0.3]]),
         }
@@ -2299,10 +2299,10 @@ def nonlinear_alias_model(groups=False, auxiliary=True, bare=False, noncentered=
     )
 
 
-def nonlinear_aliases(auxiliary=True):
+def nonlinear_aliases(auxiliary=True, groups=False):
     return {
         "mu": {"mu": "mean"},
-        "a": {"a": "baseline", "Intercept": "a0"},
+        "a": {"a": "baseline", "Intercept": "a0"} if groups else "a0",
         "sigma": {"sigma": "noise", "Intercept": "s0", "z": "noise_z"} if auxiliary else "noise",
         "y": "response",
     }
@@ -2313,14 +2313,14 @@ def nonlinear_aliases(auxiliary=True):
 def test_alias_predictions_likelihood_and_rebuild(auxiliary, bare):
     model = nonlinear_alias_model(auxiliary=auxiliary, bare=bare)
     model.build()
-    values = {"a_Intercept": 2.0}
+    values = {"a": 2.0}
     values.update({"sigma_Intercept": -0.5, "sigma_z": 0.3} if auxiliary else {"sigma": 0.8})
     draws = xr.Dataset({name: (("chain", "draw"), [[value]]) for name, value in values.items()})
     original = model.predict(xr.DataTree.from_dict({"posterior": draws}), inplace=False)
     model.set_alias(nonlinear_aliases(auxiliary))
     assert not model.built
     model.build()
-    renamed = {"a_Intercept": "a0"}
+    renamed = {"a": "a0"}
     renamed.update(
         {"sigma_Intercept": "s0", "sigma_z": "noise_z"} if auxiliary else {"sigma": "noise"}
     )
@@ -2338,20 +2338,20 @@ def test_alias_predictions_likelihood_and_rebuild(auxiliary, bare):
     if not bare:
         assert "mean__x_data" in model.backend.model.named_vars
         assert "mu__x_data" not in model.backend.model.named_vars
-    assert "baseline" in model.backend.model.named_vars
+    assert "a0" in model.backend.model.named_vars
     assert "a" not in model.backend.model.named_vars
     assert "a0" in str(model)
-    model.set_priors({"a": {"Intercept": bmb.Prior("Normal", mu=0.4, sigma=0.2)}})
+    model.set_priors({"a": bmb.Prior("Normal", mu=0.4, sigma=0.2)})
     model.build()
     coefficient = model.parameters["mu"].nonlinear_coefficients["a"]
-    assert coefficient.terms["Intercept"].prior.args["mu"] == 0.4
+    assert coefficient.prior.args["mu"] == 0.4
     assert "a0" in model.backend.model.named_vars
 
 
 @pytest.mark.parametrize("auxiliary", [False, True])
 def test_alias_prior_filtering(auxiliary):
     model = nonlinear_alias_model(groups=True, auxiliary=auxiliary)
-    mapping = nonlinear_aliases(auxiliary)
+    mapping = nonlinear_aliases(auxiliary, groups=True)
     mapping["a"].update({"1|g": "by_group", "sigma": "group_sd"})
     model.set_alias(mapping)
     model.build()
@@ -2372,7 +2372,7 @@ def test_alias_group_sampling_and_unknown_prediction(
 ):
     monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
     model = nonlinear_alias_model(groups=True)
-    mapping = nonlinear_aliases()
+    mapping = nonlinear_aliases(groups=True)
     mapping["a"].update({"1|g": "by_group", "sigma": "group_sd"})
     mapping["sigma"].update({"1|g": "noise_group", "sigma": "noise"})
     model.set_alias(mapping)
@@ -2397,7 +2397,7 @@ def test_alias_group_sampling_and_unknown_prediction(
 
 
 def test_alias_unknown_names_types_and_collisions():
-    model = nonlinear_alias_model()
+    model = nonlinear_alias_model(groups=True)
     with pytest.warns(UserWarning, match="missing, absent"):
         model.set_alias({"a": {"missing": "unused"}, "absent": {"Intercept": "other"}})
     with pytest.raises(AssertionError, match="Alias must be a string"):
@@ -2498,20 +2498,17 @@ def linked_auxiliary_model():
         family="beta",
         center_predictors=False,
         priors={
-            name: {term: bmb.Prior("Normal", mu=0, sigma=1) for term in terms}
-            for name, terms in {
-                "a": ["Intercept"],
-                "b": ["Intercept"],
-                "kappa": ["Intercept", "z"],
-            }.items()
+            "a": bmb.Prior("Normal", mu=0, sigma=1),
+            "b": bmb.Prior("Normal", mu=0, sigma=1),
+            "kappa": {term: bmb.Prior("Normal", mu=0, sigma=1) for term in ("Intercept", "z")},
         },
     )
     model.set_alias(
         {
             "y": "outcome",
             "mu": {"mu": "probability"},
-            "a": {"a": "baseline", "Intercept": "a0"},
-            "b": {"b": "amplitude", "Intercept": "b0"},
+            "a": "a0",
+            "b": "b0",
             "kappa": {"kappa": "precision", "Intercept": "p0", "z": "pz"},
         }
     )

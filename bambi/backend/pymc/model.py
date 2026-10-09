@@ -43,6 +43,7 @@ from bambi.backend.pymc.terms.response import (
 )
 from bambi.config import config as bmb_config
 from bambi.nonlinear import prepare_nonlinear_data
+from bambi.parameters import Conditional, ConditionalCoefficient, Marginal
 from bambi.utils import as_dataset
 
 _logger = logging.getLogger("bambi")
@@ -93,16 +94,11 @@ class PyMCModel:
     @property
     def _intermediate_nonlinear_parameter_names(self) -> tuple[str, ...]:
         """Return nonlinear quantities that should not be sampled directly."""
-        coefficient_names = tuple(
-            parameter.label
-            for parameter in self.spec.parameter_graph.nonlinear_coefficients.values()
+        return tuple(
+            quantity.label
+            for quantity in self.spec.parameter_graph.nonlinear_coefficients.values()
+            if isinstance(quantity, Conditional)
         )
-        intermediate_names = tuple(
-            parameter.label
-            for name, parameter in self.spec.parameter_graph.nodes.items()
-            if name not in self.spec.parameters
-        )
-        return coefficient_names + intermediate_names
 
     def build(self) -> None:
         response_coords_data, response_coords, response_coords_reduced = coords_from_response(
@@ -123,42 +119,39 @@ class PyMCModel:
         parameter_values = {}
         self._conditional_parameter_info = {}
         self._group_specific_state = GroupSpecificGraphState()
-        for name, parameter in self.spec.marginal_parameters.items():
-            marginal_parameters[name] = build_marginal_parameter(parameter, self.spec.family, model)
-            parameter_values[name] = marginal_parameters[name]
-
-        for name, parameter in self.spec.conditional_parameters.items():
-            if parameter.is_nonlinear:
-                continue
-            parameter_info = make_conditional_parameter_info(parameter)
-            self._conditional_parameter_info[name] = parameter_info
-            conditional_parameters[name] = build_conditional_parameter(
-                parameter_info, self.spec.family, self._group_specific_state, model
-            )
-            parameter_values[name] = conditional_parameters[name]
-
-        if self.spec.formula.nlpars:
-            for name, parameter in self.spec.parameter_graph.nonlinear_coefficients.items():
-                parameter_info = make_conditional_parameter_info(parameter)
-                self._conditional_parameter_info[name] = parameter_info
-                parameter_values[name] = build_nonlinear_coefficient(
-                    parameter_info, self._group_specific_state, model
-                )
-
-            for name in self.spec.parameter_graph.order:
-                if name not in self.spec.parameter_graph.nodes:
-                    continue
-                parameter = self.spec.parameter_graph.nodes[name]
+        quantities = self.spec.parameter_graph.nodes or self.spec.parameters
+        order = self.spec.parameter_graph.order or (
+            tuple(self.spec.marginal_parameters) + tuple(self.spec.conditional_parameters)
+        )
+        for name in order:
+            quantity = quantities[name]
+            if isinstance(quantity, Marginal):
+                value = build_marginal_parameter(quantity, self.spec.family, model)
+            elif quantity.is_nonlinear:
                 value = build_nonlinear_parameter(
-                    parameter,
+                    quantity,
                     parameter_values,
                     self.spec.data,
                     model,
                     self.spec.family,
                     marginal_parameters | conditional_parameters,
                 )
-                parameter_values[name] = value
-                if name in self.spec.parameters:
+            else:
+                parameter_info = make_conditional_parameter_info(quantity)
+                self._conditional_parameter_info[name] = parameter_info
+                if isinstance(quantity, ConditionalCoefficient):
+                    value = build_nonlinear_coefficient(
+                        parameter_info, self._group_specific_state, model
+                    )
+                else:
+                    value = build_conditional_parameter(
+                        parameter_info, self.spec.family, self._group_specific_state, model
+                    )
+            parameter_values[name] = value
+            if name in self.spec.parameters:
+                if isinstance(quantity, Marginal):
+                    marginal_parameters[name] = value
+                else:
                     conditional_parameters[name] = value
 
         build_response_term(
@@ -286,15 +279,10 @@ class PyMCModel:
             ]
 
         if omit_group_specific:
-            parameters_with_terms = [
-                parameter
-                for parameter in self.spec.conditional_parameters.values()
-                if not parameter.is_nonlinear
-            ] + list(self.spec.parameter_graph.nonlinear_coefficients.values())
             group_specific_var_names = [
-                term.label
-                for parameter in parameters_with_terms
-                for term in parameter.group_specific_terms.values()
+                term_info.term.label
+                for parameter_info in self._conditional_parameter_info.values()
+                for term_info in parameter_info.group_specific_terms
             ]
             var_names = [name for name in var_names if name not in group_specific_var_names]
 
@@ -649,7 +637,7 @@ class PyMCModel:
                 self.spec.formula,
                 {
                     name: parameter.expression
-                    for name, parameter in self.spec.parameter_graph.nodes.items()
+                    for name, parameter in self.spec.parameter_graph.expression_nodes.items()
                 },
                 data,
                 dropna=False,
@@ -677,7 +665,7 @@ class PyMCModel:
             factor_plans.extend(parameter_factor_plans)
 
         if self.spec.formula.nlpars:
-            for parameter in self.spec.parameter_graph.nodes.values():
+            for parameter in self.spec.parameter_graph.expression_nodes.values():
                 new_data.update(build_new_nonlinear_data(parameter, data))
 
         return new_data, new_coords, factor_plans

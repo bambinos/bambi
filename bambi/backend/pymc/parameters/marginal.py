@@ -2,6 +2,8 @@ import numpy as np
 import pymc as pm
 import pytensor.tensor as pt
 
+from bambi.parameters import MarginalParameter
+
 from bambi.backend.pymc.coords import coords_for_cutpoints
 from bambi.backend.pymc.utils import get_distribution_from_prior
 
@@ -15,8 +17,10 @@ def build_marginal_parameter(parameter, family, model: pm.Model):
         )
 
     dims = tuple()
-    param_spec = family.get_param_spec(parameter.name)
-    if param_spec.ndim > 0:
+    param_spec = (
+        family.get_param_spec(parameter.name) if isinstance(parameter, MarginalParameter) else None
+    )
+    if param_spec is not None and param_spec.ndim > 0:
         if param_spec.coefs_dim == "response":
             dims = tuple(model.__bambi_attrs__["response_coords"])
         elif param_spec.coefs_dim == "response_reduced":

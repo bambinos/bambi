@@ -35,7 +35,7 @@ def nonlinear_interpret_fixture(mock_pymc_sample):
             "Intercept": bmb.Prior("Normal", mu=0, sigma=1),
             "z": bmb.Prior("Normal", mu=0, sigma=1),
         },
-        "b": {"Intercept": bmb.Prior("Normal", mu=0, sigma=1)},
+        "b": bmb.Prior("Normal", mu=0, sigma=1),
     }
     model = bmb.Model(formula, data, priors=priors)
     idata = model.fit(draws=4, chains=2)
@@ -111,7 +111,7 @@ class TestNonlinearModels:
             family="binomial",
             link="identity",
             priors={
-                "sigma_angle": {"Intercept": bmb.Prior("HalfNormal", sigma=0.5)},
+                "sigma_angle": bmb.Prior("HalfNormal", sigma=0.5),
             },
         )
         idata = model.fit(draws=4, chains=2)

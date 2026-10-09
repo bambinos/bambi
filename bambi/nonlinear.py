@@ -2,15 +2,13 @@ from __future__ import annotations
 
 import ast
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 
 import pandas as pd
 import formulae as fm
 from formulae.parser import ParseError
 from formulae.scanner import ScanError
 
-if TYPE_CHECKING:
-    from bambi.parameters import ConditionalParameter
+from bambi.parameters import Conditional, Marginal
 
 FUNCTION_ARITIES = {
     "exp": 1,
@@ -187,17 +185,26 @@ class ParameterDependencyGraph:
 
     Attributes
     ----------
-    nodes : dict of str to ConditionalParameter
-        Parameters defined by nonlinear expressions, keyed by their original names.
+    nodes : dict of str to Conditional or Marginal
+        Observational-model parameters and nonlinear coefficients, keyed by original names.
     dependencies : dict of str to tuple of str
         Direct parameter dependencies for every node.
     order : tuple of str
         Deterministic topological order in which to evaluate the nodes.
     """
 
-    nodes: dict[str, ConditionalParameter]
+    nodes: dict[str, Conditional | Marginal]
     dependencies: dict[str, tuple[str, ...]]
     order: tuple[str, ...]
+
+    @property
+    def expression_nodes(self):
+        """Conditional quantities defined by expressions."""
+        return {
+            name: quantity
+            for name, quantity in self.nodes.items()
+            if isinstance(quantity, Conditional) and quantity.is_nonlinear
+        }
 
     @property
     def nonlinear_coefficients(self):
@@ -205,7 +212,7 @@ class ParameterDependencyGraph:
 
         Returns
         -------
-        dict of str to ConditionalParameter
+        dict of str to ConditionalCoefficient or MarginalCoefficient
             Coefficients keyed by their original names.
 
         Raises
@@ -225,7 +232,7 @@ class ParameterDependencyGraph:
         {'a'}
         """
         coefficients = {}
-        for parameter in self.nodes.values():
+        for parameter in self.expression_nodes.values():
             for name, coefficient in parameter.nonlinear_coefficients.items():
                 if name in coefficients and coefficients[name] is not coefficient:
                     raise ValueError(f"Nonlinear coefficient '{name}' has multiple definitions.")

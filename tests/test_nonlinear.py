@@ -12,6 +12,8 @@ from bambi.nonlinear import (
     resolve_nonlinear_symbols,
 )
 
+from bambi.parameters import MarginalCoefficient
+
 from helpers import assert_ip_dlogp
 
 
@@ -135,8 +137,8 @@ def exponential_priors(group_specific=False):
         }
     return {
         "a": a_priors,
-        "b": {"Intercept": normal_prior()},
-        "k": {"Intercept": normal_prior()},
+        "b": normal_prior(),
+        "k": normal_prior(),
     }
 
 
@@ -145,12 +147,12 @@ def evaluate_nonlinear_expression(expression, data):
     model = bmb.Model(
         bmb.Formula(f"y ~ {expression} + a", nlpars=("a",)),
         data,
-        priors={"a": {"Intercept": normal_prior()}},
+        priors={"a": normal_prior()},
     )
     model.build()
     draws = xr.Dataset(
         {
-            "a_Intercept": (("chain", "draw"), [[0.0]]),
+            "a": (("chain", "draw"), [[0.0]]),
             "sigma": (("chain", "draw"), [[1.0]]),
         }
     )
@@ -165,8 +167,8 @@ def test_constant_parameters_match_linear_regression():
         bmb.Formula("y ~ a + b * x", nlpars=("a", "b")),
         data,
         priors={
-            "a": {"Intercept": normal_prior()},
-            "b": {"Intercept": normal_prior()},
+            "a": normal_prior(),
+            "b": normal_prior(),
         },
         center_predictors=False,
     )
@@ -181,8 +183,8 @@ def test_constant_parameters_match_linear_regression():
 
     nonlinear_draws = xr.Dataset(
         {
-            "a_Intercept": (("chain", "draw"), [[1.25]]),
-            "b_Intercept": (("chain", "draw"), [[-0.75]]),
+            "a": (("chain", "draw"), [[1.25]]),
+            "b": (("chain", "draw"), [[-0.75]]),
             "sigma": (("chain", "draw"), [[1.0]]),
         }
     )
@@ -214,8 +216,8 @@ def test_omitted_constant_formulas_match_explicit_intercepts():
     ]
     draws = xr.Dataset(
         {
-            "a_Intercept": (("chain", "draw"), [[1.25]]),
-            "b_Intercept": (("chain", "draw"), [[-0.75]]),
+            "a": (("chain", "draw"), [[1.25]]),
+            "b": (("chain", "draw"), [[-0.75]]),
             "sigma": (("chain", "draw"), [[1.0]]),
         }
     )
@@ -226,7 +228,11 @@ def test_omitted_constant_formulas_match_explicit_intercepts():
         model.build()
         with model.backend.model:
             predictions.append(
-                pm.compute_deterministics(draws, var_names=["mu"], progressbar=False)["mu"]
+                pm.compute_deterministics(
+                    draws,
+                    var_names=["mu"],
+                    progressbar=False,
+                )["mu"]
             )
 
     xr.testing.assert_allclose(predictions[0], predictions[1])
@@ -242,15 +248,15 @@ def test_supported_expression_operations():
         formula,
         data,
         priors={
-            "a": {"Intercept": normal_prior()},
-            "b": {"Intercept": bmb.Prior("LogNormal", mu=0, sigma=1)},
+            "a": normal_prior(),
+            "b": bmb.Prior("LogNormal", mu=0, sigma=1),
         },
     )
     model.build()
     draws = xr.Dataset(
         {
-            "a_Intercept": (("chain", "draw"), [[-3.0]]),
-            "b_Intercept": (("chain", "draw"), [[np.exp(2.0)]]),
+            "a": (("chain", "draw"), [[-3.0]]),
+            "b": (("chain", "draw"), [[np.exp(2.0)]]),
             "sigma": (("chain", "draw"), [[1.0]]),
         }
     )
@@ -400,14 +406,12 @@ def test_predictor_dependent_parameter_builds_expected_graph():
     coefficients = model.parameters["mu"].nonlinear_coefficients
     assert set(coefficients) == {"a", "b", "k"}
     assert set(coefficients["a"].terms) == {"Intercept", "z"}
-    assert set(coefficients["b"].terms) == {"Intercept"}
-    assert set(coefficients["k"].terms) == {"Intercept"}
+    assert isinstance(coefficients["b"], MarginalCoefficient)
+    assert isinstance(coefficients["k"], MarginalCoefficient)
     assert model.backend.model.named_vars_to_dims["mu"] == ("__obs__",)
     assert model.backend.model.named_vars_to_dims["a"] == ("__obs__",)
     assert model.backend.model.named_vars_to_dims["mu__x_data"] == ("__obs__",)
-    assert {"a_Intercept", "a_z", "b_Intercept", "k_Intercept"} <= set(
-        model.backend.model.named_vars
-    )
+    assert {"a_Intercept", "a_z", "b", "k"} <= set(model.backend.model.named_vars)
 
 
 def test_predictor_dependent_parameter_recovers_simulated_values():
@@ -419,8 +423,8 @@ def test_predictor_dependent_parameter_recovers_simulated_values():
     y = a + 1.5 * np.exp(-0.8 * x) + rng.normal(0, 0.15, size)
     data = pd.DataFrame({"x": x, "z": z, "y": y})
     priors = exponential_priors()
-    priors["b"]["Intercept"] = bmb.Prior("Normal", mu=1.5, sigma=0.5)
-    priors["k"]["Intercept"] = bmb.Prior("LogNormal", mu=np.log(0.8), sigma=0.35)
+    priors["b"] = bmb.Prior("Normal", mu=1.5, sigma=0.5)
+    priors["k"] = bmb.Prior("LogNormal", mu=np.log(0.8), sigma=0.35)
     priors["sigma"] = bmb.Prior("HalfNormal", sigma=0.5)
     model = bmb.Model(exponential_formula(), data, priors=priors)
 
@@ -437,8 +441,8 @@ def test_predictor_dependent_parameter_recovers_simulated_values():
     expected = {
         "a_Intercept": 0.7,
         "a_z": 0.4,
-        "b_Intercept": 1.5,
-        "k_Intercept": 0.8,
+        "b": 1.5,
+        "k": 0.8,
     }
     for name, value in expected.items():
         assert float(idata.posterior[name].mean()) == pytest.approx(value, abs=0.15)
@@ -452,7 +456,8 @@ def test_posterior_predictive_and_new_data():
     data = linear_data()
     model = bmb.Model(exponential_formula(), data, priors=exponential_priors())
     idata = model.fit(draws=5, chains=2)
-    assert {"a", "b", "k", "mu"}.isdisjoint(idata.posterior.data_vars)
+    assert {"b", "k"} <= set(idata.posterior.data_vars)
+    assert {"a", "mu"}.isdisjoint(idata.posterior.data_vars)
 
     predicted = model.predict(idata, kind="response", inplace=False)
     assert predicted.posterior["mu"].shape == (2, 5, len(data))
@@ -474,7 +479,8 @@ def test_include_response_params_only_keeps_likelihood_parameter():
     idata = model.fit(draws=5, chains=2, include_response_params=True)
 
     assert "mu" in idata.posterior
-    assert {"a", "b", "k"}.isdisjoint(idata.posterior.data_vars)
+    assert {"b", "k"} <= set(idata.posterior.data_vars)
+    assert {"a"}.isdisjoint(idata.posterior.data_vars)
 
 
 @pytest.mark.usefixtures("mock_pymc_sample")
@@ -666,7 +672,7 @@ def test_nonlinear_coefficient_can_depend_on_another_coefficient():
     model.build()
     draws = xr.Dataset(
         {
-            "b_Intercept": (("chain", "draw"), [[0.25, -0.5]]),
+            "b": (("chain", "draw"), [[0.25, -0.5]]),
             "sigma": (("chain", "draw"), [[1.0, 1.0]]),
         }
     )
@@ -675,7 +681,7 @@ def test_nonlinear_coefficient_can_depend_on_another_coefficient():
         actual = pm.compute_deterministics(draws, var_names=["mu"], progressbar=False)
 
     x = xr.DataArray(linear_data().x.to_numpy(), dims="__obs__")
-    expected = 1 + draws.b_Intercept + draws.b_Intercept * x
+    expected = 1 + draws.b + draws.b * x
     np.testing.assert_allclose(actual.mu, expected)
 
 
@@ -726,3 +732,62 @@ def test_reserved_parameter_names_are_rejected(name):
     formula = bmb.Formula(f"y ~ {name}", nlpars=(name,))
     with pytest.raises(ValueError, match="names must not"):
         bmb.Model(formula, linear_data())
+
+
+@pytest.mark.parametrize("auto_scale", [False, True])
+@pytest.mark.parametrize("prior", [None, bmb.Prior("Normal", mu=0.3, sigma=1.2)])
+def test_marginal_coefficient_matches_explicit_intercept_density(auto_scale, prior):
+    models = [
+        bmb.Model(
+            bmb.Formula("y ~ a * x", *additionals, nlpars=("a",)),
+            linear_data(),
+            priors={"a": prior, "sigma": 1.0},
+            auto_scale=auto_scale,
+        )
+        for additionals, prior in [
+            ((), prior),
+            (("a ~ 1",), prior),
+        ]
+    ]
+    for model in models:
+        model.build()
+    for value in (-0.5, 0.0, 1.3):
+        points = [{"a": value}, {"a": value}]
+        logps = [model.backend.model.compile_logp()(point) for model, point in zip(models, points)]
+        gradients = [
+            model.backend.model.compile_dlogp()(point) for model, point in zip(models, points)
+        ]
+        np.testing.assert_allclose(*logps)
+        np.testing.assert_allclose(*gradients)
+
+
+@pytest.mark.parametrize("prior", [normal_prior(), 0.5])
+@pytest.mark.parametrize("additionals", [(), ("a ~ 1",), ("a ~ 0 + 1",)])
+def test_marginal_coefficient_prior_alias_and_output(prior, additionals, mock_pymc_sample):
+    model = bmb.Model(
+        bmb.Formula("y ~ a * x", *additionals, nlpars=("a",)), linear_data(), priors={"a": prior}
+    )
+    coefficient = model.parameters["mu"].nonlinear_coefficients["a"]
+    assert isinstance(coefficient, MarginalCoefficient)
+    model.set_alias({"a": "slope"})
+    model.build()
+    assert "slope" in str(model)
+    assert "a_Intercept" not in model.backend.model.named_vars
+    assert model.backend.model["slope"].ndim == 0
+    prior_draws = model.backend.prior_predictive(draws=3, prior_only=True, random_seed=123)
+    assert "slope" in prior_draws.prior
+    posterior = model.fit(draws=3, chains=1, random_seed=123)
+    assert "slope" in posterior.posterior
+    model.set_priors({"a": bmb.Prior("Normal", mu=0.7, sigma=0.2)})
+    assert coefficient.prior.args == {"mu": 0.7, "sigma": 0.2}
+    model.build()
+    assert "slope" in model.backend.model.named_vars
+
+
+def test_marginal_coefficient_rejects_term_prior_dictionary():
+    with pytest.raises(ValueError, match="not a valid prior"):
+        bmb.Model(
+            bmb.Formula("y ~ a * x", nlpars=("a",)),
+            linear_data(),
+            priors={"a": {"Intercept": normal_prior()}},
+        )
