@@ -107,6 +107,40 @@ def build_additive_parameter(
     model: pm.Model,
 ) -> pt.Variable:
     parameter = parameter_info.parameter
+    value = build_additive_predictor(parameter_info, param_spec, group_specific_state, model)
+
+    if transform_predictor:
+        value = transform_predictor(value, transform_parameters, inverse_link)
+    else:
+        value = inverse_link(value)
+
+    coords = model.__bambi_attrs__["response_coords_data"]
+    if param_spec.ndim > 0:
+        coords = coords | model.__bambi_attrs__["response_coords"]
+
+    dims = tuple(coords)
+    only_intercept = (
+        parameter.intercept_term
+        and not parameter.common_terms
+        and not parameter.group_specific_terms
+        and not parameter.offset_terms
+        and not parameter.hsgp_terms
+        and not parameter.smooth_terms
+    )
+    value = pt.as_tensor_variable(value)
+    if value.ndim < len(dims) or only_intercept:
+        value = pt.broadcast_to(value, tuple(model.dim_lengths[dim] for dim in dims))
+    return pm.Deterministic(parameter.label, value, dims=dims, model=model)
+
+
+def build_additive_predictor(
+    parameter_info: ConditionalParameterInfo,
+    param_spec: ParamSpec,
+    group_specific_state: GroupSpecificGraphState,
+    model: pm.Model,
+) -> pt.Variable:
+    """Build the sum of formula terms before applying a parameter's inverse link."""
+    parameter = parameter_info.parameter
     value = 0
     center_predictors = parameter.intercept_term and parameter.center_predictors
 
@@ -137,28 +171,7 @@ def build_additive_parameter(
         data, param = build_smooth_term(term_info, param_spec, model)
         value += pt.dot(data, param)
 
-    if transform_predictor:
-        value = transform_predictor(value, transform_parameters, inverse_link)
-    else:
-        value = inverse_link(value)
-
-    coords = model.__bambi_attrs__["response_coords_data"]
-    if param_spec.ndim > 0:
-        coords = coords | model.__bambi_attrs__["response_coords"]
-
-    dims = tuple(coords)
-    only_intercept = (
-        parameter.intercept_term
-        and not parameter.common_terms
-        and not parameter.group_specific_terms
-        and not parameter.offset_terms
-        and not parameter.hsgp_terms
-        and not parameter.smooth_terms
-    )
-    value = pt.as_tensor_variable(value)
-    if value.ndim < len(dims) or only_intercept:
-        value = pt.broadcast_to(value, tuple(model.dim_lengths[dim] for dim in dims))
-    return pm.Deterministic(parameter.label, value, dims=dims, model=model)
+    return value
 
 
 _ENSURE_NDIM_MAPPING = {

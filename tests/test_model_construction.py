@@ -1861,7 +1861,7 @@ def test_exponential_log_likelihood_matches_normal(nonlinear_exponential_model, 
 
 def test_zero_predictor_broadcasts_for_new_observations():
     data = pd.DataFrame({"x": [0.0, 1.0, 2.0], "y": [0.1, 1.2, 2.1]})
-    model = bmb.Model(bmb.Formula("y ~ a + x", "a ~ 0", nlpars=("a",)), data)
+    model = bmb.Model(bmb.Formula("y ~ 0 + nl(a + x)", "a ~ 0", nlpars=("a",)), data)
     model.build()
     idata = xr.DataTree.from_dict(
         {"posterior": xr.Dataset({"sigma": (("chain", "draw"), [[0.2]])})}
@@ -2291,3 +2291,48 @@ def test_dependency_graph_contains_all_quantity_roles(nonlinear_ownership_data):
         c = 0.2 + 0.3 * observations.z
         expected = 0.4 + c * observations.z + 0.5 + c * observations.x
         np.testing.assert_allclose(posterior.mu, expected.to_numpy()[None, None, :])
+
+
+@pytest.mark.parametrize(
+    "rhs, expected_terms, expected_covariates",
+    [
+        ("nl(exp(b * x) + x) + z", {"Intercept", "z"}, {"x", "z"}),
+        (
+            "z - exp(b * x) + (1 + x | group)",
+            {"Intercept", "z", "1|group", "x|group"},
+            {"x", "z", "group"},
+        ),
+        ("0 + nl(b * x) + x:z", {"x:z"}, {"x", "z"}),
+        ("nl(b * x) - 1", set(), {"x"}),
+    ],
+)
+def test_mixed_predictor_terms_and_ownership(rhs, expected_terms, expected_covariates):
+    data = pd.DataFrame(
+        {
+            "y": [1.0, 2.0, 3.0, 4.0],
+            "x": [0.0, 1.0, 2.0, 3.0],
+            "z": [1.0, 0.0, 3.0, 2.0],
+            "group": ["a", "a", "b", "b"],
+        }
+    )
+    model = bmb.Model(bmb.Formula(f"y ~ {rhs}", nlpars=("b",)), data)
+    parent = model.parameters["mu"]
+    assert set(parent.terms) == expected_terms
+    assert set(parent.nonlinear_coefficients) == {"b"}
+    assert parent.data_names == ("x",)
+    assert set(model.get_covariates()) == expected_covariates
+    model.build()
+    assert "nl" not in model.backend.model.named_vars
+
+
+def test_mixed_predictor_missing_rows_are_aligned():
+    data = pd.DataFrame(
+        {"y": [1.0, 2.0, 3.0, 4.0], "x": [0.0, np.nan, 2.0, 3.0], "z": [1.0, 0.0, np.nan, 2.0]}
+    )
+    formula = bmb.Formula("y ~ nl(b * x) + z", nlpars=("b",))
+    with pytest.raises(ValueError, match="2 incomplete rows"):
+        bmb.Model(formula, data)
+    model = bmb.Model(formula, data, dropna=True)
+    assert list(model.data.index) == [0, 3]
+    assert len(model.parameters["mu"].design.common.design_matrix) == 2
+    model.build()

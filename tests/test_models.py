@@ -2634,3 +2634,115 @@ def test_linked_auxiliary_aliases_with_groups(monkeypatch, sparse):
             baseline = baseline + idata.posterior["group_effect"].sel(g_dim="a")
         expected = 1 / (1 + np.exp(-baseline * np.exp(-0.2)))
         np.testing.assert_allclose(predicted.predictions["probability"].isel(__obs__=0), expected)
+
+
+@pytest.mark.parametrize("link", ["identity", "log"])
+def test_mixed_predictor_prediction_and_prior_updates(link):
+    data = pd.DataFrame(
+        {"y": [1.0, 2.0, 3.0, 4.0], "x": [0.0, 1.0, 2.0, 3.0], "z": [1.0, 0.0, 3.0, 2.0]}
+    )
+    model = bmb.Model(
+        bmb.Formula("y ~ nl(b * x + x) + z + offset(z)", nlpars=("b",)),
+        data,
+        link=link,
+        center_predictors=False,
+        priors={"Intercept": bmb.Prior("Normal", mu=0, sigma=2)},
+    )
+    model.set_priors(
+        {"z": bmb.Prior("Normal", mu=0, sigma=3), "b": bmb.Prior("Normal", mu=0, sigma=4)}
+    )
+    assert model.parameters["mu"].terms["z"].prior.args["sigma"] == 3
+    assert model.parameter_graph.nonlinear_coefficients["b"].prior.args["sigma"] == 4
+    model.set_alias({"mu": {"mu": "mean", "z": "slope"}, "b": "rate"})
+    model.build()
+    draws = xr.Dataset(
+        {
+            name: (("chain", "draw"), [[value]])
+            for name, value in {"Intercept": 0.5, "slope": 0.3, "rate": 0.2, "sigma": 1.0}.items()
+        }
+    )
+    idata = xr.DataTree.from_dict({"posterior": draws})
+    for new_data in [None, data.iloc[:2].assign(x=[0.3, 0.7], z=[0.5, 0.2])]:
+        result = model.predict(idata, data=new_data, inplace=False)
+        inputs = data if new_data is None else new_data
+        expected = 0.5 + 0.3 * inputs.z + 0.2 * inputs.x + inputs.x + inputs.z
+        if link == "log":
+            expected = np.exp(expected)
+        group = result.posterior if new_data is None else result.predictions
+        np.testing.assert_allclose(group["mean"], expected.to_numpy()[None, None, :])
+        likelihood = model.compute_log_likelihood(idata, data=new_data, inplace=False)
+        expected_logp = -0.5 * np.log(2 * np.pi) - 0.5 * (inputs.y - expected) ** 2
+        np.testing.assert_allclose(
+            likelihood.log_likelihood.y, expected_logp.to_numpy()[None, None, :]
+        )
+    with pytest.raises(ValueError, match="incomplete rows"):
+        model.predict(idata, data=data.assign(z=np.nan), inplace=False)
+
+
+def test_data_only_nl_contribution():
+    data = pd.DataFrame({"y": [1.0, 2.0, 3.0], "x": [0.1, 0.2, 0.3]})
+    model = bmb.Model("y ~ 0 + nl(exp(x) + 1)", data)
+    model.build()
+    draws = xr.Dataset({"sigma": (("chain", "draw"), [[1.0]])})
+    result = model.predict(xr.DataTree.from_dict({"posterior": draws}), inplace=False)
+    np.testing.assert_allclose(result.posterior.mu, (np.exp(data.x) + 1).to_numpy()[None, None, :])
+
+
+@pytest.mark.parametrize("sparse_dot", [False, True])
+def test_mixed_predictor_group_contributions(monkeypatch, sparse_dot):
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
+    data = pd.DataFrame(
+        {"y": [1.0, 2.0, 3.0, 4.0], "x": [0.0, 1.0, 2.0, 3.0], "group": ["a", "a", "b", "b"]}
+    )
+    model = bmb.Model(
+        bmb.Formula("y ~ 0 + nl(b * x) + (1 | group)", nlpars=("b",)),
+        data,
+        noncentered=False,
+    )
+    model.build()
+    draws = xr.Dataset(
+        {
+            "b": (("chain", "draw"), [[0.2]]),
+            "sigma": (("chain", "draw"), [[1.0]]),
+            "1|group_sigma": (("chain", "draw"), [[0.5]]),
+            "1|group": (("chain", "draw", "group_dim"), [[[0.3, -0.4]]]),
+        },
+        coords={"group_dim": ["a", "b"]},
+    )
+    idata = xr.DataTree.from_dict({"posterior": draws})
+    new_data = pd.DataFrame({"x": [0.5, 1.5], "group": ["b", "a"]})
+    for include_groups in [False, True]:
+        result = model.predict(
+            idata, data=new_data, inplace=False, include_group_specific=include_groups
+        )
+        expected = 0.2 * new_data.x.to_numpy()
+        if include_groups:
+            expected += [-0.4, 0.3]
+        np.testing.assert_allclose(result.predictions.mu, expected[None, None, :])
+
+
+def test_mixed_coefficient_and_auxiliary_predictors():
+    data = pd.DataFrame(
+        {"y": [1.0, 2.0, 3.0, 4.0], "x": [0.0, 1.0, 2.0, 3.0], "z": [1.0, 0.0, 3.0, 2.0]}
+    )
+    formula = bmb.Formula(
+        "y ~ a * x",
+        "sigma ~ 0 + nl(exp(b)) + z",
+        "a ~ nl(b * x) + z",
+        nlpars=("a", "b"),
+    )
+    model = bmb.Model(formula, data, center_predictors=False)
+    model.build()
+    draws = xr.Dataset(
+        {
+            name: (("chain", "draw"), [[value]])
+            for name, value in {"a_Intercept": 0.5, "a_z": 0.3, "b": 0.2, "sigma_z": 0.1}.items()
+        }
+    )
+    idata = xr.DataTree.from_dict({"posterior": draws})
+    new_data = data.iloc[:2].drop(columns="y")
+    result = model.predict(idata, data=new_data, inplace=False)
+    expected_mu = (0.5 + 0.3 * new_data.z + 0.2 * new_data.x) * new_data.x
+    expected_sigma = np.exp(0.2) + 0.1 * new_data.z
+    np.testing.assert_allclose(result.predictions.mu, expected_mu.to_numpy()[None, None, :])
+    np.testing.assert_allclose(result.predictions.sigma, expected_sigma.to_numpy()[None, None, :])

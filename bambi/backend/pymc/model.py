@@ -33,6 +33,7 @@ from bambi.backend.pymc.parameters.conditional import (
     build_new_sparse_conditional_parameter_data,
     make_conditional_parameter_info,
 )
+from bambi.backend.pymc.parameters.conditional.build import build_additive_predictor
 from bambi.backend.pymc.terms import build_potentials, build_response_term
 from bambi.backend.pymc.terms.response import (
     build_new_response_data,
@@ -42,6 +43,7 @@ from bambi.backend.pymc.terms.response import (
     replace_response_variables,
 )
 from bambi.config import config as bmb_config
+from bambi.families.types import ParamSpec
 from bambi.nonlinear import prepare_nonlinear_data
 from bambi.parameters import Conditional, ConditionalCoefficient, Marginal
 from bambi.utils import as_dataset
@@ -128,6 +130,16 @@ class PyMCModel:
             if isinstance(quantity, Marginal):
                 value = build_marginal_parameter(quantity, self.spec.family, model)
             elif quantity.is_nonlinear:
+                additive_value = 0
+                if quantity.design is not None:
+                    parameter_info = make_conditional_parameter_info(quantity)
+                    self._conditional_parameter_info[name] = parameter_info
+                    additive_value = build_additive_predictor(
+                        parameter_info,
+                        ParamSpec(links=["identity"]),
+                        self._group_specific_state,
+                        model,
+                    )
                 value = build_nonlinear_parameter(
                     quantity,
                     parameter_values,
@@ -135,6 +147,7 @@ class PyMCModel:
                     model,
                     self.spec.family,
                     marginal_parameters | conditional_parameters,
+                    additive_value,
                 )
             else:
                 parameter_info = make_conditional_parameter_info(quantity)
@@ -632,7 +645,7 @@ class PyMCModel:
             )
 
     def _build_new_data(self, data: pd.DataFrame, purpose: str, kind: str | None = None):
-        if self.spec.formula.nlpars:
+        if self.spec.formula.is_nonlinear:
             data = prepare_nonlinear_data(
                 self.spec.formula,
                 {
@@ -643,7 +656,6 @@ class PyMCModel:
                 dropna=False,
                 include_response=purpose == "log_likelihood",
                 parameter_names=self.spec.parameter_graph.dependencies,
-                parent_name=self.spec.family.likelihood.parent,
             )
         new_coords = {"__obs__": range(len(data))}
         new_data = build_new_response_data(
@@ -664,7 +676,7 @@ class PyMCModel:
             new_data.update(parameter_data)
             factor_plans.extend(parameter_factor_plans)
 
-        if self.spec.formula.nlpars:
+        if self.spec.formula.is_nonlinear:
             for parameter in self.spec.parameter_graph.expression_nodes.values():
                 new_data.update(build_new_nonlinear_data(parameter, data))
 

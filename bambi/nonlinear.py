@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import ast
+import re
 from dataclasses import dataclass
 
 import pandas as pd
 import formulae as fm
 from formulae.parser import ParseError
-from formulae.scanner import ScanError
+from formulae.scanner import ScanError, Scanner
 
 from bambi.parameters import Conditional, Marginal
 
@@ -177,6 +178,129 @@ def nonlinear_symbol_names(source: str) -> frozenset[str]:
         frozenset(node.id for node in ast.walk(parsed) if isinstance(node, ast.Name))
         - function_names
     )
+
+
+class _PredictorScanner(Scanner):
+    """Formula tokens with Python numeric literals and underscore-prefixed names."""
+
+    def scan_token(self):
+        if self.peek() == "_":
+            self.advance()
+            self.identifier()
+        else:
+            super().scan_token()
+
+    def number(self):
+        match = re.match(
+            r"(?:\d[\d_]*(?:\.[\d_]*)?|\.[\d_]+)(?:[eE][+-]?[\d_]+)?",
+            self.code[self.start :],
+        )
+        self.current = self.start + match.end()
+        self.add_token("NUMBER", float(match.group()))
+
+    floatnum = number
+
+
+def has_nl_wrapper(source: str) -> bool:
+    """Whether a formula contains an explicit additive nonlinear contribution."""
+    tokens = _PredictorScanner(source).scan(add_intercept=False)
+    return any(
+        token.lexeme == "nl" and following.kind == "LEFT_PAREN"
+        for token, following in zip(tokens, tokens[1:])
+    )
+
+
+def split_predictor(source: str, parameter_names) -> tuple[str | None, NonlinearExpression | None]:
+    """Separate additive formula terms from arithmetic contributions.
+
+    Terms referencing modeled quantities are arithmetic. ``nl(expr)`` explicitly keeps an
+    arithmetic expression together, including data-only terms and literal constants. Outside
+    the wrapper, parentheses retain ordinary formula grouping semantics. Expression-only
+    formulas without a wrapper retain their original arithmetic interpretation.
+    """
+    tokens = _PredictorScanner(source).scan(add_intercept=False)[:-1]
+    additive = []
+    nonlinear = []
+    explicit = has_nl_wrapper(source)
+    only_constants = True
+    parameter_names = set(parameter_names)
+
+    def collect(part, sign=1):
+        nonlocal only_constants
+        depth = 0
+        start = 0
+        current_sign = sign
+        for index, token in enumerate(part):
+            if token.kind in ("LEFT_PAREN", "LEFT_BRACKET", "LEFT_BRACE"):
+                depth += 1
+            elif token.kind in ("RIGHT_PAREN", "RIGHT_BRACKET", "RIGHT_BRACE"):
+                depth -= 1
+            elif (
+                depth == 0
+                and token.kind in ("PLUS", "MINUS")
+                and index > start
+                and part[index - 1].kind
+                not in ("PLUS", "MINUS", "STAR", "SLASH", "STAR_STAR", "COLON", "PIPE")
+            ):
+                collect(part[start:index], current_sign)
+                current_sign = sign if token.kind == "PLUS" else -sign
+                start = index + 1
+        if start:
+            collect(part[start:], current_sign)
+            return
+        if not part:
+            raise ValueError(f"Malformed nonlinear expression: {source!r}.")
+        if part[0].kind in ("PLUS", "MINUS"):
+            collect(part[1:], sign if part[0].kind == "PLUS" else -sign)
+            return
+        if part[0].kind == "LEFT_PAREN" and part[-1].kind == "RIGHT_PAREN":
+            depth = 0
+            enclosed = True
+            group_specific = False
+            for token in part[:-1]:
+                depth += token.kind == "LEFT_PAREN"
+                depth -= token.kind == "RIGHT_PAREN"
+                group_specific |= token.kind == "PIPE" and depth == 1
+                if depth == 0:
+                    enclosed = False
+                    break
+            if enclosed and not group_specific:
+                collect(part[1:-1], sign)
+                return
+        text = " ".join(str(token.lexeme) for token in part)
+        if has_nl_wrapper(text):
+            try:
+                node = ast.parse(text, mode="eval").body
+            except SyntaxError as error:
+                raise ValueError("'nl(...)' must be a separate additive term.") from error
+            if not (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Name)
+                and node.func.id == "nl"
+                and len(node.args) == 1
+                and not node.keywords
+            ):
+                raise ValueError("'nl(...)' must be a separate additive term with one argument.")
+            text = ast.unparse(node.args[0])
+            nonlinear.append((sign, text))
+        elif nonlinear_symbol_names(text) & parameter_names:
+            nonlinear.append((sign, text))
+        else:
+            only_constants &= len(part) == 1 and part[0].kind == "NUMBER"
+            additive.append((sign, text))
+
+    collect(tokens)
+    if not nonlinear:
+        return source, None
+    if not explicit and only_constants:
+        return None, NonlinearExpression.parse(source.strip())
+    expression_source = " ".join(
+        ("+" if sign > 0 else "-") + f" ({text})" for sign, text in nonlinear
+    )
+    additive_source = " ".join(
+        ("+" if sign > 0 else "-") + f" {text}" for sign, text in additive
+    ).lstrip("+ ")
+    return additive_source or "1", NonlinearExpression.parse(expression_source)
 
 
 @dataclass(frozen=True)
@@ -399,7 +523,6 @@ def prepare_nonlinear_data(
     dropna,
     include_response=True,
     parameter_names=(),
-    parent_name="__parent__",
 ):
     """Prepare aligned, complete observations for every part of a nonlinear model.
 
@@ -418,8 +541,6 @@ def prepare_nonlinear_data(
         Whether the response is required in ``data``.
     parameter_names : Collection of str
         Names of modeled parameters, which are excluded from required data columns.
-    parent_name : str
-        Name of the likelihood's parent parameter.
 
     Returns
     -------
@@ -438,14 +559,15 @@ def prepare_nonlinear_data(
     for expression in expressions.values():
         variables.update(expression.symbols - parameter_names)
     response_formula, parent_rhs = split_nonlinear_formula(formula.main)
-    if parent_name not in expressions:
-        variables.update(set(fm.model_description(parent_rhs).var_names) - parameter_names)
+    additive_rhs, _ = split_predictor(parent_rhs, parameter_names)
+    if additive_rhs is not None:
+        variables.update(set(fm.model_description(additive_rhs).var_names) - parameter_names)
     if include_response:
         variables.update(fm.model_description(response_formula).var_names)
-    for name, predictor_formula in zip(formula.additionals_lhs, formula.additionals):
-        if name in expressions:
+    for predictor_formula in formula.additionals:
+        rhs, _ = split_predictor(predictor_formula.partition("~")[2], parameter_names)
+        if rhs is None:
             continue
-        rhs = predictor_formula.partition("~")[2]
         predictor_variables = fm.model_description(rhs).var_names
         variables.update(set(predictor_variables) - parameter_names)
 

@@ -81,6 +81,7 @@ def build_nonlinear_parameter(
     model: pm.Model,
     family: Family,
     parameters: dict[str, pt.Variable],
+    additive_value=0,
 ) -> pt.Variable:
     """Build an expression-defined parameter or coefficient in a PyMC model.
 
@@ -98,6 +99,8 @@ def build_nonlinear_parameter(
         Family providing the parent link and predictor transformation.
     parameters : dict of str to TensorVariable
         Other built likelihood parameters used by predictor transformations.
+    additive_value : TensorVariable or int, optional
+        Contribution of ordinary formula terms on the predictor scale.
 
     Returns
     -------
@@ -113,7 +116,7 @@ def build_nonlinear_parameter(
             model=model,
         )
 
-    value = evaluate_expression(parameter.expression.root, values)
+    value = additive_value + evaluate_expression(parameter.expression.root, values)
     if isinstance(parameter, ConditionalParameter) and parameter.is_parent:
         link = family.link[parameter.name]
         inverse_link = INVERSE_LINKS.get(link.name, link.inverse_link)

@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import pymc as pm
+import pytensor.tensor as pt
 import pytest
 import xarray as xr
 from scipy.special import erf, erfc, expit, logit, ndtr, ndtri  # pylint: disable=no-name-in-module
@@ -10,8 +11,10 @@ from bambi.nonlinear import (
     NonlinearExpression,
     parameter_dependency_order,
     resolve_nonlinear_symbols,
+    split_predictor,
 )
 
+from bambi.backend.pymc.nonlinear import evaluate_expression
 from bambi.parameters import MarginalCoefficient
 
 from helpers import assert_ip_dlogp
@@ -91,7 +94,7 @@ def test_resolve_nonlinear_symbols_rejects_ambiguous_name():
         ),
         (
             "y ~ a * x",
-            ("sigma ~ mu + unknown",),
+            ("sigma ~ 0 + nl(mu + unknown)",),
             "No nonlinear parameter formula or data column.*unknown",
         ),
     ],
@@ -145,7 +148,7 @@ def exponential_priors(group_specific=False):
 def evaluate_nonlinear_expression(expression, data):
     data = data.assign(y=0.0)
     model = bmb.Model(
-        bmb.Formula(f"y ~ {expression} + a", nlpars=("a",)),
+        bmb.Formula(f"y ~ 0 + nl({expression} + a)", nlpars=("a",)),
         data,
         priors={"a": normal_prior()},
     )
@@ -391,7 +394,7 @@ def test_supported_probability_transforms(function):
     ],
 )
 def test_nonlinear_function_arity(expression, message):
-    formula = bmb.Formula(f"y ~ a + {expression}", nlpars=("a",))
+    formula = bmb.Formula(f"y ~ 0 + nl(a + {expression})", nlpars=("a",))
 
     with pytest.raises(ValueError, match=message):
         bmb.Model(formula, linear_data())
@@ -509,7 +512,7 @@ def test_group_specific_parameter_predicts_new_data(monkeypatch, sparse_dot):
     "formula, error",
     [
         (
-            bmb.Formula("y ~ a + b * x", nlpars=("b",)),
+            bmb.Formula("y ~ 0 + nl(a + b * x)", nlpars=("b",)),
             "No nonlinear parameter formula or data column",
         ),
         (
@@ -517,7 +520,7 @@ def test_group_specific_parameter_predicts_new_data(monkeypatch, sparse_dot):
             "not used by the expression",
         ),
         (
-            bmb.Formula("y ~ a + unknown", nlpars=("a",)),
+            bmb.Formula("y ~ 0 + nl(a + unknown)", nlpars=("a",)),
             "No nonlinear parameter formula or data column",
         ),
     ],
@@ -549,7 +552,7 @@ def test_malformed_expression():
 def test_nonnumeric_expression_data():
     data = linear_data()
     data["label"] = "a"
-    formula = bmb.Formula("y ~ a + label", nlpars=("a",))
+    formula = bmb.Formula("y ~ 0 + nl(a + label)", nlpars=("a",))
 
     with pytest.raises(ValueError, match="Nonlinear expression data must be numeric"):
         bmb.Model(formula, data)
@@ -722,7 +725,7 @@ def test_prediction_rejects_incomplete_inputs(column):
     ],
 )
 def test_unsupported_expression_syntax_is_rejected(expression):
-    formula = bmb.Formula(f"y ~ {expression}", nlpars=("a",))
+    formula = bmb.Formula(f"y ~ 0 + nl({expression})", nlpars=("a",))
     with pytest.raises(ValueError, match="Nonlinear|nonlinear|Unsupported"):
         bmb.Model(formula, linear_data())
 
@@ -791,3 +794,48 @@ def test_marginal_coefficient_rejects_term_prior_dictionary():
             linear_data(),
             priors={"a": {"Intercept": normal_prior()}},
         )
+
+
+@pytest.mark.parametrize(
+    "source, additive, expression",
+    [
+        ("nl(exp(b * x) + x) + z", "z", "exp(b * x) + x"),
+        ("z - exp(b * x) + (1 + x | group)", "z + (1 + x | group)", "-exp(b * x)"),
+        ("nl(exp(b * x) - 1) + z", "z", "exp(b * x) - 1"),
+        ("nl(exp(b * x) + x) - log1p(b ** 2) + z", "z", "exp(b * x) + x - log1p(b**2)"),
+        ("(exp(b * x) + x) + z", "x + z", "exp(b * x)"),
+        ("0 + nl(b * x) + x:z", "0 + x:z", "b * x"),
+        ("nl(b * x) - 1", "-1", "b * x"),
+        ("nl(x + 1)", "1", "x + 1"),
+        ("a + b * x", None, "a + b * x"),
+        ("a + b * x + 2", None, "a + b * x + 2"),
+        ("a + b * x - 0.5", None, "a + b * x - 0.5"),
+        ("a * x + 1e-3", None, "a * x + 1e-3"),
+        ("nl(a * x + 1e-3) + z", "z", "a * x + 1e-3"),
+        ("(nl(b * x) + (1 | group))", "(1 | group)", "b * x"),
+    ],
+)
+def test_split_additive_and_nonlinear_predictor(source, additive, expression):
+    actual_additive, actual_expression = split_predictor(source, ("a", "b"))
+    if additive is None:
+        assert actual_additive is None
+    else:
+        assert actual_additive.replace(" ", "") == additive.replace(" ", "")
+    values = {"a": 0.5, "b": 0.3, "x": pt.as_tensor_variable([0.2, 0.8])}
+    actual = evaluate_expression(actual_expression.root, values).eval()
+    expected = evaluate_expression(NonlinearExpression.parse(expression).root, values).eval()
+    np.testing.assert_allclose(actual, expected)
+
+
+@pytest.mark.parametrize(
+    "source", ["nl()", "nl(a, x)", "nl(a=x)", "2 * nl(a*x)", "nl(a*x):z", "nl(nl(a*x))"]
+)
+def test_invalid_nl_wrapper(source):
+    with pytest.raises(ValueError):
+        split_predictor(source, ("a",))
+
+
+def test_nl_wrapper_accepts_underscore_marginal_coefficient():
+    model = bmb.Model(bmb.Formula("y ~ 0 + nl(_a * x)", nlpars=("_a",)), linear_data())
+    model.build()
+    assert "_a" in model.backend.model.named_vars

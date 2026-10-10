@@ -4,6 +4,8 @@ from typing import Sequence
 
 import formulae as fm
 
+from bambi.nonlinear import has_nl_wrapper
+
 
 class Formula:
     """Model formula
@@ -19,15 +21,22 @@ class Formula:
     *additionals : tuple of str
         Additional formulas that describe model parameters rather than a response variable.
     nlpars : list or tuple of str, optional
-        Names of coefficients used in nonlinear expressions. Formulas that reference modeled
-        parameters use nonlinear expression syntax; other formulas retain ordinary Formulae
-        syntax. An additional formula can describe how a nonlinear coefficient varies. Coefficients
+        Names of coefficients used in nonlinear expressions. Terms that reference modeled
+        parameters use arithmetic syntax; other terms retain ordinary Formulae syntax.
+        Use ``nl(expression)`` to add an arithmetic expression directly to the predictor,
+        without an estimated multiplier. For example, ``y ~ nl(exp(b * x) + x) + treatment``
+        estimates ``b`` and the usual intercept and treatment effects, but uses ``x`` directly
+        inside the wrapper. Use ``0 + nl(expression)`` to omit the additive intercept.
+        Parentheses outside ``nl`` retain ordinary formula grouping semantics.
+        A formula consisting entirely of unwrapped arithmetic terms and numeric constants
+        retains its expression-only interpretation, with no implicit intercept.
+        An additional formula can describe how a nonlinear coefficient varies. Coefficients
         without an additional formula, or with an intercept-only formula, have a direct prior
         and are sampled under their own names.
         Additional formulas can also describe ordinary auxiliary likelihood parameters,
         such as `sigma ~ z`.
         The expression is on the parent parameter's link scale. The family's inverse link is
-        applied once to the complete expression. An additional formula that references a modeled
+        applied once to the complete predictor. An additional formula that references a modeled
         parameter is also treated as a nonlinear expression and evaluated after its dependencies;
         these dependent expressions define their parameter on the response scale. Separately
         modeled nonlinear coefficients use identity links.
@@ -38,6 +47,11 @@ class Formula:
 
     >>> Formula("y ~ a + b * exp(-k * x)", "a ~ 1 + z", nlpars=("a", "b", "k"))
     Formula('y ~ a + b * exp(-k * x)', 'a ~ 1 + z', nlpars=('a', 'b', 'k'))
+
+    Combine a nonlinear contribution with ordinary additive effects:
+
+    >>> Formula("y ~ nl(exp(b * x) + x) + treatment", nlpars=("b",))
+    Formula('y ~ nl(exp(b * x) + x) + treatment', nlpars=('b',))
     """
 
     def __init__(
@@ -46,14 +60,20 @@ class Formula:
         self.nlpars = self._check_nlpars(nlpars)
         self.additionals_lhs = []
         self.main = formula
-        self.additionals = self.check_additionals(additionals)
+        self.additionals = additionals
+        self.check_additionals(additionals)
 
-        if self.nlpars:
+        if self.is_nonlinear:
             duplicates = {
                 name for name in self.additionals_lhs if self.additionals_lhs.count(name) > 1
             }
             if duplicates:
                 raise ValueError(f"Duplicate parameter formula(s): {sorted(duplicates)}.")
+
+    @property
+    def is_nonlinear(self):
+        """Whether the formulas declare nonlinear coefficients or explicit contributions."""
+        return bool(self.nlpars) or any(has_nl_wrapper(f) for f in self.get_all_formulas())
 
     @staticmethod
     def _check_nlpars(
@@ -111,7 +131,7 @@ class Formula:
             If the response term is not a plain name.
         """
         lhs, separator, _ = additional.partition("~")
-        response_formula = f"{lhs} ~ 1" if self.nlpars and separator else additional
+        response_formula = f"{lhs} ~ 1" if self.is_nonlinear and separator else additional
         response = fm.model_description(response_formula).response
 
         # There's a response in the formula

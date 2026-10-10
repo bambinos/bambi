@@ -58,7 +58,7 @@ class MarginalCoefficient(Marginal):
 
 
 class Conditional(ABC):
-    """A quantity defined by an additive design or a nonlinear expression.
+    """A quantity defined by additive terms, a nonlinear expression, or both.
 
     Predictor terms, priors, and coefficient ownership are shared by observational-model
     parameters and nonlinear coefficients. Only parameters can be the likelihood parent.
@@ -68,13 +68,13 @@ class Conditional(ABC):
     name : str
         Original quantity name.
     design : formulae.matrices.DesignMatrices or None
-        Additive design matrices, or ``None`` for an expression-defined quantity.
+        Additive design matrices, or ``None`` when there are no additive terms.
     priors : dict
         Priors for terms in an additive design.
     spec : Model
         Model specification that owns the quantity.
     expression : NonlinearExpression or None, optional
-        Expression defining the quantity, or ``None`` for an additive design.
+        Arithmetic contribution to the predictor, or ``None`` for an additive design.
     data_names : Collection of str, optional
         Observed data columns referenced directly by the expression.
     nonlinear_coefficients : dict, optional
@@ -105,10 +105,9 @@ class Conditional(ABC):
         self.data_names = tuple(data_names)
         self.nonlinear_coefficients = nonlinear_coefficients or {}
 
-        if (design is None) == (expression is None):
+        if design is None and expression is None:
             raise ValueError(
-                "A conditional quantity must have either an additive design or a nonlinear "
-                "expression."
+                "A conditional quantity must have an additive design or a nonlinear expression."
             )
 
         if self.design is not None and self.design.common:
@@ -131,12 +130,12 @@ class Conditional(ABC):
 
     @property
     def is_nonlinear(self):
-        """Whether this parameter is defined by a nonlinear expression.
+        """Whether this quantity includes a nonlinear expression.
 
         Returns
         -------
         bool
-            ``True`` for expression-defined parameters and ``False`` for additive parameters.
+            ``True`` when the predictor includes an arithmetic contribution.
 
         Examples
         --------
