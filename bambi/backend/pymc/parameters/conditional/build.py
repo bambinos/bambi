@@ -39,10 +39,109 @@ def build_conditional_parameter(
     model: pm.Model,
 ) -> pt.Variable:
     parameter = parameter_info.parameter
-    value = 0
     param_spec = family.get_param_spec(parameter.name)
     link = family.link[parameter.name]
     inverse_link = INVERSE_LINKS.get(link.name, link.inverse_link)
+    transform_predictor = transforms_registry.get_predictor_transform(family, parameter.name)
+    transform_parameters = {}
+    if transform_predictor:
+        transform_parameters = {
+            name: model[name] for name in family.likelihood.params if name != parameter.name
+        }
+    return build_additive_parameter(
+        parameter_info,
+        param_spec,
+        inverse_link,
+        transform_predictor,
+        transform_parameters,
+        group_specific_state,
+        model,
+    )
+
+
+def build_nonlinear_coefficient(
+    parameter_info: ConditionalParameterInfo,
+    group_specific_state: GroupSpecificGraphState,
+    model: pm.Model,
+) -> pt.Variable:
+    """Build an additive coefficient used by a nonlinear expression.
+
+    Parameters
+    ----------
+    parameter_info : ConditionalParameterInfo
+        Description of the coefficient and its terms.
+    group_specific_state : GroupSpecificGraphState
+        State shared by group-specific coefficient terms.
+    model : pymc.Model
+        PyMC model that owns the coefficient.
+
+    Returns
+    -------
+    pytensor.tensor.variable.TensorVariable
+        Coefficient value on its untransformed scale.
+
+    Examples
+    --------
+    ``Model.build()`` uses this function to create the graph variable ``a`` for
+    ``Formula("y ~ a * x", "a ~ 1 + z", nlpars=("a",))``.
+    """
+    param_spec = ParamSpec(links=["identity"])
+    return build_additive_parameter(
+        parameter_info,
+        param_spec,
+        INVERSE_LINKS["identity"],
+        None,
+        {},
+        group_specific_state,
+        model,
+    )
+
+
+def build_additive_parameter(
+    parameter_info: ConditionalParameterInfo,
+    param_spec: ParamSpec,
+    inverse_link,
+    transform_predictor,
+    transform_parameters,
+    group_specific_state: GroupSpecificGraphState,
+    model: pm.Model,
+) -> pt.Variable:
+    parameter = parameter_info.parameter
+    value = build_additive_predictor(parameter_info, param_spec, group_specific_state, model)
+
+    if transform_predictor:
+        value = transform_predictor(value, transform_parameters, inverse_link)
+    else:
+        value = inverse_link(value)
+
+    coords = model.__bambi_attrs__["response_coords_data"]
+    if param_spec.ndim > 0:
+        coords = coords | model.__bambi_attrs__["response_coords"]
+
+    dims = tuple(coords)
+    only_intercept = (
+        parameter.intercept_term
+        and not parameter.common_terms
+        and not parameter.group_specific_terms
+        and not parameter.offset_terms
+        and not parameter.hsgp_terms
+        and not parameter.smooth_terms
+    )
+    value = pt.as_tensor_variable(value)
+    if value.ndim < len(dims) or only_intercept:
+        value = pt.broadcast_to(value, tuple(model.dim_lengths[dim] for dim in dims))
+    return pm.Deterministic(parameter.label, value, dims=dims, model=model)
+
+
+def build_additive_predictor(
+    parameter_info: ConditionalParameterInfo,
+    param_spec: ParamSpec,
+    group_specific_state: GroupSpecificGraphState,
+    model: pm.Model,
+) -> pt.Variable:
+    """Build the sum of formula terms before applying a parameter's inverse link."""
+    parameter = parameter_info.parameter
+    value = 0
     center_predictors = parameter.intercept_term and parameter.center_predictors
 
     if parameter_info.common_terms or parameter.intercept_term:
@@ -72,31 +171,7 @@ def build_conditional_parameter(
         data, param = build_smooth_term(term_info, param_spec, model)
         value += pt.dot(data, param)
 
-    # NOTE: If one parameter requires the other, ake sure they're built in the right order.
-    transform_predictor = transforms_registry.get_predictor_transform(family, parameter.name)
-    if transform_predictor:
-        parameters = {
-            name: model[name] for name in family.likelihood.params if name != parameter.name
-        }
-        value = transform_predictor(value, parameters, inverse_link)
-    else:
-        value = inverse_link(value)
-
-    coords = model.__bambi_attrs__["response_coords_data"]
-    if param_spec.ndim > 0:
-        coords = coords | model.__bambi_attrs__["response_coords"]
-
-    dims = tuple(coords)
-    only_intercept = (
-        parameter.intercept_term
-        and not parameter.common_terms
-        and not parameter.group_specific_terms
-        and not parameter.offset_terms
-        and not parameter.hsgp_terms
-    )
-    if value.ndim < len(dims) or only_intercept:
-        value = pt.broadcast_to(value, tuple(model.dim_lengths[dim] for dim in dims))
-    return pm.Deterministic(parameter.label, value, dims=dims, model=model)
+    return value
 
 
 _ENSURE_NDIM_MAPPING = {

@@ -1,10 +1,14 @@
+from abc import ABC, abstractmethod
+
 from bambi.defaults import get_default_prior
 from bambi.priors.prior import Prior
 from bambi.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, OffsetTerm, SmoothTerm
 from bambi.utils import is_hsgp_term, is_smooth_term
 
 
-class MarginalParameter:
+class Marginal(ABC):
+    """A modeled quantity with a direct prior and no covariate formula."""
+
     def __init__(self, name, prior, spec):
         self.alias = None
         self.name = name
@@ -18,24 +22,127 @@ class MarginalParameter:
     def update_priors(self, value):
         self.prior = value
 
+    @property
+    @abstractmethod
+    def default_prior(self):
+        """Prior used when no explicit prior is supplied."""
 
-class ConditionalParameter:
-    def __init__(self, name, design, priors, spec, is_parent):
+    def build_priors(self):
+        if isinstance(self.prior, Prior):
+            self.prior.auto_scale = False
+        elif isinstance(self.prior, (int, float)):
+            return
+        elif self.prior is not None:
+            raise ValueError(f"'{self.prior}' is not a valid prior.")
+        else:
+            self.prior = self.default_prior
+            if self.prior is None:
+                raise ValueError(f"The parameter '{self.name}' needs a prior.")
+
+
+class MarginalParameter(Marginal):
+    """An observational-model parameter with a direct prior."""
+
+    @property
+    def default_prior(self):
+        return self.spec.family.default_priors.get(self.name)
+
+
+class MarginalCoefficient(Marginal):
+    """A scalar nonlinear coefficient with a direct prior."""
+
+    @property
+    def default_prior(self):
+        kind = "common" if self.spec.auto_scale else "common_flat"
+        return get_default_prior(kind)
+
+
+class Conditional(ABC):
+    """A quantity defined by additive terms, a nonlinear expression, or both.
+
+    Predictor terms, priors, and coefficient ownership are shared by observational-model
+    parameters and nonlinear coefficients. Only parameters can be the likelihood parent.
+
+    Parameters
+    ----------
+    name : str
+        Original quantity name.
+    design : formulae.matrices.DesignMatrices or None
+        Additive design matrices, or ``None`` when there are no additive terms.
+    priors : dict
+        Priors for terms in an additive design.
+    spec : Model
+        Model specification that owns the quantity.
+    expression : NonlinearExpression or None, optional
+        Arithmetic contribution to the predictor, or ``None`` for an additive design.
+    data_names : Collection of str, optional
+        Observed data columns referenced directly by the expression.
+    nonlinear_coefficients : dict, optional
+        Shared coefficient objects referenced directly by the expression.
+    """
+
+    @property
+    @abstractmethod
+    def prefix(self):
+        """Prefix for the quantity's term names."""
+
+    def __init__(
+        self,
+        name,
+        design,
+        priors,
+        spec,
+        expression=None,
+        data_names=(),
+        nonlinear_coefficients=None,
+    ):
         self.terms = {}
         self.alias = None
         self.name = name
         self.design = design
         self.spec = spec
-        self.is_parent = is_parent
-        self.prefix = "" if is_parent else name
+        self.expression = expression
+        self.data_names = tuple(data_names)
+        self.nonlinear_coefficients = nonlinear_coefficients or {}
 
-        if self.design.common:
+        if design is None and expression is None:
+            raise ValueError(
+                "A conditional quantity must have an additive design or a nonlinear expression."
+            )
+
+        if self.design is not None and self.design.common:
             self.add_common_terms(priors)
             self.add_hsgp_terms(priors)
             self.add_smooth_terms(priors)
 
-        if self.design.group:
+        if self.design is not None and self.design.group:
             self.add_group_specific_terms(priors)
+
+    @classmethod
+    def from_design(cls, name, design, priors, spec, **kwargs):
+        """Create a conditional quantity backed by additive design matrices."""
+        return cls(name, design, priors, spec, **kwargs)
+
+    @classmethod
+    def from_expression(cls, name, expression, data_names, spec, **kwargs):
+        """Create a conditional quantity backed by a nonlinear expression."""
+        return cls(name, None, {}, spec, expression=expression, data_names=data_names, **kwargs)
+
+    @property
+    def is_nonlinear(self):
+        """Whether this quantity includes a nonlinear expression.
+
+        Returns
+        -------
+        bool
+            ``True`` when the predictor includes an arithmetic contribution.
+
+        Examples
+        --------
+        ``model.conditional_parameters["mu"].is_nonlinear`` distinguishes a nonlinear parent
+        from one constructed with an ordinary additive formula.
+        """
+        return self.expression is not None
 
     @property
     def label(self):
@@ -182,3 +289,23 @@ class ConditionalParameter:
     @property
     def smooth_terms(self):
         return {name: term for name, term in self.terms.items() if isinstance(term, SmoothTerm)}
+
+
+class ConditionalParameter(Conditional):
+    """An observational-model parameter defined by a formula."""
+
+    def __init__(self, name, design, priors, spec, is_parent, **kwargs):
+        self.is_parent = is_parent
+        super().__init__(name, design, priors, spec, **kwargs)
+
+    @property
+    def prefix(self):
+        return "" if self.is_parent else self.name
+
+
+class ConditionalCoefficient(Conditional):
+    """A nonlinear coefficient defined by covariates or other modeled quantities."""
+
+    @property
+    def prefix(self):
+        return self.name
