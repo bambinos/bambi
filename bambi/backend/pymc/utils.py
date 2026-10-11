@@ -83,6 +83,174 @@ class LogLogistic:
         )
 
 
+def _interior_beta_logp(value, mu, kappa):
+    """Log-density of the interior Beta(mu * kappa, (1 - mu) * kappa) component.
+
+    Boundary values are replaced by 0.5 so that neither the value nor the gradient are infinite
+    or undefined. The caller must discard the result at the boundaries.
+    """
+    is_interior = pt.gt(value, 0) & pt.lt(value, 1)
+    value = pt.switch(is_interior, value, 0.5)
+    return pm.logp(pm.Beta.dist(alpha=mu * kappa, beta=(1 - mu) * kappa), value)
+
+
+def _sigmoid_logit_shift(p, shift):
+    """Compute sigmoid(logit(p) - shift) without computing logit(p), so it is finite at 0 and 1."""
+    return p / (p + (1 - p) * np.exp(shift))
+
+
+def _mu_support_point(size, mu, *params):
+    """Return mu broadcasted with the other parameters, a finite point in the support."""
+    point = mu
+    for param in params:
+        point = point + pt.zeros_like(param)
+    if not rv_size_is_none(size):
+        point = pt.full(size, point)
+    return point
+
+
+def ordered_beta_logp(value, mu, kappa, c0, c1):
+    """Log-probability of the ordered beta distribution."""
+    eta = pt.log(mu) - pt.log1p(-mu)
+    # P(Y = 0) = 1 - sigmoid(eta - c0) and P(Y = 1) = sigmoid(eta - c1)
+    log_p0 = pt.log(pt.sigmoid(c0 - eta))
+    log_p1 = pt.log(pt.sigmoid(eta - c1))
+    log_interior = pt.log(pt.sigmoid(eta - c0) - pt.sigmoid(eta - c1))
+    log_interior = log_interior + _interior_beta_logp(value, mu, kappa)
+    logp = pt.switch(pt.eq(value, 0), log_p0, pt.switch(pt.eq(value, 1), log_p1, log_interior))
+    return check_parameters(logp, kappa > 0, c0 < c1, msg="kappa > 0, c0 < c1")
+
+
+def ordered_beta_random(mu, kappa, c0, c1, rng=None, size=None):
+    """Draw ordered beta variates."""
+    mu, kappa, c0, c1 = np.broadcast_arrays(mu, kappa, c0, c1)
+    if size is None:
+        size = mu.shape
+    p0 = 1 - _sigmoid_logit_shift(mu, c0)
+    p1 = _sigmoid_logit_shift(mu, c1)
+    interior = rng.beta(mu * kappa, (1 - mu) * kappa, size=size)
+    u = rng.uniform(size=size)
+    draws = np.where(u < p0, 0.0, interior)
+    return np.where(u > 1 - p1, 1.0, draws)
+
+
+def ordered_beta_support_point(_rv, size, mu, kappa, c0, c1):
+    """Return mu, a finite point in the distribution support."""
+    return _mu_support_point(size, mu, kappa, c0, c1)
+
+
+class OrderedBeta:
+    """Ordered beta distribution parameterized by mean, sample size, and two cutpoints.
+
+    `P(Y = 0) = 1 - sigmoid(logit(mu) - c0)`, `P(Y = 1) = sigmoid(logit(mu) - c1)`, and the
+    remaining probability is spread on the interior as a Beta(mu * kappa, (1 - mu) * kappa).
+    The cutpoints must satisfy `c0 < c1`.
+    """
+
+    def __new__(cls, name, mu, kappa, c0, c1, **kwargs):
+        return pm.CustomDist(
+            name,
+            mu,
+            kappa,
+            c0,
+            c1,
+            random=ordered_beta_random,
+            logp=ordered_beta_logp,
+            support_point=ordered_beta_support_point,
+            signature="(),(),(),()->()",
+            class_name=cls.__name__,
+            **kwargs,
+        )
+
+    @classmethod
+    def dist(cls, mu, kappa, c0, c1, **kwargs):
+        return pm.CustomDist.dist(
+            mu,
+            kappa,
+            c0,
+            c1,
+            random=ordered_beta_random,
+            logp=ordered_beta_logp,
+            support_point=ordered_beta_support_point,
+            signature="(),(),(),()->()",
+            class_name=cls.__name__,
+            **kwargs,
+        )
+
+
+def zero_one_inflated_beta_logp(value, mu, kappa, zoi, coi):
+    """Log-probability of the zero-one-inflated beta distribution."""
+    # P(Y = 0) = zoi * (1 - coi) and P(Y = 1) = zoi * coi
+    log_p0 = pt.log(zoi) + pt.log1p(-coi)
+    log_p1 = pt.log(zoi) + pt.log(coi)
+    log_interior = pt.log1p(-zoi) + _interior_beta_logp(value, mu, kappa)
+    logp = pt.switch(pt.eq(value, 0), log_p0, pt.switch(pt.eq(value, 1), log_p1, log_interior))
+    return check_parameters(
+        logp,
+        kappa > 0,
+        zoi >= 0,
+        zoi <= 1,
+        coi >= 0,
+        coi <= 1,
+        msg="kappa > 0, 0 <= zoi <= 1, 0 <= coi <= 1",
+    )
+
+
+def zero_one_inflated_beta_random(mu, kappa, zoi, coi, rng=None, size=None):
+    """Draw zero-one-inflated beta variates."""
+    mu, kappa, zoi, coi = np.broadcast_arrays(mu, kappa, zoi, coi)
+    if size is None:
+        size = mu.shape
+    interior = rng.beta(mu * kappa, (1 - mu) * kappa, size=size)
+    is_boundary = rng.uniform(size=size) < zoi
+    is_one = rng.uniform(size=size) < coi
+    return np.where(is_boundary, np.where(is_one, 1.0, 0.0), interior)
+
+
+def zero_one_inflated_beta_support_point(_rv, size, mu, kappa, zoi, coi):
+    """Return mu, a finite point in the distribution support."""
+    return _mu_support_point(size, mu, kappa, zoi, coi)
+
+
+class ZeroOneInflatedBeta:
+    """Zero-one-inflated beta distribution parameterized by mean, sample size, and inflation.
+
+    `zoi` is the probability of a value at the boundaries and `coi` is the probability that such
+    a value is 1. The remaining probability `1 - zoi` is spread on the interior as a
+    Beta(mu * kappa, (1 - mu) * kappa).
+    """
+
+    def __new__(cls, name, mu, kappa, zoi, coi, **kwargs):
+        return pm.CustomDist(
+            name,
+            mu,
+            kappa,
+            zoi,
+            coi,
+            random=zero_one_inflated_beta_random,
+            logp=zero_one_inflated_beta_logp,
+            support_point=zero_one_inflated_beta_support_point,
+            signature="(),(),(),()->()",
+            class_name=cls.__name__,
+            **kwargs,
+        )
+
+    @classmethod
+    def dist(cls, mu, kappa, zoi, coi, **kwargs):
+        return pm.CustomDist.dist(
+            mu,
+            kappa,
+            zoi,
+            coi,
+            random=zero_one_inflated_beta_random,
+            logp=zero_one_inflated_beta_logp,
+            support_point=zero_one_inflated_beta_support_point,
+            signature="(),(),(),()->()",
+            class_name=cls.__name__,
+            **kwargs,
+        )
+
+
 def get_dist_args(dist: pm.Distribution) -> list[str]:
     """Get the argument names of a PyMC distribution
 
@@ -245,8 +413,10 @@ MAPPING = {
     "CureWeibull": CureWeibull,
     "Horseshoe": horseshoe,
     "LogLogistic": LogLogistic,
+    "OrderedBeta": OrderedBeta,
     "OrderedStereotype": pm.Categorical,
     "StoppingRatio": pm.Categorical,
+    "ZeroOneInflatedBeta": ZeroOneInflatedBeta,
 }
 
 INVERSE_LINKS = {

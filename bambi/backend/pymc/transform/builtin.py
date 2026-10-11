@@ -19,10 +19,12 @@ from bambi.families.builtin import (
     Gamma,
     HurdleGamma,
     Multinomial,
+    OrderedBeta,
     OrderedStereotype,
     StoppingRatio,
     Weibull,
     WeibullPH,
+    ZeroOneInflatedBeta,
 )
 
 
@@ -180,6 +182,23 @@ def _(predictor, _parameters, inverse_link):
     return inverse_link(pt.concatenate((zeros, predictor), axis=-1))
 
 
+@transforms_registry.transform_parameters(OrderedBeta)
+def _(parameters):
+    # Cutpoints are sampled unconstrained. The exponential guarantees c0 < c1.
+    cut0 = parameters["cut0"]
+    return {
+        "mu": parameters["mu"],
+        "kappa": parameters["kappa"],
+        "c0": cut0,
+        "c1": cut0 + pt.exp(parameters["logdelta"]),
+    }
+
+
+@transforms_registry.transform_data(OrderedBeta)
+def _(data):
+    return _check_unit_interval(data, "ordered_beta")
+
+
 @transforms_registry.transform_predictor(OrderedStereotype, "p")
 def _(predictor, parameters, _inverse_link):
     # Positive increments summing to one give 0 = phi_1 < ... < phi_C = 1.
@@ -295,3 +314,14 @@ def _(parameters):
         "beta": parameters["lam"] ** (-1 / parameters["alpha"]),
         "cure": parameters["cure"],
     }
+
+
+@transforms_registry.transform_data(ZeroOneInflatedBeta)
+def _(data):
+    return _check_unit_interval(data, "zero_one_inflated_beta")
+
+
+def _check_unit_interval(data, family_name):
+    if not np.all((data >= 0) & (data <= 1)):
+        raise ValueError(f"Numeric response must be within [0, 1] for '{family_name}' family")
+    return {"observed": data}
