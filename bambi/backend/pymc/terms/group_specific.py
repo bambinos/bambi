@@ -30,7 +30,7 @@ def build_group_specific_term_dot(
     dims_output = tuple()
     if param_spec.ndim > 0:
         if param_spec.coefs_dim == "response":
-            dims_output = tuple(model.__bambi_attrs__["response_coordsd"])
+            dims_output = tuple(model.__bambi_attrs__["response_coords"])
         elif param_spec.coefs_dim == "response_reduced":
             dims_output = tuple(model.__bambi_attrs__["response_coords_reduced"])
 
@@ -92,7 +92,7 @@ def build_group_specific_term_idx(
     dims_output = tuple()
     if param_spec.ndim > 0:
         if param_spec.coefs_dim == "response":
-            dims_output = tuple(model.__bambi_attrs__["response_coordsd"])
+            dims_output = tuple(model.__bambi_attrs__["response_coords"])
         elif param_spec.coefs_dim == "response_reduced":
             dims_output = tuple(model.__bambi_attrs__["response_coords_reduced"])
 

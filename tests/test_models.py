@@ -1,19 +1,35 @@
 import pathlib
-import re
 
-import pytest
-
-import bambi as bmb
 import numpy as np
 import pandas as pd
 import pymc as pm
+import pytensor.tensor as pt
+import pytest
 import xarray as xr
-from scipy.special import gamma
 from scipy import stats
+from scipy.special import expit, ndtr, gamma
 
+import bambi as bmb
+from bambi.parameters import MarginalCoefficient
 from bambi.terms import GroupSpecificTerm
 
-from helpers import assert_ip_dlogp
+from helpers import (
+    VECTOR_NORMAL_COV,
+    assert_ip_dlogp,
+    censored_nonlinear_data,
+    censored_nonlinear_model,
+    competing_risks_nonlinear_data,
+    exponential_formula,
+    exponential_priors,
+    join_vector_response,
+    linear_data,
+    normal_prior,
+    vector_normal_data,
+    vector_normal_family,
+    vector_student_t_family,
+    weighted_nonlinear_data,
+    weighted_nonlinear_model,
+)
 
 
 @pytest.fixture
@@ -2746,3 +2762,1832 @@ def test_mixed_coefficient_and_auxiliary_predictors():
     expected_sigma = np.exp(0.2) + 0.1 * new_data.z
     np.testing.assert_allclose(result.predictions.mu, expected_mu.to_numpy()[None, None, :])
     np.testing.assert_allclose(result.predictions.sigma, expected_sigma.to_numpy()[None, None, :])
+
+
+def test_constant_parameters_match_linear_regression():
+    data = linear_data()
+    nonlinear = bmb.Model(
+        bmb.Formula("y ~ a + b * x", nlpars=("a", "b")),
+        data,
+        priors={
+            "a": normal_prior(),
+            "b": normal_prior(),
+        },
+        center_predictors=False,
+    )
+    linear = bmb.Model(
+        "y ~ x",
+        data,
+        priors={"Intercept": normal_prior(), "x": normal_prior()},
+        center_predictors=False,
+    )
+    nonlinear.build()
+    linear.build()
+
+    nonlinear_draws = xr.Dataset(
+        {
+            "a": (("chain", "draw"), [[1.25]]),
+            "b": (("chain", "draw"), [[-0.75]]),
+            "sigma": (("chain", "draw"), [[1.0]]),
+        }
+    )
+    linear_draws = xr.Dataset(
+        {
+            "Intercept": (("chain", "draw"), [[1.25]]),
+            "x": (("chain", "draw"), [[-0.75]]),
+            "sigma": (("chain", "draw"), [[1.0]]),
+        }
+    )
+
+    with nonlinear.backend.model:
+        nonlinear_mu = pm.compute_deterministics(
+            nonlinear_draws, var_names=["mu"], progressbar=False
+        )["mu"]
+    with linear.backend.model:
+        linear_mu = pm.compute_deterministics(linear_draws, var_names=["mu"], progressbar=False)[
+            "mu"
+        ]
+
+    xr.testing.assert_allclose(nonlinear_mu, linear_mu)
+
+
+def test_omitted_constant_formulas_match_explicit_intercepts():
+    data = linear_data()
+    formulas = [
+        bmb.Formula("y ~ a + b * x", nlpars=("a", "b")),
+        bmb.Formula("y ~ a + b * x", "a ~ 1", "b ~ 1", nlpars=("a", "b")),
+    ]
+    draws = xr.Dataset(
+        {
+            "a": (("chain", "draw"), [[1.25]]),
+            "b": (("chain", "draw"), [[-0.75]]),
+            "sigma": (("chain", "draw"), [[1.0]]),
+        }
+    )
+    predictions = []
+
+    for formula in formulas:
+        model = bmb.Model(formula, data, center_predictors=False)
+        model.build()
+        with model.backend.model:
+            predictions.append(
+                pm.compute_deterministics(
+                    draws,
+                    var_names=["mu"],
+                    progressbar=False,
+                )["mu"]
+            )
+
+    xr.testing.assert_allclose(predictions[0], predictions[1])
+
+
+def test_predictor_dependent_parameter_recovers_simulated_values():
+    rng = np.random.default_rng(8)
+    size = 120
+    x = rng.uniform(0, 3, size)
+    z = rng.normal(size=size)
+    a = 0.7 + 0.4 * z
+    y = a + 1.5 * np.exp(-0.8 * x) + rng.normal(0, 0.15, size)
+    data = pd.DataFrame({"x": x, "z": z, "y": y})
+    priors = exponential_priors()
+    priors["b"] = bmb.Prior("Normal", mu=1.5, sigma=0.5)
+    priors["k"] = bmb.Prior("LogNormal", mu=np.log(0.8), sigma=0.35)
+    priors["sigma"] = bmb.Prior("HalfNormal", sigma=0.5)
+    model = bmb.Model(exponential_formula(), data, priors=priors)
+
+    idata = model.fit(
+        draws=200,
+        tune=200,
+        chains=2,
+        cores=1,
+        random_seed=11,
+        inference_method="pymc",
+        target_accept=0.9,
+    )
+
+    expected = {
+        "a_Intercept": 0.7,
+        "a_z": 0.4,
+        "b": 1.5,
+        "k": 0.8,
+    }
+    for name, value in expected.items():
+        assert float(idata.posterior[name].mean()) == pytest.approx(value, abs=0.15)
+
+    predicted = model.predict(idata, kind="response", random_seed=4, inplace=False)
+    assert predicted.posterior_predictive["y"].shape == (2, 200, size)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+def test_posterior_predictive_and_new_data():
+    data = linear_data()
+    model = bmb.Model(exponential_formula(), data, priors=exponential_priors())
+    idata = model.fit(draws=5, chains=2)
+    assert {"b", "k"} <= set(idata.posterior.data_vars)
+    assert {"a", "mu"}.isdisjoint(idata.posterior.data_vars)
+
+    predicted = model.predict(idata, kind="response", inplace=False)
+    assert predicted.posterior["mu"].shape == (2, 5, len(data))
+    assert predicted.posterior_predictive["y"].shape == (2, 5, len(data))
+
+    new_data = pd.DataFrame({"x": np.linspace(1, 2, 7), "z": np.linspace(-0.5, 0.5, 7)})
+    predicted = model.predict(idata, kind="response", data=new_data, inplace=False)
+    assert predicted.predictions["mu"].shape == (2, 5, len(new_data))
+    assert predicted.predictions["y"].shape == (2, 5, len(new_data))
+
+    with pytest.raises(ValueError, match="missing nonlinear expression column"):
+        model.predict(idata, data=new_data.drop(columns="x"), inplace=False)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+def test_include_response_params_only_keeps_likelihood_parameter():
+    model = bmb.Model(exponential_formula(), linear_data(), priors=exponential_priors())
+
+    idata = model.fit(draws=5, chains=2, include_response_params=True)
+
+    assert "mu" in idata.posterior
+    assert {"b", "k"} <= set(idata.posterior.data_vars)
+    assert {"a"}.isdisjoint(idata.posterior.data_vars)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("sparse_dot", [False, True])
+def test_group_specific_parameter_predicts_new_data(monkeypatch, sparse_dot):
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
+    data = linear_data(24)
+    data["group"] = np.repeat(["a", "b", "c"], 8)
+    formula = exponential_formula(group_specific=True)
+    model = bmb.Model(formula, data, priors=exponential_priors(group_specific=True))
+    idata = model.fit(draws=5, chains=2)
+
+    assert model.backend.model.named_vars_to_dims["a_1|group"] == ("group_dim",)
+    assert idata.posterior["a_1|group"].shape == (2, 5, 3)
+    new_data = pd.DataFrame(
+        {
+            "x": [0.1, 0.2, 0.3],
+            "group": ["a", "new", "new"],
+        }
+    )
+    predicted = model.predict(idata, data=new_data, random_seed=123, inplace=False)
+    assert predicted.predictions["mu"].shape == (2, 5, 3)
+
+
+def test_nonlinear_coefficient_alias():
+    model = bmb.Model(exponential_formula(), linear_data(), priors=exponential_priors())
+
+    model.set_alias({"a": {"Intercept": "a0"}})
+    model.build()
+    assert "a0" in model.backend.model.named_vars
+    assert "a_Intercept" not in model.backend.model.named_vars
+
+
+def ordinal_nonlinear_data():
+    return pd.DataFrame(
+        {
+            "y": pd.Categorical(
+                ["low", "mid", "high", "low", "mid", "high"],
+                categories=["low", "mid", "high"],
+                ordered=True,
+            ),
+            "x": [-1.0, -0.4, 0.0, 0.2, 0.7, 1.3],
+            "z": [0.0, 1.0, 0.2, -0.4, 0.3, 1.1],
+        }
+    )
+
+
+def ordinal_probabilities(family, eta, threshold, alpha=None, delta=None, link="logit"):
+    from scipy.special import softmax
+
+    inverse_link = ndtr if link == "probit" else expit
+    eta = np.asarray(eta)[..., None]
+    if family == "cumulative":
+        cumulative = inverse_link(threshold - eta)
+        return np.concatenate(
+            [cumulative[..., :1], np.diff(cumulative, axis=-1), 1 - cumulative[..., -1:]],
+            axis=-1,
+        )
+    if family in ("sratio", "cratio"):
+        if family == "sratio":
+            stop = inverse_link(threshold - eta)
+            survive = 1 - stop
+        else:
+            survive = inverse_link(eta - threshold)
+            stop = 1 - survive
+        survival = np.cumprod(survive, axis=-1)
+        return np.concatenate(
+            [stop[..., :1], stop[..., 1:] * survival[..., :-1], survival[..., -1:]],
+            axis=-1,
+        )
+    if family == "acat":
+        log_odds = eta - threshold
+        log_weights = np.concatenate(
+            [np.zeros_like(log_odds[..., :1]), np.cumsum(log_odds, axis=-1)], axis=-1
+        )
+        return softmax(log_weights, axis=-1)
+    phi = np.r_[0, np.cumsum(delta[:-1]), 1]
+    intercepts = np.r_[0, alpha]
+    return softmax(intercepts + eta * phi, axis=-1)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize(
+    ("family", "link"),
+    [
+        ("cumulative", "logit"),
+        ("cumulative", "probit"),
+        ("sratio", "logit"),
+        ("cratio", "logit"),
+        ("acat", "logit"),
+        ("osm", "logit"),
+    ],
+)
+def test_nonlinear_ordinal_probabilities_and_predictions(family, link):
+    data = ordinal_nonlinear_data()
+    model = bmb.Model(
+        bmb.Formula("y ~ nl(rate*x)", "rate ~ 1", nlpars=("rate",)),
+        data,
+        family=family,
+        link=link,
+    )
+    rate_value = 0.4
+    threshold_value = np.array([-0.8, 0.7])
+    alpha_value = np.array([0.2, -0.35])
+    delta_value = np.array([0.3, 0.7])
+    values = (
+        {"rate": rate_value, "alpha": alpha_value, "delta": delta_value}
+        if family == "osm"
+        else {"rate": rate_value, "threshold": threshold_value}
+    )
+    eta = rate_value * data.x.to_numpy()
+    expected = ordinal_probabilities(
+        family,
+        eta,
+        threshold_value,
+        alpha=alpha_value,
+        delta=delta_value,
+        link=link,
+    )
+    idata = model.fit(draws=3, chains=2)
+    posterior = idata.posterior.to_dataset().copy(deep=True)
+    for name, value in values.items():
+        posterior[name] = posterior[name].copy(data=np.broadcast_to(value, posterior[name].shape))
+    idata["posterior"] = posterior
+    parameter_prediction = model.predict(idata, kind="response_params", inplace=False)
+    expected_draws = np.broadcast_to(expected, (2, 3, len(data), 3))
+    np.testing.assert_allclose(parameter_prediction.posterior["p"], expected_draws)
+    assert list(model.backend.model.coords["y_dim"]) == ["low", "mid", "high"]
+    log_likelihood = model.compute_log_likelihood(idata, inplace=False)
+    expected_log_likelihood = np.log(expected_draws[:, :, np.arange(len(data)), data.y.cat.codes])
+    np.testing.assert_allclose(log_likelihood.log_likelihood["y"], expected_log_likelihood)
+    in_sample = model.predict(idata, kind="response", inplace=False, random_seed=114)
+    assert in_sample.posterior_predictive["y"].shape == (2, 3, len(data))
+    for count in (2, 1):
+        new_data = data.iloc[:count]
+        params = model.predict(idata, data=new_data[["x"]], kind="response_params", inplace=False)
+        prediction = model.predict(
+            idata, data=new_data[["x"]], kind="response", inplace=False, random_seed=114
+        )
+        np.testing.assert_allclose(params.predictions["p"], expected_draws[:, :, :count])
+        samples = prediction.predictions["y"]
+        assert samples.shape == (2, 3, count)
+        assert set(np.unique(samples)).issubset({0, 1, 2})
+        out_of_sample_log_likelihood = model.compute_log_likelihood(
+            idata, data=new_data, inplace=False
+        )
+        np.testing.assert_allclose(
+            out_of_sample_log_likelihood.log_likelihood["y"], expected_log_likelihood[:, :, :count]
+        )
+
+    if family == "cumulative" and link == "logit":
+        from bambi.interpret.effects import predictions, slopes
+
+        summary = predictions(model, idata, conditional={"x": [-0.2, 0.3]}).summary
+        assert set(summary.y_dim) == {"low", "mid", "high"}
+        np.testing.assert_allclose(summary.groupby("x").estimate.sum(), 1)
+        slope_summary = slopes(model, idata, wrt={"x": 0.2}).summary
+        assert np.isfinite(slope_summary.estimate).all()
+        np.testing.assert_allclose(slope_summary.estimate.sum(), 0, atol=1e-8)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("family", ["cumulative", "sratio", "cratio", "acat", "osm"])
+def test_nonlinear_ordinal_binary_constant_expression(family):
+    data = ordinal_nonlinear_data()
+    data = data[data.y != "high"].copy()
+    data["y"] = data.y.cat.remove_unused_categories()
+    model = bmb.Model(bmb.Formula("y ~ 0 + nl(0.4)"), data, family=family)
+    model.build()
+    backend = model.backend.model
+    values = {"alpha": np.array([0.2])} if family == "osm" else {"threshold": np.array([0.3])}
+    actual = backend.compile_fn(backend["p"], inputs=backend.free_RVs)(values)
+    expected = ordinal_probabilities(
+        family, np.full(len(data), 0.4), np.array([0.3]), alpha=np.array([0.2]), delta=np.ones(1)
+    )
+    np.testing.assert_allclose(actual, expected)
+    idata = model.fit(draws=2, chains=1, random_seed=115)
+    for count in (2, 1):
+        result = model.predict(
+            idata,
+            data=pd.DataFrame(index=range(count)),
+            kind="response",
+            inplace=False,
+            random_seed=116,
+        )
+        assert result.predictions.p.shape == (1, 2, count, 2)
+        np.testing.assert_allclose(result.predictions.p.sum(axis=-1), 1)
+        assert np.isfinite(result.predictions.p).all()
+        assert set(np.unique(result.predictions.y)).issubset({0, 1})
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("sparse_dot", [False, True])
+@pytest.mark.parametrize("family", ["cumulative", "osm"])
+def test_nonlinear_ordinal_mixed_group_prediction(monkeypatch, sparse_dot, family):
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
+    data = ordinal_nonlinear_data().assign(
+        category=pd.Categorical(["a", "b"] * 3), group=["g", "h"] * 3
+    )
+    formula = bmb.Formula(
+        "y ~ 1 + category + nl(rate*x)", "rate ~ 1 + z + (1 | group)", nlpars=("rate",)
+    )
+    with pytest.warns(UserWarning, match="intercept is omitted"):
+        model = bmb.Model(formula, data, family=family, center_predictors=False)
+    assert "Intercept" not in model.parameters["p"].terms
+    model.set_alias(
+        {
+            "p": {"p": "probability", "category": "category_effect"},
+            "rate": {"Intercept": "rate0", "z": "slope", "1|group": "group_effect"},
+        }
+    )
+    idata = model.fit(draws=3, chains=1, random_seed=117)
+    posterior = idata.posterior.to_dataset().copy(deep=True)
+    auxiliary = (
+        {"alpha": np.array([0.2, -0.35]), "delta": np.array([0.3, 0.7])}
+        if family == "osm"
+        else {"threshold": np.array([-0.8, 0.7])}
+    )
+    for name, value in auxiliary.items():
+        posterior[name] = posterior[name].copy(data=np.broadcast_to(value, posterior[name].shape))
+    idata["posterior"] = posterior
+    assert posterior.rate0.dims == ("chain", "draw")
+    assert posterior.category_effect.shape == (1, 3, 1)
+    assert posterior.group_effect.dims == ("chain", "draw", "group_dim")
+    fixed_eta = posterior.rate0.values + 0.2 * posterior.slope.values
+    additive_eta = posterior.category_effect.values[..., 0]
+    for groups in (["g", "h"], ["g"], ["new", "new"]):
+        new_data = pd.DataFrame({"x": 0.3, "z": 0.2, "category": "b", "group": groups})
+        result = model.predict(idata, data=new_data, inplace=False, random_seed=118)
+        values = result.predictions.probability.values
+        assert values.shape == (1, 3, len(groups), 3)
+        np.testing.assert_allclose(values.sum(axis=-1), 1)
+        assert (values >= 0).all()
+        if groups[0] == "new":
+            np.testing.assert_allclose(values[:, :, 0], values[:, :, 1])
+        else:
+            effects = posterior.group_effect.sel(group_dim=groups).values
+            eta = additive_eta[..., None] + (fixed_eta[..., None] + effects) * 0.3
+            expected = ordinal_probabilities(
+                family,
+                eta,
+                np.array([-0.8, 0.7]),
+                alpha=np.array([0.2, -0.35]),
+                delta=np.array([0.3, 0.7]),
+            )
+            np.testing.assert_allclose(values, expected)
+        population = model.predict(
+            idata, data=new_data, include_group_specific=False, inplace=False
+        )
+        expected = ordinal_probabilities(
+            family,
+            additive_eta[..., None] + fixed_eta[..., None] * 0.3,
+            np.array([-0.8, 0.7]),
+            alpha=np.array([0.2, -0.35]),
+            delta=np.array([0.3, 0.7]),
+        )
+        np.testing.assert_allclose(
+            population.predictions.probability, np.broadcast_to(expected, values.shape)
+        )
+
+
+def test_nonlinear_coefficient_can_depend_on_another_coefficient():
+    formula = bmb.Formula("y ~ a + b * x", "a ~ 1 + b", nlpars=("a", "b"))
+    model = bmb.Model(formula, linear_data())
+    model.build()
+    draws = xr.Dataset(
+        {
+            "b": (("chain", "draw"), [[0.25, -0.5]]),
+            "sigma": (("chain", "draw"), [[1.0, 1.0]]),
+        }
+    )
+
+    with model.backend.model:
+        actual = pm.compute_deterministics(draws, var_names=["mu"], progressbar=False)
+
+    x = xr.DataArray(linear_data().x.to_numpy(), dims="__obs__")
+    expected = 1 + draws.b + draws.b * x
+    np.testing.assert_allclose(actual.mu, expected)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("column", ["x", "z"])
+def test_prediction_rejects_incomplete_inputs(column):
+    model = bmb.Model(
+        exponential_formula(), linear_data(), priors=exponential_priors(), dropna=True
+    )
+    idata = model.fit(draws=2, chains=1)
+    data = linear_data(3).drop(columns="y")
+    data.loc[1, column] = np.nan
+    with pytest.raises(ValueError, match="incomplete rows"):
+        model.predict(idata, data=data, inplace=False)
+
+
+@pytest.mark.parametrize("auto_scale", [False, True])
+@pytest.mark.parametrize("prior", [None, bmb.Prior("Normal", mu=0.3, sigma=1.2)])
+def test_marginal_coefficient_matches_explicit_intercept_density(auto_scale, prior):
+    models = [
+        bmb.Model(
+            bmb.Formula("y ~ a * x", *additionals, nlpars=("a",)),
+            linear_data(),
+            priors={"a": prior, "sigma": 1.0},
+            auto_scale=auto_scale,
+        )
+        for additionals, prior in [
+            ((), prior),
+            (("a ~ 1",), prior),
+        ]
+    ]
+    for model in models:
+        model.build()
+    for value in (-0.5, 0.0, 1.3):
+        points = [{"a": value}, {"a": value}]
+        logps = [model.backend.model.compile_logp()(point) for model, point in zip(models, points)]
+        gradients = [
+            model.backend.model.compile_dlogp()(point) for model, point in zip(models, points)
+        ]
+        np.testing.assert_allclose(*logps)
+        np.testing.assert_allclose(*gradients)
+
+
+@pytest.mark.parametrize("prior", [normal_prior(), 0.5])
+@pytest.mark.parametrize("additionals", [(), ("a ~ 1",), ("a ~ 0 + 1",)])
+def test_marginal_coefficient_prior_alias_and_output(prior, additionals, mock_pymc_sample):
+    model = bmb.Model(
+        bmb.Formula("y ~ a * x", *additionals, nlpars=("a",)), linear_data(), priors={"a": prior}
+    )
+    coefficient = model.parameters["mu"].nonlinear_coefficients["a"]
+    assert isinstance(coefficient, MarginalCoefficient)
+    model.set_alias({"a": "slope"})
+    model.build()
+    assert "slope" in str(model)
+    assert "a_Intercept" not in model.backend.model.named_vars
+    assert model.backend.model["slope"].ndim == 0
+    prior_draws = model.backend.prior_predictive(draws=3, prior_only=True, random_seed=123)
+    assert "slope" in prior_draws.prior
+    posterior = model.fit(draws=3, chains=1, random_seed=123)
+    assert "slope" in posterior.posterior
+    model.set_priors({"a": bmb.Prior("Normal", mu=0.7, sigma=0.2)})
+    assert coefficient.prior.args == {"mu": 0.7, "sigma": 0.2}
+    model.build()
+    assert "slope" in model.backend.model.named_vars
+
+
+def test_nl_wrapper_accepts_underscore_marginal_coefficient():
+    model = bmb.Model(bmb.Formula("y ~ 0 + nl(_a * x)", nlpars=("_a",)), linear_data())
+    model.build()
+    assert "_a" in model.backend.model.named_vars
+
+
+def test_nonlinear_weighted_response_matches_manual_logp():
+    from scipy.stats import halfnorm, norm
+
+    data = weighted_nonlinear_data()
+    model = weighted_nonlinear_model(data)
+    model.build()
+    point = {"a_Intercept": 0.3, "a_z": -0.2, "b": 1.1, "sigma_log__": np.log(1.2)}
+    sigma = np.exp(point["sigma_log__"])
+    mu = point["a_Intercept"] + point["a_z"] * data.z.to_numpy() + point["b"] * data.x.to_numpy()
+
+    actual_mu = model.backend.model.compile_fn(
+        model.backend.model["mu"],
+        inputs=[model.backend.model[name] for name in ("a_Intercept", "a_z", "b")],
+    )({name: point[name] for name in ("a_Intercept", "a_z", "b")})
+    np.testing.assert_allclose(actual_mu, mu)
+
+    expected = np.sum(data.w * norm.logpdf(data.y, loc=mu, scale=sigma))
+    expected += sum(
+        norm.logpdf(point[name], loc=0, scale=2) for name in ("a_Intercept", "a_z", "b")
+    )
+    expected += halfnorm.logpdf(sigma, scale=1) + np.log(sigma)
+    np.testing.assert_allclose(model.backend.model.compile_logp()(point), expected)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+def test_nonlinear_weighted_prediction_and_log_likelihood():
+    model = weighted_nonlinear_model()
+    idata = model.fit(draws=3, chains=1, random_seed=106)
+    new_data = pd.DataFrame({"x": [0.2, -0.4], "z": [0.5, -1.0]})
+
+    predictions = model.predict(
+        idata, data=new_data, kind="response", inplace=False, random_seed=107
+    )
+    weighted_predictions = model.predict(
+        idata, data=new_data.assign(w=[0.25, 4.0]), kind="response", inplace=False, random_seed=107
+    )
+    np.testing.assert_array_equal(
+        predictions.predictions[model.response_term.label],
+        weighted_predictions.predictions[model.response_term.label],
+    )
+    assert predictions.predictions["mu"].shape == (1, 3, 2)
+    assert predictions.predictions[model.response_term.label].shape == (1, 3, 2)
+    single = model.predict(idata, data=new_data.iloc[:1], kind="response", inplace=False)
+    assert single.predictions["mu"].shape == (1, 3, 1)
+
+    observed = new_data.assign(y=[0.1, -0.3], w=[0.25, 4.0])
+    likelihood = model.compute_log_likelihood(idata, data=observed, inplace=False)
+    assert likelihood.log_likelihood[model.response_term.label].shape == (1, 3, 2)
+    pointwise = likelihood.log_likelihood[model.response_term.label].values.copy()
+    assert np.isfinite(pointwise).all()
+
+    unit_weights = model.compute_log_likelihood(
+        idata, data=observed.drop(columns="w"), inplace=False
+    )
+    np.testing.assert_allclose(
+        pointwise / unit_weights.log_likelihood[model.response_term.label].values,
+        np.broadcast_to(observed.w.to_numpy(), pointwise.shape),
+    )
+    np.testing.assert_array_equal(
+        model.backend.model["w_data"].get_value(), weighted_nonlinear_data().w.to_numpy()
+    )
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("training_status", ["left", "right"])
+def test_nonlinear_censored_prediction_and_new_status_log_likelihood(training_status):
+    data = censored_nonlinear_data(("none", training_status, "none", training_status))
+    model = censored_nonlinear_model(data)
+    model.set_alias({"y": "outcome"})
+    idata = model.fit(draws=3, chains=1, random_seed=107)
+    in_sample = model.predict(idata, kind="response", inplace=False)
+    assert in_sample.posterior_predictive[model.response_term.label].shape == (1, 3, 4)
+    assert in_sample.posterior["mu"].shape == (1, 3, 4)
+
+    new_data = pd.DataFrame({"x": [0.2, -0.4], "z": [0.5, -1.0]})
+    predictions = model.predict(idata, data=new_data, kind="response", inplace=False)
+    assert predictions.predictions["mu"].shape == (1, 3, 2)
+    assert predictions.predictions[model.response_term.label].shape == (1, 3, 2)
+    single = model.predict(idata, data=new_data.iloc[:1], kind="response", inplace=False)
+    assert single.predictions[model.response_term.label].shape == (1, 3, 1)
+    assert single.predictions["mu"].shape == (1, 3, 1)
+
+    conditional_data = new_data.assign(y=[0.2, -0.3], status=["left", "right"])
+    with pytest.raises(ValueError, match="Conditional censored-response predictions require"):
+        model.predict(idata, data=new_data, kind="response_conditional", inplace=False)
+    conditional = model.predict(
+        idata, data=conditional_data, kind="response_conditional", inplace=False
+    )
+    draws = conditional.predictions[model.response_term.label].to_numpy()
+    assert (draws[..., 0] <= conditional_data.y.iloc[0]).all()
+    assert (draws[..., 1] >= conditional_data.y.iloc[1]).all()
+    conditional_single = model.predict(
+        idata, data=conditional_data.iloc[:1], kind="response_conditional", inplace=False
+    )
+    conditional_single_draws = conditional_single.predictions[model.response_term.label].to_numpy()
+    assert conditional_single_draws.shape == (1, 3, 1)
+    assert (conditional_single_draws[..., 0] <= conditional_data.y.iloc[0]).all()
+    np.testing.assert_array_equal(
+        model.backend.model["status_data"].get_value(), model.response_term.data[:, 1]
+    )
+
+    from scipy.stats import norm
+
+    observed = pd.DataFrame(
+        {
+            "x": [0.2, -0.4, 0.7],
+            "z": [0.5, -1.0, 0.2],
+            "y": [0.2, -0.3, 0.8],
+            "status": ["left", "right", "none"],
+        }
+    )
+    likelihood = model.compute_log_likelihood(idata, data=observed, inplace=False)
+    actual = likelihood.log_likelihood[model.response_term.label].to_numpy()
+    likelihood_prediction = model.predict(
+        idata, data=observed.drop(columns=["y", "status"]), kind="response", inplace=False
+    )
+    posterior = idata.posterior
+    mu = (
+        posterior["a_Intercept"].to_numpy()[..., None]
+        + posterior["a_z"].to_numpy()[..., None] * observed.z.to_numpy()
+        + posterior["rate"].to_numpy()[..., None] * observed.x.to_numpy()
+    )
+    np.testing.assert_allclose(likelihood_prediction.predictions["mu"], mu)
+    sigma = idata.posterior["sigma"].to_numpy()[..., None]
+    expected = np.where(
+        observed.status.to_numpy() == "left",
+        norm.logcdf(observed.y.to_numpy(), loc=mu, scale=sigma),
+        np.where(
+            observed.status.to_numpy() == "right",
+            norm.logsf(observed.y.to_numpy(), loc=mu, scale=sigma),
+            norm.logpdf(observed.y.to_numpy(), loc=mu, scale=sigma),
+        ),
+    )
+    np.testing.assert_allclose(actual, expected)
+    for variable in ("y", "status"):
+        with pytest.raises(ValueError, match="Censored response log-likelihood requires variables"):
+            model.compute_log_likelihood(idata, data=observed.drop(columns=variable), inplace=False)
+
+
+def truncated_nonlinear_data():
+    return pd.DataFrame(
+        {
+            "x": [-0.8, 0.0, 0.5, 0.9],
+            "z": [0.0, 1.0, 0.5, -0.5],
+            "y": [0.0, 0.4, 1.1, 0.4],
+            "lower": [-1.0, -0.5, 0.0, -0.25],
+            "upper": [0.5, 1.2, 1.8, 1.0],
+        }
+    )
+
+
+def truncated_nonlinear_model(data, response="truncated(y, lower, upper)"):
+    formula = bmb.Formula(f"{response} ~ a + rate * x", "a ~ 1 + z", nlpars=("a", "rate"))
+    priors = {
+        "a": {"Intercept": normal_prior(), "z": normal_prior()},
+        "rate": normal_prior(),
+        "sigma": bmb.Prior("HalfNormal", sigma=1),
+    }
+    return bmb.Model(formula, data, priors=priors, center_predictors=False)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize(
+    ("response", "constrained", "bounds_from_data"),
+    [
+        ("truncated(y, lower, upper)", False, True),
+        ("truncated(y, -1, 2)", False, False),
+        ("constrained(y, -1, 2)", True, False),
+    ],
+)
+def test_nonlinear_truncated_prediction_and_new_data_log_likelihood(
+    response, constrained, bounds_from_data
+):
+    model = truncated_nonlinear_model(truncated_nonlinear_data(), response)
+    model.set_alias({"y": "outcome"})
+    idata = model.fit(draws=3, chains=1, random_seed=108)
+    original_model = model.backend.model
+    original_data = {
+        name: model.backend.model[name].get_value().copy()
+        for name in ("y_data", "lower_data", "upper_data")
+        if name in model.backend.model.named_vars
+    }
+    new_data = pd.DataFrame({"x": [0.2, -0.4], "z": [0.5, -1.0]})
+    in_sample = model.predict(idata, kind="response", inplace=False)
+    assert in_sample.posterior["mu"].shape == (1, 3, 4)
+    assert in_sample.posterior_predictive[model.response_term.label].shape == (1, 3, 4)
+    params = model.predict(idata, data=new_data, kind="response_params", inplace=False)
+    assert params.predictions["mu"].shape == (1, 3, 2)
+    if bounds_from_data:
+        assert "lower_data" not in params.predictions_constant_data
+        assert "upper_data" not in params.predictions_constant_data
+    single_params = model.predict(
+        idata, data=new_data.iloc[:1], kind="response_params", inplace=False
+    )
+    assert single_params.predictions["mu"].shape == (1, 3, 1)
+    predictions = model.predict(idata, data=new_data, kind="response", inplace=False)
+    samples = predictions.predictions[model.response_term.label]
+    assert samples.shape == (1, 3, 2)
+    single = model.predict(idata, data=new_data.iloc[:1], kind="response", inplace=False)
+    assert single.predictions[model.response_term.label].shape == (1, 3, 1)
+
+    bounds_data = new_data.assign(y=[0.1, 0.8])
+    lower, upper = -1.0, 2.0
+    if bounds_from_data:
+        bounds_data = bounds_data.assign(lower=[-0.8, 0.3], upper=[0.8, 1.6])
+        lower, upper = bounds_data.lower.to_numpy(), bounds_data.upper.to_numpy()
+    if constrained:
+        assert (samples > lower).all() and (samples < upper).all()
+    else:
+        conditional = model.predict(
+            idata, data=bounds_data, kind="response_conditional", inplace=False
+        )
+        conditional_samples = conditional.predictions[model.response_term.label]
+        assert (conditional_samples > lower).all()
+        assert (conditional_samples < upper).all()
+        if bounds_from_data:
+            conditional_single = model.predict(
+                idata, data=bounds_data.iloc[:1], kind="response_conditional", inplace=False
+            )
+            assert conditional_single.predictions[model.response_term.label].shape == (1, 3, 1)
+            with pytest.raises(
+                ValueError, match="Use kind='response' for unconditional predictions"
+            ):
+                model.predict(
+                    idata,
+                    data=bounds_data.drop(columns="upper"),
+                    kind="response_conditional",
+                    inplace=False,
+                )
+
+    likelihood = model.compute_log_likelihood(idata, data=bounds_data, inplace=False)
+    actual = likelihood.log_likelihood[model.response_term.label].to_numpy()
+    posterior = idata.posterior
+    mu = (
+        posterior["a_Intercept"].to_numpy()[..., None]
+        + posterior["a_z"].to_numpy()[..., None] * bounds_data.z.to_numpy()
+        + posterior["rate"].to_numpy()[..., None] * bounds_data.x.to_numpy()
+    )
+    np.testing.assert_allclose(predictions.predictions["mu"], mu)
+    sigma = idata.posterior["sigma"].to_numpy()[..., None]
+    from scipy.stats import truncnorm
+
+    expected = truncnorm.logpdf(
+        bounds_data.y.to_numpy(),
+        (np.asarray(lower) - mu) / sigma,
+        (np.asarray(upper) - mu) / sigma,
+        loc=mu,
+        scale=sigma,
+    )
+    np.testing.assert_allclose(actual, expected, atol=5e-7)
+    if bounds_from_data:
+        with pytest.raises(
+            ValueError, match="Truncated response log-likelihood requires bound variables"
+        ):
+            model.compute_log_likelihood(
+                idata, data=bounds_data.drop(columns="upper"), inplace=False
+            )
+
+    assert model.backend.model is original_model
+    for name, values in original_data.items():
+        np.testing.assert_array_equal(model.backend.model[name].get_value(), values)
+
+
+def vector_parent_data():
+    data = linear_data(6)
+    data["y"] = pd.Categorical(
+        ["middle", "last", "first"] * 2, categories=["middle", "first", "last"], ordered=True
+    )
+    data["c1"] = [1, 2, 0, 3, 1, 2]
+    data["c2"] = [2, 0, 3, 1, 2, 1]
+    data["c3"] = [1, 2, 1, 0, 1, 1]
+    data["n"] = data[["c1", "c2", "c3"]].sum(axis=1)
+    data["group"] = ["g", "h"] * 3
+    return data
+
+
+@pytest.mark.parametrize("family", ["categorical", "multinomial", "dirichlet_multinomial"])
+@pytest.mark.parametrize("mixed", [False, True])
+def test_nonlinear_vector_parent_matches_pymc(family, mixed):
+    data = vector_parent_data()
+    response = "y" if family == "categorical" else "counts(c1, c2, c3, n=n)"
+    parent = "a" if family == "dirichlet_multinomial" else "p"
+    size = 3 if family == "dirichlet_multinomial" else 2
+    rhs = "z + nl(shared + rate * x)" if mixed else "shared + rate * x"
+    formula = bmb.Formula(
+        f"{response} ~ {rhs}", "rate ~ 1 + z", "shared ~ 1", nlpars=("rate", "shared")
+    )
+    priors = {"shared": normal_prior(), "rate": {"Intercept": normal_prior(), "z": normal_prior()}}
+    if mixed:
+        priors[parent] = {"Intercept": normal_prior(), "z": normal_prior()}
+    model = bmb.Model(formula, data, family=family, priors=priors, center_predictors=False)
+    model.build()
+    backend = model.backend.model
+    dim = next(iter(backend.__bambi_attrs__["response_coords"]))
+    coord_key = "response_coords" if size == 3 else "response_coords_reduced"
+    coef_dim = next(iter(backend.__bambi_attrs__[coord_key]))
+    assert backend.named_vars_to_dims["rate"] == ("__obs__", coef_dim)
+    assert backend.named_vars_to_dims[parent] == ("__obs__", dim)
+    assert backend.named_vars_to_dims["shared"] == ()
+    levels = ["middle", "first", "last"] if family == "categorical" else ["c1", "c2", "c3"]
+    assert list(backend.coords[dim]) == levels
+    if size == 2:
+        assert list(backend.coords[coef_dim]) == levels[1:]
+    point = {
+        "shared": np.array(0.4),
+        "rate_Intercept": np.linspace(-0.3, 0.5, size),
+        "rate_z": np.linspace(0.2, -0.1, size),
+    }
+    with pm.Model() as direct:
+        shared = pm.Normal("shared", 0, 2)
+        intercept = pm.Normal("rate_Intercept", 0, 2, shape=size)
+        slope = pm.Normal("rate_z", 0, 2, shape=size)
+        eta = shared + (intercept + data.z.to_numpy()[:, None] * slope) * data.x.to_numpy()[:, None]
+        if mixed:
+            base = pm.Normal("Intercept", 0, 2, shape=size)
+            linear = pm.Normal("z", 0, 2, shape=size)
+            eta += base + data.z.to_numpy()[:, None] * linear
+            point.update(Intercept=np.linspace(0.1, 0.3, size), z=np.linspace(-0.2, 0.1, size))
+        if family == "dirichlet_multinomial":
+            value = pt.exp(eta)
+            pm.DirichletMultinomial(
+                "observed", n=data.n, a=value, observed=data[["c1", "c2", "c3"]]
+            )
+        else:
+            value = pt.special.softmax(
+                pt.concatenate([pt.zeros((len(data), 1)), eta], axis=1), axis=1
+            )
+            if family == "categorical":
+                pm.Categorical("observed", p=value, observed=data.y.cat.codes)
+            else:
+                pm.Multinomial("observed", n=data.n, p=value, observed=data[["c1", "c2", "c3"]])
+        pm.Deterministic("value", value)
+    np.testing.assert_allclose(backend.compile_logp()(point), direct.compile_logp()(point))
+    actual = backend.compile_fn(backend[parent], inputs=backend.free_RVs)(point)
+    expected = direct.compile_fn(direct["value"], inputs=direct.free_RVs)(point)
+    np.testing.assert_allclose(actual, expected)
+    if parent == "p":
+        np.testing.assert_allclose(actual.sum(axis=-1), 1)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize(
+    ("family", "expression"),
+    [
+        ("categorical", "z + nl(0.7)"),
+        ("multinomial", "shared * x"),
+        ("dirichlet_multinomial", "rate * x + shared"),
+    ],
+)
+def test_nonlinear_vector_prediction(family, expression):
+    from scipy.special import softmax
+
+    data = vector_parent_data()
+    response = "y" if family == "categorical" else "counts(c1, c2, c3, n=n)"
+    names = tuple(name for name in ("shared", "rate") if name in expression)
+    additionals = ("rate ~ 1 + z",) if "rate" in names else ()
+    model = bmb.Model(
+        bmb.Formula(f"{response} ~ {expression}", *additionals, nlpars=names), data, family=family
+    )
+    model.set_alias({model.family.likelihood.parent: {model.family.likelihood.parent: "parameter"}})
+    idata = model.fit(draws=3, chains=1, random_seed=101)
+    posterior = idata.posterior
+    for count in (len(data), 2, 1):
+        observed = data.iloc[:count]
+        new_data = None if count == len(data) else observed.copy()
+        result = model.predict(
+            idata, data=new_data, kind="response", inplace=False, random_seed=102
+        )
+        x = observed.x.to_numpy()[None, None, :, None]
+        centered_z = (observed.z.to_numpy() - data.z.mean())[None, None, :, None]
+        if family == "categorical":
+            eta = posterior.Intercept_centered.values[:, :, None, :]
+            eta = eta + posterior.z.values[:, :, None, :] * centered_z + 0.7
+        elif family == "multinomial":
+            eta = np.broadcast_to(posterior.shared.values[:, :, None, None] * x, (1, 3, count, 2))
+        else:
+            rate = posterior.rate_Intercept_centered.values[:, :, None, :]
+            rate = rate + posterior.rate_z.values[:, :, None, :] * centered_z
+            eta = rate * x + posterior.shared.values[:, :, None, None]
+        if family == "dirichlet_multinomial":
+            expected = np.exp(eta)
+        else:
+            reference = np.zeros_like(eta[..., :1])
+            expected = softmax(np.concatenate([reference, eta], axis=-1), axis=-1)
+        group = result.posterior if new_data is None else result.predictions
+        np.testing.assert_allclose(group["parameter"], expected)
+        sampled = result.posterior_predictive if new_data is None else result.predictions
+        draws = sampled[model.response_term.label].values
+        if family == "categorical":
+            assert draws.shape == (1, 3, count)
+            assert np.isin(draws, [0, 1, 2]).all()
+            expected_loglik = np.log(expected[:, :, np.arange(count), observed.y.cat.codes])
+        else:
+            np.testing.assert_array_equal(draws.sum(axis=-1), np.full((1, 3, count), 4))
+            counts = observed[["c1", "c2", "c3"]].to_numpy()
+            if family == "multinomial":
+                expected_loglik = stats.multinomial.logpmf(counts, n=observed.n, p=expected)
+            else:
+                expected_loglik = stats.dirichlet_multinomial.logpmf(
+                    counts, alpha=expected, n=observed.n
+                )
+        likelihood = model.compute_log_likelihood(idata, data=new_data, inplace=False)
+        np.testing.assert_allclose(
+            likelihood.log_likelihood[model.response_term.label], expected_loglik
+        )
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("sparse_dot", [False, True])
+@pytest.mark.parametrize("family", ["categorical", "dirichlet_multinomial"])
+def test_nonlinear_vector_group_prediction(monkeypatch, sparse_dot, family):
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
+    data = vector_parent_data()
+    response = "y" if family == "categorical" else "counts(c1, c2, c3, n=n)"
+    parent = "a" if family == "dirichlet_multinomial" else "p"
+    dim = "y_dim_reduced" if family == "categorical" else "c1_c2_c3_dim"
+    model = bmb.Model(
+        bmb.Formula(f"{response} ~ rate * x", "rate ~ 0 + z + (1 | group)", nlpars=("rate",)),
+        data,
+        family=family,
+        center_predictors=False,
+    )
+    model.set_alias({"rate": {"rate": "r", "1|group": "group_effect", "z": "slope"}})
+    idata = model.fit(draws=3, chains=1, random_seed=103)
+    assert idata.posterior["group_effect"].dims == ("chain", "draw", "group_dim", dim)
+    for groups in (["g", "h"], ["g"], ["new", "new"]):
+        new_data = pd.DataFrame(
+            {"x": [0.3] * len(groups), "z": [0.2] * len(groups), "group": groups, "n": 4}
+        )
+        result = model.predict(idata, data=new_data, inplace=False, random_seed=104)
+        values = result.predictions[parent].values
+        assert values.shape == (1, 3, len(groups), 3)
+        if parent == "p":
+            np.testing.assert_allclose(values.sum(axis=-1), 1)
+        if groups[0] == "new":
+            np.testing.assert_allclose(values[:, :, 0], values[:, :, 1])
+        else:
+            effects = idata.posterior.group_effect.sel(group_dim=groups).values
+            slope = idata.posterior.slope.values[:, :, None, :]
+            eta = (effects + 0.2 * slope) * 0.3
+            weights = np.exp(np.concatenate([np.zeros((*eta.shape[:-1], 1)), eta], axis=-1))
+            expected = weights / weights.sum(axis=-1, keepdims=True)
+            if parent == "a":
+                expected = np.exp(eta)
+            np.testing.assert_allclose(values, expected)
+        population = model.predict(
+            idata, data=new_data, include_group_specific=False, inplace=False
+        )
+        eta = idata.posterior.slope.values[:, :, None, :] * 0.2 * 0.3
+        weights = np.exp(np.concatenate([np.zeros((*eta.shape[:-1], 1)), eta], axis=-1))
+        expected = weights / weights.sum(axis=-1, keepdims=True)
+        if parent == "a":
+            expected = np.exp(eta)
+        np.testing.assert_allclose(
+            population.predictions[parent], np.broadcast_to(expected, values.shape)
+        )
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+def test_nonlinear_categorical_interpret():
+    from bambi.interpret.effects import comparisons, predictions, slopes
+
+    model = bmb.Model(
+        bmb.Formula("y ~ shared * x + rate", "rate ~ 0 + z", nlpars=("shared", "rate")),
+        vector_parent_data(),
+        family="categorical",
+    )
+    idata = model.fit(draws=5, chains=2, random_seed=105)
+    conditional = {"x": [-0.2, 0.3], "z": [0.1]}
+    result = predictions(model, idata, conditional=conditional).summary
+    assert len(result) == 6
+    assert set(result.y_dim) == {"middle", "first", "last"}
+    np.testing.assert_allclose(result.groupby("x").estimate.sum(), 1)
+    for function, kwargs in (
+        (comparisons, {"contrast": {"x": [-0.2, 0.3]}}),
+        (slopes, {"wrt": "x"}),
+    ):
+        result = function(model, idata, conditional={"z": [0.1]}, **kwargs).summary
+        assert set(result.y_dim) == {"middle", "first", "last"}
+        np.testing.assert_allclose(result.estimate.sum(), 0, atol=1e-8)
+
+
+def test_nonlinear_dirichlet_multinomial_constant_concentration():
+    data = vector_parent_data()
+    model = bmb.Model(
+        bmb.Formula("counts(c1, c2, c3, n=n) ~ 0 + nl(0.7)"), data, family="dirichlet_multinomial"
+    )
+    model.build()
+    np.testing.assert_allclose(
+        model.backend.model["a"].eval(), np.full((len(data), 3), np.exp(0.7))
+    )
+
+
+def fixed_parameter_idata():
+    posterior = xr.Dataset(coords={"chain": [2, 4], "draw": [10, 11, 12]})
+    return xr.DataTree.from_dict({"posterior": posterior})
+
+
+def test_nonlinear_fixed_gaussian_prediction_and_log_likelihood():
+    data = pd.DataFrame({"x": [-1.0, 0.0, 1.0], "y": [-0.6, 0.1, 0.9]})
+    formula = bmb.Formula("y ~ 0 + nl(0.7*x)")
+    model = bmb.Model(formula, data, priors={"sigma": 0.5})
+    model.build()
+    assert not model.backend.model.free_RVs
+
+    idata = fixed_parameter_idata()
+    original_graph = model.backend.model
+    original_mu = model.backend.model["mu"].eval().copy()
+    params = model.predict(idata, kind="response_params", inplace=False)
+    assert params.posterior.coords["chain"].to_numpy().tolist() == [2, 4]
+    assert params.posterior.coords["draw"].to_numpy().tolist() == [10, 11, 12]
+    np.testing.assert_allclose(
+        params.posterior["mu"], np.broadcast_to(original_mu, (2, 3, len(data)))
+    )
+    inplace_idata = fixed_parameter_idata()
+    assert model.predict(inplace_idata, kind="response_params") is None
+    assert "mu" in inplace_idata.posterior
+    predictions = model.predict(params, kind="response", inplace=False, random_seed=109)
+    samples = predictions.posterior_predictive["y"].to_numpy()
+    assert samples.shape == (2, 3, len(data))
+    assert np.unique(samples).size > 1
+    fresh_predictions = model.predict(params, kind="response", inplace=False, random_seed=114)
+    assert not np.array_equal(samples, fresh_predictions.posterior_predictive["y"].to_numpy())
+    from scipy.stats import norm
+
+    expected_log_likelihood = norm.logpdf(data.y.to_numpy(), loc=original_mu, scale=0.5)
+    likelihood = model.compute_log_likelihood(params, inplace=False)
+    np.testing.assert_allclose(
+        likelihood.log_likelihood["y"],
+        np.broadcast_to(expected_log_likelihood, (2, 3, len(data))),
+    )
+    new_data_likelihood = model.compute_log_likelihood(params, data=data.iloc[:2], inplace=False)
+    np.testing.assert_allclose(
+        new_data_likelihood.log_likelihood["y"],
+        np.broadcast_to(expected_log_likelihood[:2], (2, 3, 2)),
+    )
+
+    for count in (2, 1):
+        new_data = data.iloc[:count][["x"]]
+        predicted_params = model.predict(
+            params, data=new_data, kind="response_params", inplace=False
+        )
+        predicted_response = model.predict(
+            params, data=new_data, kind="response", inplace=False, random_seed=110
+        )
+        assert predicted_params.predictions["mu"].shape == (2, 3, count)
+        assert predicted_response.predictions["y"].shape == (2, 3, count)
+
+    truncated_data = data.assign(lower=[-1.0, -0.5, 0.0], upper=[0.0, 0.5, 1.0])
+    truncated_model = bmb.Model(
+        bmb.Formula("truncated(y, lower, upper) ~ 0 + nl(0.7*x)"),
+        truncated_data,
+        priors={"sigma": 0.5},
+    )
+    truncated_model.build()
+    bounded = truncated_model.predict(
+        fixed_parameter_idata(), kind="response_conditional", inplace=False, random_seed=113
+    )
+    bounded_samples = bounded.posterior_predictive["y"].to_numpy()
+    assert bounded_samples.shape == (2, 3, len(data))
+    assert (bounded_samples > truncated_data.lower.to_numpy()).all()
+    assert (bounded_samples < truncated_data.upper.to_numpy()).all()
+
+    assert model.backend.model is original_graph
+    np.testing.assert_allclose(model.backend.model["mu"].eval(), original_mu)
+
+
+@pytest.mark.parametrize("family", ["categorical", "multinomial"])
+def test_nonlinear_fixed_vector_prediction_and_log_likelihood(family):
+    data = vector_parent_data()
+    response = "y" if family == "categorical" else "counts(c1, c2, c3, n=n)"
+    model = bmb.Model(bmb.Formula(f"{response} ~ 0 + nl(0.7)"), data, family=family)
+    model.set_alias({"p": {"p": "probability"}})
+    model.build()
+    assert not model.backend.model.free_RVs
+
+    idata = fixed_parameter_idata()
+    params = model.predict(idata, kind="response_params", inplace=False)
+    parent = "probability"
+    probabilities = params.posterior[parent].to_numpy()
+    assert probabilities.shape == (2, 3, len(data), 3)
+    expected_probabilities = np.exp([0, 0.7, 0.7])
+    expected_probabilities /= expected_probabilities.sum()
+    np.testing.assert_allclose(
+        probabilities, np.broadcast_to(expected_probabilities, probabilities.shape)
+    )
+    response_prediction = model.predict(params, kind="response", inplace=False, random_seed=111)
+    samples = response_prediction.posterior_predictive[model.response_term.label].to_numpy()
+    sample_shape = (2, 3, len(data), 3) if family == "multinomial" else (2, 3, len(data))
+    assert samples.shape == sample_shape
+
+    if family == "categorical":
+        assert set(np.unique(samples)).issubset({0, 1, 2})
+        expected = np.log(probabilities[:, :, np.arange(len(data)), data.y.cat.codes])
+    else:
+        assert np.all(samples >= 0)
+        assert np.all(samples.sum(axis=-1) == data.n.to_numpy())
+        from scipy.special import gammaln
+
+        counts = data[["c1", "c2", "c3"]].to_numpy()
+        expected = (
+            gammaln(data.n.to_numpy() + 1)
+            - gammaln(counts + 1).sum(axis=-1)
+            + (counts * np.log(probabilities)).sum(axis=-1)
+        )
+
+    likelihood = model.compute_log_likelihood(params, inplace=False)
+    np.testing.assert_allclose(likelihood.log_likelihood[model.response_term.label], expected)
+
+    for count in (2, 1):
+        observed = data.iloc[:count].copy()
+        if family == "multinomial":
+            observed["n"] = np.arange(count) + 5
+            observed["c3"] = observed.n - observed.c1 - observed.c2
+        new_data = observed[["x", "z"]].copy()
+        if family == "multinomial":
+            new_data["n"] = observed.n.to_numpy()
+        predicted_params = model.predict(
+            params, data=new_data, kind="response_params", inplace=False
+        )
+        predicted_response = model.predict(
+            params, data=new_data, kind="response", inplace=False, random_seed=112
+        )
+        assert predicted_params.predictions[parent].shape == (2, 3, count, 3)
+        response_shape = (2, 3, count, 3) if family == "multinomial" else (2, 3, count)
+        assert predicted_response.predictions[model.response_term.label].shape == response_shape
+        np.testing.assert_array_equal(predicted_response.predictions.chain, [2, 4])
+        np.testing.assert_array_equal(predicted_response.predictions.draw, [10, 11, 12])
+        if family == "multinomial":
+            np.testing.assert_array_equal(
+                predicted_response.predictions[model.response_term.label].to_numpy().sum(axis=-1),
+                np.broadcast_to(observed.n.to_numpy(), (2, 3, count)),
+            )
+            counts = observed[["c1", "c2", "c3"]].to_numpy()
+            expected_new = (
+                gammaln(observed.n.to_numpy() + 1)
+                - gammaln(counts + 1).sum(axis=-1)
+                + (counts * np.log(probabilities[:, :, :count])).sum(axis=-1)
+            )
+        else:
+            expected_new = np.log(probabilities[:, :, np.arange(count), observed.y.cat.codes])
+        new_likelihood = model.compute_log_likelihood(params, data=observed, inplace=False)
+        pointwise = new_likelihood.log_likelihood[model.response_term.label]
+        assert pointwise.dims == ("chain", "draw", "__obs__")
+        np.testing.assert_allclose(pointwise, expected_new)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("categories", [2, 3])
+def test_nonlinear_vector_dependencies_and_offsets(categories):
+    data = vector_parent_data()
+    if categories == 2:
+        data = data[data.y != "last"].copy()
+        data["y"] = data.y.cat.remove_unused_categories()
+    formula = bmb.Formula(
+        "y ~ offset(x) + nl(curve)",
+        "curve ~ rate * x + shared",
+        "rate ~ 0 + z",
+        nlpars=("curve", "rate", "shared"),
+    )
+    model = bmb.Model(formula, data, family="categorical", center_predictors=False)
+    idata = model.fit(draws=3, chains=1, random_seed=106)
+    for count in (len(data), 1):
+        new_data = data.iloc[:count]
+        result = model.predict(idata, data=new_data, inplace=False)
+        eta = (
+            idata.posterior.rate_z.values[:, :, None, :]
+            * new_data.z.to_numpy()[None, None, :, None]
+            * new_data.x.to_numpy()[None, None, :, None]
+            + idata.posterior.shared.values[:, :, None, None]
+            + idata.posterior.Intercept.values[:, :, None, :]
+            + new_data.x.to_numpy()[None, None, :, None]
+        )
+        weights = np.exp(np.concatenate([np.zeros((*eta.shape[:-1], 1)), eta], axis=-1))
+        np.testing.assert_allclose(
+            result.predictions.p, weights / weights.sum(axis=-1, keepdims=True)
+        )
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("family", ["multinomial", "dirichlet_multinomial"])
+def test_nonlinear_count_interpret(family):
+    from bambi.interpret.effects import predictions
+
+    model = bmb.Model(
+        bmb.Formula(
+            "counts(c1, c2, c3, n=n) ~ shared * x + rate",
+            "rate ~ 0 + z",
+            nlpars=("shared", "rate"),
+        ),
+        vector_parent_data(),
+        family=family,
+    )
+    idata = model.fit(draws=5, chains=2, random_seed=107)
+    conditional = {"x": [-0.2, 0.3], "z": [0.1], "n": [4]}
+    summary = predictions(model, idata, conditional=conditional).summary
+    assert len(summary) == 6
+    assert set(summary.c1_c2_c3_dim) == {"c1", "c2", "c3"}
+    data = pd.DataFrame({"x": [-0.2, 0.3], "z": [0.1, 0.1], "n": [4, 4]})
+    result = model.predict(idata, data=data, inplace=False)
+    expected = result.predictions[model.family.likelihood.parent].mean(("chain", "draw"))
+    actual = summary.pivot(index="x", columns="c1_c2_c3_dim", values="estimate")
+    np.testing.assert_allclose(actual[["c1", "c2", "c3"]], expected)
+
+
+def exponential_competing_risks_loglik(mu, data):
+    times = data.time.to_numpy()
+    status = (data.status.to_numpy() == "right").astype(int)
+    causes = np.array(
+        [0 if cause == "none" else ["cause_a", "cause_b"].index(cause) + 1 for cause in data.cause]
+    )
+    log_survival = -times * (1 / mu).sum(axis=-1)
+    rows = np.arange(len(data))
+    cause_index = np.maximum(causes - 1, 0)
+    event_loglik = log_survival - np.log(mu[rows, cause_index])
+    return np.where(status == 1, log_survival, event_loglik)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+def test_nonlinear_competing_risks_predictions_and_log_likelihood():
+    from bambi.interpret.effects import predictions
+
+    data = competing_risks_nonlinear_data()
+    formula = bmb.Formula(
+        "risks(time, status, cause) ~ 0 + nl(rate*x) + z",
+        "rate ~ 1 + z",
+        nlpars=("rate",),
+    )
+    prior = bmb.Prior("Normal", mu=0, sigma=2)
+    model = bmb.Model(
+        formula,
+        data,
+        family="exponential",
+        priors={"rate": {"Intercept": prior, "z": prior}, "z": prior},
+        center_predictors=False,
+    )
+    model.set_alias({"mu": {"mu": "event_rate"}})
+    model.build()
+    assert model.backend.model.named_vars_to_dims["rate"] == ("__obs__", "cause_dim")
+    assert model.backend.model.named_vars_to_dims["event_rate"] == ("__obs__", "cause_dim")
+
+    original_data = {
+        name: model.backend.model[name].get_value().copy()
+        for name in ("time_data", "status_data", "cause_data")
+    }
+    idata = model.fit(draws=3, chains=2)
+    coefficient_values = {
+        "rate_Intercept": np.array([0.25, -0.15]),
+        "rate_z": np.array([0.1, 0.2]),
+        "z": np.array([0.3, -0.2]),
+    }
+    posterior = idata.posterior.to_dataset().copy(deep=True)
+    for name, value in coefficient_values.items():
+        posterior[name] = posterior[name].copy(data=np.broadcast_to(value, posterior[name].shape))
+    idata["posterior"] = posterior
+
+    x = data.x.to_numpy()[:, None]
+    z = data.z.to_numpy()[:, None]
+    mu = np.exp(
+        (coefficient_values["rate_Intercept"] + coefficient_values["rate_z"] * z) * x
+        + coefficient_values["z"] * z
+    )
+    parameter_prediction = model.predict(idata, kind="response_params", inplace=False)
+    expected_mu = np.broadcast_to(mu, (2, 3, *mu.shape))
+    np.testing.assert_allclose(parameter_prediction.posterior["event_rate"], expected_mu)
+    training_loglik = model.compute_log_likelihood(idata, inplace=False)
+    expected_loglik = exponential_competing_risks_loglik(mu, data)
+    np.testing.assert_allclose(
+        training_loglik.log_likelihood["time"],
+        np.broadcast_to(expected_loglik, (2, 3, len(data))),
+    )
+
+    for new_data in (
+        data.iloc[[0]].assign(time=[1.25], status=["right"], cause=["none"]),
+        data.iloc[[0, 1]].assign(status=["right", "event"], cause=["none", "cause_b"]),
+    ):
+        parameters = model.predict(
+            idata, data=new_data[["x", "z"]], kind="response_params", inplace=False
+        )
+        predicted_mu = parameters.predictions["event_rate"].values[0, 0]
+        new_x = new_data.x.to_numpy()[:, None]
+        new_z = new_data.z.to_numpy()[:, None]
+        eta = (
+            coefficient_values["rate_Intercept"] + coefficient_values["rate_z"] * new_z
+        ) * new_x + coefficient_values["z"] * new_z
+        np.testing.assert_allclose(predicted_mu, np.exp(eta))
+        likelihood = model.compute_log_likelihood(idata, data=new_data, inplace=False)
+        expected = exponential_competing_risks_loglik(predicted_mu, new_data)
+        np.testing.assert_allclose(
+            likelihood.log_likelihood["time"], np.broadcast_to(expected, (2, 3, len(new_data)))
+        )
+        draws = model.predict(
+            idata,
+            data=new_data[["x", "z"]],
+            kind="response",
+            inplace=False,
+            random_seed=21,
+        ).predictions["time"]
+        assert draws.shape == (2, 3, len(new_data))
+
+    conditional = model.predict(
+        idata, data=data, kind="response_conditional", inplace=False, random_seed=22
+    ).predictions["time"]
+    right_censored = data.status.to_numpy() == "right"
+    assert (conditional.values[..., right_censored] >= data.time.to_numpy()[right_censored]).all()
+    single = model.predict(
+        idata,
+        data=data.iloc[[1]],
+        kind="response_conditional",
+        inplace=False,
+        random_seed=23,
+    ).predictions["time"]
+    assert single.shape == (2, 3, 1)
+    assert (single.values >= data.time.iloc[[1]].to_numpy()).all()
+
+    summary = predictions(model, idata, conditional={"x": [0.2], "z": [0.1]}).summary
+    assert set(summary.cause_dim) == {"cause_a", "cause_b"}
+    for name, values in original_data.items():
+        np.testing.assert_array_equal(model.backend.model[name].get_value(), values)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+def test_nonlinear_competing_risks_marginal_cause_parameter_dependency():
+    data = competing_risks_nonlinear_data()
+    formula = bmb.Formula(
+        "risks(time, status, cause) ~ 0 + nl(rate*x + alpha)",
+        "rate ~ 1 + z",
+        nlpars=("rate",),
+    )
+    model = bmb.Model(formula, data, family="weibull_ph", center_predictors=False)
+    model.build()
+    assert model.backend.model.named_vars_to_dims["alpha"] == ("cause_dim",)
+
+    idata = model.fit(draws=3, chains=2)
+    posterior = idata.posterior.to_dataset().copy(deep=True)
+    values = {
+        "alpha": np.array([0.5, 1.2]),
+        "rate_Intercept": np.array([0.1, 0.3]),
+        "rate_z": np.array([0.05, -0.1]),
+    }
+    for name, value in values.items():
+        posterior[name] = posterior[name].copy(data=np.broadcast_to(value, posterior[name].shape))
+    idata["posterior"] = posterior
+
+    params = model.predict(idata, kind="response_params", inplace=False)
+    x = data.x.to_numpy()[:, None]
+    z = data.z.to_numpy()[:, None]
+    eta = (values["rate_Intercept"] + values["rate_z"] * z) * x + values["alpha"]
+    expected_lam = np.exp(eta)
+    np.testing.assert_allclose(
+        params.posterior["lam"], np.broadcast_to(expected_lam, (2, 3, *expected_lam.shape))
+    )
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("sparse_dot", [False, True])
+def test_nonlinear_competing_risks_group_prediction(monkeypatch, sparse_dot):
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
+    data = competing_risks_nonlinear_data().assign(group=["g", "h"] * 4)
+    model = bmb.Model(
+        bmb.Formula(
+            "risks(time, status, cause) ~ rate*x", "rate ~ 0 + z + (1 | group)", nlpars=("rate",)
+        ),
+        data,
+        family="exponential",
+        center_predictors=False,
+    )
+    model.set_alias(
+        {
+            "mu": {"mu": "event_scale"},
+            "rate": {"rate": "r", "z": "slope", "1|group": "group_effect"},
+        }
+    )
+    idata = model.fit(draws=3, chains=1, random_seed=126)
+    assert idata.posterior.group_effect.dims == ("chain", "draw", "group_dim", "cause_dim")
+    fixed_eta = 0.2 * idata.posterior.slope.values * 0.3
+    for groups in (["g", "h"], ["g"], ["new", "new"]):
+        new_data = pd.DataFrame({"x": 0.3, "z": 0.2, "group": groups})
+        result = model.predict(idata, data=new_data, inplace=False, random_seed=127)
+        values = result.predictions.event_scale.values
+        assert values.shape == (1, 3, len(groups), 2)
+        assert np.isfinite(values).all() and (values > 0).all()
+        if groups[0] == "new":
+            np.testing.assert_allclose(values[:, :, 0], values[:, :, 1])
+        else:
+            effects = idata.posterior.group_effect.sel(group_dim=groups).values
+            expected = np.exp(fixed_eta[:, :, None, :] + effects * 0.3)
+            np.testing.assert_allclose(values, expected)
+        population = model.predict(
+            idata, data=new_data, include_group_specific=False, inplace=False
+        )
+        expected = np.exp(fixed_eta[:, :, None, :])
+        np.testing.assert_allclose(
+            population.predictions.event_scale, np.broadcast_to(expected, values.shape)
+        )
+
+
+def test_nonlinear_fixed_competing_risks_time_and_cause():
+    data = competing_risks_nonlinear_data()
+    model = bmb.Model(
+        bmb.Formula("risks(time, status, cause) ~ 0 + nl(0.4)"), data, family="exponential"
+    )
+    model.set_alias({"mu": {"mu": "event_scale"}, "time": "outcome"})
+    model.build()
+    assert not model.backend.model.free_RVs
+    idata = fixed_parameter_idata()
+    for new_data in (None, data.iloc[:1]):
+        result = model.predict(
+            idata, data=new_data, kind="time_and_cause", inplace=False, random_seed=128
+        )
+        group = result.posterior_predictive if new_data is None else result.predictions
+        count = len(data) if new_data is None else len(new_data)
+        assert group.outcome_time.shape == (2, 3, count)
+        assert group.outcome_cause.shape == (2, 3, count)
+        np.testing.assert_array_equal(group.chain, [2, 4])
+        np.testing.assert_array_equal(group.draw, [10, 11, 12])
+        assert (group.outcome_time > 0).all()
+        assert set(np.unique(group.outcome_cause)).issubset({1, 2})
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+def test_nonlinear_numeric_vector_response_fixed_values_and_predictions():
+    from scipy.stats import multivariate_normal
+
+    data = vector_normal_data()
+    formula = bmb.Formula(
+        "join(y1, y2) ~ 0 + nl(rate*x) + z",
+        "rate ~ 1 + z",
+        nlpars=("rate",),
+    )
+    prior = bmb.Prior("Normal", mu=0, sigma=2)
+    model = bmb.Model(
+        formula,
+        data,
+        family=vector_normal_family(),
+        priors={"rate": {"Intercept": prior, "z": prior}, "z": prior},
+        extra_namespace={"join": join_vector_response},
+        center_predictors=False,
+    )
+    model.set_alias({"mu": {"mu": "mean"}, "y1": "outcome"})
+    model.build()
+    backend = model.backend.model
+    response_name = model.response_term.label
+    event_dim = f"{model.response_term.name}_dim"
+    assert response_name == "outcome"
+    assert backend.named_vars_to_dims["mean"] == ("__obs__", event_dim)
+    assert backend.named_vars_to_dims["rate"] == ("__obs__", event_dim)
+    np.testing.assert_array_equal(backend.coords[event_dim], [0, 1])
+
+    coefficients = {
+        "rate_Intercept": np.array([0.3, -0.2]),
+        "rate_z": np.array([0.1, 0.25]),
+        "z": np.array([-0.15, 0.2]),
+    }
+    z = data.z.to_numpy()[:, None]
+    x = data.x.to_numpy()[:, None]
+    expected_mu = (coefficients["rate_Intercept"] + coefficients["rate_z"] * z) * x
+    expected_mu += coefficients["z"] * z
+    actual_mu = backend.compile_fn(backend["mean"], inputs=backend.free_RVs)(coefficients)
+    np.testing.assert_allclose(actual_mu, expected_mu)
+
+    idata = model.fit(draws=3, chains=2, random_seed=129)
+    posterior = idata.posterior.to_dataset().copy(deep=True)
+    for name, value in coefficients.items():
+        posterior[name] = posterior[name].copy(data=np.broadcast_to(value, posterior[name].shape))
+    idata["posterior"] = posterior
+    original_response = model.response_term.data.copy()
+    params = model.predict(idata, kind="response_params", inplace=False)
+    np.testing.assert_allclose(
+        params.posterior["mean"], np.broadcast_to(expected_mu, (2, 3, *expected_mu.shape))
+    )
+    prediction = model.predict(params, kind="response", inplace=False, random_seed=130)
+    draws = prediction.posterior_predictive[response_name]
+    assert draws.shape == (2, 3, len(data), 2)
+    likelihood = model.compute_log_likelihood(params, inplace=False)
+    expected_logp = np.array(
+        [
+            multivariate_normal.logpdf(row, mean=mu, cov=VECTOR_NORMAL_COV)
+            for row, mu in zip(data[["y1", "y2"]].to_numpy(), expected_mu)
+        ]
+    )
+    np.testing.assert_allclose(
+        likelihood.log_likelihood[response_name], np.broadcast_to(expected_logp, (2, 3, len(data)))
+    )
+
+    for count in (2, 1):
+        new_data = data.iloc[:count]
+        predicted = model.predict(
+            params,
+            data=new_data[["x", "z"]],
+            kind="response_params",
+            inplace=False,
+        )
+        new_mu = expected_mu[:count]
+        np.testing.assert_allclose(
+            predicted.predictions["mean"], np.broadcast_to(new_mu, (2, 3, count, 2))
+        )
+        response_draws = model.predict(
+            params,
+            data=new_data[["x", "z"]],
+            kind="response",
+            inplace=False,
+            random_seed=131,
+        )
+        assert response_draws.predictions[response_name].shape == (2, 3, count, 2)
+        new_likelihood = model.compute_log_likelihood(params, data=new_data, inplace=False)
+        np.testing.assert_allclose(
+            new_likelihood.log_likelihood[response_name],
+            np.broadcast_to(expected_logp[:count], (2, 3, count)),
+        )
+    np.testing.assert_array_equal(model.response_term.data, original_response)
+    from bambi.interpret.effects import predictions
+
+    summary = predictions(model, params, conditional={"x": [-0.2, 0.3], "z": [0.1]}).summary
+    actual = summary.pivot(index="x", columns=event_dim, values="estimate")
+    rate = coefficients["rate_Intercept"] + 0.1 * coefficients["rate_z"]
+    expected = rate * np.array([[-0.2], [0.3]]) + 0.1 * coefficients["z"]
+    np.testing.assert_allclose(actual[[0, 1]], expected)
+
+
+def test_nonlinear_numeric_vector_response_constant_expression():
+    from scipy.stats import multivariate_normal
+
+    data = vector_normal_data()
+    model = bmb.Model(
+        bmb.Formula("join(y1, y2) ~ 0 + nl(0.7)"),
+        data,
+        family=vector_normal_family(),
+        extra_namespace={"join": join_vector_response},
+    )
+    model.build()
+    assert not model.backend.model.free_RVs
+    result = model.predict(fixed_parameter_idata(), kind="response_params", inplace=False)
+    assert result.posterior["mu"].shape == (2, 3, len(data), 2)
+    np.testing.assert_allclose(result.posterior["mu"], 0.7)
+    likelihood = model.compute_log_likelihood(result, inplace=False)
+    expected = np.array(
+        [
+            multivariate_normal.logpdf(row, mean=[0.7, 0.7], cov=VECTOR_NORMAL_COV)
+            for row in data[["y1", "y2"]].to_numpy()
+        ]
+    )
+    np.testing.assert_allclose(
+        likelihood.log_likelihood[model.response_term.label],
+        np.broadcast_to(expected, (2, 3, len(data))),
+    )
+    draws = model.predict(result, kind="response", inplace=False, random_seed=132)
+    assert draws.posterior_predictive[model.response_term.label].shape == (2, 3, len(data), 2)
+    for count in (2, 1):
+        new_data = pd.DataFrame(index=range(count))
+        params = model.predict(result, data=new_data, kind="response_params", inplace=False)
+        assert params.predictions["mu"].shape == (2, 3, count, 2)
+        response = model.predict(
+            result,
+            data=new_data,
+            kind="response",
+            inplace=False,
+            random_seed=133,
+        )
+        assert response.predictions[model.response_term.label].shape == (2, 3, count, 2)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("sparse_dot", [False, True])
+def test_nonlinear_numeric_vector_response_group_prediction(monkeypatch, sparse_dot):
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
+    data = vector_normal_data().assign(group=["g", "h"] * 3)
+    model = bmb.Model(
+        bmb.Formula("join(y1, y2) ~ rate*x", "rate ~ 0 + z + (1 | group)", nlpars=("rate",)),
+        data,
+        family=vector_normal_family(),
+        extra_namespace={"join": join_vector_response},
+        center_predictors=False,
+    )
+    model.set_alias(
+        {
+            "mu": {"mu": "mean"},
+            "rate": {"rate": "r", "z": "slope", "1|group": "group_effect"},
+            "y1": "outcome",
+        }
+    )
+    idata = model.fit(draws=3, chains=1, random_seed=134)
+    event_dim = f"{model.response_term.name}_dim"
+    assert idata.posterior.group_effect.dims == ("chain", "draw", "group_dim", event_dim)
+    fixed_mean = 0.2 * idata.posterior.slope.values * 0.3
+    for groups in (["g", "h"], ["g"], ["new", "new"]):
+        new_data = pd.DataFrame({"x": 0.3, "z": 0.2, "group": groups})
+        result = model.predict(
+            idata, data=new_data, kind="response", inplace=False, random_seed=135
+        )
+        values = result.predictions["mean"].values
+        assert values.shape == (1, 3, len(groups), 2)
+        assert result.predictions.outcome.shape == values.shape
+        if groups[0] == "new":
+            np.testing.assert_allclose(values[:, :, 0], values[:, :, 1])
+        else:
+            effects = idata.posterior.group_effect.sel(group_dim=groups).values
+            expected = fixed_mean[:, :, None, :] + effects * 0.3
+            np.testing.assert_allclose(values, expected)
+        population = model.predict(
+            idata, data=new_data, include_group_specific=False, inplace=False
+        )
+        np.testing.assert_allclose(
+            population.predictions["mean"], np.broadcast_to(fixed_mean[:, :, None, :], values.shape)
+        )
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+def test_conditional_coefficient_uses_scalar_auxiliary_dimension():
+    from scipy.stats import multivariate_t
+
+    family = vector_student_t_family()
+    data = vector_normal_data()
+    formula = bmb.Formula(
+        "join(y1, y2) ~ 0 + nl(0.7)",
+        "nu ~ 0 + nl(2 + exp(rate*x))",
+        "rate ~ 1 + z",
+        nlpars=("rate",),
+    )
+    prior = bmb.Prior("Normal", mu=0, sigma=1)
+    model = bmb.Model(
+        formula,
+        data,
+        family=family,
+        priors={"rate": {"Intercept": prior, "z": prior}},
+        extra_namespace={"join": join_vector_response},
+        center_predictors=False,
+    )
+    model.set_alias(
+        {
+            "mu": {"mu": "mean"},
+            "nu": {"nu": "df"},
+            "rate": {"Intercept": "rate0", "z": "rate_z"},
+        }
+    )
+    model.build()
+    backend = model.backend.model
+    coefficient = model.parameters["nu"].nonlinear_coefficients["rate"]
+    assert coefficient.get_coefs_dim() is None
+    assert backend.named_vars_to_dims["rate"] == ("__obs__",)
+
+    point = {"rate0": 0.3, "rate_z": -0.2}
+    rate = point["rate0"] + point["rate_z"] * data.z.to_numpy()
+    expected_nu = 2 + np.exp(rate * data.x.to_numpy())
+    expected_mu = np.full((len(data), 2), 0.7)
+    actual_nu, actual_mu = backend.compile_fn(
+        [backend["df"], backend["mean"]], inputs=backend.free_RVs
+    )(point)
+    np.testing.assert_allclose(actual_nu, expected_nu)
+    np.testing.assert_allclose(actual_mu, expected_mu)
+
+    with pm.Model() as direct:
+        rate0 = pm.Normal("rate0", 0, 1)
+        rate_z = pm.Normal("rate_z", 0, 1)
+        nu = 2 + pt.exp((rate0 + rate_z * data.z.to_numpy()) * data.x.to_numpy())
+        mu = np.full((len(data), 2), 0.7)
+        pm.MvStudentT(
+            "observed",
+            nu=nu,
+            mu=mu,
+            scale=VECTOR_NORMAL_COV,
+            observed=data[["y1", "y2"]].to_numpy(),
+        )
+    direct_point = {"rate0": point["rate0"], "rate_z": point["rate_z"]}
+    actual_logp = backend.compile_logp()(point)
+    expected_logp = direct.compile_logp()(direct_point)
+    assert np.isfinite(actual_logp) and np.isfinite(expected_logp)
+    np.testing.assert_allclose(actual_logp, expected_logp)
+
+    idata = model.fit(draws=3, chains=2, random_seed=221)
+    posterior = idata.posterior.to_dataset().copy(deep=True)
+    for name, value in point.items():
+        posterior[name] = posterior[name].copy(data=np.full(posterior[name].shape, value))
+    idata["posterior"] = posterior
+    params = model.predict(idata, kind="response_params", inplace=False)
+    np.testing.assert_allclose(
+        params.posterior["df"], np.broadcast_to(expected_nu, (2, 3, len(data)))
+    )
+    np.testing.assert_allclose(
+        params.posterior["mean"], np.broadcast_to(expected_mu, (2, 3, len(data), 2))
+    )
+    response_name = model.response_term.label
+    prediction = model.predict(params, kind="response", inplace=False, random_seed=222)
+    assert prediction.posterior_predictive[response_name].shape == (2, 3, len(data), 2)
+
+    for count in (2, 1):
+        new_data = data.iloc[:count]
+        predicted = model.predict(
+            params, data=new_data[["x", "z"]], kind="response_params", inplace=False
+        )
+        new_nu = expected_nu[:count]
+        assert predicted.predictions["df"].shape == (2, 3, count)
+        np.testing.assert_allclose(predicted.predictions["mean"], np.full((2, 3, count, 2), 0.7))
+        np.testing.assert_allclose(
+            predicted.predictions["df"], np.broadcast_to(new_nu, (2, 3, count))
+        )
+        response_prediction = model.predict(
+            params,
+            data=new_data[["x", "z"]],
+            kind="response",
+            inplace=False,
+            random_seed=223,
+        )
+        assert response_prediction.predictions[response_name].shape == (2, 3, count, 2)
+        log_likelihood = model.compute_log_likelihood(params, data=new_data, inplace=False)
+        expected_logp = np.array(
+            [
+                multivariate_t.logpdf(
+                    row, loc=np.full(2, 0.7), shape=VECTOR_NORMAL_COV, df=nu_value
+                )
+                for row, nu_value in zip(new_data[["y1", "y2"]].to_numpy(), new_nu)
+            ]
+        )
+        np.testing.assert_allclose(
+            log_likelihood.log_likelihood[response_name],
+            np.broadcast_to(expected_logp, (2, 3, count)),
+        )
+
+
+def test_scalar_auxiliary_coefficient_chain_stops_at_likelihood_parameter():
+    data = vector_normal_data()
+    prior = normal_prior(sigma=1)
+    chained = bmb.Model(
+        bmb.Formula(
+            "join(y1, y2) ~ 0 + nl(nu*x)",
+            "nu ~ 0 + nl(2 + exp(k*x))",
+            "k ~ 0 + z + nl(j*x)",
+            "j ~ 0 + z",
+            nlpars=("k", "j"),
+        ),
+        data,
+        family=vector_student_t_family(),
+        priors={"j": {"z": prior}, "k": {"z": prior}},
+        extra_namespace={"join": join_vector_response},
+        center_predictors=False,
+    )
+    chained.build()
+    j_coefficient = chained.parameter_graph.nodes["k"].nonlinear_coefficients["j"]
+    assert j_coefficient.get_coefs_dim() is None
+    assert chained.backend.model.named_vars_to_dims["j"] == ("__obs__",)
+    assert chained.backend.model.named_vars_to_dims["k"] == ("__obs__",)
+    chained_point = {"j_z": 0.2, "k_z": 0.1}
+    expected_j = chained_point["j_z"] * data.z.to_numpy()
+    expected_k = chained_point["k_z"] * data.z.to_numpy() + expected_j * data.x.to_numpy()
+    expected_nu = 2 + np.exp(expected_k * data.x.to_numpy())
+    expected_mu = np.broadcast_to(expected_nu[:, None] * data.x.to_numpy()[:, None], (len(data), 2))
+    actual_nu, actual_mu = chained.backend.model.compile_fn(
+        [chained.backend.model["nu"], chained.backend.model["mu"]],
+        inputs=chained.backend.model.free_RVs,
+    )(chained_point)
+    np.testing.assert_allclose(actual_nu, expected_nu)
+    np.testing.assert_allclose(actual_mu, expected_mu)
+
+
+def test_marginal_coefficient_remains_shared_across_scalar_and_vector_consumers():
+    family = vector_student_t_family()
+    data = vector_normal_data()
+    model = bmb.Model(
+        bmb.Formula(
+            "join(y1, y2) ~ 0 + nl(shared)",
+            "nu ~ 0 + nl(shared)",
+            nlpars=("shared",),
+        ),
+        data,
+        family=family,
+        priors={"shared": 0.7},
+        extra_namespace={"join": join_vector_response},
+    )
+    model.build()
+    coefficient = model.parameter_graph.nonlinear_coefficients["shared"]
+    assert isinstance(coefficient, MarginalCoefficient)
+    np.testing.assert_allclose(model.backend.model["mu"].eval(), 0.7)
+    np.testing.assert_allclose(model.backend.model["nu"].eval(), 0.7)
+
+    explicit = bmb.Model(
+        bmb.Formula(
+            "join(y1, y2) ~ 0 + nl(shared)",
+            "nu ~ 0 + nl(shared)",
+            "shared ~ 1",
+            nlpars=("shared",),
+        ),
+        data,
+        family=vector_student_t_family(),
+        priors={"shared": bmb.Prior("Normal", mu=0.7, sigma=0.1)},
+        extra_namespace={"join": join_vector_response},
+    )
+    explicit.build()
+    explicit_coefficient = explicit.parameter_graph.nonlinear_coefficients["shared"]
+    assert isinstance(explicit_coefficient, MarginalCoefficient)
+    actual_mu, actual_nu = explicit.backend.model.compile_fn(
+        [explicit.backend.model["mu"], explicit.backend.model["nu"]],
+        inputs=explicit.backend.model.free_RVs,
+    )({"shared": 0.5})
+    np.testing.assert_allclose(actual_mu, 0.5)
+    np.testing.assert_allclose(actual_nu, 0.5)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("sparse_dot", [False, True])
+def test_scalar_auxiliary_mixed_coefficient_group_prediction(monkeypatch, sparse_dot):
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
+    data = vector_normal_data().assign(group=["g", "h"] * 3)
+    model = bmb.Model(
+        bmb.Formula(
+            "join(y1, y2) ~ 0 + nl(0.7)",
+            "nu ~ 0 + nl(2 + exp(k*x))",
+            "k ~ 0 + z + nl(j*x) + (1 | group)",
+            "j ~ 0 + x",
+            nlpars=("k", "j"),
+        ),
+        data,
+        family=vector_student_t_family(),
+        extra_namespace={"join": join_vector_response},
+        center_predictors=False,
+    )
+    idata = model.fit(draws=3, chains=1, random_seed=224)
+    assert idata.posterior["k_1|group"].dims == ("chain", "draw", "group_dim")
+    fixed_k = 0.2 * idata.posterior.k_z.values + 0.09 * idata.posterior.j_x.values
+    for groups in (["g", "h"], ["g"], ["new", "new"]):
+        new_data = pd.DataFrame({"x": 0.3, "z": 0.2, "group": groups})
+        result = model.predict(idata, data=new_data, inplace=False, random_seed=225)
+        nu = result.predictions.nu.values
+        assert nu.shape == (1, 3, len(groups))
+        if groups[0] == "new":
+            np.testing.assert_allclose(nu[:, :, 0], nu[:, :, 1])
+        else:
+            effects = idata.posterior["k_1|group"].sel(group_dim=groups).values
+            expected = 2 + np.exp((fixed_k[..., None] + effects) * 0.3)
+            np.testing.assert_allclose(nu, expected)
+        population = model.predict(
+            idata, data=new_data, include_group_specific=False, inplace=False
+        )
+        expected = 2 + np.exp(fixed_k[..., None] * 0.3)
+        np.testing.assert_allclose(population.predictions.nu, np.broadcast_to(expected, nu.shape))

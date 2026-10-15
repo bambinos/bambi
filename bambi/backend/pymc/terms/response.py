@@ -150,14 +150,18 @@ def replace_response_variables(
     term: ResponseTerm, model: pm.Model, kind: str | None = None
 ) -> pm.Model:
     """Apply response-variable replacements required by the current cloned data."""
-    if term.is_truncated and kind == "response":
+    if term.is_truncated and kind in ("response", "response_params"):
         return _untruncate_response(term.label, model)
 
     return model
 
 
 def build_response_interventions(
-    term: ResponseTerm, model: pm.Model, family: Family, kind: str
+    term: ResponseTerm,
+    model: pm.Model,
+    family: Family,
+    kind: str,
+    parameter_aliases: dict[str, str] | None = None,
 ) -> dict[pt.TensorVariable, pt.TensorVariable]:
     """Build `pm.do` response interventions for posterior prediction.
 
@@ -172,7 +176,7 @@ def build_response_interventions(
         return _build_intervention_censored(term, model)
 
     if term.is_competing_risks and kind == "response_conditional":
-        return _build_intervention_competing_risks(term, model, family)
+        return _build_intervention_competing_risks(term, model, family, parameter_aliases)
 
     return {}
 
@@ -185,13 +189,17 @@ def get_response_prediction_names(term: ResponseTerm, kind: str) -> list[str]:
 
 
 def build_response_prediction_variables(
-    term: ResponseTerm, model: pm.Model, family: Family, kind: str
+    term: ResponseTerm,
+    model: pm.Model,
+    family: Family,
+    kind: str,
+    parameter_aliases: dict[str, str] | None = None,
 ) -> None:
     """Add posterior-predictive variables that differ from the observed response."""
     if not term.is_competing_risks or kind != "time_and_cause":
         return
 
-    latent_times = _get_competing_risks_base_dist(model, family)
+    latent_times = _get_competing_risks_base_dist(model, family, parameter_aliases)
 
     obs_dims = tuple(model.named_vars_to_dims[term.label])
     with model:
@@ -271,7 +279,7 @@ def _build_intervention_censored(
     # censoring type, which cannot be exchanged directly.
     lower = pt.switch(pt.eq(status, 1), observed, -np.inf)
     upper = pt.switch(pt.eq(status, -1), observed, np.inf)
-    intervention = pm.Truncated.dist(base_dist, lower=lower, upper=upper)
+    intervention = pm.Truncated.dist(base_dist, lower=lower, upper=upper, size=observed.shape)
 
     return {response: intervention}
 
@@ -284,10 +292,15 @@ def _build_intervention_uncensored(
     return {response: response.owner.inputs[0]}
 
 
-def _get_competing_risks_base_dist(model: pm.Model, family: Family) -> pt.TensorVariable:
+def _get_competing_risks_base_dist(
+    model: pm.Model, family: Family, parameter_aliases: dict[str, str] | None = None
+) -> pt.TensorVariable:
     """Build the cause-specific latent event-time distribution."""
     distribution = get_distribution_from_likelihood(family.likelihood)
-    parameters = {name: model[name] for name in family.likelihood.params}
+    parameter_aliases = parameter_aliases or {}
+    parameters = {
+        name: model[parameter_aliases.get(name, name)] for name in family.likelihood.params
+    }
     transform_parameters = transforms_registry.get_parameter_transform(family)
     if transform_parameters is not None:
         parameters = transform_parameters(parameters)
@@ -295,7 +308,10 @@ def _get_competing_risks_base_dist(model: pm.Model, family: Family) -> pt.Tensor
 
 
 def _build_intervention_competing_risks(
-    term: ResponseTerm, model: pm.Model, family: Family
+    term: ResponseTerm,
+    model: pm.Model,
+    family: Family,
+    parameter_aliases: dict[str, str] | None = None,
 ) -> dict[pt.TensorVariable, pt.TensorVariable]:
     """Condition a competing-risks response on its observed censoring status."""
     response = model[term.label]
@@ -303,7 +319,9 @@ def _build_intervention_competing_risks(
     observed = model[call_args["y"] + "_data"]
     status = model[call_args["status"] + "_data"]
     lower = pt.shape_padright(pt.switch(pt.eq(status, 1), observed, -np.inf))
-    latent_times = pm.Truncated.dist(_get_competing_risks_base_dist(model, family), lower=lower)
+    latent_times = pm.Truncated.dist(
+        _get_competing_risks_base_dist(model, family, parameter_aliases), lower=lower
+    )
     return {response: pt.min(latent_times, axis=-1)}
 
 
@@ -319,14 +337,8 @@ def _build_censored_data(
     observed_data = pm.Data(value_name + "_data", observed, dims=dims, model=model)
     status_data = pm.Data(status_name + "_data", status, dims=dims, model=model)
 
-    lower, upper = -np.inf, np.inf
-    if any(status == -1):
-        is_left_censored = pt.eq(status_data, -1)
-        lower = pt.switch(is_left_censored, observed_data, -np.inf)
-
-    if any(status == 1):
-        is_right_censored = pt.eq(status_data, 1)
-        upper = pt.switch(is_right_censored, observed_data, np.inf)
+    lower = pt.switch(pt.eq(status_data, -1), observed_data, -np.inf)
+    upper = pt.switch(pt.eq(status_data, 1), observed_data, np.inf)
 
     return {"lower": lower, "upper": upper, "observed": observed_data}
 
@@ -543,7 +555,7 @@ def _build_new_truncated_data(
                 "Use kind='response' for unconditional predictions."
             )
 
-    if purpose == "prediction" and kind == "response":
+    if purpose == "prediction" and kind in ("response", "response_params"):
         return {value_name + "_data": np.full(n, term.data[0, 0])}
 
     # Re-evaluate the response call so transformed values and bounds stay consistent.

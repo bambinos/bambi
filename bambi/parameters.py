@@ -304,7 +304,46 @@ class ConditionalParameter(Conditional):
 
 
 class ConditionalCoefficient(Conditional):
-    """A nonlinear coefficient defined by covariates or other modeled quantities."""
+    """A nonlinear coefficient defined by covariates or other modeled quantities.
+
+    Additive and nonlinear contributions use the predictor dimensions of the likelihood
+    parameters that consume the coefficient.
+    """
+
+    def get_coefs_dim(self):
+        """Return the coefficient dimension shared by the likelihood parameters that use it."""
+        dependencies = self.spec.parameter_graph.dependencies
+        likelihood_parameters = set(self.spec.family.likelihood.params)
+        pending = [self.name]
+        visited = set()
+        consumers = {}
+
+        while pending:
+            dependency = pending.pop()
+            for name, parameter_dependencies in dependencies.items():
+                if name in visited or dependency not in parameter_dependencies:
+                    continue
+                visited.add(name)
+                if name in likelihood_parameters:
+                    dimension = self.spec.family.get_param_spec(name).coefs_dim
+                    consumers.setdefault(dimension, set()).add(name)
+                else:
+                    pending.append(name)
+
+        if len(consumers) > 1:
+            consumer_dimensions = sorted(
+                f"{name} ({dimension.value if dimension is not None else 'scalar'})"
+                for dimension, names in consumers.items()
+                for name in names
+            )
+            raise ValueError(
+                f"Nonlinear coefficient '{self.name}' has consumers with incompatible "
+                f"coefficient dimensions: {consumer_dimensions}. "
+                "Use separate conditional coefficients or a scalar prior/intercept-only shared "
+                "coefficient."
+            )
+
+        return next(iter(consumers), None)
 
     @property
     def prefix(self):

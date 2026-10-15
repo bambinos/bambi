@@ -26,7 +26,7 @@ def coords_from_response(term, family):
 
         coords_reduced[f"{term.name}_dim_reduced"] = levels_restricted
 
-    elif family.RESPONSE_NDIM > 1 and term.ndim > 1:
+    elif family.RESPONSE_NDIM > 0 and term.ndim > 1:
         # A multidimensional numeric outcome.
         # Both non-reduced and reduced dimensions are called the same.
         # Dict union will make sure we attempt to add the dimension only once.

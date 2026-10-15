@@ -41,6 +41,21 @@ class Formula:
         these dependent expressions define their parameter on the response scale. Separately
         modeled nonlinear coefficients use identity links.
 
+    Notes
+    -----
+    Conditional nonlinear coefficients use the predictor dimensions of the likelihood
+    parameter that consumes them, including through intermediate coefficients. A coefficient
+    used by a scalar auxiliary parameter remains scalar per observation even if the parent
+    parameter is a vector. A conditional coefficient cannot be shared across parameters with
+    incompatible predictor dimensions; use separate conditional coefficients in that case.
+    Direct-prior and intercept-only coefficients are scalar and can be shared.
+
+    Nonlinear formulas support categorical, count-vector, ordinal, and compatible custom
+    numeric vector families. Weighted, censored, truncated, and constrained scalar responses
+    are supported where the ordinary family supports the wrapper. New-data weighted predictions
+    use unit weights unless a weight column is supplied. See the nonlinear expressions guide
+    for supported dimensions, competing risks, and remaining restrictions.
+
     Examples
     --------
     Model an exponential decay with three separately modeled parameters:

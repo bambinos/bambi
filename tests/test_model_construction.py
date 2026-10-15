@@ -1,20 +1,28 @@
 import logging
 import pathlib
+from functools import partial
 
-import pytest
 import arviz as az
-import bambi as bmb
 import numpy as np
 import pandas as pd
 import pymc as pm
 import pytensor
 import pytensor.tensor as pt
+import pytest
 import xarray as xr
+from formulae import design_matrices
+from pytensor.sparse import StructuredDot
 from scipy import stats
-from scipy.special import expit, ndtr  # pylint: disable=no-name-in-module
+from scipy.special import expit, ndtr
 from scipy.stats import norm
 
+import bambi as bmb
+from bambi.backend.pymc.parameters import remove_group_specific_contributions
+from bambi.backend.pymc.terms.response import _untruncate_response
 from bambi.backend.pymc.transform import transforms_registry
+from bambi.backend.pymc.utils import _compute_logccdf, make_competing_risks_logp
+from bambi.defaults import get_builtin_family
+from bambi.families.types import DimType, ParamSpec
 from bambi.parameters import (
     Conditional,
     ConditionalCoefficient,
@@ -24,15 +32,25 @@ from bambi.parameters import (
     MarginalParameter,
 )
 from bambi.terms import CommonTerm, GroupSpecificTerm
-from bambi.backend.pymc.transform import transforms_registry
-from bambi.defaults import get_builtin_family
-from bambi.backend.pymc.parameters import remove_group_specific_contributions
-from bambi.backend.pymc.terms.response import _untruncate_response
-from bambi.backend.pymc.utils import _compute_logccdf, make_competing_risks_logp
-from formulae import design_matrices
-from pytensor.sparse import StructuredDot
 
-from helpers import assert_ip_dlogp, graph_contains_op
+from helpers import (
+    VECTOR_NORMAL_COV,
+    assert_ip_dlogp,
+    censored_nonlinear_data,
+    censored_nonlinear_model,
+    competing_risks_nonlinear_data,
+    exponential_formula,
+    exponential_priors,
+    graph_contains_op,
+    join_vector_response,
+    linear_data,
+    normal_prior,
+    vector_normal_data,
+    vector_normal_family,
+    vector_student_t_family,
+    weighted_nonlinear_data,
+    weighted_nonlinear_model,
+)
 
 
 @pytest.fixture(scope="module")
@@ -2192,14 +2210,34 @@ def test_scalar_transform_result_broadcasts_for_prediction(monkeypatch, transfor
         np.testing.assert_array_equal(group.mu.values, np.ones((1, 1, size)))
 
 
-@pytest.mark.parametrize("family", ["categorical", "cumulative", "sratio"])
-def test_vector_parent_links_remain_rejected(family):
-    with pytest.raises(ValueError, match="scalar parent parameter"):
-        bmb.Model(
-            bmb.Formula("y ~ a * x", nlpars=("a",)),
-            pd.DataFrame({"y": [0, 1, 2], "x": [0, 1, 2]}),
-            family=family,
-        )
+@pytest.mark.parametrize(
+    ("family", "auxiliary"),
+    [("cumulative", "threshold"), ("osm", "alpha"), ("osm", "delta")],
+)
+def test_ordinal_nonlinear_auxiliary_formulas_are_rejected(family, auxiliary):
+    data = pd.DataFrame(
+        {
+            "y": pd.Categorical(["low", "mid", "high"], ordered=True),
+            "x": [0, 1, 2],
+        }
+    )
+    formula = bmb.Formula("y ~ nl(rate*x)", f"{auxiliary} ~ 1", nlpars=("rate",))
+
+    with pytest.raises(ValueError, match="Ordinal auxiliary parameters"):
+        bmb.Model(formula, data, family=family)
+
+
+def test_ordinal_nonlinear_expressions_cannot_depend_on_threshold():
+    data = pd.DataFrame(
+        {
+            "y": pd.Categorical(["low", "mid", "high"], ordered=True),
+            "x": [0, 1, 2],
+        }
+    )
+    formula = bmb.Formula("y ~ nl(threshold*x)")
+
+    with pytest.raises(ValueError, match="cannot depend on vector-valued auxiliary"):
+        bmb.Model(formula, data, family="cumulative")
 
 
 @pytest.mark.parametrize("family, inverse_link", [("gaussian", lambda x: x), ("poisson", np.exp)])
@@ -2336,3 +2374,393 @@ def test_mixed_predictor_missing_rows_are_aligned():
     assert list(model.data.index) == [0, 3]
     assert len(model.parameters["mu"].design.common.design_matrix) == 2
     model.build()
+
+
+@pytest.mark.parametrize(
+    ("main", "additionals", "message"),
+    [
+        ("y ~ mu + a * x", (), "cannot depend on themselves.*mu"),
+        ("y ~ sigma * a", ("sigma ~ mu + 1",), "mu -> sigma -> mu"),
+        (
+            "y ~ a * x",
+            ("a ~ sigma", "sigma ~ mu + 1"),
+            "a -> sigma -> mu -> a",
+        ),
+        (
+            "y ~ a * x",
+            ("sigma ~ 0 + nl(mu + unknown)",),
+            "No nonlinear parameter formula or data column.*unknown",
+        ),
+    ],
+)
+def test_parameter_dependency_validation(main, additionals, message):
+    formula = bmb.Formula(main, *additionals, nlpars=("a",))
+    with pytest.raises(ValueError, match=message):
+        bmb.Model(formula, linear_data())
+
+
+def test_likelihood_parameter_and_expression_data_collision_is_rejected():
+    data = linear_data().assign(mu=0.5)
+    formula = bmb.Formula("y ~ a * x", "sigma ~ mu + z", nlpars=("a",))
+
+    with pytest.raises(ValueError, match="both modeled parameters and data columns.*mu"):
+        bmb.Model(formula, data)
+
+
+@pytest.mark.parametrize("response", ["mu", "sigma"])
+def test_likelihood_parameter_and_response_data_collision_is_rejected(response):
+    data = linear_data().rename(columns={"y": response})
+    formula = bmb.Formula(f"{response} ~ a * x", nlpars=("a",))
+
+    with pytest.raises(ValueError, match=f"modeled likelihood parameters.*{response}"):
+        bmb.Model(formula, data)
+
+
+def test_predictor_dependent_parameter_builds_expected_graph():
+    data = linear_data()
+    model = bmb.Model(exponential_formula(), data, priors=exponential_priors())
+    model.build()
+
+    assert_ip_dlogp(model)
+    coefficients = model.parameters["mu"].nonlinear_coefficients
+    assert set(coefficients) == {"a", "b", "k"}
+    assert set(coefficients["a"].terms) == {"Intercept", "z"}
+    assert isinstance(coefficients["b"], MarginalCoefficient)
+    assert isinstance(coefficients["k"], MarginalCoefficient)
+    assert model.backend.model.named_vars_to_dims["mu"] == ("__obs__",)
+    assert model.backend.model.named_vars_to_dims["a"] == ("__obs__",)
+    assert model.backend.model.named_vars_to_dims["mu__x_data"] == ("__obs__",)
+    assert {"a_Intercept", "a_z", "b", "k"} <= set(model.backend.model.named_vars)
+
+
+@pytest.mark.parametrize(
+    "formula, error",
+    [
+        (
+            bmb.Formula("y ~ 0 + nl(a + b * x)", nlpars=("b",)),
+            "No nonlinear parameter formula or data column",
+        ),
+        (
+            bmb.Formula("y ~ a + x", nlpars=("a", "b")),
+            "not used by the expression",
+        ),
+        (
+            bmb.Formula("y ~ 0 + nl(a + unknown)", nlpars=("a",)),
+            "No nonlinear parameter formula or data column",
+        ),
+    ],
+)
+def test_validation_errors(formula, error):
+    with pytest.raises(ValueError, match=error):
+        bmb.Model(formula, linear_data())
+
+
+@pytest.mark.parametrize(
+    "additionals",
+    [("a ~ 1 + b",), ("a ~ 1", "sigma ~ 1 + b")],
+)
+def test_data_name_collision_is_reported_before_parameter_dependency(additionals):
+    data = linear_data()
+    data["b"] = 1.0
+    formula = bmb.Formula("y ~ a + b * x", *additionals, nlpars=("a", "b"))
+
+    with pytest.raises(ValueError, match=r"must not also be data columns: \['b'\]"):
+        bmb.Model(formula, data)
+
+
+def test_malformed_expression():
+    formula = bmb.Formula("y ~ a +", nlpars=("a",))
+    with pytest.raises(ValueError, match="Malformed nonlinear expression"):
+        bmb.Model(formula, linear_data())
+
+
+def test_nonnumeric_expression_data():
+    data = linear_data()
+    data["label"] = "a"
+    formula = bmb.Formula("y ~ 0 + nl(a + label)", nlpars=("a",))
+
+    with pytest.raises(ValueError, match="Nonlinear expression data must be numeric"):
+        bmb.Model(formula, data)
+
+
+def test_nested_priors_are_assigned():
+    model = bmb.Model(exponential_formula(), linear_data(), priors=exponential_priors())
+
+    prior = model.parameters["mu"].nonlinear_coefficients["a"].terms["z"].prior
+    assert prior.name == "Normal"
+    assert prior.args == {"mu": 0, "sigma": 2}
+
+
+def test_set_priors_uses_nested_parameter_names():
+    model = bmb.Model(exponential_formula(), linear_data(), priors=exponential_priors())
+    updated = bmb.Prior("Normal", mu=1, sigma=0.25)
+
+    model.set_priors({"a": {"z": updated}})
+
+    prior = model.parameters["mu"].nonlinear_coefficients["a"].terms["z"].prior
+    assert prior.name == "Normal"
+    assert prior.args == {"mu": 1, "sigma": 0.25}
+
+
+def test_non_proportion_multicolumn_response_is_rejected():
+    data = linear_data()
+    data["y"] = pd.Categorical(["low", "high"] * (len(data) // 2))
+    formula = bmb.Formula("y ~ rate * x", nlpars=("rate",))
+
+    with pytest.raises(ValueError, match="one observed response or a proportion response"):
+        bmb.Model(formula, data, family="gaussian")
+
+
+def test_dropna_aligns_all_model_inputs():
+    data = linear_data(8)
+    data.index = [4, 4, 2, 2, 9, 9, 1, 1]
+    data["group"] = ["g", "h"] * 4
+    data["unused"] = np.nan
+    for row, column in enumerate(["y", "x", "z", "group"]):
+        data.iloc[row, data.columns.get_loc(column)] = np.nan
+    original = data.copy(deep=True)
+    formula = bmb.Formula("y ~ a + b * x", "a ~ 1 + z", "b ~ 1 + (1 | group)", nlpars=("a", "b"))
+    model = bmb.Model(formula, data, dropna=True)
+    model.build()
+
+    expected = data.iloc[4:].copy()
+    expected["group"] = expected["group"].astype("category")
+    pd.testing.assert_frame_equal(model.data, expected)
+    pd.testing.assert_frame_equal(data, original)
+    np.testing.assert_array_equal(model.response_term.data, data.y.iloc[4:])
+    np.testing.assert_array_equal(model.backend.model["mu__x_data"].get_value(), data.x.iloc[4:])
+    coefficient = model.parameters["mu"].nonlinear_coefficients["a"]
+    np.testing.assert_array_equal(coefficient.terms["z"].data, data.z.iloc[4:])
+    assert_ip_dlogp(model)
+
+
+@pytest.mark.parametrize("column", ["successes", "attempts", "x"])
+def test_dropna_aligns_nonlinear_proportion_inputs(column):
+    data = pd.DataFrame(
+        {
+            "successes": [6.0, 13.0, 18.0],
+            "attempts": [59.0, 60.0, 62.0],
+            "x": [0.1, 0.2, 0.3],
+        }
+    )
+    data.loc[0, column] = np.nan
+    formula = bmb.Formula("prop(successes, attempts) ~ normal_cdf(a + b * x)", nlpars=("a", "b"))
+
+    model = bmb.Model(formula, data, family="binomial", link="identity", dropna=True)
+    model.build()
+
+    pd.testing.assert_frame_equal(model.data, data.iloc[1:])
+    np.testing.assert_array_equal(model.response_term.data, data.loc[1:, ["successes", "attempts"]])
+    np.testing.assert_array_equal(model.backend.model["p__x_data"].get_value(), data.x.iloc[1:])
+
+
+@pytest.mark.parametrize("column", ["y", "x", "z"])
+def test_missing_model_inputs_raise_without_dropna(column):
+    data = linear_data()
+    data.loc[0, column] = np.nan
+    with pytest.raises(ValueError, match="incomplete rows"):
+        bmb.Model(exponential_formula(), data)
+
+
+def test_dropna_rejects_no_complete_observations():
+    data = linear_data()
+    data["x"] = np.nan
+    with pytest.raises(ValueError, match="complete observation"):
+        bmb.Model(exponential_formula(), data, dropna=True)
+
+
+@pytest.mark.parametrize(("rhs", "error"), [("I(b ** 2)", "function 'I'"), ("(1 | b)", "BitOr")])
+def test_parameter_dependent_formula_requires_nonlinear_expression_syntax(rhs, error):
+    formula = bmb.Formula("y ~ a + b * x", f"a ~ {rhs}", nlpars=("a", "b"))
+    with pytest.raises(ValueError, match=error):
+        bmb.Model(formula, linear_data())
+
+
+@pytest.mark.parametrize("name", ["mu", "sigma", "exp", "sin", "normal_cdf", "x"])
+def test_reserved_parameter_names_are_rejected(name):
+    formula = bmb.Formula(f"y ~ {name}", nlpars=(name,))
+    with pytest.raises(ValueError, match="names must not"):
+        bmb.Model(formula, linear_data())
+
+
+def test_marginal_coefficient_rejects_term_prior_dictionary():
+    with pytest.raises(ValueError, match="not a valid prior"):
+        bmb.Model(
+            bmb.Formula("y ~ a * x", nlpars=("a",)),
+            linear_data(),
+            priors={"a": {"Intercept": normal_prior()}},
+        )
+
+
+@pytest.mark.parametrize("family", ["categorical", "multinomial"])
+def test_nonlinear_weighted_response_rejects_vector_parents(family):
+    formula = bmb.Formula("weighted(y, w) ~ a * x", nlpars=("a",))
+    with pytest.raises(ValueError, match="Nonlinear formulas currently require"):
+        bmb.Model(formula, weighted_nonlinear_data(), family=family, priors={"a": normal_prior()})
+
+
+def test_dropna_aligns_nonlinear_expression_and_weighted_response():
+    data = weighted_nonlinear_data().assign(z=[0.0, np.nan, 0.5, -0.5])
+    model = weighted_nonlinear_model(data, dropna=True)
+
+    assert len(model.response_term.data) == 3
+    np.testing.assert_array_equal(
+        model.response_term.data[:, 0], data.y.dropna().to_numpy()[[0, 2, 3]]
+    )
+    np.testing.assert_array_equal(
+        model.response_term.data[:, 1], data.w.dropna().to_numpy()[[0, 2, 3]]
+    )
+    np.testing.assert_array_equal(model.data.index, [0, 2, 3])
+
+
+def test_dropna_aligns_nonlinear_expression_and_censored_response():
+    data = censored_nonlinear_data(("left", "right", "none", "right")).assign(
+        z=[0.0, np.nan, 0.5, -0.5]
+    )
+    model = censored_nonlinear_model(data, dropna=True)
+
+    assert len(model.response_term.data) == 3
+    np.testing.assert_array_equal(model.response_term.data[:, 0], data.y.iloc[[0, 2, 3]])
+    np.testing.assert_array_equal(model.response_term.data[:, 1], [-1, 0, 1])
+    np.testing.assert_array_equal(model.data.index, [0, 2, 3])
+
+
+@pytest.mark.parametrize(
+    "family",
+    ["exponential", "weibull", "weibull_ph", "lognormal", "loglogistic", "gamma", "wald"],
+)
+def test_nonlinear_competing_risks_families_build(family):
+    data = competing_risks_nonlinear_data()
+    formula = bmb.Formula(
+        "risks(time, status, cause) ~ nl(rate*x)", "rate ~ 1 + z", nlpars=("rate",)
+    )
+    model = bmb.Model(formula, data, family=family, link="log" if family == "gamma" else None)
+
+    model.build()
+
+    parent = model.family.likelihood.parent
+    assert model.backend.model.named_vars_to_dims[parent] == ("__obs__", "cause_dim")
+    assert np.isfinite(model.backend.model.compile_logp()(model.backend.model.initial_point()))
+
+
+@pytest.mark.parametrize(
+    ("response_ndim", "parent_ndim", "coefs_dim"),
+    [
+        (1, 2, DimType.RESPONSE),
+        (2, 1, DimType.RESPONSE),
+        (2, 2, DimType.RESPONSE),
+        (1, 1, DimType.RESPONSE_REDUCED),
+    ],
+)
+def test_nonlinear_numeric_vector_response_rejects_unsupported_axes(
+    response_ndim, parent_ndim, coefs_dim
+):
+    class UnsupportedVectorFamily(bmb.Family):
+        RESPONSE_NDIM = response_ndim
+        PARAMETERS = {"mu": ParamSpec(links=["identity"], ndim=parent_ndim, coefs_dim=coefs_dim)}
+
+    likelihood = bmb.Likelihood(
+        "VectorNormal", params=["mu"], parent="mu", dist=partial(pm.MvNormal, cov=VECTOR_NORMAL_COV)
+    )
+    family = UnsupportedVectorFamily("unsupported_vector_normal", likelihood, "identity")
+    with pytest.raises(ValueError, match="Nonlinear vector parents"):
+        bmb.Model(
+            bmb.Formula("join(y1, y2) ~ 0 + nl(0.7)"),
+            vector_normal_data(),
+            family=family,
+            extra_namespace={"join": join_vector_response},
+        )
+
+
+def test_nonlinear_numeric_vector_response_rejects_unsupported_shapes():
+    data = vector_normal_data()
+    response_formula = bmb.Formula("join(y1, y2) ~ 0 + nl(0.7)")
+    namespace = {"join": join_vector_response}
+
+    class VectorAuxiliaryFamily(bmb.Family):
+        RESPONSE_NDIM = 1
+        PARAMETERS = {
+            "mu": ParamSpec(links=["identity"], ndim=1, coefs_dim=DimType.RESPONSE),
+            "scale": ParamSpec(links=["identity"], ndim=1, coefs_dim=DimType.RESPONSE),
+        }
+
+    auxiliary_likelihood = bmb.Likelihood(
+        "VectorAuxiliaryNormal",
+        params=["mu", "scale"],
+        parent="mu",
+        dist=partial(pm.MvNormal, cov=VECTOR_NORMAL_COV),
+    )
+    auxiliary_family = VectorAuxiliaryFamily(
+        "vector_auxiliary_normal", auxiliary_likelihood, "identity"
+    )
+    with pytest.raises(ValueError, match="scalar auxiliary parameters"):
+        bmb.Model(response_formula, data, family=auxiliary_family, extra_namespace=namespace)
+
+    scalar_data = pd.DataFrame({"y": np.linspace(0, 1, len(data))})
+    with pytest.raises(ValueError, match="requires a numeric matrix response"):
+        bmb.Model(
+            "y ~ 0 + nl(0.7)",
+            scalar_data,
+            family=vector_normal_family(),
+        )
+
+
+@pytest.mark.parametrize("response", ["weighted(y1, w)", "censored(y1, status)", "counts(y1, y2)"])
+def test_nonlinear_numeric_vector_response_rejects_special_wrappers(response):
+    data = vector_normal_data().assign(w=1.0, status="none")
+    with pytest.raises(ValueError, match="requires a numeric matrix response"):
+        bmb.Model(bmb.Formula(f"{response} ~ 0 + nl(0.7)"), data, family=vector_normal_family())
+
+
+def test_nonlinear_numeric_vector_response_rejects_categorical_encoding():
+    data = pd.DataFrame({"y": pd.Categorical(["a", "b", "a"])})
+    with pytest.raises(ValueError, match="requires a numeric matrix response"):
+        bmb.Model(bmb.Formula("y ~ 0 + nl(0.7)"), data, family=vector_normal_family())
+
+
+@pytest.mark.parametrize(
+    ("formula", "coefficient"),
+    [
+        (
+            bmb.Formula(
+                "join(y1, y2) ~ 0 + nl(rate*x)",
+                "nu ~ 0 + nl(rate*z)",
+                "rate ~ 1 + z",
+                nlpars=("rate",),
+            ),
+            "rate",
+        ),
+        (
+            bmb.Formula(
+                "join(y1, y2) ~ 0 + nl(k*x)",
+                "nu ~ 0 + nl(k)",
+                "k ~ 0 + z + nl(rate*x)",
+                "rate ~ 0 + z",
+                nlpars=("k", "rate"),
+            ),
+            "k",
+        ),
+        (
+            bmb.Formula(
+                "join(y1, y2) ~ 0 + nl(rate*x)",
+                "nu ~ 0 + nl(k)",
+                "k ~ 0 + nl(j*x)",
+                "j ~ 0 + nl(rate*z)",
+                "rate ~ 1 + z",
+                nlpars=("k", "j", "rate"),
+            ),
+            "rate",
+        ),
+    ],
+)
+def test_conditional_coefficient_rejects_incompatible_consumer_dimensions(formula, coefficient):
+    with pytest.raises(
+        ValueError,
+        match=rf"{coefficient}.*incompatible coefficient dimensions.*mu \(response\).*nu \(scalar\)",
+    ):
+        bmb.Model(
+            formula,
+            vector_normal_data(),
+            family=vector_student_t_family(),
+            extra_namespace={"join": join_vector_response},
+        )

@@ -5,6 +5,7 @@ import pytensor.sparse as ps
 import pytensor.tensor as pt
 import scipy.sparse as sp
 
+from bambi.backend.pymc.nonlinear import nonlinear_predictor_dims, nonlinear_predictor_spec
 from bambi.backend.pymc.terms import (
     build_common_term,
     build_group_specific_term_dot,
@@ -85,16 +86,12 @@ def build_nonlinear_coefficient(
     ``Model.build()`` uses this function to create the graph variable ``a`` for
     ``Formula("y ~ a * x", "a ~ 1 + z", nlpars=("a",))``.
     """
-    param_spec = ParamSpec(links=["identity"])
-    return build_additive_parameter(
-        parameter_info,
-        param_spec,
-        INVERSE_LINKS["identity"],
-        None,
-        {},
-        group_specific_state,
-        model,
-    )
+    parameter = parameter_info.parameter
+    param_spec = nonlinear_predictor_spec(parameter, parameter.spec.family)
+    value = build_additive_predictor(parameter_info, param_spec, group_specific_state, model)
+    dims = nonlinear_predictor_dims(param_spec, model)
+    value = pt.broadcast_to(value, tuple(model.dim_lengths[dim] for dim in dims))
+    return pm.Deterministic(parameter.label, value, dims=dims, model=model)
 
 
 def build_additive_parameter(
@@ -162,7 +159,10 @@ def build_additive_predictor(
         )
         value += group_specific_contribution
 
-    value += _build_offset_terms(parameter_info.offset_terms, model)
+    offset = _build_offset_terms(parameter_info.offset_terms, model)
+    if param_spec.coefs_dim is not None and getattr(offset, "ndim", 0) == 1:
+        offset = offset[:, None]
+    value += offset
 
     for term_info in parameter_info.hsgp_terms:
         value += build_hsgp_term(term_info, param_spec, model)
