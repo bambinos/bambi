@@ -68,6 +68,27 @@ class CommonTerm:
                 if value.ndim == 1:
                     kwargs[key] = np.hstack([value[:, np.newaxis]] * response_dims_n)
 
+        if self.term.categorical and spec.categorical_encoding == "zero-sum":
+            kwargs = dict(self.term.prior.args)
+
+            # ZeroSumNormal does NOT accept mu
+            kwargs.pop("mu", None)
+
+            # ZeroSumNormal requires sigma to be scalar (not vector)
+            if "sigma" in kwargs and hasattr(kwargs["sigma"], "ndim") and kwargs["sigma"].ndim > 0:
+                kwargs["sigma"] = float(np.mean(kwargs["sigma"]))
+
+            if response_dims and term_dims:
+                coef = pm.ZeroSumNormal(label, dims=term_dims + response_dims, **kwargs)
+            elif response_dims:
+                coef = pm.ZeroSumNormal(label, dims=response_dims, **kwargs)[np.newaxis, :]
+            elif term_dims:
+                coef = pm.ZeroSumNormal(label, dims=term_dims, **kwargs)
+            else:
+                coef = pt.atleast_1d(pm.ZeroSumNormal(label, **kwargs))
+
+            return coef
+
         if response_dims and term_dims:
             # shape: (p_j, K)
             coef = distribution(label, dims=term_dims + response_dims, **kwargs)
