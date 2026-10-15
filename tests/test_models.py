@@ -3653,7 +3653,9 @@ def test_nonlinear_vector_prediction(family, expression):
             np.testing.assert_array_equal(draws.sum(axis=-1), np.full((1, 3, count), 4))
             observed_counts = observed[["c1", "c2", "c3"]].to_numpy()
             if family == "multinomial":
-                expected_loglik = stats.multinomial.logpmf(observed_counts, n=observed.n, p=expected)
+                expected_loglik = stats.multinomial.logpmf(
+                    observed_counts, n=observed.n, p=expected
+                )
             else:
                 expected_loglik = stats.dirichlet_multinomial.logpmf(
                     observed_counts, alpha=expected, n=observed.n
