@@ -3651,12 +3651,12 @@ def test_nonlinear_vector_prediction(family, expression):
             expected_loglik = np.log(expected[:, :, np.arange(count), observed.y.cat.codes])
         else:
             np.testing.assert_array_equal(draws.sum(axis=-1), np.full((1, 3, count), 4))
-            counts = observed[["c1", "c2", "c3"]].to_numpy()
+            observed_counts = observed[["c1", "c2", "c3"]].to_numpy()
             if family == "multinomial":
-                expected_loglik = stats.multinomial.logpmf(counts, n=observed.n, p=expected)
+                expected_loglik = stats.multinomial.logpmf(observed_counts, n=observed.n, p=expected)
             else:
                 expected_loglik = stats.dirichlet_multinomial.logpmf(
-                    counts, alpha=expected, n=observed.n
+                    observed_counts, alpha=expected, n=observed.n
                 )
         likelihood = model.compute_log_likelihood(idata, data=new_data, inplace=False)
         np.testing.assert_allclose(
@@ -3856,11 +3856,11 @@ def test_nonlinear_fixed_vector_prediction_and_log_likelihood(family):
         assert np.all(samples.sum(axis=-1) == data.n.to_numpy())
         from scipy.special import gammaln
 
-        counts = data[["c1", "c2", "c3"]].to_numpy()
+        observed_counts = data[["c1", "c2", "c3"]].to_numpy()
         expected = (
             gammaln(data.n.to_numpy() + 1)
-            - gammaln(counts + 1).sum(axis=-1)
-            + (counts * np.log(probabilities)).sum(axis=-1)
+            - gammaln(observed_counts + 1).sum(axis=-1)
+            + (observed_counts * np.log(probabilities)).sum(axis=-1)
         )
 
     likelihood = model.compute_log_likelihood(params, inplace=False)
@@ -3890,11 +3890,11 @@ def test_nonlinear_fixed_vector_prediction_and_log_likelihood(family):
                 predicted_response.predictions[model.response_term.label].to_numpy().sum(axis=-1),
                 np.broadcast_to(observed.n.to_numpy(), (2, 3, count)),
             )
-            counts = observed[["c1", "c2", "c3"]].to_numpy()
+            observed_counts = observed[["c1", "c2", "c3"]].to_numpy()
             expected_new = (
                 gammaln(observed.n.to_numpy() + 1)
-                - gammaln(counts + 1).sum(axis=-1)
-                + (counts * np.log(probabilities[:, :, :count])).sum(axis=-1)
+                - gammaln(observed_counts + 1).sum(axis=-1)
+                + (observed_counts * np.log(probabilities[:, :, :count])).sum(axis=-1)
             )
         else:
             expected_new = np.log(probabilities[:, :, np.arange(count), observed.y.cat.codes])
