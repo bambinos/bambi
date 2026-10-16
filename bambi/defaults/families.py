@@ -374,8 +374,8 @@ BUILTIN_FAMILIES = {
         "family": OrderedBeta,
         "default_priors": {
             "kappa": {"name": "HalfCauchy", "beta": 1},
-            "cut0": {"name": "Normal", "mu": -2, "sigma": 1},
-            "logdelta": {"name": "Normal", "mu": 0, "sigma": 1},
+            "cut0": {"name": "Normal", "mu": -1, "sigma": 1.5},
+            "logdelta": {"name": "Normal", "mu": 0.3, "sigma": 1.1},
         },
     },
     "osm": {
