@@ -12,12 +12,12 @@ from bambi.backend.pymc.terms.info import (
     SmoothTermInfo,
 )
 from bambi.backend.pymc.types import Dims
-from bambi.parameters import ConditionalParameter
+from bambi.parameters import Conditional
 
 
 @dataclass(frozen=True)
 class ConditionalParameterInfo:
-    parameter: ConditionalParameter
+    parameter: Conditional
     common_terms: tuple[CommonTermInfo, ...]
     offset_terms: tuple[CommonTermInfo, ...]
     hsgp_terms: tuple[HSGPTermInfo, ...]
@@ -127,7 +127,7 @@ class GroupSpecificGraphState:
         )
 
 
-def make_conditional_parameter_info(parameter: ConditionalParameter) -> ConditionalParameterInfo:
+def make_conditional_parameter_info(parameter: Conditional) -> ConditionalParameterInfo:
     common_terms = tuple(
         CommonTermInfo(term=term, coords=coords_from_common(term))
         for term in parameter.common_terms.values()

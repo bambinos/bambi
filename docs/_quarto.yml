@@ -7,6 +7,7 @@ project:
   render:
     - "*.qmd"
     - "notebooks/*.ipynb"
+    - "notebooks/*.qmd"
     # - "!ignored-dir/"
     # - "!ignored-file.qmd"
     # they should go after things we do want to render
@@ -79,6 +80,8 @@ website:
             - notebooks/zero_inflated_regression.ipynb
         - section: More advanced models
           contents:
+            - notebooks/nonlinear_expressions.ipynb
+            - notebooks/golf_putting.ipynb
             - notebooks/distributional_models.ipynb
             - notebooks/hsgp_1d.ipynb
             - notebooks/hsgp_2d.ipynb

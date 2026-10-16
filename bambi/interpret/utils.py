@@ -2,8 +2,6 @@ from typing import Any, Callable, NamedTuple
 
 import numpy as np
 import xarray as xr
-from formulae.terms.call import Call
-from formulae.terms.call_resolver import LazyVariable
 from pandas import DataFrame, Series
 from pandas.core.groupby import DataFrameGroupBy, SeriesGroupBy
 
@@ -187,15 +185,7 @@ def get_model_terms(model: Model) -> dict:
     dict
         A dictionary containing all terms from the model's conditional parameters.
     """
-    terms = {}
-    for parameter in model.conditional_parameters.values():
-        if parameter.design.common:
-            terms.update(parameter.design.common.terms)
-
-        if parameter.design.group:
-            terms.update(parameter.design.group.terms)
-
-    return terms
+    return model.get_terms()
 
 
 def get_model_covariates(model: Model) -> np.ndarray:
@@ -211,32 +201,7 @@ def get_model_covariates(model: Model) -> np.ndarray:
     np.ndarray
         An array of unique covariate names present in the model.
     """
-    terms = get_model_terms(model)
-    covariates = []
-    for term in terms.values():
-        if hasattr(term, "components"):
-            for component in term.components:
-                # If the component is a function call, look for relevant argument names
-                if isinstance(component, Call):
-                    # Add variable names passed as unnamed arguments
-                    covariates.extend(
-                        arg.name for arg in component.call.args if isinstance(arg, LazyVariable)
-                    )
-                    # Add variable names passed as named arguments
-                    covariates.extend(
-                        kwarg_value.name
-                        for kwarg_value in component.call.kwargs.values()
-                        if isinstance(kwarg_value, LazyVariable)
-                    )
-                else:
-                    covariates.append(component.name)
-        elif hasattr(term, "factor"):
-            covariates.extend(list(term.var_names))
-
-    # Don't include non-covariate names (#797)
-    covariates = [name for name in covariates if name in model.data]
-
-    return np.unique(covariates)
+    return model.get_covariates()
 
 
 def identity(x: Any) -> Any:

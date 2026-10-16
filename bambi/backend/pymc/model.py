@@ -16,9 +16,15 @@ from pymc.model.transform.conditioning import remove_value_transforms
 from xarray import DataTree
 
 from bambi.backend.pymc.coords import coords_from_response
+from bambi.backend.pymc.nonlinear import (
+    build_new_nonlinear_data,
+    build_nonlinear_parameter,
+    nonlinear_predictor_spec,
+)
 from bambi.backend.pymc.parameters import (
     build_conditional_parameter,
     build_marginal_parameter,
+    build_nonlinear_coefficient,
     remove_group_specific_contributions,
 )
 from bambi.backend.pymc.parameters.conditional import (
@@ -31,6 +37,7 @@ from bambi.backend.pymc.parameters.conditional import (
     build_new_sparse_conditional_parameter_data,
     make_conditional_parameter_info,
 )
+from bambi.backend.pymc.parameters.conditional.build import build_additive_predictor
 from bambi.backend.pymc.terms import build_potentials, build_response_term
 from bambi.backend.pymc.terms.response import (
     build_new_response_data,
@@ -40,6 +47,8 @@ from bambi.backend.pymc.terms.response import (
     replace_response_variables,
 )
 from bambi.config import config as bmb_config
+from bambi.nonlinear import prepare_nonlinear_data
+from bambi.parameters import Conditional, ConditionalCoefficient, Marginal
 from bambi.utils import as_dataset
 
 _logger = logging.getLogger("bambi")
@@ -71,6 +80,78 @@ def _suppress_logging():
         logger.setLevel(level)
 
 
+def _fixed_outputs_dataset(model, posterior, names, outputs=None):
+    """Evaluate outputs that do not depend on posterior random variables."""
+    if outputs is None:
+        outputs = [model[name] for name in names]
+    fn = model.compile_fn(outputs, inputs=[], on_unused_input="ignore", point_fn=False)
+    values = fn()
+
+    coords = {name: posterior.coords[name] for name in ("chain", "draw")}
+    variables = {}
+    for name, value in zip(names, values, strict=True):
+        value = np.asarray(value)
+        variable_dims = tuple(model.named_vars_to_dims.get(name, ()))[: value.ndim]
+        variable_coords = {
+            dim: list(model.coords[dim]) for dim in variable_dims if dim in model.coords
+        }
+        shape = (posterior.sizes["chain"], posterior.sizes["draw"]) + value.shape
+        values = np.broadcast_to(value, shape)
+        variables[name] = xr.DataArray(
+            values,
+            dims=("chain", "draw") + variable_dims,
+            coords={**coords, **variable_coords},
+        )
+    return xr.Dataset(variables)
+
+
+def _reshape_fixed_samples(dataset, posterior):
+    """Restore the supplied chain and draw coordinates on fixed-model samples."""
+    chain_size = posterior.sizes["chain"]
+    draw_size = posterior.sizes["draw"]
+    variables = {}
+    coords = {name: posterior.coords[name] for name in ("chain", "draw")}
+    for name, variable in dataset.data_vars.items():
+        values = variable.to_numpy().reshape((chain_size, draw_size) + variable.shape[2:])
+        dims = ("chain", "draw") + variable.dims[2:]
+        variable_coords = {
+            dim: dataset.coords[dim] for dim in variable.dims[2:] if dim in dataset.coords
+        }
+        variables[name] = xr.DataArray(values, dims=dims, coords={**coords, **variable_coords})
+    return xr.Dataset(variables, attrs=dataset.attrs)
+
+
+def _sample_fixed_predictions(
+    model, posterior, var_names, random_seed, progressbar, predictions=False
+):
+    sample_count = posterior.sizes["chain"] * posterior.sizes["draw"]
+    result = pm.sample_posterior_predictive(
+        trace=[{}] * sample_count,
+        var_names=var_names,
+        model=model,
+        random_seed=random_seed,
+        progressbar=progressbar,
+        predictions=predictions,
+        return_inferencedata=True,
+        extend_inferencedata=False,
+    )
+    group_name = "predictions" if predictions else "posterior_predictive"
+    dataset = _reshape_fixed_samples(as_dataset(result[group_name]), posterior)
+    constant_data = (
+        result["predictions_constant_data"]
+        if predictions and "predictions_constant_data" in result
+        else None
+    )
+    return dataset, constant_data
+
+
+def _fixed_log_likelihood(model, posterior):
+    observed_rvs = model.observed_RVs
+    names = [rv.name for rv in observed_rvs]
+    outputs = model.logp(vars=observed_rvs, sum=False)
+    return _fixed_outputs_dataset(model, posterior, names, outputs=outputs)
+
+
 class PyMCModel:
     def __init__(self, model):
         """_summary_
@@ -87,6 +168,15 @@ class PyMCModel:
         self._conditional_parameter_info: dict[str, ConditionalParameterInfo] = {}
         self._group_specific_state: GroupSpecificGraphState = GroupSpecificGraphState()
 
+    @property
+    def _intermediate_nonlinear_parameter_names(self) -> tuple[str, ...]:
+        """Return nonlinear quantities that should not be sampled directly."""
+        return tuple(
+            quantity.label
+            for quantity in self.spec.parameter_graph.nonlinear_coefficients.values()
+            if isinstance(quantity, Conditional)
+        )
+
     def build(self) -> None:
         response_coords_data, response_coords, response_coords_reduced = coords_from_response(
             self.spec.response_term, self.spec.family
@@ -98,21 +188,59 @@ class PyMCModel:
             "response_coords_data": response_coords_data,
             "response_coords": response_coords,
             "response_coords_reduced": response_coords_reduced,
+            "offset_names": set(),
         }
 
         marginal_parameters = {}
         conditional_parameters = {}
+        parameter_values = {}
         self._conditional_parameter_info = {}
         self._group_specific_state = GroupSpecificGraphState()
-        for name, parameter in self.spec.marginal_parameters.items():
-            marginal_parameters[name] = build_marginal_parameter(parameter, self.spec.family, model)
-
-        for name, parameter in self.spec.conditional_parameters.items():
-            parameter_info = make_conditional_parameter_info(parameter)
-            self._conditional_parameter_info[name] = parameter_info
-            conditional_parameters[name] = build_conditional_parameter(
-                parameter_info, self.spec.family, self._group_specific_state, model
-            )
+        quantities = self.spec.parameter_graph.nodes or self.spec.parameters
+        order = self.spec.parameter_graph.order or (
+            tuple(self.spec.marginal_parameters) + tuple(self.spec.conditional_parameters)
+        )
+        for name in order:
+            quantity = quantities[name]
+            if isinstance(quantity, Marginal):
+                value = build_marginal_parameter(quantity, self.spec.family, model)
+            elif quantity.is_nonlinear:
+                additive_value = 0
+                if quantity.design is not None:
+                    parameter_info = make_conditional_parameter_info(quantity)
+                    self._conditional_parameter_info[name] = parameter_info
+                    additive_value = build_additive_predictor(
+                        parameter_info,
+                        nonlinear_predictor_spec(quantity, self.spec.family),
+                        self._group_specific_state,
+                        model,
+                    )
+                value = build_nonlinear_parameter(
+                    quantity,
+                    parameter_values,
+                    self.spec.data,
+                    model,
+                    self.spec.family,
+                    marginal_parameters | conditional_parameters,
+                    additive_value,
+                )
+            else:
+                parameter_info = make_conditional_parameter_info(quantity)
+                self._conditional_parameter_info[name] = parameter_info
+                if isinstance(quantity, ConditionalCoefficient):
+                    value = build_nonlinear_coefficient(
+                        parameter_info, self._group_specific_state, model
+                    )
+                else:
+                    value = build_conditional_parameter(
+                        parameter_info, self.spec.family, self._group_specific_state, model
+                    )
+            parameter_values[name] = value
+            if name in self.spec.parameters:
+                if isinstance(quantity, Marginal):
+                    marginal_parameters[name] = value
+                else:
+                    conditional_parameters[name] = value
 
         build_response_term(
             term=self.spec.response_term,
@@ -197,13 +325,20 @@ class PyMCModel:
         if prior_only:
             unobserved_rvs_names = []
             flat_rvs = []
+            intermediate_nonlinear_parameter_names = self._intermediate_nonlinear_parameter_names
+            likelihood_parameter_names = {
+                parameter.label for parameter in self.spec.parameters.values()
+            }
             for unobserved in self.model.unobserved_RVs:
                 if "Flat" in str(unobserved):
                     flat_rvs.append(unobserved.name)
                 else:
-                    is_likelihood_param = unobserved.name in self.spec.family.likelihood.params
+                    is_likelihood_param = unobserved.name in likelihood_parameter_names
                     is_deterministic = unobserved in self.model.deterministics
-                    if is_likelihood_param and is_deterministic:
+                    if is_deterministic and (
+                        is_likelihood_param
+                        or unobserved.name in intermediate_nonlinear_parameter_names
+                    ):
                         continue
                     unobserved_rvs_names.append(unobserved.name)
 
@@ -227,13 +362,15 @@ class PyMCModel:
             )
 
         if omit_offsets:
-            var_names = [name for name in var_names if not name.endswith("_offset")]
+            var_names = [
+                name for name in var_names if name not in self.model.__bambi_attrs__["offset_names"]
+            ]
 
         if omit_group_specific:
             group_specific_var_names = [
-                name
-                for parameter in self.spec.conditional_parameters.values()
-                for name in parameter.group_specific_terms
+                term_info.term.label
+                for parameter_info in self._conditional_parameter_info.values()
+                for term_info in parameter_info.group_specific_terms
             ]
             var_names = [name for name in var_names if name not in group_specific_var_names]
 
@@ -292,7 +429,10 @@ class PyMCModel:
                 term = term_info.term
                 term_label = term.label
                 offset_name = f"{term_label}_offset"
-                if term.noncentered and offset_name not in posterior:
+                if (
+                    offset_name in self.model.__bambi_attrs__["offset_names"]
+                    and offset_name not in posterior
+                ):
                     sigma_name = term.hyperprior_alias.get("sigma", "sigma")
                     offset_values[offset_name] = (
                         posterior[term_label] / posterior[f"{term_label}_{sigma_name}"]
@@ -348,7 +488,10 @@ class PyMCModel:
                 term = term_info.term
                 term_label = term.label
                 offset_name = f"{term_label}_offset"
-                if term.noncentered and offset_name not in posterior:
+                if (
+                    offset_name in self.model.__bambi_attrs__["offset_names"]
+                    and offset_name not in posterior
+                ):
                     sigma_name = term.hyperprior_alias.get("sigma", "sigma")
                     offset_values[offset_name] = (
                         posterior[term_label] / posterior[f"{term_label}_{sigma_name}"]
@@ -447,12 +590,20 @@ class PyMCModel:
             model = remove_group_specific_contributions(self._group_specific_state, model)
 
         # It's assumed the user always wants the parameter 'predictions' (mu, sigma, etc.)
-        with _suppress_logging(), model:
-            posterior_for_prediction = pm.compute_deterministics(
-                dataset=posterior_for_prediction,
-                var_names=parameters_names,
-                progressbar=progressbar,
-                extend_dataset=True,
+        if model.free_RVs:
+            with _suppress_logging(), model:
+                posterior_for_prediction = pm.compute_deterministics(
+                    dataset=posterior_for_prediction,
+                    var_names=parameters_names,
+                    progressbar=progressbar,
+                    extend_dataset=True,
+                )
+        else:
+            fixed_parameters = _fixed_outputs_dataset(
+                model, posterior_for_prediction, parameters_names
+            )
+            posterior_for_prediction = posterior_for_prediction.merge(
+                fixed_parameters, compat="override"
             )
 
         idata["posterior"] = as_dataset(idata["posterior"]).merge(
@@ -464,24 +615,47 @@ class PyMCModel:
             prediction_model = replace_response_variables(
                 self.spec.response_term, prediction_model, kind
             )
+            parameter_aliases = {
+                name: parameter.label for name, parameter in self.spec.parameters.items()
+            }
             interventions = build_response_interventions(
-                self.spec.response_term, prediction_model, self.spec.family, kind
+                self.spec.response_term,
+                prediction_model,
+                self.spec.family,
+                kind,
+                parameter_aliases,
             )
             if interventions:
                 prediction_model = pm.do(prediction_model, interventions)
             build_response_prediction_variables(
-                self.spec.response_term, prediction_model, self.spec.family, kind
+                self.spec.response_term,
+                prediction_model,
+                self.spec.family,
+                kind,
+                parameter_aliases,
             )
 
-            with _suppress_logging(), prediction_model:
-                predictions = pm.sample_posterior_predictive(
-                    trace=posterior_for_prediction,
-                    var_names=responses_names,
-                    random_seed=random_seed,
-                    progressbar=progressbar,
-                )
+            if prediction_model.free_RVs:
+                with _suppress_logging(), prediction_model:
+                    predictions = pm.sample_posterior_predictive(
+                        trace=posterior_for_prediction,
+                        var_names=responses_names,
+                        random_seed=random_seed,
+                        progressbar=progressbar,
+                    )
 
-            idata["posterior_predictive"] = as_dataset(predictions["posterior_predictive"])
+                dataset = as_dataset(predictions["posterior_predictive"])
+            else:
+                with _suppress_logging(), prediction_model:
+                    dataset, _ = _sample_fixed_predictions(
+                        prediction_model,
+                        posterior_for_prediction,
+                        responses_names,
+                        random_seed,
+                        progressbar,
+                    )
+
+            idata["posterior_predictive"] = dataset
 
     def _predict_out_of_sample(
         self,
@@ -523,34 +697,58 @@ class PyMCModel:
                     factor_plans, group_specific_state, model
                 )
 
+        parameter_aliases = {
+            name: parameter.label for name, parameter in self.spec.parameters.items()
+        }
         interventions = build_response_interventions(
-            self.spec.response_term, model, self.spec.family, kind
+            self.spec.response_term,
+            model,
+            self.spec.family,
+            kind,
+            parameter_aliases,
         )
         if interventions:
             model = pm.do(model, interventions)
-        build_response_prediction_variables(self.spec.response_term, model, self.spec.family, kind)
+        build_response_prediction_variables(
+            self.spec.response_term,
+            model,
+            self.spec.family,
+            kind,
+            parameter_aliases,
+        )
 
-        with _suppress_logging(), model:
-            predictions = pm.sample_posterior_predictive(
-                trace=trace,
-                var_names=var_names,
-                progressbar=progressbar,
-                random_seed=random_seed,
-                extend_inferencedata=False,
-                predictions=True,
-            )
+        if model.free_RVs:
+            with _suppress_logging(), model:
+                predictions = pm.sample_posterior_predictive(
+                    trace=trace,
+                    var_names=var_names,
+                    progressbar=progressbar,
+                    random_seed=random_seed,
+                    extend_inferencedata=False,
+                    predictions=True,
+                )
 
-        idata["predictions"] = as_dataset(predictions["predictions"])
-        if "predictions_constant_data" in predictions:
-            idata["predictions_constant_data"] = as_dataset(
-                predictions["predictions_constant_data"]
-            )
+            prediction_dataset = as_dataset(predictions["predictions"])
+            constant_data = predictions.get("predictions_constant_data")
+        else:
+            with _suppress_logging(), model:
+                prediction_dataset, constant_data = _sample_fixed_predictions(
+                    model, trace, var_names, random_seed, progressbar, predictions=True
+                )
+
+        idata["predictions"] = prediction_dataset
+        if constant_data is not None:
+            idata["predictions_constant_data"] = as_dataset(constant_data)
 
     def _compute_log_likelihood_in_sample(self, trace, progressbar) -> None:
-        with _suppress_logging(), self.model:
-            pm.compute_log_likelihood(
-                idata=trace, extend_inferencedata=True, progressbar=progressbar
-            )
+        if self.model.free_RVs:
+            with _suppress_logging(), self.model:
+                pm.compute_log_likelihood(
+                    idata=trace, extend_inferencedata=True, progressbar=progressbar
+                )
+        else:
+            posterior = as_dataset(trace["posterior"])
+            trace["log_likelihood"] = _fixed_log_likelihood(self.model, posterior)
 
     def _compute_log_likelihood_out_of_sample(self, trace, data: pd.DataFrame, progressbar) -> None:
         new_data, new_coords, factor_plans = self._build_new_data(data, "log_likelihood")
@@ -568,15 +766,31 @@ class PyMCModel:
         pm.set_data(new_data, coords=new_coords, model=model)
         model = replace_response_variables(self.spec.response_term, model)
 
-        with _suppress_logging(), model:
-            pm.compute_log_likelihood(
-                idata=trace,
-                var_names=[self.spec.response_term.label],
-                extend_inferencedata=True,
-                progressbar=progressbar,
-            )
+        if model.free_RVs:
+            with _suppress_logging(), model:
+                pm.compute_log_likelihood(
+                    idata=trace,
+                    var_names=[self.spec.response_term.label],
+                    extend_inferencedata=True,
+                    progressbar=progressbar,
+                )
+        else:
+            posterior = as_dataset(trace["posterior"])
+            trace["log_likelihood"] = _fixed_log_likelihood(model, posterior)
 
     def _build_new_data(self, data: pd.DataFrame, purpose: str, kind: str | None = None):
+        if self.spec.formula.is_nonlinear:
+            data = prepare_nonlinear_data(
+                self.spec.formula,
+                {
+                    name: parameter.expression
+                    for name, parameter in self.spec.parameter_graph.expression_nodes.items()
+                },
+                data,
+                dropna=False,
+                include_response=purpose == "log_likelihood",
+                parameter_names=self.spec.parameter_graph.dependencies,
+            )
         new_coords = {"__obs__": range(len(data))}
         new_data = build_new_response_data(
             self.spec.response_term, data, self.spec.family, purpose, kind
@@ -595,6 +809,10 @@ class PyMCModel:
                 )
             new_data.update(parameter_data)
             factor_plans.extend(parameter_factor_plans)
+
+        if self.spec.formula.is_nonlinear:
+            for parameter in self.spec.parameter_graph.expression_nodes.values():
+                new_data.update(build_new_nonlinear_data(parameter, data))
 
         return new_data, new_coords, factor_plans
 
@@ -619,12 +837,23 @@ class PyMCModel:
         )
         vars_to_sample = [variable.name for variable in vars_to_sample]
 
+        intermediate_nonlinear_parameter_names = self._intermediate_nonlinear_parameter_names
+        vars_to_sample = [
+            var for var in vars_to_sample if var not in intermediate_nonlinear_parameter_names
+        ]
+
         if not include_response_params:
-            parameters_names = [param.label for param in self.spec.conditional_parameters.values()]
-            vars_to_sample = [var for var in vars_to_sample if var not in parameters_names]
+            response_parameter_names = [
+                param.label for param in self.spec.conditional_parameters.values()
+            ]
+            vars_to_sample = [var for var in vars_to_sample if var not in response_parameter_names]
 
         if omit_offsets:
-            vars_to_sample = [var for var in vars_to_sample if not var.endswith("_offset")]
+            vars_to_sample = [
+                var
+                for var in vars_to_sample
+                if var not in self.model.__bambi_attrs__["offset_names"]
+            ]
 
         # pm.sample routes nuts settings via kwargs.pop("nuts", {}); only inject when provided
         # to avoid passing nuts=None which causes pm.sample's internal nuts_kwargs.copy() to fail.
@@ -671,7 +900,11 @@ class PyMCModel:
         if omit_offsets:
             # Nutpie can still return the non-centered auxiliary variables.
             posterior = as_dataset(idata["posterior"])
-            offset_vars = [name for name in posterior.data_vars if name.endswith("_offset")]
+            offset_vars = [
+                name
+                for name in posterior.data_vars
+                if name in self.model.__bambi_attrs__["offset_names"]
+            ]
             if offset_vars:
                 idata["posterior"] = posterior.drop_vars(offset_vars)
 
@@ -739,10 +972,12 @@ class PyMCModel:
         response_parameter_names = [
             parameter.label for parameter in self.spec.conditional_parameters.values()
         ]
+        intermediate_nonlinear_parameter_names = self._intermediate_nonlinear_parameter_names
         idata = _posterior_samples_to_idata(
             samples,
             self.model,
-            excluded_var_names=response_parameter_names,
+            excluded_var_names=response_parameter_names
+            + list(intermediate_nonlinear_parameter_names),
         )
 
         if include_response_params:
@@ -757,7 +992,11 @@ class PyMCModel:
 
         if omit_offsets:
             posterior = as_dataset(idata["posterior"])
-            offset_vars = [var for var in posterior.data_vars if var.endswith("_offset")]
+            offset_vars = [
+                var
+                for var in posterior.data_vars
+                if var in self.model.__bambi_attrs__["offset_names"]
+            ]
             idata["posterior"] = posterior.drop_vars(offset_vars)
 
         return idata
