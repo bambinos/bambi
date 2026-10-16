@@ -373,7 +373,7 @@ BUILTIN_FAMILIES = {
         "link": {"mu": "logit", "kappa": "log", "cut0": "identity", "logdelta": "identity"},
         "family": OrderedBeta,
         "default_priors": {
-            "kappa": {"name": "Gamma", "alpha": 2, "beta": 0.1},
+            "kappa": {"name": "HalfCauchy", "beta": 1},
             "cut0": {"name": "Normal", "mu": -2, "sigma": 1},
             "logdelta": {"name": "Normal", "mu": 0, "sigma": 1},
         },
@@ -505,7 +505,7 @@ BUILTIN_FAMILIES = {
         "link": {"mu": "logit", "kappa": "log", "zoi": "logit", "coi": "logit"},
         "family": ZeroOneInflatedBeta,
         "default_priors": {
-            "kappa": {"name": "Gamma", "alpha": 2, "beta": 0.1},
+            "kappa": {"name": "HalfCauchy", "beta": 1},
             "zoi": {"name": "Beta", "alpha": 1, "beta": 1},
             "coi": {"name": "Beta", "alpha": 1, "beta": 1},
         },
