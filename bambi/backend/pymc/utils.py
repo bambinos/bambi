@@ -103,16 +103,6 @@ def _sigmoid_logit_shift(p, shift):
     return p / (p + (1 - p) * np.exp(shift))
 
 
-def _mu_support_point(size, mu, *params):
-    """Return mu broadcasted with the other parameters, a finite point in the support."""
-    point = mu
-    for param in params:
-        point = point + pt.zeros_like(param)
-    if not rv_size_is_none(size):
-        point = pt.full(size, point)
-    return point
-
-
 def ordered_beta_logp(value, mu, kappa, c0, c1):
     """Log-probability of the ordered beta distribution."""
     eta = pt.log(mu) - pt.log1p(-mu)
@@ -139,11 +129,6 @@ def ordered_beta_random(mu, kappa, c0, c1, rng=None, size=None):
     return np.where(u > 1 - p1, 1.0, draws)
 
 
-def ordered_beta_support_point(_rv, size, mu, kappa, c0, c1):
-    """Return mu, a finite point in the distribution support."""
-    return _mu_support_point(size, mu, kappa, c0, c1)
-
-
 class OrderedBeta:
     """Ordered beta distribution parameterized by mean, sample size, and two cutpoints.
 
@@ -161,7 +146,6 @@ class OrderedBeta:
             c1,
             random=ordered_beta_random,
             logp=ordered_beta_logp,
-            support_point=ordered_beta_support_point,
             signature="(),(),(),()->()",
             class_name=cls.__name__,
             **kwargs,
@@ -176,7 +160,6 @@ class OrderedBeta:
             c1,
             random=ordered_beta_random,
             logp=ordered_beta_logp,
-            support_point=ordered_beta_support_point,
             signature="(),(),(),()->()",
             class_name=cls.__name__,
             **kwargs,
@@ -213,11 +196,6 @@ def zero_one_inflated_beta_random(mu, kappa, zoi, coi, rng=None, size=None):
     return np.where(is_boundary, np.where(is_one, 1.0, 0.0), interior)
 
 
-def zero_one_inflated_beta_support_point(_rv, size, mu, kappa, zoi, coi):
-    """Return mu, a finite point in the distribution support."""
-    return _mu_support_point(size, mu, kappa, zoi, coi)
-
-
 class ZeroOneInflatedBeta:
     """Zero-one-inflated beta distribution parameterized by mean, sample size, and inflation.
 
@@ -235,7 +213,6 @@ class ZeroOneInflatedBeta:
             coi,
             random=zero_one_inflated_beta_random,
             logp=zero_one_inflated_beta_logp,
-            support_point=zero_one_inflated_beta_support_point,
             signature="(),(),(),()->()",
             class_name=cls.__name__,
             **kwargs,
@@ -250,7 +227,6 @@ class ZeroOneInflatedBeta:
             coi,
             random=zero_one_inflated_beta_random,
             logp=zero_one_inflated_beta_logp,
-            support_point=zero_one_inflated_beta_support_point,
             signature="(),(),(),()->()",
             class_name=cls.__name__,
             **kwargs,
