@@ -172,7 +172,7 @@ class LogLogistic(Family):
 class OrderedBeta(Family):
     """Ordered beta family
 
-    Beta interior (of `mu` and `kappa`), with additional boundary cutpoints 
+    Beta interior (of `mu` and `kappa`), with additional boundary cutpoints
     of `cut0` and `cut0 + exp(logdelta)`, as in ordbetareg (Kubinec, 2023).
     """
 
@@ -327,7 +327,7 @@ class ZeroInflatedPoisson(Family):
 class ZeroOneInflatedBeta(Family):
     """Zero-one-inflated beta family
 
-    Beta interior (of `mu` and `kappa`), with additional inflation parameters: 
+    Beta interior (of `mu` and `kappa`), with additional inflation parameters:
     `zoi` is the probability of a 0 or 1 and `coi` the probability that it is 1.
     """
 
