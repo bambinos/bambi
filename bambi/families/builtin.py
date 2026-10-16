@@ -172,11 +172,8 @@ class LogLogistic(Family):
 class OrderedBeta(Family):
     """Ordered beta family
 
-    A beta distribution on the interior of the unit interval, plus point masses at 0 and 1.
-    It uses the mean (mu) and sample size (kappa) parametrization of the Beta distribution.
-    The same latent scale `logit(mu)` determines the point masses, through two ordered
-    cutpoints `c0 < c1`, with `c0 = cut0` and `c1 = cut0 + exp(logdelta)`.
-    See Kubinec (2023), https://doi.org/10.1017/pan.2022.20.
+    Beta interior (of `mu` and `kappa`), with additional boundary cutpoints 
+    of `cut0` and `cut0 + exp(logdelta)`, as in ordbetareg (Kubinec, 2023).
     """
 
     PARAMETERS = {
@@ -330,10 +327,8 @@ class ZeroInflatedPoisson(Family):
 class ZeroOneInflatedBeta(Family):
     """Zero-one-inflated beta family
 
-    A beta distribution on the interior of the unit interval, plus point masses at 0 and 1.
-    It uses the mean (mu) and sample size (kappa) parametrization of the Beta distribution.
-    `zoi` is the probability of a value at the boundaries and `coi` is the probability that such
-    a value is 1. It matches the `zero_one_inflated_beta` family in brms.
+    Beta interior (of `mu` and `kappa`), with additional inflation parameters: 
+    `zoi` is the probability of a 0 or 1 and `coi` the probability that it is 1.
     """
 
     PARAMETERS = {
