@@ -233,6 +233,7 @@ def test_ordered_beta_distribution():
     np.testing.assert_allclose(
         pm.logp(dist, value).eval(), ordered_beta_reference_logp(value, mu, kappa, c0, c1)
     )
+    assert np.isneginf(pm.logp(dist, [-0.1, 1.1]).eval()).all()
     assert_unit_interval_normalization(dist)
     with pytest.raises(Exception, match="c0 < c1"):
         pm.logp(OrderedBeta.dist(mu, kappa, c1, c0), 0.5).eval()
@@ -264,6 +265,7 @@ def test_zero_one_inflated_beta_distribution(coi):
             pm.logp(dist, value).eval(),
             zero_one_inflated_beta_reference_logp(value, mu, kappa, zoi, coi),
         )
+    assert np.isneginf(pm.logp(dist, [-0.1, 1.1]).eval()).all()
     assert_unit_interval_normalization(dist)
 
 

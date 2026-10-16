@@ -118,6 +118,7 @@ def ordered_beta_logp(value, mu, kappa, c0, c1):
     log_interior = pt.log(pt.sigmoid(eta - c0) - pt.sigmoid(eta - c1))
     log_interior = log_interior + _interior_beta_logp(value, mu, kappa)
     logp = pt.switch(pt.eq(value, 0), log_p0, pt.switch(pt.eq(value, 1), log_p1, log_interior))
+    logp = pt.switch((value >= 0) & (value <= 1), logp, -np.inf)
     return check_parameters(logp, kappa > 0, c0 < c1, msg="kappa > 0, c0 < c1")
 
 
@@ -185,6 +186,7 @@ def zero_one_inflated_beta_logp(value, mu, kappa, zoi, coi):
     log_p1 = pt.log(zoi) + pt.log(coi)
     log_interior = pt.log1p(-zoi) + _interior_beta_logp(value, mu, kappa)
     logp = pt.switch(pt.eq(value, 0), log_p0, pt.switch(pt.eq(value, 1), log_p1, log_interior))
+    logp = pt.switch((value >= 0) & (value <= 1), logp, -np.inf)
     return check_parameters(
         logp,
         kappa > 0,

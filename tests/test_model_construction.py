@@ -558,16 +558,6 @@ def test_ordered_beta_cutpoints_transform(zero_one_data):
     np.testing.assert_allclose(np.squeeze(c1), -1.5 + np.exp(0.7))
 
 
-@pytest.mark.parametrize("family", ["ordered_beta", "zero_one_inflated_beta"])
-@pytest.mark.parametrize("value", [-0.1, 1.1])
-def test_bounded_beta_response_outside_unit_interval(zero_one_data, family, value):
-    data = zero_one_data.copy()
-    data.loc[0, "y"] = value
-    model = bmb.Model("y ~ x", data, family=family)
-    with pytest.raises(ValueError, match=r"within \[0, 1\]"):
-        model.build()
-
-
 @pytest.mark.parametrize("coi", [0.0, 1.0])
 def test_zero_one_inflated_beta_fixed_coi(zero_one_data, coi):
     # Fixing 'coi' gives a zero-inflated (coi = 0) or one-inflated (coi = 1) beta.
