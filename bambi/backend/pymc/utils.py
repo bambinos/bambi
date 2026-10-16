@@ -95,7 +95,11 @@ def _interior_beta_logp(value, mu, kappa):
 
 
 def _sigmoid_logit_shift(p, shift):
-    """Compute sigmoid(logit(p) - shift) without computing logit(p), so it is finite at 0 and 1."""
+    """Compute sigmoid(logit(p) - shift) directly from p.
+
+    Shifting p by -shift on the logit scale multiplies its odds by exp(-shift), which gives
+    p / (p + (1 - p) * exp(shift)). Unlike logit(p), this is finite when p is 0 or 1.
+    """
     return p / (p + (1 - p) * np.exp(shift))
 
 
