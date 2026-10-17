@@ -100,7 +100,7 @@ def _sigmoid_logit_shift(p, shift):
     Shifting p by -shift on the logit scale multiplies its odds by exp(-shift), which gives
     p / (p + (1 - p) * exp(shift)). Unlike logit(p), this is finite when p is 0 or 1.
     """
-    return p / (p + (1 - p) * np.exp(shift))
+    return p / (p + (1 - p) * pt.exp(shift))
 
 
 def ordered_beta_logp(value, mu, kappa, c0, c1):
