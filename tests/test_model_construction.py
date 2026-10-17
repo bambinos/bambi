@@ -567,7 +567,7 @@ def test_zero_one_inflated_beta_fixed_coi(zero_one_data, coi):
     model.build()
     pm_model = model.backend.model
     assert "coi" not in {rv.name for rv in pm_model.free_RVs}
-    assert "coi" in {deterministic.name for deterministic in pm_model.deterministics}
+    assert "coi" in {var.name for var in pm_model.data_vars}
     point = pm_model.initial_point()
     assert np.isfinite(pm_model.compile_logp()(point))
 
