@@ -547,8 +547,8 @@ def test_ordered_beta_cutpoints_transform(zero_one_data):
 
     # The response receives the transformed cutpoints.
     pm_model = model.backend.model
-    _, _, *inputs = pm_model["y"].owner.inputs
-    c0, c1 = inputs[2:]
+    response_node = pm_model["y"].owner
+    _, _, c0, c1 = response_node.op.dist_params(response_node)
     cut0 = pm_model.rvs_to_values[pm_model["cut0"]]
     logdelta = pm_model.rvs_to_values[pm_model["logdelta"]]
     outputs = pm_model.replace_rvs_by_values([c0, c1])

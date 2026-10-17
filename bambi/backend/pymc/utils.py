@@ -116,17 +116,15 @@ def ordered_beta_logp(value, mu, kappa, c0, c1):
     return check_parameters(logp, kappa > 0, c0 < c1, msg="kappa > 0, c0 < c1")
 
 
-def ordered_beta_random(mu, kappa, c0, c1, rng=None, size=None):
-    """Draw ordered beta variates."""
-    mu, kappa, c0, c1 = np.broadcast_arrays(mu, kappa, c0, c1)
-    if size is None:
-        size = mu.shape
+def ordered_beta_dist(mu, kappa, c0, c1, size):
+    """Build the ordered beta random graph."""
+    if rv_size_is_none(size):
+        size = pt.broadcast_shape(mu, kappa, c0, c1)
     p0 = 1 - _sigmoid_logit_shift(mu, c0)
     p1 = _sigmoid_logit_shift(mu, c1)
-    interior = rng.beta(mu * kappa, (1 - mu) * kappa, size=size)
-    u = rng.uniform(size=size)
-    draws = np.where(u < p0, 0.0, interior)
-    return np.where(u > 1 - p1, 1.0, draws)
+    interior = pm.Beta.dist(alpha=mu * kappa, beta=(1 - mu) * kappa, size=size)
+    u = pm.Uniform.dist(size=size)
+    return pt.switch(u < p0, 0.0, pt.switch(u > 1 - p1, 1.0, interior))
 
 
 class OrderedBeta:
@@ -144,7 +142,7 @@ class OrderedBeta:
             kappa,
             c0,
             c1,
-            random=ordered_beta_random,
+            dist=ordered_beta_dist,
             logp=ordered_beta_logp,
             signature="(),(),(),()->()",
             class_name=cls.__name__,
@@ -158,7 +156,7 @@ class OrderedBeta:
             kappa,
             c0,
             c1,
-            random=ordered_beta_random,
+            dist=ordered_beta_dist,
             logp=ordered_beta_logp,
             signature="(),(),(),()->()",
             class_name=cls.__name__,
@@ -185,15 +183,14 @@ def zero_one_inflated_beta_logp(value, mu, kappa, zoi, coi):
     )
 
 
-def zero_one_inflated_beta_random(mu, kappa, zoi, coi, rng=None, size=None):
-    """Draw zero-one-inflated beta variates."""
-    mu, kappa, zoi, coi = np.broadcast_arrays(mu, kappa, zoi, coi)
-    if size is None:
-        size = mu.shape
-    interior = rng.beta(mu * kappa, (1 - mu) * kappa, size=size)
-    is_boundary = rng.uniform(size=size) < zoi
-    is_one = rng.uniform(size=size) < coi
-    return np.where(is_boundary, np.where(is_one, 1.0, 0.0), interior)
+def zero_one_inflated_beta_dist(mu, kappa, zoi, coi, size):
+    """Build the zero-one-inflated beta random graph."""
+    if rv_size_is_none(size):
+        size = pt.broadcast_shape(mu, kappa, zoi, coi)
+    interior = pm.Beta.dist(alpha=mu * kappa, beta=(1 - mu) * kappa, size=size)
+    is_boundary = pm.Bernoulli.dist(p=zoi, size=size)
+    is_one = pm.Bernoulli.dist(p=coi, size=size)
+    return pt.switch(is_boundary, pt.switch(is_one, 1.0, 0.0), interior)
 
 
 class ZeroOneInflatedBeta:
@@ -211,7 +208,7 @@ class ZeroOneInflatedBeta:
             kappa,
             zoi,
             coi,
-            random=zero_one_inflated_beta_random,
+            dist=zero_one_inflated_beta_dist,
             logp=zero_one_inflated_beta_logp,
             signature="(),(),(),()->()",
             class_name=cls.__name__,
@@ -225,7 +222,7 @@ class ZeroOneInflatedBeta:
             kappa,
             zoi,
             coi,
-            random=zero_one_inflated_beta_random,
+            dist=zero_one_inflated_beta_dist,
             logp=zero_one_inflated_beta_logp,
             signature="(),(),(),()->()",
             class_name=cls.__name__,
