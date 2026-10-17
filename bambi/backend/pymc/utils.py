@@ -97,10 +97,11 @@ def _interior_beta_logp(value, mu, kappa):
 def _sigmoid_logit_shift(p, shift):
     """Compute sigmoid(logit(p) - shift) directly from p.
 
-    Shifting p by -shift on the logit scale multiplies its odds by exp(-shift), which gives
-    p / (p + (1 - p) * exp(shift)). Unlike logit(p), this is finite when p is 0 or 1.
+    The result is finite when p is 0 or 1.
     """
-    return p / (p + (1 - p) * pt.exp(shift))
+    # Working on the logit scale avoids overflow in exp(shift).
+    # Endpoint gradients can be undefined, but this is only used for random draws.
+    return pt.sigmoid(pt.log(p) - pt.log1p(-p) - shift)
 
 
 def ordered_beta_logp(value, mu, kappa, c0, c1):
