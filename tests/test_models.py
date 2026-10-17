@@ -1841,6 +1841,28 @@ def test_competing_risks_time_and_cause_predictions_match_exponential_distributi
     np.testing.assert_allclose((causes == 1).mean(), 2 / 5, atol=0.03)
 
 
+@pytest.mark.parametrize("out_of_sample", [False, True])
+def test_predict_constant_parameter(out_of_sample, mock_pymc_sample):
+    data = pd.DataFrame({"y": [0.2, -0.5, 1.1, 0.7], "x": [-1.0, 0.0, 1.0, 2.0]})
+    model = bmb.Model("y ~ x", data, priors={"sigma": 1})
+    idata = model.fit(chains=2, draws=20)
+
+    if out_of_sample:
+        new_data = pd.DataFrame({"x": [0.5, 1.5, 1.75]})
+    else:
+        new_data = None
+
+    result = model.predict(idata, data=new_data, kind="response", inplace=False, random_seed=1234)
+
+    if out_of_sample:
+        assert result.predictions["y"].shape == (2, 20, 3)
+    else:
+        assert result.posterior_predictive["y"].shape == (2, 20, 4)
+
+    np.testing.assert_allclose(result.constant_data["sigma"], 1)
+    assert "sigma" not in result.posterior
+
+
 def test_predict_include_group_specific(data_random_n100):
     model = bmb.Model("binary_num ~ 1 + (1|continuous1)", data_random_n100, family="bernoulli")
     model.build()
