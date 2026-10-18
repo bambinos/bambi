@@ -169,6 +169,21 @@ class LogLogistic(Family):
     }
 
 
+class OrderedBeta(Family):
+    """Ordered beta family
+
+    Beta interior (of `mu` and `kappa`), with additional boundary cutpoints
+    of `cut0` and `cut0 + exp(logdelta)`, as in ordbetareg (Kubinec, 2023).
+    """
+
+    PARAMETERS = {
+        "mu": ParamSpec(links=["logit"]),
+        "kappa": ParamSpec(links=["log"]),
+        "cut0": ParamSpec(links=["identity"]),
+        "logdelta": ParamSpec(links=["identity"]),
+    }
+
+
 class OrderedStereotype(Family):
     DATA_TYPE = ResponseType.ORDINAL
     PARAMETERS = {
@@ -306,6 +321,21 @@ class ZeroInflatedPoisson(Family):
     PARAMETERS = {
         "mu": ParamSpec(links=["identity", "log"]),
         "psi": ParamSpec(links=["logit", "probit", "cloglog"]),
+    }
+
+
+class ZeroOneInflatedBeta(Family):
+    """Zero-one-inflated beta family
+
+    Beta interior (of `mu` and `kappa`), with additional inflation parameters:
+    `zoi` is the probability of a 0 or 1 and `coi` the probability that it is 1.
+    """
+
+    PARAMETERS = {
+        "mu": ParamSpec(links=["logit", "probit", "cloglog"]),
+        "kappa": ParamSpec(links=["log"]),
+        "zoi": ParamSpec(links=["logit", "probit", "cloglog"]),
+        "coi": ParamSpec(links=["logit", "probit", "cloglog"]),
     }
 
 

@@ -9,7 +9,7 @@ import pytensor.tensor as pt
 from pytensor.graph.replace import clone_replace
 from pymc.distributions.distribution import support_point
 from pymc.distributions.shape_utils import change_dist_size
-from scipy import stats
+from scipy import integrate, special, stats
 
 from bambi.utils import listify
 from bambi.backend.pymc.links import cloglog, probit
@@ -17,11 +17,15 @@ from bambi.backend.pymc.data import shape_common_data
 from bambi.backend.pymc.utils import (
     CureWeibull,
     LogLogistic,
+    OrderedBeta,
+    ZeroOneInflatedBeta,
     make_competing_risks_distribution,
     make_cure_distribution,
     make_weighted_distribution,
 )
 from bambi.transformations import CompetingRisks, censored, constrained, counts, truncated, weighted
+
+from helpers import ordered_beta_reference_logp, zero_one_inflated_beta_reference_logp
 
 
 def test_listify():
@@ -211,6 +215,89 @@ def test_cure_weibull_gradients_at_infinity():
     gradients = pt.grad(pm.logcdf(dist, np.inf), [alpha, beta, cure])
     evaluate = pytensor.function([alpha, beta, cure], gradients)
     np.testing.assert_allclose(evaluate(1.7, 2.4, 0.3), [0, 0, 0])
+
+
+def assert_unit_interval_normalization(dist):
+    value = pt.scalar("value")
+    logp = pytensor.function([value], pm.logp(dist, value))
+    interior, _ = integrate.quad(lambda x: np.exp(logp(x)), 0, 1)
+    total = np.exp(logp(0.0)) + np.exp(logp(1.0)) + interior
+    np.testing.assert_allclose(total, 1, rtol=1e-6)
+
+
+def test_ordered_beta_distribution():
+    mu, kappa, c0, c1 = 0.6, 8.0, -2.0, 1.5
+    value = np.array([0.0, 0.1, 0.5, 0.9, 1.0])
+    dist = OrderedBeta.dist(mu, kappa, c0, c1)
+
+    np.testing.assert_allclose(
+        pm.logp(dist, value).eval(), ordered_beta_reference_logp(value, mu, kappa, c0, c1)
+    )
+    assert np.isneginf(pm.logp(dist, [-0.1, 1.1]).eval()).all()
+    assert_unit_interval_normalization(dist)
+    with pytest.raises(Exception, match="c0 < c1"):
+        pm.logp(OrderedBeta.dist(mu, kappa, c1, c0), 0.5).eval()
+
+
+def test_ordered_beta_random():
+    mu, kappa, c0, c1 = 0.6, 8.0, -2.0, 1.5
+    draws = pm.draw(OrderedBeta.dist(mu, kappa, c0, c1, size=20000), random_seed=42)
+    eta = special.logit(mu)
+    assert ((draws >= 0) & (draws <= 1)).all()
+    assert (draws == 0).mean() == pytest.approx(special.expit(c0 - eta), abs=0.01)
+    assert (draws == 1).mean() == pytest.approx(special.expit(eta - c1), abs=0.01)
+    interior = draws[(draws > 0) & (draws < 1)]
+    assert interior.mean() == pytest.approx(mu, abs=0.01)
+
+    vector = pm.draw(OrderedBeta.dist([0.2, 0.8], kappa, c0, c1), draws=1000, random_seed=42)
+    assert vector.shape == (1000, 2)
+    assert vector[:, 0].mean() < vector[:, 1].mean()
+
+
+@pytest.mark.parametrize("coi", [0.0, 0.3, 1.0])
+def test_zero_one_inflated_beta_distribution(coi):
+    mu, kappa, zoi = 0.6, 8.0, 0.25
+    value = np.array([0.0, 0.1, 0.5, 0.9, 1.0])
+    dist = ZeroOneInflatedBeta.dist(mu, kappa, zoi, coi)
+
+    with np.errstate(divide="ignore"):
+        np.testing.assert_allclose(
+            pm.logp(dist, value).eval(),
+            zero_one_inflated_beta_reference_logp(value, mu, kappa, zoi, coi),
+        )
+    assert np.isneginf(pm.logp(dist, [-0.1, 1.1]).eval()).all()
+    assert_unit_interval_normalization(dist)
+
+
+@pytest.mark.parametrize("coi", [0.0, 0.3, 1.0])
+def test_zero_one_inflated_beta_random(coi):
+    mu, kappa, zoi = 0.6, 8.0, 0.25
+    draws = pm.draw(ZeroOneInflatedBeta.dist(mu, kappa, zoi, coi, size=20000), random_seed=42)
+    assert ((draws >= 0) & (draws <= 1)).all()
+    assert (draws == 0).mean() == pytest.approx(zoi * (1 - coi), abs=0.01)
+    assert (draws == 1).mean() == pytest.approx(zoi * coi, abs=0.01)
+    interior = draws[(draws > 0) & (draws < 1)]
+    assert interior.mean() == pytest.approx(mu, abs=0.01)
+
+    dist = ZeroOneInflatedBeta.dist(mu, kappa, [0.0, 1.0], coi)
+    vector = pm.draw(dist, draws=100, random_seed=42)
+    assert vector.shape == (100, 2)
+    assert ((vector[:, 0] > 0) & (vector[:, 0] < 1)).all()
+    assert np.isin(vector[:, 1], [0, 1]).all()
+
+
+@pytest.mark.parametrize("distribution", [OrderedBeta, ZeroOneInflatedBeta])
+@pytest.mark.parametrize("value", [0.0, 0.5, 1.0])
+def test_bounded_beta_gradients_at_boundaries(distribution, value):
+    # The interior beta density is not evaluated at the boundaries,
+    # so it must not leak infinite or undefined gradients there.
+    mu, kappa, a, b = pt.scalars("mu", "kappa", "a", "b")
+    dist = distribution.dist(mu, kappa, a, b)
+    gradients = pt.grad(pm.logp(dist, value), [mu, kappa, a, b])
+    evaluate = pytensor.function([mu, kappa, a, b], gradients)
+    # (c0, c1) for OrderedBeta and (zoi, coi) for ZeroOneInflatedBeta
+    params = (0.4, 6.0, -1.0, 1.0) if distribution is OrderedBeta else (0.4, 6.0, 0.3, 0.6)
+    assert np.isfinite(evaluate(*params)).all()
 
 
 def test_censored():
