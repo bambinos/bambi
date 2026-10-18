@@ -29,6 +29,7 @@ from bambi.families.builtin import (
     LogNormal,
     Multinomial,
     NegativeBinomial,
+    OrderedBeta,
     OrderedStereotype,
     Poisson,
     StoppingRatio,
@@ -40,6 +41,7 @@ from bambi.families.builtin import (
     ZeroInflatedBinomial,
     ZeroInflatedNegativeBinomial,
     ZeroInflatedPoisson,
+    ZeroOneInflatedBeta,
 )
 
 # fmt: off
@@ -362,6 +364,20 @@ BUILTIN_FAMILIES = {
         "family": Laplace,
         "default_priors": {"b": {"name": "HalfNormal", "sigma": 1}},
     },
+    "ordered_beta": {
+        "likelihood": {
+            "name": "OrderedBeta",
+            "params": ["mu", "kappa", "cut0", "logdelta"],
+            "parent": "mu",
+        },
+        "link": {"mu": "logit", "kappa": "log", "cut0": "identity", "logdelta": "identity"},
+        "family": OrderedBeta,
+        "default_priors": {
+            "kappa": {"name": "HalfCauchy", "beta": 1},
+            "cut0": {"name": "Normal", "mu": -1, "sigma": 1.5},
+            "logdelta": {"name": "Normal", "mu": 0.3, "sigma": 1.1},
+        },
+    },
     "osm": {
         "likelihood": {
             "name": "OrderedStereotype",
@@ -479,7 +495,21 @@ BUILTIN_FAMILIES = {
         "link": {"mu": "log", "psi": "logit"},
         "family": ZeroInflatedPoisson,
         "default_priors": {"psi": {"name": "Beta", "alpha": 2, "beta": 2}},
-    }
+    },
+    "zero_one_inflated_beta": {
+        "likelihood": {
+            "name": "ZeroOneInflatedBeta",
+            "params": ["mu", "kappa", "zoi", "coi"],
+            "parent": "mu",
+        },
+        "link": {"mu": "logit", "kappa": "log", "zoi": "logit", "coi": "logit"},
+        "family": ZeroOneInflatedBeta,
+        "default_priors": {
+            "kappa": {"name": "HalfCauchy", "beta": 1},
+            "zoi": {"name": "Beta", "alpha": 1, "beta": 1},
+            "coi": {"name": "Beta", "alpha": 1, "beta": 1},
+        },
+    },
 }
 # fmt: on
 

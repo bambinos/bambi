@@ -83,6 +83,154 @@ class LogLogistic:
         )
 
 
+def _interior_beta_logp(value, mu, kappa):
+    """Log-density of the interior Beta(mu * kappa, (1 - mu) * kappa) component.
+
+    Boundary values are replaced by 0.5 so that neither the value nor the gradient are infinite
+    or undefined. The caller must discard the result at the boundaries.
+    """
+    is_interior = pt.gt(value, 0) & pt.lt(value, 1)
+    value = pt.switch(is_interior, value, 0.5)
+    return pm.logp(pm.Beta.dist(alpha=mu * kappa, beta=(1 - mu) * kappa), value)
+
+
+def _sigmoid_logit_shift(p, shift):
+    """Compute sigmoid(logit(p) - shift) directly from p.
+
+    The result is finite when p is 0 or 1.
+    """
+    # Working on the logit scale avoids overflow in exp(shift).
+    # Endpoint gradients can be undefined, but this is only used for random draws.
+    return pt.sigmoid(pt.log(p) - pt.log1p(-p) - shift)
+
+
+def ordered_beta_logp(value, mu, kappa, c0, c1):
+    """Log-probability of the ordered beta distribution."""
+    eta = pt.log(mu) - pt.log1p(-mu)
+    # P(Y = 0) = 1 - sigmoid(eta - c0) and P(Y = 1) = sigmoid(eta - c1)
+    log_p0 = pt.log(pt.sigmoid(c0 - eta))
+    log_p1 = pt.log(pt.sigmoid(eta - c1))
+    log_interior = pt.log(pt.sigmoid(eta - c0) - pt.sigmoid(eta - c1))
+    log_interior = log_interior + _interior_beta_logp(value, mu, kappa)
+    logp = pt.switch(pt.eq(value, 0), log_p0, pt.switch(pt.eq(value, 1), log_p1, log_interior))
+    logp = pt.switch((value >= 0) & (value <= 1), logp, -np.inf)
+    return check_parameters(logp, kappa > 0, c0 < c1, msg="kappa > 0, c0 < c1")
+
+
+def ordered_beta_dist(mu, kappa, c0, c1, size):
+    """Build the ordered beta random graph."""
+    if rv_size_is_none(size):
+        size = pt.broadcast_shape(mu, kappa, c0, c1)
+    p0 = 1 - _sigmoid_logit_shift(mu, c0)
+    p1 = _sigmoid_logit_shift(mu, c1)
+    interior = pm.Beta.dist(alpha=mu * kappa, beta=(1 - mu) * kappa, size=size)
+    u = pm.Uniform.dist(size=size)
+    return pt.switch(u < p0, 0.0, pt.switch(u > 1 - p1, 1.0, interior))
+
+
+class OrderedBeta:
+    """Ordered beta distribution parameterized by mean, sample size, and two cutpoints.
+
+    `P(Y = 0) = 1 - sigmoid(logit(mu) - c0)`, `P(Y = 1) = sigmoid(logit(mu) - c1)`, and the
+    remaining probability is spread on the interior as a Beta(mu * kappa, (1 - mu) * kappa).
+    The cutpoints must satisfy `c0 < c1`.
+    """
+
+    def __new__(cls, name, mu, kappa, c0, c1, **kwargs):
+        return pm.CustomDist(
+            name,
+            mu,
+            kappa,
+            c0,
+            c1,
+            dist=ordered_beta_dist,
+            logp=ordered_beta_logp,
+            signature="(),(),(),()->()",
+            class_name=cls.__name__,
+            **kwargs,
+        )
+
+    @classmethod
+    def dist(cls, mu, kappa, c0, c1, **kwargs):
+        return pm.CustomDist.dist(
+            mu,
+            kappa,
+            c0,
+            c1,
+            dist=ordered_beta_dist,
+            logp=ordered_beta_logp,
+            signature="(),(),(),()->()",
+            class_name=cls.__name__,
+            **kwargs,
+        )
+
+
+def zero_one_inflated_beta_logp(value, mu, kappa, zoi, coi):
+    """Log-probability of the zero-one-inflated beta distribution."""
+    # P(Y = 0) = zoi * (1 - coi) and P(Y = 1) = zoi * coi
+    log_p0 = pt.log(zoi) + pt.log1p(-coi)
+    log_p1 = pt.log(zoi) + pt.log(coi)
+    log_interior = pt.log1p(-zoi) + _interior_beta_logp(value, mu, kappa)
+    logp = pt.switch(pt.eq(value, 0), log_p0, pt.switch(pt.eq(value, 1), log_p1, log_interior))
+    logp = pt.switch((value >= 0) & (value <= 1), logp, -np.inf)
+    return check_parameters(
+        logp,
+        kappa > 0,
+        zoi >= 0,
+        zoi <= 1,
+        coi >= 0,
+        coi <= 1,
+        msg="kappa > 0, 0 <= zoi <= 1, 0 <= coi <= 1",
+    )
+
+
+def zero_one_inflated_beta_dist(mu, kappa, zoi, coi, size):
+    """Build the zero-one-inflated beta random graph."""
+    if rv_size_is_none(size):
+        size = pt.broadcast_shape(mu, kappa, zoi, coi)
+    interior = pm.Beta.dist(alpha=mu * kappa, beta=(1 - mu) * kappa, size=size)
+    is_boundary = pm.Bernoulli.dist(p=zoi, size=size)
+    is_one = pm.Bernoulli.dist(p=coi, size=size)
+    return pt.switch(is_boundary, pt.switch(is_one, 1.0, 0.0), interior)
+
+
+class ZeroOneInflatedBeta:
+    """Zero-one-inflated beta distribution parameterized by mean, sample size, and inflation.
+
+    `zoi` is the probability of a value at the boundaries and `coi` is the probability that such
+    a value is 1. The remaining probability `1 - zoi` is spread on the interior as a
+    Beta(mu * kappa, (1 - mu) * kappa).
+    """
+
+    def __new__(cls, name, mu, kappa, zoi, coi, **kwargs):
+        return pm.CustomDist(
+            name,
+            mu,
+            kappa,
+            zoi,
+            coi,
+            dist=zero_one_inflated_beta_dist,
+            logp=zero_one_inflated_beta_logp,
+            signature="(),(),(),()->()",
+            class_name=cls.__name__,
+            **kwargs,
+        )
+
+    @classmethod
+    def dist(cls, mu, kappa, zoi, coi, **kwargs):
+        return pm.CustomDist.dist(
+            mu,
+            kappa,
+            zoi,
+            coi,
+            dist=zero_one_inflated_beta_dist,
+            logp=zero_one_inflated_beta_logp,
+            signature="(),(),(),()->()",
+            class_name=cls.__name__,
+            **kwargs,
+        )
+
+
 def get_dist_args(dist: pm.Distribution) -> list[str]:
     """Get the argument names of a PyMC distribution
 
@@ -245,8 +393,10 @@ MAPPING = {
     "CureWeibull": CureWeibull,
     "Horseshoe": horseshoe,
     "LogLogistic": LogLogistic,
+    "OrderedBeta": OrderedBeta,
     "OrderedStereotype": pm.Categorical,
     "StoppingRatio": pm.Categorical,
+    "ZeroOneInflatedBeta": ZeroOneInflatedBeta,
 }
 
 INVERSE_LINKS = {

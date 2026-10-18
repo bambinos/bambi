@@ -13,7 +13,11 @@ from scipy import stats
 
 from bambi.terms import GroupSpecificTerm
 
-from helpers import assert_ip_dlogp
+from helpers import (
+    assert_ip_dlogp,
+    ordered_beta_reference_logp,
+    zero_one_inflated_beta_reference_logp,
+)
 
 
 @pytest.fixture
@@ -86,6 +90,17 @@ def zi_continuous_data():
         [rng.normal(loc=-1, scale=0.25, size=n1), rng.normal(loc=0.5, scale=0.5, size=n2)]
     )
     return pd.DataFrame({"x": x, "y": y})
+
+
+@pytest.fixture(scope="module")
+def zero_one_continuous_data():
+    rng = np.random.default_rng(1234)
+    x = rng.normal(size=100)
+    mu = 1 / (1 + np.exp(-0.5 * x))
+    y = rng.beta(mu * 10, (1 - mu) * 10)
+    y[:10] = 0
+    y[10:25] = 1
+    return pd.DataFrame({"x": x, "y": y, "w": rng.uniform(0.5, 1.5, size=100)})
 
 
 @pytest.fixture(scope="module")
@@ -800,6 +815,100 @@ class TestBeta(FitPredictParent):
 
         assert (0 < idata.predictions["mu"]).all() & (idata.predictions["mu"] < 1).all()
         assert (0 <= idata.predictions["yield"]).all() & (idata.predictions["yield"] <= 1).all()
+
+
+class BoundedBetaParent(FitPredictParent):
+    def assert_predictions(self, model, idata):
+        model.predict(idata, kind="response_params")
+        model.predict(idata, kind="response")
+        assert (0 < idata.posterior["mu"]).all() & (idata.posterior["mu"] < 1).all()
+        y = idata.posterior_predictive["y"]
+        assert ((0 <= y) & (y <= 1)).all()
+
+        new_data = model.data.iloc[:20, :]
+        model.predict(idata, kind="response_params", data=new_data)
+        assert idata.predictions["mu"].shape[-1] == 20
+        assert (0 < idata.predictions["mu"]).all() & (idata.predictions["mu"] < 1).all()
+        model.predict(idata, kind="response", data=new_data)
+        assert idata.predictions["y"].shape[-1] == 20
+        assert ((0 <= idata.predictions["y"]) & (idata.predictions["y"] <= 1)).all()
+
+    def get_parameter(self, model, idata, name):
+        """Get a parameter with a trailing observation axis, wherever bambi keeps it."""
+        if name in model.conditional_parameters:
+            return idata.posterior[name].to_numpy()
+        return idata.posterior[name].to_numpy()[..., np.newaxis]
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+class TestOrderedBeta(BoundedBetaParent):
+    @pytest.mark.parametrize(
+        "formula",
+        [bmb.Formula("y ~ x"), bmb.Formula("y ~ x", "kappa ~ x")],
+        ids=["mu", "mu_kappa"],
+    )
+    def test_ordered_beta_regression(self, zero_one_continuous_data, formula):
+        model = bmb.Model(formula, zero_one_continuous_data, family="ordered_beta")
+        idata = self.fit(model, random_seed=1234)
+        self.assert_predictions(model, idata)
+
+    def test_ordered_beta_log_likelihood(self, zero_one_continuous_data):
+        formula = bmb.Formula("y ~ x", "kappa ~ x")
+        model = bmb.Model(formula, zero_one_continuous_data, family="ordered_beta")
+        idata = self.fit(model, random_seed=1234)
+        model.predict(idata, kind="response_params")
+        mu, kappa, cut0, logdelta = [
+            self.get_parameter(model, idata, name) for name in ("mu", "kappa", "cut0", "logdelta")
+        ]
+        y = zero_one_continuous_data["y"].to_numpy()
+        expected = ordered_beta_reference_logp(y, mu, kappa, cut0, cut0 + np.exp(logdelta))
+        likelihood = model.compute_log_likelihood(idata, inplace=False)
+        np.testing.assert_allclose(likelihood.log_likelihood["y"], expected, atol=1e-8)
+
+    def test_ordered_beta_weighted(self, zero_one_continuous_data):
+        formula = "weighted(y, w) ~ x"
+        model = bmb.Model(formula, zero_one_continuous_data, family="ordered_beta")
+        idata = self.fit(model, random_seed=1234)
+        model.predict(idata, kind="response")
+        model.predict(idata, kind="response", data=zero_one_continuous_data)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+class TestZeroOneInflatedBeta(BoundedBetaParent):
+    @pytest.mark.parametrize(
+        "formula",
+        [
+            bmb.Formula("y ~ x"),
+            bmb.Formula("y ~ x", "kappa ~ x"),
+            bmb.Formula("y ~ x", "coi ~ x"),
+            bmb.Formula("y ~ x", "zoi ~ x", "coi ~ x"),
+        ],
+        ids=["mu", "mu_kappa", "mu_coi", "mu_zoi_coi"],
+    )
+    def test_zero_one_inflated_beta_regression(self, zero_one_continuous_data, formula):
+        model = bmb.Model(formula, zero_one_continuous_data, family="zero_one_inflated_beta")
+        idata = self.fit(model, random_seed=1234)
+        self.assert_predictions(model, idata)
+
+    def test_zero_one_inflated_beta_log_likelihood(self, zero_one_continuous_data):
+        formula = bmb.Formula("y ~ x", "zoi ~ x", "coi ~ x")
+        model = bmb.Model(formula, zero_one_continuous_data, family="zero_one_inflated_beta")
+        idata = self.fit(model, random_seed=1234)
+        model.predict(idata, kind="response_params")
+        mu, kappa, zoi, coi = [
+            self.get_parameter(model, idata, name) for name in ("mu", "kappa", "zoi", "coi")
+        ]
+        y = zero_one_continuous_data["y"].to_numpy()
+        expected = zero_one_inflated_beta_reference_logp(y, mu, kappa, zoi, coi)
+        likelihood = model.compute_log_likelihood(idata, inplace=False)
+        np.testing.assert_allclose(likelihood.log_likelihood["y"], expected, atol=1e-8)
+
+    def test_zero_one_inflated_beta_weighted(self, zero_one_continuous_data):
+        formula = "weighted(y, w) ~ x"
+        model = bmb.Model(formula, zero_one_continuous_data, family="zero_one_inflated_beta")
+        idata = self.fit(model, random_seed=1234)
+        model.predict(idata, kind="response")
+        model.predict(idata, kind="response", data=zero_one_continuous_data)
 
 
 @pytest.mark.usefixtures("mock_pymc_sample")

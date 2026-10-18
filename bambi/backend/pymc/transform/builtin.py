@@ -19,6 +19,7 @@ from bambi.families.builtin import (
     Gamma,
     HurdleGamma,
     Multinomial,
+    OrderedBeta,
     OrderedStereotype,
     StoppingRatio,
     Weibull,
@@ -178,6 +179,18 @@ def _(predictor, _parameters, inverse_link):
     else:
         zeros = pt.zeros(shape=(predictor.shape[0], 1))
     return inverse_link(pt.concatenate((zeros, predictor), axis=-1))
+
+
+@transforms_registry.transform_parameters(OrderedBeta)
+def _(parameters):
+    # Cutpoints are sampled unconstrained. The exponential guarantees c0 < c1.
+    cut0 = parameters["cut0"]
+    return {
+        "mu": parameters["mu"],
+        "kappa": parameters["kappa"],
+        "c0": cut0,
+        "c1": cut0 + pt.exp(parameters["logdelta"]),
+    }
 
 
 @transforms_registry.transform_predictor(OrderedStereotype, "p")
