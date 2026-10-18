@@ -150,6 +150,7 @@ def add_new_sparse_group_specific_contributions(
                 new_coefficients = _create_new_group_coefficients(
                     term_info, len(plan.groups_new), plan.factor_ndim, model
                 )
+                new_coefficients = replace_vars_in_graphs([new_coefficients], memo)[0]
                 new_coefficients = _flatten_sparse_coefficient_block(
                     new_coefficients, coefficient_block.ndim
                 )
