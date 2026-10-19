@@ -1366,6 +1366,139 @@ def test_sparse_dot_out_of_sample_log_likelihood(mock_pymc_sample, monkeypatch):
     assert result.log_likelihood["y"].shape == (2, 4, 3)
 
 
+@pytest.mark.parametrize("sparse_dot", [False, True], ids=["dense", "sparse"])
+class TestNewGroupConditioning:
+    # Check that dense/sparse new-group predictions condition on posterior hyperparameters
+    # by shifting location or adjusting scale while keeping the prediction seed fixed.
+    # See https://github.com/bambinos/bambi/issues/1068
+    @pytest.fixture(autouse=True)
+    def configure_sparse_dot(self, monkeypatch, sparse_dot):
+        monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
+
+    @pytest.fixture
+    def data(self):
+        return pd.DataFrame(
+            {
+                "y": np.arange(9, dtype=float),
+                "x": np.tile([1.0, 2.0, 3.0], 3),
+                "g": np.repeat(["a", "b", "c"], 3),
+            }
+        )
+
+    @pytest.fixture
+    def new_data(self):
+        return pd.DataFrame({"g": ["a", "new_a", "new_a", "new_b"], "x": [1.0, 2.0, 3.0, 4.0]})
+
+    def test_location(self, data, new_data, mock_pymc_sample):
+        prior = bmb.Prior(
+            "Normal",
+            mu=bmb.Prior("Normal", mu=2, sigma=1),
+            sigma=bmb.Prior("HalfNormal", sigma=1),
+        )
+        model = bmb.Model("y ~ 0 + (1|g)", data, noncentered=False, priors={"1|g": prior})
+        idata = model.fit(draws=4, chains=2, random_seed=12)
+        before = model.predict(idata, data=new_data, random_seed=1, inplace=False)
+        changed = idata.copy(deep=True)
+        changed.posterior["1|g"] += 3
+        changed.posterior["1|g_mu"] += 3
+        after = model.predict(changed, data=new_data, random_seed=1, inplace=False)
+
+        before_mu = before.predictions["mu"].values
+        after_mu = after.predictions["mu"].values
+        assert before_mu.shape == after_mu.shape == (2, 4, 4)
+        np.testing.assert_allclose(after_mu - before_mu, 3, atol=1e-8, rtol=0)
+
+    def test_scale(self, data, new_data, mock_pymc_sample):
+        prior = bmb.Prior(
+            "Normal",
+            mu=bmb.Prior("Normal", mu=2, sigma=1),
+            sigma=bmb.Prior("HalfNormal", sigma=1),
+        )
+        model = bmb.Model("y ~ 0 + (1|g)", data, noncentered=False, priors={"1|g": prior})
+        idata = model.fit(draws=4, chains=2, random_seed=12)
+        before = model.predict(idata, data=new_data, random_seed=3, inplace=False)
+        changed = idata.copy(deep=True)
+        changed.posterior["1|g_sigma"] *= 2
+        after = model.predict(changed, data=new_data, random_seed=3, inplace=False)
+
+        before_mu = before.predictions["mu"].values
+        after_mu = after.predictions["mu"].values
+        assert before_mu.shape == after_mu.shape == (2, 4, 4)
+        np.testing.assert_allclose(after_mu[..., 0], before_mu[..., 0], atol=1e-8, rtol=0)
+        mu = idata.posterior["1|g_mu"].values[..., None]
+        np.testing.assert_allclose(
+            after_mu[..., 1:] - mu, 2 * (before_mu[..., 1:] - mu), atol=1e-8, rtol=0
+        )
+
+    def test_slope_with_repeated_new_labels(self, data, new_data, mock_pymc_sample):
+        prior = bmb.Prior(
+            "Normal",
+            mu=bmb.Prior("Normal", mu=2, sigma=1),
+            sigma=bmb.Prior("HalfNormal", sigma=1),
+        )
+        model = bmb.Model("y ~ 0 + (0 + x|g)", data, noncentered=False, priors={"x|g": prior})
+        idata = model.fit(draws=4, chains=2, random_seed=12)
+        before = model.predict(idata, data=new_data, random_seed=5, inplace=False)
+        changed = idata.copy(deep=True)
+        changed.posterior["x|g"] += 3
+        changed.posterior["x|g_mu"] += 3
+        after = model.predict(changed, data=new_data, random_seed=5, inplace=False)
+
+        before_mu = before.predictions["mu"].values
+        after_mu = after.predictions["mu"].values
+        assert before_mu.shape == after_mu.shape == (2, 4, 4)
+        expected = 3 * new_data["x"].values
+        np.testing.assert_allclose(
+            after_mu - before_mu, np.broadcast_to(expected, before_mu.shape), atol=1e-8, rtol=0
+        )
+        np.testing.assert_allclose(before_mu[..., 1] / 2, before_mu[..., 2] / 3, atol=1e-8, rtol=0)
+
+    def test_alias(self, data, new_data, mock_pymc_sample):
+        prior = bmb.Prior(
+            "Normal",
+            mu=bmb.Prior("Normal", mu=2, sigma=1),
+            sigma=bmb.Prior("HalfNormal", sigma=1),
+        )
+        model = bmb.Model("y ~ 0 + (1|g)", data, noncentered=False, priors={"1|g": prior})
+        model.set_alias({"1|g": "group_effect", "sigma": "group_sd"})
+        idata = model.fit(draws=4, chains=2, random_seed=12)
+        before = model.predict(idata, data=new_data, random_seed=7, inplace=False)
+        changed = idata.copy(deep=True)
+        changed.posterior["group_effect"] += 3
+        changed.posterior["group_effect_mu"] += 3
+        after = model.predict(changed, data=new_data, random_seed=7, inplace=False)
+
+        before_mu = before.predictions["mu"].values
+        after_mu = after.predictions["mu"].values
+        assert before_mu.shape == after_mu.shape == (2, 4, 4)
+        np.testing.assert_allclose(after_mu - before_mu, 3, atol=1e-8, rtol=0)
+
+    def test_categorical_log_odds(self, data, new_data, mock_pymc_sample):
+        prior = bmb.Prior(
+            "Normal",
+            mu=bmb.Prior("Normal", mu=2, sigma=1),
+            sigma=bmb.Prior("HalfNormal", sigma=1),
+        )
+        data = data.assign(y=pd.Categorical(["a", "b", "c"] * 3))
+        model = bmb.Model(
+            "y ~ 0 + (1|g)", data, family="categorical", noncentered=False, priors={"1|g": prior}
+        )
+        idata = model.fit(draws=4, chains=2, random_seed=12)
+        before = model.predict(idata, data=new_data, random_seed=9, inplace=False)
+        changed = idata.copy(deep=True)
+        changed.posterior["1|g"] += 3
+        changed.posterior["1|g_mu"] += 3
+        after = model.predict(changed, data=new_data, random_seed=9, inplace=False)
+
+        before_p = before.predictions["p"].values
+        after_p = after.predictions["p"].values
+        assert before_p.shape == after_p.shape == (2, 4, 4, 3)
+        delta = np.log(after_p[..., 1:] / after_p[..., :1]) - np.log(
+            before_p[..., 1:] / before_p[..., :1]
+        )
+        np.testing.assert_allclose(delta, 3, atol=1e-8, rtol=0)
+
+
 @pytest.mark.parametrize("noncentered", [True, False])
 @pytest.mark.parametrize("sparse_dot", [False, True])
 def test_predict_without_group_specific_effect(
