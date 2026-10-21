@@ -138,7 +138,7 @@ class Family:
             The xarray dataset that contains the draws for all the parameters in the posterior.
             It must contain the parameters that are needed in the distribution of the response, or
             the parameters that allow to derive them.
-        random_seed : int, RandomState or Generator, optional
+        random_seed : int, RandomState or Generator
             Seed for the random number generator.
         kwargs : dict
             Parameters that are used to get draws but do not appear in the posterior object or
