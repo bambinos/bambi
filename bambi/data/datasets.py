@@ -81,6 +81,31 @@ Historical Series of Phenological data for Cherry Tree Flowering at Kyoto City. 
 the `rethinking` library in R.
 """,
     ),
+    "golf": FileMetadata(
+        filename="golf.csv",
+        url="https://ndownloader.figshare.com/files/70130514",
+        checksum="d2c4f1d6e7be12434ca73d3df2fbf707fee5a4d0148abf4ff18f6301db0bf11f",
+        description="""
+Golf putting outcomes at distances from 2 to 20 feet, originally reported by Berry (1996)
+and used by Gelman and Nolan (2002).
+
+- distance: Distance from the hole in feet
+- attempts: Number of putting attempts
+- successes: Number of successful putts
+""",
+    ),
+    "golf_extended": FileMetadata(
+        filename="golf_extended.csv",
+        url="https://ndownloader.figshare.com/files/70130511",
+        checksum="ce37ec7b3c6b263f9244f525538a07c473b7f75cf7ef66062f3f24a826b73878",
+        description="""
+Golf putting outcomes from 2016 to 2018, shared by Mark Broadie with Andrew Gelman.
+
+- distance: Distance from the hole in feet
+- attempts: Number of putting attempts
+- successes: Number of successful putts
+""",
+    ),
     "oranges": FileMetadata(
         filename="orange.csv",
         url="https://ndownloader.figshare.com/files/70130043",
