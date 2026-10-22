@@ -16,7 +16,7 @@ from bambi.parameters import ConditionalParameter
 
 
 @dataclass(frozen=True)
-class ConditionalParameterInfo:
+class ConditionalInfo:
     parameter: ConditionalParameter
     common_terms: tuple[CommonTermInfo, ...]
     offset_terms: tuple[CommonTermInfo, ...]
@@ -127,7 +127,7 @@ class GroupSpecificGraphState:
         )
 
 
-def make_conditional_parameter_info(parameter: ConditionalParameter) -> ConditionalParameterInfo:
+def make_conditional_info(parameter: ConditionalParameter) -> ConditionalInfo:
     common_terms = tuple(
         CommonTermInfo(term=term, coords=coords_from_common(term))
         for term in parameter.common_terms.values()
@@ -153,7 +153,7 @@ def make_conditional_parameter_info(parameter: ConditionalParameter) -> Conditio
         GroupSpecificFactorInfo(group_specific_terms=tuple(terms))
         for terms in terms_by_factor.values()
     )
-    return ConditionalParameterInfo(
+    return ConditionalInfo(
         parameter=parameter,
         common_terms=common_terms,
         offset_terms=offset_terms,

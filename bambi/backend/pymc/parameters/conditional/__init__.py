@@ -7,11 +7,11 @@ from .prediction import (
     remove_group_specific_contributions,
 )
 from .state import (
-    ConditionalParameterInfo,
+    ConditionalInfo,
     DenseGroupSpecificFactorPlan,
     GroupSpecificGraphState,
     SparseGroupSpecificFactorPlan,
-    make_conditional_parameter_info,
+    make_conditional_info,
 )
 
 __all__ = [
@@ -20,10 +20,10 @@ __all__ = [
     "build_conditional_parameter",
     "build_new_dense_conditional_parameter_data",
     "build_new_sparse_conditional_parameter_data",
-    "ConditionalParameterInfo",
+    "ConditionalInfo",
     "DenseGroupSpecificFactorPlan",
     "GroupSpecificGraphState",
     "SparseGroupSpecificFactorPlan",
-    "make_conditional_parameter_info",
+    "make_conditional_info",
     "remove_group_specific_contributions",
 ]
