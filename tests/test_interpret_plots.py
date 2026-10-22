@@ -15,10 +15,121 @@ from bambi.interpret.plots import PlottingConfig, plot
 matplotlib.use("Agg")
 
 
+@pytest.fixture
+def nonlinear_interpret_fixture(mock_pymc_sample):
+    data = pd.DataFrame(
+        {
+            "x": [0.0, 0.5, 1.0, 1.5, 2.0, 2.5],
+            "z": [-1.0, -0.5, 0.0, 0.5, 1.0, 1.5],
+            "y": [1.8, 1.5, 1.3, 1.2, 1.1, 1.0],
+        }
+    )
+    formula = bmb.Formula(
+        "y ~ a + b * exp(-x)",
+        "a ~ 1 + z",
+        nlpars=("a", "b"),
+    )
+    priors = {
+        "a": {
+            "Intercept": bmb.Prior("Normal", mu=0, sigma=1),
+            "z": bmb.Prior("Normal", mu=0, sigma=1),
+        },
+        "b": bmb.Prior("Normal", mu=0, sigma=1),
+    }
+    model = bmb.Model(formula, data, priors=priors, center_predictors=False)
+    idata = model.fit(draws=4, chains=2)
+    return model, idata
+
+
 # Improvement:
 # * Test the actual plots are indeed the desired result.
 # * Test using the dictionary and the list gives the same plot
 # * Use the same function for different models, e.g. average by, transforms, etc.
+
+
+class TestNonlinearModels:
+    def test_covariates_include_expression_and_parameter_formula_inputs(
+        self, nonlinear_interpret_fixture
+    ):
+        model, _ = nonlinear_interpret_fixture
+
+        assert set(model.get_covariates()) == {"x", "z"}
+
+    @pytest.mark.parametrize(
+        "function, kwargs",
+        [
+            (predictions, {"conditional": {"x": [0.0, 1.0], "z": [-1.0, 1.0]}}),
+            (comparisons, {"contrast": {"x": [0.0, 1.0]}, "conditional": "z"}),
+            (slopes, {"wrt": {"x": 1.0}, "conditional": "z", "eps": 1e-6}),
+        ],
+    )
+    def test_effects(self, nonlinear_interpret_fixture, function, kwargs):
+        model, idata = nonlinear_interpret_fixture
+        posterior = idata.posterior.to_dataset().copy(deep=True)
+        for name, value in {"a_Intercept": 1.0, "a_z": 0.4, "b": 2.0}.items():
+            posterior[name] = posterior[name] * 0 + value
+        idata["posterior"] = posterior
+
+        summary = function(model, idata, **kwargs).summary
+        if function is predictions:
+            expected = 1.0 + 0.4 * summary.z + 2.0 * np.exp(-summary.x)
+            assert len(summary) == 4
+        elif function is comparisons:
+            expected = 2.0 * (np.exp(-1.0) - 1.0)
+        else:
+            expected = -2.0 * np.exp(-1.0)
+        np.testing.assert_allclose(summary.estimate, expected, rtol=1e-6)
+        for column in summary.filter(regex="^(lower_|upper_)"):
+            np.testing.assert_allclose(summary[column], expected, rtol=1e-6)
+
+    @pytest.mark.parametrize(
+        "function, kwargs",
+        [
+            (plot_predictions, {"conditional": "x"}),
+            (plot_comparisons, {"contrast": "x", "conditional": "z"}),
+            (plot_slopes, {"wrt": "x", "conditional": "z"}),
+        ],
+    )
+    def test_plots(self, nonlinear_interpret_fixture, function, kwargs):
+        model, idata = nonlinear_interpret_fixture
+
+        result = function(model, idata, **kwargs)
+
+        assert isinstance(result, Figure)
+
+    def test_predictions_with_proportion_response(self, mock_pymc_sample):
+        size = 4
+        data = pd.DataFrame(
+            {
+                "distance": [2.0, 3.0, 4.0, 5.0],
+                "attempts": [1443, 694, 455, 353],
+                "successes": [1346, 577, 337, 208],
+                "ball_radius": np.repeat((1.68 / 2) / 12, size),
+                "hole_radius": np.repeat((4.25 / 2) / 12, size),
+            }
+        )
+        formula = bmb.Formula(
+            "prop(successes, attempts) ~ "
+            "2 * normal_cdf("
+            "asin((hole_radius - ball_radius) / distance) / sigma_angle"
+            ") - 1",
+            nlpars=("sigma_angle",),
+        )
+        model = bmb.Model(
+            formula,
+            data,
+            family="binomial",
+            link="identity",
+            priors={
+                "sigma_angle": bmb.Prior("HalfNormal", sigma=0.5),
+            },
+        )
+        idata = model.fit(draws=4, chains=2)
+
+        result = predictions(model, idata, conditional={"distance": [2.0, 5.0, 10.0]})
+
+        assert result.summary["distance"].tolist() == [2.0, 5.0, 10.0]
+        assert result.summary["estimate"].is_monotonic_decreasing
 
 
 class TestCommon:
