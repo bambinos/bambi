@@ -145,6 +145,14 @@ def _(predictor, parameters, inverse_link):
     return probability
 
 
+@transforms_registry.transform_predictor(Cumulative, "threshold")
+def _(predictor, _parameters, inverse_link):
+    # The first cutpoint is free, while positive gaps order the remaining cutpoints.
+    predictor = inverse_link(predictor)
+    increments = pt.concatenate([predictor[..., :1], pt.softplus(predictor[..., 1:])], axis=-1)
+    return pt.cumsum(increments, axis=-1)
+
+
 @transforms_registry.transform_parameters(Cumulative)
 def _(parameters):
     return {"p": parameters["p"]}
@@ -200,16 +208,17 @@ def _(predictor, parameters, _inverse_link):
     delta = parameters["delta"]
     phi = pt.concatenate(
         [
-            pt.zeros((1,), dtype=delta.dtype),
-            pt.cumsum(delta[:-1]),
-            pt.ones((1,), dtype=delta.dtype),
-        ]
+            pt.zeros_like(delta[..., :1]),
+            pt.cumsum(delta[..., :-1], axis=-1),
+            pt.ones_like(delta[..., :1]),
+        ],
+        axis=-1,
     )
 
     # Fix alpha_1 = 0. The remaining category intercepts are free.
     # Resulting shape: (K, )
     alpha = parameters["alpha"]
-    alpha = pt.concatenate([pt.zeros_like(alpha[:1]), alpha])
+    alpha = pt.concatenate([pt.zeros_like(alpha[..., :1]), alpha], axis=-1)
 
     if predictor == 0:
         # With no predictors, eta = 0 and the category log weights reduce to alpha.
@@ -221,6 +230,12 @@ def _(predictor, parameters, _inverse_link):
         log_weights = alpha + phi * pt.shape_padright(pt.as_tensor_variable(predictor))
 
     return pt.special.softmax(log_weights, axis=-1)
+
+
+@transforms_registry.transform_predictor(OrderedStereotype, "delta")
+def _(predictor, _parameters, inverse_link):
+    reference = pt.zeros((*predictor.shape[:-1], 1), dtype=predictor.dtype)
+    return inverse_link(pt.concatenate([reference, predictor], axis=-1))
 
 
 @transforms_registry.transform_parameters(OrderedStereotype)

@@ -13,6 +13,7 @@ class DimType(StrEnum):
     RESPONSE = "response"
     RESPONSE_REDUCED = "response_reduced"
     RESPONSE_CUTPOINTS = "response_cutpoints"
+    RESPONSE_CUTPOINTS_REDUCED = "response_cutpoints_reduced"
 
 
 class ParamSpec(NamedTuple):
