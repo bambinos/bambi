@@ -2986,3 +2986,21 @@ def test_dropna_aligns_nonlinear_expression_and_censored_response():
     np.testing.assert_array_equal(model.response_term.data[:, 0], data.y.iloc[[0, 2, 3]])
     np.testing.assert_array_equal(model.response_term.data[:, 1], [-1, 0, 1])
     np.testing.assert_array_equal(model.data.index, [0, 2, 3])
+
+
+@pytest.mark.parametrize(
+    "family",
+    ["exponential", "weibull", "weibull_ph", "lognormal", "loglogistic", "gamma", "wald"],
+)
+def test_nonlinear_competing_risks_families_build(family):
+    data = competing_risks_nonlinear_data()
+    formula = bmb.Formula(
+        "risks(time, status, cause) ~ nl(rate*x)", "rate ~ 1 + z", nlpars=("rate",)
+    )
+    model = bmb.Model(formula, data, family=family, link="log" if family == "gamma" else None)
+
+    model.build()
+
+    parent = model.family.likelihood.parent
+    assert model.backend.model.named_vars_to_dims[parent] == ("__obs__", "cause_dim")
+    assert np.isfinite(model.backend.model.compile_logp()(model.backend.model.initial_point()))

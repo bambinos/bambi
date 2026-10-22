@@ -4132,3 +4132,195 @@ def test_nonlinear_count_interpret(family):
     expected = result.predictions[model.family.likelihood.parent].mean(("chain", "draw"))
     actual = summary.pivot(index="x", columns="c1_c2_c3_dim", values="estimate")
     np.testing.assert_allclose(actual[["c1", "c2", "c3"]], expected)
+
+
+def exponential_competing_risks_loglik(mu, data):
+    times = data.time.to_numpy()
+    status = (data.status.to_numpy() == "right").astype(int)
+    causes = np.array(
+        [0 if cause == "none" else ["cause_a", "cause_b"].index(cause) + 1 for cause in data.cause]
+    )
+    log_survival = -times * (1 / mu).sum(axis=-1)
+    rows = np.arange(len(data))
+    cause_index = np.maximum(causes - 1, 0)
+    event_loglik = log_survival - np.log(mu[rows, cause_index])
+    return np.where(status == 1, log_survival, event_loglik)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+def test_nonlinear_competing_risks_predictions_and_log_likelihood():
+    from bambi.interpret.effects import predictions
+
+    data = competing_risks_nonlinear_data()
+    formula = bmb.Formula(
+        "risks(time, status, cause) ~ 0 + nl(rate*x) + z",
+        "rate ~ 1 + z",
+        nlpars=("rate",),
+    )
+    prior = bmb.Prior("Normal", mu=0, sigma=2)
+    model = bmb.Model(
+        formula,
+        data,
+        family="exponential",
+        priors={"rate": {"Intercept": prior, "z": prior}, "z": prior},
+        center_predictors=False,
+    )
+    model.set_alias({"mu": {"mu": "event_rate"}})
+    model.build()
+    assert model.backend.model.named_vars_to_dims["rate"] == ("__obs__",)
+    assert model.backend.model.named_vars_to_dims["event_rate"] == ("__obs__", "cause_dim")
+
+    original_data = {
+        name: model.backend.model[name].get_value().copy()
+        for name in ("time_data", "status_data", "cause_data")
+    }
+    idata = model.fit(draws=3, chains=2)
+    coefficient_values = {
+        "rate_Intercept": 0.25,
+        "rate_z": 0.1,
+        "z": np.array([0.3, -0.2]),
+    }
+    posterior = idata.posterior.to_dataset().copy(deep=True)
+    for name, value in coefficient_values.items():
+        posterior[name] = posterior[name].copy(data=np.broadcast_to(value, posterior[name].shape))
+    idata["posterior"] = posterior
+
+    x = data.x.to_numpy()[:, None]
+    z = data.z.to_numpy()[:, None]
+    mu = np.exp(
+        (coefficient_values["rate_Intercept"] + coefficient_values["rate_z"] * z) * x
+        + coefficient_values["z"] * z
+    )
+    parameter_prediction = model.predict(idata, kind="response_params", inplace=False)
+    expected_mu = np.broadcast_to(mu, (2, 3, *mu.shape))
+    np.testing.assert_allclose(parameter_prediction.posterior["event_rate"], expected_mu)
+    training_loglik = model.compute_log_likelihood(idata, inplace=False)
+    expected_loglik = exponential_competing_risks_loglik(mu, data)
+    np.testing.assert_allclose(
+        training_loglik.log_likelihood["time"],
+        np.broadcast_to(expected_loglik, (2, 3, len(data))),
+    )
+
+    for new_data in (
+        data.iloc[[0]].assign(time=[1.25], status=["right"], cause=["none"]),
+        data.iloc[[0, 1]].assign(status=["right", "event"], cause=["none", "cause_b"]),
+    ):
+        parameters = model.predict(
+            idata, data=new_data[["x", "z"]], kind="response_params", inplace=False
+        )
+        predicted_mu = parameters.predictions["event_rate"].values[0, 0]
+        new_x = new_data.x.to_numpy()[:, None]
+        new_z = new_data.z.to_numpy()[:, None]
+        eta = (
+            coefficient_values["rate_Intercept"] + coefficient_values["rate_z"] * new_z
+        ) * new_x + coefficient_values["z"] * new_z
+        np.testing.assert_allclose(predicted_mu, np.exp(eta))
+        likelihood = model.compute_log_likelihood(idata, data=new_data, inplace=False)
+        expected = exponential_competing_risks_loglik(predicted_mu, new_data)
+        np.testing.assert_allclose(
+            likelihood.log_likelihood["time"], np.broadcast_to(expected, (2, 3, len(new_data)))
+        )
+        draws = model.predict(
+            idata,
+            data=new_data[["x", "z"]],
+            kind="response",
+            inplace=False,
+            random_seed=21,
+        ).predictions["time"]
+        assert draws.shape == (2, 3, len(new_data))
+
+    conditional = model.predict(
+        idata, data=data, kind="response_conditional", inplace=False, random_seed=22
+    ).predictions["time"]
+    right_censored = data.status.to_numpy() == "right"
+    assert (conditional.values[..., right_censored] >= data.time.to_numpy()[right_censored]).all()
+    single = model.predict(
+        idata,
+        data=data.iloc[[1]],
+        kind="response_conditional",
+        inplace=False,
+        random_seed=23,
+    ).predictions["time"]
+    assert single.shape == (2, 3, 1)
+    assert (single.values >= data.time.iloc[[1]].to_numpy()).all()
+
+    summary = predictions(model, idata, conditional={"x": [0.2], "z": [0.1]}).summary
+    assert set(summary.cause_dim) == {"cause_a", "cause_b"}
+    for name, values in original_data.items():
+        np.testing.assert_array_equal(model.backend.model[name].get_value(), values)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+def test_nonlinear_competing_risks_marginal_cause_parameter_dependency():
+    data = competing_risks_nonlinear_data()
+    formula = bmb.Formula(
+        "risks(time, status, cause) ~ 0 + nl(rate*x + alpha)",
+        "rate ~ 1 + z",
+        nlpars=("rate",),
+    )
+    model = bmb.Model(formula, data, family="weibull_ph", center_predictors=False)
+    model.build()
+    assert model.backend.model.named_vars_to_dims["alpha"] == ("cause_dim",)
+
+    idata = model.fit(draws=3, chains=2)
+    posterior = idata.posterior.to_dataset().copy(deep=True)
+    values = {
+        "alpha": np.array([0.5, 1.2]),
+        "rate_Intercept": 0.1,
+        "rate_z": 0.05,
+    }
+    for name, value in values.items():
+        posterior[name] = posterior[name].copy(data=np.broadcast_to(value, posterior[name].shape))
+    idata["posterior"] = posterior
+
+    params = model.predict(idata, kind="response_params", inplace=False)
+    x = data.x.to_numpy()[:, None]
+    z = data.z.to_numpy()[:, None]
+    eta = (values["rate_Intercept"] + values["rate_z"] * z) * x + values["alpha"]
+    expected_lam = np.exp(eta)
+    np.testing.assert_allclose(
+        params.posterior["lam"], np.broadcast_to(expected_lam, (2, 3, *expected_lam.shape))
+    )
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("sparse_dot", [False, True])
+def test_nonlinear_competing_risks_group_prediction(monkeypatch, sparse_dot):
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
+    data = competing_risks_nonlinear_data().assign(group=["g", "h"] * 4)
+    model = bmb.Model(
+        bmb.Formula(
+            "risks(time, status, cause) ~ rate*x", "rate ~ 0 + z + (1 | group)", nlpars=("rate",)
+        ),
+        data,
+        family="exponential",
+        center_predictors=False,
+    )
+    model.set_alias(
+        {
+            "mu": {"mu": "event_scale"},
+            "rate": {"rate": "r", "z": "slope", "1|group": "group_effect"},
+        }
+    )
+    idata = model.fit(draws=3, chains=1, random_seed=126)
+    assert idata.posterior.group_effect.dims == ("chain", "draw", "group_dim")
+    fixed_eta = 0.2 * idata.posterior.slope.values * 0.3
+    for groups in (["g", "h"], ["g"], ["new", "new"]):
+        new_data = pd.DataFrame({"x": 0.3, "z": 0.2, "group": groups})
+        result = model.predict(idata, data=new_data, inplace=False, random_seed=127)
+        values = result.predictions.event_scale.values
+        assert values.shape == (1, 3, len(groups), 2)
+        assert np.isfinite(values).all() and (values > 0).all()
+        if groups[0] == "new":
+            np.testing.assert_allclose(values[:, :, 0], values[:, :, 1])
+        else:
+            effects = idata.posterior.group_effect.sel(group_dim=groups).values
+            expected = np.exp(fixed_eta[:, :, None] + effects * 0.3)
+            np.testing.assert_allclose(values, np.broadcast_to(expected[..., None], values.shape))
+        population = model.predict(
+            idata, data=new_data, include_group_specific=False, inplace=False
+        )
+        expected = np.exp(fixed_eta[:, :, None, None])
+        np.testing.assert_allclose(
+            population.predictions.event_scale, np.broadcast_to(expected, values.shape)
+        )
