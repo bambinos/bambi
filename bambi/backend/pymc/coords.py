@@ -2,7 +2,7 @@ import numpy as np
 from formulae.terms.call_utils import CallVarsExtractor
 
 
-def coords_from_response(term, family):
+def coords_from_response(term, family, parameters):
     coords_data = {"__obs__": range(term.shape[0])}
     coords = {}
     coords_reduced = {}
@@ -35,7 +35,25 @@ def coords_from_response(term, family):
         coords[f"{term.name}_dim"] = range(term.shape[1])
         coords_reduced[f"{term.name}_dim"] = range(term.shape[1])
 
-    return coords_data, coords, coords_reduced
+    cutpoint_coords = {}
+    cutpoint_coords_reduced = {}
+    for name, parameter in parameters.items():
+        if family.get_param_spec(name).coefs_dim in (
+            "response_cutpoints",
+            "response_cutpoints_reduced",
+        ):
+            cutpoint_coords = coords_for_cutpoints(parameter.label, levels)
+            cutpoint_coords_reduced = {
+                f"{dim}_reduced": labels[1:] for dim, labels in cutpoint_coords.items()
+            }
+
+    return {
+        "response_coords_data": coords_data,
+        "response_coords": coords,
+        "response_coords_reduced": coords_reduced,
+        "response_coords_cutpoints": cutpoint_coords,
+        "response_coords_cutpoints_reduced": cutpoint_coords_reduced,
+    }
 
 
 def coords_from_common(term):

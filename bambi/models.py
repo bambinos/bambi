@@ -322,6 +322,8 @@ class Model:
             response_design = remove_common_intercept(response_design)
 
         self.response_term = ResponseTerm(response_design.response)
+        if isinstance(self.family, OrderedStereotype) and len(self.response_term.levels or []) < 3:
+            raise ValueError("The 'osm' family requires at least three response categories.")
 
         self._response_component = _ResponseComponentAdapter(
             self.response_term, response_design.response, self

@@ -2,8 +2,9 @@ import numpy as np
 import pymc as pm
 import pytensor.tensor as pt
 
-from bambi.backend.pymc.coords import coords_for_cutpoints
 from bambi.parameters import MarginalParameter
+
+from bambi.backend.pymc.coords import coords_for_coefficients
 from bambi.backend.pymc.utils import get_distribution_from_prior
 
 TRANSFORMS = {"ordered": pm.distributions.transforms.ordered}
@@ -18,15 +19,10 @@ def build_marginal_parameter(parameter, family, model: pm.Model):
         family.get_param_spec(parameter.name) if isinstance(parameter, MarginalParameter) else None
     )
     if param_spec is not None and param_spec.ndim > 0:
-        if param_spec.coefs_dim == "response":
-            dims = tuple(model.__bambi_attrs__["response_coords"])
-        elif param_spec.coefs_dim == "response_reduced":
-            dims = tuple(model.__bambi_attrs__["response_coords_reduced"])
-        elif param_spec.coefs_dim == "response_cutpoints":
-            response_levels = list(model.__bambi_attrs__["response_coords"].values())[0]
-            cutpoint_coords = coords_for_cutpoints(parameter.label, response_levels)
-            model.add_coords(cutpoint_coords)
-            dims = tuple(cutpoint_coords)
+        if param_spec.coefs_dim == "response_cutpoints_reduced":
+            dims = tuple(model.__bambi_attrs__["response_coords_cutpoints"])
+        else:
+            dims = tuple(coords_for_coefficients(param_spec, model))
 
     dist = get_distribution_from_prior(parameter.prior)
 

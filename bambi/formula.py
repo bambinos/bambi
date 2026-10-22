@@ -1,4 +1,3 @@
-import warnings
 import keyword
 
 import formulae as fm
@@ -174,20 +173,3 @@ def formula_has_intercept(formula: str) -> bool:
     """Determines if a model formula describes a model with an intercept."""
     description = fm.model_description(formula)
     return any(isinstance(term, fm.terms.Intercept) for term in description.terms)
-
-
-def check_ordinal_formula(formula: Formula) -> Formula:
-    """Check if a supplied formula can be used with an ordinal model.
-
-    Ordinal models have the following constraints (for the moment):
-
-    - A single formula must be passed. This is because Bambi does not support modeling the
-    thresholds as a function of predictors.
-    - The intercept is omitted. This is to avoid non-identifiability issues between the intercept
-    and the thresholds.
-    """
-    if len(formula.additionals) > 0:
-        raise ValueError("Ordinal families don't accept multiple formulas")
-    if formula_has_intercept(formula.main):
-        warnings.warn("The intercept is omitted in ordinal families")
-    return formula

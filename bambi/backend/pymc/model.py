@@ -99,16 +99,23 @@ class PyMCModel:
         )
 
     def build(self) -> None:
-        response_coords_data, response_coords, response_coords_reduced = coords_from_response(
-            self.spec.response_term, self.spec.family
+        coords = coords_from_response(
+            self.spec.response_term, self.spec.family, self.spec.parameters
         )
-
-        model = pm.Model(coords=response_coords_data | response_coords | response_coords_reduced)
+        model = pm.Model(
+            coords=coords["response_coords_data"]
+            | coords["response_coords"]
+            | coords["response_coords_reduced"]
+            | coords["response_coords_cutpoints"]
+            | coords["response_coords_cutpoints_reduced"]
+        )
         model.__bambi_attrs__ = {
             "response_ndim": self.spec.family.RESPONSE_NDIM,
-            "response_coords_data": response_coords_data,
-            "response_coords": response_coords,
-            "response_coords_reduced": response_coords_reduced,
+            "response_coords_data": coords["response_coords_data"],
+            "response_coords": coords["response_coords"],
+            "response_coords_reduced": coords["response_coords_reduced"],
+            "response_coords_cutpoints": coords["response_coords_cutpoints"],
+            "response_coords_cutpoints_reduced": coords["response_coords_cutpoints_reduced"],
             "offset_names": set(),
         }
 

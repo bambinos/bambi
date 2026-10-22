@@ -121,10 +121,11 @@ def _scale_marginal_parameters(model, response_std):
             kappa.prior = Prior("HalfStudentT", nu=4, sigma=response_std)
     elif isinstance(model.family, Cumulative):
         threshold = model.parameters["threshold"]
-        is_constant = isinstance(threshold, MarginalParameter)
-        is_normal = threshold.prior.name == "Normal"
-        auto_scale = getattr(threshold.prior, "auto_scale", False)
-        if is_constant and is_normal and auto_scale:
+        if (
+            isinstance(threshold, MarginalParameter)
+            and threshold.prior.name == "Normal"
+            and getattr(threshold.prior, "auto_scale", False)
+        ):
             response_level_n = len(model.response_term.levels)
             mu = np.round(np.linspace(-2, 2, num=response_level_n - 1), 2)
             threshold.prior.update(mu=mu, sigma=1, transform="ordered")

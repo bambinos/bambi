@@ -66,6 +66,20 @@ def test_model_rejects_invalid_data_before_processing_formula(data):
         bmb.Model("invalid formula", data)
 
 
+@pytest.mark.parametrize("categories", [1, 2])
+@pytest.mark.parametrize(
+    "additionals", [(), ("delta ~ x",), ("alpha ~ x", "delta ~ x"), ("delta ~ nl(x)",)]
+)
+def test_ordered_stereotype_requires_three_response_categories(categories, additionals):
+    data = pd.DataFrame(
+        {"y": pd.Categorical(np.arange(6) % categories, ordered=True), "x": np.linspace(-1, 1, 6)}
+    )
+    with pytest.raises(
+        ValueError, match="'osm' family requires at least three response categories"
+    ):
+        bmb.Model(bmb.Formula("y ~ 0 + x", *additionals), data, family="osm")
+
+
 def test_term_init(data_diabetes):
     design = design_matrices("BMI", data_diabetes)
     term = design.common.terms["BMI"]

@@ -384,7 +384,7 @@ BUILTIN_FAMILIES = {
             "params": ["p", "alpha", "delta"],
             "parent": "p",
         },
-        "link": {"p": "logit", "alpha": "identity", "delta": "identity"},
+        "link": {"p": "logit", "alpha": "identity", "delta": "softmax"},
         "family": OrderedStereotype,
         "default_priors": {
             "alpha": {"name": "Normal", "mu": 0, "sigma": 1},

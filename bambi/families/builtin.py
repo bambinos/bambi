@@ -189,7 +189,7 @@ class OrderedStereotype(Family):
     PARAMETERS = {
         "p": ParamSpec(links=["logit"], ndim=1),
         "alpha": ParamSpec(links=["identity"], ndim=1, coefs_dim=DimType.RESPONSE_REDUCED),
-        "delta": ParamSpec(links=["identity"], ndim=1, coefs_dim=DimType.RESPONSE_CUTPOINTS),
+        "delta": ParamSpec(links=["softmax"], ndim=1, coefs_dim=DimType.RESPONSE_CUTPOINTS_REDUCED),
     }
 
 
