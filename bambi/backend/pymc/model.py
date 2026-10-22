@@ -218,7 +218,9 @@ class PyMCModel:
             unobserved_rvs_names = []
             flat_rvs = []
             intermediate_nonlinear_parameter_names = self._intermediate_nonlinear_parameter_names
-            likelihood_parameter_names = set(self.spec.family.likelihood.params)
+            likelihood_parameter_names = {
+                parameter.label for parameter in self.spec.parameters.values()
+            }
             for unobserved in self.model.unobserved_RVs:
                 if "Flat" in str(unobserved):
                     flat_rvs.append(unobserved.name)
@@ -256,7 +258,7 @@ class PyMCModel:
 
         if omit_group_specific:
             group_specific_var_names = [
-                term_info.term.name
+                term_info.term.label
                 for parameter_info in self._conditional_info.values()
                 for term_info in parameter_info.group_specific_terms
             ]
@@ -494,6 +496,7 @@ class PyMCModel:
                 prediction_model,
                 self.spec.family,
                 kind,
+                self.spec.parameters,
             )
             if interventions:
                 prediction_model = pm.do(prediction_model, interventions)
@@ -502,6 +505,7 @@ class PyMCModel:
                 prediction_model,
                 self.spec.family,
                 kind,
+                self.spec.parameters,
             )
 
             with _suppress_logging(), prediction_model:
@@ -559,6 +563,7 @@ class PyMCModel:
             model,
             self.spec.family,
             kind,
+            self.spec.parameters,
         )
         if interventions:
             model = pm.do(model, interventions)
@@ -567,6 +572,7 @@ class PyMCModel:
             model,
             self.spec.family,
             kind,
+            self.spec.parameters,
         )
 
         with _suppress_logging(), model:

@@ -822,8 +822,15 @@ class Model:
 
         Parameters
         ----------
-        aliases : dict of str to str
-            A dictionary where key represents the original term name and the value is the alias.
+        aliases : dict
+            Map original names to aliases. For distributional and nonlinear models, use nested
+            dictionaries keyed by modeled parameter names. Inside each dictionary, map term names
+            or the parameter's own name to strings. Response and marginal parameter aliases use
+            strings directly, as do marginal coefficients. For example,
+            `{"a": {"a": "baseline", "Intercept": "a0"},
+            "mu": {"mu": "mean"}, "y": "response"}` aliases a nonlinear coefficient, its
+            intercept, the parent, and the response. Formulas and prior dictionaries continue to
+            use original names. The model must be rebuilt after setting aliases.
 
         Returns
         -------
@@ -844,7 +851,8 @@ class Model:
         #        * Here, names are term names, and values are their aliases
         #     * There's unavoidable redundancy in the response name
         #       "sigma": {"sigma": "alias"}}
-        if len(self.conditional_parameters) == 1:  # pylint: disable=too-many-nested-blocks
+        # pylint: disable=too-many-nested-blocks
+        if len(self.conditional_parameters) == 1 and not self.parameter_graph.expression_nodes:
             parent_parameter = self.parameters[self.family.likelihood.parent]
             for name, alias in aliases.items():
                 assert isinstance(alias, str)
@@ -882,21 +890,25 @@ class Model:
                 if is_used is False:
                     missing_names.append(name)
         else:
+            modeled_parameters = self._quantities
             for parameter_name, parameter_aliases in aliases.items():
-                if parameter_name in self.marginal_parameters:
+                if parameter_name in self._marginal_quantities:
                     assert isinstance(parameter_aliases, str)
-                    self.marginal_parameters[parameter_name].alias = parameter_aliases
+                    self._marginal_quantities[parameter_name].alias = parameter_aliases
                 elif parameter_name in (self.response_term.name, self.response_term.full_name):
                     assert isinstance(parameter_aliases, str)
                     self.response_term.alias = parameter_aliases
                 else:
                     assert isinstance(parameter_aliases, dict)
-                    assert parameter_name in self.conditional_parameters
-                    parameter = self.conditional_parameters[parameter_name]
+                    if parameter_name not in modeled_parameters:
+                        missing_names.append(parameter_name)
+                        continue
+                    parameter = modeled_parameters[parameter_name]
                     for name, alias in parameter_aliases.items():
+                        assert isinstance(alias, str), "Alias must be a string"
                         is_used = False
 
-                        if name in parameter.terms:
+                        if name in getattr(parameter, "terms", {}):
                             parameter.terms[name].alias = alias
                             is_used = True
 
@@ -905,7 +917,7 @@ class Model:
                             parameter.alias = alias
                             is_used = True
 
-                        for term in parameter.group_specific_terms.values():
+                        for term in getattr(parameter, "group_specific_terms", {}).values():
                             if name in term.prior.args:
                                 term.hyperprior_alias = {name: alias}
                                 is_used = True
@@ -1440,19 +1452,34 @@ class Model:
             output_list.append(key.rjust(width) + spacer.join(listify(value)))
 
         # Build priors section. Make sure the parent parameter goes first.
-        priors_dict = {parent_name: make_priors_summary(parent_parameter)}
+        if self.parameter_graph.expression_nodes:
+            quantities_with_terms = self._quantities_with_terms()
+            priors_dict = {
+                parameter.label: make_priors_summary(parameter)
+                for parameter in quantities_with_terms.values()
+            }
+        else:
+            priors_dict = {parent_name: make_priors_summary(parent_parameter)}
 
-        for name, parameter in self.conditional_parameters.items():
-            if parameter.is_parent:
-                continue
-            priors_dict[name] = make_priors_summary(parameter)
+            for name, parameter in self.conditional_parameters.items():
+                if parameter.is_parent:
+                    continue
+                priors_dict[name] = make_priors_summary(parameter)
+
+        for quantity in self._marginal_quantities.values():
+            if isinstance(quantity, MarginalCoefficient):
+                priors_dict[quantity.label] = prior_repr(quantity)
 
         if self.marginal_parameters:
             aux_str = "\n".join(
                 [prior_repr(parameter) for parameter in self.marginal_parameters.values()]
             )
             aux_str = "Auxiliary parameters\n" + wrapify(indentify(aux_str, 4), 100, 4)
-            priors_dict[parent_name] = priors_dict[parent_name] + "\n\n" + aux_str
+            key = parent_parameter.label if self.parameter_graph.expression_nodes else parent_name
+            if key in priors_dict:
+                priors_dict[key] += "\n\n" + aux_str
+            else:
+                priors_dict[key] = aux_str
 
         for key, value in priors_dict.items():
             priors_dict[key] = indentify(value, 4)
@@ -1617,7 +1644,7 @@ def prepare_data(
 
 def prior_repr(term) -> str:
     """Get a string representation of a Bambi term."""
-    return f"{term.name} ~ {term.prior}"
+    return f"{term.label} ~ {term.prior}"
 
 
 def hsgp_repr(term) -> str:
