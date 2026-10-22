@@ -2,6 +2,7 @@ import numpy as np
 import pymc as pm
 import pytensor.tensor as pt
 
+from bambi.backend.pymc.coords import coords_for_coefficients
 from bambi.backend.pymc.data import predictor_data_name, shape_common_data
 from bambi.backend.pymc.terms.common import shape_prior_arg
 from bambi.backend.pymc.terms.info import GroupSpecificTermInfo
@@ -27,12 +28,7 @@ def build_group_specific_term_dot(
         model.add_coords(coords)
 
     # Register parameter
-    dims_output = tuple()
-    if param_spec.ndim > 0:
-        if param_spec.coefs_dim == "response":
-            dims_output = tuple(model.__bambi_attrs__["response_coordsd"])
-        elif param_spec.coefs_dim == "response_reduced":
-            dims_output = tuple(model.__bambi_attrs__["response_coords_reduced"])
+    dims_output = tuple(coords_for_coefficients(param_spec, model))
 
     param_rv = build_distribution(
         prior=term.prior,
@@ -89,12 +85,7 @@ def build_group_specific_term_idx(
         group_idx_data = pm.Data(data_idx_name, term.group_index, dims=("__obs__",), model=model)
 
     # Register parameter
-    dims_output = tuple()
-    if param_spec.ndim > 0:
-        if param_spec.coefs_dim == "response":
-            dims_output = tuple(model.__bambi_attrs__["response_coordsd"])
-        elif param_spec.coefs_dim == "response_reduced":
-            dims_output = tuple(model.__bambi_attrs__["response_coords_reduced"])
+    dims_output = tuple(coords_for_coefficients(param_spec, model))
 
     param_rv = build_distribution(
         prior=term.prior,

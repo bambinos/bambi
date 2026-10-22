@@ -2,6 +2,7 @@ import numpy as np
 import pymc as pm
 import pytensor.tensor as pt
 
+from bambi.backend.pymc.coords import coords_for_coefficients
 from bambi.backend.pymc.terms.info import HSGPTermInfo
 from bambi.backend.pymc.utils import get_distribution_from_prior
 from bambi.families.types import ParamSpec
@@ -106,20 +107,11 @@ def build_hsgp_term(term_info: HSGPTermInfo, param_spec: ParamSpec, model: pm.Mo
 
     # Build weights coefficient
     # Handle the case where the outcome is multivariate
-    if param_spec.ndim == 1:
-        # Append the dims of the response variables to the coefficient and contribution dims
-        # In general:
-        # coeff_dims: ('weights_dim', ) -> ('weights_dim', f'{response}_dim')
-        # contribution_dims: ('__obs__', ) -> ('__obs__', f'{response}_dim')
-        response_dims = tuple(
-            model.__bambi_attrs__["response_coords_data"]
-            | model.__bambi_attrs__["response_coords_reduced"]
-        )
-        coeff_dims = coeff_dims + response_dims
-        contribution_dims = contribution_dims + response_dims
-
-        # Append a dimension to sqrt_psd: ('weights_dim', ) -> ('weights_dim', 1)
-        sqrt_psd = sqrt_psd[:, np.newaxis]
+    if param_spec.coefs_dim is not None:
+        response_dims = tuple(coords_for_coefficients(param_spec, model))
+        coeff_dims += response_dims
+        contribution_dims += response_dims
+        sqrt_psd = sqrt_psd[..., np.newaxis]
 
     with model:
         if term.centered:
