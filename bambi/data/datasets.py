@@ -81,6 +81,33 @@ Historical Series of Phenological data for Cherry Tree Flowering at Kyoto City. 
 the `rethinking` library in R.
 """,
     ),
+    "oranges": FileMetadata(
+        filename="orange.csv",
+        url="https://ndownloader.figshare.com/files/70130043",
+        checksum="e613dc4636ebc1fbbea037742d43bd6f1b9e8e845f2d8e7b51cc7aff5f8abb5d",
+        description="""
+Growth measurements for five orange trees, each measured on seven occasions, for a total of
+35 observations. Based on the Orange dataset distributed with R.
+
+- tree: Tree identifier
+- age: Age in days since December 31, 1968
+- circumference: Trunk circumference in millimeters
+""",
+    ),
+    "puromycin": FileMetadata(
+        filename="puromycin.csv",
+        url="https://ndownloader.figshare.com/files/70130919",
+        checksum="e8ddae454f2f73b5d011209d6b2d878197713d7bbd81d93fee41815dfdac8786",
+        description="""
+Enzymatic reaction velocity at different substrate concentrations for enzymes treated and
+untreated with puromycin. Contains 23 observations, based on the Puromycin dataset distributed
+with R.
+
+- concentration: Substrate concentration in ppm
+- rate: Instantaneous reaction rate in counts/min/min
+- state: Whether the enzyme was treated with puromycin (treated or untreated)
+""",
+    ),
     "sleepstudy": FileMetadata(
         filename="sleepstudy.csv",
         url="https://ndownloader.figshare.com/files/31181002",
