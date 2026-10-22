@@ -439,12 +439,22 @@ def test_set_bare_prior_with_named_parent(data_random_n100):
     assert model.parameters["mu"].terms["continuous2"].prior == slope_prior
 
 
-def test_unused_prior_nested_component(data_random_n100, monkeypatch):
+@pytest.mark.parametrize(
+    "formula, parameter_name",
+    [
+        (bmb.Formula("continuous1 ~ continuous2", "sigma ~ continuous2"), "sigma"),
+        (
+            bmb.Formula("continuous1 ~ a * continuous2", "a ~ continuous2", nlpars=("a",)),
+            "a",
+        ),
+        (bmb.Formula("continuous1 ~ a * continuous2", "a ~ 1", nlpars=("a",)), "a"),
+    ],
+)
+def test_unused_prior_nested_component(data_random_n100, monkeypatch, formula, parameter_name):
     monkeypatch.setattr(bmb.config, "UNUSED_PRIORS", "error")
     prior = bmb.Prior("Normal", mu=0, sigma=1)
-    formula = bmb.Formula("continuous1 ~ continuous2", "sigma ~ continuous2")
-    with pytest.raises(ValueError, match=r"sigma\.TYPO"):
-        bmb.Model(formula, data_random_n100, priors={"sigma": {"TYPO": prior}})
+    with pytest.raises(ValueError, match=rf"{parameter_name}\.TYPO"):
+        bmb.Model(formula, data_random_n100, priors={parameter_name: {"TYPO": prior}})
 
 
 def test_model_applies_bare_and_component_priors(data_random_n100, monkeypatch):

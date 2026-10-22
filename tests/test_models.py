@@ -1,21 +1,36 @@
 import pathlib
-import re
 
-import pytest
-
-import bambi as bmb
 import numpy as np
 import pandas as pd
 import pymc as pm
+import pytensor.tensor as pt
+import pytest
 import xarray as xr
-from scipy.special import gamma
 from scipy import stats
+from scipy.special import expit, ndtr, gamma
 
+import bambi as bmb
+from bambi.families.types import DimType, ParamSpec
+from bambi.parameters import ConditionalCoefficient, MarginalCoefficient
 from bambi.terms import GroupSpecificTerm
 
 from helpers import (
+    VECTOR_NORMAL_COV,
     assert_ip_dlogp,
+    censored_nonlinear_data,
+    censored_nonlinear_model,
+    competing_risks_nonlinear_data,
+    exponential_formula,
+    exponential_priors,
+    join_vector_response,
+    linear_data,
+    normal_prior,
     ordered_beta_reference_logp,
+    vector_normal_data,
+    vector_normal_family,
+    vector_student_t_family,
+    weighted_nonlinear_data,
+    weighted_nonlinear_model,
     zero_one_inflated_beta_reference_logp,
 )
 
@@ -2263,3 +2278,44 @@ def test_weighted(mock_pymc_sample):
     idata = model.fit(chains=2)
     model.predict(idata, kind="response")
     model.predict(idata, kind="response", data=data)
+
+
+# Nonlinear auxiliary-parameter behavior
+
+
+def nonlinear_auxiliary_data():
+    x = np.linspace(-1, 1, 12)
+    return pd.DataFrame({"y": 1 + x, "x": x, "z": x**2, "group": np.repeat(["a", "b", "c"], 4)})
+
+
+@pytest.mark.parametrize("nested", [False, True])
+def test_nonlinear_auxiliary_preserves_parent_priors(nested):
+    data = nonlinear_auxiliary_data()
+    formula = bmb.Formula("y ~ x", "sigma ~ exp(a)", nlpars=("a",))
+    model = bmb.Model(formula, data)
+    reference = bmb.Model("y ~ x", data)
+    for name, term in reference.parameters["mu"].terms.items():
+        assert model.parameters["mu"].terms[name].prior == term.prior
+
+    slope_prior = bmb.Prior("Normal", mu=0.5, sigma=0.2)
+    coefficient_prior = bmb.Prior("Normal", mu=-1, sigma=0.5)
+    priors = {"mu": {"x": slope_prior}} if nested else {"x": slope_prior}
+    priors["a"] = coefficient_prior
+    model = bmb.Model(formula, data, priors=priors)
+    assert model.parameters["mu"].terms["x"].prior.args == slope_prior.args
+    coefficient = model.parameters["sigma"].nonlinear_coefficients["a"]
+    assert coefficient.prior.args == coefficient_prior.args
+
+    slope_prior = bmb.Prior("Normal", mu=1, sigma=0.3)
+    coefficient_prior = bmb.Prior("Normal", mu=-0.5, sigma=0.25)
+    priors = {"mu": {"x": slope_prior}} if nested else {"x": slope_prior}
+    priors["a"] = coefficient_prior
+    model.set_priors(priors)
+    assert model.parameters["mu"].terms["x"].prior.args == slope_prior.args
+    assert coefficient.prior.args == coefficient_prior.args
+
+
+# Nonlinear aliases and offset behavior
+
+
+# Nonlinear end-to-end integration

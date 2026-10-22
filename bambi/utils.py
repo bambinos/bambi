@@ -5,6 +5,7 @@ import textwrap
 
 import formulae as fm
 import numpy as np
+import pandas as pd
 from xarray import DataTree
 
 
@@ -124,3 +125,76 @@ def remove_common_intercept(dm: fm.matrices.DesignMatrices) -> fm.matrices.Desig
 def as_dataset(group):
     """Return a Dataset from either a DataTree group or a Dataset."""
     return group.to_dataset() if isinstance(group, DataTree) else group
+
+
+def prepare_new_data(
+    model,
+    data: pd.DataFrame,
+    include_response: bool = False,
+) -> pd.DataFrame:
+    """Prepare new data for prediction or log likelihood evaluation.
+
+    Parameters
+    ----------
+    model : Model
+        Model whose parsed terms and expressions identify the required inputs.
+    data : pandas.DataFrame
+        New data. Missing grouping-factor values represent unknown groups.
+    include_response : bool, optional
+        Whether to check response inputs, as needed for log likelihood evaluation.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Prepared data. The supplied DataFrame is not modified.
+
+    Raises
+    ------
+    ValueError
+        If data is not a DataFrame, required inputs contain missing values, or data is empty.
+
+    Examples
+    --------
+    Missing grouping-factor values are allowed when predicting:
+
+    >>> from bambi import Model
+    >>> training = pd.DataFrame(
+    ...     {"y": [1, 2, 1, 2], "x": [1, 2, 3, 4], "group": ["a", "a", "b", "b"]}
+    ... )
+    >>> model = Model("y ~ x + (1 | group)", training)
+    >>> data = pd.DataFrame({"x": [1, 2], "group": ["a", None]})
+    >>> prepared = prepare_new_data(model, data)
+    >>> prepared.index.tolist()
+    [0, 1]
+    """
+    if not isinstance(data, pd.DataFrame):
+        raise ValueError("'data' must be a pandas DataFrame.")
+
+    object_columns = list(data.select_dtypes("object").columns)
+    categorical = model.data.select_dtypes("category").columns.intersection(data.columns)
+    to_convert = list(set(object_columns) | set(categorical))
+    if to_convert:
+        data = data.copy()
+        data[to_convert] = data[to_convert].apply(lambda x: x.astype("category"))
+
+    data_vars = set()
+    for parameter in model.parameter_graph.expression_nodes.values():
+        data_vars.update(parameter.data_names)
+
+    if include_response:
+        data_vars.update(model.response_term.term.var_names)
+
+    for term in model.get_terms().values():
+        if hasattr(term, "factor"):
+            data_vars.update(term.expr.var_names)
+        else:
+            data_vars.update(term.var_names)
+
+    columns = list(data_vars & set(data.columns))
+    incomplete = data[columns].isna().any(axis=1)
+    if incomplete.any():
+        raise ValueError(f"'data' contains {incomplete.sum()} incomplete rows.")
+    if len(data) == 0:
+        raise ValueError("'data' does not contain any complete observation.")
+
+    return data
