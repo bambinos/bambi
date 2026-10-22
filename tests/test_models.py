@@ -2542,6 +2542,80 @@ def test_alias_unknown_names_types_and_collisions():
         model.build()
 
 
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("nonlinear", [False, True])
+@pytest.mark.parametrize("omit_offsets", [False, True])
+def test_offset_suffix_aliases_remain_in_prior_and_posterior(nonlinear, omit_offsets):
+    model = nonlinear_alias_model(groups=True, auxiliary=False)
+    if nonlinear:
+        model.set_alias(
+            {"a": {"Intercept": "baseline_offset", "1|g": "group_offset"}, "sigma": "noise_offset"}
+        )
+    else:
+        model = bmb.Model("y ~ x + (1|g)", model.data)
+        model.set_alias(
+            {"Intercept": "baseline_offset", "1|g": "group_offset", "sigma": "noise_offset"}
+        )
+    model.build()
+    for prior_only in (False, True):
+        prior = model.backend.prior_predictive(
+            draws=3, prior_only=prior_only, omit_offsets=omit_offsets, random_seed=123
+        )
+        assert {"baseline_offset", "noise_offset", "group_offset"} <= set(prior.prior)
+        assert ("group_offset_offset" in prior.prior) is not omit_offsets
+    posterior = model.fit(draws=3, chains=1, omit_offsets=omit_offsets).posterior
+    assert {"baseline_offset", "noise_offset", "group_offset"} <= set(posterior)
+    assert ("group_offset_offset" in posterior) is not omit_offsets
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("override", [False, True])
+def test_offset_inventory_respects_prior_override(override):
+    model = nonlinear_alias_model(groups=True, auxiliary=False, noncentered=not override)
+    model.set_priors(
+        {
+            "a": {
+                "1|g": bmb.Prior(
+                    "Normal", mu=0, sigma=bmb.Prior("HalfNormal", sigma=1), noncentered=override
+                )
+            }
+        }
+    )
+    model.build()
+    assert ("a_1|g_offset" in model.backend.model.__bambi_attrs__["offset_names"]) is override
+    prior = model.backend.prior_predictive(draws=3, omit_offsets=True, random_seed=123)
+    assert "a_1|g_offset" not in prior.prior
+    assert "a_1|g" in prior.prior
+    idata = model.fit(draws=3, chains=1)
+    prediction = model.predict(idata, data=model.data.iloc[:3], inplace=False)
+    assert prediction.predictions.mu.shape == (1, 3, 3)
+    likelihood = model.compute_log_likelihood(idata, inplace=False)
+    assert likelihood.log_likelihood.y.shape == (1, 3, 12)
+
+
+def test_offset_inventory_includes_recursive_hyperpriors():
+    model = nonlinear_alias_model(groups=True, auxiliary=False)
+    model.set_priors(
+        {
+            "a": {
+                "1|g": bmb.Prior(
+                    "Normal",
+                    mu=0,
+                    sigma=bmb.Prior("Normal", mu=0, sigma=bmb.Prior("HalfNormal", sigma=1)),
+                )
+            }
+        }
+    )
+    model.build()
+    assert model.backend.model.__bambi_attrs__["offset_names"] == {
+        "a_1|g_offset",
+        "a_1|g_sigma_offset",
+    }
+    prior = model.backend.prior_predictive(draws=3, omit_offsets=True, random_seed=123)
+    assert {"a_1|g", "a_1|g_sigma", "a_1|g_sigma_sigma"} <= set(prior.prior)
+    assert not model.backend.model.__bambi_attrs__["offset_names"] & set(prior.prior)
+
+
 # Nonlinear end-to-end integration
 
 
