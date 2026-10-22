@@ -2415,7 +2415,327 @@ def test_auxiliary_group_prediction_and_likelihood(monkeypatch, sparse_dot):
 # Nonlinear aliases and offset behavior
 
 
+def nonlinear_alias_model(groups=False, auxiliary=True, bare=False, noncentered=True):
+    x = np.linspace(-1, 1, 12)
+    data = pd.DataFrame({"y": 1 + x, "x": x, "z": x**2, "g": np.repeat(["u", "v", "w"], 4)})
+    suffix = " + (1 | g)" if groups else ""
+    formulas = ["y ~ a" if bare else "y ~ a * x"]
+    if groups:
+        formulas.append("a ~ 1" + suffix)
+    if auxiliary:
+        formulas.append("sigma ~ z" + suffix)
+    return bmb.Model(
+        bmb.Formula(*formulas, nlpars=("a",)),
+        data,
+        center_predictors=False,
+        noncentered=noncentered,
+    )
+
+
+def nonlinear_aliases(auxiliary=True, groups=False):
+    return {
+        "mu": {"mu": "mean"},
+        "a": {"a": "baseline", "Intercept": "a0"} if groups else "a0",
+        "sigma": {"sigma": "noise", "Intercept": "s0", "z": "noise_z"} if auxiliary else "noise",
+        "y": "response",
+    }
+
+
+@pytest.mark.parametrize("auxiliary", [False, True])
+@pytest.mark.parametrize("bare", [False, True])
+def test_alias_predictions_likelihood_and_rebuild(auxiliary, bare):
+    model = nonlinear_alias_model(auxiliary=auxiliary, bare=bare)
+    model.build()
+    values = {"a": 2.0}
+    values.update({"sigma_Intercept": -0.5, "sigma_z": 0.3} if auxiliary else {"sigma": 0.8})
+    draws = xr.Dataset({name: (("chain", "draw"), [[value]]) for name, value in values.items()})
+    original = model.predict(xr.DataTree.from_dict({"posterior": draws}), inplace=False)
+    model.set_alias(nonlinear_aliases(auxiliary))
+    assert not model.built
+    model.build()
+    renamed = {"a": "a0"}
+    renamed.update(
+        {"sigma_Intercept": "s0", "sigma_z": "noise_z"} if auxiliary else {"sigma": "noise"}
+    )
+    idata = xr.DataTree.from_dict({"posterior": draws.rename(renamed)})
+    result = model.predict(idata, inplace=False)
+    np.testing.assert_allclose(result.posterior["mean"], original.posterior["mu"])
+    for data in (model.data, model.data.iloc[:3].assign(x=0.7, z=0.4)):
+        result = model.predict(idata, data=data, inplace=False)
+        expected = np.full(len(data), 2.0) if bare else 2 * data.x.to_numpy()
+        scale = np.exp(-0.5 + 0.3 * data.z) if auxiliary else 0.8
+        np.testing.assert_allclose(result.predictions["mean"], [[expected]])
+        likelihood = model.compute_log_likelihood(idata, data=data, inplace=False)
+        direct = pm.logp(pm.Normal.dist(mu=expected, sigma=scale), data.y).eval()
+        np.testing.assert_allclose(likelihood.log_likelihood.response, [[direct]])
+    if not bare:
+        assert "mean__x_data" in model.backend.model.named_vars
+        assert "mu__x_data" not in model.backend.model.named_vars
+    assert "a0" in model.backend.model.named_vars
+    assert "a" not in model.backend.model.named_vars
+    assert "a0" in str(model)
+    model.set_priors({"a": bmb.Prior("Normal", mu=0.4, sigma=0.2)})
+    model.build()
+    coefficient = model.parameters["mu"].nonlinear_coefficients["a"]
+    assert coefficient.prior.args["mu"] == 0.4
+    assert "a0" in model.backend.model.named_vars
+
+
+@pytest.mark.parametrize("auxiliary", [False, True])
+def test_alias_prior_filtering(auxiliary):
+    model = nonlinear_alias_model(groups=True, auxiliary=auxiliary)
+    mapping = nonlinear_aliases(auxiliary, groups=True)
+    mapping["a"].update({"1|g": "by_group", "sigma": "group_sd"})
+    model.set_alias(mapping)
+    model.build()
+    prior = model.backend.prior_predictive(
+        draws=3, prior_only=True, omit_group_specific=True, random_seed=123
+    )
+    assert "a0" in prior.prior
+    assert "by_group_group_sd" in prior.prior
+    assert not {"mean", "baseline", "by_group", "sigma_1|g"} & set(prior.prior)
+    assert ("noise" in prior.prior) is not auxiliary
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("sparse_dot", [False, True])
+@pytest.mark.parametrize("include_response_params", [False, True])
+def test_alias_group_sampling_and_unknown_prediction(
+    monkeypatch, sparse_dot, include_response_params
+):
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
+    model = nonlinear_alias_model(groups=True)
+    mapping = nonlinear_aliases(groups=True)
+    mapping["a"].update({"1|g": "by_group", "sigma": "group_sd"})
+    mapping["sigma"].update({"1|g": "noise_group", "sigma": "noise"})
+    model.set_alias(mapping)
+    idata = model.fit(draws=3, chains=1, include_response_params=include_response_params)
+    assert "baseline" not in idata.posterior
+    assert ("mean" in idata.posterior) is include_response_params
+    assert ("noise" in idata.posterior) is include_response_params
+    assert "by_group_group_sd" in idata.posterior
+    for group in ("u", "unseen"):
+        data = model.data.iloc[:3].assign(g=group)
+        prediction = model.predict(
+            idata, data=data, kind="response", inplace=False, random_seed=123
+        )
+        assert prediction.predictions.response.shape == (1, 3, 3)
+        assert prediction.predictions["mean"].shape == (1, 3, 3)
+        if group == "unseen":
+            with pytest.raises(ValueError, match="Cannot compute log likelihood for new groups"):
+                model.compute_log_likelihood(idata, data=data, inplace=False)
+        else:
+            likelihood = model.compute_log_likelihood(idata, data=data, inplace=False)
+            assert likelihood.log_likelihood.response.shape == (1, 3, 3)
+
+
+def test_alias_unknown_names_types_and_collisions():
+    model = nonlinear_alias_model(groups=True)
+    with pytest.warns(UserWarning, match="missing, absent"):
+        model.set_alias({"a": {"missing": "unused"}, "absent": {"Intercept": "other"}})
+    with pytest.raises(AssertionError, match="Alias must be a string"):
+        model.set_alias({"mu": {"mu": 5}})
+    with pytest.raises(ValueError, match="must be a dictionary"):
+        model.set_alias("a")
+    model.set_alias({"a": {"a": "mu"}})
+    with pytest.raises(ValueError, match="already exists"):
+        model.build()
+
+
 # Nonlinear end-to-end integration
+
+
+@pytest.fixture
+def linked_auxiliary_model():
+    data = pd.DataFrame(
+        {"x": [0.0, 0.5, 1.5, 2.0], "z": [-1.0, 0.0, 0.5, 1.0], "y": [0.2, 0.4, 0.7, 0.6]}
+    )
+    formula = bmb.Formula("y ~ a + b * exp(-x)", "kappa ~ 1 + z", nlpars=("a", "b"))
+    model = bmb.Model(
+        formula,
+        data,
+        family="beta",
+        center_predictors=False,
+        priors={
+            "a": bmb.Prior("Normal", mu=0, sigma=1),
+            "b": bmb.Prior("Normal", mu=0, sigma=1),
+            "kappa": {term: bmb.Prior("Normal", mu=0, sigma=1) for term in ("Intercept", "z")},
+        },
+    )
+    model.set_alias(
+        {
+            "y": "outcome",
+            "mu": {"mu": "probability"},
+            "a": "a0",
+            "b": "b0",
+            "kappa": {"kappa": "precision", "Intercept": "p0", "z": "pz"},
+        }
+    )
+    model.build()
+    return model
+
+
+@pytest.mark.parametrize("out_of_sample", [False, True])
+def test_link_auxiliary_and_aliases_match_direct_pymc(linked_auxiliary_model, out_of_sample):
+    model = linked_auxiliary_model
+    data = model.data
+    posterior = xr.Dataset(
+        {
+            name: (("chain", "draw"), [values])
+            for name, values in {
+                "a0": [-0.4, 0.2],
+                "b0": [0.8, -0.3],
+                "p0": [1.0, 1.5],
+                "pz": [0.2, -0.1],
+            }.items()
+        }
+    )
+    with pm.Model(coords={"__obs__": range(len(data))}) as reference:
+        x = pm.Data("x", data.x, dims="__obs__")
+        z = pm.Data("z", data.z, dims="__obs__")
+        y = pm.Data("y", data.y, dims="__obs__")
+        a0 = pm.Normal("a0", mu=0, sigma=1)
+        b0 = pm.Normal("b0", mu=0, sigma=1)
+        p0 = pm.Normal("p0", mu=0, sigma=1)
+        pz = pm.Normal("pz", mu=0, sigma=1)
+        probability = pm.Deterministic(
+            "probability", pm.math.sigmoid(a0 + b0 * pm.math.exp(-x)), dims="__obs__"
+        )
+        precision = pm.Deterministic("precision", pm.math.exp(p0 + pz * z), dims="__obs__")
+        pm.Beta(
+            "outcome",
+            alpha=probability * precision,
+            beta=(1 - probability) * precision,
+            observed=y,
+            dims="__obs__",
+        )
+
+    actual_logp = model.backend.model.compile_logp()
+    expected_logp = reference.compile_logp()
+    for draw in range(2):
+        point = {name: value.values[0, draw] for name, value in posterior.items()}
+        np.testing.assert_allclose(actual_logp(point), expected_logp(point))
+
+    if out_of_sample:
+        data = pd.DataFrame({"x": [0.2, 2.5], "z": [0.3, -0.7], "y": [0.4, 0.8]})
+        pm.set_data(
+            {"x": data.x, "z": data.z, "y": data.y},
+            coords={"__obs__": range(len(data))},
+            model=reference,
+        )
+    with reference:
+        expected = pm.compute_deterministics(
+            posterior, var_names=["probability", "precision"], progressbar=False
+        )
+        expected_likelihood = pm.compute_log_likelihood(
+            xr.DataTree.from_dict({"posterior": posterior}), progressbar=False
+        )
+
+    idata = xr.DataTree.from_dict({"posterior": posterior})
+    prediction_data = data.drop(columns="y") if out_of_sample else None
+    predicted = model.predict(idata, data=prediction_data, inplace=False)
+    actual = predicted.predictions if out_of_sample else predicted.posterior
+    for name in ["probability", "precision"]:
+        xr.testing.assert_allclose(actual[name], expected[name])
+    likelihood = model.compute_log_likelihood(
+        idata, data=data if out_of_sample else None, inplace=False
+    )
+    xr.testing.assert_allclose(
+        likelihood.log_likelihood["outcome"], expected_likelihood.log_likelihood["outcome"]
+    )
+    assert {"baseline", "amplitude", "mu", "kappa"}.isdisjoint(actual.data_vars)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("sparse", [False, True])
+def test_linked_auxiliary_aliases_with_groups(monkeypatch, sparse):
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse)
+    data = pd.DataFrame(
+        {
+            "x": [0.0, 0.5, 1.5, 2.0],
+            "z": [-1.0, 0.0, 0.5, 1.0],
+            "y": [0.2, 0.4, 0.7, 0.6],
+            "g": ["a", "a", "b", "b"],
+        }
+    )
+    formula = bmb.Formula("y ~ a * exp(-x)", "a ~ 1 + (1 | g)", "kappa ~ 1 + z", nlpars=("a",))
+    model = bmb.Model(formula, data, family="beta")
+    model.set_alias(
+        {
+            "y": "outcome",
+            "mu": {"mu": "probability"},
+            "a": {"a": "baseline", "1|g": "group_effect"},
+            "kappa": {"kappa": "precision"},
+        }
+    )
+    idata = model.fit(draws=3, chains=1, random_seed=123)
+    new_data = pd.DataFrame({"x": [0.2, 1.0], "z": [-0.5, 0.5], "g": ["a", "new"]})
+    for include_groups in [False, True]:
+        predicted = model.predict(
+            idata,
+            data=new_data,
+            kind="response",
+            include_group_specific=include_groups,
+            random_seed=123,
+            inplace=False,
+        )
+        assert predicted.predictions["outcome"].shape == (1, 3, 2)
+        assert np.isfinite(predicted.predictions["probability"]).all()
+        assert (
+            (predicted.predictions["probability"] > 0) & (predicted.predictions["probability"] < 1)
+        ).all()
+        assert (predicted.predictions["precision"] > 0).all()
+        z = xr.DataArray(new_data.z.to_numpy(), dims="__obs__")
+        expected_precision = np.exp(idata.posterior.kappa_Intercept + idata.posterior.kappa_z * z)
+        np.testing.assert_allclose(predicted.predictions["precision"], expected_precision)
+        baseline = idata.posterior["a_Intercept"]
+        if include_groups:
+            baseline = baseline + idata.posterior["group_effect"].sel(g_dim="a")
+        expected = 1 / (1 + np.exp(-baseline * np.exp(-0.2)))
+        np.testing.assert_allclose(predicted.predictions["probability"].isel(__obs__=0), expected)
+
+
+@pytest.mark.parametrize("link", ["identity", "log"])
+def test_mixed_predictor_prediction_and_prior_updates(link):
+    data = pd.DataFrame(
+        {"y": [1.0, 2.0, 3.0, 4.0], "x": [0.0, 1.0, 2.0, 3.0], "z": [1.0, 0.0, 3.0, 2.0]}
+    )
+    model = bmb.Model(
+        bmb.Formula("y ~ nl(b * x + x) + z + offset(z)", nlpars=("b",)),
+        data,
+        link=link,
+        center_predictors=False,
+        priors={"Intercept": bmb.Prior("Normal", mu=0, sigma=2)},
+    )
+    model.set_priors(
+        {"z": bmb.Prior("Normal", mu=0, sigma=3), "b": bmb.Prior("Normal", mu=0, sigma=4)}
+    )
+    assert model.parameters["mu"].terms["z"].prior.args["sigma"] == 3
+    assert model.parameter_graph.nonlinear_coefficients["b"].prior.args["sigma"] == 4
+    model.set_alias({"mu": {"mu": "mean", "z": "slope"}, "b": "rate"})
+    model.build()
+    draws = xr.Dataset(
+        {
+            name: (("chain", "draw"), [[value]])
+            for name, value in {"Intercept": 0.5, "slope": 0.3, "rate": 0.2, "sigma": 1.0}.items()
+        }
+    )
+    idata = xr.DataTree.from_dict({"posterior": draws})
+    for new_data in [None, data.iloc[:2].assign(x=[0.3, 0.7], z=[0.5, 0.2])]:
+        result = model.predict(idata, data=new_data, inplace=False)
+        inputs = data if new_data is None else new_data
+        expected = 0.5 + 0.3 * inputs.z + 0.2 * inputs.x + inputs.x + inputs.z
+        if link == "log":
+            expected = np.exp(expected)
+        group = result.posterior if new_data is None else result.predictions
+        np.testing.assert_allclose(group["mean"], expected.to_numpy()[None, None, :])
+        likelihood = model.compute_log_likelihood(idata, data=new_data, inplace=False)
+        expected_logp = -0.5 * np.log(2 * np.pi) - 0.5 * (inputs.y - expected) ** 2
+        np.testing.assert_allclose(
+            likelihood.log_likelihood.y, expected_logp.to_numpy()[None, None, :]
+        )
+    with pytest.raises(ValueError, match="incomplete rows"):
+        model.predict(idata, data=data.assign(z=np.nan), inplace=False)
 
 
 def test_data_only_nl_contribution():
@@ -2458,6 +2778,38 @@ def test_mixed_predictor_group_contributions(monkeypatch, sparse_dot):
         if include_groups:
             expected += [-0.4, 0.3]
         np.testing.assert_allclose(result.predictions.mu, expected[None, None, :])
+
+
+@pytest.mark.parametrize("dependent_auxiliary", [False, True])
+@pytest.mark.parametrize("aliased", [False, True])
+def test_parameter_dependencies_without_nonlinear_declarations(dependent_auxiliary, aliased):
+    data = pd.DataFrame({"y": [1.0, 2.0, 3.0], "x": [1.0, 2.0, 3.0]})
+    if dependent_auxiliary:
+        formula = bmb.Formula("y ~ x", "sigma ~ mu * x")
+        values = {"Intercept": 0.0, "x": 0.2}
+    else:
+        formula = bmb.Formula("y ~ sigma * x")
+        values = {"sigma": 2.0}
+    model = bmb.Model(formula, data, center_predictors=False)
+    mean_name = "mean" if aliased else "mu"
+    if aliased:
+        model.set_alias({"mu": {"mu": mean_name}})
+    model.build()
+    assert f"target = {mean_name}" in str(model)
+    posterior = xr.Dataset({name: (("chain", "draw"), [[value]]) for name, value in values.items()})
+    idata = xr.DataTree.from_dict({"posterior": posterior})
+    for count in (3, 2, 1):
+        new_data = data.iloc[:count].assign(x=np.linspace(0.3, 1.0, count))
+        result = model.predict(idata, data=new_data, inplace=False)
+        mu = (0.2 if dependent_auxiliary else 2.0) * new_data.x.to_numpy()
+        sigma = np.exp(mu * new_data.x.to_numpy()) if dependent_auxiliary else 2.0
+        np.testing.assert_allclose(result.predictions[mean_name], mu[None, None, :])
+        if dependent_auxiliary:
+            np.testing.assert_allclose(result.predictions.sigma, sigma[None, None, :])
+        likelihood = model.compute_log_likelihood(idata, data=new_data, inplace=False)
+        expected = stats.norm.logpdf(new_data.y, loc=mu, scale=sigma)
+        np.testing.assert_allclose(likelihood.log_likelihood.y, expected[None, None, :])
+    np.testing.assert_array_equal(model.data.x, data.x)
 
 
 def test_null_nonlinear_contribution_preserves_auxiliary_link():
@@ -2690,6 +3042,15 @@ def test_group_specific_parameter_predicts_new_data(monkeypatch, sparse_dot):
     assert predicted.predictions["mu"].shape == (2, 5, 3)
 
 
+def test_nonlinear_coefficient_alias():
+    model = bmb.Model(exponential_formula(), linear_data(), priors=exponential_priors())
+
+    model.set_alias({"a": {"Intercept": "a0"}})
+    model.build()
+    assert "a0" in model.backend.model.named_vars
+    assert "a_Intercept" not in model.backend.model.named_vars
+
+
 def test_nonlinear_coefficient_can_depend_on_another_coefficient():
     formula = bmb.Formula("y ~ a + b * x", "a ~ 1 + b", nlpars=("a", "b"))
     model = bmb.Model(formula, linear_data())
@@ -2747,6 +3108,30 @@ def test_marginal_coefficient_matches_explicit_intercept_density(auto_scale):
         ]
         np.testing.assert_allclose(*logps)
         np.testing.assert_allclose(*gradients)
+
+
+@pytest.mark.parametrize("prior", [normal_prior(), 0.5])
+def test_marginal_coefficient_prior_alias_and_output(prior, mock_pymc_sample):
+    model = bmb.Model(bmb.Formula("y ~ a * x", nlpars=("a",)), linear_data(), priors={"a": prior})
+    coefficient = model.parameters["mu"].nonlinear_coefficients["a"]
+    assert isinstance(coefficient, MarginalCoefficient)
+    model.set_alias({"a": "slope"})
+    model.build()
+    assert "slope" in str(model)
+    assert "a_Intercept" not in model.backend.model.named_vars
+    assert model.backend.model["slope"].ndim == 0
+    prior_draws = model.backend.prior_predictive(draws=3, prior_only=True, random_seed=123)
+    estimated = isinstance(prior, bmb.Prior)
+    assert ("slope" in prior_draws.prior) == estimated
+    posterior = model.fit(draws=3, chains=1, random_seed=123)
+    assert ("slope" in posterior.posterior) == estimated
+    if not estimated:
+        np.testing.assert_allclose(prior_draws.constant_data["slope"], prior)
+        np.testing.assert_allclose(posterior.constant_data["slope"], prior)
+    model.set_priors({"a": bmb.Prior("Normal", mu=0.7, sigma=0.2)})
+    assert coefficient.prior.args == {"mu": 0.7, "sigma": 0.2}
+    model.build()
+    assert "slope" in model.backend.model.named_vars
 
 
 def test_nl_wrapper_accepts_underscore_marginal_coefficient():
