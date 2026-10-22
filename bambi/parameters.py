@@ -1,7 +1,7 @@
 from bambi.defaults import get_default_prior
 from bambi.priors.prior import Prior
 from bambi.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, OffsetTerm, SmoothTerm
-from bambi.utils import is_hsgp_term, is_smooth_term
+from bambi.terms.utils import is_hsgp_term, is_smooth_term
 
 
 class MarginalParameter:
