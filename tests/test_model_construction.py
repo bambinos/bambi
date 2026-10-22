@@ -1208,14 +1208,24 @@ def test_untruncate_response_rebuilds_base_distribution(family, response):
     assert "truncated" not in str(latent[response_name].owner.op).lower()
 
 
-@pytest.mark.skip(reason="this example no longer trigger the fallback to adapt_diag")
-def test_init_fallback(init_data, caplog):
-    model = bmb.Model("od ~ temp + (1|source) + 0", init_data)
-    with caplog.at_level(logging.INFO):
-        model.fit(draws=100, init="auto")
-        assert "Initializing NUTS using jitter+adapt_diag..." in caplog.text
+def test_init_fallback(caplog, monkeypatch, mock_pymc_sample):
+    model = bmb.Model("y ~ x", linear_data())
+    sample = pm.sample
+    initializations = []
+
+    def sample_with_initialization_failure(**kwargs):
+        initializations.append(kwargs["init"])
+        if len(initializations) == 1:
+            raise ValueError("Mass matrix contains zeros on the diagonal.")
+        return sample(**kwargs)
+
+    with monkeypatch.context() as patch, caplog.at_level(logging.INFO):
+        patch.setattr(pm, "sample", sample_with_initialization_failure)
+        result = model.fit(draws=3, chains=1, init="auto", inference_method="pymc")
         assert "The default initialization" in caplog.text
-        assert "Initializing NUTS using adapt_diag..." in caplog.text
+
+    assert initializations == ["auto", "adapt_diag"]
+    assert "posterior" in result
 
 
 def test_2d_response_no_shape(mock_pymc_sample):
@@ -1704,6 +1714,65 @@ def nonlinear_ownership_data():
     return pd.DataFrame({"y": [0.2, 0.3, 0.4], "x": [1.0, 2.0, 3.0], "z": [0.0, 0.5, 1.0]})
 
 
+@pytest.mark.parametrize("parameter", ["a", "sigma"])
+@pytest.mark.parametrize("covariate", ["z", "`time value`"])
+def test_nonlinear_model_preserves_additive_interactions(
+    nonlinear_ownership_data, parameter, covariate
+):
+    data = nonlinear_ownership_data.assign(**{"time value": nonlinear_ownership_data.z})
+    model = bmb.Model(
+        bmb.Formula("y ~ a * x", f"{parameter} ~ x:{covariate}", nlpars=("a",)),
+        data,
+        center_predictors=False,
+    )
+    model.build()
+    term_name = "x:z" if covariate == "z" else "x:time value"
+    draws = xr.Dataset(
+        {
+            "a_Intercept" if parameter == "a" else "a": (("chain", "draw"), [[0.5]]),
+            f"{parameter}_{term_name}": (("chain", "draw"), [[0.2]]),
+        }
+    )
+    if parameter == "sigma":
+        draws["sigma_Intercept"] = (("chain", "draw"), [[0.5]])
+    else:
+        draws["sigma"] = (("chain", "draw"), [[1.0]])
+    new_data = data.iloc[:2].drop(columns="y")
+    result = model.predict(
+        xr.DataTree.from_dict({"posterior": draws}), data=new_data, inplace=False
+    )
+    predictor = 0.5 + 0.2 * new_data.x * new_data.z
+    name = "mu" if parameter == "a" else "sigma"
+    expected = predictor * new_data.x if parameter == "a" else np.exp(predictor)
+    np.testing.assert_allclose(result.predictions[name], expected.to_numpy()[None, None, :])
+
+
+@pytest.mark.parametrize("parameter", ["sigma", "b"])
+@pytest.mark.parametrize(
+    "expression, coefficient, expected",
+    [("1 / a", 2.0, 0.5), ("-a", -2.0, 2.0), ("a / 2", 2.0, 1.0), ("a ** 0.5", 4.0, 2.0)],
+)
+def test_additional_nonlinear_arithmetic(
+    nonlinear_ownership_data, parameter, expression, coefficient, expected
+):
+    data = nonlinear_ownership_data
+    formula = bmb.Formula(
+        "y ~ a * x" if parameter == "sigma" else "y ~ b * x",
+        f"{parameter} ~ {expression}",
+        nlpars=("a",) if parameter == "sigma" else ("a", "b"),
+    )
+    model = bmb.Model(formula, data)
+    model.build()
+    draws = xr.Dataset({"a": (("chain", "draw"), [[coefficient]])})
+    if parameter == "b":
+        draws["sigma"] = (("chain", "draw"), [[1.0]])
+    result = model.predict(xr.DataTree.from_dict({"posterior": draws}), inplace=False)
+    if parameter == "sigma":
+        np.testing.assert_allclose(result.posterior.sigma, np.exp(expected))
+    else:
+        np.testing.assert_allclose(result.posterior.mu, expected * data.x.to_numpy()[None, None, :])
+
+
 def test_nonlinear_coefficients_are_owned_by_expression_parameters(nonlinear_ownership_data):
     data = nonlinear_ownership_data
     formula = bmb.Formula("y ~ a * x", "sigma ~ sqrt(a ** 2 + 0.1)", nlpars=("a",))
@@ -1776,6 +1845,66 @@ def test_additive_and_marginal_likelihood_parameters_keep_their_roles(
     assert isinstance(marginal.parameters["sigma"], MarginalParameter)
 
 
+@pytest.mark.parametrize("predictor", ["x", "x:z"])
+@pytest.mark.parametrize("dependent_scale", [False, True])
+def test_additive_parent_with_nonlinear_auxiliary(
+    nonlinear_ownership_data, predictor, dependent_scale
+):
+    data = nonlinear_ownership_data
+    sigma_formula = "sigma ~ 0.5 * log(mu ** 2 + a ** 2)" if dependent_scale else "sigma ~ a"
+    model = bmb.Model(
+        bmb.Formula(f"y ~ {predictor}", sigma_formula, nlpars=("a",)),
+        data,
+        center_predictors=False,
+    )
+    model.build()
+    assert not model.parameters["mu"].is_nonlinear
+    assert model.parameters["sigma"].is_nonlinear
+    draws = xr.Dataset(
+        {
+            "Intercept": (("chain", "draw"), [[1.0]]),
+            predictor: (("chain", "draw"), [[0.2]]),
+            "a": (("chain", "draw"), [[0.3]]),
+        }
+    )
+    idata = xr.DataTree.from_dict({"posterior": draws})
+    for new_data in (None, data.iloc[:2].assign(x=[0.5, 1.5])):
+        observations = data if new_data is None else new_data
+        covariate = observations.x if predictor == "x" else observations.x * observations.z
+        mu = 1.0 + 0.2 * covariate.to_numpy()
+        sigma = np.sqrt(mu**2 + 0.3**2) if dependent_scale else np.exp(0.3)
+        result = model.predict(
+            idata, data=None if new_data is None else new_data.drop(columns="y"), inplace=False
+        )
+        group = result.posterior if new_data is None else result.predictions
+        np.testing.assert_allclose(group.mu, mu[None, None, :])
+        np.testing.assert_allclose(group.sigma, np.broadcast_to(sigma, group.sigma.shape))
+        likelihood = model.compute_log_likelihood(idata, data=new_data, inplace=False)
+        expected = stats.norm.logpdf(observations.y, loc=mu, scale=sigma)
+        np.testing.assert_allclose(likelihood.log_likelihood.y, expected[None, None, :])
+
+
+def test_nonlinear_auxiliary_aligns_additive_parent_data():
+    data = pd.DataFrame(
+        {"y": [0.2, 0.4, 0.6, 0.8], "x": [np.nan, 1.0, 2.0, 3.0], "z": [0.0, np.nan, 0.5, 1.0]}
+    )
+    formula = bmb.Formula("y ~ x", "sigma ~ exp(a * z)", nlpars=("a",))
+    model = bmb.Model(formula, data, dropna=True)
+    model.build()
+    pd.testing.assert_frame_equal(model.data, data.iloc[2:])
+    np.testing.assert_array_equal(model.response_term.data, data.y.iloc[2:])
+    assert_ip_dlogp(model)
+    with pytest.raises(ValueError, match="incomplete rows"):
+        bmb.Model(formula, data)
+    draws = xr.Dataset({name: (("chain", "draw"), [[0.2]]) for name in ["Intercept", "x", "a"]})
+    with pytest.raises(ValueError, match="incomplete rows"):
+        model.predict(
+            xr.DataTree.from_dict({"posterior": draws}),
+            data=pd.DataFrame({"x": [np.nan, 1.0], "z": [0.0, 0.5]}),
+            inplace=False,
+        )
+
+
 def test_one_edge_parameter_dependency_matches_direct_calculation():
     data = pd.DataFrame({"y": [0.2, 0.3, 0.4], "x": [1.0, 2.0, 3.0]})
     formula = bmb.Formula("y ~ a * x", "sigma ~ a ** 2 + 0.1", nlpars=("a",))
@@ -1788,6 +1917,21 @@ def test_one_edge_parameter_dependency_matches_direct_calculation():
 
     expected = np.exp(draws.a**2 + 0.1).values[..., None]
     np.testing.assert_allclose(actual.sigma, np.broadcast_to(expected, actual.sigma.shape))
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+def test_intermediate_parameter_is_filtered_from_prior_and_posterior():
+    data = pd.DataFrame({"y": [0.2, 0.3, 0.4], "x": [1.0, 2.0, 3.0]})
+    formula = bmb.Formula("y ~ a * x", "a ~ b + 1", nlpars=("a", "b"))
+    model = bmb.Model(formula, data, center_predictors=False)
+    model.build()
+
+    prior = model.backend.prior_predictive(draws=2, prior_only=True, random_seed=123)
+    idata = model.fit(draws=2, chains=1, include_response_params=True, random_seed=123)
+
+    assert "a" not in prior.prior
+    assert "a" not in idata.posterior
+    assert {"b", "mu"} <= set(idata.posterior.data_vars)
 
 
 @pytest.fixture
@@ -1845,6 +1989,53 @@ def test_nonlinear_parameter_dag_matches_golf_calculation(
     np.testing.assert_allclose(actual.sigma, expected_sigma)
 
 
+@pytest.mark.parametrize("out_of_sample", [False, True])
+def test_nonlinear_parameter_dag_prediction(
+    nonlinear_parameter_dag_model, nonlinear_parameter_dag_draws, out_of_sample
+):
+    model = nonlinear_parameter_dag_model
+    idata = xr.DataTree.from_dict({"posterior": nonlinear_parameter_dag_draws})
+    data = (
+        pd.DataFrame({"distance": [0.25, 1.25], "attempts": [30, 120]})
+        if out_of_sample
+        else model.data
+    )
+
+    result = model.predict(idata, data=data if out_of_sample else None, inplace=False)
+    group = result.predictions if out_of_sample else result.posterior
+    expected_mu, expected_sigma = golf_parameter_values(nonlinear_parameter_dag_draws, data)
+
+    np.testing.assert_allclose(group.mu, expected_mu)
+    np.testing.assert_allclose(group.sigma, expected_sigma)
+
+
+@pytest.mark.parametrize("out_of_sample", [False, True])
+def test_nonlinear_parameter_dag_log_likelihood(
+    nonlinear_parameter_dag_model, nonlinear_parameter_dag_draws, out_of_sample
+):
+    model = nonlinear_parameter_dag_model
+    idata = xr.DataTree.from_dict({"posterior": nonlinear_parameter_dag_draws})
+    data = (
+        pd.DataFrame(
+            {
+                "distance": [0.25, 1.25],
+                "attempts": [30, 120],
+                "success_rate": [0.39, 0.30],
+            }
+        )
+        if out_of_sample
+        else model.data
+    )
+
+    result = model.compute_log_likelihood(
+        idata, data=data if out_of_sample else None, inplace=False
+    )
+    mu, sigma = golf_parameter_values(nonlinear_parameter_dag_draws, data)
+    expected = norm.logpdf(data.success_rate.to_numpy(), loc=mu, scale=sigma)
+
+    np.testing.assert_allclose(result.log_likelihood.success_rate, expected)
+
+
 @pytest.fixture
 def nonlinear_exponential_model():
     data = pd.DataFrame(
@@ -1895,6 +2086,36 @@ def test_exponential_log_density_matches_direct_pymc(nonlinear_exponential_model
         np.testing.assert_allclose(actual_logp(point), expected_logp(point))
 
 
+@pytest.mark.parametrize("out_of_sample", [False, True])
+def test_exponential_log_likelihood_matches_normal(nonlinear_exponential_model, out_of_sample):
+    posterior = xr.Dataset(
+        {
+            "a_Intercept": (("chain", "draw"), [[0.4, -0.2]]),
+            "a_z": (("chain", "draw"), [[0.2, 0.5]]),
+            "b": (("chain", "draw"), [[1.5, 2.0]]),
+            "k": (("chain", "draw"), [[0.8, 1.2]]),
+            "sigma": (("chain", "draw"), [[0.3, 0.7]]),
+        }
+    )
+    idata = xr.DataTree.from_dict({"posterior": posterior})
+    data = (
+        pd.DataFrame({"x": [0.2, 2.5], "z": [1.5, -0.5], "y": [2.2, 0.3]})
+        if out_of_sample
+        else nonlinear_exponential_model.data
+    )
+    result = nonlinear_exponential_model.compute_log_likelihood(
+        idata, data=data if out_of_sample else None, inplace=False
+    )
+    x = xr.DataArray(data["x"].to_numpy(), dims="__obs__")
+    z = xr.DataArray(data["z"].to_numpy(), dims="__obs__")
+    mu = posterior["a_Intercept"] + posterior["a_z"] * z
+    mu += posterior["b"] * np.exp(-posterior["k"] * x)
+    expected = norm.logpdf(data["y"].to_numpy(), loc=mu, scale=posterior["sigma"].values[..., None])
+
+    np.testing.assert_allclose(result.log_likelihood["y"], expected)
+    assert "log_likelihood" not in idata
+
+
 @pytest.mark.parametrize("coefficient_formula", [None, "a ~ 1", "a ~ 0 + 1"])
 def test_nonlinear_coefficient_type_depends_on_formula(coefficient_formula):
     prior = normal_prior()
@@ -1922,7 +2143,357 @@ def test_nonlinear_coefficient_type_depends_on_formula(coefficient_formula):
         assert "a_Intercept" in model.backend.model.named_vars
 
 
+def test_zero_predictor_broadcasts_for_new_observations():
+    data = pd.DataFrame({"x": [0.0, 1.0, 2.0], "y": [0.1, 1.2, 2.1]})
+    model = bmb.Model(bmb.Formula("y ~ 0 + nl(a + x)", "a ~ 0", nlpars=("a",)), data)
+    model.build()
+    idata = xr.DataTree.from_dict(
+        {"posterior": xr.Dataset({"sigma": (("chain", "draw"), [[0.2]])})}
+    )
+
+    fitted = model.predict(idata, inplace=False)
+    predicted = model.predict(idata, data=pd.DataFrame({"x": [3.0, 4.0]}), inplace=False)
+
+    np.testing.assert_allclose(fitted.posterior["mu"], [[[0.0, 1.0, 2.0]]])
+    np.testing.assert_allclose(predicted.predictions["mu"], [[[3.0, 4.0]]])
+
+
+@pytest.mark.parametrize("out_of_sample", [False, True])
+def test_multiple_nonlinear_summands_share_parameter(out_of_sample):
+    data = pd.DataFrame({"x": [0.0, 0.5, 1.5, 3.0], "y": [2.0, 1.5, 1.0, 0.8]})
+    formula = bmb.Formula(
+        "y ~ a * exp(-k * x) + b * exp(-2 * k * x)",
+        nlpars=("a", "b", "k"),
+    )
+    model = bmb.Model(formula, data)
+    model.build()
+    posterior = xr.Dataset(
+        {
+            "a": (("chain", "draw"), [[0.4, 1.2]]),
+            "b": (("chain", "draw"), [[1.5, 2.0]]),
+            "k": (("chain", "draw"), [[0.8, 1.2]]),
+            "sigma": (("chain", "draw"), [[0.3, 0.7]]),
+        }
+    )
+    idata = xr.DataTree.from_dict({"posterior": posterior})
+    prediction_data = pd.DataFrame({"x": [0.2, 2.5]}) if out_of_sample else data
+    result = model.predict(idata, data=prediction_data if out_of_sample else None, inplace=False)
+    x = xr.DataArray(prediction_data["x"].to_numpy(), dims="__obs__")
+    a = posterior["a"]
+    b = posterior["b"]
+    k = posterior["k"]
+    expected = a * np.exp(-k * x) + b * np.exp(-2 * k * x)
+    actual = result.predictions["mu"] if out_of_sample else result.posterior["mu"]
+
+    assert actual.dims == ("chain", "draw", "__obs__")
+    np.testing.assert_allclose(actual, expected)
+
+
+@pytest.mark.parametrize("out_of_sample", [False, True])
+def test_nonlinear_parameter_offset_prediction(out_of_sample):
+    data = pd.DataFrame(
+        {
+            "x": [0.0, 0.5, 1.5, 3.0],
+            "z": [-1.0, 0.0, 0.5, 2.0],
+            "exposure": [0.2, 0.5, 1.0, 1.5],
+            "y": [0.1, 1.5, 3.0, 5.8],
+        }
+    )
+    formula = bmb.Formula("y ~ exp(a) * x", "a ~ 1 + z + offset(exposure)", nlpars=("a",))
+    model = bmb.Model(formula, data, center_predictors=False)
+    model.build()
+    posterior = xr.Dataset(
+        {
+            "a_Intercept": (("chain", "draw"), [[0.4, -0.2]]),
+            "a_z": (("chain", "draw"), [[0.2, 0.5]]),
+            "sigma": (("chain", "draw"), [[0.3, 0.7]]),
+        }
+    )
+    idata = xr.DataTree.from_dict({"posterior": posterior})
+    prediction_data = (
+        pd.DataFrame({"x": [0.2, 2.5], "z": [1.5, -0.5], "exposure": [0.7, 2.0]})
+        if out_of_sample
+        else data
+    )
+    result = model.predict(idata, data=prediction_data if out_of_sample else None, inplace=False)
+    x = xr.DataArray(prediction_data["x"].to_numpy(), dims="__obs__")
+    z = xr.DataArray(prediction_data["z"].to_numpy(), dims="__obs__")
+    exposure = xr.DataArray(prediction_data["exposure"].to_numpy(), dims="__obs__")
+    a = posterior["a_Intercept"] + posterior["a_z"] * z + exposure
+    expected = np.exp(a) * x
+    actual = result.predictions["mu"] if out_of_sample else result.posterior["mu"]
+
+    assert actual.dims == ("chain", "draw", "__obs__")
+    np.testing.assert_allclose(actual, expected)
+
+
+@pytest.fixture(name="golf_model")
+def make_golf_model():
+    data = pd.DataFrame(
+        {
+            "distance": [2.0, 3.0, 4.0, 5.0],
+            "attempts": [1443, 694, 455, 353],
+            "successes": [1346, 577, 337, 208],
+            "ball_radius": np.repeat((1.68 / 2) / 12, 4),
+            "hole_radius": np.repeat((4.25 / 2) / 12, 4),
+        }
+    )
+    formula = bmb.Formula(
+        "prop(successes, attempts) ~ "
+        "2 * normal_cdf(asin((hole_radius - ball_radius) / distance) / sigma_angle) - 1",
+        nlpars=("sigma_angle",),
+    )
+    model = bmb.Model(
+        formula,
+        data,
+        family="binomial",
+        link="identity",
+        priors={
+            "sigma_angle": bmb.Prior("HalfNormal", sigma=0.5),
+        },
+    )
+    model.build()
+    return model
+
+
+@pytest.mark.parametrize("out_of_sample", [False, True])
+def test_golf_probability_and_log_likelihood(golf_model, out_of_sample):
+    posterior = xr.Dataset({"sigma_angle": (("chain", "draw"), [[0.02, 0.03]])})
+    idata = xr.DataTree.from_dict({"posterior": posterior})
+    data = golf_model.data
+    if out_of_sample:
+        data = pd.DataFrame(
+            {
+                "distance": [6.0, 10.0],
+                "attempts": [272, 200],
+                "successes": [149, 67],
+                "ball_radius": np.repeat((1.68 / 2) / 12, 2),
+                "hole_radius": np.repeat((4.25 / 2) / 12, 2),
+            }
+        )
+
+    result = golf_model.predict(idata, data=data if out_of_sample else None, inplace=False)
+    group = result.predictions if out_of_sample else result.posterior
+    threshold = np.arcsin((data["hole_radius"] - data["ball_radius"]) / data["distance"])
+    probability = (
+        2 * norm.cdf(threshold.to_numpy()[None, :] / posterior["sigma_angle"].to_numpy()[..., None])
+        - 1
+    )
+
+    np.testing.assert_allclose(group["p"], probability)
+    result = golf_model.compute_log_likelihood(
+        idata, data=data if out_of_sample else None, inplace=False
+    )
+    expected = pm.logp(
+        pm.Binomial.dist(n=data["attempts"].to_numpy(), p=probability),
+        data["successes"].to_numpy(),
+    ).eval()
+    np.testing.assert_allclose(result.log_likelihood["successes"], expected, rtol=1e-6)
+
+
+def test_nonlinear_binomial_literal_trials():
+    data = pd.DataFrame({"successes": [6, 13, 18], "x": [0.1, 0.2, 0.3]})
+    model = bmb.Model(
+        bmb.Formula("p(successes, 62) ~ normal_cdf(a + b * x)", nlpars=("a", "b")),
+        data,
+        family="binomial",
+        link="identity",
+    )
+    model.build()
+
+    posterior = xr.Dataset(
+        {
+            "a": (("chain", "draw"), [[-0.4, 0.3]]),
+            "b": (("chain", "draw"), [[0.8, -0.2]]),
+        }
+    )
+    idata = xr.DataTree.from_dict({"posterior": posterior})
+
+    prediction = model.predict(idata, inplace=False)
+    x = xr.DataArray(data.x.to_numpy(), dims="__obs__")
+    expected_probability = ndtr(posterior.a + posterior.b * x)
+    np.testing.assert_allclose(prediction.posterior.p, expected_probability)
+
+    likelihood = model.compute_log_likelihood(idata, inplace=False)
+    expected_likelihood = pm.logp(
+        pm.Binomial.dist(n=62, p=expected_probability.values), data.successes.to_numpy()
+    ).eval()
+    np.testing.assert_allclose(likelihood.log_likelihood.successes, expected_likelihood)
+
+
+def test_nonlinear_beta_binomial_proportion_prediction_and_likelihood():
+    data = pd.DataFrame({"successes": [6, 13, 18], "attempts": [59, 60, 62], "x": [0.1, 0.2, 0.3]})
+    model = bmb.Model(
+        bmb.Formula("prop(successes, attempts) ~ a + b * x", nlpars=("a", "b")),
+        data,
+        family="beta_binomial",
+        priors={"kappa": 10.0},
+    )
+    model.build()
+    posterior = xr.Dataset(
+        {
+            "a": (("chain", "draw"), [[-0.4, 0.3]]),
+            "b": (("chain", "draw"), [[0.8, -0.2]]),
+        }
+    )
+    idata = xr.DataTree.from_dict({"posterior": posterior})
+
+    prediction = model.predict(idata, inplace=False)
+    x = xr.DataArray(data.x.to_numpy(), dims="__obs__")
+    expected_mu = expit(posterior.a + posterior.b * x)
+    np.testing.assert_allclose(prediction.posterior.mu, expected_mu)
+
+    likelihood = model.compute_log_likelihood(idata, inplace=False)
+    expected_likelihood = pm.logp(
+        pm.BetaBinomial.dist(
+            n=data.attempts.to_numpy(),
+            alpha=expected_mu.values * 10,
+            beta=(1 - expected_mu.values) * 10,
+        ),
+        data.successes.to_numpy(),
+    ).eval()
+    np.testing.assert_allclose(likelihood.log_likelihood.successes, expected_likelihood)
+
+
 # Nonlinear links and predictor transforms
+
+
+@pytest.mark.parametrize(
+    "family, link, inverse_link, distribution, parent, auxiliary",
+    [
+        ("poisson", "log", np.exp, pm.Poisson, "mu", {}),
+        ("bernoulli", "logit", expit, pm.Bernoulli, "p", {}),
+        ("bernoulli", "probit", ndtr, pm.Bernoulli, "p", {}),
+        ("bernoulli", "cloglog", lambda x: -np.expm1(-np.exp(x)), pm.Bernoulli, "p", {}),
+        ("gaussian", "identity", lambda x: x, pm.Normal, "mu", {"sigma": 1.0}),
+        (
+            "poisson",
+            bmb.Link("scaled_log", inverse_link=lambda x: pm.math.exp(x / 2)),
+            lambda x: np.exp(x / 2),
+            pm.Poisson,
+            "mu",
+            {},
+        ),
+    ],
+)
+def test_parent_link_matches_pymc_and_prediction(
+    family, link, inverse_link, distribution, parent, auxiliary
+):
+    data = pd.DataFrame({"y": [0, 1, 0, 1], "x": [-1.0, -0.3, 0.2, 0.7]})
+    model = bmb.Model(
+        bmb.Formula("y ~ a + b * x ** 2", nlpars=("a", "b")),
+        data,
+        family=family,
+        link={parent: link},
+        priors=auxiliary,
+    )
+    model.build()
+    draws = xr.Dataset(
+        {
+            "a": (("chain", "draw"), [[-0.4, 0.3]]),
+            "b": (("chain", "draw"), [[0.8, -0.2]]),
+        }
+    )
+    idata = xr.DataTree.from_dict({"posterior": draws})
+    with model.backend.model:
+        actual = pm.compute_deterministics(draws, progressbar=False)
+    assert "a" not in actual
+    assert model.backend.model.named_vars_to_dims["a"] == ()
+    for new_data in (None, pd.DataFrame({"x": [0.1, 1.4], "y": [1, 0]})):
+        prediction_data = data if new_data is None else new_data
+        eta = np.array([-0.4, 0.3])[:, None] + np.array([0.8, -0.2])[:, None] * (
+            prediction_data.x.to_numpy() ** 2
+        )
+        expected = inverse_link(eta)
+        result = model.predict(idata, data=new_data, inplace=False)
+        group = result.posterior if new_data is None else result.predictions
+        np.testing.assert_allclose(group[parent].values, expected[None])
+        likelihood = model.compute_log_likelihood(idata, data=new_data, inplace=False)
+        direct = pm.logp(
+            distribution.dist(**{parent: expected}, **auxiliary), prediction_data.y.to_numpy()
+        ).eval()
+        np.testing.assert_allclose(likelihood.log_likelihood.y.values, direct[None])
+
+
+def test_link_preserves_likelihood_parameter_transform():
+    data = pd.DataFrame({"y": [0.2, 0.7], "x": [-0.5, 0.5]})
+    model = bmb.Model(
+        bmb.Formula("y ~ a * x", nlpars=("a",)),
+        data,
+        family="beta",
+        priors={"kappa": 4.0},
+    )
+    model.build()
+    draws = xr.Dataset({"a": (("chain", "draw"), [[1.2]])})
+    result = model.compute_log_likelihood(
+        xr.DataTree.from_dict({"posterior": draws}), inplace=False
+    )
+    mu = expit(1.2 * data.x.to_numpy())
+    expected = pm.logp(pm.Beta.dist(alpha=mu * 4, beta=(1 - mu) * 4), data.y).eval()
+    np.testing.assert_allclose(result.log_likelihood.y.values, [[expected]])
+
+
+def test_scalar_predictor_transform_receives_auxiliary_parameters(monkeypatch):
+    data = pd.DataFrame({"y": [0.0, 1.0], "x": [-0.5, 0.5]})
+    model = bmb.Model(bmb.Formula("y ~ a * x", nlpars=("a",)), data, priors={"sigma": 2.0})
+    monkeypatch.setitem(
+        transforms_registry.additive_predictors,
+        (type(model.family), "mu"),
+        lambda value, parameters, inverse_link: inverse_link(value + parameters["sigma"]),
+    )
+    model.build()
+    draws = xr.Dataset({"a": (("chain", "draw"), [[1.2]])})
+    result = model.predict(xr.DataTree.from_dict({"posterior": draws}), inplace=False)
+    np.testing.assert_allclose(result.posterior.mu.values, [[[1.4, 2.6]]])
+
+
+@pytest.mark.parametrize("transform", ["inverse_link", "predictor"])
+def test_scalar_transform_result_broadcasts_for_prediction(monkeypatch, transform):
+    data = pd.DataFrame({"y": [0.0, 1.0], "x": [-0.5, 0.5]})
+    link = {"mu": bmb.Link("constant", inverse_link=lambda value: 1.0)}
+    model = bmb.Model(
+        bmb.Formula("y ~ a * x", nlpars=("a",)),
+        data,
+        priors={"sigma": 1.0},
+        link=link if transform == "inverse_link" else None,
+    )
+    if transform == "predictor":
+        monkeypatch.setitem(
+            transforms_registry.additive_predictors,
+            (type(model.family), "mu"),
+            lambda value, parameters, inverse_link: 1.0,
+        )
+    model.build()
+    draws = xr.Dataset({"a": (("chain", "draw"), [[1.2]])})
+    idata = xr.DataTree.from_dict({"posterior": draws})
+    for new_data in (None, pd.DataFrame({"x": [-1.0, 0.0, 1.0]})):
+        result = model.predict(idata, data=new_data, inplace=False)
+        group = result.posterior if new_data is None else result.predictions
+        size = len(data) if new_data is None else len(new_data)
+        np.testing.assert_array_equal(group.mu.values, np.ones((1, 1, size)))
+
+
+@pytest.mark.parametrize("family, inverse_link", [("gaussian", lambda x: x), ("poisson", np.exp)])
+@pytest.mark.parametrize("predictor", ["a ~ 0", "a ~ 1"])
+def test_intercept_only_prediction_accepts_row_only_data(family, inverse_link, predictor):
+    model = bmb.Model(
+        bmb.Formula("y ~ a + b", predictor, nlpars=("a", "b")),
+        pd.DataFrame({"y": [0, 1]}),
+        family=family,
+        priors={"sigma": 1.0} if family == "gaussian" else None,
+    )
+    model.build()
+    value = 0.5 if predictor == "a ~ 1" else 0.0
+    draws = xr.Dataset({"b": (("chain", "draw"), [[0.2]])})
+    if predictor == "a ~ 1":
+        draws["a_Intercept"] = (("chain", "draw"), [[value]])
+    idata = xr.DataTree.from_dict({"posterior": draws})
+    result = model.predict(idata, data=pd.DataFrame(index=range(3)), inplace=False)
+    np.testing.assert_allclose(
+        result.predictions.mu.values, np.full((1, 1, 3), inverse_link(value + 0.2))
+    )
+    with pytest.raises(ValueError, match="does not contain any complete observation"):
+        model.predict(idata, data=pd.DataFrame(), inplace=False)
 
 
 def test_invalid_family_link_remains_rejected():
@@ -1933,6 +2504,23 @@ def test_invalid_family_link_remains_rejected():
             family="poisson",
             link="logit",
         )
+
+
+def test_bare_nonlinear_coefficient_broadcasts_without_data_columns():
+    model = bmb.Model(
+        bmb.Formula("y ~ a", nlpars=("a",)),
+        pd.DataFrame({"y": [0, 1]}),
+        priors={"sigma": 1.0},
+    )
+    model.build()
+    draws = xr.Dataset({"a": (("chain", "draw"), [[0.5]])})
+    idata = xr.DataTree.from_dict({"posterior": draws})
+    for new_data in (None, pd.DataFrame(index=range(3))):
+        result = model.predict(idata, data=new_data, inplace=False)
+        group = result.posterior if new_data is None else result.predictions
+        size = 2 if new_data is None else 3
+        np.testing.assert_allclose(group.mu.values, np.full((1, 1, size), 0.5))
+        assert ("a" in group) is (new_data is None)
 
 
 @pytest.mark.parametrize(
@@ -1949,6 +2537,47 @@ def test_additive_model_dependency_graph(additionals, order):
     assert model.parameter_graph.order == order
     assert model.parameter_graph.expression_nodes == {}
     assert model.parameter_graph.nonlinear_coefficients == {}
+
+
+def test_dependency_graph_contains_all_quantity_roles(nonlinear_ownership_data):
+    model = bmb.Model(
+        bmb.Formula("y ~ a + c * x", "a ~ b + c * z + sigma", "c ~ 1 + z", nlpars=("a", "b", "c")),
+        nonlinear_ownership_data,
+        center_predictors=False,
+    )
+    nodes = model.parameter_graph.nodes
+    assert set(nodes) == {"mu", "sigma", "a", "b", "c"}
+    assert set(model.parameters) == {"mu", "sigma"}
+    assert isinstance(nodes["mu"], ConditionalParameter)
+    assert isinstance(nodes["sigma"], MarginalParameter)
+    assert isinstance(nodes["a"], ConditionalCoefficient)
+    assert isinstance(nodes["b"], MarginalCoefficient)
+    assert isinstance(nodes["c"], ConditionalCoefficient)
+    assert isinstance(nodes["a"], Conditional)
+    assert isinstance(nodes["b"], Marginal)
+    assert nodes["mu"].nonlinear_coefficients["a"] is nodes["a"]
+    assert nodes["mu"].nonlinear_coefficients["c"] is nodes["a"].nonlinear_coefficients["c"]
+    for name in ("a", "b", "c"):
+        assert not hasattr(nodes[name], "is_parent")
+        assert not hasattr(nodes[name], "link")
+    order = model.parameter_graph.order
+    for name, dependencies in model.parameter_graph.dependencies.items():
+        assert all(order.index(dependency) < order.index(name) for dependency in dependencies)
+    model.build()
+    draws = xr.Dataset(
+        {
+            name: (("chain", "draw"), [[value]])
+            for name, value in {"b": 0.4, "c_Intercept": 0.2, "c_z": 0.3, "sigma": 0.5}.items()
+        }
+    )
+    idata = xr.DataTree.from_dict({"posterior": draws})
+    for data in (None, nonlinear_ownership_data.iloc[:2].assign(x=0.7, z=0.2)):
+        result = model.predict(idata, data=data, inplace=False)
+        observations = model.data if data is None else data
+        posterior = result.posterior if data is None else result.predictions
+        c = 0.2 + 0.3 * observations.z
+        expected = 0.4 + c * observations.z + 0.5 + c * observations.x
+        np.testing.assert_allclose(posterior.mu, expected.to_numpy()[None, None, :])
 
 
 def test_mixed_predictor_missing_rows_are_aligned():

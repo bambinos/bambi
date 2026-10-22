@@ -16,6 +16,7 @@ from pymc.model.transform.conditioning import remove_value_transforms
 from xarray import DataTree
 
 from bambi.backend.pymc.coords import coords_from_response
+from bambi.backend.pymc.nonlinear import build_new_nonlinear_data
 from bambi.backend.pymc.parameters import (
     build_conditional_parameter,
     build_marginal_parameter,
@@ -40,8 +41,8 @@ from bambi.backend.pymc.terms.response import (
     replace_response_variables,
 )
 from bambi.config import config as bmb_config
-from bambi.parameters import Marginal
-from bambi.utils import as_dataset
+from bambi.parameters import Conditional, Marginal
+from bambi.utils import as_dataset, prepare_new_data
 
 _logger = logging.getLogger("bambi")
 
@@ -87,6 +88,15 @@ class PyMCModel:
         self.vi_approx = None
         self._conditional_info: dict[str, ConditionalInfo] = {}
         self._group_specific_state: GroupSpecificGraphState = GroupSpecificGraphState()
+
+    @property
+    def _intermediate_nonlinear_parameter_names(self) -> tuple[str, ...]:
+        """Return nonlinear quantities that should not be sampled directly."""
+        return tuple(
+            quantity.label
+            for quantity in self.spec.parameter_graph.nonlinear_coefficients.values()
+            if isinstance(quantity, Conditional)
+        )
 
     def build(self) -> None:
         response_coords_data, response_coords, response_coords_reduced = coords_from_response(
@@ -207,13 +217,18 @@ class PyMCModel:
         if prior_only:
             unobserved_rvs_names = []
             flat_rvs = []
+            intermediate_nonlinear_parameter_names = self._intermediate_nonlinear_parameter_names
+            likelihood_parameter_names = set(self.spec.family.likelihood.params)
             for unobserved in self.model.unobserved_RVs:
                 if "Flat" in str(unobserved):
                     flat_rvs.append(unobserved.name)
                 else:
-                    is_likelihood_param = unobserved.name in self.spec.family.likelihood.params
+                    is_likelihood_param = unobserved.name in likelihood_parameter_names
                     is_deterministic = unobserved in self.model.deterministics
-                    if is_likelihood_param and is_deterministic:
+                    if is_deterministic and (
+                        is_likelihood_param
+                        or unobserved.name in intermediate_nonlinear_parameter_names
+                    ):
                         continue
                     unobserved_rvs_names.append(unobserved.name)
 
@@ -241,9 +256,9 @@ class PyMCModel:
 
         if omit_group_specific:
             group_specific_var_names = [
-                name
-                for parameter in self.spec.conditional_parameters.values()
-                for name in parameter.group_specific_terms
+                term_info.term.name
+                for parameter_info in self._conditional_info.values()
+                for term_info in parameter_info.group_specific_terms
             ]
             var_names = [name for name in var_names if name not in group_specific_var_names]
 
@@ -475,12 +490,18 @@ class PyMCModel:
                 self.spec.response_term, prediction_model, kind
             )
             interventions = build_response_interventions(
-                self.spec.response_term, prediction_model, self.spec.family, kind
+                self.spec.response_term,
+                prediction_model,
+                self.spec.family,
+                kind,
             )
             if interventions:
                 prediction_model = pm.do(prediction_model, interventions)
             build_response_prediction_variables(
-                self.spec.response_term, prediction_model, self.spec.family, kind
+                self.spec.response_term,
+                prediction_model,
+                self.spec.family,
+                kind,
             )
 
             with _suppress_logging(), prediction_model:
@@ -534,11 +555,19 @@ class PyMCModel:
                 )
 
         interventions = build_response_interventions(
-            self.spec.response_term, model, self.spec.family, kind
+            self.spec.response_term,
+            model,
+            self.spec.family,
+            kind,
         )
         if interventions:
             model = pm.do(model, interventions)
-        build_response_prediction_variables(self.spec.response_term, model, self.spec.family, kind)
+        build_response_prediction_variables(
+            self.spec.response_term,
+            model,
+            self.spec.family,
+            kind,
+        )
 
         with _suppress_logging(), model:
             predictions = pm.sample_posterior_predictive(
@@ -587,6 +616,11 @@ class PyMCModel:
             )
 
     def _build_new_data(self, data: pd.DataFrame, purpose: str, kind: str | None = None):
+        data = prepare_new_data(
+            self.spec,
+            data,
+            include_response=purpose == "log_likelihood",
+        )
         new_coords = {"__obs__": range(len(data))}
         new_data = build_new_response_data(
             self.spec.response_term, data, self.spec.family, purpose, kind
@@ -605,6 +639,9 @@ class PyMCModel:
                 )
             new_data.update(parameter_data)
             factor_plans.extend(parameter_factor_plans)
+
+        for parameter in self.spec.parameter_graph.expression_nodes.values():
+            new_data.update(build_new_nonlinear_data(parameter, data))
 
         return new_data, new_coords, factor_plans
 
@@ -629,9 +666,16 @@ class PyMCModel:
         )
         vars_to_sample = [variable.name for variable in vars_to_sample]
 
+        intermediate_nonlinear_parameter_names = self._intermediate_nonlinear_parameter_names
+        vars_to_sample = [
+            var for var in vars_to_sample if var not in intermediate_nonlinear_parameter_names
+        ]
+
         if not include_response_params:
-            parameters_names = [param.label for param in self.spec.conditional_parameters.values()]
-            vars_to_sample = [var for var in vars_to_sample if var not in parameters_names]
+            response_parameter_names = [
+                param.label for param in self.spec.conditional_parameters.values()
+            ]
+            vars_to_sample = [var for var in vars_to_sample if var not in response_parameter_names]
 
         if omit_offsets:
             vars_to_sample = [var for var in vars_to_sample if not var.endswith("_offset")]
@@ -749,10 +793,12 @@ class PyMCModel:
         response_parameter_names = [
             parameter.label for parameter in self.spec.conditional_parameters.values()
         ]
+        intermediate_nonlinear_parameter_names = self._intermediate_nonlinear_parameter_names
         idata = _posterior_samples_to_idata(
             samples,
             self.model,
-            excluded_var_names=response_parameter_names,
+            excluded_var_names=response_parameter_names
+            + list(intermediate_nonlinear_parameter_names),
         )
 
         if include_response_params:

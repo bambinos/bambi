@@ -2323,6 +2323,34 @@ def test_nonlinear_auxiliary_preserves_parent_priors(nested):
     assert coefficient.prior.args == coefficient_prior.args
 
 
+def test_auxiliary_graph_matches_direct_pymc():
+    data = nonlinear_auxiliary_data()
+    model = bmb.Model(nonlinear_auxiliary_formula(), data, center_predictors=False)
+    model.build()
+    draws = xr.Dataset(
+        {
+            "a": (("chain", "draw"), [[2.0]]),
+            "sigma_Intercept": (("chain", "draw"), [[-0.5]]),
+            "sigma_z": (("chain", "draw"), [[0.3]]),
+        }
+    )
+    with model.backend.model:
+        actual = pm.compute_deterministics(draws, progressbar=False)
+    np.testing.assert_allclose(actual.mu.values, [[2 * data.x]])
+    np.testing.assert_allclose(actual.sigma.values, [[np.exp(-0.5 + 0.3 * data.z)]])
+    likelihood = model.compute_log_likelihood(
+        xr.DataTree.from_dict({"posterior": draws}), inplace=False
+    )
+    direct = pm.logp(
+        pm.Normal.dist(mu=2 * data.x, sigma=np.exp(-0.5 + 0.3 * data.z)), data.y
+    ).eval()
+    np.testing.assert_allclose(likelihood.log_likelihood.y.values, [[direct]])
+    assert set(model.parameters["mu"].nonlinear_coefficients) == {"a"}
+    assert set(model.parameters["sigma"].terms) == {"Intercept", "z"}
+    assert not model.marginal_parameters
+    assert "target = sigma" in str(model)
+
+
 def test_auxiliary_priors_match_ordinary_model_and_update():
     data = nonlinear_auxiliary_data()
     nonlinear = bmb.Model(nonlinear_auxiliary_formula(), data)
@@ -2342,10 +2370,153 @@ def test_auxiliary_priors_match_ordinary_model_and_update():
         )
 
 
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("sparse_dot", [False, True])
+def test_auxiliary_group_prediction_and_likelihood(monkeypatch, sparse_dot):
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
+    model = bmb.Model(
+        nonlinear_auxiliary_formula(groups=True),
+        nonlinear_auxiliary_data(),
+        noncentered={"a": False, "sigma": True},
+    )
+    idata = model.fit(draws=3, chains=1, include_response_params=True, random_seed=123)
+    assert {"mu", "sigma"} <= set(idata.posterior)
+    assert "a" not in idata.posterior
+    new_data = nonlinear_auxiliary_data().iloc[:3].copy()
+    new_data["z"] += 1
+    result = model.predict(idata, data=new_data, kind="response", inplace=False)
+    assert result.predictions.sigma.shape == (1, 3, 3)
+    assert result.predictions.y.shape == (1, 3, 3)
+    x = xr.DataArray(new_data.x.to_numpy(), dims="__obs__")
+    z = xr.DataArray(new_data.z.to_numpy(), dims="__obs__")
+    group = idata.posterior["a_1|group"].sel(group_dim="a")
+    expected_mu = (idata.posterior.a_Intercept + group) * x
+    expected_sigma = np.exp(
+        idata.posterior.sigma_Intercept
+        + idata.posterior.sigma_z * z
+        + idata.posterior["sigma_1|group"].sel(group_dim="a")
+    )
+    np.testing.assert_allclose(result.predictions.mu, expected_mu)
+    np.testing.assert_allclose(result.predictions.sigma, expected_sigma)
+    likelihood = model.compute_log_likelihood(idata, data=new_data, inplace=False)
+    assert likelihood.log_likelihood.y.shape == (1, 3, 3)
+    y = xr.DataArray(new_data.y.to_numpy(), dims="__obs__")
+    expected_log_likelihood = (
+        -0.5 * np.log(2 * np.pi)
+        - np.log(expected_sigma)
+        - 0.5 * ((y - expected_mu) / expected_sigma) ** 2
+    )
+    np.testing.assert_allclose(likelihood.log_likelihood.y, expected_log_likelihood)
+    new_data.loc[new_data.index[0], "z"] = np.nan
+    with pytest.raises(ValueError, match="incomplete rows"):
+        model.predict(idata, data=new_data, inplace=False)
+
+
 # Nonlinear aliases and offset behavior
 
 
 # Nonlinear end-to-end integration
+
+
+def test_data_only_nl_contribution():
+    data = pd.DataFrame({"y": [1.0, 2.0, 3.0], "x": [0.1, 0.2, 0.3]})
+    model = bmb.Model("y ~ 0 + nl(exp(x) + 1)", data)
+    model.build()
+    draws = xr.Dataset({"sigma": (("chain", "draw"), [[1.0]])})
+    result = model.predict(xr.DataTree.from_dict({"posterior": draws}), inplace=False)
+    np.testing.assert_allclose(result.posterior.mu, (np.exp(data.x) + 1).to_numpy()[None, None, :])
+
+
+@pytest.mark.parametrize("sparse_dot", [False, True])
+def test_mixed_predictor_group_contributions(monkeypatch, sparse_dot):
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
+    data = pd.DataFrame(
+        {"y": [1.0, 2.0, 3.0, 4.0], "x": [0.0, 1.0, 2.0, 3.0], "group": ["a", "a", "b", "b"]}
+    )
+    model = bmb.Model(
+        bmb.Formula("y ~ 0 + nl(b * x) + (1 | group)", nlpars=("b",)),
+        data,
+        noncentered=False,
+    )
+    model.build()
+    draws = xr.Dataset(
+        {
+            "b": (("chain", "draw"), [[0.2]]),
+            "sigma": (("chain", "draw"), [[1.0]]),
+            "1|group_sigma": (("chain", "draw"), [[0.5]]),
+            "1|group": (("chain", "draw", "group_dim"), [[[0.3, -0.4]]]),
+        },
+        coords={"group_dim": ["a", "b"]},
+    )
+    idata = xr.DataTree.from_dict({"posterior": draws})
+    new_data = pd.DataFrame({"x": [0.5, 1.5], "group": ["b", "a"]})
+    for include_groups in [False, True]:
+        result = model.predict(
+            idata, data=new_data, inplace=False, include_group_specific=include_groups
+        )
+        expected = 0.2 * new_data.x.to_numpy()
+        if include_groups:
+            expected += [-0.4, 0.3]
+        np.testing.assert_allclose(result.predictions.mu, expected[None, None, :])
+
+
+def test_null_nonlinear_contribution_preserves_auxiliary_link():
+    data = linear_data(4)
+    posterior = xr.Dataset(
+        {
+            name: (("chain", "draw"), [[value]])
+            for name, value in {
+                "Intercept": 0.5,
+                "x": 0.2,
+                "sigma_Intercept": 0.7,
+                "sigma_z": 0.3,
+            }.items()
+        }
+    )
+    idata = xr.DataTree.from_dict({"posterior": posterior})
+    for rhs in ("z", "z + nl(0)"):
+        model = bmb.Model(
+            bmb.Formula("y ~ x", f"sigma ~ {rhs}"),
+            data,
+            center_predictors=False,
+        )
+        model.build()
+        for new_data in (None, data.iloc[:2].assign(z=[0.4, 0.8])):
+            inputs = data if new_data is None else new_data
+            result = model.predict(idata, data=new_data, inplace=False)
+            group = result.posterior if new_data is None else result.predictions
+            sigma = np.exp(0.7 + 0.3 * inputs.z.to_numpy())
+            np.testing.assert_allclose(group.sigma, sigma[None, None, :])
+            likelihood = model.compute_log_likelihood(idata, data=new_data, inplace=False)
+            expected = stats.norm.logpdf(inputs.y, loc=0.5 + 0.2 * inputs.x, scale=sigma)
+            np.testing.assert_allclose(likelihood.log_likelihood.y, expected[None, None, :])
+
+
+def test_mixed_coefficient_and_auxiliary_predictors():
+    data = pd.DataFrame(
+        {"y": [1.0, 2.0, 3.0, 4.0], "x": [0.0, 1.0, 2.0, 3.0], "z": [1.0, 0.0, 3.0, 2.0]}
+    )
+    formula = bmb.Formula(
+        "y ~ a * x",
+        "sigma ~ 0 + nl(exp(b)) + z",
+        "a ~ nl(b * x) + z",
+        nlpars=("a", "b"),
+    )
+    model = bmb.Model(formula, data, center_predictors=False)
+    model.build()
+    draws = xr.Dataset(
+        {
+            name: (("chain", "draw"), [[value]])
+            for name, value in {"a_Intercept": 0.5, "a_z": 0.3, "b": 0.2, "sigma_z": 0.1}.items()
+        }
+    )
+    idata = xr.DataTree.from_dict({"posterior": draws})
+    new_data = data.iloc[:2].drop(columns="y")
+    result = model.predict(idata, data=new_data, inplace=False)
+    expected_mu = (0.5 + 0.3 * new_data.z + 0.2 * new_data.x) * new_data.x
+    expected_sigma = np.exp(np.exp(0.2) + 0.1 * new_data.z)
+    np.testing.assert_allclose(result.predictions.mu, expected_mu.to_numpy()[None, None, :])
+    np.testing.assert_allclose(result.predictions.sigma, expected_sigma.to_numpy()[None, None, :])
 
 
 def test_constant_parameters_match_linear_regression():
@@ -2428,6 +2599,97 @@ def test_omitted_constant_formulas_match_explicit_intercepts():
     xr.testing.assert_allclose(predictions[0], predictions[1])
 
 
+def test_predictor_dependent_parameter_recovers_simulated_values():
+    rng = np.random.default_rng(8)
+    size = 120
+    x = rng.uniform(0, 3, size)
+    z = rng.normal(size=size)
+    a = 0.7 + 0.4 * z
+    y = a + 1.5 * np.exp(-0.8 * x) + rng.normal(0, 0.15, size)
+    data = pd.DataFrame({"x": x, "z": z, "y": y})
+    priors = exponential_priors()
+    priors["b"] = bmb.Prior("Normal", mu=1.5, sigma=0.5)
+    priors["k"] = bmb.Prior("LogNormal", mu=np.log(0.8), sigma=0.35)
+    priors["sigma"] = bmb.Prior("HalfNormal", sigma=0.5)
+    model = bmb.Model(exponential_formula(), data, priors=priors)
+
+    idata = model.fit(
+        draws=200,
+        tune=200,
+        chains=2,
+        cores=1,
+        random_seed=11,
+        inference_method="pymc",
+        target_accept=0.9,
+    )
+
+    expected = {
+        "a_Intercept": 0.7,
+        "a_z": 0.4,
+        "b": 1.5,
+        "k": 0.8,
+    }
+    for name, value in expected.items():
+        assert float(idata.posterior[name].mean()) == pytest.approx(value, abs=0.15)
+
+    predicted = model.predict(idata, kind="response", random_seed=4, inplace=False)
+    assert predicted.posterior_predictive["y"].shape == (2, 200, size)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+def test_posterior_predictive_and_new_data():
+    data = linear_data()
+    model = bmb.Model(exponential_formula(), data, priors=exponential_priors())
+    idata = model.fit(draws=5, chains=2)
+    assert {"b", "k"} <= set(idata.posterior.data_vars)
+    assert {"a", "mu"}.isdisjoint(idata.posterior.data_vars)
+
+    predicted = model.predict(idata, kind="response", inplace=False)
+    assert predicted.posterior["mu"].shape == (2, 5, len(data))
+    assert predicted.posterior_predictive["y"].shape == (2, 5, len(data))
+
+    new_data = pd.DataFrame({"x": np.linspace(1, 2, 7), "z": np.linspace(-0.5, 0.5, 7)})
+    predicted = model.predict(idata, kind="response", data=new_data, inplace=False)
+    assert predicted.predictions["mu"].shape == (2, 5, len(new_data))
+    assert predicted.predictions["y"].shape == (2, 5, len(new_data))
+
+    with pytest.raises(ValueError, match="missing nonlinear expression column"):
+        model.predict(idata, data=new_data.drop(columns="x"), inplace=False)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+def test_include_response_params_only_keeps_likelihood_parameter():
+    model = bmb.Model(exponential_formula(), linear_data(), priors=exponential_priors())
+
+    idata = model.fit(draws=5, chains=2, include_response_params=True)
+
+    assert "mu" in idata.posterior
+    assert {"b", "k"} <= set(idata.posterior.data_vars)
+    assert {"a"}.isdisjoint(idata.posterior.data_vars)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("sparse_dot", [False, True])
+def test_group_specific_parameter_predicts_new_data(monkeypatch, sparse_dot):
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
+    data = linear_data(24)
+    data["group"] = np.repeat(["a", "b", "c"], 8)
+    formula = exponential_formula(group_specific=True)
+    model = bmb.Model(formula, data, priors=exponential_priors(group_specific=True))
+    idata = model.fit(draws=5, chains=2)
+
+    assert model.backend.model.named_vars_to_dims["a_1|group"] == ("group_dim",)
+    assert idata.posterior["a_1|group"].shape == (2, 5, 3)
+    new_data = pd.DataFrame(
+        {
+            "x": [0.1, 0.2, 0.3],
+            "group": ["a", "new", "new"],
+        }
+    )
+    predicted = model.predict(idata, data=new_data, random_seed=123, inplace=False)
+    assert predicted.predictions["mu"].shape == (2, 5, 3)
+
+
 def test_nonlinear_coefficient_can_depend_on_another_coefficient():
     formula = bmb.Formula("y ~ a + b * x", "a ~ 1 + b", nlpars=("a", "b"))
     model = bmb.Model(formula, linear_data())
@@ -2445,6 +2707,19 @@ def test_nonlinear_coefficient_can_depend_on_another_coefficient():
     x = xr.DataArray(linear_data().x.to_numpy(), dims="__obs__")
     expected = 1 + draws.b + draws.b * x
     np.testing.assert_allclose(actual.mu, expected)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("column", ["x", "z"])
+def test_prediction_rejects_incomplete_inputs(column):
+    model = bmb.Model(
+        exponential_formula(), linear_data(), priors=exponential_priors(), dropna=True
+    )
+    idata = model.fit(draws=2, chains=1)
+    data = linear_data(3).drop(columns="y")
+    data.loc[1, column] = np.nan
+    with pytest.raises(ValueError, match="incomplete rows"):
+        model.predict(idata, data=data, inplace=False)
 
 
 @pytest.mark.parametrize("auto_scale", [False, True])
