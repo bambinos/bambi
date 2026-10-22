@@ -1726,6 +1726,24 @@ def test_nonlinear_coefficients_are_owned_by_expression_parameters(nonlinear_own
     assert not hasattr(model, "additive_parameters")
 
 
+def test_nonlinear_auxiliary_owns_its_coefficient(nonlinear_ownership_data):
+    formula = bmb.Formula(
+        "y ~ b * x",
+        "sigma ~ exp(sigma_b * x)",
+        nlpars=("b", "sigma_b"),
+    )
+
+    model = bmb.Model(formula, nonlinear_ownership_data)
+    model.build()
+
+    mu = model.parameters["mu"]
+    sigma = model.parameters["sigma"]
+    assert set(mu.nonlinear_coefficients) == {"b"}
+    assert set(sigma.nonlinear_coefficients) == {"sigma_b"}
+    assert "b" in model.backend.model.named_vars
+    assert "sigma_b" in model.backend.model.named_vars
+
+
 def test_intermediate_expression_owns_its_direct_coefficients(nonlinear_ownership_data):
     data = nonlinear_ownership_data
     formula = bmb.Formula(
@@ -1758,6 +1776,152 @@ def test_additive_and_marginal_likelihood_parameters_keep_their_roles(
     assert isinstance(marginal.parameters["sigma"], MarginalParameter)
 
 
+def test_one_edge_parameter_dependency_matches_direct_calculation():
+    data = pd.DataFrame({"y": [0.2, 0.3, 0.4], "x": [1.0, 2.0, 3.0]})
+    formula = bmb.Formula("y ~ a * x", "sigma ~ a ** 2 + 0.1", nlpars=("a",))
+    model = bmb.Model(formula, data, center_predictors=False)
+    model.build()
+    draws = xr.Dataset({"a": (("chain", "draw"), [[0.5, -0.25]])})
+
+    with model.backend.model:
+        actual = pm.compute_deterministics(draws, var_names=["sigma"], progressbar=False)
+
+    expected = np.exp(draws.a**2 + 0.1).values[..., None]
+    np.testing.assert_allclose(actual.sigma, np.broadcast_to(expected, actual.sigma.shape))
+
+
+@pytest.fixture
+def nonlinear_parameter_dag_model():
+    data = pd.DataFrame(
+        {
+            "distance": [0.0, 0.5, 1.0, 1.5],
+            "attempts": [20, 40, 80, 160],
+            "success_rate": [0.42, 0.38, 0.33, 0.29],
+        }
+    )
+    formula = bmb.Formula(
+        "success_rate ~ p_angle * p_distance",
+        "sigma ~ 0.5 * log(mu * (1 - mu) / attempts + sigma_y ** 2)",
+        "p_distance ~ 1 + distance",
+        nlpars=("p_angle", "p_distance", "sigma_y"),
+    )
+    model = bmb.Model(formula, data, center_predictors=False)
+    model.build()
+    return model
+
+
+@pytest.fixture
+def nonlinear_parameter_dag_draws():
+    return xr.Dataset(
+        {
+            "p_angle": (("chain", "draw"), [[0.8, 0.7]]),
+            "p_distance_Intercept": (("chain", "draw"), [[0.55, 0.65]]),
+            "p_distance_distance": (("chain", "draw"), [[-0.08, -0.12]]),
+            "sigma_y": (("chain", "draw"), [[0.03, 0.05]]),
+        }
+    )
+
+
+def golf_parameter_values(draws, data):
+    distance = xr.DataArray(data.distance.to_numpy(), dims="__obs__")
+    attempts = xr.DataArray(data.attempts.to_numpy(), dims="__obs__")
+    p_distance = draws.p_distance_Intercept + draws.p_distance_distance * distance
+    mu = draws.p_angle * p_distance
+    sigma = np.sqrt(mu * (1 - mu) / attempts + draws.sigma_y**2)
+    return mu, sigma
+
+
+def test_nonlinear_parameter_dag_matches_golf_calculation(
+    nonlinear_parameter_dag_model, nonlinear_parameter_dag_draws
+):
+    model = nonlinear_parameter_dag_model
+    with model.backend.model:
+        actual = pm.compute_deterministics(
+            nonlinear_parameter_dag_draws, var_names=["mu", "sigma"], progressbar=False
+        )
+    expected_mu, expected_sigma = golf_parameter_values(nonlinear_parameter_dag_draws, model.data)
+
+    np.testing.assert_allclose(actual.mu, expected_mu)
+    np.testing.assert_allclose(actual.sigma, expected_sigma)
+
+
+@pytest.fixture
+def nonlinear_exponential_model():
+    data = pd.DataFrame(
+        {"x": [0.0, 0.5, 1.5, 3.0], "z": [-1.0, 0.0, 0.5, 2.0], "y": [2.0, 1.5, 1.0, 0.8]}
+    )
+    formula = bmb.Formula("y ~ a + b * exp(-k * x)", "a ~ 1 + z", nlpars=("a", "b", "k"))
+    model = bmb.Model(
+        formula,
+        data,
+        priors={
+            "a": {
+                "Intercept": bmb.Prior("Normal", mu=0, sigma=2),
+                "z": bmb.Prior("Normal", mu=0, sigma=1),
+            },
+            "b": bmb.Prior("Normal", mu=1, sigma=2),
+            "k": bmb.Prior("LogNormal", mu=0, sigma=0.5),
+            "sigma": bmb.Prior("HalfNormal", sigma=1),
+        },
+        center_predictors=False,
+    )
+    model.build()
+    return model
+
+
+def test_exponential_log_density_matches_direct_pymc(nonlinear_exponential_model):
+    data = nonlinear_exponential_model.data
+    with pm.Model(coords={"__obs__": np.arange(len(data))}) as reference:
+        x = pm.Data("x", data["x"], dims="__obs__")
+        z = pm.Data("z", data["z"], dims="__obs__")
+        a_intercept = pm.Normal("a_Intercept", mu=0, sigma=2)
+        a_z = pm.Normal("a_z", mu=0, sigma=1)
+        b = pm.Normal("b", mu=1, sigma=2)
+        k = pm.LogNormal("k", mu=0, sigma=0.5)
+        sigma = pm.HalfNormal("sigma", sigma=1)
+        mu = a_intercept + a_z * z + b * pm.math.exp(-k * x)
+        pm.Normal("y", mu=mu, sigma=sigma, observed=data["y"], dims="__obs__")
+
+    actual_logp = nonlinear_exponential_model.backend.model.compile_logp()
+    expected_logp = reference.compile_logp()
+    for a_intercept, a_z, b, k, sigma in [(0.4, 0.2, 1.5, 0.8, 0.3), (-0.2, 0.5, 2, 1.2, 0.7)]:
+        point = {
+            "a_Intercept": np.array(a_intercept),
+            "a_z": np.array(a_z),
+            "b": np.array(b, dtype=float),
+            "k_log__": np.log(k),
+            "sigma_log__": np.log(sigma),
+        }
+        np.testing.assert_allclose(actual_logp(point), expected_logp(point))
+
+
+@pytest.mark.parametrize("coefficient_formula", [None, "a ~ 1", "a ~ 0 + 1"])
+def test_nonlinear_coefficient_type_depends_on_formula(coefficient_formula):
+    prior = normal_prior()
+    additionals = ()
+    coefficient_prior = prior
+    if coefficient_formula is not None:
+        additionals = (coefficient_formula,)
+        coefficient_prior = {"Intercept": prior}
+    model = bmb.Model(
+        bmb.Formula("y ~ a * x", *additionals, nlpars=("a",)),
+        linear_data(),
+        priors={"a": coefficient_prior},
+    )
+    coefficient = model.parameter_graph.nonlinear_coefficients["a"]
+    if coefficient_formula is None:
+        assert isinstance(coefficient, MarginalCoefficient)
+    else:
+        assert isinstance(coefficient, ConditionalCoefficient)
+        assert set(coefficient.terms) == {"Intercept"}
+        assert coefficient.terms["Intercept"].prior.args == prior.args
+    model.build()
+    if coefficient_formula is None:
+        assert "a_Intercept" not in model.backend.model.named_vars
+    else:
+        assert "a_Intercept" in model.backend.model.named_vars
+
+
 # Nonlinear links and predictor transforms
 
 
@@ -1785,6 +1949,19 @@ def test_additive_model_dependency_graph(additionals, order):
     assert model.parameter_graph.order == order
     assert model.parameter_graph.expression_nodes == {}
     assert model.parameter_graph.nonlinear_coefficients == {}
+
+
+def test_mixed_predictor_missing_rows_are_aligned():
+    data = pd.DataFrame(
+        {"y": [1.0, 2.0, 3.0, 4.0], "x": [0.0, np.nan, 2.0, 3.0], "z": [1.0, 0.0, np.nan, 2.0]}
+    )
+    formula = bmb.Formula("y ~ nl(b * x) + z", nlpars=("b",))
+    with pytest.raises(ValueError, match="2 incomplete rows"):
+        bmb.Model(formula, data)
+    model = bmb.Model(formula, data, dropna=True)
+    assert list(model.data.index) == [0, 3]
+    assert len(model.parameters["mu"].design.common.design_matrix) == 2
+    model.build()
 
 
 @pytest.mark.parametrize(
@@ -1817,6 +1994,23 @@ def test_likelihood_parameter_and_expression_data_collision_is_rejected(mu):
 
     with pytest.raises(ValueError, match="parameter names must not also be data columns.*mu"):
         bmb.Model(formula, data)
+
+
+def test_predictor_dependent_parameter_builds_expected_graph():
+    data = linear_data()
+    model = bmb.Model(exponential_formula(), data, priors=exponential_priors())
+    model.build()
+
+    assert_ip_dlogp(model)
+    coefficients = model.parameters["mu"].nonlinear_coefficients
+    assert set(coefficients) == {"a", "b", "k"}
+    assert set(coefficients["a"].terms) == {"Intercept", "z"}
+    assert isinstance(coefficients["b"], MarginalCoefficient)
+    assert isinstance(coefficients["k"], MarginalCoefficient)
+    assert model.backend.model.named_vars_to_dims["mu"] == ("__obs__",)
+    assert model.backend.model.named_vars_to_dims["a"] == ("__obs__",)
+    assert model.backend.model.named_vars_to_dims["mu__x_data"] == ("__obs__",)
+    assert {"a_Intercept", "a_z", "b", "k"} <= set(model.backend.model.named_vars)
 
 
 @pytest.mark.parametrize(
@@ -1940,6 +2134,25 @@ def test_prepare_data_aligns_formulas_and_converts_categories(nonlinear):
         prepare_data(data, formula, parameters_config)
 
 
+@pytest.mark.parametrize("formula", ["y ~ x", "y ~ log(sigma)"])
+def test_additive_model_accepts_likelihood_parameter_names_in_data(formula):
+    data = linear_data().assign(sigma=np.linspace(0.1, 1, 30), mu=np.nan)
+    model = bmb.Model(formula, data)
+    model.build()
+    assert not model.parameter_graph.expression_nodes
+    assert len(model.data) == len(data)
+
+
+def test_likelihood_parameter_covariate_respects_dropna():
+    data = pd.DataFrame({"y": [1.0, 2.0, 3.0], "sigma": [np.nan, 0.5, 1.0]})
+    model = bmb.Model("y ~ log(sigma)", data, dropna=True)
+    model.build()
+    assert model.data.index.tolist() == [1, 2]
+    np.testing.assert_allclose(
+        model.parameters["mu"].terms["log(sigma)"].data.ravel(), np.log([0.5, 1.0])
+    )
+
+
 @pytest.mark.parametrize(
     ("linear_formula", "missing_column"),
     [("group + (x | group)", "group"), ("(x | group)", "x")],
@@ -1977,6 +2190,63 @@ def test_prepare_new_data_checks_response_only_when_requested(nonlinear, monkeyp
     pd.testing.assert_frame_equal(data, original)
     with pytest.raises(ValueError, match="1 incomplete row"):
         prepare_new_data(model, data, include_response=True)
+
+
+@pytest.mark.parametrize("kind", ["linear", "nonlinear", "nonlinear_auxiliary"])
+def test_dropna_aligns_all_model_inputs(kind):
+    data = linear_data(8)
+    data.index = [4, 4, 2, 2, 9, 9, 1, 1]
+    data["group"] = ["g", "h"] * 4
+    data["unused"] = np.nan
+    for row, column in enumerate(["y", "x", "z", "group"]):
+        data.iloc[row, data.columns.get_loc(column)] = np.nan
+    original = data.copy(deep=True)
+    if kind == "linear":
+        formula = bmb.Formula("y ~ x", "sigma ~ z + (1 | group)")
+    elif kind == "nonlinear_auxiliary":
+        formula = bmb.Formula(
+            "y ~ a * x", "a ~ 1 + (1 | group)", "sigma ~ z + (1 | group)", nlpars=("a",)
+        )
+    else:
+        formula = bmb.Formula(
+            "y ~ a + b * x", "a ~ 1 + z", "b ~ 1 + (1 | group)", nlpars=("a", "b")
+        )
+    model = bmb.Model(formula, data, dropna=True)
+    model.build()
+
+    expected = data.iloc[4:].copy()
+    expected["group"] = expected["group"].astype("category")
+    pd.testing.assert_frame_equal(model.data, expected)
+    pd.testing.assert_frame_equal(data, original)
+    np.testing.assert_array_equal(model.response_term.data, data.y.iloc[4:])
+    if kind == "nonlinear":
+        coefficient = model.parameters["mu"].nonlinear_coefficients["a"]
+    else:
+        coefficient = model.parameters["sigma"]
+    np.testing.assert_array_equal(coefficient.terms["z"].data, data.z.iloc[4:])
+    assert_ip_dlogp(model)
+    with pytest.raises(ValueError, match="incomplete rows"):
+        bmb.Model(formula, data)
+
+
+@pytest.mark.parametrize("column", ["successes", "attempts", "x"])
+def test_dropna_aligns_nonlinear_proportion_inputs(column):
+    data = pd.DataFrame(
+        {
+            "successes": [6.0, 13.0, 18.0],
+            "attempts": [59.0, 60.0, 62.0],
+            "x": [0.1, 0.2, 0.3],
+        }
+    )
+    data.loc[0, column] = np.nan
+    formula = bmb.Formula("prop(successes, attempts) ~ normal_cdf(a + b * x)", nlpars=("a", "b"))
+
+    model = bmb.Model(formula, data, family="binomial", link="identity", dropna=True)
+    model.build()
+
+    pd.testing.assert_frame_equal(model.data, data.iloc[1:])
+    np.testing.assert_array_equal(model.response_term.data, data.loc[1:, ["successes", "attempts"]])
+    np.testing.assert_array_equal(model.backend.model["p__x_data"].get_value(), data.x.iloc[1:])
 
 
 @pytest.mark.parametrize("column", ["y", "x", "z"])

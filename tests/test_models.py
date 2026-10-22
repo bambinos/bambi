@@ -2288,6 +2288,14 @@ def nonlinear_auxiliary_data():
     return pd.DataFrame({"y": 1 + x, "x": x, "z": x**2, "group": np.repeat(["a", "b", "c"], 4)})
 
 
+def nonlinear_auxiliary_formula(groups=False):
+    suffix = " + (1 | group)" if groups else ""
+    additionals = ["sigma ~ z" + suffix]
+    if groups:
+        additionals.insert(0, "a ~ 1" + suffix)
+    return bmb.Formula("y ~ a * x", *additionals, nlpars=("a",))
+
+
 @pytest.mark.parametrize("nested", [False, True])
 def test_nonlinear_auxiliary_preserves_parent_priors(nested):
     data = nonlinear_auxiliary_data()
@@ -2315,7 +2323,158 @@ def test_nonlinear_auxiliary_preserves_parent_priors(nested):
     assert coefficient.prior.args == coefficient_prior.args
 
 
+def test_auxiliary_priors_match_ordinary_model_and_update():
+    data = nonlinear_auxiliary_data()
+    nonlinear = bmb.Model(nonlinear_auxiliary_formula(), data)
+    ordinary = bmb.Model(bmb.Formula("y ~ x", "sigma ~ z"), data)
+    for name, term in nonlinear.parameters["sigma"].terms.items():
+        assert term.prior == ordinary.parameters["sigma"].terms[name].prior
+    nonlinear.set_priors({"sigma": {"z": bmb.Prior("Normal", mu=0.2, sigma=0.4)}})
+    assert nonlinear.parameters["sigma"].terms["z"].prior.args["mu"] == 0.2
+    nonlinear.build()
+    with pytest.warns(UserWarning, match="sigma.unknown"):
+        nonlinear.set_priors({"sigma": {"unknown": bmb.Prior("Normal", mu=0, sigma=1)}})
+    with pytest.raises(ValueError, match="must be a dictionary"):
+        bmb.Model(
+            nonlinear_auxiliary_formula(),
+            data,
+            priors={"sigma": bmb.Prior("HalfNormal", sigma=1)},
+        )
+
+
 # Nonlinear aliases and offset behavior
 
 
 # Nonlinear end-to-end integration
+
+
+def test_constant_parameters_match_linear_regression():
+    data = linear_data()
+    nonlinear = bmb.Model(
+        bmb.Formula("y ~ a + b * x", nlpars=("a", "b")),
+        data,
+        priors={
+            "a": normal_prior(),
+            "b": normal_prior(),
+        },
+        center_predictors=False,
+    )
+    linear = bmb.Model(
+        "y ~ x",
+        data,
+        priors={"Intercept": normal_prior(), "x": normal_prior()},
+        center_predictors=False,
+    )
+    nonlinear.build()
+    linear.build()
+
+    nonlinear_draws = xr.Dataset(
+        {
+            "a": (("chain", "draw"), [[1.25]]),
+            "b": (("chain", "draw"), [[-0.75]]),
+            "sigma": (("chain", "draw"), [[1.0]]),
+        }
+    )
+    linear_draws = xr.Dataset(
+        {
+            "Intercept": (("chain", "draw"), [[1.25]]),
+            "x": (("chain", "draw"), [[-0.75]]),
+            "sigma": (("chain", "draw"), [[1.0]]),
+        }
+    )
+
+    with nonlinear.backend.model:
+        nonlinear_mu = pm.compute_deterministics(
+            nonlinear_draws, var_names=["mu"], progressbar=False
+        )["mu"]
+    with linear.backend.model:
+        linear_mu = pm.compute_deterministics(linear_draws, var_names=["mu"], progressbar=False)[
+            "mu"
+        ]
+
+    xr.testing.assert_allclose(nonlinear_mu, linear_mu)
+
+
+def test_omitted_constant_formulas_match_explicit_intercepts():
+    data = linear_data()
+    formulas = [
+        bmb.Formula("y ~ a + b * x", nlpars=("a", "b")),
+        bmb.Formula("y ~ a + b * x", "a ~ 1", "b ~ 1", nlpars=("a", "b")),
+    ]
+    draws = xr.Dataset(
+        {
+            "a": (("chain", "draw"), [[1.25]]),
+            "b": (("chain", "draw"), [[-0.75]]),
+            "sigma": (("chain", "draw"), [[1.0]]),
+        }
+    )
+    predictions = []
+
+    for index, formula in enumerate(formulas):
+        coefficient_draws = draws
+        if index == 1:
+            coefficient_draws = draws.rename({"a": "a_Intercept", "b": "b_Intercept"})
+        model = bmb.Model(formula, data, center_predictors=False)
+        model.build()
+        with model.backend.model:
+            predictions.append(
+                pm.compute_deterministics(
+                    coefficient_draws,
+                    var_names=["mu"],
+                    progressbar=False,
+                )["mu"]
+            )
+
+    xr.testing.assert_allclose(predictions[0], predictions[1])
+
+
+def test_nonlinear_coefficient_can_depend_on_another_coefficient():
+    formula = bmb.Formula("y ~ a + b * x", "a ~ 1 + b", nlpars=("a", "b"))
+    model = bmb.Model(formula, linear_data())
+    model.build()
+    draws = xr.Dataset(
+        {
+            "b": (("chain", "draw"), [[0.25, -0.5]]),
+            "sigma": (("chain", "draw"), [[1.0, 1.0]]),
+        }
+    )
+
+    with model.backend.model:
+        actual = pm.compute_deterministics(draws, var_names=["mu"], progressbar=False)
+
+    x = xr.DataArray(linear_data().x.to_numpy(), dims="__obs__")
+    expected = 1 + draws.b + draws.b * x
+    np.testing.assert_allclose(actual.mu, expected)
+
+
+@pytest.mark.parametrize("auto_scale", [False, True])
+def test_marginal_coefficient_matches_explicit_intercept_density(auto_scale):
+    prior = bmb.Prior("Normal", mu=0.3, sigma=1.2)
+    models = [
+        bmb.Model(
+            bmb.Formula("y ~ a * x", *additionals, nlpars=("a",)),
+            linear_data(),
+            priors={"a": prior, "sigma": 1.0},
+            auto_scale=auto_scale,
+        )
+        for additionals, prior in [
+            ((), prior),
+            (("a ~ 1",), {"Intercept": prior}),
+        ]
+    ]
+    for model in models:
+        model.build()
+    for value in (-0.5, 0.0, 1.3):
+        points = [{"a": value}, {"a_Intercept": value}]
+        logps = [model.backend.model.compile_logp()(point) for model, point in zip(models, points)]
+        gradients = [
+            model.backend.model.compile_dlogp()(point) for model, point in zip(models, points)
+        ]
+        np.testing.assert_allclose(*logps)
+        np.testing.assert_allclose(*gradients)
+
+
+def test_nl_wrapper_accepts_underscore_marginal_coefficient():
+    model = bmb.Model(bmb.Formula("y ~ 0 + nl(_a * x)", nlpars=("_a",)), linear_data())
+    model.build()
+    assert "_a" in model.backend.model.named_vars

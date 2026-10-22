@@ -151,3 +151,16 @@ def coords_for_cutpoints(parameter_label, response_levels):
         f"{lower}->{upper}" for lower, upper in zip(response_levels[:-1], response_levels[1:])
     ]
     return {f"{parameter_label}_dim": cutpoint_levels}
+
+
+def coords_for_coefficients(param_spec, model):
+    """Return response coordinates shared by a parameter's coefficient terms."""
+    if param_spec.coefs_dim == "response":
+        return model.__bambi_attrs__["response_coords"]
+    if param_spec.coefs_dim == "response_reduced":
+        return model.__bambi_attrs__["response_coords_reduced"]
+    if param_spec.coefs_dim == "response_cutpoints":
+        return model.__bambi_attrs__["response_coords_cutpoints"]
+    if param_spec.coefs_dim == "response_cutpoints_reduced":
+        return model.__bambi_attrs__["response_coords_cutpoints_reduced"]
+    return {}

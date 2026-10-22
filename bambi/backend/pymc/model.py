@@ -40,6 +40,7 @@ from bambi.backend.pymc.terms.response import (
     replace_response_variables,
 )
 from bambi.config import config as bmb_config
+from bambi.parameters import Marginal
 from bambi.utils import as_dataset
 
 _logger = logging.getLogger("bambi")
@@ -100,23 +101,32 @@ class PyMCModel:
             "response_coords_reduced": response_coords_reduced,
         }
 
-        marginal_parameters = {}
-        conditional_parameters = {}
+        parameter_values = {}
         self._conditional_info = {}
         self._group_specific_state = GroupSpecificGraphState()
-        for name, parameter in self.spec.marginal_parameters.items():
-            marginal_parameters[name] = build_marginal_parameter(parameter, self.spec.family, model)
-
-        for name, parameter in self.spec.conditional_parameters.items():
-            parameter_info = make_conditional_info(parameter)
-            self._conditional_info[name] = parameter_info
-            conditional_parameters[name] = build_conditional_parameter(
-                parameter_info, self.spec.family, self._group_specific_state, model
-            )
+        quantities = self.spec.parameter_graph.nodes
+        order = self.spec.parameter_graph.order
+        for name in order:
+            quantity = quantities[name]
+            if isinstance(quantity, Marginal):
+                value = build_marginal_parameter(quantity, self.spec.family, model)
+            else:
+                parameter_info = make_conditional_info(quantity)
+                if quantity.design is not None:
+                    self._conditional_info[name] = parameter_info
+                value = build_conditional_parameter(
+                    parameter_info,
+                    self.spec.family,
+                    self._group_specific_state,
+                    model,
+                    parameter_values,
+                    self.spec.data,
+                )
+            parameter_values[name] = value
 
         build_response_term(
             term=self.spec.response_term,
-            parameters=marginal_parameters | conditional_parameters,
+            parameters={name: parameter_values[name] for name in self.spec.parameters},
             family=self.spec.family,
             model=model,
         )

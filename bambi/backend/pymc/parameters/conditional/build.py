@@ -5,6 +5,8 @@ import pytensor.sparse as ps
 import pytensor.tensor as pt
 import scipy.sparse as sp
 
+from bambi.backend.pymc.coords import coords_for_coefficients
+from bambi.backend.pymc.nonlinear import build_nonlinear_predictor
 from bambi.backend.pymc.terms import (
     build_common_term,
     build_group_specific_term_dot,
@@ -20,6 +22,7 @@ from bambi.backend.pymc.utils import INVERSE_LINKS
 from bambi.config import config as bmb_config
 from bambi.families import Family
 from bambi.families.types import ParamSpec
+from bambi.parameters import ConditionalParameter
 from bambi.terms import CommonTerm
 
 from .state import (
@@ -37,12 +40,79 @@ def build_conditional_parameter(
     family: Family,
     group_specific_state: GroupSpecificGraphState,
     model: pm.Model,
+    parameter_values: dict[str, pt.Variable],
+    data,
 ) -> pt.Variable:
     parameter = parameter_info.parameter
+    is_likelihood_parameter = isinstance(parameter, ConditionalParameter)
+    param_spec = (
+        family.get_param_spec(parameter.name)
+        if is_likelihood_parameter
+        else ParamSpec(links=["identity"])
+    )
+    coefficient_coords = coords_for_coefficients(param_spec, model)
+    dims = ("__obs__", *coefficient_coords)
+
+    predictor_spec = param_spec
+    if parameter.is_nonlinear:
+        # Ordinal probabilities have a response axis, but their predictor is scalar.
+        predictor_spec = param_spec._replace(ndim=int(param_spec.coefs_dim is not None))
+    value = build_additive_predictor(parameter_info, predictor_spec, group_specific_state, model)
+    if parameter.is_nonlinear:
+        nonlinear_value, dims = build_nonlinear_predictor(
+            parameter, parameter_values, data, model, dims if is_likelihood_parameter else None
+        )
+        value = pt.as_tensor_variable(value)
+        if value.ndim == 1 and len(dims) > 1:
+            value = value[:, None]
+        value = value + nonlinear_value
+
+    if param_spec.coefs_dim is not None:
+        value = pt.broadcast_to(value, tuple(model.dim_lengths[dim] for dim in dims))
+
+    if is_likelihood_parameter:
+        link = family.link[parameter.name]
+        inverse_link = INVERSE_LINKS.get(link.name, link.inverse_link)
+        transform_predictor = transforms_registry.get_predictor_transform(family, parameter.name)
+        if transform_predictor:
+            value = transform_predictor(value, parameter_values, inverse_link)
+        else:
+            value = inverse_link(value)
+        dims = ("__obs__",)
+
+        if param_spec.coefs_dim == "response_cutpoints_reduced":
+            dims += tuple(model.__bambi_attrs__["response_coords_cutpoints"])
+        elif param_spec.coefs_dim is not None and parameter.name != family.likelihood.parent:
+            dims += tuple(coords_for_coefficients(param_spec, model))
+        elif param_spec.ndim > 0:
+            dims += tuple(model.__bambi_attrs__["response_coords"])
+
+    only_intercept = (
+        parameter.intercept_term
+        and not parameter.common_terms
+        and not parameter.group_specific_terms
+        and not parameter.offset_terms
+        and not parameter.hsgp_terms
+        and not parameter.smooth_terms
+    )
+    value = pt.as_tensor_variable(value)
+    if any(value is variable for variable in model.deterministics):
+        # Keep direct deterministic views distinct when PyMC clones the graph.
+        value = value.copy()
+    if value.ndim < len(dims) or only_intercept:
+        value = pt.broadcast_to(value, tuple(model.dim_lengths[dim] for dim in dims))
+    return pm.Deterministic(parameter.label, value, dims=dims, model=model)
+
+
+def build_additive_predictor(
+    parameter_info: ConditionalInfo,
+    param_spec: ParamSpec,
+    group_specific_state: GroupSpecificGraphState,
+    model: pm.Model,
+) -> pt.Variable:
+    """Build the sum of formula terms before applying a parameter's inverse link."""
+    parameter = parameter_info.parameter
     value = 0
-    param_spec = family.get_param_spec(parameter.name)
-    link = family.link[parameter.name]
-    inverse_link = INVERSE_LINKS.get(link.name, link.inverse_link)
     center_predictors = parameter.intercept_term and parameter.center_predictors
 
     if parameter_info.common_terms or parameter.intercept_term:
@@ -63,7 +133,10 @@ def build_conditional_parameter(
         )
         value += group_specific_contribution
 
-    value += _build_offset_terms(parameter_info.offset_terms, model)
+    offset = _build_offset_terms(parameter_info.offset_terms, model)
+    if param_spec.coefs_dim is not None and getattr(offset, "ndim", 0) == 1:
+        offset = offset[:, None]
+    value += offset
 
     for term_info in parameter_info.hsgp_terms:
         value += build_hsgp_term(term_info, param_spec, model)
@@ -72,31 +145,7 @@ def build_conditional_parameter(
         data, param = build_smooth_term(term_info, param_spec, model)
         value += pt.dot(data, param)
 
-    # NOTE: If one parameter requires the other, ake sure they're built in the right order.
-    transform_predictor = transforms_registry.get_predictor_transform(family, parameter.name)
-    if transform_predictor:
-        parameters = {
-            name: model[name] for name in family.likelihood.params if name != parameter.name
-        }
-        value = transform_predictor(value, parameters, inverse_link)
-    else:
-        value = inverse_link(value)
-
-    coords = model.__bambi_attrs__["response_coords_data"]
-    if param_spec.ndim > 0:
-        coords = coords | model.__bambi_attrs__["response_coords"]
-
-    dims = tuple(coords)
-    only_intercept = (
-        parameter.intercept_term
-        and not parameter.common_terms
-        and not parameter.group_specific_terms
-        and not parameter.offset_terms
-        and not parameter.hsgp_terms
-    )
-    if value.ndim < len(dims) or only_intercept:
-        value = pt.broadcast_to(value, tuple(model.dim_lengths[dim] for dim in dims))
-    return pm.Deterministic(parameter.label, value, dims=dims, model=model)
+    return value
 
 
 _ENSURE_NDIM_MAPPING = {
@@ -179,10 +228,7 @@ def _build_group_specific(
     terms = parameter_info.group_specific_terms
     contribution_dims = ("__obs__",)
 
-    if param_spec.coefs_dim == "response":
-        contribution_dims += tuple(model.__bambi_attrs__["response_coords"])
-    elif param_spec.coefs_dim == "response_reduced":
-        contribution_dims += tuple(model.__bambi_attrs__["response_coords_reduced"])
+    contribution_dims += tuple(coords_for_coefficients(param_spec, model))
 
     if bmb_config["SPARSE_DOT"]:
         return _build_sparse_group_specific(
