@@ -3004,3 +3004,70 @@ def test_nonlinear_competing_risks_families_build(family):
     parent = model.family.likelihood.parent
     assert model.backend.model.named_vars_to_dims[parent] == ("__obs__", "cause_dim")
     assert np.isfinite(model.backend.model.compile_logp()(model.backend.model.initial_point()))
+
+
+def test_nonlinear_numeric_vector_response_accepts_one_hot_encoding():
+    data = pd.DataFrame({"y": pd.Categorical(["a", "b", "a"])})
+    model = bmb.Model(bmb.Formula("y ~ 0 + nl(0.7)"), data, family=vector_normal_family())
+    model.build()
+    np.testing.assert_array_equal(
+        model.backend.model["y_data"].get_value(), [[1, 0], [0, 1], [1, 0]]
+    )
+    assert_ip_dlogp(model)
+
+
+@pytest.mark.parametrize(
+    ("formula", "coefficient"),
+    [
+        (
+            bmb.Formula(
+                "join(y1, y2) ~ 0 + nl(rate*x)",
+                "nu ~ 0 + nl(rate*z)",
+                "rate ~ 1",
+                nlpars=("rate",),
+            ),
+            "rate",
+        ),
+        (
+            bmb.Formula(
+                "join(y1, y2) ~ 0 + nl(rate*x)",
+                "nu ~ 0 + nl(rate*z)",
+                "rate ~ 1 + z",
+                nlpars=("rate",),
+            ),
+            "rate",
+        ),
+        (
+            bmb.Formula(
+                "join(y1, y2) ~ 0 + nl(k*x)",
+                "nu ~ 0 + nl(k)",
+                "k ~ 0 + z + nl(rate*x)",
+                "rate ~ 0 + z",
+                nlpars=("k", "rate"),
+            ),
+            "k",
+        ),
+        (
+            bmb.Formula(
+                "join(y1, y2) ~ 0 + nl(rate*x)",
+                "nu ~ 0 + nl(k)",
+                "k ~ 0 + nl(j*x)",
+                "j ~ 0 + nl(rate*z)",
+                "rate ~ 1 + z",
+                nlpars=("k", "j", "rate"),
+            ),
+            "rate",
+        ),
+    ],
+)
+def test_conditional_coefficient_is_shared_across_scalar_and_vector_consumers(formula, coefficient):
+    model = bmb.Model(
+        formula,
+        vector_normal_data(),
+        family=vector_student_t_family(),
+        extra_namespace={"join": join_vector_response},
+    )
+    model.build()
+    assert model.backend.model.named_vars_to_dims[coefficient] == ("__obs__",)
+    assert model.backend.model["mu"].ndim == 2
+    assert model.backend.model["nu"].ndim == 1
