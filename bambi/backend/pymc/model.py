@@ -109,6 +109,7 @@ class PyMCModel:
             "response_coords_data": response_coords_data,
             "response_coords": response_coords,
             "response_coords_reduced": response_coords_reduced,
+            "offset_names": set(),
         }
 
         parameter_values = {}
@@ -254,7 +255,9 @@ class PyMCModel:
             )
 
         if omit_offsets:
-            var_names = [name for name in var_names if not name.endswith("_offset")]
+            var_names = [
+                name for name in var_names if name not in self.model.__bambi_attrs__["offset_names"]
+            ]
 
         if omit_group_specific:
             group_specific_var_names = [
@@ -319,7 +322,10 @@ class PyMCModel:
                 term = term_info.term
                 term_label = term.label
                 offset_name = f"{term_label}_offset"
-                if term.noncentered and offset_name not in posterior:
+                if (
+                    offset_name in self.model.__bambi_attrs__["offset_names"]
+                    and offset_name not in posterior
+                ):
                     sigma_name = term.hyperprior_alias.get("sigma", "sigma")
                     offset_values[offset_name] = (
                         posterior[term_label] / posterior[f"{term_label}_{sigma_name}"]
@@ -375,7 +381,10 @@ class PyMCModel:
                 term = term_info.term
                 term_label = term.label
                 offset_name = f"{term_label}_offset"
-                if term.noncentered and offset_name not in posterior:
+                if (
+                    offset_name in self.model.__bambi_attrs__["offset_names"]
+                    and offset_name not in posterior
+                ):
                     sigma_name = term.hyperprior_alias.get("sigma", "sigma")
                     offset_values[offset_name] = (
                         posterior[term_label] / posterior[f"{term_label}_{sigma_name}"]
@@ -684,7 +693,11 @@ class PyMCModel:
             vars_to_sample = [var for var in vars_to_sample if var not in response_parameter_names]
 
         if omit_offsets:
-            vars_to_sample = [var for var in vars_to_sample if not var.endswith("_offset")]
+            vars_to_sample = [
+                var
+                for var in vars_to_sample
+                if var not in self.model.__bambi_attrs__["offset_names"]
+            ]
 
         # pm.sample routes nuts settings via kwargs.pop("nuts", {}); only inject when provided
         # to avoid passing nuts=None which causes pm.sample's internal nuts_kwargs.copy() to fail.
@@ -731,7 +744,11 @@ class PyMCModel:
         if omit_offsets:
             # Nutpie can still return the non-centered auxiliary variables.
             posterior = as_dataset(idata["posterior"])
-            offset_vars = [name for name in posterior.data_vars if name.endswith("_offset")]
+            offset_vars = [
+                name
+                for name in posterior.data_vars
+                if name in self.model.__bambi_attrs__["offset_names"]
+            ]
             if offset_vars:
                 idata["posterior"] = posterior.drop_vars(offset_vars)
 
@@ -819,7 +836,11 @@ class PyMCModel:
 
         if omit_offsets:
             posterior = as_dataset(idata["posterior"])
-            offset_vars = [var for var in posterior.data_vars if var.endswith("_offset")]
+            offset_vars = [
+                var
+                for var in posterior.data_vars
+                if var in self.model.__bambi_attrs__["offset_names"]
+            ]
             idata["posterior"] = posterior.drop_vars(offset_vars)
 
         return idata

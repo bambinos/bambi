@@ -173,6 +173,7 @@ def build_distribution(
             sigma = kwargs["sigma"]
             with model:
                 offset = pm.Normal(label + "_offset", mu=0, sigma=1, dims=dims)
+                model.__bambi_attrs__["offset_names"].add(label + "_offset")
                 rv = pm.Deterministic(label, offset * sigma, dims=dims)
             return rv
 
