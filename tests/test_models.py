@@ -3212,3 +3212,266 @@ def test_nl_wrapper_accepts_underscore_marginal_coefficient():
     model = bmb.Model(bmb.Formula("y ~ 0 + nl(_a * x)", nlpars=("_a",)), linear_data())
     model.build()
     assert "_a" in model.backend.model.named_vars
+
+
+def test_nonlinear_weighted_response_matches_manual_logp():
+    from scipy.stats import halfnorm, norm
+
+    data = weighted_nonlinear_data()
+    model = weighted_nonlinear_model(data)
+    model.build()
+    point = {"a_Intercept": 0.3, "a_z": -0.2, "b": 1.1, "sigma_log__": np.log(1.2)}
+    sigma = np.exp(point["sigma_log__"])
+    mu = point["a_Intercept"] + point["a_z"] * data.z.to_numpy() + point["b"] * data.x.to_numpy()
+
+    actual_mu = model.backend.model.compile_fn(
+        model.backend.model["mu"],
+        inputs=[model.backend.model[name] for name in ("a_Intercept", "a_z", "b")],
+    )({name: point[name] for name in ("a_Intercept", "a_z", "b")})
+    np.testing.assert_allclose(actual_mu, mu)
+
+    expected = np.sum(data.w * norm.logpdf(data.y, loc=mu, scale=sigma))
+    expected += sum(
+        norm.logpdf(point[name], loc=0, scale=2) for name in ("a_Intercept", "a_z", "b")
+    )
+    expected += halfnorm.logpdf(sigma, scale=1) + np.log(sigma)
+    np.testing.assert_allclose(model.backend.model.compile_logp()(point), expected)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+def test_nonlinear_weighted_prediction_and_log_likelihood():
+    model = weighted_nonlinear_model()
+    idata = model.fit(draws=3, chains=1, random_seed=106)
+    new_data = pd.DataFrame({"x": [0.2, -0.4], "z": [0.5, -1.0]})
+
+    predictions = model.predict(
+        idata, data=new_data, kind="response", inplace=False, random_seed=107
+    )
+    weighted_predictions = model.predict(
+        idata, data=new_data.assign(w=[0.25, 4.0]), kind="response", inplace=False, random_seed=107
+    )
+    np.testing.assert_array_equal(
+        predictions.predictions[model.response_term.label],
+        weighted_predictions.predictions[model.response_term.label],
+    )
+    assert predictions.predictions["mu"].shape == (1, 3, 2)
+    assert predictions.predictions[model.response_term.label].shape == (1, 3, 2)
+    single = model.predict(idata, data=new_data.iloc[:1], kind="response", inplace=False)
+    assert single.predictions["mu"].shape == (1, 3, 1)
+
+    observed = new_data.assign(y=[0.1, -0.3], w=[0.25, 4.0])
+    likelihood = model.compute_log_likelihood(idata, data=observed, inplace=False)
+    assert likelihood.log_likelihood[model.response_term.label].shape == (1, 3, 2)
+    pointwise = likelihood.log_likelihood[model.response_term.label].values.copy()
+    assert np.isfinite(pointwise).all()
+
+    unit_weights = model.compute_log_likelihood(
+        idata, data=observed.drop(columns="w"), inplace=False
+    )
+    np.testing.assert_allclose(
+        pointwise / unit_weights.log_likelihood[model.response_term.label].values,
+        np.broadcast_to(observed.w.to_numpy(), pointwise.shape),
+    )
+    np.testing.assert_array_equal(
+        model.backend.model["w_data"].get_value(), weighted_nonlinear_data().w.to_numpy()
+    )
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("training_status", ["left", "right"])
+def test_nonlinear_censored_prediction_and_new_status_log_likelihood(training_status):
+    data = censored_nonlinear_data(("none", training_status, "none", training_status))
+    model = censored_nonlinear_model(data)
+    model.set_alias({"y": "outcome"})
+    idata = model.fit(draws=3, chains=1, random_seed=107)
+    in_sample = model.predict(idata, kind="response", inplace=False)
+    assert in_sample.posterior_predictive[model.response_term.label].shape == (1, 3, 4)
+    assert in_sample.posterior["mu"].shape == (1, 3, 4)
+
+    new_data = pd.DataFrame({"x": [0.2, -0.4], "z": [0.5, -1.0]})
+    predictions = model.predict(idata, data=new_data, kind="response", inplace=False)
+    assert predictions.predictions["mu"].shape == (1, 3, 2)
+    assert predictions.predictions[model.response_term.label].shape == (1, 3, 2)
+    single = model.predict(idata, data=new_data.iloc[:1], kind="response", inplace=False)
+    assert single.predictions[model.response_term.label].shape == (1, 3, 1)
+    assert single.predictions["mu"].shape == (1, 3, 1)
+
+    conditional_data = new_data.assign(y=[0.2, -0.3], status=["left", "right"])
+    with pytest.raises(ValueError, match="Conditional censored-response predictions require"):
+        model.predict(idata, data=new_data, kind="response_conditional", inplace=False)
+    conditional = model.predict(
+        idata, data=conditional_data, kind="response_conditional", inplace=False
+    )
+    draws = conditional.predictions[model.response_term.label].to_numpy()
+    assert (draws[..., 0] <= conditional_data.y.iloc[0]).all()
+    assert (draws[..., 1] >= conditional_data.y.iloc[1]).all()
+    conditional_single = model.predict(
+        idata, data=conditional_data.iloc[:1], kind="response_conditional", inplace=False
+    )
+    conditional_single_draws = conditional_single.predictions[model.response_term.label].to_numpy()
+    assert conditional_single_draws.shape == (1, 3, 1)
+    assert (conditional_single_draws[..., 0] <= conditional_data.y.iloc[0]).all()
+    np.testing.assert_array_equal(
+        model.backend.model["status_data"].get_value(), model.response_term.data[:, 1]
+    )
+
+    from scipy.stats import norm
+
+    observed = pd.DataFrame(
+        {
+            "x": [0.2, -0.4, 0.7],
+            "z": [0.5, -1.0, 0.2],
+            "y": [0.2, -0.3, 0.8],
+            "status": ["left", "right", "none"],
+        }
+    )
+    likelihood = model.compute_log_likelihood(idata, data=observed, inplace=False)
+    actual = likelihood.log_likelihood[model.response_term.label].to_numpy()
+    likelihood_prediction = model.predict(
+        idata, data=observed.drop(columns=["y", "status"]), kind="response", inplace=False
+    )
+    posterior = idata.posterior
+    mu = (
+        posterior["a_Intercept"].to_numpy()[..., None]
+        + posterior["a_z"].to_numpy()[..., None] * observed.z.to_numpy()
+        + posterior["rate"].to_numpy()[..., None] * observed.x.to_numpy()
+    )
+    np.testing.assert_allclose(likelihood_prediction.predictions["mu"], mu)
+    sigma = idata.posterior["sigma"].to_numpy()[..., None]
+    expected = np.where(
+        observed.status.to_numpy() == "left",
+        norm.logcdf(observed.y.to_numpy(), loc=mu, scale=sigma),
+        np.where(
+            observed.status.to_numpy() == "right",
+            norm.logsf(observed.y.to_numpy(), loc=mu, scale=sigma),
+            norm.logpdf(observed.y.to_numpy(), loc=mu, scale=sigma),
+        ),
+    )
+    np.testing.assert_allclose(actual, expected)
+    for variable in ("y", "status"):
+        with pytest.raises(ValueError, match="Censored response log-likelihood requires variables"):
+            model.compute_log_likelihood(idata, data=observed.drop(columns=variable), inplace=False)
+
+
+def truncated_nonlinear_data():
+    return pd.DataFrame(
+        {
+            "x": [-0.8, 0.0, 0.5, 0.9],
+            "z": [0.0, 1.0, 0.5, -0.5],
+            "y": [0.0, 0.4, 1.1, 0.4],
+            "lower": [-1.0, -0.5, 0.0, -0.25],
+            "upper": [0.5, 1.2, 1.8, 1.0],
+        }
+    )
+
+
+def truncated_nonlinear_model(data, response="truncated(y, lower, upper)"):
+    formula = bmb.Formula(f"{response} ~ a + rate * x", "a ~ 1 + z", nlpars=("a", "rate"))
+    priors = {
+        "a": {"Intercept": normal_prior(), "z": normal_prior()},
+        "rate": normal_prior(),
+        "sigma": bmb.Prior("HalfNormal", sigma=1),
+    }
+    return bmb.Model(formula, data, priors=priors, center_predictors=False)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize(
+    ("response", "constrained", "bounds_from_data"),
+    [
+        ("truncated(y, lower, upper)", False, True),
+        ("truncated(y, -1, 2)", False, False),
+        ("constrained(y, -1, 2)", True, False),
+    ],
+)
+def test_nonlinear_truncated_prediction_and_new_data_log_likelihood(
+    response, constrained, bounds_from_data
+):
+    model = truncated_nonlinear_model(truncated_nonlinear_data(), response)
+    model.set_alias({"y": "outcome"})
+    idata = model.fit(draws=3, chains=1, random_seed=108)
+    original_model = model.backend.model
+    original_data = {
+        name: model.backend.model[name].get_value().copy()
+        for name in ("y_data", "lower_data", "upper_data")
+        if name in model.backend.model.named_vars
+    }
+    new_data = pd.DataFrame({"x": [0.2, -0.4], "z": [0.5, -1.0]})
+    in_sample = model.predict(idata, kind="response", inplace=False)
+    assert in_sample.posterior["mu"].shape == (1, 3, 4)
+    assert in_sample.posterior_predictive[model.response_term.label].shape == (1, 3, 4)
+    params = model.predict(idata, data=new_data, kind="response_params", inplace=False)
+    assert params.predictions["mu"].shape == (1, 3, 2)
+    if bounds_from_data:
+        assert "lower_data" not in params.predictions_constant_data
+        assert "upper_data" not in params.predictions_constant_data
+    single_params = model.predict(
+        idata, data=new_data.iloc[:1], kind="response_params", inplace=False
+    )
+    assert single_params.predictions["mu"].shape == (1, 3, 1)
+    predictions = model.predict(idata, data=new_data, kind="response", inplace=False)
+    samples = predictions.predictions[model.response_term.label]
+    assert samples.shape == (1, 3, 2)
+    single = model.predict(idata, data=new_data.iloc[:1], kind="response", inplace=False)
+    assert single.predictions[model.response_term.label].shape == (1, 3, 1)
+
+    bounds_data = new_data.assign(y=[0.1, 0.8])
+    lower, upper = -1.0, 2.0
+    if bounds_from_data:
+        bounds_data = bounds_data.assign(lower=[-0.8, 0.3], upper=[0.8, 1.6])
+        lower, upper = bounds_data.lower.to_numpy(), bounds_data.upper.to_numpy()
+    if constrained:
+        assert (samples > lower).all() and (samples < upper).all()
+    else:
+        conditional = model.predict(
+            idata, data=bounds_data, kind="response_conditional", inplace=False
+        )
+        conditional_samples = conditional.predictions[model.response_term.label]
+        assert (conditional_samples > lower).all()
+        assert (conditional_samples < upper).all()
+        if bounds_from_data:
+            conditional_single = model.predict(
+                idata, data=bounds_data.iloc[:1], kind="response_conditional", inplace=False
+            )
+            assert conditional_single.predictions[model.response_term.label].shape == (1, 3, 1)
+            with pytest.raises(
+                ValueError, match="Use kind='response' for unconditional predictions"
+            ):
+                model.predict(
+                    idata,
+                    data=bounds_data.drop(columns="upper"),
+                    kind="response_conditional",
+                    inplace=False,
+                )
+
+    likelihood = model.compute_log_likelihood(idata, data=bounds_data, inplace=False)
+    actual = likelihood.log_likelihood[model.response_term.label].to_numpy()
+    posterior = idata.posterior
+    mu = (
+        posterior["a_Intercept"].to_numpy()[..., None]
+        + posterior["a_z"].to_numpy()[..., None] * bounds_data.z.to_numpy()
+        + posterior["rate"].to_numpy()[..., None] * bounds_data.x.to_numpy()
+    )
+    np.testing.assert_allclose(predictions.predictions["mu"], mu)
+    sigma = idata.posterior["sigma"].to_numpy()[..., None]
+    from scipy.stats import truncnorm
+
+    expected = truncnorm.logpdf(
+        bounds_data.y.to_numpy(),
+        (np.asarray(lower) - mu) / sigma,
+        (np.asarray(upper) - mu) / sigma,
+        loc=mu,
+        scale=sigma,
+    )
+    np.testing.assert_allclose(actual, expected, atol=5e-7)
+    if bounds_from_data:
+        with pytest.raises(
+            ValueError, match="Truncated response log-likelihood requires bound variables"
+        ):
+            model.compute_log_likelihood(
+                idata, data=bounds_data.drop(columns="upper"), inplace=False
+            )
+
+    assert model.backend.model is original_model
+    for name, values in original_data.items():
+        np.testing.assert_array_equal(model.backend.model[name].get_value(), values)

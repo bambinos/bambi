@@ -33,8 +33,6 @@ class ResponseTerm(BaseTerm):
         ``censored(y, status)``). For a univariate response transformation,
         the first argument is the observed response variable. A counts
         response instead uses all its count variables, joined with underscores.
-        Both are clearer, stable names for the corresponding PyMC random
-        variable and its predictive samples.
         """
         if len(self.components) == 1:
             component = self.components[0]
