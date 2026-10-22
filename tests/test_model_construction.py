@@ -1,32 +1,69 @@
 import logging
 import pathlib
 
-import pytest
 import arviz as az
-import bambi as bmb
 import numpy as np
 import pandas as pd
 import pymc as pm
 import pytensor
 import pytensor.tensor as pt
-from scipy import stats
-
-from bambi.terms import CommonTerm, GroupSpecificTerm
-from bambi.backend.pymc.transform import transforms_registry
-from bambi.defaults import get_builtin_family
-from bambi.backend.pymc.parameters import remove_group_specific_contributions
-from bambi.backend.pymc.terms.response import _untruncate_response
-from bambi.backend.pymc.utils import _compute_logccdf, make_competing_risks_logp
+import pytest
+import xarray as xr
 from formulae import design_matrices
 from pytensor.sparse import StructuredDot
+from scipy import stats
+from scipy.special import expit, ndtr
+from scipy.stats import norm
 
-from helpers import assert_ip_dlogp, graph_contains_op
+import bambi as bmb
+from bambi.models import prepare_data
+from bambi.utils import prepare_new_data
+from bambi.nonlinear import NonlinearExpression
+from bambi.backend.pymc.parameters import remove_group_specific_contributions
+from bambi.backend.pymc.terms.response import _untruncate_response
+from bambi.backend.pymc.transform import transforms_registry
+from bambi.backend.pymc.utils import _compute_logccdf, make_competing_risks_logp
+from bambi.defaults import get_builtin_family
+from bambi.families.types import DimType, ParamSpec
+from bambi.parameters import (
+    Conditional,
+    ConditionalCoefficient,
+    ConditionalParameter,
+    Marginal,
+    MarginalCoefficient,
+    MarginalParameter,
+)
+from bambi.terms import CommonTerm, GroupSpecificTerm
+
+from helpers import (
+    assert_ip_dlogp,
+    censored_nonlinear_data,
+    censored_nonlinear_model,
+    competing_risks_nonlinear_data,
+    exponential_formula,
+    exponential_priors,
+    graph_contains_op,
+    join_vector_response,
+    linear_data,
+    normal_prior,
+    vector_normal_data,
+    vector_normal_family,
+    vector_student_t_family,
+    weighted_nonlinear_data,
+    weighted_nonlinear_model,
+)
 
 
 @pytest.fixture(scope="module")
 def init_data():
     """Data used to test initialization method"""
     return pd.read_csv(pathlib.Path(__file__).parent / "data" / "obs.csv")
+
+
+@pytest.mark.parametrize("data", [None, {}, [], np.zeros((2, 2))])
+def test_model_rejects_invalid_data_before_processing_formula(data):
+    with pytest.raises(ValueError, match="'data' must be a pandas DataFrame"):
+        bmb.Model("invalid formula", data)
 
 
 def test_term_init(data_diabetes):
@@ -115,7 +152,7 @@ def test_additive_and_group_specific_terms_share_predictor_data():
 
 
 def test_model_no_response():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="No outcome variable is set"):
         bmb.Model("x", pd.DataFrame({"x": [1]}))
 
 
@@ -1657,3 +1694,324 @@ def test_predict_without_group_specific_effect_multivariate(
         0,
         atol=1e-15,
     )
+
+
+# Nonlinear backend construction
+
+
+@pytest.fixture
+def nonlinear_ownership_data():
+    return pd.DataFrame({"y": [0.2, 0.3, 0.4], "x": [1.0, 2.0, 3.0], "z": [0.0, 0.5, 1.0]})
+
+
+def test_nonlinear_coefficients_are_owned_by_expression_parameters(nonlinear_ownership_data):
+    data = nonlinear_ownership_data
+    formula = bmb.Formula("y ~ a * x", "sigma ~ sqrt(a ** 2 + 0.1)", nlpars=("a",))
+
+    model = bmb.Model(formula, data)
+
+    mu = model.parameters["mu"]
+    sigma = model.parameters["sigma"]
+    assert isinstance(mu, ConditionalParameter)
+    assert isinstance(sigma, ConditionalParameter)
+    assert mu.is_nonlinear
+    assert sigma.is_nonlinear
+    assert model.parameter_graph.nodes["mu"] is mu
+    assert model.parameter_graph.nodes["sigma"] is sigma
+    assert set(mu.nonlinear_coefficients) == {"a"}
+    assert set(sigma.nonlinear_coefficients) == {"a"}
+    assert mu.nonlinear_coefficients["a"] is sigma.nonlinear_coefficients["a"]
+    assert not hasattr(model, "_nonlinear_predictors")
+    assert not hasattr(model, "nonlinear_predictors")
+    assert not hasattr(model, "additive_parameters")
+
+
+def test_intermediate_expression_owns_its_direct_coefficients(nonlinear_ownership_data):
+    data = nonlinear_ownership_data
+    formula = bmb.Formula(
+        "y ~ eta * x",
+        "eta ~ a + b * z",
+        nlpars=("eta", "b", "a"),
+    )
+
+    model = bmb.Model(formula, data)
+
+    mu = model.parameters["mu"]
+    eta = model.parameter_graph.nodes["eta"]
+    assert eta not in model.parameters.values()
+    assert mu.nonlinear_coefficients["eta"] is eta
+    assert set(eta.nonlinear_coefficients) == {"a", "b"}
+    assert model.parameter_graph.order.index("eta") < model.parameter_graph.order.index("mu")
+
+
+def test_additive_and_marginal_likelihood_parameters_keep_their_roles(
+    nonlinear_ownership_data,
+):
+    data = nonlinear_ownership_data
+    conditional = bmb.Model(bmb.Formula("y ~ a * x", "sigma ~ z", nlpars=("a",)), data)
+    marginal = bmb.Model(bmb.Formula("y ~ a * x", nlpars=("a",)), data)
+
+    sigma = conditional.parameters["sigma"]
+    assert isinstance(sigma, ConditionalParameter)
+    assert not sigma.is_nonlinear
+    assert set(sigma.terms) == {"Intercept", "z"}
+    assert isinstance(marginal.parameters["sigma"], MarginalParameter)
+
+
+# Nonlinear links and predictor transforms
+
+
+def test_invalid_family_link_remains_rejected():
+    with pytest.raises(ValueError, match="cannot be used"):
+        bmb.Model(
+            bmb.Formula("y ~ a", nlpars=("a",)),
+            pd.DataFrame({"y": [0, 1]}),
+            family="poisson",
+            link="logit",
+        )
+
+
+@pytest.mark.parametrize(
+    ("additionals", "order"),
+    [((), ("sigma", "mu")), (("sigma ~ z",), ("mu", "sigma"))],
+)
+def test_additive_model_dependency_graph(additionals, order):
+    model = bmb.Model(bmb.Formula("y ~ x", *additionals), linear_data())
+
+    assert set(model.parameter_graph.nodes) == set(model.parameters)
+    for name, parameter in model.parameters.items():
+        assert model.parameter_graph.nodes[name] is parameter
+    assert model.parameter_graph.dependencies == {"mu": (), "sigma": ()}
+    assert model.parameter_graph.order == order
+    assert model.parameter_graph.expression_nodes == {}
+    assert model.parameter_graph.nonlinear_coefficients == {}
+
+
+@pytest.mark.parametrize(
+    ("main", "additionals", "message"),
+    [
+        ("y ~ mu + a * x", (), "cannot depend on themselves.*mu"),
+        ("y ~ sigma * a", ("sigma ~ mu + 1",), "mu -> sigma -> mu"),
+        (
+            "y ~ a * x",
+            ("a ~ sigma", "sigma ~ mu + 1"),
+            "mu -> a -> sigma -> mu",
+        ),
+        (
+            "y ~ a * x",
+            ("sigma ~ 0 + nl(mu + unknown)",),
+            "No nonlinear parameter formula or data column.*unknown",
+        ),
+    ],
+)
+def test_parameter_dependency_validation(main, additionals, message):
+    formula = bmb.Formula(main, *additionals, nlpars=("a",))
+    with pytest.raises(ValueError, match=message):
+        bmb.Model(formula, linear_data())
+
+
+@pytest.mark.parametrize("mu", [0.5, np.nan])
+def test_likelihood_parameter_and_expression_data_collision_is_rejected(mu):
+    data = linear_data().assign(mu=mu)
+    formula = bmb.Formula("y ~ a * x", "sigma ~ nl(mu) + z", nlpars=("a",))
+
+    with pytest.raises(ValueError, match="parameter names must not also be data columns.*mu"):
+        bmb.Model(formula, data)
+
+
+@pytest.mark.parametrize(
+    "formula, error",
+    [
+        (
+            bmb.Formula("y ~ 0 + nl(a + b * x)", nlpars=("b",)),
+            "No nonlinear parameter formula or data column",
+        ),
+        (
+            bmb.Formula("y ~ a + x", nlpars=("a", "b")),
+            "not used by the expression",
+        ),
+        (
+            bmb.Formula("y ~ 0 + nl(a + unknown)", nlpars=("a",)),
+            "No nonlinear parameter formula or data column",
+        ),
+    ],
+)
+def test_validation_errors(formula, error):
+    with pytest.raises(ValueError, match=error):
+        bmb.Model(formula, linear_data())
+
+
+@pytest.mark.parametrize(
+    "additionals",
+    [("a ~ 1 + b",), ("a ~ 1", "sigma ~ 1 + b")],
+)
+def test_data_name_collision_is_reported_before_parameter_dependency(additionals):
+    data = linear_data()
+    data["b"] = 1.0
+    formula = bmb.Formula("y ~ a + b * x", *additionals, nlpars=("a", "b"))
+
+    with pytest.raises(ValueError, match=r"must not also be data columns: \['b'\]"):
+        bmb.Model(formula, data)
+
+
+def test_malformed_expression():
+    formula = bmb.Formula("y ~ a +", nlpars=("a",))
+    with pytest.raises(ValueError, match="Malformed nonlinear expression"):
+        bmb.Model(formula, linear_data())
+
+
+@pytest.mark.parametrize("unknown", [False, True])
+def test_nonnumeric_expression_data(unknown):
+    data = linear_data()
+    data["label"] = "a"
+    expression = "a + label + unknown" if unknown else "a + label"
+    formula = bmb.Formula(f"y ~ 0 + nl({expression})", nlpars=("a",))
+
+    with pytest.raises(ValueError, match="Nonlinear expression data must be numeric") as error:
+        bmb.Model(formula, data)
+    if unknown:
+        assert "No nonlinear parameter formula or data column" in str(error.value)
+        assert "unknown" in str(error.value)
+
+
+def test_nested_priors_are_assigned():
+    model = bmb.Model(exponential_formula(), linear_data(), priors=exponential_priors())
+
+    prior = model.parameters["mu"].nonlinear_coefficients["a"].terms["z"].prior
+    assert prior.name == "Normal"
+    assert prior.args == {"mu": 0, "sigma": 2}
+
+
+def test_set_priors_uses_nested_parameter_names():
+    model = bmb.Model(exponential_formula(), linear_data(), priors=exponential_priors())
+    updated = bmb.Prior("Normal", mu=1, sigma=0.25)
+
+    model.set_priors({"a": {"z": updated}})
+
+    prior = model.parameters["mu"].nonlinear_coefficients["a"].terms["z"].prior
+    assert prior.name == "Normal"
+    assert prior.args == {"mu": 1, "sigma": 0.25}
+
+
+@pytest.mark.parametrize("nonlinear", [False, True])
+def test_prepare_data_aligns_formulas_and_converts_categories(nonlinear):
+    data = pd.DataFrame(
+        {
+            "y": [1.0, 2.0, 3.0, 4.0, 5.0],
+            "x": [np.nan, 0.2, 0.3, 0.4, 0.5],
+            "z": [0.0, np.nan, 0.2, 0.3, 0.4],
+            "group": ["a", "b", None, "a", "b"],
+            "treatment": [0, 1, 0, 1, 0],
+            "unused": np.nan,
+        }
+    )
+    original = data.copy(deep=True)
+    if nonlinear:
+        formula = bmb.Formula("y ~ rate*x + treatment", "rate ~ z + (1 | group)", nlpars=("rate",))
+    else:
+        formula = bmb.Formula("y ~ x + treatment", "sigma ~ z + (1 | group)")
+
+    if nonlinear:
+        parameters_config = {
+            "mu": {
+                "linear": {"formula": "treatment"},
+                "nonlinear": {"expr": NonlinearExpression.parse("rate*x")},
+            },
+            "rate": {"linear": {"formula": "z + (1 | group)"}, "nonlinear": {"expr": None}},
+        }
+    else:
+        parameters_config = {
+            "mu": {"linear": {"formula": "x + treatment"}, "nonlinear": {"expr": None}},
+            "sigma": {"linear": {"formula": "z + (1 | group)"}, "nonlinear": {"expr": None}},
+        }
+    prepared = prepare_data(
+        data,
+        formula,
+        parameters_config,
+        categorical="treatment",
+        dropna=True,
+    )
+
+    assert prepared.index.tolist() == [3, 4]
+    assert prepared.group.dtype == "category"
+    assert prepared.treatment.dtype == "category"
+    pd.testing.assert_frame_equal(data, original)
+    with pytest.raises(ValueError, match="3 incomplete rows"):
+        prepare_data(data, formula, parameters_config)
+
+
+@pytest.mark.parametrize(
+    ("linear_formula", "missing_column"),
+    [("group + (x | group)", "group"), ("(x | group)", "x")],
+)
+def test_prepare_new_data_missing_groups_do_not_hide_missing_predictors(
+    linear_formula, missing_column
+):
+    training = pd.DataFrame({"y": [1, 2, 1, 2], "x": [1, 2, 3, 4], "group": ["a", "a", "b", "b"]})
+    model = bmb.Model(f"y ~ {linear_formula}", training)
+    data = pd.DataFrame({"group": ["a", "b"], "x": [1.0, 2.0]})
+    data.loc[0, missing_column] = None
+
+    with pytest.raises(ValueError, match="1 incomplete row"):
+        prepare_new_data(model, data)
+
+
+@pytest.mark.parametrize("nonlinear", [False, True])
+def test_prepare_new_data_checks_response_only_when_requested(nonlinear, monkeypatch):
+    training = pd.DataFrame({"y": [1, 2, 1, 2], "x": [1, 2, 3, 4], "group": ["a", "a", "b", "b"]})
+    data = pd.DataFrame({"y": [1.0, np.nan], "x": [1.0, 2.0], "group": ["a", None]})
+    original = data.copy(deep=True)
+    if nonlinear:
+        formula = bmb.Formula("y ~ a*x + (1 | group)", "a ~ 1", nlpars=("a",))
+    else:
+        formula = bmb.Formula("y ~ x + (1 | group)")
+    model = bmb.Model(formula, training)
+    monkeypatch.setattr(
+        "formulae.model_description", lambda *_: pytest.fail("New data must not reparse formulas")
+    )
+
+    prepared = prepare_new_data(model, data)
+
+    assert prepared.index.tolist() == [0, 1]
+    assert prepared.group.dtype == "category"
+    pd.testing.assert_frame_equal(data, original)
+    with pytest.raises(ValueError, match="1 incomplete row"):
+        prepare_new_data(model, data, include_response=True)
+
+
+@pytest.mark.parametrize("column", ["y", "x", "z"])
+def test_missing_model_inputs_raise_without_dropna(column):
+    data = linear_data()
+    data.loc[0, column] = np.nan
+    with pytest.raises(ValueError, match="incomplete rows"):
+        bmb.Model(exponential_formula(), data)
+
+
+def test_dropna_rejects_no_complete_observations():
+    data = linear_data()
+    data["x"] = np.nan
+    with pytest.raises(ValueError, match="complete observation"):
+        bmb.Model(exponential_formula(), data, dropna=True)
+
+
+@pytest.mark.parametrize(("rhs", "error"), [("I(b ** 2)", "function 'I'"), ("(1 | b)", "BitOr")])
+def test_parameter_dependent_formula_requires_nonlinear_expression_syntax(rhs, error):
+    formula = bmb.Formula("y ~ a + b * x", f"a ~ {rhs}", nlpars=("a", "b"))
+    with pytest.raises(ValueError, match=error):
+        bmb.Model(formula, linear_data())
+
+
+@pytest.mark.parametrize("name", ["mu", "sigma", "exp", "sin", "normal_cdf", "x"])
+def test_reserved_parameter_names_are_rejected(name):
+    formula = bmb.Formula(f"y ~ {name}", nlpars=(name,))
+    with pytest.raises(ValueError, match="names must not"):
+        bmb.Model(formula, linear_data())
+
+
+def test_marginal_coefficient_rejects_term_prior_dictionary():
+    with pytest.raises(ValueError, match="not a valid prior"):
+        bmb.Model(
+            bmb.Formula("y ~ a * x", nlpars=("a",)),
+            linear_data(),
+            priors={"a": {"Intercept": normal_prior()}},
+        )
