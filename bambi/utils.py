@@ -7,8 +7,6 @@ import formulae as fm
 import numpy as np
 from xarray import DataTree
 
-from bambi.transformations import HSGP, SmoothTransform
-
 
 def listify(obj):
     """Wrap all non-list or tuple objects in a list
@@ -108,28 +106,6 @@ def clean_formula_lhs(x):
     assert "~" in x
     position = x.find("~")
     return x[position + 1 :]
-
-
-def is_call_component(component) -> bool:
-    """Determines if formulae component is the result of a function call."""
-    return isinstance(component, fm.terms.call.Call)
-
-
-def is_smooth_term(term):
-    """Determine whether a formulae term is a smooth transform."""
-    return any(
-        is_call_component(component)
-        and isinstance(component.call.stateful_transform, SmoothTransform)
-        for component in getattr(term, "components", ())
-    )
-
-
-def is_hsgp_term(term):
-    """Determine whether a formulae term is an HSGP transform."""
-    return any(
-        is_call_component(component) and isinstance(component.call.stateful_transform, HSGP)
-        for component in getattr(term, "components", ())
-    )
 
 
 def remove_common_intercept(dm: fm.matrices.DesignMatrices) -> fm.matrices.DesignMatrices:

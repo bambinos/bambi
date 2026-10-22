@@ -1,6 +1,8 @@
 import formulae as fm
 from formulae.terms.call_resolver import get_function_from_module
 
+from bambi.transformations import HSGP, SmoothTransform
+
 
 def is_single_component(term) -> bool:
     """Determines if formulae term contains a single component."""
@@ -30,3 +32,20 @@ def is_response_of_kind(term, kind: str) -> bool:
     if not is_call_component(component):
         return False
     return is_call_of_kind(component, kind)
+
+
+def is_smooth_term(term):
+    """Determine whether a formulae term is a smooth transform."""
+    return any(
+        is_call_component(component)
+        and isinstance(component.call.stateful_transform, SmoothTransform)
+        for component in getattr(term, "components", ())
+    )
+
+
+def is_hsgp_term(term):
+    """Determine whether a formulae term is an HSGP transform."""
+    return any(
+        is_call_component(component) and isinstance(component.call.stateful_transform, HSGP)
+        for component in getattr(term, "components", ())
+    )
