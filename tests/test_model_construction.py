@@ -2580,6 +2580,38 @@ def test_dependency_graph_contains_all_quantity_roles(nonlinear_ownership_data):
         np.testing.assert_allclose(posterior.mu, expected.to_numpy()[None, None, :])
 
 
+@pytest.mark.parametrize(
+    "rhs, expected_terms, expected_covariates",
+    [
+        ("nl(exp(b * x) + x) + z", {"Intercept", "z"}, {"x", "z"}),
+        (
+            "z - exp(b * x) + (1 + x | group)",
+            {"Intercept", "z", "1|group", "x|group"},
+            {"x", "z", "group"},
+        ),
+        ("0 + nl(b * x) + x:z", {"x:z"}, {"x", "z"}),
+        ("nl(b * x) - 1", set(), {"x"}),
+    ],
+)
+def test_mixed_predictor_terms_and_ownership(rhs, expected_terms, expected_covariates):
+    data = pd.DataFrame(
+        {
+            "y": [1.0, 2.0, 3.0, 4.0],
+            "x": [0.0, 1.0, 2.0, 3.0],
+            "z": [1.0, 0.0, 3.0, 2.0],
+            "group": ["a", "a", "b", "b"],
+        }
+    )
+    model = bmb.Model(bmb.Formula(f"y ~ {rhs}", nlpars=("b",)), data)
+    parent = model.parameters["mu"]
+    assert set(parent.terms) == expected_terms
+    assert set(parent.nonlinear_coefficients) == {"b"}
+    assert parent.data_names == ("x",)
+    assert set(model.get_covariates()) == expected_covariates
+    model.build()
+    assert "nl" not in model.backend.model.named_vars
+
+
 def test_mixed_predictor_missing_rows_are_aligned():
     data = pd.DataFrame(
         {"y": [1.0, 2.0, 3.0, 4.0], "x": [0.0, np.nan, 2.0, 3.0], "z": [1.0, 0.0, np.nan, 2.0]}

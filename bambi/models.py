@@ -5,10 +5,13 @@ from dataclasses import dataclass
 from importlib.metadata import version
 
 import formulae as fm
+import numpy as np
 import pandas as pd
 from arviz_plots import plot_dist
 from arviz_stats import residual_r2
 from formulae.matrices import ResponseMatrix
+from formulae.terms.call import Call
+from formulae.terms.call_resolver import LazyVariable
 
 from bambi.backend import PyMCModel
 from bambi.config import config
@@ -475,6 +478,38 @@ class Model:
             if quantity.design.group:
                 terms.update(quantity.design.group.terms)
         return terms
+
+    def get_covariates(self):
+        """Return observed covariate names from formulas and expressions."""
+        terms = self.get_terms()
+        covariates = []
+        for term in terms.values():
+            if hasattr(term, "components"):
+                for component in term.components:
+                    # If the component is a function call, look for relevant argument names
+                    if isinstance(component, Call):
+                        # Add variable names passed as unnamed arguments
+                        covariates.extend(
+                            arg.name for arg in component.call.args if isinstance(arg, LazyVariable)
+                        )
+                        # Add variable names passed as named arguments
+                        covariates.extend(
+                            kwarg_value.name
+                            for kwarg_value in component.call.kwargs.values()
+                            if isinstance(kwarg_value, LazyVariable)
+                        )
+                    else:
+                        covariates.append(component.name)
+            elif hasattr(term, "factor"):
+                covariates.extend(list(term.var_names))
+
+        for parameter in self.parameter_graph.expression_nodes.values():
+            covariates.extend(parameter.data_names)
+
+        # Don't include non-covariate names (#797)
+        covariates = [name for name in covariates if name in self.data]
+
+        return np.unique(covariates)
 
     def fit(
         self,

@@ -26,7 +26,6 @@ from bambi.interpret.types import (
 from bambi.interpret.utils import (
     aggregate,
     create_datatree,
-    get_model_covariates,
     identity,
     resolve_target,
 )
@@ -375,7 +374,7 @@ def _build_predictions(
     response_transform = transforms.get(target_info.response_name, identity)
 
     cond = ConditionalVariables.from_param(model.data, conditional)
-    covariates = get_model_covariates(model).tolist()
+    covariates = model.get_covariates().tolist()
     defaults = DefaultVariables.from_model(
         model.data, covariates, cond.names | {focal_variable.name}
     )
@@ -483,7 +482,7 @@ def predictions(
     response_transform = transforms.get(target_info.response_name, identity)
 
     cond = ConditionalVariables.from_param(model.data, conditional)
-    covariates = get_model_covariates(model).tolist()
+    covariates = model.get_covariates().tolist()
     defaults = DefaultVariables.from_model(model.data, covariates, cond.names)
 
     # Unit level predictions
