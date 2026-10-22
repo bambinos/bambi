@@ -3475,3 +3475,295 @@ def test_nonlinear_truncated_prediction_and_new_data_log_likelihood(
     assert model.backend.model is original_model
     for name, values in original_data.items():
         np.testing.assert_array_equal(model.backend.model[name].get_value(), values)
+
+
+def vector_parent_data():
+    data = linear_data(6)
+    data["y"] = pd.Categorical(
+        ["middle", "last", "first"] * 2, categories=["middle", "first", "last"], ordered=True
+    )
+    data["c1"] = [1, 2, 0, 3, 1, 2]
+    data["c2"] = [2, 0, 3, 1, 2, 1]
+    data["c3"] = [1, 2, 1, 0, 1, 1]
+    data["n"] = data[["c1", "c2", "c3"]].sum(axis=1)
+    data["group"] = ["g", "h"] * 3
+    return data
+
+
+@pytest.mark.parametrize("family", ["categorical", "multinomial", "dirichlet_multinomial"])
+@pytest.mark.parametrize("mixed", [False, True])
+def test_nonlinear_vector_parent_matches_pymc(family, mixed):
+    data = vector_parent_data()
+    response = "y" if family == "categorical" else "counts(c1, c2, c3, n=n)"
+    parent = "a" if family == "dirichlet_multinomial" else "p"
+    size = 3 if family == "dirichlet_multinomial" else 2
+    rhs = "z + nl(shared + rate * x)" if mixed else "shared + rate * x"
+    formula = bmb.Formula(f"{response} ~ {rhs}", "rate ~ 1 + z", nlpars=("rate", "shared"))
+    priors = {"shared": normal_prior(), "rate": {"Intercept": normal_prior(), "z": normal_prior()}}
+    if mixed:
+        priors[parent] = {"Intercept": normal_prior(), "z": normal_prior()}
+    model = bmb.Model(formula, data, family=family, priors=priors, center_predictors=False)
+    model.build()
+    backend = model.backend.model
+    dim = next(iter(backend.__bambi_attrs__["response_coords"]))
+    coord_key = "response_coords" if size == 3 else "response_coords_reduced"
+    coef_dim = next(iter(backend.__bambi_attrs__[coord_key]))
+    assert backend.named_vars_to_dims["rate"] == ("__obs__",)
+    assert backend.named_vars_to_dims[parent] == ("__obs__", dim)
+    assert backend.named_vars_to_dims["shared"] == ()
+    levels = ["middle", "first", "last"] if family == "categorical" else ["c1", "c2", "c3"]
+    assert list(backend.coords[dim]) == levels
+    if size == 2:
+        assert list(backend.coords[coef_dim]) == levels[1:]
+    point = {
+        "shared": np.array(0.4),
+        "rate_Intercept": np.array(0.3),
+        "rate_z": np.array(-0.2),
+    }
+    with pm.Model() as direct:
+        shared = pm.Normal("shared", 0, 2)
+        intercept = pm.Normal("rate_Intercept", 0, 2)
+        slope = pm.Normal("rate_z", 0, 2)
+        eta = shared + (intercept + data.z.to_numpy()[:, None] * slope) * data.x.to_numpy()[:, None]
+        eta = pt.broadcast_to(eta, (len(data), size))
+        if mixed:
+            base = pm.Normal("Intercept", 0, 2, shape=size)
+            linear = pm.Normal("z", 0, 2, shape=size)
+            eta += base + data.z.to_numpy()[:, None] * linear
+            point.update(Intercept=np.linspace(0.1, 0.3, size), z=np.linspace(-0.2, 0.1, size))
+        if family == "dirichlet_multinomial":
+            value = pt.exp(eta)
+            pm.DirichletMultinomial(
+                "observed", n=data.n, a=value, observed=data[["c1", "c2", "c3"]]
+            )
+        else:
+            value = pt.special.softmax(
+                pt.concatenate([pt.zeros((len(data), 1)), eta], axis=1), axis=1
+            )
+            if family == "categorical":
+                pm.Categorical("observed", p=value, observed=data.y.cat.codes)
+            else:
+                pm.Multinomial("observed", n=data.n, p=value, observed=data[["c1", "c2", "c3"]])
+        pm.Deterministic("value", value)
+    np.testing.assert_allclose(backend.compile_logp()(point), direct.compile_logp()(point))
+    actual = backend.compile_fn(backend[parent], inputs=backend.free_RVs)(point)
+    expected = direct.compile_fn(direct["value"], inputs=direct.free_RVs)(point)
+    np.testing.assert_allclose(actual, expected)
+    if parent == "p":
+        np.testing.assert_allclose(actual.sum(axis=-1), 1)
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize(
+    ("family", "expression"),
+    [
+        ("categorical", "z + nl(0.7)"),
+        ("multinomial", "shared * x"),
+        ("dirichlet_multinomial", "rate * x + shared"),
+    ],
+)
+def test_nonlinear_vector_prediction(family, expression):
+    from scipy.special import softmax
+
+    data = vector_parent_data()
+    response = "y" if family == "categorical" else "counts(c1, c2, c3, n=n)"
+    names = tuple(name for name in ("shared", "rate") if name in expression)
+    additionals = ("rate ~ 1 + z",) if "rate" in names else ()
+    model = bmb.Model(
+        bmb.Formula(f"{response} ~ {expression}", *additionals, nlpars=names), data, family=family
+    )
+    model.set_alias({model.family.likelihood.parent: {model.family.likelihood.parent: "parameter"}})
+    idata = model.fit(draws=3, chains=1, random_seed=101)
+    posterior = idata.posterior
+    for count in (len(data), 2, 1):
+        observed = data.iloc[:count]
+        new_data = None if count == len(data) else observed.copy()
+        result = model.predict(
+            idata, data=new_data, kind="response", inplace=False, random_seed=102
+        )
+        x = observed.x.to_numpy()[None, None, :, None]
+        centered_z = (observed.z.to_numpy() - data.z.mean())[None, None, :, None]
+        if family == "categorical":
+            eta = posterior.Intercept_centered.values[:, :, None, :]
+            eta = eta + posterior.z.values[:, :, None, :] * centered_z + 0.7
+        elif family == "multinomial":
+            eta = np.broadcast_to(posterior.shared.values[:, :, None, None] * x, (1, 3, count, 2))
+        else:
+            rate = posterior.rate_Intercept_centered.values[:, :, None, None]
+            rate = rate + posterior.rate_z.values[:, :, None, None] * centered_z
+            eta = rate * x + posterior.shared.values[:, :, None, None]
+        if family == "dirichlet_multinomial":
+            expected = np.broadcast_to(np.exp(eta), (1, 3, count, 3))
+        else:
+            reference = np.zeros_like(eta[..., :1])
+            expected = softmax(np.concatenate([reference, eta], axis=-1), axis=-1)
+        group = result.posterior if new_data is None else result.predictions
+        np.testing.assert_allclose(group["parameter"], expected)
+        sampled = result.posterior_predictive if new_data is None else result.predictions
+        draws = sampled[model.response_term.label].values
+        if family == "categorical":
+            assert draws.shape == (1, 3, count)
+            assert np.isin(draws, [0, 1, 2]).all()
+            expected_loglik = np.log(expected[:, :, np.arange(count), observed.y.cat.codes])
+        else:
+            np.testing.assert_array_equal(draws.sum(axis=-1), np.full((1, 3, count), 4))
+            observed_counts = observed[["c1", "c2", "c3"]].to_numpy()
+            if family == "multinomial":
+                expected_loglik = stats.multinomial.logpmf(
+                    observed_counts, n=observed.n, p=expected
+                )
+            else:
+                expected_loglik = stats.dirichlet_multinomial.logpmf(
+                    observed_counts, alpha=expected, n=observed.n
+                )
+        likelihood = model.compute_log_likelihood(idata, data=new_data, inplace=False)
+        np.testing.assert_allclose(
+            likelihood.log_likelihood[model.response_term.label], expected_loglik
+        )
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("sparse_dot", [False, True])
+@pytest.mark.parametrize("family", ["categorical", "dirichlet_multinomial"])
+def test_nonlinear_vector_group_prediction(monkeypatch, sparse_dot, family):
+    monkeypatch.setattr(bmb.config, "SPARSE_DOT", sparse_dot)
+    data = vector_parent_data()
+    response = "y" if family == "categorical" else "counts(c1, c2, c3, n=n)"
+    parent = "a" if family == "dirichlet_multinomial" else "p"
+    model = bmb.Model(
+        bmb.Formula(f"{response} ~ rate * x", "rate ~ 0 + z + (1 | group)", nlpars=("rate",)),
+        data,
+        family=family,
+        center_predictors=False,
+    )
+    model.set_alias({"rate": {"rate": "r", "1|group": "group_effect", "z": "slope"}})
+    idata = model.fit(draws=3, chains=1, random_seed=103)
+    assert idata.posterior["group_effect"].dims == ("chain", "draw", "group_dim")
+    for groups in (["g", "h"], ["g"], ["new", "new"]):
+        new_data = pd.DataFrame(
+            {"x": [0.3] * len(groups), "z": [0.2] * len(groups), "group": groups, "n": 4}
+        )
+        result = model.predict(idata, data=new_data, inplace=False, random_seed=104)
+        values = result.predictions[parent].values
+        assert values.shape == (1, 3, len(groups), 3)
+        if parent == "p":
+            np.testing.assert_allclose(values.sum(axis=-1), 1)
+        if groups[0] == "new":
+            np.testing.assert_allclose(values[:, :, 0], values[:, :, 1])
+        else:
+            effects = idata.posterior.group_effect.sel(group_dim=groups).values
+            slope = idata.posterior.slope.values[:, :, None]
+            eta = (effects + 0.2 * slope) * 0.3
+            size = 2 if parent == "p" else 3
+            eta = np.broadcast_to(eta[..., None], (*eta.shape, size))
+            weights = np.exp(np.concatenate([np.zeros((*eta.shape[:-1], 1)), eta], axis=-1))
+            expected = weights / weights.sum(axis=-1, keepdims=True)
+            if parent == "a":
+                expected = np.exp(eta)
+            np.testing.assert_allclose(values, expected)
+        population = model.predict(
+            idata, data=new_data, include_group_specific=False, inplace=False
+        )
+        eta = idata.posterior.slope.values[:, :, None, None] * 0.2 * 0.3
+        size = 2 if parent == "p" else 3
+        eta = np.broadcast_to(eta, (*eta.shape[:-1], size))
+        weights = np.exp(np.concatenate([np.zeros((*eta.shape[:-1], 1)), eta], axis=-1))
+        expected = weights / weights.sum(axis=-1, keepdims=True)
+        if parent == "a":
+            expected = np.exp(eta)
+        np.testing.assert_allclose(
+            population.predictions[parent], np.broadcast_to(expected, values.shape)
+        )
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+def test_nonlinear_categorical_interpret():
+    from bambi.interpret.effects import comparisons, predictions, slopes
+
+    model = bmb.Model(
+        bmb.Formula("y ~ shared * x + rate", "rate ~ 0 + z", nlpars=("shared", "rate")),
+        vector_parent_data(),
+        family="categorical",
+    )
+    idata = model.fit(draws=5, chains=2, random_seed=105)
+    conditional = {"x": [-0.2, 0.3], "z": [0.1]}
+    result = predictions(model, idata, conditional=conditional).summary
+    assert len(result) == 6
+    assert set(result.y_dim) == {"middle", "first", "last"}
+    np.testing.assert_allclose(result.groupby("x").estimate.sum(), 1)
+    for function, kwargs in (
+        (comparisons, {"contrast": {"x": [-0.2, 0.3]}}),
+        (slopes, {"wrt": "x"}),
+    ):
+        result = function(model, idata, conditional={"z": [0.1]}, **kwargs).summary
+        assert set(result.y_dim) == {"middle", "first", "last"}
+        np.testing.assert_allclose(result.estimate.sum(), 0, atol=1e-8)
+
+
+def test_nonlinear_dirichlet_multinomial_constant_concentration():
+    data = vector_parent_data()
+    model = bmb.Model(
+        bmb.Formula("counts(c1, c2, c3, n=n) ~ 0 + nl(0.7)"), data, family="dirichlet_multinomial"
+    )
+    model.build()
+    np.testing.assert_allclose(
+        model.backend.model["a"].eval(), np.full((len(data), 3), np.exp(0.7))
+    )
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("categories", [2, 3])
+def test_nonlinear_vector_dependencies_and_offsets(categories):
+    data = vector_parent_data()
+    if categories == 2:
+        data = data[data.y != "last"].copy()
+        data["y"] = data.y.cat.remove_unused_categories()
+    formula = bmb.Formula(
+        "y ~ offset(x) + nl(curve)",
+        "curve ~ rate * x + shared",
+        "rate ~ 0 + z",
+        nlpars=("curve", "rate", "shared"),
+    )
+    model = bmb.Model(formula, data, family="categorical", center_predictors=False)
+    idata = model.fit(draws=3, chains=1, random_seed=106)
+    for count in (len(data), 1):
+        new_data = data.iloc[:count]
+        result = model.predict(idata, data=new_data, inplace=False)
+        eta = (
+            idata.posterior.rate_z.values[:, :, None, None]
+            * new_data.z.to_numpy()[None, None, :, None]
+            * new_data.x.to_numpy()[None, None, :, None]
+            + idata.posterior.shared.values[:, :, None, None]
+            + idata.posterior.Intercept.values[:, :, None, :]
+            + new_data.x.to_numpy()[None, None, :, None]
+        )
+        weights = np.exp(np.concatenate([np.zeros((*eta.shape[:-1], 1)), eta], axis=-1))
+        np.testing.assert_allclose(
+            result.predictions.p, weights / weights.sum(axis=-1, keepdims=True)
+        )
+
+
+@pytest.mark.usefixtures("mock_pymc_sample")
+@pytest.mark.parametrize("family", ["multinomial", "dirichlet_multinomial"])
+def test_nonlinear_count_interpret(family):
+    from bambi.interpret.effects import predictions
+
+    model = bmb.Model(
+        bmb.Formula(
+            "counts(c1, c2, c3, n=n) ~ shared * x + rate",
+            "rate ~ 0 + z",
+            nlpars=("shared", "rate"),
+        ),
+        vector_parent_data(),
+        family=family,
+    )
+    idata = model.fit(draws=5, chains=2, random_seed=107)
+    conditional = {"x": [-0.2, 0.3], "z": [0.1], "n": [4]}
+    summary = predictions(model, idata, conditional=conditional).summary
+    assert len(summary) == 6
+    assert set(summary.c1_c2_c3_dim) == {"c1", "c2", "c3"}
+    data = pd.DataFrame({"x": [-0.2, 0.3], "z": [0.1, 0.1], "n": [4, 4]})
+    result = model.predict(idata, data=data, inplace=False)
+    expected = result.predictions[model.family.likelihood.parent].mean(("chain", "draw"))
+    actual = summary.pivot(index="x", columns="c1_c2_c3_dim", values="estimate")
+    np.testing.assert_allclose(actual[["c1", "c2", "c3"]], expected)

@@ -2,6 +2,7 @@ import numpy as np
 import pymc as pm
 import pytensor.tensor as pt
 
+from bambi.backend.pymc.coords import coords_for_coefficients
 from bambi.backend.pymc.utils import get_distribution_from_prior
 from bambi.backend.pymc.types import Coords
 from bambi.backend.pymc.data import predictor_data_name, shape_common_data
@@ -66,12 +67,7 @@ def build_common_term(
         pm.Data(data_name, data, dims=term_info.data_dims, model=model)
 
     # Register parameter
-    response_coords = {}
-    if param_spec.ndim > 0:
-        if param_spec.coefs_dim == "response":
-            response_coords = model.__bambi_attrs__["response_coords"]
-        elif param_spec.coefs_dim == "response_reduced":
-            response_coords = model.__bambi_attrs__["response_coords_reduced"]
+    response_coords = coords_for_coefficients(param_spec, model)
 
     param_coords = coords | response_coords
     param_dims = tuple(param_coords)

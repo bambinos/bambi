@@ -3,6 +3,7 @@ import pytensor.tensor as pt
 
 from numpy.typing import ArrayLike
 
+from bambi.backend.pymc.coords import coords_for_coefficients
 from bambi.priors.prior import Prior
 from bambi.backend.pymc.data import predictor_data_name, shape_common_data
 from bambi.backend.pymc.terms.info import SmoothTermInfo
@@ -162,12 +163,7 @@ def build_smooth_term(
         pm.Data(data_name, data, dims=term_info.data_dims, model=model)
 
     # Register parameter
-    response_coords = {}
-    if param_spec.ndim > 0:
-        if param_spec.coefs_dim == "response":
-            response_coords = model.__bambi_attrs__["response_coords"]
-        elif param_spec.coefs_dim == "response_reduced":
-            response_coords = model.__bambi_attrs__["response_coords_reduced"]
+    response_coords = coords_for_coefficients(param_spec, model)
 
     if response_coords:
         raise NotImplementedError("Smooths require scalar response parameters.")

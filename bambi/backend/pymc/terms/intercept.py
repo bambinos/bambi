@@ -2,6 +2,7 @@ import numpy as np
 import pymc as pm
 import pytensor.tensor as pt
 
+from bambi.backend.pymc.coords import coords_for_coefficients
 from bambi.backend.pymc.utils import get_distribution_from_prior
 from bambi.families.types import ParamSpec
 
@@ -14,12 +15,7 @@ def build_intercept_term(
     model: pm.Model,
 ) -> pt.Variable:
     # NOTE (idea): Transform the intercept prior such that users can pass it cleanly.
-    coords = {}
-    if param_spec.ndim > 0:
-        if param_spec.coefs_dim == "response":
-            coords = model.__bambi_attrs__["response_coords"]
-        elif param_spec.coefs_dim == "response_reduced":
-            coords = model.__bambi_attrs__["response_coords_reduced"]
+    coords = coords_for_coefficients(param_spec, model)
 
     dims = tuple(coords)
     param_shape = tuple(len(coord) for coord in coords.values())
