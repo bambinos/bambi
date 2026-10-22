@@ -2946,3 +2946,29 @@ def test_marginal_coefficient_rejects_term_prior_dictionary():
             linear_data(),
             priors={"a": {"Intercept": normal_prior()}},
         )
+
+
+def test_dropna_aligns_nonlinear_expression_and_weighted_response():
+    data = weighted_nonlinear_data().assign(z=[0.0, np.nan, 0.5, -0.5])
+    model = weighted_nonlinear_model(data, dropna=True)
+
+    assert len(model.response_term.data) == 3
+    np.testing.assert_array_equal(
+        model.response_term.data[:, 0], data.y.dropna().to_numpy()[[0, 2, 3]]
+    )
+    np.testing.assert_array_equal(
+        model.response_term.data[:, 1], data.w.dropna().to_numpy()[[0, 2, 3]]
+    )
+    np.testing.assert_array_equal(model.data.index, [0, 2, 3])
+
+
+def test_dropna_aligns_nonlinear_expression_and_censored_response():
+    data = censored_nonlinear_data(("left", "right", "none", "right")).assign(
+        z=[0.0, np.nan, 0.5, -0.5]
+    )
+    model = censored_nonlinear_model(data, dropna=True)
+
+    assert len(model.response_term.data) == 3
+    np.testing.assert_array_equal(model.response_term.data[:, 0], data.y.iloc[[0, 2, 3]])
+    np.testing.assert_array_equal(model.response_term.data[:, 1], [-1, 0, 1])
+    np.testing.assert_array_equal(model.data.index, [0, 2, 3])
