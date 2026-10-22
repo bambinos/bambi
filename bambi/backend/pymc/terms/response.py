@@ -150,7 +150,7 @@ def replace_response_variables(
     term: ResponseTerm, model: pm.Model, kind: str | None = None
 ) -> pm.Model:
     """Apply response-variable replacements required by the current cloned data."""
-    if term.is_truncated and kind == "response":
+    if term.is_truncated and kind in ("response", "response_params"):
         return _untruncate_response(term.label, model)
 
     return model
@@ -271,7 +271,7 @@ def _build_intervention_censored(
     # censoring type, which cannot be exchanged directly.
     lower = pt.switch(pt.eq(status, 1), observed, -np.inf)
     upper = pt.switch(pt.eq(status, -1), observed, np.inf)
-    intervention = pm.Truncated.dist(base_dist, lower=lower, upper=upper)
+    intervention = pm.Truncated.dist(base_dist, lower=lower, upper=upper, size=observed.shape)
 
     return {response: intervention}
 
@@ -319,14 +319,8 @@ def _build_censored_data(
     observed_data = pm.Data(value_name + "_data", observed, dims=dims, model=model)
     status_data = pm.Data(status_name + "_data", status, dims=dims, model=model)
 
-    lower, upper = -np.inf, np.inf
-    if any(status == -1):
-        is_left_censored = pt.eq(status_data, -1)
-        lower = pt.switch(is_left_censored, observed_data, -np.inf)
-
-    if any(status == 1):
-        is_right_censored = pt.eq(status_data, 1)
-        upper = pt.switch(is_right_censored, observed_data, np.inf)
+    lower = pt.switch(pt.eq(status_data, -1), observed_data, -np.inf)
+    upper = pt.switch(pt.eq(status_data, 1), observed_data, np.inf)
 
     return {"lower": lower, "upper": upper, "observed": observed_data}
 
@@ -543,7 +537,7 @@ def _build_new_truncated_data(
                 "Use kind='response' for unconditional predictions."
             )
 
-    if purpose == "prediction" and kind == "response":
+    if purpose == "prediction" and kind in ("response", "response_params"):
         return {value_name + "_data": np.full(n, term.data[0, 0])}
 
     # Re-evaluate the response call so transformed values and bounds stay consistent.
