@@ -16,7 +16,7 @@ from bambi.backend.pymc.utils import get_distribution_from_prior
 from bambi.priors.prior import Prior
 
 from .state import (
-    ConditionalParameterInfo,
+    ConditionalInfo,
     DenseGroupSpecificFactorPlan,
     DenseGroupSpecificParameterGraph,
     GroupSpecificGraphState,
@@ -180,7 +180,7 @@ def add_new_sparse_group_specific_contributions(
 
 
 def build_new_dense_conditional_parameter_data(
-    parameter_info: ConditionalParameterInfo, data: pd.DataFrame, model: pm.Model
+    parameter_info: ConditionalInfo, data: pd.DataFrame, model: pm.Model
 ) -> tuple[dict[str, np.ndarray], list[DenseGroupSpecificFactorPlan]]:
     """Build dense new-observation data and a plan per grouping factor."""
     data_dict = _build_new_non_group_specific_data(parameter_info, data, model)
@@ -190,7 +190,7 @@ def build_new_dense_conditional_parameter_data(
 
 
 def build_new_sparse_conditional_parameter_data(
-    parameter_info: ConditionalParameterInfo, data: pd.DataFrame, model: pm.Model
+    parameter_info: ConditionalInfo, data: pd.DataFrame, model: pm.Model
 ) -> tuple[dict[str, np.ndarray], list[SparseGroupSpecificFactorPlan], dict[str, range]]:
     """Build sparse new-observation data and a plan per grouping factor."""
     data_dict = _build_new_non_group_specific_data(parameter_info, data, model)
@@ -201,7 +201,7 @@ def build_new_sparse_conditional_parameter_data(
 
 
 def _build_new_non_group_specific_data(
-    parameter_info: ConditionalParameterInfo, data: pd.DataFrame, model: pm.Model
+    parameter_info: ConditionalInfo, data: pd.DataFrame, model: pm.Model
 ) -> dict[str, np.ndarray]:
     data_dict: dict[str, np.ndarray] = {}
 
@@ -235,7 +235,7 @@ def _build_new_non_group_specific_data(
 
 
 def _build_new_dense_group_specific_data(
-    parameter_info: ConditionalParameterInfo, data: pd.DataFrame
+    parameter_info: ConditionalInfo, data: pd.DataFrame
 ) -> list[DenseGroupSpecificFactorPlan]:
     factor_plans = []
 
@@ -281,7 +281,7 @@ def _build_new_dense_group_specific_predictors(
 
 
 def _build_new_sparse_group_specific_plans(
-    parameter_info: ConditionalParameterInfo, data: pd.DataFrame
+    parameter_info: ConditionalInfo, data: pd.DataFrame
 ) -> list[SparseGroupSpecificFactorPlan]:
     factor_plans = []
 
@@ -309,7 +309,7 @@ def _build_new_sparse_group_specific_plans(
 
 
 def _build_new_sparse_group_specific_data(
-    parameter_info: ConditionalParameterInfo,
+    parameter_info: ConditionalInfo,
     factor_plans: list[SparseGroupSpecificFactorPlan],
 ) -> tuple[dict[str, np.ndarray], dict[str, range]]:
     """Build one CSR design matrix from all group-specific terms of a parameter."""
