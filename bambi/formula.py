@@ -1,8 +1,9 @@
 import warnings
-
-from typing import Sequence
+import keyword
 
 import formulae as fm
+
+from bambi.nonlinear import has_nl_wrapper
 
 
 class Formula:
@@ -18,31 +19,99 @@ class Formula:
         A model description written using the formula syntax from the `formulae` library.
     *additionals : tuple of str
         Additional formulas that describe model parameters rather than a response variable.
+    nlpars : list or tuple of str, optional
+        Names of coefficients used in nonlinear expressions. Terms that reference modeled
+        parameters use arithmetic syntax; other terms retain ordinary Formulae syntax.
+        Use ``nl(expression)`` to add an arithmetic expression directly to the predictor,
+        without an estimated multiplier. For example, ``y ~ nl(exp(b * x) + x) + treatment``
+        estimates ``b`` and the usual intercept and treatment effects, but uses ``x`` directly
+        inside the wrapper. Use ``0 + nl(expression)`` to omit the additive intercept.
+        Parentheses outside ``nl`` retain ordinary formula grouping semantics.
+        A formula consisting entirely of unwrapped arithmetic terms and numeric constants
+        retains its expression-only interpretation, with no implicit intercept.
+        An additional formula can describe how a nonlinear coefficient varies. Coefficients
+        without an additional formula have a direct prior and are sampled under their own names.
+        Coefficients with a formula use priors for its terms, including intercept-only formulas.
+        Additional formulas can also describe ordinary auxiliary likelihood parameters,
+        such as `sigma ~ z`.
+        Each expression is on its parameter's link scale. The family's inverse link is applied
+        once to the complete predictor, including auxiliary parameters. An additional formula
+        that references a modeled parameter is evaluated after its dependencies, using their
+        values on the response scale. For example, with the log link for Gaussian `sigma`,
+        write ``sigma ~ 0 + nl(0.5 * log(variance))`` for a known variance column. The inverse
+        link produces its square root.
+        Separately modeled nonlinear coefficients use identity links.
+
+    Notes
+    -----
+    Nonlinear coefficients are scalar by default and do not inherit dimensions from the
+    likelihood parameters that use them. Additive coefficient formulas produce one value per
+    observation, shared across response categories. Nonlinear coefficient expressions can
+    reference vector-valued modeled parameters and retain those dimensions.
+
+    Nonlinear formulas support categorical, count-vector, ordinal, and compatible custom
+    numeric vector families. Weighted, censored, truncated, and constrained scalar responses
+    are supported where the ordinary family supports the wrapper. New-data weighted predictions
+    use unit weights unless a weight column is supplied. See the nonlinear expressions guide
+    for supported dimensions, competing risks, and remaining restrictions.
+
+    Examples
+    --------
+    Model an exponential decay with three separately modeled parameters:
+
+    >>> Formula("y ~ a + b * exp(-k * x)", "a ~ 1 + z", nlpars=("a", "b", "k"))
+    Formula('y ~ a + b * exp(-k * x)', 'a ~ 1 + z', nlpars=('a', 'b', 'k'))
+
+    Combine a nonlinear contribution with ordinary additive effects:
+
+    >>> Formula("y ~ nl(exp(b * x) + x) + treatment", nlpars=("b",))
+    Formula('y ~ nl(exp(b * x) + x) + treatment', nlpars=('b',))
     """
 
-    def __init__(self, formula: str, *additionals: str):
-        self.additionals_lhs = []
+    def __init__(
+        self, formula: str, *additionals: str, nlpars: list[str] | tuple[str, ...] | None = None
+    ):
+        self.nlpars = self._check_nlpars(nlpars)
         self.main = formula
-        self.additionals = self.check_additionals(additionals)
+        self.additionals = additionals
+        self.additionals_lhs = [self.check_additional(additional) for additional in additionals]
 
-    def check_additionals(self, additionals: Sequence[str]):
-        """Check if the additional formulas match the expected format
+        if self.is_nonlinear:
+            duplicates = {
+                name for name in self.additionals_lhs if self.additionals_lhs.count(name) > 1
+            }
+            if duplicates:
+                raise ValueError(f"Duplicate parameter formula(s): {sorted(duplicates)}.")
 
-        Parameters
-        ----------
-        additionals : sequence of str
-            Model formulas that describe model parameters rather than a response variable.
+    @property
+    def is_nonlinear(self):
+        """Whether the formulas declare nonlinear coefficients or explicit contributions."""
+        return bool(self.nlpars) or any(has_nl_wrapper(f) for f in self.get_all_formulas())
 
-        Returns
-        -------
-        additionals : sequence of str
-            If all formulas match the required format, it returns them.
-        """
-        for additional in additionals:
-            self.check_additional(additional)
-        return additionals
+    @staticmethod
+    def _check_nlpars(
+        nlpars: list[str] | tuple[str, ...] | None,
+    ) -> tuple[str, ...]:
+        """Validate and normalize nonlinear parameter names."""
+        if nlpars is None:
+            return ()
+        if not isinstance(nlpars, (list, tuple)):
+            raise TypeError("'nlpars' must be a list or tuple of strings.")
 
-    def check_additional(self, additional: str):
+        invalid = [
+            name
+            for name in nlpars
+            if not isinstance(name, str) or not name.isidentifier() or keyword.iskeyword(name)
+        ]
+        if invalid:
+            raise ValueError(f"'nlpars' entries must be valid Python identifiers: {invalid}.")
+
+        duplicates = {name for name in nlpars if nlpars.count(name) > 1}
+        if duplicates:
+            raise ValueError(f"Duplicate nonlinear parameter name(s): {sorted(duplicates)}.")
+        return tuple(nlpars)
+
+    def check_additional(self, additional: str) -> str:
         """Check if an additional formula matches the expected format
 
         Parameters
@@ -50,16 +119,23 @@ class Formula:
         additional : str
             A model formula that describes a model parameter.
 
+        Returns
+        -------
+        str
+            The parameter name on the left-hand side.
+
         Raises
         ------
         ValueError
             If the formula does not contain a response term.
+
         ValueError
             If the response term is not a plain name.
         """
-        response = fm.model_description(additional).response
+        lhs, separator, _ = additional.partition("~")
+        response_formula = f"{lhs} ~ 1" if self.is_nonlinear and separator else additional
+        response = fm.model_description(response_formula).response
 
-        # There's a response in the formula
         if response is None:
             raise ValueError("Additional formulas must contain a response name.")
 
@@ -67,7 +143,7 @@ class Formula:
         if not isinstance(response.term.components[0], fm.terms.variable.Variable):
             raise ValueError("The response must be a name")
 
-        self.additionals_lhs.append(response.term.name)
+        return response.term.name
 
     def get_all_formulas(self):
         """Get all the model formulas
@@ -82,11 +158,15 @@ class Formula:
     def __str__(self):
         formulas = [self.main] + list(self.additionals)
         middle = ", ".join(formulas)
+        if self.nlpars:
+            middle += f", nlpars={self.nlpars!r}"
         return f"Formula({middle})"
 
     def __repr__(self):
         formulas = [self.main] + list(self.additionals)
         middle = ", ".join([f"'{formula}'" for formula in formulas])
+        if self.nlpars:
+            middle += f", nlpars={self.nlpars!r}"
         return f"Formula({middle})"
 
 
