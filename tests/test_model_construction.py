@@ -355,19 +355,19 @@ def test_automatic_priors(family):
 
 def test_links(data_random_n100):
     FAMILIES = {
-        "asymmetriclaplace": ["identity", "log", "inverse"],
+        "asymmetriclaplace": ["identity", "log", "logexpm1", "inverse"],
         "bernoulli": ["identity", "logit", "probit", "cloglog"],
         "beta": ["logit", "probit", "cloglog"],
-        "exgaussian": ["identity", "log", "inverse"],
-        "gamma": ["identity", "inverse", "log"],
-        "gaussian": ["identity", "log", "inverse"],
-        "loglogistic": ["identity", "log", "inverse"],
-        "lognormal": ["identity", "log", "inverse"],
-        "negativebinomial": ["identity", "log", "cloglog"],
+        "exgaussian": ["identity", "log", "logexpm1", "inverse"],
+        "gamma": ["identity", "inverse", "log", "logexpm1"],
+        "gaussian": ["identity", "log", "logexpm1", "inverse"],
+        "loglogistic": ["identity", "log", "logexpm1", "inverse"],
+        "lognormal": ["identity", "log", "logexpm1", "inverse"],
+        "negativebinomial": ["identity", "log", "logexpm1", "cloglog"],
         "ordered_beta": ["logit"],
-        "poisson": ["identity", "log"],
+        "poisson": ["identity", "log", "logexpm1"],
         "vonmises": ["identity"],
-        "wald": ["inverse", "inverse_squared", "identity", "log"],
+        "wald": ["inverse", "inverse_squared", "identity", "log", "logexpm1"],
         "zero_one_inflated_beta": ["logit", "probit", "cloglog"],
     }
     for family, links in FAMILIES.items():
@@ -382,19 +382,19 @@ def test_links(data_random_n100):
 def test_bad_links(data_random_n100):
     """Passes names of links that are not suitable for the family."""
     FAMILIES = {
-        "bernoulli": ["inverse", "inverse_squared", "log"],
-        "beta": ["inverse", "inverse_squared", "log"],
+        "bernoulli": ["inverse", "inverse_squared", "log", "logexpm1"],
+        "beta": ["inverse", "inverse_squared", "log", "logexpm1"],
         "exgaussian": ["logit", "probit", "cloglog"],
         "gamma": ["logit", "probit", "cloglog"],
         "gaussian": ["logit", "probit", "cloglog"],
         "loglogistic": ["logit", "probit", "cloglog"],
         "lognormal": ["logit", "probit", "cloglog"],
         "negativebinomial": ["logit", "probit", "inverse", "inverse_squared"],
-        "ordered_beta": ["probit", "cloglog", "identity", "log"],
+        "ordered_beta": ["probit", "cloglog", "identity", "log", "logexpm1"],
         "poisson": ["logit", "probit", "cloglog", "inverse", "inverse_squared"],
         "vonmises": ["logit", "probit", "cloglog"],
         "wald": ["logit", "probit", "cloglog"],
-        "zero_one_inflated_beta": ["inverse", "inverse_squared", "log"],
+        "zero_one_inflated_beta": ["inverse", "inverse_squared", "log", "logexpm1"],
     }
 
     for family, links in FAMILIES.items():

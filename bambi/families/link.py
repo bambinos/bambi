@@ -87,6 +87,17 @@ def inv_inverse(eta):
     return 1 / eta
 
 
+def logexpm1(mu):
+    """Inverse softplus, evaluated without overflow or cancellation."""
+    mu = np.asarray(mu)
+    return mu + np.log(-np.expm1(-mu))
+
+
+def log1pexp(eta):
+    """Softplus, evaluated without overflow."""
+    return np.logaddexp(0, eta)
+
+
 def link_not_implemented(*args, **kwargs):
     raise NotImplementedError("link not implemented")
 
@@ -104,6 +115,7 @@ LINKS = {
     "inverse_squared": LinksContainer(inverse_squared, inv_inverse_squared),
     "inverse": LinksContainer(inverse, inv_inverse),
     "log": LinksContainer(np.log, np.exp),
+    "logexpm1": LinksContainer(logexpm1, log1pexp),
     "logit": LinksContainer(logit, expit),
     "probit": LinksContainer(probit, invprobit),
     "softmax": LinksContainer(link_not_implemented, softmax),

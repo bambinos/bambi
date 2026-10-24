@@ -100,7 +100,8 @@ class Model:
         A nonlinear coefficient expression can depend on a vector-valued modeled parameter.
     link : str or dict of str to str, optional
         The name of the link function to use. Valid names are `"cloglog"`, `"identity"`,
-        `"inverse_squared"`, `"inverse"`, `"log"`, `"logit"`, `"probit"`, and `"softmax"`.
+        `"inverse_squared"`, `"inverse"`, `"log"`, `"logexpm1"`, `"logit"`, `"probit"`,
+        and `"softmax"`.
         Not all the link functions can be used with all the families.
         If a dictionary, keys are the names of the target parameters and the values are the names
         of the link functions.
@@ -800,7 +801,7 @@ class Model:
             defaults loaded at model initialization.
         link : str or dict of str to str
             The name of the link function to use. Valid names are `"cloglog"`, `"identity"`,
-            `"inverse_squared"`, `"inverse"`, `"log"`, `"logit"`, `"probit"`, and
+            `"inverse_squared"`, `"inverse"`, `"log"`, `"logexpm1"`, `"logit"`, `"probit"`, and
             `"softmax"`. Not all the link functions can be used with all the families.
             If a dictionary, keys are the names of the target parameters and the values are the
             names of the link functions.
