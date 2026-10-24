@@ -201,7 +201,7 @@ class DistributionalComponent:
             )
 
         # NOTE: Handle VonMises family that internally uses 'identity' but needs angles
-        if self.spec.family.name == "vonmises":
+        if self.spec.family.name == "vonmises" and self.is_parent:
             # pylint: disable=unnecessary-lambda-assignment
             invlink = lambda x: np.angle(np.exp(1j * x))
         else:

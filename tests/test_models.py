@@ -7,6 +7,7 @@ import bambi as bmb
 import numpy as np
 import pandas as pd
 import pymc as pm
+import xarray as xr
 
 from bambi.terms import GroupSpecificTerm
 
@@ -795,6 +796,51 @@ class TestStudentT(FitPredictParent):
 
 @pytest.mark.usefixtures("mock_pymc_sample")
 class TestVonMises(FitPredictParent):
+    @pytest.mark.parametrize("out_of_sample", [False, True])
+    def test_modeled_kappa_predictions(self, out_of_sample):
+        data = pd.DataFrame({"y": [-0.2, 0.0, 0.2], "x": [-1.0, 0.0, 1.0]})
+        model = bmb.Model(
+            bmb.Formula("y ~ x", "kappa ~ x"),
+            data,
+            family="vonmises",
+            link={"mu": "identity", "kappa": "log"},
+            center_predictors=False,
+        )
+        model.build()
+        posterior = xr.Dataset(
+            {
+                name: (("chain", "draw"), [[value]])
+                for name, value in {
+                    "Intercept": 4.0,
+                    "x": 0.5,
+                    "kappa_Intercept": -1.0,
+                    "kappa_x": 0.5,
+                }.items()
+            },
+            coords={"chain": [0], "draw": [0]},
+        )
+        idata = xr.DataTree.from_dict({"posterior": posterior})
+        new_data = pd.DataFrame({"x": [-2.0, 0.5, 3.0, 5.0]}) if out_of_sample else None
+        x = (new_data if out_of_sample else data)["x"].to_numpy()
+        predicted = model.predict(idata, data=new_data, inplace=False)
+
+        np.testing.assert_allclose(
+            predicted.posterior["kappa"].values.ravel(), np.exp(-1.0 + 0.5 * x)
+        )
+        np.testing.assert_allclose(
+            predicted.posterior["mu"].values.ravel(), np.angle(np.exp(1j * (4.0 + 0.5 * x)))
+        )
+        if not out_of_sample:
+            graph = pm.compute_deterministics(
+                posterior, var_names=["kappa"], model=model.backend.model
+            )
+            np.testing.assert_allclose(predicted.posterior["kappa"], graph["kappa"])
+
+        response = model.predict(idata, kind="response", data=new_data, inplace=False)
+        assert np.isfinite(response.posterior_predictive["y"]).all().item()
+        assert (response.posterior_predictive["y"].min() >= -np.pi).item()
+        assert (response.posterior_predictive["y"].max() <= np.pi).item()
+
     def test_vonmises_regression(self):
         rng = np.random.default_rng(1234)
         data = pd.DataFrame({"y": rng.vonmises(0, 1, size=100), "x": rng.normal(size=100)})
