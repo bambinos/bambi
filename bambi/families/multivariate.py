@@ -99,7 +99,7 @@ class Multinomial(MultivariateFamily):
 
 
 class DirichletMultinomial(MultivariateFamily):
-    SUPPORTED_LINKS = {"a": ["log"]}
+    SUPPORTED_LINKS = {"a": ["log", "logexpm1"]}
 
     def posterior_predictive(self, model, posterior, random_seed, **kwargs):
         data = kwargs["data"]

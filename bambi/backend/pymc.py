@@ -42,6 +42,7 @@ class PyMCModel:
         "inverse_squared": inverse_squared,
         "inverse": pt.reciprocal,
         "log": pt.exp,
+        "logexpm1": pm.math.log1pexp,
         "logit": logit,
         "probit": probit,
         "softmax": functools.partial(softmax, axis=-1),

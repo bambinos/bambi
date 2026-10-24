@@ -52,6 +52,7 @@ class Family:
         "inverse_squared",
         "inverse",
         "log",
+        "logexpm1",
         "logit",
         "probit",
         "softmax",

@@ -273,17 +273,17 @@ def test_automatic_priors(family):
 
 def test_links(data_random_n100):
     FAMILIES = {
-        "asymmetriclaplace": ["identity", "log", "inverse"],
+        "asymmetriclaplace": ["identity", "log", "logexpm1", "inverse"],
         "bernoulli": ["identity", "logit", "probit", "cloglog"],
         "beta": ["logit", "probit", "cloglog"],
-        "exgaussian": ["identity", "log", "inverse"],
-        "gamma": ["identity", "inverse", "log"],
-        "gaussian": ["identity", "log", "inverse"],
-        "lognormal": ["identity", "log", "inverse"],
-        "negativebinomial": ["identity", "log", "cloglog"],
-        "poisson": ["identity", "log"],
+        "exgaussian": ["identity", "log", "logexpm1", "inverse"],
+        "gamma": ["identity", "inverse", "log", "logexpm1"],
+        "gaussian": ["identity", "log", "logexpm1", "inverse"],
+        "lognormal": ["identity", "log", "logexpm1", "inverse"],
+        "negativebinomial": ["identity", "log", "logexpm1", "cloglog"],
+        "poisson": ["identity", "log", "logexpm1"],
         "vonmises": ["identity"],
-        "wald": ["inverse", "inverse_squared", "identity", "log"],
+        "wald": ["inverse", "inverse_squared", "identity", "log", "logexpm1"],
     }
     for family, links in FAMILIES.items():
         for link in links:
@@ -297,8 +297,8 @@ def test_links(data_random_n100):
 def test_bad_links(data_random_n100):
     """Passes names of links that are not suitable for the family."""
     FAMILIES = {
-        "bernoulli": ["inverse", "inverse_squared", "log"],
-        "beta": ["inverse", "inverse_squared", "log"],
+        "bernoulli": ["inverse", "inverse_squared", "log", "logexpm1"],
+        "beta": ["inverse", "inverse_squared", "log", "logexpm1"],
         "exgaussian": ["logit", "probit", "cloglog"],
         "gamma": ["logit", "probit", "cloglog"],
         "gaussian": ["logit", "probit", "cloglog"],
