@@ -46,9 +46,9 @@ class BinomialBaseFamily(UnivariateFamily):
 
 class AsymmetricLaplace(UnivariateFamily):
     SUPPORTED_LINKS = {
-        "mu": ["identity", "log", "inverse"],
-        "b": ["log"],
-        "kappa": ["log"],
+        "mu": ["identity", "log", "logexpm1", "inverse"],
+        "b": ["log", "logexpm1"],
+        "kappa": ["log", "logexpm1"],
         "q": ["logit", "probit", "cloglog"],
     }
 
@@ -74,7 +74,7 @@ class Beta(UnivariateFamily):
     It uses the mean (mu) and sample size (kappa) parametrization of the Beta distribution.
     """
 
-    SUPPORTED_LINKS = {"mu": ["logit", "probit", "cloglog"], "kappa": ["log"]}
+    SUPPORTED_LINKS = {"mu": ["logit", "probit", "cloglog"], "kappa": ["log", "logexpm1"]}
 
     @staticmethod
     def transform_backend_kwargs(kwargs):
@@ -99,7 +99,7 @@ class BetaBinomial(BinomialBaseFamily):
     It uses the mean (mu) and sample size (kappa) parametrization of the Beta distribution.
     """
 
-    SUPPORTED_LINKS = {"mu": ["logit", "probit", "cloglog"], "kappa": ["log"]}
+    SUPPORTED_LINKS = {"mu": ["logit", "probit", "cloglog"], "kappa": ["log", "logexpm1"]}
 
     @staticmethod
     def transform_backend_kwargs(kwargs):
@@ -256,7 +256,7 @@ class Cumulative(UnivariateFamily):
 
 
 class Exponential(UnivariateFamily):
-    SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"]}
+    SUPPORTED_LINKS = {"mu": ["identity", "log", "logexpm1", "inverse"]}
 
     @staticmethod
     def transform_backend_kwargs(kwargs):
@@ -272,11 +272,18 @@ class Exponential(UnivariateFamily):
 
 
 class ExGaussian(UnivariateFamily):
-    SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "sigma": ["log"], "nu": ["log"]}
+    SUPPORTED_LINKS = {
+        "mu": ["identity", "log", "logexpm1", "inverse"],
+        "sigma": ["log", "logexpm1"],
+        "nu": ["log", "logexpm1"],
+    }
 
 
 class Gamma(UnivariateFamily):
-    SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "alpha": ["log"]}
+    SUPPORTED_LINKS = {
+        "mu": ["identity", "log", "logexpm1", "inverse"],
+        "alpha": ["log", "logexpm1"],
+    }
 
     @staticmethod
     def transform_backend_kwargs(kwargs):
@@ -294,13 +301,16 @@ class Gamma(UnivariateFamily):
 
 
 class Gaussian(UnivariateFamily):
-    SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "sigma": ["log"]}
+    SUPPORTED_LINKS = {
+        "mu": ["identity", "log", "logexpm1", "inverse"],
+        "sigma": ["log", "logexpm1"],
+    }
 
 
 class HurdleGamma(UnivariateFamily):
     SUPPORTED_LINKS = {
-        "mu": ["identity", "log", "inverse"],
-        "alpha": ["log"],
+        "mu": ["identity", "log", "logexpm1", "inverse"],
+        "alpha": ["log", "logexpm1"],
         "psi": ["logit", "probit", "cloglog"],
     }
 
@@ -319,38 +329,44 @@ class HurdleGamma(UnivariateFamily):
 
 class HurdleLogNormal(UnivariateFamily):
     SUPPORTED_LINKS = {
-        "mu": ["identity", "log", "inverse"],
-        "sigma": ["log"],
+        "mu": ["identity", "log", "logexpm1", "inverse"],
+        "sigma": ["log", "logexpm1"],
         "psi": ["logit", "probit", "cloglog"],
     }
 
 
 class HurdleNegativeBinomial(UnivariateFamily):
     SUPPORTED_LINKS = {
-        "mu": ["identity", "log", "cloglog"],
-        "alpha": ["log"],
+        "mu": ["identity", "log", "logexpm1", "cloglog"],
+        "alpha": ["log", "logexpm1"],
         "psi": ["logit", "probit", "cloglog"],
     }
 
 
 class HurdlePoisson(UnivariateFamily):
-    SUPPORTED_LINKS = {"mu": ["identity", "log"], "psi": ["logit", "probit", "cloglog"]}
+    SUPPORTED_LINKS = {"mu": ["identity", "log", "logexpm1"], "psi": ["logit", "probit", "cloglog"]}
 
 
 class LogNormal(UnivariateFamily):
-    SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "sigma": ["log"]}
+    SUPPORTED_LINKS = {
+        "mu": ["identity", "log", "logexpm1", "inverse"],
+        "sigma": ["log", "logexpm1"],
+    }
 
 
 class NegativeBinomial(UnivariateFamily):
-    SUPPORTED_LINKS = {"mu": ["identity", "log", "cloglog"], "alpha": ["log"]}
+    SUPPORTED_LINKS = {
+        "mu": ["identity", "log", "logexpm1", "cloglog"],
+        "alpha": ["log", "logexpm1"],
+    }
 
 
 class Laplace(UnivariateFamily):
-    SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "b": ["log"]}
+    SUPPORTED_LINKS = {"mu": ["identity", "log", "logexpm1", "inverse"], "b": ["log", "logexpm1"]}
 
 
 class Poisson(UnivariateFamily):
-    SUPPORTED_LINKS = {"mu": ["identity", "log"]}
+    SUPPORTED_LINKS = {"mu": ["identity", "log", "logexpm1"]}
 
 
 class StoppingRatio(UnivariateFamily):
@@ -450,19 +466,29 @@ class StoppingRatio(UnivariateFamily):
 
 
 class StudentT(UnivariateFamily):
-    SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "sigma": ["log"], "nu": ["log"]}
+    SUPPORTED_LINKS = {
+        "mu": ["identity", "log", "logexpm1", "inverse"],
+        "sigma": ["log", "logexpm1"],
+        "nu": ["log", "logexpm1"],
+    }
 
 
 class VonMises(UnivariateFamily):
-    SUPPORTED_LINKS = {"mu": ["identity"], "kappa": ["log"]}
+    SUPPORTED_LINKS = {"mu": ["identity"], "kappa": ["log", "logexpm1"]}
 
 
 class Wald(UnivariateFamily):
-    SUPPORTED_LINKS = {"mu": ["inverse", "inverse_squared", "identity", "log"], "lam": ["log"]}
+    SUPPORTED_LINKS = {
+        "mu": ["inverse", "inverse_squared", "identity", "log", "logexpm1"],
+        "lam": ["log", "logexpm1"],
+    }
 
 
 class Weibull(UnivariateFamily):
-    SUPPORTED_LINKS = {"mu": ["log", "identity", "inverse"], "alpha": ["log"]}
+    SUPPORTED_LINKS = {
+        "mu": ["log", "logexpm1", "identity", "inverse"],
+        "alpha": ["log", "logexpm1"],
+    }
 
     @staticmethod
     def transform_backend_kwargs(kwargs):
@@ -491,14 +517,14 @@ class ZeroInflatedBinomial(BinomialBaseFamily):
 
 class ZeroInflatedNegativeBinomial(UnivariateFamily):
     SUPPORTED_LINKS = {
-        "mu": ["identity", "log", "cloglog"],
-        "alpha": ["log"],
+        "mu": ["identity", "log", "logexpm1", "cloglog"],
+        "alpha": ["log", "logexpm1"],
         "psi": ["logit", "probit", "cloglog"],
     }
 
 
 class ZeroInflatedPoisson(UnivariateFamily):
-    SUPPORTED_LINKS = {"mu": ["identity", "log"], "psi": ["logit", "probit", "cloglog"]}
+    SUPPORTED_LINKS = {"mu": ["identity", "log", "logexpm1"], "psi": ["logit", "probit", "cloglog"]}
 
 
 # pylint: disable = protected-access
