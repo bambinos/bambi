@@ -150,6 +150,23 @@ class FitPredictParent:
 
 @pytest.mark.usefixtures("mock_pymc_sample")
 class TestGaussian(FitPredictParent):
+    @pytest.mark.parametrize("eta", [-20.0, 0.0, 20.0, 1000.0])
+    def test_logexpm1_scale_link(self, data_n100, eta):
+        model = bmb.Model(
+            bmb.Formula("y1 ~ 0", "sigma ~ 1"),
+            data_n100,
+            link={"mu": "identity", "sigma": "logexpm1"},
+        )
+        model.build()
+        backend = model.backend.model
+        point = backend.initial_point()
+        point["sigma_Intercept"] = np.asarray(eta)
+
+        sigma = backend.compile_fn(backend["sigma"], inputs=backend.free_RVs)(point)
+        np.testing.assert_allclose(sigma, np.logaddexp(0, eta))
+        assert np.isfinite(backend.compile_logp()(point))
+        assert np.isfinite(backend.compile_dlogp()(point)).all()
+
     def test_intercept_only_model(self, data_crossed):
         model = bmb.Model("Y ~ 1", data_crossed)
         idata = self.fit(model)
