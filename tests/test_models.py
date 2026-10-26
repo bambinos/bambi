@@ -1885,6 +1885,59 @@ def test_predict_constant_parameter(out_of_sample, mock_pymc_sample):
     assert "sigma" not in result.posterior
 
 
+@pytest.mark.parametrize("kind", ["response_params", "response"])
+@pytest.mark.parametrize("out_of_sample", [False, True])
+def test_predict_draws(kind, out_of_sample, mock_pymc_sample):
+    data = pd.DataFrame({"y": [0.2, -0.5, 1.1, 0.7], "x": [-1.0, 0.0, 1.0, 2.0]})
+    model = bmb.Model("y ~ x", data)
+    idata = model.fit(chains=2, draws=20)
+    new_data = pd.DataFrame({"x": [0.5, 1.5, 1.75]}) if out_of_sample else None
+
+    result = model.predict(
+        idata, kind=kind, data=new_data, inplace=False, random_seed=1234, draws=5
+    )
+
+    # Evenly spaced draws are kept in each chain, in every group with a 'draw' dimension
+    expected_draws = [0, 5, 10, 14, 19]
+    for group in result.children:
+        if "draw" in result[group].dims:
+            np.testing.assert_array_equal(result[group]["draw"], expected_draws)
+
+    np.testing.assert_array_equal(
+        result.posterior["Intercept"], idata.posterior["Intercept"].isel(draw=expected_draws)
+    )
+    if out_of_sample:
+        assert result.predictions["mu"].shape == (2, 5, 3)
+        if kind == "response":
+            assert result.predictions["y"].shape == (2, 5, 3)
+    else:
+        assert result.posterior["mu"].shape == (2, 5, 4)
+        if kind == "response":
+            assert result.posterior_predictive["y"].shape == (2, 5, 4)
+
+    # The original object is not modified
+    assert idata.posterior.sizes["draw"] == 20
+
+
+@pytest.mark.parametrize(
+    "kwargs, match",
+    [
+        ({"draws": 5}, "'draws' can only be used with 'inplace=False'"),
+        ({"draws": 0, "inplace": False}, "'draws' must be a positive integer"),
+        ({"draws": 2.5, "inplace": False}, "'draws' must be a positive integer"),
+        ({"draws": True, "inplace": False}, "'draws' must be a positive integer"),
+        ({"draws": 21, "inplace": False}, "cannot be larger than the number of posterior draws"),
+    ],
+)
+def test_predict_draws_errors(kwargs, match, mock_pymc_sample):
+    data = pd.DataFrame({"y": [0.2, -0.5, 1.1, 0.7], "x": [-1.0, 0.0, 1.0, 2.0]})
+    model = bmb.Model("y ~ x", data)
+    idata = model.fit(chains=2, draws=20)
+
+    with pytest.raises(ValueError, match=match):
+        model.predict(idata, kind="response", **kwargs)
+
+
 def test_predict_include_group_specific(data_random_n100):
     model = bmb.Model("binary_num ~ 1 + (1|continuous1)", data_random_n100, family="bernoulli")
     model.build()

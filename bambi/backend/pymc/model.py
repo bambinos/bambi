@@ -303,9 +303,15 @@ class PyMCModel:
         kind="response",
         inplace=True,
         progressbar=False,
+        draws=None,
     ):
         if not inplace:
             idata = deepcopy(idata)
+
+        if draws is not None:
+            # Thin every group with a 'draw' dimension, keeping evenly spaced draws per chain
+            draw_idxs = np.linspace(0, idata["posterior"].sizes["draw"] - 1, num=draws)
+            idata = idata.isel(draw=np.round(draw_idxs).astype(int), missing_dims="ignore")
 
         output_groups = ()
         if data is not None:

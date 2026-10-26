@@ -1202,6 +1202,7 @@ class Model:
         sample_new_groups=None,
         random_seed=None,
         progressbar=False,
+        draws=None,
     ):
         """Predict method for Bambi models
 
@@ -1257,11 +1258,29 @@ class Model:
             Seed for the random number generator.
         progressbar : bool, optional
             Whether to display a progress bar. Defaults to `False`.
+        draws : int or None, optional
+            The number of posterior draws per chain used to obtain predictions. If `None`, all
+            the posterior draws are used. Otherwise, `draws` evenly spaced draws are selected
+            from each chain and the returned `DataTree` only contains those draws (thinning).
+            This is useful to obtain fewer draws from the posterior predictive distribution.
+            Requires `inplace=False`. Defaults to `None`.
 
         Returns
         -------
         DataTree or None
         """
+        if draws is not None:
+            if inplace:
+                raise ValueError("'draws' can only be used with 'inplace=False'.")
+            if isinstance(draws, bool) or not isinstance(draws, (int, np.integer)) or draws < 1:
+                raise ValueError(f"'draws' must be a positive integer, got {draws!r}.")
+            available_draws = idata["posterior"].sizes["draw"]
+            if draws > available_draws:
+                raise ValueError(
+                    f"'draws' ({draws}) cannot be larger than the number of posterior draws "
+                    f"per chain ({available_draws})."
+                )
+
         if sample_new_groups is not None:
             warnings.warn(
                 "'sample_new_groups' is deprecated and has no effect. Bambi now automatically "
@@ -1302,6 +1321,7 @@ class Model:
             kind=kind,
             inplace=inplace,
             progressbar=progressbar,
+            draws=draws,
         )
 
     def compute_log_likelihood(self, idata, data=None, inplace=True, progressbar=False):
