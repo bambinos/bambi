@@ -14,9 +14,9 @@ class AdjacentCategory(Family):
 
 class AsymmetricLaplace(Family):
     PARAMETERS = {
-        "mu": ParamSpec(links=["identity", "log", "inverse"]),
-        "b": ParamSpec(links=["log"]),
-        "kappa": ParamSpec(links=["log"]),
+        "mu": ParamSpec(links=["identity", "log", "logexpm1", "inverse"]),
+        "b": ParamSpec(links=["log", "logexpm1"]),
+        "kappa": ParamSpec(links=["log", "logexpm1"]),
         "q": ParamSpec(links=["logit", "probit", "cloglog"]),
     }
 
@@ -36,7 +36,7 @@ class Beta(Family):
 
     PARAMETERS = {
         "mu": ParamSpec(links=["logit", "probit", "cloglog"]),
-        "kappa": ParamSpec(links=["log"]),
+        "kappa": ParamSpec(links=["log", "logexpm1"]),
     }
 
 
@@ -48,7 +48,7 @@ class BetaBinomial(Family):
 
     PARAMETERS = {
         "mu": ParamSpec(links=["logit", "probit", "cloglog"]),
-        "kappa": ParamSpec(links=["log"]),
+        "kappa": ParamSpec(links=["log", "logexpm1"]),
     }
 
 
@@ -84,88 +84,88 @@ class Cumulative(Family):
 
 class ExGaussian(Family):
     PARAMETERS = {
-        "mu": ParamSpec(links=["identity", "log", "inverse"]),
-        "sigma": ParamSpec(links=["log"]),
-        "nu": ParamSpec(links=["log"]),
+        "mu": ParamSpec(links=["identity", "log", "logexpm1", "inverse"]),
+        "sigma": ParamSpec(links=["log", "logexpm1"]),
+        "nu": ParamSpec(links=["log", "logexpm1"]),
     }
 
 
 class Exponential(Family):
     PARAMETERS = {
-        "mu": ParamSpec(links=["identity", "log", "inverse"]),
+        "mu": ParamSpec(links=["identity", "log", "logexpm1", "inverse"]),
     }
 
 
 class Gamma(Family):
     PARAMETERS = {
-        "mu": ParamSpec(links=["identity", "log", "inverse"]),
-        "alpha": ParamSpec(links=["log"]),
+        "mu": ParamSpec(links=["identity", "log", "logexpm1", "inverse"]),
+        "alpha": ParamSpec(links=["log", "logexpm1"]),
     }
 
 
 class Gaussian(Family):
     PARAMETERS = {
-        "mu": ParamSpec(links=["identity", "log", "inverse"]),
-        "sigma": ParamSpec(links=["log"]),
+        "mu": ParamSpec(links=["identity", "log", "logexpm1", "inverse"]),
+        "sigma": ParamSpec(links=["log", "logexpm1"]),
     }
 
 
 class HurdleGamma(Family):
     PARAMETERS = {
-        "mu": ParamSpec(links=["identity", "log", "inverse"]),
-        "alpha": ParamSpec(links=["log"]),
+        "mu": ParamSpec(links=["identity", "log", "logexpm1", "inverse"]),
+        "alpha": ParamSpec(links=["log", "logexpm1"]),
         "psi": ParamSpec(links=["logit", "probit", "cloglog"]),
     }
 
 
 class HurdleLogNormal(Family):
     PARAMETERS = {
-        "mu": ParamSpec(links=["identity", "log", "inverse"]),
-        "sigma": ParamSpec(links=["log"]),
+        "mu": ParamSpec(links=["identity", "log", "logexpm1", "inverse"]),
+        "sigma": ParamSpec(links=["log", "logexpm1"]),
         "psi": ParamSpec(links=["logit", "probit", "cloglog"]),
     }
 
 
 class HurdleNegativeBinomial(Family):
     PARAMETERS = {
-        "mu": ParamSpec(links=["identity", "log", "cloglog"]),
-        "alpha": ParamSpec(links=["log"]),
+        "mu": ParamSpec(links=["identity", "log", "logexpm1", "cloglog"]),
+        "alpha": ParamSpec(links=["log", "logexpm1"]),
         "psi": ParamSpec(links=["logit", "probit", "cloglog"]),
     }
 
 
 class HurdlePoisson(Family):
     PARAMETERS = {
-        "mu": ParamSpec(links=["identity", "log"]),
+        "mu": ParamSpec(links=["identity", "log", "logexpm1"]),
         "psi": ParamSpec(links=["logit", "probit", "cloglog"]),
     }
 
 
 class NegativeBinomial(Family):
     PARAMETERS = {
-        "mu": ParamSpec(links=["identity", "log", "cloglog"]),
-        "alpha": ParamSpec(links=["log"]),
+        "mu": ParamSpec(links=["identity", "log", "logexpm1", "cloglog"]),
+        "alpha": ParamSpec(links=["log", "logexpm1"]),
     }
 
 
 class Laplace(Family):
     PARAMETERS = {
-        "mu": ParamSpec(links=["identity", "log", "inverse"]),
-        "b": ParamSpec(links=["log"]),
+        "mu": ParamSpec(links=["identity", "log", "logexpm1", "inverse"]),
+        "b": ParamSpec(links=["log", "logexpm1"]),
     }
 
 
 class LogNormal(Family):
     PARAMETERS = {
-        "mu": ParamSpec(links=["identity", "log", "inverse"]),
-        "sigma": ParamSpec(links=["log"]),
+        "mu": ParamSpec(links=["identity", "log", "logexpm1", "inverse"]),
+        "sigma": ParamSpec(links=["log", "logexpm1"]),
     }
 
 
 class LogLogistic(Family):
     PARAMETERS = {
-        "mu": ParamSpec(links=["identity", "log", "inverse"]),
-        "alpha": ParamSpec(links=["log"]),
+        "mu": ParamSpec(links=["identity", "log", "logexpm1", "inverse"]),
+        "alpha": ParamSpec(links=["log", "logexpm1"]),
     }
 
 
@@ -178,7 +178,7 @@ class OrderedBeta(Family):
 
     PARAMETERS = {
         "mu": ParamSpec(links=["logit"]),
-        "kappa": ParamSpec(links=["log"]),
+        "kappa": ParamSpec(links=["log", "logexpm1"]),
         "cut0": ParamSpec(links=["identity"]),
         "logdelta": ParamSpec(links=["identity"]),
     }
@@ -195,7 +195,7 @@ class OrderedStereotype(Family):
 
 class Poisson(Family):
     PARAMETERS = {
-        "mu": ParamSpec(links=["identity", "log"]),
+        "mu": ParamSpec(links=["identity", "log", "logexpm1"]),
     }
 
 
@@ -210,30 +210,30 @@ class StoppingRatio(Family):
 
 class StudentT(Family):
     PARAMETERS = {
-        "mu": ParamSpec(links=["identity", "log", "inverse"]),
-        "sigma": ParamSpec(links=["log"]),
-        "nu": ParamSpec(links=["log"]),
+        "mu": ParamSpec(links=["identity", "log", "logexpm1", "inverse"]),
+        "sigma": ParamSpec(links=["log", "logexpm1"]),
+        "nu": ParamSpec(links=["log", "logexpm1"]),
     }
 
 
 class VonMises(Family):
     PARAMETERS = {
         "mu": ParamSpec(links=["identity"]),
-        "kappa": ParamSpec(links=["log"]),
+        "kappa": ParamSpec(links=["log", "logexpm1"]),
     }
 
 
 class Wald(Family):
     PARAMETERS = {
-        "mu": ParamSpec(links=["inverse", "inverse_squared", "identity", "log"]),
-        "lam": ParamSpec(links=["log"]),
+        "mu": ParamSpec(links=["inverse", "inverse_squared", "identity", "log", "logexpm1"]),
+        "lam": ParamSpec(links=["log", "logexpm1"]),
     }
 
 
 class Weibull(Family):
     PARAMETERS = {
-        "mu": ParamSpec(links=["log", "identity", "inverse"]),
-        "alpha": ParamSpec(links=["log"]),
+        "mu": ParamSpec(links=["log", "logexpm1", "identity", "inverse"]),
+        "alpha": ParamSpec(links=["log", "logexpm1"]),
     }
 
 
@@ -247,8 +247,8 @@ class WeibullPH(Family):
     """
 
     PARAMETERS = {
-        "lam": ParamSpec(links=["log", "identity", "inverse"]),
-        "alpha": ParamSpec(links=["log"]),
+        "lam": ParamSpec(links=["log", "logexpm1", "identity", "inverse"]),
+        "alpha": ParamSpec(links=["log", "logexpm1"]),
     }
 
 
@@ -296,8 +296,8 @@ class CureWeibull(Family):
     """
 
     PARAMETERS = {
-        "mu": ParamSpec(links=["log", "identity", "inverse"]),
-        "alpha": ParamSpec(links=["log"]),
+        "mu": ParamSpec(links=["log", "logexpm1", "identity", "inverse"]),
+        "alpha": ParamSpec(links=["log", "logexpm1"]),
         "cure": ParamSpec(links=["logit", "probit", "cloglog"]),
     }
 
@@ -311,15 +311,15 @@ class ZeroInflatedBinomial(Family):
 
 class ZeroInflatedNegativeBinomial(Family):
     PARAMETERS = {
-        "mu": ParamSpec(links=["identity", "log", "cloglog"]),
-        "alpha": ParamSpec(links=["log"]),
+        "mu": ParamSpec(links=["identity", "log", "logexpm1", "cloglog"]),
+        "alpha": ParamSpec(links=["log", "logexpm1"]),
         "psi": ParamSpec(links=["logit", "probit", "cloglog"]),
     }
 
 
 class ZeroInflatedPoisson(Family):
     PARAMETERS = {
-        "mu": ParamSpec(links=["identity", "log"]),
+        "mu": ParamSpec(links=["identity", "log", "logexpm1"]),
         "psi": ParamSpec(links=["logit", "probit", "cloglog"]),
     }
 
@@ -333,7 +333,7 @@ class ZeroOneInflatedBeta(Family):
 
     PARAMETERS = {
         "mu": ParamSpec(links=["logit", "probit", "cloglog"]),
-        "kappa": ParamSpec(links=["log"]),
+        "kappa": ParamSpec(links=["log", "logexpm1"]),
         "zoi": ParamSpec(links=["logit", "probit", "cloglog"]),
         "coi": ParamSpec(links=["logit", "probit", "cloglog"]),
     }
@@ -355,7 +355,7 @@ class Multinomial(Family):
 class DirichletMultinomial(Family):
     RESPONSE_NDIM = 1
     PARAMETERS = {
-        "a": ParamSpec(links=["log"], ndim=1, coefs_dim=DimType.RESPONSE),
+        "a": ParamSpec(links=["log", "logexpm1"], ndim=1, coefs_dim=DimType.RESPONSE),
     }
 
     def get_levels(self, response):
