@@ -1259,11 +1259,14 @@ class Model:
         progressbar : bool, optional
             Whether to display a progress bar. Defaults to `False`.
         draws : int or None, optional
-            The number of posterior draws per chain used to obtain predictions. If `None`, all
-            the posterior draws are used. Otherwise, `draws` evenly spaced draws are selected
-            from each chain and the returned `DataTree` only contains those draws (thinning).
-            This is useful to obtain fewer draws from the posterior predictive distribution.
-            Requires `inplace=False`. Defaults to `None`.
+            The maximum number of posterior draws per chain used to obtain predictions. If
+            `None`, all the posterior draws are used. Otherwise, the draws are thinned with
+            `arviz_stats.thin`, keeping every n-th draw, where n is the smallest integer that
+            leaves at most `draws` draws per chain. The returned `DataTree` only contains those
+            draws. Because thinning keeps evenly spaced draws, fewer than `draws` draws may be
+            kept (e.g., 20 draws thinned with `draws=12` leaves 10). This is useful to obtain
+            fewer draws from the posterior predictive distribution. Requires `inplace=False`.
+            Defaults to `None`.
 
         Returns
         -------

@@ -1887,33 +1887,49 @@ def test_predict_constant_parameter(out_of_sample, mock_pymc_sample):
 
 @pytest.mark.parametrize("kind", ["response_params", "response"])
 @pytest.mark.parametrize("out_of_sample", [False, True])
-def test_predict_draws(kind, out_of_sample, mock_pymc_sample):
+@pytest.mark.parametrize(
+    "draws, expected_draws",
+    [
+        (5, [0, 4, 8, 12, 16]),
+        (np.int64(5), [0, 4, 8, 12, 16]),
+        # Thinning keeps every n-th draw, so it can leave fewer than the requested draws
+        (12, [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]),
+        (20, list(range(20))),
+    ],
+)
+def test_predict_draws(kind, out_of_sample, draws, expected_draws, mock_pymc_sample):
     data = pd.DataFrame({"y": [0.2, -0.5, 1.1, 0.7], "x": [-1.0, 0.0, 1.0, 2.0]})
     model = bmb.Model("y ~ x", data)
     idata = model.fit(chains=2, draws=20)
     new_data = pd.DataFrame({"x": [0.5, 1.5, 1.75]}) if out_of_sample else None
 
     result = model.predict(
-        idata, kind=kind, data=new_data, inplace=False, random_seed=1234, draws=5
+        idata, kind=kind, data=new_data, inplace=False, random_seed=1234, draws=draws
     )
 
-    # Evenly spaced draws are kept in each chain, in every group with a 'draw' dimension
-    expected_draws = [0, 5, 10, 14, 19]
+    # The same draws are kept in each chain, in every group with a 'draw' dimension
+    n_draws = len(expected_draws)
+    thinned_groups = 0
     for group in result.children:
         if "draw" in result[group].dims:
+            thinned_groups += 1
             np.testing.assert_array_equal(result[group]["draw"], expected_draws)
+        elif group in idata.children:
+            # Groups without a 'draw' dimension are not modified
+            xr.testing.assert_identical(result[group].dataset, idata[group].dataset)
+    assert thinned_groups > 0
 
     np.testing.assert_array_equal(
         result.posterior["Intercept"], idata.posterior["Intercept"].isel(draw=expected_draws)
     )
     if out_of_sample:
-        assert result.predictions["mu"].shape == (2, 5, 3)
+        assert result.predictions["mu"].shape == (2, n_draws, 3)
         if kind == "response":
-            assert result.predictions["y"].shape == (2, 5, 3)
+            assert result.predictions["y"].shape == (2, n_draws, 3)
     else:
-        assert result.posterior["mu"].shape == (2, 5, 4)
+        assert result.posterior["mu"].shape == (2, n_draws, 4)
         if kind == "response":
-            assert result.posterior_predictive["y"].shape == (2, 5, 4)
+            assert result.posterior_predictive["y"].shape == (2, n_draws, 4)
 
     # The original object is not modified
     assert idata.posterior.sizes["draw"] == 20
