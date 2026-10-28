@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import pymc as pm
 import xarray as xr
+from arviz_stats import thin
 from pymc.backends.arviz import apply_function_over_dataset, coords_and_dims_for_inferencedata
 from pymc.exceptions import ShapeWarning
 from pymc.model.fgraph import fgraph_from_model, model_from_fgraph
@@ -303,9 +304,19 @@ class PyMCModel:
         kind="response",
         inplace=True,
         progressbar=False,
+        draws=None,
     ):
         if not inplace:
             idata = deepcopy(idata)
+
+        if draws is not None:
+            # ArviZ thins by keeping every 'factor'-th draw, so use the smallest factor that
+            # leaves at most 'draws' draws per chain. The factor must be a Python int.
+            factor = -(-idata["posterior"].sizes["draw"] // int(draws))
+            # All the groups with a 'draw' dimension are thinned, so they remain consistent.
+            for group in list(idata.children):
+                if "draw" in idata[group].dims:
+                    idata[group] = thin(idata[group].dataset, factor=factor)
 
         output_groups = ()
         if data is not None:
