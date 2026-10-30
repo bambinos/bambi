@@ -35,7 +35,7 @@ class Multinomial(MultivariateFamily):
         mean = mean.assign_coords({response_levels_dim_complete: levels_complete})
         return mean
 
-    def posterior_predictive(self, model, posterior, random_seed, **kwargs):
+    def posterior_predictive(self, model, posterior, random_seed=None, **kwargs):
         data = kwargs["data"]
         if data is None:
             y = model.response_term.data
@@ -101,7 +101,7 @@ class Multinomial(MultivariateFamily):
 class DirichletMultinomial(MultivariateFamily):
     SUPPORTED_LINKS = {"a": ["log"]}
 
-    def posterior_predictive(self, model, posterior, random_seed, **kwargs):
+    def posterior_predictive(self, model, posterior, random_seed=None, **kwargs):
         data = kwargs["data"]
         if data is None:
             y = model.response_term.data

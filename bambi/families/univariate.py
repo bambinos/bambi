@@ -12,7 +12,7 @@ class UnivariateFamily(Family):
 
 
 class BinomialBaseFamily(UnivariateFamily):
-    def posterior_predictive(self, model, posterior, random_seed, **kwargs):
+    def posterior_predictive(self, model, posterior, random_seed=None, **kwargs):
         data = kwargs["data"]
         if data is None:
             trials = model.response_term.data[:, 1]
