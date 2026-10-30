@@ -122,7 +122,7 @@ class Family:
         priors = {k: v for k, v in priors.items() if k in self.auxiliary_parameters}
         self.default_priors.update(priors)
 
-    def posterior_predictive(self, model, posterior, random_seed, **kwargs):
+    def posterior_predictive(self, model, posterior, random_seed=None, **kwargs):
         """Get draws from the posterior predictive distribution
 
         This function works for almost all the families. It grabs the draws for the parameters
