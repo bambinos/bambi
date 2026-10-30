@@ -94,7 +94,7 @@ This method uses `pm.logp()`.
 ### posterior_predictive { #bambi.Family.posterior_predictive }
 
 ```python
-Family.posterior_predictive(model, posterior, random_seed, **kwargs)
+Family.posterior_predictive(model, posterior, random_seed=None, **kwargs)
 ```
 
 Get draws from the posterior predictive distribution
@@ -114,7 +114,7 @@ parameters that are not available in `posterior`.
 
 :   The xarray dataset that contains the draws for all the parameters in the posterior. It must contain the parameters that are needed in the distribution of the response, or the parameters that allow to derive them.
 
-<code>[**random_seed**]{.parameter-name} [:]{.parameter-annotation-sep} [([int](`int`), [RandomState](`RandomState`) or [Generator](`Generator`))]{.parameter-annotation}</code>
+<code>[**random_seed**]{.parameter-name} [:]{.parameter-annotation-sep} [([int](`int`), [RandomState](`RandomState`) or [Generator](`Generator`))]{.parameter-annotation} [ = ]{.parameter-default-sep} [None]{.parameter-default}</code>
 
 :   Seed for the random number generator.
 
