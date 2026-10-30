@@ -161,7 +161,8 @@ class Family:
             lower = lower if lower != -np.inf else None
             upper = upper if upper != np.inf else None
             output_array = pm.draw(
-                pm.Truncated.dist(response_dist.dist(**kwargs), lower=lower, upper=upper)
+                pm.Truncated.dist(response_dist.dist(**kwargs), lower=lower, upper=upper),
+                random_seed=random_seed,
             )
         else:
             output_array = pm.draw(response_dist.dist(**kwargs), random_seed=random_seed)
