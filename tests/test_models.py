@@ -1203,6 +1203,23 @@ class TestConstrainedResponse(FitPredictParent):
         assert idata.posterior_predictive["constrained(y, -5, 5)"].to_numpy().min() > -5
         assert idata.posterior_predictive["constrained(y, -5, 5)"].to_numpy().max() < 5
 
+    def test_constrained_response_respects_random_seed(self, truncated_data):
+        priors = {
+            "Intercept": bmb.Prior("Normal", mu=0, sigma=1),
+            "x": bmb.Prior("Normal", mu=0, sigma=1),
+            "sigma": bmb.Prior("HalfNormal", sigma=1),
+        }
+        model = bmb.Model("constrained(y, -5, 5) ~ x", truncated_data, priors=priors)
+        idata = self.fit(model, random_seed=121195)
+        data = model.data.head()
+        first = model.predict(idata, kind="response", data=data, inplace=False, random_seed=1234)
+        second = model.predict(idata, kind="response", data=data, inplace=False, random_seed=1234)
+        name = "constrained(y, -5, 5)"
+        np.testing.assert_array_equal(
+            first.posterior_predictive[name].to_numpy(),
+            second.posterior_predictive[name].to_numpy(),
+        )
+
 
 @pytest.mark.usefixtures("mock_pymc_sample")
 class TestMultinomial(FitPredictParent):
