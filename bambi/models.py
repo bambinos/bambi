@@ -1203,6 +1203,7 @@ class Model:
         random_seed=None,
         progressbar=False,
         draws=None,
+        thin=None,
     ):
         """Predict method for Bambi models
 
@@ -1259,21 +1260,29 @@ class Model:
         progressbar : bool, optional
             Whether to display a progress bar. Defaults to `False`.
         draws : int or None, optional
-            The maximum number of posterior draws per chain used to obtain predictions. If
-            `None`, all the posterior draws are used. The draws are evenly spaced, so fewer
-            than `draws` may be used (e.g., `draws=12` with 20 posterior draws uses 10). The
-            returned `DataTree` only contains the draws that were used. Requires
-            `inplace=False`. Defaults to `None`.
+            The number of posterior draws per chain used to obtain predictions. The draws are
+            evenly spaced, and the returned `DataTree` only contains the draws that were used.
+            Cannot be used together with `thin`. Requires `inplace=False`. Defaults to `None`,
+            which uses all the posterior draws.
+        thin : int or None, optional
+            Keep only every `thin`-th posterior draw (see `arviz_stats.thin`). The returned
+            `DataTree` only contains the draws that were used. Cannot be used together with
+            `draws`. Requires `inplace=False`. Defaults to `None`.
 
         Returns
         -------
         DataTree or None
         """
-        if draws is not None:
+        if draws is not None and thin is not None:
+            raise ValueError("'draws' and 'thin' cannot be used together.")
+        for name, value in (("draws", draws), ("thin", thin)):
+            if value is None:
+                continue
             if inplace:
-                raise ValueError("'draws' can only be used with 'inplace=False'.")
-            if isinstance(draws, bool) or not isinstance(draws, (int, np.integer)) or draws < 1:
-                raise ValueError(f"'draws' must be a positive integer, got {draws!r}.")
+                raise ValueError(f"'{name}' can only be used with 'inplace=False'.")
+            if isinstance(value, bool) or not isinstance(value, (int, np.integer)) or value < 1:
+                raise ValueError(f"'{name}' must be a positive integer, got {value!r}.")
+        if draws is not None:
             available_draws = idata["posterior"].sizes["draw"]
             if draws > available_draws:
                 raise ValueError(
@@ -1322,6 +1331,7 @@ class Model:
             inplace=inplace,
             progressbar=progressbar,
             draws=draws,
+            thin_factor=thin,
         )
 
     def compute_log_likelihood(self, idata, data=None, inplace=True, progressbar=False):

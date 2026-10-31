@@ -305,18 +305,24 @@ class PyMCModel:
         inplace=True,
         progressbar=False,
         draws=None,
+        thin_factor=None,
     ):
         if not inplace:
             idata = deepcopy(idata)
 
-        if draws is not None:
-            # ArviZ thins by keeping every 'factor'-th draw, so use the smallest factor that
-            # leaves at most 'draws' draws per chain. The factor must be a Python int.
-            factor = -(-idata["posterior"].sizes["draw"] // int(draws))
-            # All the groups with a 'draw' dimension are thinned, so they remain consistent.
+        if draws is not None or thin_factor is not None:
+            n_available = idata["posterior"].sizes["draw"]
+            if draws is not None:
+                # Evenly spaced positions, so exactly 'draws' different draws are kept.
+                positions = (np.arange(int(draws)) * n_available) // int(draws)
+            # All the groups with a 'draw' dimension are reduced, so they remain consistent.
             for group in list(idata.children):
-                if "draw" in idata[group].dims:
-                    idata[group] = thin(idata[group].dataset, factor=factor)
+                if "draw" not in idata[group].dims:
+                    continue
+                if draws is not None:
+                    idata[group] = idata[group].dataset.isel(draw=positions)
+                else:
+                    idata[group] = thin(idata[group].dataset, factor=int(thin_factor))
 
         output_groups = ()
         if data is not None:

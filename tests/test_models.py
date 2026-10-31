@@ -1892,8 +1892,8 @@ def test_predict_constant_parameter(out_of_sample, mock_pymc_sample):
     [
         (5, [0, 4, 8, 12, 16]),
         (np.int64(5), [0, 4, 8, 12, 16]),
-        # Thinning keeps every n-th draw, so it can leave fewer than the requested draws
-        (12, [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]),
+        # The exact number of draws is returned, even when it does not divide the total
+        (12, [0, 1, 3, 5, 6, 8, 10, 11, 13, 15, 16, 18]),
         (20, list(range(20))),
     ],
 )
@@ -1936,9 +1936,30 @@ def test_predict_draws(kind, out_of_sample, draws, expected_draws, mock_pymc_sam
 
 
 @pytest.mark.parametrize(
+    "thin_factor, expected_draws", [(1, list(range(20))), (4, [0, 4, 8, 12, 16]), (7, [0, 7, 14])]
+)
+def test_predict_thin(thin_factor, expected_draws, mock_pymc_sample):
+    data = pd.DataFrame({"y": [0.2, -0.5, 1.1, 0.7], "x": [-1.0, 0.0, 1.0, 2.0]})
+    model = bmb.Model("y ~ x", data)
+    idata = model.fit(chains=2, draws=20)
+
+    result = model.predict(idata, kind="response", inplace=False, thin=thin_factor)
+
+    np.testing.assert_array_equal(result.posterior["draw"], expected_draws)
+    np.testing.assert_array_equal(
+        result.posterior["Intercept"], idata.posterior["Intercept"].isel(draw=expected_draws)
+    )
+    assert result.posterior_predictive["y"].shape == (2, len(expected_draws), 4)
+    assert idata.posterior.sizes["draw"] == 20
+
+
+@pytest.mark.parametrize(
     "kwargs, match",
     [
         ({"draws": 5}, "'draws' can only be used with 'inplace=False'"),
+        ({"thin": 2}, "'thin' can only be used with 'inplace=False'"),
+        ({"thin": 0, "inplace": False}, "'thin' must be a positive integer"),
+        ({"draws": 5, "thin": 2, "inplace": False}, "'draws' and 'thin' cannot be used"),
         ({"draws": 0, "inplace": False}, "'draws' must be a positive integer"),
         ({"draws": 2.5, "inplace": False}, "'draws' must be a positive integer"),
         ({"draws": True, "inplace": False}, "'draws' must be a positive integer"),
