@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import pymc as pm
 import xarray as xr
+from arviz_stats import thin
 from pymc.backends.arviz import apply_function_over_dataset, coords_and_dims_for_inferencedata
 from pymc.exceptions import ShapeWarning
 from pymc.model.fgraph import fgraph_from_model, model_from_fgraph
@@ -303,9 +304,25 @@ class PyMCModel:
         kind="response",
         inplace=True,
         progressbar=False,
+        draws=None,
+        thin_factor=None,
     ):
         if not inplace:
             idata = deepcopy(idata)
+
+        if draws is not None or thin_factor is not None:
+            n_available = idata["posterior"].sizes["draw"]
+            if draws is not None:
+                # Evenly spaced positions, so exactly 'draws' different draws are kept.
+                positions = (np.arange(int(draws)) * n_available) // int(draws)
+            # All the groups with a 'draw' dimension are reduced, so they remain consistent.
+            for group in list(idata.children):
+                if "draw" not in idata[group].dims:
+                    continue
+                if draws is not None:
+                    idata[group] = idata[group].dataset.isel(draw=positions)
+                else:
+                    idata[group] = thin(idata[group].dataset, factor=int(thin_factor))
 
         output_groups = ()
         if data is not None:
