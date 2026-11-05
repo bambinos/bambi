@@ -7,8 +7,9 @@ from importlib.metadata import version
 import formulae as fm
 import numpy as np
 import pandas as pd
+import xarray as xr
 from arviz_plots import plot_dist
-from arviz_stats import residual_r2
+from arviz_stats import bayesian_r2, residual_r2
 from formulae.matrices import ResponseMatrix
 from formulae.terms.call import Call
 from formulae.terms.call_resolver import LazyVariable
@@ -1361,44 +1362,109 @@ class Model:
         )
 
     def r2_score(self, idata, summary=True):
-        """R² for Bayesian regression models.
+        r"""Bayesian R² for regression models.
 
         The R², or coefficient of determination, is defined as the proportion of variance
-        in the data that is explained by the model. It is computed as the variance of the
-        predicted values divided by the variance of the predicted values plus the variance
-        of the residuals. For details of the Bayesian R² see [1]_.
+        in the data that is explained by the model. For details of the Bayesian R² see [1]_.
+
+        All the variance terms come from the model. For each posterior draw :math:`s`,
+
+        .. math::
+
+            R^2_s = \frac{V_{n=1}^N \mu_n^s}{V_{n=1}^N \mu_n^s + \frac{1}{N}\sum_{n=1}^N v_n^s}
+
+        where :math:`\mu_n^s = E(y_n \mid \theta^s)` and :math:`v_n^s = \mathrm{Var}(y_n \mid
+        \theta^s)` are the mean and the variance of the response conditional on the parameters.
+        Both are computed on the response scale (after applying the inverse link functions)
+        using the mean and variance of the response distribution of the family. For example,
+        :math:`v = \sigma^2` for the Gaussian family, :math:`v = p(1 - p)` for the Bernoulli
+        family, and :math:`v = \mu` for the Poisson family. For the von Mises family, the
+        circular variance :math:`1 - I_1(\kappa) / I_0(\kappa)` is used and the circular
+        :math:`R^2` is computed (see `arviz_stats.bayesian_r2`).
+
+        When the modeled mean or variance is infinite for some posterior draws (e.g. a
+        Student's t with :math:`\nu \le 2`), the Bayesian R² is not defined and the residual
+        R², which uses the variance of the residuals :math:`y_n - \mu_n^s`, is returned instead
+        with a warning.
 
         Parameters
         ----------
         idata : DataTree
-            The `DataTree` instance returned by `.fit()`. It should contain the
-            `posterior_predictive` group, otherwise it will be computed and added to `idata`.
+            The `DataTree` instance returned by `.fit()`. If its `posterior` group does not
+            contain the parameters of the response distribution, they are computed with
+            `.predict(idata, kind="response_params")` and added to `idata`.
         summary : bool, optional
-            If `True`, it returns a summary of the Bayesian R². Otherwise, it returns the
-            posterior samples of the Bayesian R².
+            If `True`, it returns a summary of the R². Otherwise, it returns the posterior draws
+            of the R².
 
         Returns
         -------
-        pandas.Series
-            A series with the following indices:
-            r2: mean value for the Bayesian R²
-            r2_std: standard deviation of the Bayesian R².
+        namedtuple or np.ndarray
+            If `summary=True`, a named tuple with a point estimate and the bounds of a credible
+            interval. Otherwise, an array with the R² for each posterior draw.
+
+        Raises
+        ------
+        NotImplementedError
+            If the conditional variance is not defined or not implemented for the family (e.g.
+            categorical, ordinal, multivariate, and mixture cure responses), or the response is
+            censored, truncated, constrained, or has competing risks.
 
         References
         ----------
         .. [1] Gelman et al. *R-squared for Bayesian regression models*.
             The American Statistician. 73(3) (2019). <https://doi.org/10.1080/00031305.2018.1549100>
         """
-        response_name = self.response_term.name
-        pred_mean = self.family.likelihood.parent
+        response = self.response_term
+        if (
+            response.is_censored
+            or response.is_truncated
+            or response.is_constrained
+            or response.is_competing_risks
+        ):
+            raise NotImplementedError(
+                "The Bayesian R² is not available for censored, truncated, constrained, or "
+                "competing-risks responses."
+            )
 
-        if pred_mean not in idata.posterior:
+        parent = self.family.likelihood.parent
+        parent_component = self.parameters[parent]
+        pred_mean = parent_component.alias if parent_component.alias else parent
+
+        if pred_mean not in as_dataset(idata["posterior"]):
             self.predict(idata, kind="response_params", inplace=True)
 
-        # We should change this to use bayesian_r2 ensuring we pass the correct scale for each
-        # family we could use residual_r2 as a fallback for families we don't have implemented
-        # yet we may want to have an argument to compute the loo_r2 as well or a separate method
-        return residual_r2(idata, pred_mean=pred_mean, obs_name=response_name, summary=summary)
+        try:
+            with warnings.catch_warnings():
+                # Infinite moments are handled below with the residual R² fallback
+                warnings.simplefilter("ignore", UserWarning)
+                mean, variance = self.family.conditional_moments(
+                    self, as_dataset(idata["posterior"])
+                )
+        except NotImplementedError as error:
+            raise NotImplementedError(
+                f"The Bayesian R² is not available for the '{self.family.name}' family. {error}"
+            ) from error
+
+        if not (np.isfinite(mean).all() and np.isfinite(variance).all()):
+            warnings.warn(
+                "The modeled mean or variance of the response is infinite for some posterior "
+                "draws, so the Bayesian R² is not defined. Returning the residual R² instead.",
+                UserWarning,
+            )
+            return residual_r2(idata, pred_mean=pred_mean, obs_name=response.name, summary=summary)
+
+        # The residual variance is the average of the conditional variances over observations
+        variance = variance.broadcast_like(mean).mean("__obs__")
+        moments = xr.Dataset({"mean": mean, "variance": variance})
+        return bayesian_r2(
+            xr.DataTree.from_dict({"posterior": moments}),
+            pred_mean="mean",
+            scale="variance",
+            scale_kind="var",
+            summary=summary,
+            circular=self.family.CIRCULAR,
+        )
 
     def compute_log_prior(self, idata, inplace=True):
         """Compute the model's log-prior
