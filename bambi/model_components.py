@@ -22,7 +22,7 @@ class ConstantComponent:
     ----------
     name : str
         The name of the component. For example "sigma", "alpha", or "kappa".
-    priors : bambi.Prior
+    prior : bambi.Prior
         The prior distribution for the parameter.
     spec : bambi.Model
         The Bambi model.
