@@ -302,6 +302,18 @@ def test_prior_shape():
     assert parent_component.terms["q:s"].prior.args["sigma"].shape == (12,)
 
 
+@pytest.mark.parametrize("link", ["logit", "probit"])
+@pytest.mark.parametrize("term", ["poly(x, 2)", "bs(x, df=4)"])
+def test_auto_scale_logit_multicolumn_numeric_term(link, term):
+    rng = np.random.default_rng(1234)
+    data = pd.DataFrame({"x": rng.normal(size=100), "y": rng.integers(0, 2, size=100)})
+    model = bmb.Model(f"y ~ {term}", data, family="bernoulli", link=link)
+    term = model.components["p"].terms[term]
+    expected = 1 / np.std(term.data, axis=0)
+    assert np.allclose(term.prior.args["mu"], np.zeros(term.data.shape[1]))
+    assert np.allclose(term.prior.args["sigma"], expected)
+
+
 def test_set_priors_but_intercept(data_random_n100):
     priors = {
         "continuous1": bmb.Prior("TruncatedNormal", sigma=1, mu=0, lower=0),

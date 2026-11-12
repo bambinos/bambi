@@ -136,7 +136,7 @@ class PriorScaler:
                         sigma[i] = 1
                     # Single numerical term
                     else:
-                        sigma[i] = 1 / np.std(term.data, axis=0)
+                        sigma[i] = 1 / np.std(value)
             else:
                 for i, value in enumerate(term.data.T):
                     sigma[i] = self.get_slope_sigma(value)
