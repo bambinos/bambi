@@ -80,7 +80,7 @@ class DistributionalComponent:
 
         Parameters
         ----------
-        spec : bambi.Model
+        bmb_model : bambi.Model
             The model.
         """
         if not self.component.common_terms:
