@@ -57,7 +57,7 @@ class Bernoulli(UnivariateFamily):
     SUPPORTED_LINKS = {"p": ["identity", "logit", "probit", "cloglog"]}
 
     def get_data(self, response):
-        if response.term.data.ndim == 1:
+        if response.is_weighted or response.term.data.ndim == 1:
             return response.term.data
         idx = response.levels.index(response.success)
         return response.term.data[:, idx]
