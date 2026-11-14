@@ -92,8 +92,8 @@ class Family:
 
         Returns
         -------
-        set
-            Names of auxiliary parameters in the family
+        list of str
+            Names of auxiliary parameters in the likelihood's declared order
         """
         return [p for p in self.likelihood.params if p != self.likelihood.parent]
 
