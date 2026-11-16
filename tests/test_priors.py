@@ -302,6 +302,8 @@ def test_prior_shape():
     assert parent_component.terms["q:s"].prior.args["sigma"].shape == (12,)
 
 
+# Regression test for https://github.com/bambinos/bambi/issues/1088: Bernoulli models with a
+# logit or probit link failed to build when a numeric term spans several columns.
 @pytest.mark.parametrize("link", ["logit", "probit"])
 @pytest.mark.parametrize("term", ["poly(x, 2)", "bs(x, df=4)"])
 def test_auto_scale_logit_multicolumn_numeric_term(link, term):
