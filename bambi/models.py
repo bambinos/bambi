@@ -214,7 +214,7 @@ class Model:
         )
 
         # Get auxiliary parameters, so we add either distributional components or constant ones
-        auxiliary_parameters = list(self.family.auxiliary_parameters)
+        auxiliary_parameters = self.family.auxiliary_parameters
 
         ## Other components
         ### Distributional

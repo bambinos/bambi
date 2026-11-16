@@ -92,10 +92,10 @@ class Family:
 
         Returns
         -------
-        set
-            Names of auxiliary parameters in the family
+        list of str
+            Names of auxiliary parameters in the likelihood's declared order
         """
-        return set(self.likelihood.params) - {self.likelihood.parent}
+        return [p for p in self.likelihood.params if p != self.likelihood.parent]
 
     def check_string_link(self, link_name, param_name):
         # When you instantiate Family directly
