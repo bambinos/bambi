@@ -106,6 +106,7 @@ class GroupSpecificTerm:
     def __init__(self, term, noncentered):
         self.term = term
         self.noncentered = noncentered
+        self.noncentered_distributions = {}
 
     @property
     def coords(self):
@@ -149,7 +150,9 @@ class GroupSpecificTerm:
         # * (f_j, K):      when factor_dims and response_dims
         # * (f_j, e_j):    when factor_dims and expr_dims
         # * (f_j, ):       when factor_dims
-        return self.build_distribution(prior=self.term.prior, label=self.name, dims=dims)
+        coefficient = self.build_distribution(prior=self.term.prior, label=self.name, dims=dims)
+        spec.backend.noncentered_distributions.update(self.noncentered_distributions)
+        return coefficient
 
     def build_distribution(self, prior, label, dims=None):
         """_summary_
@@ -201,9 +204,13 @@ class GroupSpecificTerm:
                 and "sigma" in dist_kwargs
                 and isinstance(dist_kwargs["sigma"], pt.TensorVariable)
             ):
+                mu = dist_kwargs.get("mu", 0)
                 sigma = dist_kwargs["sigma"]
-                offset = pm.Normal(label + "_offset", mu=0, sigma=1, dims=dims)
-                return pm.Deterministic(label, offset * sigma, dims=dims)
+                offset_name = label + "_offset"
+                offset = pm.Normal(offset_name, mu=0, sigma=1, dims=dims)
+                coefficient = pm.Deterministic(label, mu + offset * sigma, dims=dims)
+                self.noncentered_distributions[offset_name] = (coefficient, mu, sigma)
+                return coefficient
 
             raise NotImplementedError(
                 f"The non-centered parametrization is only supported "
