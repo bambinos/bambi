@@ -14,7 +14,7 @@ class CausalResult(NamedTuple):
     summary : pandas.DataFrame
         One row per intervention and reference-population stratum.
     draws : xarray.DataTree
-        ``effects/estimate`` contains the actual estimand draws, with dimensions
+        ``effects/estimate`` contains the estimand draws, with dimensions
         ``chain``, ``draw``, and ``__obs__``. ``standardized/mean`` contains the
         standardized outcome means for each intervention and stratum.
     metadata : dict

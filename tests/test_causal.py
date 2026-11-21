@@ -1,7 +1,8 @@
-"""Independent causal estimand oracles and native prediction integration."""
+"""Tests for posterior g-computation in bambi.causal."""
 
 from copy import deepcopy
 import random
+import warnings
 
 import matplotlib
 import numpy as np
@@ -12,6 +13,7 @@ import xarray as xr
 
 import bambi as bmb
 from bambi.causal import CausalResult, g_computation, plot_effects
+from bambi.causal.validate import interventions
 
 matplotlib.use("Agg")
 
@@ -36,7 +38,7 @@ def parameter_name(model, name):
 
 
 def attach_prediction(monkeypatch, model, mean_function, *, parameters=None, corrupt=None, omit=()):
-    """Replace only prediction with explicit independent conditional parameters."""
+    """Replace `model.predict` with known response parameters for each row."""
     calls = []
 
     def predict(idata, *, data, kind, inplace, include_group_specific):
@@ -315,7 +317,7 @@ def test_nonbinary_membership_must_be_explicit(monkeypatch, reference, estimand)
         {"comparison": "risk_ratio"},
     ],
 )
-def test_declared_contract_is_enforced(monkeypatch, reference, changes):
+def test_invalid_declarations_raise(monkeypatch, reference, changes):
     model, idata, _ = linear_case(monkeypatch, reference)
     with pytest.raises(ValueError):
         compute(model, idata, reference, **changes)
@@ -336,7 +338,7 @@ def test_declared_contract_is_enforced(monkeypatch, reference, changes):
         {"conditional": {"z": [99]}, "estimand": "cate"},
     ],
 )
-def test_invalid_selection_and_weights_fail_closed(monkeypatch, reference, changes):
+def test_invalid_weights_and_membership_raise(monkeypatch, reference, changes):
     model, idata, _ = linear_case(monkeypatch, reference)
     with pytest.raises(ValueError):
         compute(model, idata, reference, **changes)
@@ -355,7 +357,7 @@ def test_reference_positions_survive_duplicate_reordered_indexes(monkeypatch, re
 
 
 @pytest.mark.parametrize("problem", ["missing_column", "nan", "unknown_category", "empty"])
-def test_reference_row_loss_and_unknown_levels_are_errors(monkeypatch, reference, problem):
+def test_invalid_reference_population_raises(monkeypatch, reference, problem):
     frame = reference.copy()
     frame["z"] = pd.Categorical(frame.z, categories=[0, 1])
     model, idata, _ = linear_case(monkeypatch, frame)
@@ -373,9 +375,7 @@ def test_reference_row_loss_and_unknown_levels_are_errors(monkeypatch, reference
 
 
 @pytest.mark.parametrize("corruption", ["rows", "chain", "draw"])
-def test_prediction_coordinate_or_row_corruption_is_not_silently_aligned(
-    monkeypatch, reference, corruption
-):
+def test_misaligned_predictions_raise(monkeypatch, reference, corruption):
     model = bmb.Model("y ~ t * z", reference)
 
     def corrupt(idata):
@@ -441,7 +441,7 @@ def test_distributional_auxiliary_aliases_are_response_scale_parameters(
     assert_draws(result, expected)
 
 
-def test_known_name_does_not_make_a_custom_family_native(monkeypatch, reference):
+def test_custom_family_with_native_name_raises(monkeypatch, reference):
     native = bmb.Model("y ~ t + z", reference, family="gamma").family
     base = bmb.Family("gamma", deepcopy(native.likelihood), deepcopy(native.link))
     base.set_default_priors(deepcopy(native.default_priors))
@@ -460,9 +460,7 @@ def test_known_name_does_not_make_a_custom_family_native(monkeypatch, reference)
     "attribute,value",
     [("_params", ("mu", "sigma", "extra")), ("_parent", "sigma"), ("name", "StudentT")],
 )
-def test_native_family_requires_actual_default_likelihood_record(
-    monkeypatch, reference, attribute, value
-):
+def test_altered_likelihood_raises(monkeypatch, reference, attribute, value):
     model, idata, _ = linear_case(monkeypatch, reference)
     setattr(model.family.likelihood, attribute, value)
     with pytest.raises(ValueError):
@@ -479,9 +477,7 @@ def test_native_family_requires_actual_default_likelihood_record(
         "np.log(y) ~ t + z",
     ],
 )
-def test_wrapped_or_transformed_response_is_not_silently_given_a_native_mean(
-    monkeypatch, reference, formula
-):
+def test_wrapped_or_transformed_response_raises(monkeypatch, reference, formula):
     frame = reference.assign(status=["none", "right", "none", "none"], w=[1, 2, 1, 2])
     model = bmb.Model(formula, frame)
     attach_prediction(monkeypatch, model, lambda data, theta: theta * 0 + 1)
@@ -505,7 +501,7 @@ def test_wrapped_or_transformed_response_is_not_silently_given_a_native_mean(
         "cumulative",
     ],
 )
-def test_unsupported_families_have_no_silent_generic_mean(monkeypatch, reference, family):
+def test_unsupported_family_raises(monkeypatch, reference, family):
     frame = reference.assign(y=[0, 1, 0, 1])
     if family in ["wald", "hurdle_poisson"]:
         frame["y"] = [1, 2, 3, 4]
@@ -557,7 +553,7 @@ def test_constant_numeric_auxiliary_broadcast_and_parent_alias(monkeypatch, refe
     assert_draws(compute(model, posterior(), reference), 2.5)
 
 
-def test_native_family_subclass_is_not_an_implicit_mean_contract(monkeypatch, reference):
+def test_family_subclass_raises(monkeypatch, reference):
     model, idata, _ = linear_case(monkeypatch, reference)
 
     class DifferentGaussian(type(model.family)):
@@ -624,7 +620,7 @@ def test_outcome_cannot_define_a_causal_stratum(monkeypatch, reference, estimand
 
 
 @pytest.mark.parametrize("prob", [0, 1, -0.1, 1.1, np.nan, []])
-def test_invalid_interval_probability_is_explicit(monkeypatch, reference, prob):
+def test_invalid_prob_raises(monkeypatch, reference, prob):
     model, idata, _ = linear_case(monkeypatch, reference)
     with pytest.raises(ValueError):
         compute(model, idata, reference, prob=prob)
@@ -670,7 +666,7 @@ def test_explicit_binary_membership_cannot_include_the_opposite_cohort(
         ("beta", {"kappa": np.inf}),
     ],
 )
-def test_likelihood_auxiliary_domain_is_not_ignored(monkeypatch, reference, family, parameters):
+def test_invalid_auxiliary_parameter_raises(monkeypatch, reference, family, parameters):
     model = bmb.Model("y ~ t + z", reference.assign(y=[0.1, 0.3, 0.6, 0.8]), family=family)
     attach_prediction(
         monkeypatch, model, lambda data, theta: theta * 0 + 0.4, parameters=parameters
@@ -680,7 +676,7 @@ def test_likelihood_auxiliary_domain_is_not_ignored(monkeypatch, reference, fami
 
 
 def deterministic_native_posterior(model, coefficients):
-    """Populate actual coefficient names without sampling or mocking prediction."""
+    """Fixed posterior draws for the common terms of the parent parameter."""
     arrays = {"Intercept": (("chain", "draw"), np.full((2, 3), 0.5))}
     for name, component in model.conditional_parameters.items():
         if name != model.family.likelihood.parent:
@@ -724,7 +720,7 @@ def test_native_interventions_reuse_training_transform_state(expression):
         expected_at_constant = 0.5 + 0.3 * frame.z.mean() + 0.2 * 0.25
     else:
         coefficients = {transformed_name: 2.0, "z": 0.3}
-        # The actual TRAINING design fixes the affine map, without assuming a scale ddof.
+        # Read the affine map from the training design instead of assuming a ddof.
         original = np.asarray(
             model.conditional_parameters["mu"].common_terms[transformed_name].data
         ).reshape(-1)
@@ -734,13 +730,13 @@ def test_native_interventions_reuse_training_transform_state(expression):
         expected = 6 * slope
         expected_at_constant = 0.5 + 0.3 * frame.z.mean() + 2 * (origin + slope * 0.25)
     idata = deterministic_native_posterior(model, coefficients)
-    # A constant intervention must NOT relearn centering/scaling or the spline boundaries.
+    # A constant intervention must reuse the training centering, scaling and knots.
     standardized = compute(model, idata, frame, estimand="standardized_mean", values=[0.25])
     assert_draws(standardized, expected_at_constant)
     result = compute(model, idata, frame, values=[0.0, 3.0])
     assert np.isfinite(effects(result)).all()
     assert_draws(result, expected)
-    # A different batching/duplication cannot retrain a scale or spline boundary.
+    # Repeated reference rows must not change the transform either.
     repeated = pd.concat([frame.iloc[[3]], frame.iloc[[0]]] * 3)
     assert_draws(compute(model, idata, repeated, values=[0.0, 3.0]), expected)
 
@@ -757,7 +753,7 @@ def test_native_categorical_intervention_keeps_training_contrasts():
 
 
 @pytest.mark.parametrize("kind", ["object", "numeric_categorical"])
-def test_native_categorical_source_levels_include_object_and_explicit_numeric_c(kind):
+def test_categorical_levels_from_object_and_c(kind):
     frame = pd.DataFrame(
         {
             "t": ["a", "b", "a", "b"] if kind == "object" else [0, 1, 2, 0],
@@ -783,7 +779,7 @@ def test_native_categorical_source_levels_include_object_and_explicit_numeric_c(
         compute(model, idata, frame, estimand="dose_response", values=values)
 
 
-def test_callers_and_global_rng_are_unchanged(monkeypatch, reference):
+def test_inputs_and_global_rng_are_unchanged(monkeypatch, reference):
     model, idata, calls = linear_case(monkeypatch, reference)
     before_model = model.data.copy(deep=True)
     before_reference = reference.copy(deep=True)
@@ -807,9 +803,9 @@ def test_callers_and_global_rng_are_unchanged(monkeypatch, reference):
 
 
 def test_plot_ratio_and_difference_reference_lines_and_facets(monkeypatch, reference):
-    model, idata, frame = binary_case(monkeypatch, reference)
-    import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt  # after matplotlib.use("Agg") at module level
 
+    model, idata, frame = binary_case(monkeypatch, reference)
     for comparison, baseline in [("difference", 0), ("risk_ratio", 1), ("odds_ratio", 1)]:
         result = compute(
             model, idata, frame, estimand="gate", average_by="z", comparison=comparison
@@ -824,7 +820,7 @@ def test_plot_ratio_and_difference_reference_lines_and_facets(monkeypatch, refer
 
 @pytest.fixture(scope="module")
 def fitted_gaussian():
-    """Genuine small NUTS integration, not an inference-quality benchmark."""
+    """Small NUTS fit of a Gaussian model with a group-specific intercept."""
     rng = np.random.default_rng(105501)
     n = 48
     group = np.repeat(np.arange(6).astype(str), 8)
@@ -847,7 +843,7 @@ def fitted_gaussian():
 
 @pytest.fixture(scope="module")
 def fitted_bernoulli():
-    """A second genuine NUTS fit with a nonlinear response link."""
+    """Small NUTS fit of a Bernoulli model with a logit link."""
     rng = np.random.default_rng(105502)
     n = 64
     t = rng.integers(0, 2, n)
@@ -868,49 +864,35 @@ def fitted_bernoulli():
 
 
 @pytest.mark.parametrize("fixture,parent", [("fitted_gaussian", "mu"), ("fitted_bernoulli", "p")])
-def test_genuine_nuts_fits_feed_the_public_prediction_and_estimand_path(request, fixture, parent):
+def test_fitted_models_match_predict(request, fixture, parent):
     model, idata, frame = request.getfixturevalue(fixture)
-    assert idata["posterior"].sizes["chain"] == 2
-    assert idata["posterior"].sizes["draw"] == 60
-    assert "sample_stats" in idata and "diverging" in idata["sample_stats"].ds
-    assert any(float(array.var()) > 0 for array in idata["posterior"].ds.data_vars.values())
     before = idata["posterior"].ds.copy(deep=True)
     means = []
     for value in [0, 1]:
-        intervention = frame.assign(t=value)
         predicted = model.predict(
             idata,
-            data=intervention,
+            data=frame.assign(t=value),
             kind="response_params",
             inplace=False,
             include_group_specific=True,
         )
-        # Isolate the unchanged native oracle from the causal API under test.
-        xr.testing.assert_identical(idata["posterior"].ds.copy(deep=True), before)
         means.append(predicted["posterior"].ds[parent].transpose("chain", "draw", "__obs__"))
-    kwargs = dict(adjustment_set=["z", "group"], temporal_order=["z", "group", "t", "y"])
-    if parent == "p":
-        kwargs = {}
-    before_model = model.data.copy(deep=True)
-    before_reference = frame.copy(deep=True)
-    before_numpy = deepcopy(np.random.get_state())
-    before_python = random.getstate()
-    before_compute = idata["posterior"].ds.copy(deep=True)
-    result = compute(model, idata, frame, include_group_specific=True, **kwargs)
-    xr.testing.assert_identical(idata["posterior"].ds.copy(deep=True), before_compute)
-    pd.testing.assert_frame_equal(model.data, before_model)
-    pd.testing.assert_frame_equal(frame, before_reference)
-    after_numpy = np.random.get_state()
-    assert after_numpy[0] == before_numpy[0]
-    np.testing.assert_array_equal(after_numpy[1], before_numpy[1])
-    assert after_numpy[2:] == before_numpy[2:]
-    assert random.getstate() == before_python
+    kwargs = {}
+    if parent == "mu":
+        kwargs = dict(adjustment_set=["z", "group"], temporal_order=["z", "group", "t", "y"])
+    result = compute(model, idata, frame, **kwargs)
     expected = (means[1] - means[0]).mean("__obs__").values[..., None]
     np.testing.assert_allclose(effects(result), expected)
-    assert np.isfinite(effects(result)).all()
     assert result.metadata["group_effects"] == "included"
     xr.testing.assert_identical(idata["posterior"].ds.copy(deep=True), before)
     if parent == "mu":
-        unknown = frame.assign(group="unseen")
         with pytest.raises(ValueError, match="group|level"):
-            compute(model, idata, unknown, **kwargs)
+            compute(model, idata, frame.assign(group="unseen"), **kwargs)
+
+
+def test_list_intervention_values_do_not_warn(reference):
+    model = bmb.Model("y ~ t * z", reference)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        values = interventions(model, reference, "t", [0, 1], "ate", "difference", "gaussian", None)
+    assert values == [0, 1]

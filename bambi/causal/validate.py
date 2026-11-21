@@ -161,7 +161,8 @@ def interventions(model, data, treatment, values, estimand, comparison, family, 
     if isinstance(values, (str, bytes)):
         raise ValueError("values must be an ordered sequence of unique intervention values.")
     values = list(values)
-    if not values or pd.Series(values).isna().any() or len(pd.unique(values)) != len(values):
+    series = pd.Series(values, dtype=object)
+    if not values or series.isna().any() or series.duplicated().any():
         raise ValueError("values must contain unique, nonmissing intervention values.")
     if estimand not in {"standardized_mean", "dose_response"} and len(values) != 2:
         raise ValueError("Population effects require exactly two ordered values.")

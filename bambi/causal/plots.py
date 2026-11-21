@@ -8,7 +8,7 @@ from bambi.interpret.plots import PlottingConfig, plot
 
 
 def plot_effects(result, *, main, group=None, panel=None, fig_kwargs=None):
-    """Plot actual estimand summaries using explicit axes and optional facets.
+    """Plot estimand summaries with their credible intervals.
 
     Parameters
     ----------
