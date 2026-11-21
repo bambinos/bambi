@@ -10,7 +10,6 @@ from bambi.backend.pymc.transform import transforms_registry
 from bambi.backend.pymc.utils import get_distribution_from_likelihood
 from bambi.defaults import get_builtin_family
 
-
 N_OBS = 20
 
 
@@ -190,6 +189,19 @@ def test_r2_gaussian_constructed(data):
         r2_draws, bayesian_r2(idata, pred_mean="mu", scale="sigma", summary=False)
     )
     assert model.r2_score(idata) == bayesian_r2(idata, pred_mean="mu", scale="sigma")
+
+
+def test_r2_uses_parameter_aliases(data):
+    model = bmb.Model("y ~ x", data)
+    model.set_alias({"mu": "location", "sigma": "scale"})
+    rng = np.random.default_rng(0)
+    mu = rng.normal(size=(2, 5, N_OBS))
+    sigma = rng.uniform(0.5, 2, size=(2, 5))
+    idata = make_idata({"location": mu, "scale": sigma})
+
+    np.testing.assert_allclose(
+        model.r2_score(idata, summary=False), manual_bayesian_r2(mu, sigma[..., np.newaxis] ** 2)
+    )
 
 
 def test_r2_distributional_and_constant_parameters(data):

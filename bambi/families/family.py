@@ -48,6 +48,7 @@ class Family:
     DATA_TYPE = ResponseType.NUMERIC
     RESPONSE_NDIM = 0
     PARAMETERS: dict[str, ParamSpec] | None = None
+    CIRCULAR = False
 
     def __init__(self, name, likelihood, link: str | dict[str, str | Link]):
         self.name = name
@@ -123,15 +124,12 @@ class Family:
         priors = {k: v for k, v in priors.items() if k in self.auxiliary_parameters}
         self.default_priors.update(priors)
 
-    CIRCULAR = False
-
     def conditional_moments(self, model, posterior, data=None):
         r"""Get the conditional mean and variance of the response
 
         Computes the mean and the variance of the response conditional on the parameters,
         :math:`E(Y \mid \theta)` and :math:`\mathrm{Var}(Y \mid \theta)`, for every posterior
-        draw and observation. Both are on the scale of the response (i.e. after applying the
-        inverse link functions). This is used, for example, to compute the Bayesian :math:`R^2`.
+        draw and observation. This is used, for example, to compute the Bayesian :math:`R^2`.
 
         Parameters
         ----------
@@ -139,8 +137,7 @@ class Family:
             The model
         posterior : xr.Dataset
             The xarray dataset that contains the draws for all the parameters in the posterior.
-            It must contain the parameters of the response distribution, as added by
-            `model.predict(idata, kind="response_params")`.
+            It must contain the parameters of the response distribution.
         data : pd.DataFrame or None
             Only used to get the number of trials in binomial-type models. If omitted, the
             original dataset is used. It must match the observations in `posterior`.
@@ -158,7 +155,7 @@ class Family:
         params = {}
         for param in self.likelihood.params:
             parameter = model.parameters[param]
-            var_name = parameter.alias if parameter.alias else param
+            var_name = parameter.label
             if var_name in posterior:
                 params[param] = posterior[var_name]
             elif isinstance(getattr(parameter, "prior", None), (int, float)):

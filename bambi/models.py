@@ -1398,8 +1398,7 @@ class Model:
             )
 
         parent = self.family.likelihood.parent
-        parent_component = self.parameters[parent]
-        pred_mean = parent_component.alias if parent_component.alias else parent
+        pred_mean = self.parameters[parent].label
 
         if pred_mean not in as_dataset(idata["posterior"]):
             self.predict(idata, kind="response_params", inplace=True)

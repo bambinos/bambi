@@ -82,7 +82,8 @@ class Binomial(Family):
     }
 
     def moments(self, params):
-        return _binomial_moments(params["p"], params["n"])
+        p, n = params["p"], params["n"]
+        return n * p, n * p * (1 - p)
 
 
 class Categorical(Family):
@@ -138,7 +139,8 @@ class Gamma(Family):
     }
 
     def moments(self, params):
-        return _gamma_moments(params["mu"], params["alpha"])
+        mu, alpha = params["mu"], params["alpha"]
+        return mu, mu**2 / alpha
 
 
 class Gaussian(Family):
@@ -159,8 +161,8 @@ class HurdleGamma(Family):
     }
 
     def moments(self, params):
-        mean, variance = _gamma_moments(params["mu"], params["alpha"])
-        return _hurdle_moments(mean, variance, params["psi"])
+        mu, alpha = params["mu"], params["alpha"]
+        return _hurdle_moments(mu, mu**2 / alpha, params["psi"])
 
 
 class HurdleLogNormal(Family):
@@ -171,7 +173,10 @@ class HurdleLogNormal(Family):
     }
 
     def moments(self, params):
-        mean, variance = _lognormal_moments(params["mu"], params["sigma"])
+        mu, sigma = params["mu"], params["sigma"]
+        sigma_squared = sigma**2
+        mean = np.exp(mu + sigma_squared / 2)
+        variance = np.expm1(sigma_squared) * mean**2
         return _hurdle_moments(mean, variance, params["psi"])
 
 
@@ -184,9 +189,9 @@ class HurdleNegativeBinomial(Family):
 
     def moments(self, params):
         mu, alpha = params["mu"], params["alpha"]
-        mean, variance = _negativebinomial_moments(mu, alpha)
+        variance = mu + mu**2 / alpha
         p_zero = (alpha / (alpha + mu)) ** alpha
-        return _hurdle_moments(mean, variance, params["psi"], p_zero)
+        return _hurdle_moments(mu, variance, params["psi"], p_zero)
 
 
 class HurdlePoisson(Family):
@@ -207,7 +212,8 @@ class NegativeBinomial(Family):
     }
 
     def moments(self, params):
-        return _negativebinomial_moments(params["mu"], params["alpha"])
+        mu, alpha = params["mu"], params["alpha"]
+        return mu, mu + mu**2 / alpha
 
 
 class Laplace(Family):
@@ -227,7 +233,10 @@ class LogNormal(Family):
     }
 
     def moments(self, params):
-        return _lognormal_moments(params["mu"], params["sigma"])
+        mu, sigma = params["mu"], params["sigma"]
+        sigma_squared = sigma**2
+        mean = np.exp(mu + sigma_squared / 2)
+        return mean, np.expm1(sigma_squared) * mean**2
 
 
 class LogLogistic(Family):
@@ -357,7 +366,9 @@ class Weibull(Family):
     def moments(self, params):
         # 'mu' is the mean, the scale is 'beta = mu / gamma(1 + 1 / alpha)'
         mu, alpha = params["mu"], params["alpha"]
-        return _weibull_moments(mu / sp.gamma(1 + 1 / alpha), alpha)
+        gamma_1 = sp.gamma(1 + 1 / alpha)
+        beta = mu / gamma_1
+        return beta * gamma_1, beta**2 * (sp.gamma(1 + 2 / alpha) - gamma_1**2)
 
 
 class WeibullPH(Family):
@@ -376,7 +387,9 @@ class WeibullPH(Family):
 
     def moments(self, params):
         alpha = params["alpha"]
-        return _weibull_moments(params["lam"] ** (-1 / alpha), alpha)
+        beta = params["lam"] ** (-1 / alpha)
+        gamma_1 = sp.gamma(1 + 1 / alpha)
+        return beta * gamma_1, beta**2 * (sp.gamma(1 + 2 / alpha) - gamma_1**2)
 
 
 class CureExponential(Family):
@@ -454,7 +467,8 @@ class ZeroInflatedBinomial(Family):
     }
 
     def moments(self, params):
-        mean, variance = _binomial_moments(params["p"], params["n"])
+        p, n = params["p"], params["n"]
+        mean, variance = n * p, n * p * (1 - p)
         return _zero_inflated_moments(mean, variance, params["psi"])
 
 
@@ -466,8 +480,8 @@ class ZeroInflatedNegativeBinomial(Family):
     }
 
     def moments(self, params):
-        mean, variance = _negativebinomial_moments(params["mu"], params["alpha"])
-        return _zero_inflated_moments(mean, variance, params["psi"])
+        mu, alpha = params["mu"], params["alpha"]
+        return _zero_inflated_moments(mu, mu + mu**2 / alpha, params["psi"])
 
 
 class ZeroInflatedPoisson(Family):
@@ -541,31 +555,6 @@ def _sigmoid(x):
 
 def _beta_variance(mu, kappa):
     return mu * (1 - mu) / (1 + kappa)
-
-
-def _binomial_moments(p, n):
-    return n * p, n * p * (1 - p)
-
-
-def _gamma_moments(mu, alpha):
-    return mu, mu**2 / alpha
-
-
-def _lognormal_moments(mu, sigma):
-    # 'mu' and 'sigma' are the mean and standard deviation of log(Y)
-    mean = np.exp(mu + sigma**2 / 2)
-    variance = (np.exp(sigma**2) - 1) * np.exp(2 * mu + sigma**2)
-    return mean, variance
-
-
-def _negativebinomial_moments(mu, alpha):
-    return mu, mu + mu**2 / alpha
-
-
-def _weibull_moments(beta, alpha):
-    # 'beta' is the scale and 'alpha' the shape
-    gamma_1 = sp.gamma(1 + 1 / alpha)
-    return beta * gamma_1, beta**2 * (sp.gamma(1 + 2 / alpha) - gamma_1**2)
 
 
 def _zero_inflated_moments(mean, variance, psi):
