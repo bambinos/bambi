@@ -1340,21 +1340,25 @@ class Model:
         All the variance terms come from the model. For each posterior draw $s$,
 
         $$
-        R^2_s = \frac{V_{n=1}^N \mu_n^s}{V_{n=1}^N \mu_n^s + \frac{1}{N}\sum_{n=1}^N v_n^s}
+        R^2_s = \frac{V_{n=1}^N y_n^{\mathrm{pred}\,s}}
+        {V_{n=1}^N y_n^{\mathrm{pred}\,s} + \mathrm{var}_{\mathrm{res}}^s}
         $$
 
-        where $\mu_n^s = E(y_n \mid \theta^s)$ and $v_n^s = \mathrm{Var}(y_n \mid \theta^s)$
-        are the mean and variance of the response conditional on the parameters.
+        where $y_n^{\mathrm{pred}\,s} = E(\tilde y_n \mid X_n, \theta^s)$ is the modeled
+        predictive mean and
+        $\mathrm{var}_{\mathrm{res}}^s = \frac{1}{N}\sum_{n=1}^N
+        \mathrm{Var}(\tilde y_n \mid X_n, \theta^s)$ is the modeled residual variance.
+        The operator $V_{n=1}^N$ denotes the sample variance across observations.
         Both are computed on the response scale (after applying the inverse link functions)
         using the mean and variance of the response distribution of the family. For example,
-        $v = \sigma^2$ for the Gaussian family, $v = p(1 - p)$ for the Bernoulli
-        family, and $v = \mu$ for the Poisson family. For the von Mises family, the
+        the conditional variance is $\sigma^2$ for the Gaussian family, $p(1 - p)$ for the
+        Bernoulli family, and $\mu$ for the Poisson family. For the von Mises family, the
         circular variance $1 - I_1(\kappa) / I_0(\kappa)$ is used and the circular
         $R^2$ is computed (see `arviz_stats.bayesian_r2`).
 
         When the modeled mean or variance is infinite for some posterior draws (e.g. a
         Student's t with $\nu \le 2$), the Bayesian R² is not defined and the residual
-        R², which uses the variance of the residuals $y_n - \mu_n^s$, is returned instead
+        R², which uses the variance of the residuals $y_n - y_n^{\mathrm{pred}\,s}$, is returned instead
         with a warning.
 
         Parameters
@@ -1382,8 +1386,10 @@ class Model:
 
         References
         ----------
-        Gelman et al. *R-squared for Bayesian regression models*.
-        The American Statistician. 73(3) (2019). <https://doi.org/10.1080/00031305.2018.1549100>
+        Gelman, A., Goodrich, B., Gabry, J., and Vehtari, A. (2019).
+        *R-squared for Bayesian regression models*.
+        The American Statistician, 73(3), 307–309.
+        <https://doi.org/10.1080/00031305.2018.1549100>
         """
         response = self.response_term
         if (

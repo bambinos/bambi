@@ -278,8 +278,8 @@ class OrderedBeta(Family):
         cut0 = params["cut0"]
         cut1 = cut0 + np.exp(params["logdelta"])
         eta = np.log(mu) - np.log1p(-mu)
-        p_zero = sp.expit(cut0 - eta)
-        p_one = sp.expit(eta - cut1)
+        p_zero = sp.expit(cut0 - eta)  # pylint: disable=no-member
+        p_one = sp.expit(eta - cut1)  # pylint: disable=no-member
         p_interior = 1 - p_zero - p_one
         mean = p_one + p_interior * mu
         variance = mu * (1 - mu) / (1 + kappa)
