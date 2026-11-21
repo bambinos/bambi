@@ -128,8 +128,8 @@ class Family:
         r"""Get the conditional mean and variance of the response
 
         Computes the mean and the variance of the response conditional on the parameters,
-        :math:`E(Y \mid \theta)` and :math:`\mathrm{Var}(Y \mid \theta)`, for every posterior
-        draw and observation. This is used, for example, to compute the Bayesian :math:`R^2`.
+        $E(Y \mid \theta)$ and $\mathrm{Var}(Y \mid \theta)$, for every posterior
+        draw and observation. This is used, for example, to compute the Bayesian $R^2$.
 
         Parameters
         ----------
@@ -178,7 +178,7 @@ class Family:
     def moments(self, params):  # pylint: disable=unused-argument
         """Compute the conditional mean and variance of the response
 
-        Families that support the Bayesian :math:`R^2` override this method.
+        Families that support the Bayesian $R^2$ override this method.
 
         Parameters
         ----------

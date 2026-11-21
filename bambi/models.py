@@ -1335,26 +1335,26 @@ class Model:
         r"""Bayesian R² for regression models.
 
         The R², or coefficient of determination, is defined as the proportion of variance
-        in the data that is explained by the model. For details of the Bayesian R² see [1]_.
+        in the data that is explained by the model. For details, see the reference below.
 
-        All the variance terms come from the model. For each posterior draw :math:`s`,
+        All the variance terms come from the model. For each posterior draw $s$,
 
-        .. math::
+        $$
+        R^2_s = \frac{V_{n=1}^N \mu_n^s}{V_{n=1}^N \mu_n^s + \frac{1}{N}\sum_{n=1}^N v_n^s}
+        $$
 
-            R^2_s = \frac{V_{n=1}^N \mu_n^s}{V_{n=1}^N \mu_n^s + \frac{1}{N}\sum_{n=1}^N v_n^s}
-
-        where :math:`\mu_n^s = E(y_n \mid \theta^s)` and :math:`v_n^s = \mathrm{Var}(y_n \mid
-        \theta^s)` are the mean and the variance of the response conditional on the parameters.
+        where $\mu_n^s = E(y_n \mid \theta^s)$ and $v_n^s = \mathrm{Var}(y_n \mid \theta^s)$
+        are the mean and variance of the response conditional on the parameters.
         Both are computed on the response scale (after applying the inverse link functions)
         using the mean and variance of the response distribution of the family. For example,
-        :math:`v = \sigma^2` for the Gaussian family, :math:`v = p(1 - p)` for the Bernoulli
-        family, and :math:`v = \mu` for the Poisson family. For the von Mises family, the
-        circular variance :math:`1 - I_1(\kappa) / I_0(\kappa)` is used and the circular
-        :math:`R^2` is computed (see `arviz_stats.bayesian_r2`).
+        $v = \sigma^2$ for the Gaussian family, $v = p(1 - p)$ for the Bernoulli
+        family, and $v = \mu$ for the Poisson family. For the von Mises family, the
+        circular variance $1 - I_1(\kappa) / I_0(\kappa)$ is used and the circular
+        $R^2$ is computed (see `arviz_stats.bayesian_r2`).
 
         When the modeled mean or variance is infinite for some posterior draws (e.g. a
-        Student's t with :math:`\nu \le 2`), the Bayesian R² is not defined and the residual
-        R², which uses the variance of the residuals :math:`y_n - \mu_n^s`, is returned instead
+        Student's t with $\nu \le 2$), the Bayesian R² is not defined and the residual
+        R², which uses the variance of the residuals $y_n - \mu_n^s$, is returned instead
         with a warning.
 
         Parameters
@@ -1382,8 +1382,8 @@ class Model:
 
         References
         ----------
-        .. [1] Gelman et al. *R-squared for Bayesian regression models*.
-            The American Statistician. 73(3) (2019). <https://doi.org/10.1080/00031305.2018.1549100>
+        Gelman et al. *R-squared for Bayesian regression models*.
+        The American Statistician. 73(3) (2019). <https://doi.org/10.1080/00031305.2018.1549100>
         """
         response = self.response_term
         if (
