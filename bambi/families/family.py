@@ -124,7 +124,7 @@ class Family:
         priors = {k: v for k, v in priors.items() if k in self.auxiliary_parameters}
         self.default_priors.update(priors)
 
-    def conditional_moments(self, model, posterior, data=None):
+    def conditional_moments(self, model, posterior):
         r"""Get the conditional mean and variance of the response
 
         Computes the mean and the variance of the response conditional on the parameters,
@@ -137,10 +137,7 @@ class Family:
             The model
         posterior : xr.Dataset
             The xarray dataset that contains the draws for all the parameters in the posterior.
-            It must contain the parameters of the response distribution.
-        data : pd.DataFrame or None
-            Only used to get the number of trials in binomial-type models. If omitted, the
-            original dataset is used. It must match the observations in `posterior`.
+            It must contain the parameters of the response distribution for the original data.
 
         Returns
         -------
@@ -167,10 +164,11 @@ class Family:
                 )
 
         if model.response_term.is_binomial:
-            if data is None:
-                trials = model.response_term.data[:, 1]
-            else:
-                trials = model.response_term.eval_new_data(data)[:, 1]
+            trials = model.response_term.data[:, 1]
+            if posterior.sizes.get("__obs__", len(trials)) != len(trials):
+                raise ValueError(
+                    "Binomial R² requires posterior predictions for the original observations."
+                )
             params["n"] = xr.DataArray(np.asarray(trials, dtype=float), dims="__obs__")
 
         return self.moments(params)

@@ -134,6 +134,23 @@ def test_moments_not_defined(family_name):
         family.moments({})
 
 
+def test_ordered_beta_moments_handle_extreme_cutpoints():
+    coordinates = {"__obs__": ["low", "high"]}
+    cut0 = xr.DataArray([-1000.0, 1000.0], coords=coordinates)
+    params = {
+        "mu": xr.full_like(cut0, 0.5),
+        "kappa": xr.DataArray(5.0),
+        "cut0": cut0,
+        "logdelta": xr.DataArray(0.0),
+    }
+
+    with np.errstate(over="raise"):
+        mean, variance = get_builtin_family("ordered_beta").moments(params)
+
+    xr.testing.assert_identical(mean, xr.DataArray([1.0, 0.0], coords=coordinates))
+    xr.testing.assert_identical(variance, xr.DataArray([0.0, 0.0], coords=coordinates))
+
+
 def test_vonmises_circular_variance():
     family = get_builtin_family("vonmises")
     kappa = xr.DataArray([0.5, 2.0, 50.0, 1e4])
@@ -244,6 +261,14 @@ def test_r2_binomial_uses_trials(data):
     n = data["trials"].to_numpy(dtype=float)
     expected = manual_bayesian_r2(n * p, n * p * (1 - p))
     np.testing.assert_allclose(model.r2_score(idata, summary=False), expected)
+
+
+def test_r2_binomial_requires_original_observation_count(data):
+    model = bmb.Model("p(successes, trials) ~ x", data, family="binomial")
+    idata = make_idata({"p": np.full((2, 5, N_OBS - 1), 0.5)})
+
+    with pytest.raises(ValueError, match="posterior predictions for the original observations"):
+        model.r2_score(idata, summary=False)
 
 
 def test_r2_negativebinomial_constructed(data):

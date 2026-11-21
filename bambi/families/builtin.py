@@ -57,7 +57,7 @@ class Beta(Family):
 
     def moments(self, params):
         mu, kappa = params["mu"], params["kappa"]
-        return mu, _beta_variance(mu, kappa)
+        return mu, mu * (1 - mu) / (1 + kappa)
 
 
 class BetaBinomial(Family):
@@ -278,11 +278,12 @@ class OrderedBeta(Family):
         cut0 = params["cut0"]
         cut1 = cut0 + np.exp(params["logdelta"])
         eta = np.log(mu) - np.log1p(-mu)
-        p_zero = _sigmoid(cut0 - eta)
-        p_one = _sigmoid(eta - cut1)
+        p_zero = sp.expit(cut0 - eta)
+        p_one = sp.expit(eta - cut1)
         p_interior = 1 - p_zero - p_one
         mean = p_one + p_interior * mu
-        second_moment = p_one + p_interior * (_beta_variance(mu, kappa) + mu**2)
+        variance = mu * (1 - mu) / (1 + kappa)
+        second_moment = p_one + p_interior * (variance + mu**2)
         return mean, second_moment - mean**2
 
 
@@ -512,7 +513,8 @@ class ZeroOneInflatedBeta(Family):
     def moments(self, params):
         mu, kappa, zoi, coi = params["mu"], params["kappa"], params["zoi"], params["coi"]
         mean = zoi * coi + (1 - zoi) * mu
-        second_moment = zoi * coi + (1 - zoi) * (_beta_variance(mu, kappa) + mu**2)
+        variance = mu * (1 - mu) / (1 + kappa)
+        second_moment = zoi * coi + (1 - zoi) * (variance + mu**2)
         return mean, second_moment - mean**2
 
 
@@ -547,14 +549,6 @@ def _cure_moments_error(name):
         f"The '{name}' family is a mixture cure model. Cured subjects never experience the "
         "event, so the mean and variance of the response are not finite."
     )
-
-
-def _sigmoid(x):
-    return 1 / (1 + np.exp(-x))
-
-
-def _beta_variance(mu, kappa):
-    return mu * (1 - mu) / (1 + kappa)
 
 
 def _zero_inflated_moments(mean, variance, psi):
