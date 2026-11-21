@@ -1358,8 +1358,8 @@ class Model:
 
         When the modeled mean or variance is infinite for some posterior draws (e.g. a
         Student's t with $\nu \le 2$), the Bayesian R² is not defined and the residual
-        R², which uses the variance of the residuals $y_n - y_n^{\mathrm{pred}\,s}$, is returned instead
-        with a warning.
+        R², which uses the variance of the residuals $y_n - y_n^{\mathrm{pred}\,s}$,
+        is returned instead with a warning.
 
         Parameters
         ----------
