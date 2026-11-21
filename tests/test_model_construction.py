@@ -4,6 +4,7 @@ import pathlib
 import subprocess
 import sys
 import textwrap
+from copy import deepcopy
 
 import pytest
 import arviz as az
@@ -13,8 +14,11 @@ import pandas as pd
 import pymc as pm
 
 from bambi.terms import CommonTerm, GroupSpecificTerm
+from bambi.utils import as_dataset
 from formulae import design_matrices
 from pytensor.sparse import StructuredDot
+from pymc.sampling.parallel import ParallelSamplingError
+from pymc.step_methods.hmc.quadpotential import QuadPotentialDiagAdapt
 
 from helpers import assert_ip_dlogp, graph_contains_op
 
@@ -491,14 +495,184 @@ def test_potentials():
     assert pot1.__str__() == "Switch(Gt.0, 0, -inf)"
 
 
-@pytest.mark.skip(reason="this example no longer trigger the fallback to adapt_diag")
-def test_init_fallback(init_data, caplog):
-    model = bmb.Model("od ~ temp + (1|source) + 0", init_data)
-    with caplog.at_level(logging.INFO):
-        model.fit(draws=100, init="auto")
-        assert "Initializing NUTS using jitter+adapt_diag..." in caplog.text
-        assert "The default initialization" in caplog.text
-        assert "Initializing NUTS using adapt_diag..." in caplog.text
+@pytest.fixture
+def init_fallback_model(data_random_n100):
+    return bmb.Model("continuous1 ~ continuous2", data_random_n100)
+
+
+@pytest.fixture
+def init_fallback_options():
+    return {
+        "draws": 20,
+        "tune": 20,
+        "init": "auto",
+        "n_init": 200,
+        "chains": 1,
+        "cores": 1,
+        "random_seed": 1234,
+        "inference_method": "pymc",
+        "nuts": {"target_accept": 0.9, "max_treedepth": 6},
+        "progressbar": False,
+        "compute_convergence_checks": False,
+    }
+
+
+def _raise_mass_matrix_error(std):
+    # Controlled fault injection through the installed PyMC dependency's real raiser.
+    # This does not reproduce a numerical failure or exercise parallel recovery.
+    potential = QuadPotentialDiagAdapt(1, np.zeros(1), initial_diag=np.ones(1))
+    potential._stds[:] = std
+    potential.raise_ok([("synthetic", (), 1, np.dtype("float64"))])
+
+
+def _fallback_messages(caplog):
+    return [
+        record.getMessage()
+        for record in caplog.records
+        if record.name == "bambi" and "The default initialization" in record.getMessage()
+    ]
+
+
+def _assert_fallback_posterior(idata, draws):
+    posterior = as_dataset(idata["posterior"])
+    assert posterior.sizes["chain"] == 1
+    assert posterior.sizes["draw"] == draws
+    assert {"Intercept", "continuous2"}.issubset(posterior.data_vars)
+    assert bool(np.isfinite(posterior.to_array()).all())
+    assert posterior.attrs["modeling_interface"] == "bambi"
+
+
+@pytest.mark.parametrize("std", [0.0, np.nan, np.inf], ids=["zero", "nan", "infinity"])
+def test_init_fallback(init_fallback_model, init_fallback_options, monkeypatch, caplog, std):
+    real_sample = pm.sample
+    calls = []
+
+    def sample_with_initial_failure(**kwargs):
+        calls.append(deepcopy(kwargs))
+        if len(calls) == 1:
+            _raise_mass_matrix_error(std)
+        return real_sample(**kwargs)
+
+    monkeypatch.setattr("bambi.backend.pymc.pm.sample", sample_with_initial_failure)
+    with caplog.at_level(logging.INFO, logger="bambi"):
+        idata = init_fallback_model.fit(**init_fallback_options)
+
+    assert len(calls) == 2
+    first, retry = calls
+    assert first["init"] == "auto"
+    assert retry == {**first, "init": "adapt_diag"}
+    for name in ("draws", "tune", "n_init", "chains", "cores", "random_seed", "nuts"):
+        assert first[name] == init_fallback_options[name]
+    assert first["nuts_sampler"] == "pymc"
+    assert {"Intercept", "continuous2"}.issubset(first["var_names"])
+    assert first["progressbar"] is False
+    assert first["compute_convergence_checks"] is False
+    assert len(_fallback_messages(caplog)) == 1
+    assert "init='adapt_diag'" in _fallback_messages(caplog)[0]
+    _assert_fallback_posterior(idata, init_fallback_options["draws"])
+
+
+@pytest.mark.parametrize("error_type", [ValueError, RuntimeError])
+def test_init_fallback_unrelated_error(
+    init_fallback_model, init_fallback_options, monkeypatch, caplog, error_type
+):
+    error = error_type("unrelated initialization failure")
+    calls = []
+
+    def failing_sample(**kwargs):
+        calls.append(deepcopy(kwargs))
+        raise error
+
+    monkeypatch.setattr("bambi.backend.pymc.pm.sample", failing_sample)
+    with caplog.at_level(logging.INFO, logger="bambi"):
+        with pytest.raises(error_type) as raised:
+            init_fallback_model.fit(**init_fallback_options)
+    assert raised.value is error
+    assert len(calls) == 1
+    assert _fallback_messages(caplog) == []
+
+
+@pytest.mark.parametrize("init", ["adapt_diag", "jitter+adapt_diag"])
+def test_init_fallback_explicit_init(
+    init_fallback_model, init_fallback_options, monkeypatch, caplog, init
+):
+    calls = []
+
+    def failing_sample(**kwargs):
+        calls.append(deepcopy(kwargs))
+        _raise_mass_matrix_error(0.0)
+
+    monkeypatch.setattr("bambi.backend.pymc.pm.sample", failing_sample)
+    with caplog.at_level(logging.INFO, logger="bambi"):
+        with pytest.raises(ValueError, match="Mass matrix contains zeros"):
+            init_fallback_model.fit(**{**init_fallback_options, "init": init})
+    assert len(calls) == 1
+    assert calls[0]["init"] == init
+    assert _fallback_messages(caplog) == []
+
+
+def test_init_fallback_first_success(
+    init_fallback_model, init_fallback_options, monkeypatch, caplog
+):
+    real_sample = pm.sample
+    calls = []
+
+    def successful_sample(**kwargs):
+        calls.append(deepcopy(kwargs))
+        return real_sample(**kwargs)
+
+    monkeypatch.setattr("bambi.backend.pymc.pm.sample", successful_sample)
+    with caplog.at_level(logging.INFO, logger="bambi"):
+        idata = init_fallback_model.fit(**init_fallback_options)
+    assert len(calls) == 1
+    assert calls[0]["init"] == "auto"
+    assert _fallback_messages(caplog) == []
+    _assert_fallback_posterior(idata, init_fallback_options["draws"])
+
+
+@pytest.mark.parametrize("error_type", [ValueError, RuntimeError])
+def test_init_fallback_retry_failure(
+    init_fallback_model, init_fallback_options, monkeypatch, caplog, error_type
+):
+    error = error_type("retry failed")
+    calls = []
+
+    def failing_sample(**kwargs):
+        calls.append(deepcopy(kwargs))
+        if len(calls) == 1:
+            _raise_mass_matrix_error(0.0)
+        raise error
+
+    monkeypatch.setattr("bambi.backend.pymc.pm.sample", failing_sample)
+    with caplog.at_level(logging.INFO, logger="bambi"):
+        with pytest.raises(error_type) as raised:
+            init_fallback_model.fit(**init_fallback_options)
+    assert raised.value is error
+    assert [call["init"] for call in calls] == ["auto", "adapt_diag"]
+    assert len(_fallback_messages(caplog)) == 1
+
+
+def test_init_fallback_parallel_error(
+    init_fallback_model, init_fallback_options, monkeypatch, caplog
+):
+    # Only the real exception/cause shape is exercised, not a live worker.
+    calls = []
+
+    def failing_sample(**kwargs):
+        calls.append(deepcopy(kwargs))
+        try:
+            _raise_mass_matrix_error(0.0)
+        except ValueError as error:
+            raise ParallelSamplingError("Chain 0 failed", 0) from error
+
+    monkeypatch.setattr("bambi.backend.pymc.pm.sample", failing_sample)
+    with caplog.at_level(logging.INFO, logger="bambi"):
+        with pytest.raises(ParallelSamplingError) as raised:
+            init_fallback_model.fit(**init_fallback_options)
+    assert isinstance(raised.value.__cause__, ValueError)
+    assert "Mass matrix contains zeros" in str(raised.value.__cause__)
+    assert len(calls) == 1
+    assert _fallback_messages(caplog) == []
 
 
 def test_2d_response_no_shape(mock_pymc_sample):
