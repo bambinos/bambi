@@ -17,7 +17,7 @@ class BinomialBaseFamily(UnivariateFamily):
         if data is None:
             trials = model.response_term.data[:, 1]
         else:
-            trials = model.response_term.evaluate_new_data(data)[:, 1].astype(int)
+            trials = model.response_term.evaluate_new_trials(data).astype(int)
         # Prepend 'draw' and 'chain' dimensions
         trials = trials[np.newaxis, np.newaxis, :]
         return super().posterior_predictive(model, posterior, n=trials, random_seed=random_seed)

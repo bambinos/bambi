@@ -585,6 +585,38 @@ class TestBinomial(FitPredictParent):
             .item()
         )
 
+    @pytest.mark.parametrize(
+        "formula, trials",
+        [
+            ("prop(y, n) ~ x", [10, 20, 30]),
+            ("prop(y, trials=n) ~ x", [10, 20, 30]),
+            ("prop(y, n + 1) ~ x", [11, 21, 31]),
+            ("p(y, 62) ~ x", [62, 62, 62]),
+        ],
+    )
+    def test_binomial_predict_without_successes(self, data_beetle, formula, trials):
+        model = bmb.Model(formula, data_beetle, family="binomial")
+        idata = self.fit(model)
+
+        # The number of successes is what we want to predict, so it is not in the new data
+        new_data = pd.DataFrame({"x": [1.7, 1.8, 1.9], "n": [10, 20, 30]})
+        predicted = model.predict(
+            idata, kind="response", data=new_data, inplace=False, random_seed=1
+        )
+        draws = predicted.posterior_predictive[model.response_term.name].to_numpy()
+        assert draws.shape[-1] == 3
+        assert (0 <= draws).all()
+        assert (draws <= np.array(trials)).all()
+
+        # Same draws as when the (irrelevant) successes are in the data
+        new_data["y"] = 0
+        expected = model.predict(
+            idata, kind="response", data=new_data, inplace=False, random_seed=1
+        )
+        assert np.array_equal(
+            draws, expected.posterior_predictive[model.response_term.name].to_numpy()
+        )
+
     def test_binomial_regression_constant(self, data_beetle):
         # Uses a constant instead of variable in data frame
         model = bmb.Model("p(y, 62) ~ x", data_beetle, family="binomial")

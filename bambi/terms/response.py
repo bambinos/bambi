@@ -1,5 +1,6 @@
 import formulae as fm
 import numpy as np
+import pandas as pd
 
 from bambi.terms.base import BaseTerm
 from bambi.terms.utils import is_response_of_kind
@@ -82,6 +83,34 @@ class ResponseTerm(BaseTerm):
         # An intercept is needed for a valid formula, but its design matrix is not used.
         design = fm.design_matrices(self.name + " ~ 1", data, env=self._response.env)
         return np.asarray(design.response)
+
+    def evaluate_new_trials(self, data):
+        """Evaluate the number of trials of a binomial response using new data.
+
+        Unlike `evaluate_new_data()`, it does not need the successes to be in `data`, which is
+        the case when predicting new observations. It expects a response such as
+        `p(successes, trials)`.
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            The new data used to evaluate the number of trials.
+
+        Returns
+        -------
+        np.ndarray
+            A 1-dimensional array with the number of trials of each observation.
+        """
+        component = self.term.components[0]
+        if "trials" in component.call.kwargs:
+            trials = component.call.kwargs["trials"]
+        else:
+            trials = component.call.args[1]
+
+        trials = trials.eval(data, component.env)
+        if isinstance(trials, pd.Series):
+            return trials.to_numpy()
+        return np.full(len(data), trials)
 
     @property
     def binary(self):
