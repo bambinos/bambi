@@ -142,6 +142,55 @@ def test_auto_scale(data_diabetes):
     assert p3_off.name == "Cauchy"
 
 
+@pytest.mark.parametrize("family", ["gaussian", "t"])
+@pytest.mark.parametrize(
+    "response",
+    [
+        "censored(y, status)",
+        "truncated(y, lb=-2, ub=2)",
+        "truncated(y, lb=-2)",
+        "constrained(y, lb=-2, ub=2)",
+        "constrained(y, ub=2)",
+    ],
+)
+@pytest.mark.parametrize("explicit", [False, True], ids=["default", "explicit"])
+def test_scale_priors_with_response_metadata(family, response, explicit):
+    data = pd.DataFrame(
+        {
+            "y": [-1.5, -0.25, 0.5, 1.75],
+            "status": ["left", "none", "none", "right"],
+            "x": [-1.0, 0.0, 1.0, 2.0],
+        }
+    )
+
+    def get_prior_args(formula):
+        priors = None
+        if explicit:
+            priors = {
+                "Intercept": bmb.Prior("Normal", mu=2, sigma=3),
+                "x": bmb.Prior("Normal", mu=0, sigma=4),
+                "sigma": bmb.Prior("HalfNormal", sigma=5),
+            }
+        model = bmb.Model(formula, data, family=family, priors=priors)
+        parent = model.parameters[model.family.likelihood.parent]
+        intercept = parent.intercept_term.prior
+        slope = parent.common_terms["x"].prior
+        sigma = model.parameters["sigma"].prior
+        return np.array(
+            [
+                intercept.args["mu"],
+                intercept.args["sigma"],
+                slope.args["sigma"],
+                sigma.args["sigma"],
+            ]
+        )
+
+    baseline = get_prior_args("y ~ x")
+    transformed = get_prior_args(f"{response} ~ x")
+    assert np.isfinite(transformed).all()
+    np.testing.assert_allclose(transformed, baseline)
+
+
 def test_prior_str():
     # Tests __str__ method
     prior1 = bmb.Prior("Normal", mu=0, sigma=1)
