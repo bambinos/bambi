@@ -197,8 +197,13 @@ def _scale_smooth_term_normal(term, response_std, intercept_stats):
 
 def scale_priors(model):
     if isinstance(model.family, (Gaussian, StudentT)):
-        response_mean = np.mean(model.response_term.data)
-        response_std = np.std(model.response_term.data)
+        response = model.response_term
+        observed = response.data
+        if response.is_censored or response.is_truncated or response.is_constrained:
+            # The remaining columns contain censoring statuses or bounds, not observations.
+            observed = observed[:, 0]
+        response_mean = np.mean(observed)
+        response_std = np.std(observed)
     else:
         response_mean = 0
         response_std = 1
