@@ -344,3 +344,59 @@ def test_multiple_hsgp_and_by(data_1d_multiple_groups, mock_pymc_sample):
         conditional={"x1": np.linspace(0, 1, num=100), "fac2": ["a", "b", "c"]},
         subplot_kwargs={"main": "x1", "group": "fac2", "panel": "fac2"},
     )
+
+
+@pytest.mark.parametrize("centered", [False, True])
+def test_hsgp_by_multivariate_different_group_and_response_dims(centered, mock_pymc_sample):
+    rng = np.random.default_rng(1234)
+    n = 30
+    df = pd.DataFrame(
+        {
+            "x": rng.uniform(0, 1, size=n),
+            "g": rng.choice(["a", "b", "c"], size=n),
+            "y": rng.choice(["c0", "c1", "c2"], size=n),
+        }
+    )
+    formula = f"y ~ hsgp(x, by=g, m=5, c=1.5, centered={centered})"
+    model = bmb.Model(formula, df, family="categorical")
+    model.build()
+    assert_ip_dlogp(model)
+
+    idata = model.fit(tune=10, draws=10, chains=2, random_seed=1234)
+    pred = model.predict(idata, inplace=False)
+    assert pred.posterior["p"].dims == ("chain", "draw", "__obs__", "y_dim")
+    assert pred.posterior["p"].shape == (2, 10, n, 3)
+
+
+def test_hsgp_by_multivariate_sqrt_psd_broadcasts_along_response_axis():
+    rng = np.random.default_rng(1234)
+    n = 30
+    # 2 'by' levels and 2 non-reference response levels: equal sizes previously
+    # caused sqrt_psd to silently broadcast across groups instead of response dims.
+    df = pd.DataFrame(
+        {
+            "x": rng.uniform(0, 1, size=n),
+            "g": rng.choice(["a", "b"], size=n),
+            "y": rng.choice(["c0", "c1", "c2"], size=n),
+        }
+    )
+    term_name = "hsgp(x, by=g, m=5, c=1.5, share_cov=False)"
+    model = bmb.Model(f"y ~ {term_name}", df, family="categorical")
+    model.build()
+
+    pm_model = model.backend.model
+    weights_det = pm_model[f"{term_name}_weights"]
+    weights = weights_det.eval(
+        {
+            pm_model[f"{term_name}_ell"]: np.array([0.1, 10.0]),
+            pm_model[f"{term_name}_sigma"]: np.array([1.0, 5.0]),
+            pm_model[f"{term_name}_weights_raw"]: np.ones((5, 2, 2)),
+        }
+    )
+
+    assert weights.shape == (5, 2, 2)
+    # Within each 'by' group, sqrt_psd must broadcast identically across response levels.
+    np.testing.assert_allclose(weights[:, 0, 0], weights[:, 0, 1])
+    np.testing.assert_allclose(weights[:, 1, 0], weights[:, 1, 1])
+    # Across 'by' groups with distinct hyperparams, sqrt_psd must differ.
+    assert not np.allclose(weights[:, 0, 0], weights[:, 1, 0])
