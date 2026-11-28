@@ -1,4 +1,4 @@
-name: Build and publish documentation
+name: CI Docs
 
 on:
   push:
@@ -16,6 +16,8 @@ jobs:
   build-docs:
     if: github.repository == 'bambinos/bambi'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
     steps:
@@ -41,15 +43,59 @@ jobs:
           pixi run -e dev great-docs build
           touch docs/_site/.nojekyll
 
-      - name: Publish documentation to GitHub
-        if: github.ref == 'refs/heads/main'
-        uses: quarto-dev/quarto-actions/publish@v2
+      - name: Save documentation artifact
+        uses: actions/upload-artifact@v7
         with:
-          target: gh-pages
-          render: false
+          name: docs-html
           path: docs/_site
+          include-hidden-files: true
+
+      - name: How to preview this build locally
+        if: github.event_name == 'pull_request'
+        run: pixi run -e dev great-docs ci notice --run ${{ github.run_id }} --pr ${{ github.event.number }}
+
+      - name: Save PR number
+        if: github.event_name == 'pull_request'
+        run: printf '%s\n' "$PR_NUMBER" > "$RUNNER_TEMP/pr_number"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+
+      - name: Upload PR number
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v7
+        with:
+          name: pr-number
+          path: ${{ runner.temp }}/pr_number
+
+  publish-docs:
+    needs: build-docs
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download documentation artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: docs-html
+          path: docs/_site
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs/_site
+          include-hidden-files: true
+
+      - name: Publish documentation to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
 
 
 # NOTES
