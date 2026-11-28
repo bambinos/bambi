@@ -7,6 +7,13 @@ repo: https://github.com/bambinos/bambi
 site_url: https://bambinos.github.io/bambi/
 source:
   branch: main
+versions:
+  - tag: dev
+    label: "0.22.0 (dev)"
+    version: "0.22.0"
+    prerelease: true
+    # Serve development docs at the root until the first versioned release.
+    latest: true
 authors:
   - name: Tomás Capretto
     role: Maintainer
@@ -51,10 +58,16 @@ interlinks:
         - az
     arviz_plots:
       url: https://arviz-plots.readthedocs.io/en/latest/
+      aliases:
+        - azp
     arviz_stats:
       url: https://arviz-stats.readthedocs.io/en/latest/
+      aliases:
+        - azs
     arviz_base:
       url: https://arviz-base.readthedocs.io/en/latest/
+      aliases:
+        - azb
     pymc:
       url: https://www.pymc.io/projects/docs/en/stable/
       aliases:

@@ -163,7 +163,7 @@ If you want to support Bambi financially, you can [make a donation](https://numf
 
 Bambi wishes to maintain a positive community. Additional details can be found in the [Code of Conduct](https://github.com/bambinos/bambi/blob/main/CODE_OF_CONDUCT.md)
 
-If you have experienced or witnessed any behaviour that violates our Code of Conduct, we encourage you to report it through [this contact form](https://bambinos.github.io/bambi/contact.html).
+If you have experienced or witnessed any behaviour that violates our Code of Conduct, we encourage you to report it through [this reporting form](docs/coc-violation.qmd).
 
 ## License
 
