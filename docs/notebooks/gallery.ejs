@@ -7,11 +7,11 @@
 
 <p><%- item.description %></p>
 
-<div class="list grid" style="column-gap: 10px;">
+<div class="list grid" style="column-gap: 24px;">
 
 <% for (const tile of item.tiles) { %>
-  <div class="card border-2 rounded-1 g-col-12 g-col-sm-6 g-col-md-4 mb-2" <%= metadataAttrs(tile) %>>
-    <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
+  <div class="card g-col-12 g-col-sm-6 g-col-md-4 mb-2" <%= metadataAttrs(tile) %>>
+    <div class="card-header">
       <small class="card-text inline-block">
         <a href="<%- tile.href %>" class="listing-title"><%= tile.title %></a>
         <% if (tile.code) { %>
