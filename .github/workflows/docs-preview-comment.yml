@@ -1,0 +1,39 @@
+name: Comment docs preview
+
+on:
+  workflow_run:
+    workflows: [CI Docs]
+    types: [completed]
+
+jobs:
+  preview-docs:
+    if: >-
+      github.repository == 'bambinos/bambi' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      pull-requests: write
+    steps:
+      - name: Download PR number
+        uses: actions/download-artifact@v7
+        with:
+          name: pr-number
+          path: ${{ runner.temp }}/docs-pr-number
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post preview instructions to the PR
+        shell: bash
+        run: |
+          PR_NUMBER=$(cat "$RUNNER_TEMP/docs-pr-number/pr_number")
+          [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]
+          PR_SHA=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" --jq 'select(.state == "open") | .head.sha')
+          if [[ "$PR_SHA" == "$DOCS_HEAD_SHA" ]]; then
+            pipx run great-docs ci pr-comment --run "$DOCS_RUN_ID" --pr "$PR_NUMBER" --repo "$GITHUB_REPOSITORY"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCS_RUN_ID: ${{ github.event.workflow_run.id }}
+          DOCS_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}

@@ -54,6 +54,19 @@ jobs:
         if: github.event_name == 'pull_request'
         run: pixi run -e dev great-docs ci notice --run ${{ github.run_id }} --pr ${{ github.event.number }}
 
+      - name: Save PR number
+        if: github.event_name == 'pull_request'
+        run: printf '%s\n' "$PR_NUMBER" > "$RUNNER_TEMP/pr_number"
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+
+      - name: Upload PR number
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v7
+        with:
+          name: pr-number
+          path: ${{ runner.temp }}/pr_number
+
   publish-docs:
     needs: build-docs
     if: github.ref == 'refs/heads/main'
@@ -83,21 +96,6 @@ jobs:
       - name: Publish documentation to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
-
-  preview-docs:
-    needs: build-docs
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-    steps:
-      # Keep the comment token separate from the job that builds PR code.
-      - name: Post preview instructions to the PR
-        # Fork PRs may have a read-only token.
-        continue-on-error: true
-        run: pipx run great-docs ci pr-comment --run ${{ github.run_id }} --pr ${{ github.event.number }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
 # NOTES
