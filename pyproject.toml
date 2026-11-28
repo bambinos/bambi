@@ -133,6 +133,7 @@ python = "~=3.13.0"
 [tool.pixi.environments]
 default = { solve-group = "default" }
 dev = { features = ["dev", "test", "docs", "jax", "nutpie"], solve-group = "default" }
+docs = { features = ["docs"], solve-group = "default" }
 # Only used for testing purposes
 py312 = {features = ["dev", "test", "docs", "jax", "nutpie", "py312"]}
 py313 = {features = ["dev", "test", "docs", "jax", "nutpie", "py313"]}
