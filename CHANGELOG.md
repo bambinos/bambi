@@ -1,3 +1,29 @@
+<a id="0.22.0"></a>
+# [Bambi 0.22.0](https://github.com/bambinos/bambi/releases/tag/0.22.0) - 2026-11-28
+
+## What's Changed
+* Raise informative errors in set_alias for distributional models by [@raashish1601](https://github.com/raashish1601) in [#1075](https://github.com/bambinos/bambi/pull/1075)
+* Compute average_by summaries from averaged draws in interpret by [@raashish1601](https://github.com/raashish1601) in [#1074](https://github.com/bambinos/bambi/pull/1074)
+* Fix inverse link for modeled von Mises concentration by [@jgraving](https://github.com/jgraving) in [#1085](https://github.com/bambinos/bambi/pull/1085)
+* Give random_seed a None default in Family.posterior_predictive by [@VenishPaneliya](https://github.com/VenishPaneliya) in [#1083](https://github.com/bambinos/bambi/pull/1083)
+* Forward random_seed when drawing constrained responses by [@VenishPaneliya](https://github.com/VenishPaneliya) in [#1089](https://github.com/bambinos/bambi/pull/1089)
+* Correct the documented parameter names in build_common_terms and ConstantComponent by [@dylanpulver](https://github.com/dylanpulver) in [#1092](https://github.com/bambinos/bambi/pull/1092)
+* Fix auxiliary_parameters order for PYTHONHASHSEED reproducibility by [@dbdefault](https://github.com/dbdefault) in [#1096](https://github.com/bambinos/bambi/pull/1096)
+* Fix prior scaling for multi-column numeric terms with logit/probit links by [@JoeyTan21](https://github.com/JoeyTan21) in [#1093](https://github.com/bambinos/bambi/pull/1093)
+* Migrate documentation to great-docs by [@tomicapretto](https://github.com/tomicapretto) in [#1105](https://github.com/bambinos/bambi/pull/1105)
+* Fix docs CI by [@tomicapretto](https://github.com/tomicapretto) in [#1106](https://github.com/bambinos/bambi/pull/1106)
+
+## New Contributors
+* [@raashish1601](https://github.com/raashish1601) made their first contribution in [#1075](https://github.com/bambinos/bambi/pull/1075)
+* [@VenishPaneliya](https://github.com/VenishPaneliya) made their first contribution in [#1083](https://github.com/bambinos/bambi/pull/1083)
+* [@dylanpulver](https://github.com/dylanpulver) made their first contribution in [#1092](https://github.com/bambinos/bambi/pull/1092)
+* [@dbdefault](https://github.com/dbdefault) made their first contribution in [#1096](https://github.com/bambinos/bambi/pull/1096)
+
+**Full Changelog**: https://github.com/bambinos/bambi/compare/0.21.0...0.22.0
+
+[Changes][0.22.0]
+
+
 <a id="0.21.0"></a>
 # [Bambi 0.21.0](https://github.com/bambinos/bambi/releases/tag/0.21.0) - 2026-09-10
 
@@ -642,6 +668,7 @@ Release 0.0.5
 [Changes][0.0.5]
 
 
+[0.22.0]: https://github.com/bambinos/bambi/compare/0.21.0...0.22.0
 [0.21.0]: https://github.com/bambinos/bambi/compare/0.20.0...0.21.0
 [0.20.0]: https://github.com/bambinos/bambi/compare/0.19.0...0.20.0
 [0.19.0]: https://github.com/bambinos/bambi/compare/0.18.0...0.19.0

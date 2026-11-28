@@ -1,5 +1,9 @@
 import logging
+import os
 import pathlib
+import subprocess
+import sys
+import textwrap
 
 import pytest
 import arviz as az
@@ -19,6 +23,32 @@ from helpers import assert_ip_dlogp, graph_contains_op
 def init_data():
     """Data used to test initialization method"""
     return pd.read_csv(pathlib.Path(__file__).parent / "data" / "obs.csv")
+
+
+@pytest.mark.parametrize("hash_seed", ["1", "3"])
+def test_auxiliary_parameter_order_is_independent_of_hash_seed(hash_seed):
+    script = textwrap.dedent(
+        """
+        import bambi as bmb
+        import pandas as pd
+
+        data = pd.DataFrame({"x": [0, 1, 2, 3], "y": [1.0, 2.5, 1.5, 3.0]})
+        model = bmb.Model("y ~ x", data, family="t")
+        model.build()
+
+        assert model.family.auxiliary_parameters == ["sigma", "nu"]
+        assert list(model.parameters) == ["mu", "sigma", "nu"]
+        assert [rv.name for rv in model.backend.model.free_RVs] == [
+            "sigma", "nu", "Intercept", "x"
+        ]
+        """
+    )
+    subprocess.run(
+        [sys.executable, "-c", script],
+        env={**os.environ, "PYTHONHASHSEED": hash_seed},
+        check=True,
+        timeout=120,
+    )
 
 
 def test_term_init(data_diabetes):

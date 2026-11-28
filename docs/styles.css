@@ -1,236 +1,506 @@
-/* --- */
+@import url("https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap");
 
-/* css styles */
-
-/*
-:root {
-  --site-color-primary:  #F9F4D8;
-  --site-color-primary: #EE8320;
-  --site-color-primary: #C29A68;
-}
-*/
-
-:root {
-    --bs-blue: #2780e3;
-    --bs-indigo: #6610f2;
-    --bs-purple: #613d7c;
-    --bs-pink: #e83e8c;
-    --bs-red: #ff0039;
-    --bs-orange: #f0ad4e;
-    --bs-yellow: #ff7518;
-    --bs-green: #3fb618;
-    --bs-teal: #20c997;
-    --bs-cyan: #9954bb;
-    --bs-white: #fff;
-    --bs-gray: #6c757d;
-    --bs-gray-dark: #373a3c;
-    --bs-gray-100: #f8f9fa;
-    --bs-gray-200: #e9ecef;
-    --bs-gray-300: #dee2e6;
-    --bs-gray-400: #ced4da;
-    --bs-gray-500: #adb5bd;
-    --bs-gray-600: #6c757d;
-    --bs-gray-700: #495057;
-    --bs-gray-800: #373a3c;
-    --bs-gray-900: #212529;
-    --bs-default: #373a3c;
-    --bs-primary: #2780e3;
-    --bs-secondary: #373a3c;
-    --bs-success: #3fb618;
-    --bs-info: #9954bb;
-    --bs-warning: #ff7518;
-    --bs-danger: #ff0039;
-    --bs-light: #f8f9fa;
-    --bs-dark: #373a3c;
-    --bambi-green-clearer: #1f86ac;
-    --bambi-green: #196d8c;
-    --bambi-green-darker: #0a3c4e;
+/* Light palette. */
+body.quarto-light {
+  --bambi-background: #ffffff;
+  --bambi-surface: #f5f7f8;
+  --bambi-output-background: #f5f5f5;
+  --bambi-text: #28343a;
+  --bambi-muted: #5d6970;
+  --bambi-link: #196d8c;
+  --bambi-link-hover: #0a3c4e;
+  --bambi-border: #dee2e6;
+  --bambi-button-text: #ffffff;
+  --bs-link-color-rgb: 25, 109, 140;
+  --bs-link-hover-color-rgb: 10, 60, 78;
 }
 
+/* Dark palette. */
+body.quarto-dark {
+  --bambi-surface: #252b30;
+  --bambi-text: #e2e8ec;
+  --bambi-muted: #acb8c0;
+  --bambi-link: #80bed7;
+  --bambi-link-hover: #b8deed;
+  --bambi-border: #414a50;
+  --bambi-button-text: #28343a;
+  --bs-link-color-rgb: 128, 190, 215;
+  --bs-link-hover-color-rgb: 184, 222, 237;
+}
+
+/* Layout dimensions. */
+:root {
+  --bs-font-monospace: "Source Code Pro", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace;
+  --bambi-page-width: 1440px;
+  --bambi-page-gutter: 24px;
+  --bambi-sidebar-width: 230px;
+  --bambi-margin-width: 220px;
+  --bambi-column-gap: 28px;
+  --bambi-navbar-height: 64px;
+  --bambi-sidebar-font-size: 0.85rem;
+  --bambi-grid-columns:
+    [screen-start screen-start-inset page-start page-start-inset body-start-outset] var(--bambi-sidebar-width)
+    [body-start body-content-start] minmax(0, 1fr)
+    [body-content-end body-end] var(--bambi-margin-width)
+    [body-end-outset page-end-inset page-end screen-end-inset screen-end];
+}
+
+/* Apply the palette to Great Docs and Bootstrap. */
+body.quarto-light,
+body.quarto-dark {
+  --gd-link-color: var(--bambi-link);
+  --gd-active-link: var(--bambi-link);
+  --gd-navbar-bg: inherit;
+  --gd-navbar-text: inherit;
+}
+
+body.quarto-light {
+  --gd-bg-primary: var(--bambi-background);
+}
+
+body:not(.doc-reference):not(.doc-api-page) {
+  --bs-body-color: var(--bambi-text);
+  --gd-text-primary: var(--bambi-text);
+  --gd-text-muted: var(--bambi-muted);
+  --gd-bg-secondary: var(--bambi-surface);
+  color: var(--bambi-text);
+}
+
+/* Code, signatures, and API names. */
+body :is(code, pre, kbd, samp),
+body a.gdls-code,
+body span.doc-object-name.doc-label,
+body table.gd-summary-table td:first-child,
+body.doc-reference section.doc-group > dl a {
+  font-family: var(--bs-font-monospace);
+}
+
+/* Content links and section anchors. */
+#quarto-document-content section[id] {
+  scroll-margin-top: calc(var(--bambi-navbar-height) + 16px);
+}
+
+#quarto-document-content section:target::before {
+  content: none;
+}
+
+#quarto-document-content a:not(.btn),
+.gd-homepage-sidebar a {
+  color: var(--bambi-link);
+}
+
+#quarto-document-content a:not(.btn):hover,
+.gd-homepage-sidebar a:hover {
+  color: var(--bambi-link-hover);
+}
+
+/* Tabsets. */
+.panel-tabset > .nav-tabs {
+  --bs-nav-tabs-border-color: var(--bambi-border);
+  --bs-nav-tabs-link-hover-border-color: var(--bambi-border);
+  --bs-nav-tabs-link-active-color: var(--bambi-link);
+  --bs-nav-tabs-link-active-bg: var(--gd-bg-primary);
+  --bs-nav-tabs-link-active-border-color: var(--bambi-border) var(--bambi-border)
+    var(--gd-bg-primary);
+}
+
+.panel-tabset > .nav-tabs .nav-link.active {
+  text-decoration: none;
+}
+
+.panel-tabset > .tab-content {
+  border-color: var(--bambi-border);
+}
+
+/* Navbar. */
 #quarto-header {
-  border-bottom: 1px solid #dee2e6;
-  background-color: #FFFFFF;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid var(--bambi-border);
+  background-color: var(--gd-navbar-bg);
+  box-shadow: none;
 }
 
-#quarto-header nav {
-  max-width: 1325px;
-  margin: auto;
+#quarto-header > .navbar,
+#quarto-content {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--bambi-page-width);
+  margin-inline: auto !important;
+  padding-inline: var(--bambi-page-gutter);
+}
+
+#quarto-header > .navbar {
+  min-height: calc(var(--bambi-navbar-height) - 1px);
+  padding-block: 0;
+  border-bottom: 0;
+  box-shadow: none;
+}
+
+#quarto-header > .navbar > .navbar-container {
+  min-height: calc(var(--bambi-navbar-height) - 1px);
+  margin-inline: 0 !important;
+  padding: 0;
+}
+
+#quarto-header .navbar-brand {
+  padding-block: 0;
+}
+
+#quarto-header .navbar-logo {
+  height: 56px;
+  max-height: 56px;
+  width: 180px;
+  object-fit: cover;
+  margin: 0;
+  transition: none;
+}
+
+#quarto-header .navbar-brand img:hover {
+  transform: none;
 }
 
 #quarto-header .nav-link {
-  margin-left: 1.6rem;
-  margin-right: 1.6rem;
-  padding-right: 0.01rem;
-  padding-left: 0.01rem;
-  font-size: 20px;
-  color: var(--bs-default);
-}
-
-#quarto-header .nav-link .bi { /*e.g. Github logo*/
-  font-size: 20px;
-}
-
-/* Navbar links animation */
-.nav-item .nav-link {
-  position: relative;
+  margin-inline: 0;
+  padding-inline: 0;
+  font-size: 1.2rem;
   text-decoration: none;
 }
 
-/* Create the animated underline */
-.nav-item .nav-link::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 50%;
+#quarto-header #navbarCollapse .navbar-nav > .nav-item > .nav-link {
+  color: var(--bambi-muted) !important;
+  background-color: transparent !important;
+  border-radius: 0;
+  font-weight: 400;
+  transition: none;
+}
+
+#quarto-header .nav-link:is(:hover, :focus-visible),
+#quarto-header .nav-link:is(:hover, :focus-visible) :is(.menu-text, .bi),
+#quarto-header #navbarCollapse .navbar-nav > .nav-item > .nav-link:is(:hover, :focus-visible, .active) {
+  color: var(--bambi-link) !important;
+}
+
+#quarto-header #navbarCollapse .navbar-nav > .nav-item > .nav-link.active {
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: currentColor !important;
+  text-underline-offset: 0.4em;
+}
+
+#quarto-header #navbarCollapse .nav-link::after {
+  content: none;
+}
+
+#quarto-header a:focus-visible {
+  outline: 2px solid var(--bambi-link);
+  outline-offset: 4px;
+}
+
+/* Page grid and gallery layout. */
+#quarto-content {
+  display: grid !important;
+  grid-template-columns:
+    [screen-start screen-start-inset page-start page-start-inset body-start-outset body-start body-content-start] minmax(0, 1fr)
+    [body-content-end body-end body-end-outset page-end-inset page-end screen-end-inset screen-end] !important;
+  grid-template-rows: [content-top] auto [content-bottom] auto [page-bottom] !important;
+  align-items: start;
+  padding-block: 24px;
+}
+
+#quarto-content > #quarto-document-content {
+  grid-column: body-content-start / body-content-end !important;
+  grid-row: content-top / content-bottom !important;
+  display: block !important;
+  min-width: 0;
   width: 100%;
-  height: 3px;
-  background-color: var(--bs-default);
-
-  /* Start collapsed at center */
-  transform: translateX(-50%) scaleX(0);
-  transform-origin: center;
-  transition: transform 0.3s ease;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-/* Animate underline on hover */
-.nav-item .nav-link:hover::after {
-  transform: translateX(-50%) scaleX(1);
+#quarto-content > .page-navigation {
+  grid-column: body-content-start / body-content-end;
+  grid-row: content-bottom / page-bottom;
 }
 
-/* Keep underline visible for the active link */
-.nav-item .nav-link.active::after {
-  transform: translateX(-50%) scaleX(1);
+.bambi-gallery #quarto-content > #quarto-document-content,
+.bambi-gallery #quarto-content > .page-navigation {
+  grid-column: screen-start / screen-end !important;
 }
 
-.navbar {
-  background-color: #ffffff;
-  padding-top: 0px;
-  padding-bottom: 0px;
+/* Previous and next page links. */
+.page-navigation .pagination-link {
+  color: var(--bambi-muted);
+  border-color: var(--bambi-border);
 }
 
-.navbar #quarto-search.type-overlay .aa-Autocomplete svg.aa-SubmitIcon {
-  color: var(--bs-default);
+.page-navigation .pagination-link:is(:hover, :focus-visible) {
+  color: var(--bambi-link-hover);
+  background-color: var(--bambi-surface);
+  border-color: var(--bambi-link);
 }
 
-.navbar-logo {
-  max-height: 82px;
+.page-navigation .pagination-link:focus-visible {
+  outline: 2px solid var(--bambi-link);
+  outline-offset: 2px;
 }
 
-.navbar-brand img {
-  transition: transform 0.2s ease;
+/* Sidebar navigation and table of contents. */
+body #quarto-sidebar.sidebar-navigation {
+  background: var(--gd-bg-primary) !important;
 }
 
-.navbar-brand:hover img {
-  transform: scale(1.04);
+body #quarto-sidebar.sidebar-navigation .sidebar-item,
+body #quarto-sidebar.sidebar-navigation .sidebar-item-container,
+body #quarto-sidebar.sidebar-navigation .sidebar-item-text {
+  font-family: var(--bs-font-sans-serif);
+  font-size: var(--bambi-sidebar-font-size);
+  line-height: 1.5;
 }
 
-
-.quarto-navbar-tools {
-  font-size: 21px; /*so gh logo is larger*/
+body #quarto-sidebar.sidebar-navigation .sidebar-item-text {
+  color: var(--bambi-muted);
 }
 
-div.sidebar-item-container .active {
-  color: var(--bambi-green);
+body #quarto-sidebar.sidebar-navigation .sidebar-item .menu-text {
+  font-size: inherit;
+}
+
+body:is(.doc-reference, .doc-api-page) #quarto-sidebar.sidebar-navigation .sidebar-link[href]:not([href$="/index.html"], [href="index.html"], [href$="/"]),
+body:is(.doc-reference, .doc-api-page) .gd-menu-overlay .gd-menu-list .gd-menu-item:not([href$="/index.html"], [href="index.html"], [href$="/"]) {
+  font-family: var(--bs-font-monospace);
+}
+
+body:is(.doc-reference, .doc-api-page) #quarto-sidebar.sidebar-navigation .sidebar-link:is([href$="/index.html"], [href="index.html"], [href$="/"]),
+body:is(.doc-reference, .doc-api-page) .gd-menu-overlay .gd-menu-list .gd-menu-item:is([href$="/index.html"], [href="index.html"], [href$="/"]) {
+  font-family: var(--bs-font-sans-serif);
   font-weight: 600;
 }
 
-/* Controls */
-.sidebar nav[role=doc-toc] ul>li>a.active, .sidebar nav[role=doc-toc] ul>li>ul>li>a.active {
-  color: var(--bambi-green) !important;
-  border-left: 2px solid var(--bambi-green);
+body #quarto-sidebar .sidebar-menu-container {
+  border-bottom: 0;
 }
 
-.sidebar nav[role=doc-toc] ul>li>a:hover, .sidebar nav[role=doc-toc] ul>li>ul>li>a:hover {
-    color: var(--bambi-green-clearer) !important;
-}
-
-.sidebar nav[role=doc-toc]>ul a {
-  border-left: 2px solid white;
-}
-
-/*Left sidebar*/
-.sidebar-item-container .text-start {
+body #quarto-sidebar a.sidebar-item-text.sidebar-link.active {
+  color: var(--bambi-link) !important;
   font-weight: 600;
-  font-size: 16px !important;
+  text-decoration: underline;
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
 }
 
-.sidebar-item-text {
-  font-weight: 500;
-  font-size: 15px;
-  line-height: 24px;
+body #quarto-sidebar .sidebar-link[href]::before {
+  content: none !important;
 }
 
-.sidebar-item-section {
-  padding-top: 16px;
+body #quarto-sidebar .sidebar-link[href]:is(:hover, :focus-visible) {
+  color: var(--bambi-link-hover) !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
-/* dataframe tables */
-.dataframe {
-  font-size: 15px;
+body :is(#quarto-sidebar, #quarto-margin-sidebar) a:focus-visible {
+  outline: 2px solid var(--bambi-link);
+  outline-offset: 2px;
 }
 
-/* center dataframe tables */
-.dataframe, .dataframe table {
-  width: inherit;
-  margin-left: auto;
-  margin-right: auto;
+body :is(#quarto-sidebar, #quarto-margin-sidebar) #TOC .nav-link,
+#toc-title {
+  font-size: var(--bambi-sidebar-font-size);
+  line-height: 1.5;
+  color: var(--bambi-muted);
 }
 
-/* This makes the "main" page wider than by default */
-@media (min-width: 992px) {
-    body.docked .page-columns {
-        display: grid;
-        gap: 0;
-        grid-template-columns:
-            [screen-start] 1.5em
-            [screen-start-inset] 4fr /*Changed from 5fr to 4fr*/
-            [page-start] minmax(25px, 50px)
-            [page-start-inset] minmax(50px, 150px)
-            [body-start-outset] minmax(25px, 50px)
-            [body-start] 1.5em
-            [body-content-start] minmax(500px, calc(800px - 3em))
-            [body-content-end] 1.5em
-            [body-end] minmax(25px, 50px)
-            [body-end-outset] minmax(50px, 150px)
-            [page-end-inset] minmax(25px, 50px)
-            [page-end] 4fr /*Changed from 5fr to 4fr*/
-            [screen-end-inset] 1.5em
-            [screen-end];
-    }
+#toc-title {
+  text-transform: none;
+  letter-spacing: normal;
 }
 
-a {
-    color: var(--bambi-green);
+body :is(#quarto-sidebar, #quarto-margin-sidebar) #TOC .nav-link.active {
+  color: var(--bambi-link) !important;
+  border-left-color: var(--bambi-link);
 }
 
-a:hover {
-    color: var(--bambi-green-darker);
+body :is(#quarto-sidebar, #quarto-margin-sidebar) #TOC .nav-link:is(:hover, :focus-visible) {
+  color: var(--bambi-link-hover) !important;
 }
 
-.sidebar-navigation li a:hover {
-    text-decoration: none;
-    color: var(--bambi-green-clearer);
+#quarto-sidebar .sidebar-item-section > .sidebar-item-container > .sidebar-item-text:not([href]) {
+  pointer-events: auto;
+  cursor: pointer;
 }
 
-
-/*Remove top and bottom padding from navbar image*/
-.navbar-brand {
-    padding-top: 0;
-    padding-bottom: 0;
+#quarto-sidebar .sidebar-item-section > .sidebar-item-container > .sidebar-item-text:not([href]) > .menu-text {
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 600;
+  font-size: inherit;
+  color: var(--bambi-muted);
 }
 
-/*Gallery listings*/
+#quarto-sidebar a.sidebar-item-toggle.text-start {
+  display: inline-flex !important;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+#quarto-sidebar ul.sidebar-section.collapse:not(.show) {
+  display: none !important;
+}
+
+#quarto-sidebar ul.sidebar-section.collapsing,
+#quarto-sidebar .sidebar-item-toggle .bi-chevron-right::before {
+  transition: none;
+}
+
+/* Floating menus. */
+body .gd-menu-overlay .gd-menu-list .gd-menu-item,
+body .gd-otp-panel .gd-otp-panel-link {
+  font-family: var(--bs-font-sans-serif);
+  font-size: var(--bambi-sidebar-font-size);
+  line-height: 1.5;
+  color: var(--bambi-muted);
+}
+
+body .gd-menu-overlay .gd-menu-section {
+  font-size: var(--bambi-sidebar-font-size);
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--bambi-muted);
+}
+
+body #quarto-sidebar .sidebar-filter-input:focus,
+body .gd-menu-overlay .gd-menu-ref-filter .gd-menu-ref-filter-input:focus {
+  border-color: var(--bambi-link);
+  outline: 2px solid var(--bambi-link);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+body .gd-menu-overlay .gd-menu-list .gd-menu-item-active {
+  color: var(--bambi-link);
+  background: var(--bambi-surface);
+}
+
+body .gd-menu-overlay .gd-menu-list .gd-menu-item:is(:hover, :focus-visible),
+body .gd-otp-panel .gd-otp-panel-link:is(:hover, :focus-visible),
+body .gd-menu-overlay .gd-menu-item-focused {
+  color: var(--bambi-link-hover);
+  outline-color: var(--bambi-link);
+}
+
+/* Narrative pages and code blocks. */
+body:not(.doc-reference):not(.doc-api-page) #quarto-document-content :is(h1, h2, h3) {
+  font-family: inherit;
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+body:not(.doc-reference):not(.doc-api-page) div.sourceCode {
+  background-color: var(--bambi-surface);
+  border: 1px solid var(--bambi-border);
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+body.quarto-light .cell-output.cell-output-stdout {
+  background-color: var(--bambi-output-background);
+  border-color: var(--bambi-border);
+}
+
+.cell-output-display img {
+  display: block;
+  margin-inline: auto;
+}
+
+section > .level2 {
+  overflow-x: auto;
+}
+
+/* Homepage and project metadata. */
+.gd-homepage #quarto-document-content h1.title {
+  font-size: 2rem;
+  line-height: 1.25;
+}
+
+.gd-homepage #quarto-document-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.gd-homepage-sidebar {
+  font-size: var(--bambi-sidebar-font-size);
+  line-height: 1.5;
+}
+
+.gd-homepage .gd-homepage-sidebar h3 {
+  font-size: var(--bambi-sidebar-font-size);
+  font-weight: 600;
+  color: var(--bambi-muted);
+  margin-top: 1.5rem;
+}
+
+.gd-homepage-sidebar > section:first-child > h3 {
+  margin-top: 0;
+}
+
+.gd-homepage-sidebar #developers > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 8px;
+  align-items: center;
+  padding-top: 0 !important;
+}
+
+.gd-homepage-sidebar #developers > div + div {
+  margin-top: 12px;
+}
+
+.gd-homepage-sidebar #developers p {
+  margin: 0;
+}
+
+.gd-homepage-sidebar #developers > div > span {
+  margin: 0 !important;
+}
+
+.gd-homepage-sidebar #developers > div > span:first-child {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.gd-homepage-sidebar #developers > div > span:nth-child(2) {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+.gd-homepage-sidebar #developers > div > span:last-child {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+}
+
+.gd-homepage-sidebar #developers a {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+/* Example gallery cards. */
 .listing-title {
   text-decoration: none;
-  font-size: 19px;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .listing-subtitle {
-  font-size: 16px;
+  font-size: 0.875rem;
+  color: var(--bambi-muted) !important;
 }
 
-/*Images are centered vertically*/
 .listing-image {
   height: 100%;
   display: flex;
@@ -238,41 +508,43 @@ a:hover {
   align-items: center;
 }
 
-
-/*Add hover effect to card*/
-.card {
-  transition:
-    .3s transform cubic-bezier(.155, 1.105, .295, 1.12),
-    .3s box-shadow,
-    .3s -webkit-transform cubic-bezier(.155,1.105,.295,1.12);
+.quarto-listing .card {
+  position: relative;
+  border: 1px solid var(--bambi-border) !important;
+  border-radius: 4px;
+  box-shadow: none;
+  transition: none;
 }
 
-.card:hover{
-  transform: scale(1.01);
-  box-shadow: 0 6px 14px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
+.quarto-listing .card:hover,
+.quarto-listing .card:focus-within {
+  border-color: var(--bambi-link) !important;
+  box-shadow: none;
+  transform: none;
 }
 
-/*Make the entire card clickable*/
-.card {
+.quarto-listing .card-header {
+  background-color: transparent !important;
+  border-bottom: 0;
+  padding: 1rem !important;
+}
+
+.quarto-listing .card a:focus-visible {
+  outline: 2px solid var(--bambi-link);
+  outline-offset: 2px;
+}
+
+.quarto-listing .card .listing-title::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.quarto-listing .card .source-code {
   position: relative;
 }
 
-.card a::before {
-  content: "";
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  bottom: 0px;
-  left: 0px;
-}
-
-/*Add scroll bar if needed, nothing if not*/
-section > .level2 {
-  overflow-x: auto;
-}
-
-/* Form styles */
-
+/* Code of Conduct report form. */
 .bambi-form {
   display: flex;
   flex-direction: column;
@@ -281,64 +553,156 @@ section > .level2 {
 
 .feedback-input {
   background-color: transparent;
-  border-radius: 5px;
-  border: 2px solid #dcdcdc;
+  border-radius: 4px;
+  border: 1px solid var(--bambi-border);
+  color: var(--bambi-text);
   box-sizing: border-box;
-  outline: 0;
-  padding: 10px;
-  transition: all 0.3s;
+  padding: 12px;
   width: 100%;
 }
 
-.feedback-input:focus {
-  border: 2px solid #12698a;
+.feedback-input:focus-visible,
+.form-submit:focus-visible {
+  outline: 2px solid var(--bambi-link);
+  outline-offset: 2px;
 }
 
 .form-submit {
-  background: #12698a;
-  border-radius: 5px;
-  border: 2px solid #12698a;
-  color: #ffffff;
+  background: var(--bambi-link);
+  border-radius: 4px;
+  border: 1px solid var(--bambi-link);
+  color: var(--bambi-button-text);
   cursor: pointer;
-  font-size: 24px;
-  font-weight: 700;
-  padding: 8px;
-  transition: all 0.3s;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 8px 12px;
   width: 100%;
 }
 
 .form-submit:hover {
-  opacity: 0.8;
+  background: var(--bambi-link-hover);
+  border-color: var(--bambi-link-hover);
 }
 
+/* Desktop layout and scrollable sidebars. */
+@media (min-width: 992px) {
+  #quarto-header > .navbar {
+    height: calc(var(--bambi-navbar-height) - 1px);
+  }
 
-/* styles for parameter tables, etc.. ----
-*/
+  #quarto-header .navbar-brand-container {
+    grid-column: page-start / body-start;
+    justify-self: start;
+    max-width: none;
+    margin-inline: 0 !important;
+  }
 
-.doc-section dt code {
-    background: none;
+  #quarto-header .navbar-collapse > .navbar-nav.me-auto {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+  }
+
+  #quarto-header .navbar-collapse {
+    grid-column: body-content-start / body-content-end;
+    min-width: 0;
+    margin-left: 0;
+  }
+
+  #quarto-header #navbarCollapse > .navbar-nav {
+    gap: 2rem;
+  }
+
+  #quarto-header .quarto-navbar-tools {
+    grid-column: body-end / page-end;
+    justify-self: end;
+  }
+
+  #quarto-header #navbarCollapse > .navbar-nav.navbar-nav-scroll {
+    overflow: visible !important;
+  }
+
+  body #quarto-sidebar.sidebar-navigation {
+    background: transparent !important;
+  }
+
+  #quarto-header > .navbar > .navbar-container,
+  #quarto-content {
+    display: grid !important;
+    grid-template-columns: var(--bambi-grid-columns) !important;
+    column-gap: var(--bambi-column-gap);
+  }
+
+  #quarto-header > .navbar > .navbar-container {
+    align-items: center;
+  }
+
+  #quarto-content > :is(#quarto-sidebar, #quarto-margin-sidebar) {
+    grid-row: 1 !important;
+    display: flex !important;
+    flex-direction: column;
+    min-height: 0;
+    position: sticky !important;
+    top: calc(var(--bambi-navbar-height) + 16px) !important;
+    max-height: calc(100dvh - var(--bambi-navbar-height) - 40px);
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-y: auto;
+  }
+
+  #quarto-content > #quarto-sidebar {
+    grid-column: page-start / body-start !important;
+    width: var(--bambi-sidebar-width) !important;
+  }
+
+  #quarto-content > #quarto-margin-sidebar {
+    grid-column: body-end / page-end !important;
+    width: var(--bambi-margin-width) !important;
+  }
+
+  #quarto-sidebar .gd-sidebar-float-body {
+    min-height: 0;
+    padding-inline-end: 12px;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: var(--bambi-muted) transparent;
+  }
+
+  #quarto-sidebar .gd-sidebar-float-body::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  #quarto-sidebar .gd-sidebar-float-body::-webkit-scrollbar-thumb {
+    background: var(--bambi-muted);
+    border-radius: 4px;
+  }
 }
 
-.doc-section dt {
-    background-color: rgba(233, 236, 239, 0.65);
-    display: block;
-}
+/* Mobile navbar and homepage metadata. */
+@media (max-width: 991.98px) {
+  :root {
+    --bambi-page-gutter: 16px;
+  }
 
-.doc-section dl dd {
-    margin-left: 3rem;
-    margin-top: 0.25rem;
-}
+  #quarto-header > .navbar > .navbar-container {
+    row-gap: 0;
+  }
 
-code .parameter-annotation a:any-link {
-  text-decoration: underline;
-  color: var(--bambi-green);
-}
+  #quarto-header .navbar-logo {
+    height: 48px;
+    width: 156px;
+  }
 
-code .parameter-annotation a:hover {
-  color: var(--bambi-green-darker);
-  text-decoration: underline;
-}
+  #quarto-header #navbarCollapse .quarto-navbar-tools {
+    justify-content: flex-start;
+    padding: 12px 0;
+  }
 
-.parameter-annotation code {
-  padding: 0;
+  .gd-homepage #quarto-document-content > .gd-homepage-sidebar {
+    grid-column: 1 / -1;
+    order: 2;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--bambi-border);
+  }
 }
