@@ -577,8 +577,10 @@ class HSGPTerm:
             coeff_dims = coeff_dims + response_dims
             contribution_dims = contribution_dims + response_dims
 
-            # Append a dimension to sqrt_psd: ('weights_dim', ) -> ('weights_dim', 1)
-            sqrt_psd = sqrt_psd[:, np.newaxis]
+            # Append a trailing dimension to sqrt_psd so it broadcasts over response dims:
+            # ('weights_dim', ) -> ('weights_dim', 1) or
+            # ('weights_dim', 'by_dim') -> ('weights_dim', 'by_dim', 1)
+            sqrt_psd = sqrt_psd[..., np.newaxis]
 
         if self.term.centered:
             coeffs = pm.Normal(f"{label}_weights", sigma=sqrt_psd, dims=coeff_dims)
