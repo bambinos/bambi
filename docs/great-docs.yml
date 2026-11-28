@@ -1,0 +1,104 @@
+module: bambi
+display_name: Bambi
+parser: numpy
+dynamic: true
+members_on_same_page: true
+repo: https://github.com/bambinos/bambi
+site_url: https://bambinos.github.io/bambi/
+source:
+  branch: main
+authors:
+  - name: Tomás Capretto
+    role: Maintainer
+    email: tomicapretto@gmail.com
+    github: tomicapretto
+  - name: Osvaldo Martin
+    role: Maintainer
+    email: aloctavodia@gmail.com
+    github: aloctavodia
+  - name: Gabriel Stechschulte
+    role: Maintainer
+    email: stechschulteg@gmail.com
+    github: gstechschulte
+  - name: Ravin Kumar
+    role: Maintainer
+    email: ravinsdrive@gmail.com
+    github: canyon289
+logo:
+  light: logos/RGB/Bambi_logo.png
+  dark: logos/One Color/Bambi_logo_white.png
+navbar_color:
+  light: "#ffffff"
+  dark: "#181818"
+accent_color:
+  light: "#196d8c"
+  dark: "#80bed7"
+repo_style: icon
+favicon: logos/favicon.png
+hero: false
+site:
+  theme: cosmo
+  toc: true
+  css:
+    - styles.css
+interlinks:
+  sources:
+    python:
+      url: https://docs.python.org/3/
+    arviz:
+      url: https://python.arviz.org/en/stable/
+      aliases:
+        - az
+    arviz_plots:
+      url: https://arviz-plots.readthedocs.io/en/latest/
+    arviz_stats:
+      url: https://arviz-stats.readthedocs.io/en/latest/
+    arviz_base:
+      url: https://arviz-base.readthedocs.io/en/latest/
+    pymc:
+      url: https://www.pymc.io/projects/docs/en/stable/
+      aliases:
+        - pm
+reference:
+  title: API Reference
+  sections:
+    - title: Model
+      desc: The basics
+      contents:
+        - Model
+        - Formula
+    - title: Setting up priors
+      contents:
+        - Prior
+    - title: Custom families
+      contents:
+        - Family
+        - Likelihood
+        - Link
+    - title: Plots
+      contents:
+        - interpret.plot_comparisons
+        - interpret.plot_predictions
+        - interpret.plot_slopes
+    - title: Interpretations
+      contents:
+        - interpret.comparisons
+        - interpret.predictions
+        - interpret.slopes
+    - title: Data
+      contents:
+        - clear_data_home
+        - load_data
+sections:
+  - title: Examples
+    dir: notebooks
+navbar_order:
+  - Quickstart
+  - API Reference
+  - Examples
+changelog:
+  enabled: false
+skill:
+  enabled: false
+pre_render:
+  - pre_render.py
