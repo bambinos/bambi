@@ -8,6 +8,7 @@ from bambi.defaults import get_default_prior
 from bambi.families import univariate, multivariate
 from bambi.priors import Prior
 from bambi.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, OffsetTerm, ResponseTerm
+from bambi.terms.utils import is_response_of_kind
 from bambi.utils import get_aliased_name, is_hsgp_term, as_dataset
 
 
@@ -572,8 +573,12 @@ class ResponseComponent:
         if isinstance(self.spec.family, univariate.Bernoulli):
             if response.kind == "categoric" and response.levels is None and reference is None:
                 raise ValueError("Categoric response must be binary for 'bernoulli' family.")
-            if response.kind == "numeric" and not all(np.isin(response.design_matrix, (0, 1))):
-                raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
+            if response.kind == "numeric":
+                values = response.design_matrix
+                if is_response_of_kind(response.term.term, "weighted"):
+                    values = values[:, 0]
+                if not np.isin(values, (0, 1)).all():
+                    raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
 
         self.term = ResponseTerm(response, self.spec.family)
 

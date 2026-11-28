@@ -1513,3 +1513,38 @@ def test_weighted(mock_pymc_sample):
     idata = model.fit(chains=2)
     model.predict(idata, kind="response")
     model.predict(idata, kind="response", data=data)
+
+
+@pytest.mark.parametrize("p", [0.5, 0.8])
+@pytest.mark.parametrize("weights", [[1, 2, 3, 4], [0.0, 0.5, 1.5, 2.0]])
+def test_weighted_bernoulli(weights, p):
+    data = pd.DataFrame({"y": [0, 1, 0, 1], "w": weights})
+    model = bmb.Model("weighted(y, w) ~ 1", data, family="bernoulli")
+    model.build()
+    observed = model.backend.model.observed_RVs[0]
+    actual = model.backend.model.compile_logp(vars=[observed], sum=False)(
+        {"Intercept": np.array(np.log(p / (1 - p)))}
+    )[0]
+    y = data["y"].to_numpy()
+    expected = np.asarray(weights) * (y * np.log(p) + (1 - y) * np.log1p(-p))
+    np.testing.assert_allclose(actual, expected)
+
+
+@pytest.mark.parametrize("bad_value", [-1, 0.5, 2])
+def test_weighted_bernoulli_invalid_response(bad_value):
+    data = pd.DataFrame({"y": [0, 1, bad_value, 1], "w": [1, 2, 3, 4]})
+    with pytest.raises(ValueError, match="Numeric response must be all 0 and 1"):
+        bmb.Model("weighted(y, w) ~ 1", data, family="bernoulli")
+
+
+def test_bernoulli_categorical_response_logp():
+    data = pd.DataFrame({"y": pd.Categorical(["no", "yes", "no", "yes"])})
+    model = bmb.Model("y ~ 1", data, family="bernoulli")
+    model.build()
+    observed = model.backend.model.observed_RVs[0]
+    p = 0.8
+    actual = model.backend.model.compile_logp(vars=[observed], sum=False)(
+        {"Intercept": np.array(np.log(p / (1 - p)))}
+    )[0]
+    y = (data["y"] == model.response_component.term.success).to_numpy()
+    np.testing.assert_allclose(actual, y * np.log(p) + (1 - y) * np.log1p(-p))
